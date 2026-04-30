@@ -589,9 +589,9 @@ export default function MusicCreator() {
               {/* Mode cards */}
               <div className="flex gap-0 p-3">
                 {([
-                  { id: "generate" as StudioMode, icon: "✦", badge: "CREATE", label: "Generate", sub: "Create from scratch", color: "#c9a84c", glow: "rgba(201,168,76,0.22)", badgeColor: "rgba(201,168,76,0.15)", badgeText: "rgba(201,168,76,0.9)" },
-                  { id: "cover"    as StudioMode, icon: "⟳", badge: "UPLOAD", label: "Cover & Transform", sub: "Upload your track, change the style", color: "#4da6ff", glow: "rgba(77,166,255,0.18)", badgeColor: "rgba(77,166,255,0.12)", badgeText: "rgba(77,166,255,0.9)" },
-                  { id: "extend"   as StudioMode, icon: "⇥", badge: "UPLOAD", label: "Extend & Continue", sub: "Upload your track, AI continues it", color: "#30d158", glow: "rgba(48,209,88,0.18)", badgeColor: "rgba(48,209,88,0.1)", badgeText: "rgba(48,209,88,0.9)" },
+                  { id: "generate" as StudioMode, icon: "✦", badge: "CREATE", label: "Generate", sub: "Create from scratch", color: "#f0c040", glow: "rgba(240,192,64,0.55)", badgeColor: "rgba(240,192,64,0.22)", badgeText: "#f0c040" },
+                  { id: "cover"    as StudioMode, icon: "⟳", badge: "UPLOAD", label: "Cover & Transform", sub: "Upload your track, change the style", color: "#4da6ff", glow: "rgba(77,166,255,0.50)", badgeColor: "rgba(77,166,255,0.22)", badgeText: "#4da6ff" },
+                  { id: "extend"   as StudioMode, icon: "⇥", badge: "UPLOAD", label: "Extend & Continue", sub: "Upload your track, AI continues it", color: "#30d158", glow: "rgba(48,209,88,0.50)", badgeColor: "rgba(48,209,88,0.22)", badgeText: "#30d158" },
                 ]).map((m, i, arr) => {
                   const active = studioMode === m.id;
                   return (
@@ -601,13 +601,16 @@ export default function MusicCreator() {
                       className="flex-1 flex flex-col gap-2.5 p-3.5 transition-all duration-200 relative text-left"
                       style={{
                         background: active
-                          ? `linear-gradient(160deg, ${m.glow}, rgba(0,0,0,0.35))`
-                          : "rgba(255,255,255,0.015)",
-                        border: active ? `1px solid ${m.color}55` : "1px solid rgba(255,255,255,0.05)",
-                        borderRadius: i === 0 ? "7px 0 0 7px" : i === arr.length - 1 ? "0 7px 7px 0" : "0",
+                          ? `linear-gradient(160deg, ${m.glow}, rgba(0,0,0,0.5))`
+                          : "rgba(255,255,255,0.025)",
+                        border: active ? `1.5px solid ${m.color}cc` : "1px solid rgba(255,255,255,0.07)",
+                        borderRadius: i === 0 ? "8px 0 0 8px" : i === arr.length - 1 ? "0 8px 8px 0" : "0",
                         marginLeft: i > 0 ? "-1px" : 0,
                         zIndex: active ? 2 : 1,
-                        boxShadow: active ? `0 0 24px ${m.glow}, inset 0 1px 0 rgba(255,255,255,0.07)` : "none",
+                        boxShadow: active
+                          ? `0 0 40px ${m.glow}, 0 0 80px ${m.glow.replace(/[\d.]+\)$/, "0.25)")}, inset 0 1px 0 rgba(255,255,255,0.12), inset 0 0 20px ${m.glow.replace(/[\d.]+\)$/, "0.15)")}`
+                          : "none",
+                        cursor: "pointer",
                       }}
                     >
                       {/* Icon badge row */}
@@ -615,23 +618,28 @@ export default function MusicCreator() {
                         <div
                           className="w-10 h-10 rounded-[7px] flex items-center justify-center flex-shrink-0"
                           style={{
-                            background: active ? `radial-gradient(circle at 40% 40%, ${m.glow}, rgba(0,0,0,0.7))` : "rgba(255,255,255,0.04)",
-                            border: active ? `1px solid ${m.color}44` : "1px solid rgba(255,255,255,0.06)",
-                            boxShadow: active ? `0 0 14px ${m.glow}` : "none",
+                            background: active ? `radial-gradient(circle at 35% 30%, ${m.color}55, rgba(0,0,0,0.85))` : "rgba(255,255,255,0.04)",
+                            border: active ? `1.5px solid ${m.color}99` : "1px solid rgba(255,255,255,0.07)",
+                            boxShadow: active ? `0 0 24px ${m.glow}, 0 0 48px ${m.glow.replace(/[\d.]+\)$/, "0.3)")}` : "none",
                           }}
                         >
-                          <span className="text-[20px] leading-none" style={{ color: active ? m.color : "rgba(255,255,255,0.18)", filter: active ? `drop-shadow(0 0 8px ${m.color})` : "none" }}>{m.icon}</span>
+                          <span className="text-[22px] leading-none" style={{ color: active ? "#fff" : "rgba(255,255,255,0.18)", filter: active ? `drop-shadow(0 0 12px ${m.color}) drop-shadow(0 0 24px ${m.color})` : "none" }}>{m.icon}</span>
                         </div>
                         <span className="text-[7px] font-black tracking-[1.5px] px-1.5 py-0.5 rounded-[3px] mt-0.5" style={{ background: active ? m.badgeColor : "rgba(255,255,255,0.04)", color: active ? m.badgeText : "rgba(255,255,255,0.15)", border: active ? `1px solid ${m.color}30` : "1px solid rgba(255,255,255,0.06)" }}>{m.badge}</span>
                       </div>
                       {/* Label */}
                       <div>
-                        <div className="text-[12px] font-bold leading-tight" style={{ color: active ? "#fff" : "rgba(255,255,255,0.3)", textShadow: active ? `0 0 12px ${m.color}60` : "none" }}>{m.label}</div>
-                        <div className="text-[9px] leading-[1.4] mt-0.5" style={{ color: active ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.14)" }}>{m.sub}</div>
+                        <div className="text-[12px] font-bold leading-tight" style={{ color: active ? "#fff" : "rgba(255,255,255,0.3)", textShadow: active ? `0 0 16px ${m.color}, 0 0 32px ${m.color}80` : "none" }}>{m.label}</div>
+                        <div className="text-[9px] leading-[1.4] mt-0.5" style={{ color: active ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.14)" }}>{m.sub}</div>
                       </div>
                       {/* Active bottom bar */}
+                      {/* Top glow bar */}
                       {active && (
-                        <div className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full" style={{ background: `linear-gradient(90deg, transparent, ${m.color}, transparent)`, boxShadow: `0 0 8px ${m.color}` }} />
+                        <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-[8px]" style={{ background: `linear-gradient(90deg, transparent, ${m.color}, transparent)`, boxShadow: `0 0 16px ${m.color}, 0 0 32px ${m.color}80` }} />
+                      )}
+                      {/* Bottom glow bar */}
+                      {active && (
+                        <div className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full" style={{ background: `linear-gradient(90deg, transparent, ${m.color}, transparent)`, boxShadow: `0 0 12px ${m.color}` }} />
                       )}
                     </button>
                   );
@@ -710,9 +718,9 @@ export default function MusicCreator() {
               </div>
               <div className="flex gap-0 p-3">
                 {([
-                  { value: "score" as GenerationMode, icon: "FX",  label: "Sound FX",       desc: "Cinematic effects & ambience",                color: "#e8c060", glow: "rgba(232,192,96,0.2)",  tag: "EFFECTS"  },
-                  { value: "song"  as GenerationMode, icon: "PRO", label: "Precision Audio", desc: "Full production, any length",                 color: "#b88aff", glow: "rgba(184,138,255,0.2)", tag: "STUDIO"   },
-                  { value: "suno"  as GenerationMode, icon: "AI",  label: "WizAudio™",       desc: "2 creative variations with lyrics",           color: "#c9a84c", glow: "rgba(201,168,76,0.22)", tag: "POPULAR"  },
+                  { value: "score" as GenerationMode, icon: "FX",  label: "Sound FX",       desc: "Cinematic effects & ambience",                color: "#f0c040", glow: "rgba(240,192,64,0.55)",  tag: "EFFECTS"  },
+                  { value: "song"  as GenerationMode, icon: "PRO", label: "Precision Audio", desc: "Full production, any length",                 color: "#c084fc", glow: "rgba(192,132,252,0.50)", tag: "STUDIO"   },
+                  { value: "suno"  as GenerationMode, icon: "AI",  label: "WizAudio™",       desc: "2 creative variations with lyrics",           color: "#f0c040", glow: "rgba(240,192,64,0.55)", tag: "POPULAR"  },
                 ]).map((e, i, arr) => {
                   const active = generationMode === e.value;
                   return (
@@ -721,12 +729,14 @@ export default function MusicCreator() {
                       onClick={() => setGenerationMode(e.value)}
                       className="flex-1 flex flex-col items-center gap-2 py-4 px-2.5 transition-all duration-200 relative"
                       style={{
-                        background: active ? `linear-gradient(180deg, ${e.glow}, rgba(0,0,0,0.3))` : "rgba(255,255,255,0.015)",
-                        border: active ? `1px solid ${e.color}55` : "1px solid rgba(255,255,255,0.05)",
-                        borderRadius: i === 0 ? "7px 0 0 7px" : i === arr.length - 1 ? "0 7px 7px 0" : "0",
+                        background: active ? `linear-gradient(180deg, ${e.glow}, rgba(0,0,0,0.5))` : "rgba(255,255,255,0.025)",
+                        border: active ? `1.5px solid ${e.color}cc` : "1px solid rgba(255,255,255,0.07)",
+                        borderRadius: i === 0 ? "8px 0 0 8px" : i === arr.length - 1 ? "0 8px 8px 0" : "0",
                         marginLeft: i > 0 ? "-1px" : 0,
                         zIndex: active ? 2 : 1,
-                        boxShadow: active ? `0 0 20px ${e.glow}, inset 0 1px 0 rgba(255,255,255,0.06)` : "none",
+                        boxShadow: active
+                          ? `0 0 40px ${e.glow}, 0 0 80px ${e.glow.replace(/[\d.]+\)$/, "0.25)")}, inset 0 1px 0 rgba(255,255,255,0.12), inset 0 0 20px ${e.glow.replace(/[\d.]+\)$/, "0.15)")}`
+                          : "none",
                         cursor: "pointer",
                       }}
                     >
@@ -734,23 +744,28 @@ export default function MusicCreator() {
                       <div
                         className="w-11 h-11 rounded-full flex items-center justify-center"
                         style={{
-                          background: active ? `radial-gradient(circle at 40% 35%, ${e.glow}, rgba(0,0,0,0.8))` : "rgba(255,255,255,0.04)",
-                          border: active ? `1px solid ${e.color}55` : "1px solid rgba(255,255,255,0.07)",
-                          boxShadow: active ? `0 0 16px ${e.glow}, inset 0 1px 0 rgba(255,255,255,0.08)` : "none",
+                          background: active ? `radial-gradient(circle at 35% 30%, ${e.color}55, rgba(0,0,0,0.85))` : "rgba(255,255,255,0.04)",
+                          border: active ? `1.5px solid ${e.color}99` : "1px solid rgba(255,255,255,0.07)",
+                          boxShadow: active ? `0 0 28px ${e.glow}, 0 0 56px ${e.glow.replace(/[\d.]+\)$/, "0.3)")}` : "none",
                         }}
                       >
-                        <span className="text-[13px] font-black tracking-tight" style={{ color: active ? e.color : "rgba(255,255,255,0.25)", textShadow: active ? `0 0 10px ${e.color}` : "none" }}>{e.icon}</span>
+                        <span className="text-[13px] font-black tracking-tight" style={{ color: active ? "#fff" : "rgba(255,255,255,0.25)", textShadow: active ? `0 0 14px ${e.color}, 0 0 28px ${e.color}` : "none" }}>{e.icon}</span>
                       </div>
                       {/* Label */}
                       <div className="text-center">
-                        <div className="text-[11px] font-bold" style={{ color: active ? "#fff" : "rgba(255,255,255,0.3)", textShadow: active ? `0 0 10px ${e.color}50` : "none" }}>{e.label}</div>
-                        <div className="text-[8px] leading-[1.35] mt-0.5" style={{ color: active ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.14)" }}>{e.desc}</div>
+                        <div className="text-[11px] font-bold" style={{ color: active ? "#fff" : "rgba(255,255,255,0.3)", textShadow: active ? `0 0 16px ${e.color}, 0 0 32px ${e.color}80` : "none" }}>{e.label}</div>
+                        <div className="text-[8px] leading-[1.35] mt-0.5" style={{ color: active ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.14)" }}>{e.desc}</div>
                       </div>
                       {/* Tag badge */}
                       <span className="text-[7px] font-black tracking-[1.5px] px-1.5 py-0.5 rounded-[3px]" style={{ background: active ? `${e.color}18` : "rgba(255,255,255,0.04)", color: active ? e.color : "rgba(255,255,255,0.2)", border: active ? `1px solid ${e.color}30` : "1px solid rgba(255,255,255,0.05)" }}>{e.tag}</span>
                       {/* Active bottom bar */}
+                      {/* Top glow bar */}
                       {active && (
-                        <div className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full" style={{ background: `linear-gradient(90deg, transparent, ${e.color}, transparent)`, boxShadow: `0 0 8px ${e.color}` }} />
+                        <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-[8px]" style={{ background: `linear-gradient(90deg, transparent, ${e.color}, transparent)`, boxShadow: `0 0 16px ${e.color}, 0 0 32px ${e.color}80` }} />
+                      )}
+                      {/* Bottom glow bar */}
+                      {active && (
+                        <div className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full" style={{ background: `linear-gradient(90deg, transparent, ${e.color}, transparent)`, boxShadow: `0 0 12px ${e.color}` }} />
                       )}
                     </button>
                   );

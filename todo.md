@@ -6458,3 +6458,12 @@
 - [x] Frontend: cover controls (style strength + melody retain sliders)
 - [x] Frontend: premium dark studio aesthetic with clear CTAs and colour-coded buttons
 - [x] TypeScript check, tests (8/8 passing), checkpoint
+
+## Transcription / Lyrics Bug Fix
+- [ ] Diagnose why lyrics don't appear after audio upload on WizAudio (MusicCreator)
+- [ ] Check transcription tRPC procedure and server-side handler
+- [ ] Check MusicCreator.tsx upload handler — is transcription triggered after upload?
+- [ ] Check WizVideo (MusicVideoAutopilot) transcription flow for same issue
+- [ ] Check WizShorts for any transcription usage
+- [ ] Fix transcription trigger and display in WizAudio
+- [ ] Fix any other affected product apps
