@@ -151,7 +151,7 @@ const WIZ_TECHNOLOGY_CORE = [
 ];
 const WIZ_TECHNOLOGY_ADVANCED = [
  { name: "WizSync", tagline: "Sync & Alignment", desc: "Lip-sync, timing and performer alignment tools.", href: "/technology/wizsync", logo: WIZSYNC_LOGO },
- { name: "WizScore", tagline: "Quality Scoring", desc: "Quality checks and improvement scoring before final output.", href: "/technology/wizscore", logo: WIZSOUND_LOGO },
+ { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Analyses your video and composes an original AI soundtrack — perfectly synchronised to your footage.", href: "/technology/wizscore", logo: WIZSOUND_LOGO },
  // Note: WizScore is also a full product — see PRODUCTS_CREATE above
  { name: "WizPilot", tagline: "Guided Automation", desc: "Guided automation from idea to storyboard to final video build.", href: "/technology/wizpilot", logo: WIZGENESIS_LOGO },
 ];
@@ -593,7 +593,7 @@ function Nav() {
  onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
  >
  <img
- src="/manus-storage/product-wizsound-hero_8219d2d2.jpg"
+ src="/manus-storage/hero-wizscore_d4786473.jpg"
  alt="WizScore"
  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
  loading="lazy"
@@ -601,7 +601,7 @@ function Nav() {
  <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,8,8,0.92) 0%, rgba(0,8,8,0.32) 55%, transparent 100%)" }} />
  <div className="relative z-10 p-3.5">
  <div className="flex items-center gap-2 mb-1">
- <img src={WIZSOUND_LOGO} alt="WizScore" className="w-5 h-5 object-contain" loading="lazy" />
+ <WizScoreEmblem size={20} />
  <p className="text-[12px] font-bold text-white/90 group-hover:text-[--color-gold-light] transition-colors">WizScore<sup className="text-[7px] ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
  </div>
  <p className="text-[10px] text-white/50 leading-tight">AI Video-to-Music Engine</p>
@@ -847,8 +847,8 @@ function Nav() {
  {[
  { name: "WizCreate", tagline: "AI Storyboard Engine", desc: "Turn any idea into a full cinematic storyboard", href: "/products/wizcreate", logo: WIZCREATE_LOGO, img: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg" },
  { name: "WizPilot", tagline: "AI Workflow Automation", desc: "One prompt. Full pipeline. Zero manual steps.", href: "/products/wizpilot", logo: WIZGENESIS_LOGO, img: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg" },
- { name: "WizSync", tagline: "Audio-Visual Sync Engine", desc: "Every beat locked. Every cut frame-perfect.", href: "/products/wizsync-info", logo: WIZSYNC_LOGO, img: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg" },
- { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZSOUND_LOGO, img: "/manus-storage/product-wizsound-hero_8219d2d2.jpg" },
+{ name: "WizSync", tagline: "Audio-Visual Sync Engine", desc: "Every beat locked. Every cut frame-perfect.", href: "/products/wizsync-info", logo: WIZSYNC_LOGO, img: "/manus-storage/product-wizsound-hero_8219d2d2.jpg" },
+ { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZSOUND_LOGO, img: "/manus-storage/hero-wizscore_d4786473.jpg" },
  ].map((tool) => (
  <a
  key={tool.name}
@@ -1465,7 +1465,7 @@ function WizEngines() {
  name: "WizSound",
  tm: "™",
  tagline: "Premium Audio Engine",
- desc: "The premium audio engine that upgrades every track from Normal to Cinematic quality.",
+ desc: "The premium audio engine that upgrades every track from Original to Cinematic quality.",
  benefit: "Your audio sounds professionally mastered, not AI-generated.",
  logoUrl: WIZSOUND_LOGO,
  // Warm gold — audio warmth
@@ -1749,10 +1749,10 @@ function HowItWorks() {
  const sectionRef = useRef<HTMLElement>(null);
 
  const steps = [
- { num: "01", title: "Describe your idea", desc: "Tell WIZ AI what you want to create — a music video, animation, cinematic short, or anything else.", img: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg", logo: WIZAI_LOGO },
+ { num: "01", title: "Describe your idea", desc: "Tell WIZ AI what you want to create — a music video, animation, cinematic short, or anything else.", img: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg", logo: WIZAI_LOGO },
  { num: "02", title: "AI builds your storyboard", desc: "WizCreate™, our AI storyboard engine, generates a full visual storyboard with scenes, characters, and direction — in seconds.", img: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg", logo: WIZCREATE_LOGO },
  { num: "03", title: "Preview every scene", desc: "Review your full video before committing to build. Edit, swap, or refine any scene you want.", img: "/manus-storage/product-wizlumina-hero_ed20683e.jpg", logo: WIZLUMINA_LOGO },
- { num: "04", title: "Build and export", desc: "Export in HD or 4K with WizSound™ audio mastering and WizLumina™ visual enhancement built in. Download and share.", img: "/manus-storage/product-wizboost-hero_9c11e1cc.jpg", logo: WIZSOUND_LOGO },
+ { num: "04", title: "Build and export", desc: "Export in HD or 4K with WizSound™ audio mastering and WizLumina™ visual enhancement built in. Download and share.", img: "/manus-storage/product-wizboost-hero_9c11e1cc.jpg", logo: WIZBOOST_LOGO },
  ];
 
  // Auto-advance steps every 2.5s when section is in view
@@ -2004,7 +2004,7 @@ function WhyWizAI() {
  number: "06",
  title: "Every Creative Format",
  subtitle: "Music video. Animation. Score. Image. Shorts.",
- desc: "Nine specialised AI studios cover every format a serious creator needs — from full music videos and character animation to original scores, cinematic images, and short-form content. One ecosystem. Every format.",
+ desc: "Ten specialised AI studios cover every format a serious creator needs — from full music videos and character animation to original scores, cinematic images, and short-form content. One ecosystem. Every format.",
  logo: WIZAI_LOGO,
  img: "/manus-storage/why-wiz-creators_3ebbdae1.png",
  },
@@ -2053,9 +2053,9 @@ function WhyWizAI() {
 // WizSound Demo 
 const AUDIO_TIERS = [
  {
- id: "normal",
- label: "Normal",
- tagline: "Standard Audio",
+ id: "original",
+ label: "Original",
+ tagline: "Raw AI Output",
  desc: "Raw AI-generated audio. Flat, narrow, and unprocessed.",
  features: ["Mono mix", "No spatial depth", "Basic EQ", "Thin low-end"],
  src: "/manus-storage/wizsound-tier-normal_9247201e.mp3",
@@ -3552,7 +3552,7 @@ function ContinueProjectBanner() {
 
 // Page 
 export default function Home() {
- useSEO({ title: "WIZ AI — The AI Creative Studio", path: "/", description: "WIZ AI is the world’s first AI creative studio. Music videos, animation, original scores, and cinematic visuals — produced to a professional standard from a single brief. Nine specialised AI studios. One unified production environment." });
+ useSEO({ title: "WIZ AI — The AI Creative Studio", path: "/", description: "WIZ AI is the world's first AI creative studio. Music videos, animation, original scores, and cinematic visuals — produced to a professional standard from a single brief. Ten specialised AI studios. One unified production environment." });
  useReveal();
  useEffect(() => { mp.homepageViewed(); }, []);
  return (
