@@ -2212,6 +2212,7 @@ function WizSoundDemo() {
  alt=""
  aria-hidden="true"
 className="w-full h-full object-cover object-center"
+                 loading="lazy"
                  style={{ opacity: 0.55 }}
  />
  {/* Dark gradient overlay — heavier at top/bottom, lighter in centre */}
