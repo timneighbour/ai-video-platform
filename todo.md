@@ -6471,3 +6471,8 @@
 - [x] SeeTheDifference: Original audio normalised from -42 dB to -16 dB (ffmpeg loudnorm)
 - [x] SeeTheDifference: CSS videoFilter per tier (Original: desaturate+lift, Enhanced: none, Cinematic: slight desaturate/contrast reduce)
 - [x] index.css: added enter-btn-shimmer, enter-btn-ring-breathe, enter-btn-ring-pulse, enter-btn-sparkle, enter-btn-sweep, unmute-pulse, sound-bar-1 through sound-bar-5 keyframes
+
+## Demo Video Fixes (May 2026)
+- [ ] Remove old top caption from full-screen demo modal (CaptionOverlay was previously top-positioned, now bottom — old top one still visible)
+- [ ] Fix audio not playing in the full-screen demo modal
+- [ ] Replace inline homepage demo video (HeroDemoSection) with the same video used in the full-screen modal

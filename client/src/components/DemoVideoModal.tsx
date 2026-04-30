@@ -579,31 +579,39 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     const aud = audioRef.current;
     if (!vid) return;
     buildAudioGraph();
-    // Resume AudioContext synchronously (does not need await to unblock play)
-    if (audioCtxRef.current?.state === "suspended") {
-      audioCtxRef.current.resume();
-    }
     if (playing) {
       vid.pause();
       aud?.pause();
       mp.demoVideoPaused(vid.currentTime);
       setPlaying(false);
     } else {
-      if (aud) {
-        aud.currentTime = vid.currentTime;
-        aud.muted = false;
-        aud.volume = isMuted ? 0 : 1;
-        applyEQ(wizsoundMode);
-        // Call play() synchronously in the same gesture tick — no Promise chains
-        aud.play().catch((e) => console.warn('[DemoModal] audio blocked:', e.message));
-      }
-      // Call video play() synchronously in the same gesture tick
-      vid.play().then(() => {
-        setPlaying(true);
-        mp.demoVideoPlayed();
-      }).catch((e) => {
-        console.warn('[DemoModal] video blocked:', e.message);
-        setPlaying(false);
+      // Resume AudioContext FIRST (Chrome requires this before MediaElementAudioSourceNode outputs sound)
+      // We call resume() and play() in the same gesture tick — the Promise resolves quickly
+      const ctx = audioCtxRef.current;
+      const resumePromise = ctx && ctx.state === "suspended" ? ctx.resume() : Promise.resolve();
+      resumePromise.then(() => {
+        if (aud) {
+          aud.currentTime = vid.currentTime;
+          aud.muted = false;
+          aud.volume = isMuted ? 0 : 1;
+          applyEQ(wizsoundMode);
+          aud.play().catch((e) => console.warn('[DemoModal] audio blocked:', e.message));
+        }
+        vid.play().then(() => {
+          setPlaying(true);
+          mp.demoVideoPlayed();
+        }).catch((e) => {
+          console.warn('[DemoModal] video blocked:', e.message);
+          setPlaying(false);
+        });
+      }).catch(() => {
+        // AudioContext resume failed — fall back to direct play (audio may be silent but video plays)
+        if (aud) {
+          aud.muted = false;
+          aud.volume = isMuted ? 0 : 1;
+          aud.play().catch(() => {});
+        }
+        vid.play().then(() => { setPlaying(true); mp.demoVideoPlayed(); }).catch(() => { setPlaying(false); });
       });
     }
   }, [playing, isMuted, wizsoundMode, buildAudioGraph, applyEQ]);
@@ -689,7 +697,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             transition: "box-shadow 0.4s ease",
           }}
         >
-          {/* -- Premium caption overlay (top-centre, above toggle pill) -- */}
+          {/* -- Premium caption overlay (bottom, above controls bar) -- */}
           <CaptionOverlay caption={currentCaption} playing={playing} />
 
           {/* -- WizLumina upsell overlay -- */}
