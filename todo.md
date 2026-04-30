@@ -6404,3 +6404,24 @@
 - [x] Add trust footer strip to Dashboard (no card, own content, cancel anytime)
 - [x] Fix Dashboard empty state: add "You have 30 free credits" message and credit explainer
 - [x] Ensure all "Start Creating" CTAs on homepage pass returnPath to getLoginUrl when user is logged out
+
+## Instant First-Win Experience (April 2026)
+
+- [ ] Build QuickStartScreen component (step 2 in Onboarding) with pre-filled prompts per studio
+- [ ] Add ?demo=1&prompt=... URL param support to MusicVideoAutopilot (themePrompt pre-fill)
+- [ ] Add ?demo=1&prompt=... URL param support to TextToVideoCreator (prompt pre-fill)
+- [ ] Add ?demo=1&prompt=... URL param support to WizShorts (topic pre-fill)
+- [ ] Add ?demo=1&prompt=... URL param support to KidsVideo (brief pre-fill)
+- [ ] Wire Onboarding studio cards to show QuickStartScreen instead of navigating directly
+- [ ] QA full new-user journey: Onboarding → QuickStart → Studio with pre-filled prompt
+
+## Instant First-Win Experience
+- [x] Build QuickStartScreen component with per-studio pre-filled demo prompts
+- [x] Add ?demo=1&prompt=... URL param support to MusicVideoAutopilot
+- [x] Add ?demo=1&prompt=... URL param support to TextToVideoCreator
+- [x] Add ?demo=1&prompt=... URL param support to WizShorts
+- [x] Add ?demo=1&prompt=... URL param support to KidsVideo
+- [x] Wire QuickStartScreen into Onboarding — intercept card clicks to show quick-start step
+- [x] Add back button to QuickStartScreen to return to studio chooser
+- [x] Add trust strip to QuickStartScreen (no card, own content, cancel anytime)
+- [x] Add editable prompt textarea so users can customise before launching

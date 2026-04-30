@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowRight, ArrowLeft, Sparkles, Play, Film, Music, Wand2, Zap, Image } from 'lucide-react';
 import { mp } from '@/lib/mixpanel';
 import { analytics } from '@/lib/analytics';
+import { QuickStartScreen, STUDIO_DEMOS, type StudioOption } from '@/components/QuickStartScreen';
 
 const CDN = '/manus-storage';
 
@@ -118,6 +119,23 @@ const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
 const Onboarding: React.FC = () => {
   useEffect(() => { mp.onboardingStarted(); }, []);
   const [hovered, setHovered] = useState<number | null>(null);
+  const [selectedStudio, setSelectedStudio] = useState<StudioOption | null>(null);
+
+  const handleStudioSelect = (href: string, title: string) => {
+    mp.onboardingCompleted(title);
+    mp.productCardClicked(title);
+    analytics.generateVideoClicked("onboarding", { tool: title });
+    const demo = STUDIO_DEMOS[href];
+    if (demo) {
+      setSelectedStudio(demo);
+    } else {
+      window.location.href = href;
+    }
+  };
+
+  if (selectedStudio) {
+    return <QuickStartScreen studio={selectedStudio} onBack={() => setSelectedStudio(null)} />;
+  }
 
   return (
     <div className="min-h-screen bg-[#030303] overflow-hidden relative">
@@ -216,7 +234,7 @@ const Onboarding: React.FC = () => {
             {/* ── Featured card: WizVideo ─────────────────────────────── */}
             <a
               href={options[0].href}
-              onClick={() => { mp.onboardingCompleted(options[0].title); mp.productCardClicked(options[0].title); analytics.generateVideoClicked("onboarding", { tool: options[0].title }); }}
+              onClick={(e) => { e.preventDefault(); handleStudioSelect(options[0].href, options[0].title); }}
               onMouseEnter={() => setHovered(0)}
               onMouseLeave={() => setHovered(null)}
               className="lg:col-span-2 group relative rounded-3xl overflow-hidden cursor-pointer block"
@@ -293,7 +311,7 @@ const Onboarding: React.FC = () => {
                   <a
                     key={option.href}
                     href={option.href}
-                    onClick={() => { mp.onboardingCompleted(option.title); mp.productCardClicked(option.title); analytics.generateVideoClicked("onboarding", { tool: option.title }); }}
+                    onClick={(e) => { e.preventDefault(); handleStudioSelect(option.href, option.title); }}
                     onMouseEnter={() => setHovered(realIdx)}
                     onMouseLeave={() => setHovered(null)}
                     className="group relative rounded-2xl overflow-hidden cursor-pointer block flex-1"
@@ -350,7 +368,7 @@ const Onboarding: React.FC = () => {
                 <a
                   key={option.href}
                   href={option.href}
-                  onClick={() => { mp.onboardingCompleted(option.title); mp.productCardClicked(option.title); analytics.generateVideoClicked("onboarding", { tool: option.title }); }}
+                  onClick={(e) => { e.preventDefault(); handleStudioSelect(option.href, option.title); }}
                   onMouseEnter={() => setHovered(realIdx)}
                   onMouseLeave={() => setHovered(null)}
                   className="group relative rounded-2xl overflow-hidden cursor-pointer block"

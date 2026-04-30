@@ -120,6 +120,17 @@ function EQSpectrum({ tier }: { tier: "original" | "enhanced" | "cinematic" }) {
 export default function KidsVideo() {
   // Studio entry tracking — fires once on mount (page is auth-gated upstream)
   useEffect(() => { mp.studioEntered("WizAnimate"); }, []);
+
+  // Quick-start pre-fill: ?demo=1&prompt=...
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("demo") === "1" && params.get("prompt")) {
+      setBrief(params.get("prompt") as string);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [stage, setStage]             = useState<Stage>("character");
   const [animStyle, setAnimStyle]     = useState("ghibli");

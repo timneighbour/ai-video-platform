@@ -140,6 +140,16 @@ export default function WizShorts() {
     return () => { if (pollIntervalRef.current) clearInterval(pollIntervalRef.current); };
   }, []);
 
+  // Quick-start pre-fill: ?demo=1&prompt=...
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("demo") === "1" && params.get("prompt")) {
+      setTopic(params.get("prompt") as string);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // On mount: check localStorage for an in-progress job and resume
   useEffect(() => {
     if (authLoading) return;

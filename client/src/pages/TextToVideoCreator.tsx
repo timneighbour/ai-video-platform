@@ -141,6 +141,16 @@ export default function TextToVideoCreator() {
   const { user, isAuthenticated } = useAuth();
   // Studio entry tracking — fires once when an authenticated user lands on this page
   useEffect(() => { if (isAuthenticated) { mp.studioEntered("WizVideo"); } }, [isAuthenticated]);
+
+  // Quick-start pre-fill: ?demo=1&prompt=...
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("demo") === "1" && params.get("prompt")) {
+      setPrompt(params.get("prompt") as string);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const { balance: creditBalance } = useCreditGuard();
 
 

@@ -174,10 +174,13 @@ export default function MusicVideoAutopilot() {
   const [jobId, setJobId] = useLocalStorage<number | null>("musicVideo_jobId", null);
 
   // Handle URL params: ?job_id=X&render_started=true (redirected from RenderSuccess after Stripe payment)
+  // Also handles ?demo=1&prompt=... (quick-start pre-fill from onboarding)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlJobId = params.get("job_id");
     const renderStarted = params.get("render_started") === "true";
+    const demoPrompt = params.get("prompt");
+    const isDemo = params.get("demo") === "1";
     if (urlJobId) {
       const parsedJobId = parseInt(urlJobId, 10);
       if (!isNaN(parsedJobId)) {
@@ -186,9 +189,12 @@ export default function MusicVideoAutopilot() {
           setStep("render");
           toast.success("Payment confirmed!", { description: "Your render has started. Watch the progress below." });
         }
-        // Clean URL without page reload
         window.history.replaceState({}, "", window.location.pathname);
       }
+    } else if (isDemo && demoPrompt) {
+      // Pre-fill theme prompt from quick-start onboarding screen
+      setThemePrompt(demoPrompt);
+      window.history.replaceState({}, "", window.location.pathname);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
