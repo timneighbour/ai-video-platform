@@ -1844,49 +1844,52 @@ export default function MusicVideoAutopilot() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             <div className="lg:col-span-2 space-y-6">
               {/* ── Artist Type Selection ── */}
-              <Card className="studio-card border-0">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base text-white flex items-center gap-2">
-                    <Users className="w-4 h-4 text-[--color-gold]" />
-                    Who's in your video?
-                  </CardTitle>
-                  <p className="text-xs text-white/70 mt-1">Choose your artist type to optimise character generation and lip sync</p>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {([
-                      { value: "solo_artist" as const, label: "Solo Artist", desc: "One main performer" },
-                      { value: "band" as const, label: "Band", desc: "Multiple performers" },
-                      { value: "animated_characters" as const, label: "Animated Group", desc: "Stylised 3D / anime" },
-                      { value: "solo_animated" as const, label: "Solo Animated", desc: "Single animated character" },
-                    ] as const).map(({ value, label, desc }) => (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => {
-                          setArtistType(value);
-                          if (jobId) {
-                            updateArtistTypeMutation.mutate({ jobId, artistType: value });
-                          }
-                        }}
-                        className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all text-center ${
-                          artistType === value
-                            ? "border-[--color-gold]/60 bg-[--color-gold]/10 ring-1 ring-[--color-gold]/30"
-                            : "border-[rgba(184,137,42,0.12)] bg-[rgba(20,16,12,0.6)] hover:border-zinc-500 hover:bg-[rgba(24,20,16,0.9)]"
-                        }`}
-                      >
-                        <div>
-                          <p className={`text-xs font-semibold ${artistType === value ? "text-[--color-gold]" : "text-white"}`}>{label}</p>
-                          <p className="text-[10px] text-white/40 mt-0.5">{desc}</p>
-                        </div>
-                        {artistType === value && (
-                          <Check className="w-3.5 h-3.5 text-[--color-gold]" />
-                        )}
-                      </button>
-                    ))}
+              <div className="rounded-[10px] overflow-hidden" style={{ background: "linear-gradient(160deg, #13101c, #0c0912)", border: "1px solid rgba(201,168,76,0.18)", boxShadow: "0 0 0 1px rgba(0,0,0,0.6), 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+                <div className="flex items-center gap-2.5 px-4 py-3" style={{ background: "linear-gradient(90deg, rgba(201,168,76,0.08), transparent)", borderBottom: "1px solid rgba(201,168,76,0.1)" }}>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#c9a84c", boxShadow: "0 0 8px #c9a84c" }} />
+                    <span className="text-[9px] font-black tracking-[3.5px] uppercase" style={{ color: "rgba(201,168,76,0.7)" }}>Cast</span>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(201,168,76,0.15), transparent)" }} />
+                  <span className="text-[8px] tracking-[1.5px] uppercase" style={{ color: "rgba(255,255,255,0.2)" }}>Who's in your video?</span>
+                </div>
+                <div className="p-3">
+                  <p className="text-[10px] mb-3" style={{ color: "rgba(255,255,255,0.35)" }}>Choose your artist type to optimise character generation and lip sync</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {([
+                      { value: "solo_artist" as const, icon: "🎤", label: "Solo Artist", desc: "One main performer", color: "#c9a84c", glow: "rgba(201,168,76,0.2)" },
+                      { value: "band" as const, icon: "🎸", label: "Band", desc: "Multiple performers", color: "#4da6ff", glow: "rgba(77,166,255,0.18)" },
+                      { value: "animated_characters" as const, icon: "✨", label: "Animated Group", desc: "Stylised 3D / anime", color: "#b88aff", glow: "rgba(184,138,255,0.18)" },
+                      { value: "solo_animated" as const, icon: "🎭", label: "Solo Animated", desc: "Single animated character", color: "#30d158", glow: "rgba(48,209,88,0.18)" },
+                    ] as const).map(({ value, icon, label, desc, color, glow }) => {
+                      const active = artistType === value;
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => { setArtistType(value); if (jobId) { updateArtistTypeMutation.mutate({ jobId, artistType: value }); } }}
+                          className="flex flex-col items-center gap-2 p-3 rounded-[8px] transition-all duration-200 relative text-center"
+                          style={{
+                            background: active ? `linear-gradient(160deg, ${glow}, rgba(0,0,0,0.4))` : "rgba(255,255,255,0.02)",
+                            border: active ? `1px solid ${color}55` : "1px solid rgba(255,255,255,0.06)",
+                            boxShadow: active ? `0 0 20px ${glow}, inset 0 1px 0 rgba(255,255,255,0.06)` : "none",
+                          }}
+                        >
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
+                            style={{ background: active ? `radial-gradient(circle at 40% 35%, ${glow}, rgba(0,0,0,0.7))` : "rgba(255,255,255,0.04)", border: active ? `1px solid ${color}44` : "1px solid rgba(255,255,255,0.06)", boxShadow: active ? `0 0 14px ${glow}` : "none" }}>
+                            {icon}
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-bold" style={{ color: active ? "#fff" : "rgba(255,255,255,0.35)", textShadow: active ? `0 0 10px ${color}60` : "none" }}>{label}</p>
+                            <p className="text-[9px] mt-0.5" style={{ color: active ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.18)" }}>{desc}</p>
+                          </div>
+                          {active && <div className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)`, boxShadow: `0 0 8px ${color}` }} />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
 
               {/* Audio Source: Upload or Generate with AI */}
               <Card className="studio-card border-0">
@@ -2060,10 +2063,15 @@ export default function MusicVideoAutopilot() {
                         )}
                       </div>
                     ) : (
-                      <div>
-                        <Music className="w-10 h-10 text-white/40 mx-auto mb-2" />
-                        <p className="text-white/70 font-medium">Drop your song here</p>
-                        <p className="text-white/40 text-sm mt-1">MP3, WAV, M4A · Max 100MB · Max 6 minutes</p>
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "radial-gradient(circle at 40% 35%, rgba(201,168,76,0.2), rgba(0,0,0,0.7))", border: "1px solid rgba(201,168,76,0.3)", boxShadow: "0 0 20px rgba(201,168,76,0.15)" }}>
+                          <Music className="w-7 h-7" style={{ color: "#c9a84c", filter: "drop-shadow(0 0 8px #c9a84c)" }} />
+                        </div>
+                        <div>
+                          <p className="text-white font-semibold text-base">Drop your song here</p>
+                          <p className="text-white/40 text-sm mt-1">MP3, WAV, M4A · Max 100MB · Max 6 minutes</p>
+                        </div>
+                        <div className="px-5 py-2 rounded-[6px] text-sm font-bold" style={{ background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.3)", color: "rgba(201,168,76,0.9)", boxShadow: "0 0 12px rgba(201,168,76,0.1)" }}>Browse Files</div>
                       </div>
                     )}
                   </div>
@@ -2547,79 +2555,102 @@ export default function MusicVideoAutopilot() {
               </Card>
 
               {/* ── HEAR & SEE THE DIFFERENCE ── */}
-              <Card className="border-[--color-gold]/30 bg-gradient-to-b from-[--color-gold]/10 to-transparent">
-                <CardContent className="pt-4 pb-4 space-y-3">
-                  <h3 className="text-xs font-bold text-[--color-gold] tracking-widest uppercase flex items-center gap-2">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    Hear & See the Difference
-                  </h3>
-                  <p className="text-[10px] text-white/40">Preview all three quality tiers. No download until payment confirmed.</p>
+              <div className="rounded-[10px] overflow-hidden" style={{ background: "linear-gradient(160deg, #13101c, #0c0912)", border: "1px solid rgba(201,168,76,0.18)", boxShadow: "0 0 0 1px rgba(0,0,0,0.6), 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+                <div className="flex items-center gap-2.5 px-4 py-3" style={{ background: "linear-gradient(90deg, rgba(201,168,76,0.08), transparent)", borderBottom: "1px solid rgba(201,168,76,0.1)" }}>
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#c9a84c", boxShadow: "0 0 8px #c9a84c" }} />
+                  <span className="text-[9px] font-black tracking-[3.5px] uppercase" style={{ color: "rgba(201,168,76,0.7)" }}>Hear &amp; See the Difference</span>
+                  <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(201,168,76,0.15), transparent)" }} />
+                  <Sparkles className="w-3 h-3" style={{ color: "rgba(201,168,76,0.5)" }} />
+                </div>
+                <div className="p-3 space-y-3">
+                  <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>Preview all three quality tiers. No download until payment confirmed.</p>
                   <div className="space-y-1.5">
-                    {['ORIGINAL', 'ENHANCED', 'CINEMATIC'].map((tier, i) => (
-                      <div key={tier} className={`rounded-lg border p-2 text-xs ${i === 0 ? 'border-[--color-gold]/40 bg-[--color-gold]/15 text-white' : 'border-white/10 bg-white/5 text-white/50'}`}>
-                        <div className="font-bold tracking-wider">{tier}</div>
-                        <div className="text-[10px] opacity-70">{i === 0 ? 'Included' : i === 1 ? '+\u00a32.99' : '+\u00a34.99'}</div>
+                    {[
+                      { label: "ORIGINAL", price: "Included", color: "#c9a84c", glow: "rgba(201,168,76,0.2)", active: true },
+                      { label: "ENHANCED", price: "+£2.99", color: "#4da6ff", glow: "rgba(77,166,255,0.15)", active: false },
+                      { label: "CINEMATIC", price: "+£4.99", color: "#b88aff", glow: "rgba(184,138,255,0.15)", active: false },
+                    ].map((tier) => (
+                      <div key={tier.label} className="flex items-center justify-between px-3 py-2 rounded-[6px]"
+                        style={{ background: tier.active ? `linear-gradient(90deg, ${tier.glow}, rgba(0,0,0,0.3))` : "rgba(255,255,255,0.025)", border: tier.active ? `1px solid ${tier.color}44` : "1px solid rgba(255,255,255,0.06)", boxShadow: tier.active ? `0 0 12px ${tier.glow}` : "none" }}>
+                        <span className="text-[11px] font-black tracking-[2px]" style={{ color: tier.active ? tier.color : "rgba(255,255,255,0.3)", textShadow: tier.active ? `0 0 10px ${tier.color}` : "none" }}>{tier.label}</span>
+                        <span className="text-[10px] font-semibold" style={{ color: tier.active ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.2)" }}>{tier.price}</span>
                       </div>
                     ))}
                   </div>
-                  <div className="border-t border-white/10 pt-3">
-                    <h4 className="text-[10px] font-bold text-white tracking-widest uppercase mb-2">WIZLUMINAR\u2122 \u2014 VISUAL QUALITY</h4>
+                  <div className="pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div className="text-[8px] font-black tracking-[2.5px] uppercase mb-2" style={{ color: "rgba(184,138,255,0.6)" }}>WizLuminar™ — Visual Quality</div>
                     <div className="grid grid-cols-3 gap-1">
-                      {['ORIGINAL', 'ENHANCED', 'CINEMATIC'].map((tier, i) => (
-                        <div key={tier} className={`rounded-md border p-1.5 text-center text-[9px] ${i === 0 ? 'border-[--color-gold]/40 bg-[--color-gold]/15 text-white' : 'border-white/10 bg-white/5 text-white/40'}`}>
-                          <div className="font-bold">{tier}</div>
+                      {[
+                        { label: "ORIGINAL", color: "#c9a84c", glow: "rgba(201,168,76,0.2)", active: true },
+                        { label: "ENHANCED", color: "#4da6ff", glow: "rgba(77,166,255,0.15)", active: false },
+                        { label: "CINEMATIC", color: "#b88aff", glow: "rgba(184,138,255,0.15)", active: false },
+                      ].map((tier) => (
+                        <div key={tier.label} className="rounded-[5px] py-1.5 text-center"
+                          style={{ background: tier.active ? `linear-gradient(160deg, ${tier.glow}, rgba(0,0,0,0.5))` : "rgba(255,255,255,0.025)", border: tier.active ? `1px solid ${tier.color}44` : "1px solid rgba(255,255,255,0.05)", boxShadow: tier.active ? `0 0 10px ${tier.glow}` : "none" }}>
+                          <div className="text-[8px] font-black tracking-[1px]" style={{ color: tier.active ? tier.color : "rgba(255,255,255,0.25)" }}>{tier.label}</div>
                         </div>
                       ))}
                     </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <div className="rounded-lg bg-gradient-to-r from-[--color-gold]/20 to-[--color-gold]/10 border border-[--color-gold]/30 p-2">
-                      <div className="text-xs font-bold text-[--color-gold]">WizSound\u2122 Cinematic</div>
-                      <div className="text-[10px] text-white/40">+\u00a34.99</div>
+                  <div className="space-y-1.5 pt-1" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div className="flex items-center justify-between px-3 py-2 rounded-[6px]" style={{ background: "linear-gradient(90deg, rgba(201,168,76,0.12), rgba(0,0,0,0.3))", border: "1px solid rgba(201,168,76,0.25)", boxShadow: "0 0 10px rgba(201,168,76,0.1)" }}>
+                      <span className="text-[11px] font-bold" style={{ color: "#c9a84c" }}>WizSound™ Cinematic</span>
+                      <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>+£4.99</span>
                     </div>
-                    <div className="rounded-lg bg-gradient-to-r from-purple-500/20 to-purple-500/10 border border-purple-500/30 p-2">
-                      <div className="text-xs font-bold text-purple-400">WizLuminar\u2122 Cinematic</div>
-                      <div className="text-[10px] text-white/40">+\u00a33.99</div>
+                    <div className="flex items-center justify-between px-3 py-2 rounded-[6px]" style={{ background: "linear-gradient(90deg, rgba(184,138,255,0.12), rgba(0,0,0,0.3))", border: "1px solid rgba(184,138,255,0.25)", boxShadow: "0 0 10px rgba(184,138,255,0.1)" }}>
+                      <span className="text-[11px] font-bold" style={{ color: "#b88aff" }}>WizLuminar™ Cinematic</span>
+                      <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>+£3.99</span>
                     </div>
                   </div>
-                  <div className="border-t border-white/10 pt-3">
-                    <h4 className="text-[10px] font-bold text-white tracking-widest uppercase mb-2">RENDER QUALITY</h4>
+                  <div className="pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div className="text-[8px] font-black tracking-[2.5px] uppercase mb-2" style={{ color: "rgba(255,255,255,0.3)" }}>Render Quality</div>
                     <div className="grid grid-cols-3 gap-1">
-                      {RENDER_QUALITY_TIERS.map((q) => ({ l: q.label, s: q.res, p: q.price })).map((q,i) => (
-                        <div key={q.l} className={`rounded-md border p-1.5 text-center ${i === 1 ? 'border-[--color-gold]/40 bg-[--color-gold]/15' : 'border-white/10 bg-white/5'}`}>
-                          <div className="text-xs font-bold text-white">{q.l}</div>
-                          <div className="text-[9px] text-white/40">{q.s}</div>
-                          <div className={`text-[9px] font-medium ${i===1?'text-[--color-gold]':'text-white/30'}`}>{q.p}</div>
+                      {RENDER_QUALITY_TIERS.map((q, i) => (
+                        <div key={q.label} className="rounded-[5px] p-1.5 text-center"
+                          style={{ background: i === 1 ? "linear-gradient(160deg, rgba(201,168,76,0.18), rgba(0,0,0,0.5))" : "rgba(255,255,255,0.025)", border: i === 1 ? "1px solid rgba(201,168,76,0.4)" : "1px solid rgba(255,255,255,0.05)", boxShadow: i === 1 ? "0 0 12px rgba(201,168,76,0.15)" : "none" }}>
+                          <div className="text-[10px] font-bold" style={{ color: i === 1 ? "#fff" : "rgba(255,255,255,0.35)" }}>{q.label}</div>
+                          <div className="text-[8px]" style={{ color: "rgba(255,255,255,0.25)" }}>{q.res}</div>
+                          <div className="text-[8px] font-semibold" style={{ color: i === 1 ? "#c9a84c" : "rgba(255,255,255,0.2)" }}>{q.price}</div>
                         </div>
                       ))}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-              {/* Render paywall info — replaces legacy credit balance card */}
-              <Card className="bg-gradient-to-br from-[#b8892a]/20 to-[#4a3010]/10 border-[--color-gold]/30">
-                <CardContent className="pt-4 pb-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Download className="w-4 h-4 text-[--color-gold]" />
-                    <p className="text-[--color-gold] text-sm font-medium">Create free, pay to build</p>
-                  </div>
-                  <p className="text-white/50 text-xs leading-relaxed">
-                    Building your storyboard is completely free. You only pay when you're ready to build and download your finished video.
-                  </p>
-                </CardContent>
-              </Card>
-              <Card className="bg-gradient-to-br from-[#b8892a]/40 to-[#2e2e36]/40 border-[--color-gold]/30">
-                <CardContent className="pt-4 pb-4">
-                  <p className="text-[--color-gold] text-sm font-medium mb-1">How it works</p>
-                  <ol className="text-white/50 text-xs space-y-1.5 list-decimal list-inside">
-                    <li>Upload your song & describe your vision</li>
-                    <li>AI transcribes lyrics & generates a free storyboard</li>
-                    <li>Review & edit any scene prompts</li>
-                    <li>Choose quality &amp; render (from £2)</li>
-                    <li>Download your finished music video</li>
-                  </ol>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
+              {/* Render paywall info */}
+              <div className="rounded-[10px] overflow-hidden" style={{ background: "linear-gradient(160deg, rgba(201,168,76,0.1), rgba(0,0,0,0.5))", border: "1px solid rgba(201,168,76,0.25)", boxShadow: "0 0 20px rgba(201,168,76,0.08), inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+                <div className="flex items-center gap-2.5 px-4 py-3" style={{ borderBottom: "1px solid rgba(201,168,76,0.1)" }}>
+                  <Download className="w-3.5 h-3.5" style={{ color: "#c9a84c" }} />
+                  <span className="text-[11px] font-bold" style={{ color: "#c9a84c", textShadow: "0 0 10px rgba(201,168,76,0.5)" }}>Create free, pay to build</span>
+                </div>
+                <p className="px-4 py-3 text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  Building your storyboard is completely free. You only pay when you're ready to build and download your finished video.
+                </p>
+              </div>
+              {/* How it works */}
+              <div className="rounded-[10px] overflow-hidden" style={{ background: "linear-gradient(160deg, #13101c, #0c0912)", border: "1px solid rgba(255,255,255,0.07)", boxShadow: "0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03)" }}>
+                <div className="flex items-center gap-2.5 px-4 py-3" style={{ background: "rgba(0,0,0,0.3)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#30d158]" style={{ boxShadow: "0 0 8px #30d158" }} />
+                  <span className="text-[9px] font-black tracking-[3px] uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>How it works</span>
+                </div>
+                <div className="p-3 space-y-2">
+                  {[
+                    { n: "1", text: "Upload your song & describe your vision" },
+                    { n: "2", text: "AI transcribes lyrics & generates a free storyboard" },
+                    { n: "3", text: "Review & edit any scene prompts" },
+                    { n: "4", text: "Choose quality & render (from £2)" },
+                    { n: "5", text: "Download your finished music video" },
+                  ].map((step) => (
+                    <div key={step.n} className="flex items-start gap-2.5">
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                        style={{ background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.25)" }}>
+                        <span className="text-[9px] font-black" style={{ color: "#c9a84c" }}>{step.n}</span>
+                      </div>
+                      <span className="text-[11px] leading-[1.5]" style={{ color: "rgba(255,255,255,0.45)" }}>{step.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               {quotaError && (
                 <div className="flex items-start gap-3 rounded-xl border border-orange-800 bg-orange-950/40 px-4 py-3">

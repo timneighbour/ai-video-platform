@@ -576,33 +576,66 @@ export default function MusicCreator() {
             <div className="overflow-y-auto p-3.5 flex flex-col gap-3" style={{ borderRight: "1px solid rgba(201,168,76,0.08)" }}>
 
             {/* ── STUDIO MODE SWITCHER ── */}
-            <div className="rounded-[8px] overflow-hidden border-2 border-[--color-gold]/20" style={{ background: "linear-gradient(135deg, #0e0b14, #0a0810)" }}>
-              <div className="px-4 pt-3.5 pb-1.5">
-                <div className="text-[9px] font-bold tracking-[3px] uppercase text-[--color-gold]/40 mb-2.5">Studio Mode — Choose Your Workflow</div>
-                <div className="flex gap-2">
-                  {([
-                    { id: "generate" as StudioMode, icon: "✦", label: "Generate", sub: "Create from scratch", color: "#c9a84c" },
-                    { id: "cover"    as StudioMode, icon: "⟳", label: "Cover & Transform", sub: "Upload your track, change the style", color: "#4da6ff" },
-                    { id: "extend"   as StudioMode, icon: "⇥", label: "Extend & Continue", sub: "Upload your track, AI continues it", color: "#30d158" },
-                  ]).map((m) => (
+            <div className="rounded-[10px] overflow-hidden" style={{ background: "linear-gradient(160deg, #13101c, #0c0912)", border: "1px solid rgba(201,168,76,0.18)", boxShadow: "0 0 0 1px rgba(0,0,0,0.6), 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+              {/* Header */}
+              <div className="flex items-center gap-2.5 px-4 py-3" style={{ background: "linear-gradient(90deg, rgba(201,168,76,0.08), transparent)", borderBottom: "1px solid rgba(201,168,76,0.1)" }}>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#c9a84c", boxShadow: "0 0 8px #c9a84c" }} />
+                  <span className="text-[9px] font-black tracking-[3.5px] uppercase" style={{ color: "rgba(201,168,76,0.7)" }}>Studio Mode</span>
+                </div>
+                <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(201,168,76,0.15), transparent)" }} />
+                <span className="text-[8px] tracking-[1.5px] uppercase" style={{ color: "rgba(255,255,255,0.2)" }}>Choose Your Workflow</span>
+              </div>
+              {/* Mode cards */}
+              <div className="flex gap-0 p-3">
+                {([
+                  { id: "generate" as StudioMode, icon: "✦", badge: "CREATE", label: "Generate", sub: "Create from scratch", color: "#c9a84c", glow: "rgba(201,168,76,0.22)", badgeColor: "rgba(201,168,76,0.15)", badgeText: "rgba(201,168,76,0.9)" },
+                  { id: "cover"    as StudioMode, icon: "⟳", badge: "UPLOAD", label: "Cover & Transform", sub: "Upload your track, change the style", color: "#4da6ff", glow: "rgba(77,166,255,0.18)", badgeColor: "rgba(77,166,255,0.12)", badgeText: "rgba(77,166,255,0.9)" },
+                  { id: "extend"   as StudioMode, icon: "⇥", badge: "UPLOAD", label: "Extend & Continue", sub: "Upload your track, AI continues it", color: "#30d158", glow: "rgba(48,209,88,0.18)", badgeColor: "rgba(48,209,88,0.1)", badgeText: "rgba(48,209,88,0.9)" },
+                ]).map((m, i, arr) => {
+                  const active = studioMode === m.id;
+                  return (
                     <button
                       key={m.id}
                       onClick={() => { setStudioMode(m.id); if (m.id !== "generate") setUploadedAudioUrl(null); }}
-                      className={`flex-1 flex flex-col gap-1 p-3 rounded-[6px] border transition-all text-left ${
-                        studioMode === m.id
-                          ? "border-[--color-gold]/40 bg-[--color-gold]/8"
-                          : "border-white/6 bg-white/2 hover:border-white/12 hover:bg-white/4"
-                      }`}
+                      className="flex-1 flex flex-col gap-2.5 p-3.5 transition-all duration-200 relative text-left"
+                      style={{
+                        background: active
+                          ? `linear-gradient(160deg, ${m.glow}, rgba(0,0,0,0.35))`
+                          : "rgba(255,255,255,0.015)",
+                        border: active ? `1px solid ${m.color}55` : "1px solid rgba(255,255,255,0.05)",
+                        borderRadius: i === 0 ? "7px 0 0 7px" : i === arr.length - 1 ? "0 7px 7px 0" : "0",
+                        marginLeft: i > 0 ? "-1px" : 0,
+                        zIndex: active ? 2 : 1,
+                        boxShadow: active ? `0 0 24px ${m.glow}, inset 0 1px 0 rgba(255,255,255,0.07)` : "none",
+                      }}
                     >
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[16px] leading-none" style={{ color: studioMode === m.id ? m.color : "rgba(255,255,255,0.3)" }}>{m.icon}</span>
-                        <span className={`text-[11px] font-bold tracking-[0.3px] ${ studioMode === m.id ? "text-white" : "text-white/40" }`}>{m.label}</span>
-                        {studioMode === m.id && <div className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: m.color, boxShadow: `0 0 6px ${m.color}` }} />}
+                      {/* Icon badge row */}
+                      <div className="flex items-start justify-between gap-1">
+                        <div
+                          className="w-10 h-10 rounded-[7px] flex items-center justify-center flex-shrink-0"
+                          style={{
+                            background: active ? `radial-gradient(circle at 40% 40%, ${m.glow}, rgba(0,0,0,0.7))` : "rgba(255,255,255,0.04)",
+                            border: active ? `1px solid ${m.color}44` : "1px solid rgba(255,255,255,0.06)",
+                            boxShadow: active ? `0 0 14px ${m.glow}` : "none",
+                          }}
+                        >
+                          <span className="text-[20px] leading-none" style={{ color: active ? m.color : "rgba(255,255,255,0.18)", filter: active ? `drop-shadow(0 0 8px ${m.color})` : "none" }}>{m.icon}</span>
+                        </div>
+                        <span className="text-[7px] font-black tracking-[1.5px] px-1.5 py-0.5 rounded-[3px] mt-0.5" style={{ background: active ? m.badgeColor : "rgba(255,255,255,0.04)", color: active ? m.badgeText : "rgba(255,255,255,0.15)", border: active ? `1px solid ${m.color}30` : "1px solid rgba(255,255,255,0.06)" }}>{m.badge}</span>
                       </div>
-                      <span className={`text-[9px] leading-[1.3] ${ studioMode === m.id ? "text-white/50" : "text-white/18" }`}>{m.sub}</span>
+                      {/* Label */}
+                      <div>
+                        <div className="text-[12px] font-bold leading-tight" style={{ color: active ? "#fff" : "rgba(255,255,255,0.3)", textShadow: active ? `0 0 12px ${m.color}60` : "none" }}>{m.label}</div>
+                        <div className="text-[9px] leading-[1.4] mt-0.5" style={{ color: active ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.14)" }}>{m.sub}</div>
+                      </div>
+                      {/* Active bottom bar */}
+                      {active && (
+                        <div className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full" style={{ background: `linear-gradient(90deg, transparent, ${m.color}, transparent)`, boxShadow: `0 0 8px ${m.color}` }} />
+                      )}
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
               {/* Upload zone — visible for cover and extend modes */}
               {studioMode !== "generate" && (
@@ -667,32 +700,61 @@ export default function MusicCreator() {
             </div>
 
             {/* Engine Selector */}
-            <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0b0910" }}>
-              <div className="flex items-center gap-2 px-3.5 py-2 border-b border-white/7" style={{ background: "rgba(0,0,0,0.3)", fontSize: 9, fontWeight: 700, letterSpacing: "2.5px", textTransform: "uppercase", color: "rgba(255,255,255,0.2)" }}>
-                <div className="w-1.5 h-1.5 rounded-full bg-[#30d158] animate-pulse" style={{ boxShadow: "0 0 5px #30d158" }} />
-                Recording Booth — Generation Engine
+            <div className="rounded-[10px] overflow-hidden" style={{ background: "linear-gradient(160deg, #0e0c16, #0a0910)", border: "1px solid rgba(255,255,255,0.07)", boxShadow: "0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03)" }}>
+              {/* Header */}
+              <div className="flex items-center gap-2.5 px-4 py-3" style={{ background: "rgba(0,0,0,0.3)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#30d158] animate-pulse" style={{ boxShadow: "0 0 8px #30d158" }} />
+                <span className="text-[9px] font-black tracking-[3px] uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>Generation Engine</span>
+                <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(255,255,255,0.06), transparent)" }} />
+                <span className="text-[7px] tracking-[1.5px] uppercase px-2 py-0.5 rounded-[3px]" style={{ background: "rgba(48,209,88,0.1)", color: "rgba(48,209,88,0.7)", border: "1px solid rgba(48,209,88,0.15)" }}>● LIVE</span>
               </div>
-              <div className="flex p-2.5 gap-0">
+              <div className="flex gap-0 p-3">
                 {([
-                  { value: "score" as GenerationMode, icon: "FX", label: "Sound FX",       desc: "Cinematic effects & ambience" },
-                  { value: "song"  as GenerationMode, icon: "PRO", label: "Precision Audio", desc: "Full production, any length" },
-                  { value: "suno"  as GenerationMode, icon: "AI", label: "WizAudio™",       desc: "2 creative track variations with lyrics" },
-                ]).map((e, i, arr) => (
-                  <button
-                    key={e.value}
-                    onClick={() => setGenerationMode(e.value)}
-                    className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 px-2 border transition-all cursor-pointer ${
-                      generationMode === e.value
-                        ? "bg-[--color-gold]/10 border-[--color-gold]"
-                        : "bg-white/2 border-white/7 hover:bg-[--color-gold]/5 hover:border-[--color-gold]/25"
-                    } ${i === 0 ? "rounded-l-[4px]" : i === arr.length - 1 ? "rounded-r-[4px]" : ""} ${i > 0 ? "border-l-0" : ""}`}
-                    style={{ zIndex: generationMode === e.value ? 1 : 0 }}
-                  >
-                    <span className="text-[15px]">{e.icon}</span>
-                    <span className={`text-[10px] font-bold tracking-[0.5px] ${generationMode === e.value ? "text-[--color-gold]" : "text-white/35"}`}>{e.label}</span>
-                    <span className={`text-[8px] text-center leading-[1.3] ${generationMode === e.value ? "text-[--color-gold]/55" : "text-white/18"}`}>{e.desc}</span>
-                  </button>
-                ))}
+                  { value: "score" as GenerationMode, icon: "FX",  label: "Sound FX",       desc: "Cinematic effects & ambience",                color: "#e8c060", glow: "rgba(232,192,96,0.2)",  tag: "EFFECTS"  },
+                  { value: "song"  as GenerationMode, icon: "PRO", label: "Precision Audio", desc: "Full production, any length",                 color: "#b88aff", glow: "rgba(184,138,255,0.2)", tag: "STUDIO"   },
+                  { value: "suno"  as GenerationMode, icon: "AI",  label: "WizAudio™",       desc: "2 creative variations with lyrics",           color: "#c9a84c", glow: "rgba(201,168,76,0.22)", tag: "POPULAR"  },
+                ]).map((e, i, arr) => {
+                  const active = generationMode === e.value;
+                  return (
+                    <button
+                      key={e.value}
+                      onClick={() => setGenerationMode(e.value)}
+                      className="flex-1 flex flex-col items-center gap-2 py-4 px-2.5 transition-all duration-200 relative"
+                      style={{
+                        background: active ? `linear-gradient(180deg, ${e.glow}, rgba(0,0,0,0.3))` : "rgba(255,255,255,0.015)",
+                        border: active ? `1px solid ${e.color}55` : "1px solid rgba(255,255,255,0.05)",
+                        borderRadius: i === 0 ? "7px 0 0 7px" : i === arr.length - 1 ? "0 7px 7px 0" : "0",
+                        marginLeft: i > 0 ? "-1px" : 0,
+                        zIndex: active ? 2 : 1,
+                        boxShadow: active ? `0 0 20px ${e.glow}, inset 0 1px 0 rgba(255,255,255,0.06)` : "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {/* Icon circle */}
+                      <div
+                        className="w-11 h-11 rounded-full flex items-center justify-center"
+                        style={{
+                          background: active ? `radial-gradient(circle at 40% 35%, ${e.glow}, rgba(0,0,0,0.8))` : "rgba(255,255,255,0.04)",
+                          border: active ? `1px solid ${e.color}55` : "1px solid rgba(255,255,255,0.07)",
+                          boxShadow: active ? `0 0 16px ${e.glow}, inset 0 1px 0 rgba(255,255,255,0.08)` : "none",
+                        }}
+                      >
+                        <span className="text-[13px] font-black tracking-tight" style={{ color: active ? e.color : "rgba(255,255,255,0.25)", textShadow: active ? `0 0 10px ${e.color}` : "none" }}>{e.icon}</span>
+                      </div>
+                      {/* Label */}
+                      <div className="text-center">
+                        <div className="text-[11px] font-bold" style={{ color: active ? "#fff" : "rgba(255,255,255,0.3)", textShadow: active ? `0 0 10px ${e.color}50` : "none" }}>{e.label}</div>
+                        <div className="text-[8px] leading-[1.35] mt-0.5" style={{ color: active ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.14)" }}>{e.desc}</div>
+                      </div>
+                      {/* Tag badge */}
+                      <span className="text-[7px] font-black tracking-[1.5px] px-1.5 py-0.5 rounded-[3px]" style={{ background: active ? `${e.color}18` : "rgba(255,255,255,0.04)", color: active ? e.color : "rgba(255,255,255,0.2)", border: active ? `1px solid ${e.color}30` : "1px solid rgba(255,255,255,0.05)" }}>{e.tag}</span>
+                      {/* Active bottom bar */}
+                      {active && (
+                        <div className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full" style={{ background: `linear-gradient(90deg, transparent, ${e.color}, transparent)`, boxShadow: `0 0 8px ${e.color}` }} />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
               <div className="flex items-center justify-between px-3.5 py-1.5 border-t border-white/7" style={{ background: "rgba(0,0,0,0.2)" }}>
                 <span className="text-[9px] font-semibold tracking-[1.5px] uppercase text-white/22">Model</span>
