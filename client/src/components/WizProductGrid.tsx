@@ -20,11 +20,11 @@ const CDN = `https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA
 // App UI screenshots (CREATE row)
 const APP_WIZSOUND   = `/manus-storage/app-wizsound-ui_4f315efe.jpg`;
 const APP_WIZIMAGE   = `/manus-storage/app-wizimage-ui_ec33bf0e.jpg`;
-const APP_WIZVIDEO   = `/manus-storage/app-wizvideo-ui_dbf7067e.jpg`;
-const APP_WIZANIMATE = `/manus-storage/app-wizanimate-ui_c9a0c5a3.jpg`;
-const APP_WIZSCORE   = `/manus-storage/app-wizscore-ui_e0fe68c8.jpg`;
-const APP_WIZSHORTS  = `/manus-storage/app-wizshorts-ui_72a24104.jpg`;
-const APP_WIZSCRIPT  = `/manus-storage/app-wizscript-ui_10255d84.jpg`;
+const APP_WIZVIDEO   = `/manus-storage/app-wizvideo-ui-v2_126b7056.jpg`;
+const APP_WIZANIMATE = `/manus-storage/app-wizanimate-ui-v2_1c249a46.jpg`;
+const APP_WIZSCORE   = `/manus-storage/app-wizscore-ui-v2_67194998.jpg`;
+const APP_WIZSHORTS  = `/manus-storage/app-wizshorts-ui-v2_be36b6fa.jpg`;
+const APP_WIZSCRIPT  = `/manus-storage/app-wizscript-ui-v2_ca5cd09f.jpg`;
 
 // Hero images for ENHANCE / GROW rows
 const HERO_WIZSOUND  = `/manus-storage/product-wizsound-hero_8219d2d2.jpg`;
@@ -63,40 +63,40 @@ const CREATE_TILES: StudioTile[] = [
     benefit: "Full music videos from your track",
     href: getProduct("wizvideo")?.productPage ?? "/music-video",
     image: APP_WIZVIDEO,
-    glowColor: "rgba(124,58,237,0.30)",
-    borderHover: "rgba(124,58,237,0.55)",
+    glowColor: "rgba(196,164,100,0.30)",
+    borderHover: "rgba(196,164,100,0.55)",
   },
   {
     name: "WizAnimate™",
     benefit: "Characters brought to life with AI",
     href: WIZANIMATE_PRODUCT_PAGE,
     image: APP_WIZANIMATE,
-    glowColor: "rgba(244,63,94,0.30)",
-    borderHover: "rgba(244,63,94,0.55)",
+    glowColor: "rgba(196,164,100,0.30)",
+    borderHover: "rgba(196,164,100,0.55)",
   },
   {
     name: "WizScore™",
     benefit: "Original soundtrack for any video",
     href: getProduct("wizscore")?.productPage ?? "/products/wizscore",
     image: APP_WIZSCORE,
-    glowColor: "rgba(239,68,68,0.30)",
-    borderHover: "rgba(239,68,68,0.55)",
+    glowColor: "rgba(196,164,100,0.30)",
+    borderHover: "rgba(196,164,100,0.55)",
   },
   {
     name: "WizShorts™",
     benefit: "Scroll-stopping shorts for every platform",
     href: getProduct("wizshorts")?.productPage ?? "/products/wizshorts",
     image: APP_WIZSHORTS,
-    glowColor: "rgba(6,182,212,0.30)",
-    borderHover: "rgba(6,182,212,0.55)",
+    glowColor: "rgba(196,164,100,0.30)",
+    borderHover: "rgba(196,164,100,0.55)",
   },
   {
     name: "WizScript™",
     benefit: "Scene-by-scene cinematic control",
     href: getProduct("wizscript")?.productPage ?? "/products/wizscript",
     image: APP_WIZSCRIPT,
-    glowColor: "rgba(249,115,22,0.30)",
-    borderHover: "rgba(249,115,22,0.55)",
+    glowColor: "rgba(196,164,100,0.30)",
+    borderHover: "rgba(196,164,100,0.55)",
   },
 ];
 
@@ -125,8 +125,8 @@ const GROW_TILES: StudioTile[] = [
     benefit: "Optimise, distribute, and grow your audience across every platform",
     href: "/products/wizboost",
     image: HERO_WIZBOOST,
-    glowColor: "rgba(99,102,241,0.30)",
-    borderHover: "rgba(99,102,241,0.55)",
+    glowColor: "rgba(196,164,100,0.30)",
+    borderHover: "rgba(196,164,100,0.55)",
   },
 ];
 
@@ -254,9 +254,9 @@ export default function WizProductGrid() {
       {/* Atmospheric depth */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background: [
-          "radial-gradient(ellipse 60% 40% at 20% 30%, rgba(52,211,153,0.018) 0%, transparent 70%)",
-          "radial-gradient(ellipse 60% 40% at 80% 30%, rgba(124,58,237,0.018) 0%, transparent 70%)",
-          "radial-gradient(ellipse 80% 50% at 50% 80%, rgba(249,115,22,0.018) 0%, transparent 70%)",
+          "radial-gradient(ellipse 60% 40% at 20% 30%, rgba(196,164,100,0.025) 0%, transparent 70%)",
+          "radial-gradient(ellipse 60% 40% at 80% 30%, rgba(196,164,100,0.018) 0%, transparent 70%)",
+          "radial-gradient(ellipse 80% 50% at 50% 80%, rgba(196,164,100,0.020) 0%, transparent 70%)",
           "radial-gradient(ellipse 40% 30% at 50% 50%, rgba(196,164,100,0.035) 0%, transparent 70%)",
         ].join(", "),
       }} />

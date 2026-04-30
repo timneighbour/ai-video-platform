@@ -2677,7 +2677,7 @@ function FeatureBlock() {
  href: WIZVIDEO_STUDIO_PAGE,
  badge: "WizCreate™",
  gradient: "from-[#0d1018] to-[#0d0d0d]",
- borderGlow: "hover:border-blue-500/20 hover:shadow-[0_0_40px_rgba(59,130,246,0.04)]",
+ borderGlow: "hover:border-[--color-gold]/25 hover:shadow-[0_0_40px_rgba(196,164,100,0.06)]",
  },
  {
  logo: WIZAI_LOGO,
@@ -2686,8 +2686,8 @@ function FeatureBlock() {
  cta: "Try WizPilot",
  href: WIZPILOT_STUDIO_PAGE,
  badge: "WizPilot™",
- gradient: "from-[#0d1808] to-[#0d0d0d]",
- borderGlow: "hover:border-green-500/20 hover:shadow-[0_0_40px_rgba(34,197,94,0.04)]",
+ gradient: "from-[#0d0d0d] to-[#080808]",
+ borderGlow: "hover:border-[--color-gold]/25 hover:shadow-[0_0_40px_rgba(196,164,100,0.06)]",
  },
  ];
 
@@ -2856,8 +2856,8 @@ const STD_TIERS: {
  label: "Cinematic",
  tagline: "Golden light, deep shadows, movie-trailer quality",
  audioLabel: "Deep bass · Wide stereo · Immersive",
- gradient: "from-orange-500 to-amber-400",
- glow: "rgba(249,115,22,0.6)",
+ gradient: "from-[--color-gold] to-amber-400",
+ glow: "rgba(196,164,100,0.6)",
  videoFilter: "none",
  },
 ];
@@ -3181,8 +3181,8 @@ function SeeTheDifference() {
  </p>
  <a
  href="/wizsound"
- className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold text-sm hover:from-amber-400 hover:to-orange-400 transition-all duration-200 shadow-lg"
- style={{ boxShadow: "0 0 30px rgba(249,115,22,0.4)" }}
+ className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[--color-gold] text-white font-bold text-sm hover:bg-[--color-gold]/80 transition-all duration-200 shadow-lg"
+ style={{ boxShadow: "0 0 30px rgba(196,164,100,0.4)" }}
  >Try WizSound™ Free
  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
