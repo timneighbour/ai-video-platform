@@ -123,6 +123,24 @@ export function serveStatic(app: Express) {
   // Gzip/deflate compression for all responses
   app.use(compression({ level: 6, threshold: 1024 }));
 
+  // ── Social crawler intercept (MUST be before express.static) ─────────────────
+  // Facebook, WhatsApp, LinkedIn etc. hit the root URL to scrape OG tags.
+  // express.static would serve the SPA index.html shell (almost no content)
+  // before our wildcard handler gets a chance to respond.
+  // By intercepting here we guarantee bots always receive the pre-rendered
+  // OG HTML with the correct title, description, and image — regardless of
+  // whether the static file exists on disk.
+  app.use((req, res, next) => {
+    const ua = req.headers["user-agent"] || "";
+    if (SOCIAL_BOT_RE.test(ua)) {
+      console.log(`[OG] Social crawler detected: ${ua.slice(0, 80)}`);
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      return res.status(200).send(buildBotHtml());
+    }
+    next();
+  });
+
   // Serve hashed JS/CSS/image chunks with long-lived immutable cache (1 year)
   app.use(
     "/assets",

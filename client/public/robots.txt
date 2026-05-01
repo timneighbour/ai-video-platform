@@ -1,6 +1,32 @@
 # WIZ AI — robots.txt
 # Primary domain: wiz-ai.io | Secondary: wizvid.ai
 
+# ── Explicitly allow social media crawlers ────────────────────────────────────
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Facebot
+Allow: /
+
+User-agent: Meta-ExternalFetcher
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: Slackbot
+Allow: /
+
+User-agent: Discordbot
+Allow: /
+
+# ── General crawlers ──────────────────────────────────────────────────────────
 User-agent: *
 Allow: /
 
