@@ -12,7 +12,7 @@
 
 import React, { useState } from "react";
 
-const LOUNGE_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/studio-lounge-bg-BGFGCqrNTGY5f3TWHFhuzw.webp";
+const LOUNGE_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/studio-lounge-bg-v2-DRmRUCbcUXZCT6seRebwVX.webp";
 
 // ── UTM-ready provider links ──────────────────────────────────────────────────
 // To add affiliate tracking or promo codes, update the utm_* params below.
