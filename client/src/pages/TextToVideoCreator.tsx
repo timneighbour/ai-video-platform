@@ -1061,7 +1061,7 @@ export default function TextToVideoCreator() {
           doRenderVideo();
         }}
       />
-      <InsufficientCreditsModal open={showInsufficientCredits} onClose={() => setShowInsufficientCredits(false)} />
+      <InsufficientCreditsModal open={showInsufficientCredits} onClose={() => setShowInsufficientCredits(false)} required={creditCost} balance={creditBalance ?? 0} />
     </div>
   );
 }
