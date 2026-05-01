@@ -175,7 +175,7 @@ function Nav() {
   const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
   const [mobileTechOpen, setMobileTechOpen] = useState(false);
   const [mobileWorkflowOpen, setMobileWorkflowOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const toggleProducts = (e: React.MouseEvent) => { e.stopPropagation(); setProductsOpen((v) => { if (!v) { setTechOpen(false); setWorkflowOpen(false); } return !v; }); };
   const toggleTech = (e: React.MouseEvent) => { e.stopPropagation(); setTechOpen((v) => { if (!v) { setProductsOpen(false); setWorkflowOpen(false); } return !v; }); };
@@ -643,18 +643,33 @@ function Nav() {
           {/* ── Auth CTA ── */}
           <div className="hidden md:flex items-center gap-2.5">
             {isAuthenticated ? (
-              <a
-                href="/dashboard"
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold transition-all duration-200"
-                style={{
-                  background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.18) 0%, oklch(0.78 0.11 75 / 0.08) 100%)",
-                  border: "1px solid oklch(0.78 0.11 75 / 0.30)",
-                  color: "oklch(0.88 0.10 75)",
-                  boxShadow: "0 0 20px oklch(0.78 0.11 75 / 0.08), inset 0 1px 0 oklch(0.78 0.11 75 / 0.20)",
-                }}
-              >
-                <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" /> Dashboard
-              </a>
+              <>
+                <a
+                  href="/dashboard"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold transition-all duration-200"
+                  style={{
+                    background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.18) 0%, oklch(0.78 0.11 75 / 0.08) 100%)",
+                    border: "1px solid oklch(0.78 0.11 75 / 0.30)",
+                    color: "oklch(0.88 0.10 75)",
+                    boxShadow: "0 0 20px oklch(0.78 0.11 75 / 0.08), inset 0 1px 0 oklch(0.78 0.11 75 / 0.20)",
+                  }}
+                >
+                  <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" /> Dashboard
+                </a>
+                {user?.role === "admin" && (
+                  <a
+                    href="/admin"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13px] font-bold transition-all duration-200"
+                    style={{
+                      background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.10) 0%, oklch(0.78 0.11 75 / 0.05) 100%)",
+                      border: "1px solid oklch(0.78 0.11 75 / 0.20)",
+                      color: "oklch(0.88 0.10 75)",
+                    }}
+                  >
+                    ⚙️ Admin
+                  </a>
+                )}
+              </>
             ) : (
               <>
                 <a
@@ -906,9 +921,16 @@ function Nav() {
             {/* CTA buttons */}
             <div className="mt-4 pt-4 flex flex-col gap-2.5" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.10)" }}>
               {isAuthenticated ? (
-                <a href="/dashboard" className="flex items-center justify-center gap-2 py-3.5 rounded-xl text-[15px] font-bold transition-all duration-200" style={{ background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.20) 0%, oklch(0.60 0.10 65 / 0.15) 100%)", border: "1px solid oklch(0.78 0.11 75 / 0.35)", color: "oklch(0.92 0.10 75)", boxShadow: "0 0 24px oklch(0.78 0.11 75 / 0.10)" }} onClick={() => setMobileOpen(false)}>
-                  <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" /> Dashboard
-                </a>
+                <>
+                  <a href="/dashboard" className="flex items-center justify-center gap-2 py-3.5 rounded-xl text-[15px] font-bold transition-all duration-200" style={{ background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.20) 0%, oklch(0.60 0.10 65 / 0.15) 100%)", border: "1px solid oklch(0.78 0.11 75 / 0.35)", color: "oklch(0.92 0.10 75)", boxShadow: "0 0 24px oklch(0.78 0.11 75 / 0.10)" }} onClick={() => setMobileOpen(false)}>
+                    <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" /> Dashboard
+                  </a>
+                  {user?.role === "admin" && (
+                    <a href="/admin" className="flex items-center justify-center gap-2 py-3 rounded-xl text-[14px] font-bold transition-all duration-200" style={{ background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.10) 0%, oklch(0.78 0.11 75 / 0.05) 100%)", border: "1px solid oklch(0.78 0.11 75 / 0.20)", color: "oklch(0.88 0.10 75)" }} onClick={() => setMobileOpen(false)}>
+                      ⚙️ Admin Panel
+                    </a>
+                  )}
+                </>
               ) : (
                 <>
                   <a href={getLoginUrl()} className="flex items-center justify-center py-3 rounded-xl text-[14px] font-medium text-white/60 hover:text-white/90 transition-colors" style={{ border: "1px solid rgba(255,255,255,0.08)" }} onClick={() => setMobileOpen(false)}>Sign in</a>

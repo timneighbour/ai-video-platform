@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, Music2, CreditCard, Settings, FolderOpen, Home, Sparkles, BookOpen, PlayCircle, Film } from "@/lib/icons";
+import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, Music2, CreditCard, Settings, FolderOpen, Home, Sparkles, BookOpen, PlayCircle, Film, ShieldAlert } from "@/lib/icons";
 import CreditBalance from "./CreditBalance";
 import { LowCreditBanner } from "./LowCreditBanner";
 import { trpc } from "@/lib/trpc";
@@ -297,6 +297,14 @@ function DashboardLayoutContent({
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                {user?.role === "admin" && (
+                  <DropdownMenuItem asChild>
+                    <a href="/admin" className="cursor-pointer flex items-center">
+                      <ShieldAlert className="mr-2 h-4 w-4 text-[#e8c97a]" />
+                      <span className="text-[#e8c97a] font-medium">Admin Panel</span>
+                    </a>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem
                   onClick={logout}
                   className="cursor-pointer text-destructive focus:text-destructive"
