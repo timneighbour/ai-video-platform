@@ -46,7 +46,7 @@ const menuItems = [
   { icon: Zap, label: "WizShorts", path: "/wiz-shorts" },
   { icon: Wand2, label: "WizScript", path: "/text-to-video" },
   { icon: Mic, label: "AI Voiceover", path: "/tools/voiceover" },
-  { icon: FolderOpen, label: "Projects", path: "/projects" },
+  { icon: FolderOpen, label: "My Projects", path: "/my-projects" },
   { icon: CreditCard, label: "Credits", path: "/credits" },
   { icon: Settings, label: "Account", path: "/account" },
 ];

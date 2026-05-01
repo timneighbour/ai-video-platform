@@ -338,7 +338,7 @@ export default function MusicVideoAutopilot() {
   const [includeCaptions, setIncludeCaptions] = useLocalStorage<boolean>("musicVideo_captions", false);
 
   // Step 3: Render state
-  const [renderStatus, setRenderStatus] = useState<string>("rendering");
+  const [renderStatus, setRenderStatus] = useState<string>("idle");
   const [completedScenes, setCompletedScenes] = useState(0);
   const [totalScenes, setTotalScenes] = useState(0);
   const [finalVideoUrl, setFinalVideoUrl] = useState<string | null>(null);
@@ -743,7 +743,11 @@ export default function MusicVideoAutopilot() {
 
   // Auto-resume polling when user returns to the render step (e.g. after page refresh or redirect from RenderSuccess)
   useEffect(() => {
-    if (step === "render" && jobId && !isRenderingRef.current && !finalVideoUrl) {
+    // Only auto-resume polling on page-reload / redirect recovery.
+    // Do NOT fire when handleStartRenderInternal has just set step="render" itself
+    // (isRenderingRef.current is already true in that case, so the guard below
+    // prevents the double-fire that caused the spurious "Job must have a storyboard" error).
+    if (step === "render" && jobId && !isRenderingRef.current && !finalVideoUrl && renderStatus !== "rendering" && renderStatus !== "assembling" && renderStatus !== "wizsound") {
       // Small delay to let state settle
       const timer = setTimeout(() => {
         handleStartRenderInternal();
@@ -1311,8 +1315,8 @@ export default function MusicVideoAutopilot() {
     try {
       const result = await startRender.mutateAsync({ jobId: jobId, aspectRatio: exportFormat, includeCaptions });
       mp.buildStarted("WizVideo");
+      setRenderStatus("rendering"); // Set BEFORE setStep so the auto-resume useEffect sees renderStatus="rendering" and skips the double-fire
       setStep("render");
-      setRenderStatus("rendering");
       if (!(result as any).duplicate) {
         setCompletedScenes(0);
         setFailedScenes(0);

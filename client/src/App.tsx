@@ -269,7 +269,7 @@ function Router() {
         <Route path={"/subscribe"} component={Subscribe} />
         <Route path={"/credits"} component={Credits} />
         <Route path={"/dashboard"} component={Dashboard} />
-        <Route path={"/projects"} component={Projects} />
+        <Route path={"/projects"}>{() => { window.location.replace("/my-projects"); return null; }}</Route>
         <Route path={"/account"} component={Account} />
         <Route path={"/tools/text-to-video"} component={TextToVideoCreator} />{/* → TextToVideoCreator app */}
         <Route path={"/tools/lip-sync"} component={LipSync} />
