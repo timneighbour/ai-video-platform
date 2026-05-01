@@ -19,7 +19,7 @@ const POSTER_URL =
   "/manus-storage/trailer-v2-poster_4a74cc1c.jpg";
 
 const VIDEO_SRC =
-  "/manus-storage/wiz-ai-trailer-v2_b2091d6b.mp4";
+  "/manus-storage/wiz-ai-trailer-v3_f93ca145.mp4";
 
 // Standard: same source track, flat/dry — reduced bass, no widening, quiet — the "before" experience
 const AUDIO_STANDARD =
@@ -491,10 +491,10 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [playing]);
 
-  /* -- Drift correction (rate-based, no seeks = no pops) ------------- */
-  // Instead of seeking the audio element (which causes buffer decode pops),
-  // we nudge playbackRate to gently speed up or slow down the audio until
-  // it catches up with the video. Only hard-seek as a last resort (>2s drift).
+  /* -- Drift correction (rate-only, zero hard-seeks = zero pops) ------- */
+  // Hard seeks on a MediaElementAudioSourceNode cause decode-buffer pops/clicks.
+  // We ONLY nudge playbackRate — never seek the audio element directly.
+  // The only exception is catastrophic drift (>5s) which means the audio stalled.
   useEffect(() => {
     if (!playing) return;
     const interval = setInterval(() => {
@@ -504,25 +504,20 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
       const drift = v.currentTime - a.currentTime; // positive = audio behind video
 
-      if (Math.abs(drift) > 2.0) {
-        // Large drift (e.g. after seeking the video scrubber) — hard sync is unavoidable
-        // but only do it once, not every tick
+      if (Math.abs(drift) > 5.0) {
+        // Catastrophic drift — audio must have stalled; hard-seek is the only option
         a.currentTime = v.currentTime;
         a.playbackRate = 1.0;
-      } else if (drift > 0.08) {
-        // Audio is behind — speed it up slightly to catch up (inaudible at 1.04x)
+      } else if (drift > 0.15) {
         a.playbackRate = 1.04;
-      } else if (drift < -0.08) {
-        // Audio is ahead — slow it down slightly
+      } else if (drift < -0.15) {
         a.playbackRate = 0.96;
       } else {
-        // In sync — restore normal rate
         a.playbackRate = 1.0;
       }
-    }, 250);
+    }, 500); // 500ms interval — less aggressive, fewer rate changes
     return () => {
       clearInterval(interval);
-      // Always restore normal rate when effect cleans up
       const a = audioRef.current;
       if (a) a.playbackRate = 1.0;
     };
