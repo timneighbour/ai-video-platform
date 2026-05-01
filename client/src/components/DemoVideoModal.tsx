@@ -21,7 +21,8 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [videoLoaded, setVideoLoaded] = useState(false);
+  // Show play overlay immediately — don't wait for loadedMetadata (iOS fires it late)
+  const [videoLoaded, setVideoLoaded] = useState(true);
 
   // Reset and play when modal opens
   useEffect(() => {
@@ -35,17 +36,30 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
       setCurrentTime(0);
       return;
     }
-    // Auto-play when opened
+    // Auto-play when opened — iOS requires muted first, then unmute after user interaction
     const vid = videoRef.current;
     if (vid) {
       vid.currentTime = 0;
+      // Try with sound first
       vid.muted = false;
-      vid.play().then(() => setPlaying(true)).catch(() => {
-        // Browser blocked autoplay with sound — start muted
-        vid.muted = true;
-        setIsMuted(true);
-        vid.play().then(() => setPlaying(true)).catch(() => {});
-      });
+      setIsMuted(false);
+      const tryPlay = () => {
+        vid.play()
+          .then(() => setPlaying(true))
+          .catch(() => {
+            // Browser blocked autoplay with sound — start muted (required on iOS)
+            vid.muted = true;
+            setIsMuted(true);
+            vid.play().then(() => setPlaying(true)).catch(() => {});
+          });
+      };
+      // On iOS, readyState may be 0 — wait for canplay
+      if (vid.readyState >= 2) {
+        tryPlay();
+      } else {
+        vid.addEventListener("canplay", tryPlay, { once: true });
+        vid.load();
+      }
     }
     mp.demoVideoCompleted?.();
   }, [open]);
@@ -74,10 +88,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
   const handleLoadedMetadata = useCallback(() => {
     const vid = videoRef.current;
-    if (vid) {
-      setDuration(vid.duration);
-      setVideoLoaded(true);
-    }
+    if (vid) setDuration(vid.duration);
   }, []);
 
   const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
@@ -91,7 +102,12 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   const handleFullscreen = useCallback(() => {
     const vid = videoRef.current;
     if (!vid) return;
-    if (vid.requestFullscreen) vid.requestFullscreen();
+    // iOS Safari uses webkitEnterFullscreen
+    if ((vid as any).webkitEnterFullscreen) {
+      (vid as any).webkitEnterFullscreen();
+    } else if (vid.requestFullscreen) {
+      vid.requestFullscreen().catch(() => {});
+    }
   }, []);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -136,20 +152,23 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           className="relative w-full rounded-xl overflow-hidden bg-black"
           style={{ aspectRatio: "16/9", boxShadow: "0 0 80px rgba(0,0,0,0.8)" }}
         >
+          {/* iOS Safari: muted attr required for autoplay, playsInline + webkit-playsinline both needed */}
           <video
             ref={videoRef}
             src={VIDEO_SRC}
             poster={POSTER_URL}
             className="w-full h-full object-contain"
             playsInline
-            preload="auto"
+            muted
+            preload="metadata"
+            {...{ "webkit-playsinline": "true", "x-webkit-airplay": "allow" }}
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
             onPlay={() => setPlaying(true)}
             onPause={() => setPlaying(false)}
             onEnded={() => setPlaying(false)}
             onClick={togglePlay}
-            style={{ cursor: "pointer" }}
+            style={{ cursor: "pointer", WebkitTapHighlightColor: "transparent" }}
           />
 
           {/* Play overlay when paused */}
@@ -157,6 +176,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             <div
               className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer"
               onClick={togglePlay}
+              style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
             >
               <div
                 className="w-20 h-20 rounded-full flex items-center justify-center"
@@ -167,12 +187,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             </div>
           )}
 
-          {/* Loading spinner */}
-          {!videoLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-              <div className="w-10 h-10 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-            </div>
-          )}
+
         </div>
 
         {/* Controls bar */}

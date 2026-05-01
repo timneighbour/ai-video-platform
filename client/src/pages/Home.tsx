@@ -1157,8 +1157,9 @@ function HeroDemoSection() {
  ref={videoRef}
  className="w-full h-full object-cover"
  poster={HERO_DEMO_POSTER}
- muted={isMuted}
+ muted
  playsInline
+                  {...{ "webkit-playsinline": "true", "x-webkit-airplay": "allow" }}
                 preload="metadata"
                 onEnded={() => setPlaying(false)}
                 style={{ transform: !playing ? "scale(1.03)" : "scale(1)", transition: "transform 8s ease-in-out", animation: !playing ? "heroDemoBreath 8s ease-in-out infinite alternate" : "none" }}
@@ -2746,6 +2747,7 @@ function ShowcaseCard({ item }: { item: { id: number; title: string; category: s
  muted
  loop
  playsInline
+                  {...{ "webkit-playsinline": "true", "x-webkit-airplay": "allow" }}
  preload="none"
  onCanPlay={() => setVideoReady(true)}
  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
