@@ -4,6 +4,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { useState, useEffect, useRef } from "react";
 import React from "react";
+import { ProviderModal as StudioLoungeModal } from "@/components/StudioLounge";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -88,6 +89,57 @@ const WIZ_TECHNOLOGY_ADVANCED = [
   { name: "WizPilot", tagline: "Guided Automation", desc: "Guided automation from idea to storyboard to final video build.", href: "/technology/wizpilot", logo: WIZGENESIS_LOGO },
 ];
 const WIZ_TECHNOLOGY = [...WIZ_TECHNOLOGY_CORE, ...WIZ_TECHNOLOGY_ADVANCED];
+
+// ── Studio Lounge nav button ─────────────────────────────────────────────────
+function StudioLoungeNavButton({ mobile = false, onClose }: { mobile?: boolean; onClose?: () => void }) {
+  const [modalOpen, setModalOpen] = React.useState(false);
+
+  const handleClick = () => {
+    setModalOpen(true);
+    onClose?.();
+  };
+
+  if (mobile) {
+    return (
+      <>
+        <button
+          type="button"
+          onClick={handleClick}
+          className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold transition-all duration-200 w-full text-left"
+          style={{ color: "rgba(212,175,55,0.85)", touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(212,175,55,0.06)"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
+        >
+          <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 shrink-0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ color: "rgba(212,175,55,0.7)" }}>
+            <path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3" />
+          </svg>
+          Studio Lounge
+        </button>
+        {modalOpen && <StudioLoungeModal onClose={() => setModalOpen(false)} />}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={handleClick}
+        className="nav-link flex items-center gap-1.5 transition-all duration-200"
+        style={{ color: "rgba(212,175,55,0.8)", touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(212,175,55,1)"; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(212,175,55,0.8)"; }}
+        aria-label="Open Studio Lounge"
+      >
+        <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 shrink-0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3" />
+        </svg>
+        Studio Lounge
+      </button>
+      {modalOpen && <StudioLoungeModal onClose={() => setModalOpen(false)} />}
+    </>
+  );
+}
 
 // ── Dropdown wrapper with fade+slide animation ────────────────────────────────
 // Uses a transparent "bridge" strip between the trigger and the panel so the
@@ -585,6 +637,7 @@ function Nav() {
             </div>
             <a href="/pricing" className="nav-link">Pricing</a>
             <a href="/help" className="nav-link">Help</a>
+            <StudioLoungeNavButton />
           </div>
 
           {/* ── Auth CTA ── */}
@@ -848,6 +901,7 @@ function Nav() {
             {/* Simple links */}
             <a href="/pricing" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/80 hover:text-white hover:bg-white/[0.04] transition-all duration-200" onClick={() => setMobileOpen(false)}>Pricing</a>
             <a href="/help" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/80 hover:text-white hover:bg-white/[0.04] transition-all duration-200" onClick={() => setMobileOpen(false)}>Help</a>
+            <StudioLoungeNavButton mobile onClose={() => setMobileOpen(false)} />
 
             {/* CTA buttons */}
             <div className="mt-4 pt-4 flex flex-col gap-2.5" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.10)" }}>

@@ -60,7 +60,7 @@ const PROVIDERS = [
 ];
 
 // ── Premium provider selector modal ──────────────────────────────────────────
-function ProviderModal({ onClose }: { onClose: () => void }) {
+export function ProviderModal({ onClose }: { onClose: () => void }) {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   // Close on Escape
