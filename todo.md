@@ -6503,3 +6503,35 @@
 - [x] Render CTA disabled until checkbox is checked
 - [x] Checkbox label: "I understand this will use X Build Credits from my balance"
 - [x] Checkbox styled in dark luxury gold theme matching the modal
+
+## Credit Enforcement & Spend Protection (Priority)
+- [ ] Audit credit balance check in startRender — confirm it runs BEFORE API calls begin
+- [ ] Hard-block render if user has insufficient credits — return INSUFFICIENT_CREDITS error
+- [ ] Reserve/deduct credits upfront at render start, not after completion
+- [ ] Partial refund reserved credits if render fails (credit back for unrendered scenes)
+- [ ] Sanitise spend-cap error in server/spend-protection.ts — never expose raw cap details to users
+- [ ] Sanitise INSUFFICIENT_CREDITS error on client — show "Top Up" modal/prompt, not raw error toast
+- [ ] Add "Top Up Credits" CTA to all render error states (MusicVideoAutopilot, WizShorts, TextToVideoCreator, KidsVideo)
+- [ ] WizGenesisModal: hard-disable CTA if balance < creditCost (not just show warning)
+- [ ] Test: user with 0 credits attempts render → sees Top Up prompt, no API call made
+- [ ] Test: user with enough credits renders → credits deducted upfront, render proceeds
+
+## Credit Enforcement & Spend Protection (May 2026)
+- [x] Hard credit gate in video-service.ts — blocks API call if balance < creditCost, throws FORBIDDEN TRPCError
+- [x] Billing router re-throws TRPCError instead of swallowing it
+- [x] WizGenesisModal CTA hard-disabled when balance < creditCost — shows Top Up button instead
+- [x] MusicVideoAutopilot catch block detects INSUFFICIENT_CREDITS and shows InsufficientCreditsModal
+- [x] WizShorts catch block detects INSUFFICIENT_CREDITS and shows InsufficientCreditsModal
+- [x] TextToVideoCreator onError detects INSUFFICIENT_CREDITS and shows InsufficientCreditsModal
+- [x] Spend-cap errors (JOB_SPEND_CAP, DAILY_SPEND_CAP) show friendly "Video build paused" toast, not raw cap details
+- [x] All raw error messages replaced with clean user-facing copy
+
+## Credit Enforcement & Spend Protection (May 2026)
+- [x] Hard credit gate in video-service.ts — blocks API call if balance < creditCost, throws FORBIDDEN TRPCError
+- [x] Billing router re-throws TRPCError instead of swallowing it
+- [x] WizGenesisModal CTA hard-disabled when balance < creditCost — shows Top Up button instead
+- [x] MusicVideoAutopilot catch block detects INSUFFICIENT_CREDITS and shows InsufficientCreditsModal
+- [x] WizShorts catch block detects INSUFFICIENT_CREDITS and shows InsufficientCreditsModal
+- [x] TextToVideoCreator onError detects INSUFFICIENT_CREDITS and shows InsufficientCreditsModal
+- [x] Spend-cap errors (JOB_SPEND_CAP, DAILY_SPEND_CAP) show friendly "Video build paused" toast, not raw cap details
+- [x] All raw error messages replaced with clean user-facing copy

@@ -83,8 +83,17 @@ export async function generateVideo(
     throw new Error("User not found");
   }
 
-  // TODO: Implement credit balance check from credits table
-  // For now, we'll assume user has enough credits
+  // Hard credit gate — check balance BEFORE any API call
+  const { getUserCredits } = await import("./credit-service");
+  const balance = await getUserCredits(request.userId);
+  if (balance < creditCost) {
+    const shortfall = creditCost - balance;
+    const { TRPCError } = await import("@trpc/server");
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: `INSUFFICIENT_CREDITS:${creditCost}:${balance}:${shortfall}`,
+    });
+  }
 
   let taskId: string;
   let apiProvider: string;

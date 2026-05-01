@@ -216,6 +216,9 @@ export const billingRouter = router({
         } as const;
       } catch (error) {
         console.error("Video generation error:", error);
+        // Re-throw TRPCErrors (e.g. INSUFFICIENT_CREDITS FORBIDDEN) so the client can detect them
+        const { TRPCError } = await import("@trpc/server");
+        if (error instanceof TRPCError) throw error;
         throw new Error(
           error instanceof Error ? error.message : "Failed to generate video"
         );

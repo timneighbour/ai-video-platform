@@ -38,6 +38,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { mp } from "@/lib/mixpanel";
 import { StudioLoungePrompt } from "@/components/StudioLounge";
 import { WizGenesisModal } from "@/components/WizGenesisModal";
+import InsufficientCreditsModal from "@/components/InsufficientCreditsModal";
 
 // ─── Accent / Theme Tokens ────────────────────────────────────────────────────
 const V = "#7c3aed";                          // violet-700
@@ -180,6 +181,7 @@ export default function TextToVideoCreator() {
   const [projectId, setProjectId] = useState<number | null>(null);
   const [generatedVideoUrl, setGeneratedVideoUrl] = useState<string | null>(null);
   const [showPreRenderModal, setShowPreRenderModal] = useState(false);
+  const [showInsufficientCredits, setShowInsufficientCredits] = useState(false);
   const [progressPct, setProgressPct] = useState(0);
   const [progressStage, setProgressStage] = useState(0);
   const [generationError, setGenerationError] = useState<string | null>(null);
@@ -223,7 +225,23 @@ export default function TextToVideoCreator() {
       if (data.projectId) { setProjectId(data.projectId); startPolling(data.projectId); }
       if (data.status === "completed") { stopProgressAnimation(); setProgressPct(100); setStep("done"); toast.success("Your video is ready!"); mp.generationCompleted("WizVideo"); }
     },
-    onError: (err) => { stopProgressAnimation(); setGenerationError(err.message || "Video generation failed."); setStep("storyboard"); toast.error(err.message || "Video generation failed."); mp.generationFailed("WizVideo", "api_error"); },
+    onError: (err) => {
+      stopProgressAnimation();
+      setStep("storyboard");
+      const rawMsg = String(err?.message || "");
+      const isInsufficientCredits =
+        err?.data?.code === "FORBIDDEN" ||
+        /INSUFFICIENT_CREDITS/i.test(rawMsg) ||
+        (/forbidden/i.test(rawMsg) && /credit/i.test(rawMsg));
+      if (isInsufficientCredits) {
+        setShowPreRenderModal(false);
+        setShowInsufficientCredits(true);
+      } else {
+        setGenerationError(rawMsg || "Video generation failed.");
+        toast.error(rawMsg || "Video generation failed.");
+      }
+      mp.generationFailed("WizVideo", "api_error");
+    },
   });
 
   const generateScenePreviewMutation = trpc.billing.generateScenePreview.useMutation();
@@ -1043,6 +1061,7 @@ export default function TextToVideoCreator() {
           doRenderVideo();
         }}
       />
+      <InsufficientCreditsModal open={showInsufficientCredits} onClose={() => setShowInsufficientCredits(false)} />
     </div>
   );
 }

@@ -14,6 +14,7 @@
  * 6. getJob         — frontend polls this for final status + videoUrl
  */
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb, getUserCredits, deductCredits } from "../db";
 import { wizShortsJobs, wizShortsScenes } from "../../drizzle/schema";
@@ -63,11 +64,15 @@ export const wizShortsRouter = router({
       const sceneCount = calculateSceneCount(input.targetDuration);
       const creditCost = sceneCount * CREDITS_PER_SCENE;
 
-      // Check credits
+      // Check credits — throw FORBIDDEN so the client can show a Top Up prompt
       const creditsRecord = await getUserCredits(ctx.user.id);
       const creditBalance = creditsRecord?.balance ?? 0;
       if (creditBalance < creditCost) {
-        throw new Error(`Insufficient credits. Need ${creditCost}, have ${creditBalance}.`);
+        const shortfall = creditCost - creditBalance;
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `INSUFFICIENT_CREDITS:${creditCost}:${creditBalance}:${shortfall}`,
+        });
       }
 
       const [result] = await db.insert(wizShortsJobs).values({

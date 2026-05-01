@@ -16,6 +16,7 @@ import {
   Volume2, Star, Shield, RefreshCw, ChevronRight
 } from "@/lib/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Link } from "wouter";
 
 const WIZGENESIS_LOGO = "/manus-storage/wizgenesis-logo-new_9814b3d1.png";
 
@@ -479,6 +480,24 @@ export function WizGenesisModal({
           </label>
 
           {/* ── CTA ───────────────────────────────────────────────────── */}
+          {/* Hard-block CTA when user cannot afford the render */}
+          {currentBalance !== null && creditCost !== undefined && currentBalance < creditCost ? (
+            <div className="space-y-2">
+              <div className="w-full flex items-center justify-center rounded-md bg-zinc-800/60 border border-zinc-700/50 text-zinc-500 text-sm font-medium cursor-not-allowed select-none py-3">
+                <Zap className="w-4 h-4 mr-2 text-zinc-600" />
+                Not enough credits to render
+              </div>
+              <Link href="/credits">
+                <Button
+                  className="w-full bg-[--color-gold] hover:bg-[--color-gold]/80 text-black font-semibold gap-2"
+                  onClick={onClose}
+                >
+                  <Zap className="w-4 h-4" />
+                  Top Up Credits — {Math.abs(currentBalance - creditCost)} more needed
+                </Button>
+              </Link>
+            </div>
+          ) : (
           <Button
             onClick={handleRender}
             disabled={isLoading || !confirmed}
@@ -494,6 +513,7 @@ export function WizGenesisModal({
               <>{isCinematicMode ? <Sparkles className="w-5 h-5 mr-2" /> : <Film className="w-5 h-5 mr-2" />}{ctaLabel}</>
             )}
           </Button>
+          )}
 
           <p className="text-center text-xs text-zinc-600">
             Secure payment via Stripe · Instant download after building

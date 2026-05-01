@@ -1460,8 +1460,17 @@ export default function MusicVideoAutopilot() {
         err?.data?.httpStatus === 503 ||
         String(err?.message).toLowerCase().includes("video generation service is temporarily unavailable") ||
         String(err?.message).toLowerCase().includes("all providers unavailable");
-
-      if (isConcurrentRender) {
+      // Detect insufficient credits — show Top Up modal, never raw error text
+      const rawMsg = String(err?.message || "");
+      const isInsufficientCredits =
+        err?.data?.code === "FORBIDDEN" ||
+        /INSUFFICIENT_CREDITS/i.test(rawMsg) ||
+        (/forbidden/i.test(rawMsg) && /credit/i.test(rawMsg));
+      // Detect spend-cap — show friendly message, never raw cap details
+      const isSpendCap = /SPEND_PROTECTION_BLOCK|JOB_SPEND_CAP|DAILY_SPEND_CAP/i.test(rawMsg);
+      if (isInsufficientCredits) {
+        setShowInsufficientCredits(true);
+      } else if (isConcurrentRender) {
         toast.error("Render already in progress", {
           description: "You already have a video building. Please wait for it to complete before starting another.",
           duration: 8000,
@@ -1471,12 +1480,17 @@ export default function MusicVideoAutopilot() {
           description: "We could not complete your video build right now. Your credits have not been used. Please try again shortly or contact support.",
           duration: 12000,
         });
+      } else if (isSpendCap) {
+        toast.error("Video build paused", {
+          description: "Your video build was paused to protect your credits. Please try again shortly or contact support.",
+          duration: 10000,
+        });
       } else if (is429) {
         toast.error("Building is busy right now.", {
           description: "The AI rendering service is at capacity. Please wait a moment and try again.",
         });
       } else {
-        toast.error("Failed to start render", { description: err.message });
+        toast.error("Failed to start render", { description: "Something went wrong. Please try again or contact support." });
       }
     }
   };

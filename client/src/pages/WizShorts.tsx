@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import InsufficientCreditsModal from "@/components/InsufficientCreditsModal";
 import { LandscapeHint } from "@/components/LandscapeHint";
 import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
@@ -96,6 +97,9 @@ export default function WizShorts() {
   const [scenes, setScenes] = useState<Scene[]>([]);
   const [jobCreditCost, setJobCreditCost] = useState<number>(0);
   const [showRenderModal, setShowRenderModal] = useState(false);
+  const [showInsufficientCredits, setShowInsufficientCredits] = useState(false);
+  const [icRequired, setIcRequired] = useState(0);
+  const [icBalance, setIcBalance] = useState(0);
 
   const [topic, setTopic] = useState("5 things nobody tells you about starting a YouTube channel");
   const [platform, setPlatform] = useState<Platform>("youtube_shorts");
@@ -196,9 +200,31 @@ export default function WizShorts() {
   const friendlyError = (err: any, fallback: string): string => {
     const msg: string = err?.message || err?.data?.message || fallback;
     if (/capacity|rate.?limit|busy|429/i.test(msg)) return "Our servers are at capacity right now. Please try again in a moment.";
-    if (/auth|401|403|forbidden/i.test(msg)) return "Session expired. Please refresh and try again.";
     if (/timeout|network|ECONNRESET/i.test(msg)) return "Connection timed out. Please check your internet and try again.";
+    // Spend-cap / provider errors — never expose technical details to users
+    if (/SPEND_PROTECTION_BLOCK|JOB_SPEND_CAP|DAILY_SPEND_CAP|RETRY_LIMIT|DUPLICATE_SUBMISSION/i.test(msg)) {
+      return "Your video build was paused to protect your credits. Please try again shortly.";
+    }
+    // Hide raw INSUFFICIENT_CREDITS token
+    if (/INSUFFICIENT_CREDITS/i.test(msg)) return "You need more credits to continue.";
     return msg;
+  };
+
+  /** Parse INSUFFICIENT_CREDITS error and show Top Up modal. Returns true if handled. */
+  const handleInsufficientCredits = (err: any): boolean => {
+    const msg: string = err?.message || err?.data?.message || "";
+    const match = msg.match(/INSUFFICIENT_CREDITS:(\d+):(\d+):(\d+)/);
+    if (match) {
+      setIcRequired(parseInt(match[1]));
+      setIcBalance(parseInt(match[2]));
+      setShowInsufficientCredits(true);
+      return true;
+    }
+    if ((err?.data?.code === "FORBIDDEN" || /forbidden/i.test(msg)) && /credit/i.test(msg)) {
+      setShowInsufficientCredits(true);
+      return true;
+    }
+    return false;
   };
 
   const handleCreateJob = async () => {
@@ -215,7 +241,9 @@ export default function WizShorts() {
       setScenes(scenesResult.scenes);
       setStep("scenes");
     } catch (err: any) {
-      toast.error(friendlyError(err, "Failed to create job"));
+      if (!handleInsufficientCredits(err)) {
+        toast.error(friendlyError(err, "Failed to create job"));
+      }
     }
   };
 
@@ -234,7 +262,9 @@ export default function WizShorts() {
       persistJob(jobId, "rendering");
       startPolling(jobId);
     } catch (err: any) {
-      toast.error(friendlyError(err, "Failed to start render"));
+      if (!handleInsufficientCredits(err)) {
+        toast.error(friendlyError(err, "Failed to start render"));
+      }
     }
   };
 
@@ -352,6 +382,13 @@ export default function WizShorts() {
 
   return (
     <div style={{minHeight:'100vh',background:'#080808',color:'#e0d8cc',fontFamily:"'Montserrat',sans-serif"}}>
+      {/* ── Insufficient Credits Modal ── */}
+      <InsufficientCreditsModal
+        open={showInsufficientCredits}
+        onClose={() => setShowInsufficientCredits(false)}
+        required={icRequired}
+        balance={icBalance}
+      />
 
       {/* ── Header ── */}
       <div className="studio-header sticky top-0 z-40">
