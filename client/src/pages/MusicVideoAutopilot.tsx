@@ -9,6 +9,7 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { calculateVideoCreditCost } from "../../../shared/const";
+import { clearStaleProjectState } from "@/lib/storageUtils";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
 import { LowCreditBanner } from "@/components/LowCreditBanner";
 import InsufficientCreditsModal from "@/components/InsufficientCreditsModal";
@@ -186,6 +187,8 @@ export default function MusicVideoAutopilot() {
     if (urlJobId) {
       const parsedJobId = parseInt(urlJobId, 10);
       if (!isNaN(parsedJobId)) {
+        // Clear any stale localStorage state from a previous session before restoring this project
+        clearStaleProjectState("musicVideo", parsedJobId);
         setJobId(parsedJobId);
         if (renderStarted) {
           setStep("render");

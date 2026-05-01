@@ -6489,3 +6489,11 @@
 - [x] Pre-render credit summary modal in WizShorts (handleShowRenderModal → WizGenesisModal)
 - [x] Pre-render credit summary modal in TextToVideoCreator (showPreRenderModal → WizGenesisModal)
 - [x] Pre-render credit summary modal in KidsVideo (RENDER button → WizGenesisModal)
+
+## localStorage State Cleanup on Project Open
+- [x] Audit all localStorage keys used by MusicVideoAutopilot, WizShorts, TextToVideoCreator, KidsVideo
+- [x] Create clearStaleProjectState(appKey, incomingJobId) utility in client/src/lib/storageUtils.ts
+- [x] Wire cleanup into MusicVideoAutopilot on ?jobId/?job_id URL param open
+- [x] Wire cleanup into WizShorts on URL param open
+- [x] TextToVideoCreator uses React state only — no localStorage to clear
+- [x] KidsVideo uses React state only — no localStorage to clear

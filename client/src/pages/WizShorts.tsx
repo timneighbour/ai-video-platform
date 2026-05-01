@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import AnimatedEqualiser from "@/components/AnimatedEqualiser";
 import { useSEO } from "@/hooks/useSEO";
 import { WizGenesisModal } from "@/components/WizGenesisModal";
+import { clearStaleProjectState } from "@/lib/storageUtils";
 import {
   Sparkles, Play, Download, ChevronRight,
   Loader2, Film, Zap, CheckCircle2, AlertCircle,
@@ -144,10 +145,19 @@ export default function WizShorts() {
     return () => { if (pollIntervalRef.current) clearInterval(pollIntervalRef.current); };
   }, []);
 
-  // Quick-start pre-fill: ?demo=1&prompt=...
+  // Quick-start pre-fill: ?demo=1&prompt=... OR ?jobId=X (open from MyProjects)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("demo") === "1" && params.get("prompt")) {
+    const urlJobId = params.get("jobId") || params.get("job_id");
+    if (urlJobId) {
+      const parsedJobId = parseInt(urlJobId, 10);
+      if (!isNaN(parsedJobId)) {
+        // Clear stale localStorage before restoring this project
+        clearStaleProjectState("wizShorts", parsedJobId);
+        setJobId(parsedJobId);
+        window.history.replaceState({}, "", window.location.pathname);
+      }
+    } else if (params.get("demo") === "1" && params.get("prompt")) {
       setTopic(params.get("prompt") as string);
       window.history.replaceState({}, "", window.location.pathname);
     }
