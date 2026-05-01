@@ -23,6 +23,13 @@ import {
 } from "../auto-editing-engine";
 import { deductCredits } from "../credit-service";
 import { TRPCError } from "@trpc/server";
+import { exec } from "child_process";
+import { promisify } from "util";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+import { applyWizSound } from "../wizsound";
+const execAsync = promisify(exec);
 
 export const enhancementRouter = router({
   /**
@@ -380,6 +387,7 @@ async function renderVideoAsync(jobId: number): Promise<void> {
   const db = await getDb();
   if (!db) return;
 
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), `enhancement-${jobId}-`));
   try {
     // Get job
     const [job] = await db.select().from(enhancementJobs)
@@ -387,40 +395,118 @@ async function renderVideoAsync(jobId: number): Promise<void> {
 
     if (!job) return;
 
-    // Simulate rendering
-    // In production, this would call FFmpeg or video rendering service
+    // Mark as processing
+    await db.update(enhancementJobs)
+      .set({ renderStatus: "processing", updatedAt: new Date() })
+      .where(eq(enhancementJobs.id, jobId));
 
-    // Generate mock output URLs
-    const outputKey16x9 = `${job.userId}/enhancement/${jobId}/output_16x9.mp4`;
-    const outputKey9x16 = `${job.userId}/enhancement/${jobId}/output_9x16.mp4`;
+    // ── Step 1: Download the original input video ─────────────────────────────
+    const videoPath = path.join(tmpDir, "input.mp4");
+    const videoResp = await fetch(job.inputVideoUrl);
+    if (!videoResp.ok) throw new Error(`Failed to download input video: ${videoResp.status}`);
+    fs.writeFileSync(videoPath, Buffer.from(await videoResp.arrayBuffer()));
 
-    const outputUrl16x9 = await storageGet(outputKey16x9);
-    const outputUrl9x16 = await storageGet(outputKey9x16);
+    // ── Step 2: Prepare audio track ───────────────────────────────────────────
+    // Use AI-generated music if available, otherwise use original video audio
+    let finalVideoPath: string;
 
-    // Update job with output
+    if (job.musicUrl && job.musicEnabled) {
+      // Download generated music and apply WizSound™ enhancement
+      const audioRawPath = path.join(tmpDir, "music-raw.mp3");
+      const audioEnhPath = path.join(tmpDir, "music-enhanced.mp3");
+      const musicResp = await fetch(job.musicUrl);
+      if (!musicResp.ok) throw new Error(`Failed to download music: ${musicResp.status}`);
+      fs.writeFileSync(audioRawPath, Buffer.from(await musicResp.arrayBuffer()));
+
+      // Apply WizSound™ enhancement (standard tier for base render)
+      await applyWizSound(audioRawPath, audioEnhPath, "standard");
+
+      // ── Step 3: Mix video with AI music using ffmpeg ──────────────────────────
+      // Get video duration
+      const videoInfo = await execAsync(
+        `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${videoPath}"`,
+        { timeout: 30000 }
+      );
+      const videoDuration = parseFloat(videoInfo.stdout.trim()) || job.inputVideoDuration;
+
+      const audioInfo = await execAsync(
+        `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${audioEnhPath}"`,
+        { timeout: 30000 }
+      );
+      const audioDuration = parseFloat(audioInfo.stdout.trim()) || videoDuration;
+
+      const mixedPath = path.join(tmpDir, "output-16x9.mp4");
+      const renderDuration = Math.min(videoDuration, audioDuration);
+
+      // Mix: replace original audio with AI-generated music, trim to shortest
+      await execAsync(
+        `ffmpeg -y -i "${videoPath}" -i "${audioEnhPath}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -t ${renderDuration} "${mixedPath}"`,
+        { timeout: 600000 }
+      );
+      finalVideoPath = mixedPath;
+    } else {
+      // No music — just re-encode the original video to ensure clean output
+      const reEncodedPath = path.join(tmpDir, "output-16x9.mp4");
+      await execAsync(
+        `ffmpeg -y -i "${videoPath}" -c:v libx264 -preset fast -crf 22 -c:a aac -b:a 192k "${reEncodedPath}"`,
+        { timeout: 600000 }
+      );
+      finalVideoPath = reEncodedPath;
+    }
+
+    // ── Step 4: Upload 16:9 output to S3 ─────────────────────────────────────
+    const outputKey16x9 = `${job.userId}/enhancement/${jobId}/output_16x9_${Date.now()}.mp4`;
+    const outputBuffer = fs.readFileSync(finalVideoPath);
+    const { url: outputUrl16x9 } = await storagePut(outputKey16x9, outputBuffer, "video/mp4");
+
+    // ── Step 5: Generate 9:16 vertical crop (optional, best-effort) ──────────
+    let outputUrl9x16: string | null = null;
+    let outputKey9x16: string | null = null;
+    try {
+      const verticalPath = path.join(tmpDir, "output-9x16.mp4");
+      await execAsync(
+        `ffmpeg -y -i "${finalVideoPath}" -vf "crop=ih*9/16:ih,scale=1080:1920" -c:v libx264 -preset fast -crf 22 -c:a copy "${verticalPath}"`,
+        { timeout: 300000 }
+      );
+      const vertKey = `${job.userId}/enhancement/${jobId}/output_9x16_${Date.now()}.mp4`;
+      const vertBuf = fs.readFileSync(verticalPath);
+      const { url: vertUrl } = await storagePut(vertKey, vertBuf, "video/mp4");
+      outputUrl9x16 = vertUrl;
+      outputKey9x16 = vertKey;
+    } catch (vertErr) {
+      console.warn(`[Enhancement] 9:16 crop failed for job ${jobId} (non-fatal):`, vertErr);
+    }
+
+    // ── Step 6: Update job as completed ──────────────────────────────────────
     await db
       .update(enhancementJobs)
       .set({
         renderStatus: "completed",
         status: "completed",
-        outputUrl16x9: outputUrl16x9.url,
+        outputUrl16x9,
         outputKey16x9,
-        outputUrl9x16: outputUrl9x16.url,
-        outputKey9x16,
+        outputUrl9x16: outputUrl9x16 ?? undefined,
+        outputKey9x16: outputKey9x16 ?? undefined,
         updatedAt: new Date(),
       })
       .where(eq(enhancementJobs.id, jobId));
+
+    console.log(`[Enhancement] Render complete for job ${jobId}: ${outputUrl16x9}`);
   } catch (error) {
     console.error("[Enhancement] Render error:", error);
-    await db
-      .update(enhancementJobs)
-      .set({
-        renderStatus: "failed",
-        status: "failed",
-        errorMessage:
-          error instanceof Error ? error.message : "Unknown error",
-        updatedAt: new Date(),
-      })
-      .where(eq(enhancementJobs.id, jobId));
+    const db2 = await getDb();
+    if (db2) {
+      await db2
+        .update(enhancementJobs)
+        .set({
+          renderStatus: "failed",
+          status: "failed",
+          errorMessage: error instanceof Error ? error.message : "Unknown error",
+          updatedAt: new Date(),
+        })
+        .where(eq(enhancementJobs.id, jobId));
+    }
+  } finally {
+    try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {}
   }
 }

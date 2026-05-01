@@ -277,6 +277,78 @@ export default function WizScore() {
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [uploadProgress, setUploadProgress]     = useState(0);
   const [wizScoreJobId, setWizScoreJobId]       = useState<number|null>(null);
+  // ── Compose pipeline state ─────────────────────────────────────────────────
+  const [isComposing, setIsComposing]           = useState(false);
+  const [composeStatus, setComposeStatus]       = useState<"idle"|"analyzing"|"generating"|"polling"|"done"|"error">("idle");
+  const [composeError, setComposeError]         = useState<string|null>(null);
+  const [scoreAudioUrl, setScoreAudioUrl]       = useState<string|null>(null);
+  const pollIntervalRef                         = useRef<ReturnType<typeof setInterval>|null>(null);
+  const utils                                   = trpc.useUtils();
+
+  const analyzeMutation = trpc.wizScore.analyze.useMutation({
+    onSuccess: (data) => {
+      setComposeStatus("generating");
+      generateScoreMutation.mutate({
+        jobId: wizScoreJobId!,
+        sunoPrompt: data.sunoPrompt,
+        sunoStyle: data.sunoStyle,
+        videoDuration: data.videoDuration,
+        origin: window.location.origin,
+      });
+    },
+    onError: (err) => {
+      setComposeStatus("error");
+      setComposeError(err.message);
+      setIsComposing(false);
+      toast.error("Analysis failed", { description: err.message });
+    },
+  });
+
+  const generateScoreMutation = trpc.wizScore.generateScore.useMutation({
+    onSuccess: () => {
+      setComposeStatus("polling");
+      pollIntervalRef.current = setInterval(async () => {
+        try {
+          const status = await utils.wizScore.status.fetch({ jobId: wizScoreJobId! });
+          if (status.status === "complete" && status.audioUrl) {
+            clearInterval(pollIntervalRef.current!);
+            setScoreAudioUrl(status.audioUrl);
+            setComposeStatus("done");
+            setIsComposing(false);
+            setStage("upgrade");
+            mp.buildCompleted("WizScore");
+            toast.success("Your score is ready!", { description: "WizScore™ has composed your original film score." });
+          } else if (status.status === "failed") {
+            clearInterval(pollIntervalRef.current!);
+            setComposeStatus("error");
+            setComposeError(status.errorMessage ?? "Score generation failed.");
+            setIsComposing(false);
+            toast.error("Score generation failed", { description: status.errorMessage ?? undefined });
+          }
+        } catch (_) { /* ignore transient poll errors */ }
+      }, 5000);
+    },
+    onError: (err) => {
+      setComposeStatus("error");
+      setComposeError(err.message);
+      setIsComposing(false);
+      toast.error("Score generation failed", { description: err.message });
+    },
+  });
+
+  const handleComposeScore = () => {
+    if (!wizScoreJobId) {
+      toast.error("Please upload a video first.");
+      setStage("brief");
+      return;
+    }
+    if (isComposing) return;
+    setIsComposing(true);
+    setComposeStatus("analyzing");
+    setComposeError(null);
+    mp.generationStarted("WizScore", undefined, scoreBrief.trim().length > 0);
+    analyzeMutation.mutate({ jobId: wizScoreJobId });
+  };
 
   const createJobMutation = trpc.wizScore.create.useMutation({
     onSuccess: (data) => {
@@ -825,9 +897,24 @@ export default function WizScore() {
 
           {/* Generate */}
           <div style={{padding:"16px 0 0"}}>
-            <button onClick={() => mp.generationStarted("WizScore", undefined, scoreBrief.trim().length > 0)} style={{width:"100%",padding:"14px",background:"linear-gradient(135deg,#d4a843,#b8902a)",border:"none",borderRadius:"4px",color:"#000",fontSize:"13px",fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",cursor:"pointer"}}>
-               COMPOSE SCORE
-              <div style={{fontSize:"9px",fontWeight:400,marginTop:"3px",opacity:0.85}}>Brief → Ensemble → Compose → Upgrade Preview → Render</div>
+            {composeError && (
+              <div style={{marginBottom:"8px",padding:"8px 10px",background:"rgba(220,38,38,0.1)",border:"1px solid rgba(220,38,38,0.3)",borderRadius:"4px",fontSize:"10px",color:"#f87171"}}>
+                {composeError}
+              </div>
+            )}
+            <button
+              onClick={handleComposeScore}
+              disabled={isComposing}
+              style={{width:"100%",padding:"14px",background:isComposing?"rgba(212,168,67,0.4)":"linear-gradient(135deg,#d4a843,#b8902a)",border:"none",borderRadius:"4px",color:"#000",fontSize:"13px",fontWeight:900,letterSpacing:"2px",textTransform:"uppercase",cursor:isComposing?"not-allowed":"pointer",opacity:isComposing?0.7:1}}
+            >
+              {composeStatus === "analyzing" ? "⏳ ANALYSING VIDEO…" :
+               composeStatus === "generating" ? "🎼 GENERATING SCORE…" :
+               composeStatus === "polling" ? "⏳ COMPOSING…" :
+               composeStatus === "done" ? "✓ SCORE READY" :
+               " COMPOSE SCORE"}
+              <div style={{fontSize:"9px",fontWeight:400,marginTop:"3px",opacity:0.85}}>
+                {isComposing ? "This takes 1–3 minutes — WizScore™ is analysing your video and composing…" : "Brief → Ensemble → Compose → Upgrade Preview → Render"}
+              </div>
             </button>
           </div>
         </div>
@@ -864,17 +951,21 @@ export default function WizScore() {
             {/* Audio player */}
             <div style={{background:"#080808",border:"1px solid #1a1a1a",borderRadius:"4px",padding:"8px 10px",marginBottom:"8px"}}>
               <div style={{fontSize:"9px",color:"#d4a843",fontWeight:700,marginBottom:"2px"}}>{TIER_INFO[tier].label}</div>
-              <div style={{fontSize:"8px",color:"#555",marginBottom:"6px"}}>Echoes of Eternity — Main Title</div>
-              <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
-                <button onClick={() => setIsPlaying(!isPlaying)} style={{background:"#d4a843",border:"none",borderRadius:"50%",width:"22px",height:"22px",cursor:"pointer",fontSize:"9px",color:"#000",flexShrink:0}}>
-                  {isPlaying ? "⏸" : "▶"}
-                </button>
-                <div style={{flex:1,height:"3px",background:"#1a1a1a",borderRadius:"2px",overflow:"hidden"}}>
-                  <div style={{height:"100%",width:`${progress}%`,background:"linear-gradient(90deg,#d4a843,#f0c040)",borderRadius:"2px"}} />
+              <div style={{fontSize:"8px",color:"#555",marginBottom:"6px"}}>Your AI-composed score</div>
+              {scoreAudioUrl ? (
+                <audio controls src={scoreAudioUrl} style={{width:"100%",height:"28px",marginBottom:"4px"}} />
+              ) : (
+                <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+                  <button onClick={() => setIsPlaying(!isPlaying)} style={{background:"#d4a843",border:"none",borderRadius:"50%",width:"22px",height:"22px",cursor:"pointer",fontSize:"9px",color:"#000",flexShrink:0}}>
+                    {isPlaying ? "⏸" : "▶"}
+                  </button>
+                  <div style={{flex:1,height:"3px",background:"#1a1a1a",borderRadius:"2px",overflow:"hidden"}}>
+                    <div style={{height:"100%",width:`${progress}%`,background:"linear-gradient(90deg,#d4a843,#f0c040)",borderRadius:"2px"}} />
+                  </div>
+                  <span style={{fontSize:"9px",color:"#555"}}>Preview</span>
                 </div>
-                <span style={{fontSize:"9px",color:"#555"}}>0:35 / 2:24</span>
-              </div>
-              <div style={{fontSize:"8px",color:"#333",marginTop:"4px"}}> Preview only — no download until render complete & payment confirmed</div>
+              )}
+              <div style={{fontSize:"8px",color:"#333",marginTop:"4px"}}> Preview only — no download until render complete &amp; payment confirmed</div>
             </div>
 
             {/* WizLuminar visual quality */}

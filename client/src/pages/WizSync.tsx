@@ -27,7 +27,7 @@ import {
   Mic2, Upload, UploadCloud, Loader2, CheckCircle2, AlertCircle,
   Music2, Users, Layers, Zap, ChevronRight, RefreshCw,
   UserCircle2, Guitar, Drum, Piano, Radio, Volume2, Waves,
-  ArrowRight, Sparkles, Clock, Play, Video, X,
+  ArrowRight, Sparkles, Clock, Play, Video, X, Download,
 } from "@/lib/icons";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -442,6 +442,10 @@ export default function WizSyncPage() {
     segments: Segment[];
   } | null>(null);
 
+  // ── Full render state ─────────────────────────────────────────────────────
+  const [fullRenderStatus, setFullRenderStatus] = useState<"idle" | "rendering" | "completed" | "failed">("idle");
+  const [fullRenderUrl, setFullRenderUrl] = useState<string | null>(null);
+  const [fullRenderPolling, setFullRenderPolling] = useState(false);
   // ── Mutations ─────────────────────────────────────────────────────────────
   const uploadAudioMutation = trpc.musicVideo.uploadAudio.useMutation({
     onSuccess: (data) => {
@@ -476,6 +480,39 @@ export default function WizSyncPage() {
       toast.error("Assignment failed", { description: err.message });
     },
   });
+  const fullRenderMutation = trpc.wizSync.fullRender.useMutation({
+    onSuccess: () => {
+      setFullRenderStatus("rendering");
+      setFullRenderPolling(true);
+      toast.success("Full render started!", { description: "Your video is being assembled. This may take a few minutes." });
+    },
+    onError: (err) => {
+      setFullRenderStatus("failed");
+      toast.error("Full render failed", { description: err.message });
+    },
+  });
+  const pollFullRenderQuery = trpc.wizSync.pollFullRender.useQuery(
+    { jobId: currentJobId! },
+    {
+      enabled: fullRenderPolling && currentJobId !== null,
+      refetchInterval: fullRenderPolling ? 4000 : false,
+    }
+  );
+  // Handle full render poll results
+  useEffect(() => {
+    if (!pollFullRenderQuery.data) return;
+    const { fullRenderStatus: status, outputUrl } = pollFullRenderQuery.data;
+    if (status === "completed" && outputUrl) {
+      setFullRenderStatus("completed");
+      setFullRenderUrl(outputUrl);
+      setFullRenderPolling(false);
+      toast.success("Full render complete!", { description: "Your video is ready to download." });
+    } else if (status === "failed") {
+      setFullRenderStatus("failed");
+      setFullRenderPolling(false);
+      toast.error("Full render failed", { description: "Please try again." });
+    }
+  }, [pollFullRenderQuery.data]);
 
   // ── Polling ───────────────────────────────────────────────────────────────
   const pollQuery = trpc.wizSync.pollAnalysis.useQuery(
@@ -1031,8 +1068,34 @@ export default function WizSyncPage() {
                   </div>
                   <div className="mt-4 flex items-center gap-2 text-xs text-zinc-500">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    Previews are free — Build Credits are only used for full renders
+                    Previews are free — 5 Build Credits are used for a full render
                   </div>
+                  {/* Full render result */}
+                  {fullRenderStatus === "completed" && fullRenderUrl && (
+                    <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+                      <p className="text-sm font-semibold text-emerald-400 mb-3 flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4" />
+                        Full render complete!
+                      </p>
+                      <video src={fullRenderUrl} controls className="w-full rounded-lg max-h-64 bg-black mb-3" />
+                      <a
+                        href={fullRenderUrl}
+                        download
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity"
+                      >
+                        <Download className="w-4 h-4" />
+                        Download Video
+                      </a>
+                    </div>
+                  )}
+                  {fullRenderStatus === "failed" && (
+                    <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3">
+                      <p className="text-sm text-red-400 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4" />
+                        Render failed. Please try again.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </>
             )}

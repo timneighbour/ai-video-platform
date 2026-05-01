@@ -18,6 +18,14 @@ import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
 import { wizSyncJobs, wizSyncSpeakers, wizSyncSegments } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
+import { deductCredits } from "../credit-service";
+import { exec } from "child_process";
+import { promisify } from "util";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+import { storagePut } from "../storage";
+const execAsync = promisify(exec);
 
 // ─── Audio analysis helpers ───────────────────────────────────────────────────
 
@@ -394,4 +402,158 @@ export const wizSyncRouter = router({
 
       return { status: "generating" as const, previewVideoUrl: null };
     }),
+
+  /**
+   * fullRender - Concatenate all ready segment preview clips with the original audio
+   * into a single final video. Deducts 5 Build Credits.
+   */
+  fullRender: protectedProcedure
+    .input(z.object({ jobId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(wizSyncJobs)
+        .where(and(eq(wizSyncJobs.id, input.jobId), eq(wizSyncJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+
+      const segments = await db.select().from(wizSyncSegments)
+        .where(eq(wizSyncSegments.wizSyncJobId, input.jobId));
+
+      const readySegments = segments
+        .filter((s: typeof segments[0]) => s.previewStatus === "ready" && s.previewVideoUrl)
+        .sort((a: typeof segments[0], b: typeof segments[0]) => a.startMs - b.startMs);
+
+      if (readySegments.length === 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No ready preview segments found. Please generate previews first.",
+        });
+      }
+
+      const CREDIT_COST = 5;
+      const ok = await deductCredits(
+        ctx.user.id,
+        CREDIT_COST,
+        "WizSync Full Render - Job #" + input.jobId,
+      );
+      if (!ok) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Insufficient credits. You need at least 5 Build Credits for a full render.",
+        });
+      }
+
+      // Store render-in-progress flag in stems JSON
+      const existingStems = (job.stems as Record<string, string> | null) ?? {};
+      await db.update(wizSyncJobs)
+        .set({ stems: { ...existingStems, fullRenderStatus: "rendering" }, updatedAt: new Date() })
+        .where(eq(wizSyncJobs.id, input.jobId));
+
+      // Run assembly async (non-blocking)
+      assembleFullRenderAsync(input.jobId, job.audioUrl, readySegments).catch((err: unknown) => {
+        console.error("[WizSync] Full render failed for job " + input.jobId + ":", err);
+      });
+
+      return { status: "rendering" as const, message: "Full render started. This may take a few minutes." };
+    }),
+
+  /**
+   * pollFullRender - Poll the status of a full render job.
+   */
+  pollFullRender: protectedProcedure
+    .input(z.object({ jobId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(wizSyncJobs)
+        .where(and(eq(wizSyncJobs.id, input.jobId), eq(wizSyncJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      const stemsData = (job.stems as Record<string, string> | null) ?? {};
+      return {
+        fullRenderStatus: stemsData.fullRenderStatus ?? "idle",
+        outputUrl: stemsData.fullRenderUrl ?? null,
+      };
+    }),
 });
+
+/**
+ * Async helper: download all ready segment preview clips, concatenate them
+ * with the original audio track, and upload the final video to S3.
+ */
+async function assembleFullRenderAsync(
+  jobId: number,
+  audioUrl: string,
+  segments: Array<{ id: number; previewVideoUrl: string | null; startMs: number; endMs: number }>
+): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "wizsync-" + jobId + "-"));
+  try {
+    // Download each segment preview clip
+    const clipFiles: string[] = [];
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i];
+      if (!seg.previewVideoUrl) continue;
+      const clipPath = path.join(tmpDir, "clip-" + String(i).padStart(3, "0") + ".mp4");
+      const resp = await fetch(seg.previewVideoUrl);
+      if (!resp.ok) throw new Error("Failed to download clip " + i + ": " + resp.status);
+      fs.writeFileSync(clipPath, Buffer.from(await resp.arrayBuffer()));
+      clipFiles.push(clipPath);
+    }
+
+    if (clipFiles.length === 0) throw new Error("No clip files to assemble");
+
+    // Download original audio
+    const audioPath = path.join(tmpDir, "audio.mp3");
+    const audioResp = await fetch(audioUrl);
+    if (!audioResp.ok) throw new Error("Failed to download audio: " + audioResp.status);
+    fs.writeFileSync(audioPath, Buffer.from(await audioResp.arrayBuffer()));
+
+    // Concatenate video clips
+    const concatFile = path.join(tmpDir, "concat.txt");
+    fs.writeFileSync(concatFile, clipFiles.map(f => "file '" + f + "'").join("\n"));
+    const concatenatedPath = path.join(tmpDir, "concatenated.mp4");
+    await execAsync(
+      'ffmpeg -y -f concat -safe 0 -i "' + concatFile + '" -c:v libx264 -preset fast -crf 22 "' + concatenatedPath + '"',
+      { timeout: 600000 }
+    );
+
+    // Mix with original audio
+    const finalPath = path.join(tmpDir, "final.mp4");
+    await execAsync(
+      'ffmpeg -y -i "' + concatenatedPath + '" -i "' + audioPath + '" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -b:a 192k -shortest "' + finalPath + '"',
+      { timeout: 600000 }
+    );
+
+    // Upload to S3
+    const outputKey = "wizsync/" + jobId + "/full-render-" + Date.now() + ".mp4";
+    const finalBuf = fs.readFileSync(finalPath);
+    const { url: outputUrl } = await storagePut(outputKey, finalBuf, "video/mp4");
+
+    // Update job with result
+    const [currentJob] = await db.select().from(wizSyncJobs).where(eq(wizSyncJobs.id, jobId));
+    const existingStems = (currentJob?.stems as Record<string, string> | null) ?? {};
+    await db.update(wizSyncJobs)
+      .set({
+        stems: { ...existingStems, fullRenderStatus: "completed", fullRenderUrl: outputUrl },
+        updatedAt: new Date(),
+      })
+      .where(eq(wizSyncJobs.id, jobId));
+
+    console.log("[WizSync] Full render complete for job " + jobId + ": " + outputUrl);
+  } catch (err) {
+    const [currentJob] = await db.select().from(wizSyncJobs).where(eq(wizSyncJobs.id, jobId));
+    const existingStems = (currentJob?.stems as Record<string, string> | null) ?? {};
+    await db.update(wizSyncJobs)
+      .set({
+        stems: { ...existingStems, fullRenderStatus: "failed" },
+        updatedAt: new Date(),
+      })
+      .where(eq(wizSyncJobs.id, jobId));
+    throw err;
+  } finally {
+    try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {}
+  }
+}

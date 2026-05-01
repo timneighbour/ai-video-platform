@@ -4,6 +4,8 @@
  * All workflow logic preserved; UI fidelity additions only.
  */
 import { useState, useRef, useEffect, useCallback } from "react";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 import { LandscapeHint } from "@/components/LandscapeHint";
 import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { Link } from "wouter";
@@ -172,6 +174,139 @@ export default function KidsVideo() {
 
   // Credit cost estimate for KidsVideo: sceneCount × 50 credits (based on server CREDIT_COSTS)
   const kidsCreditCost = sceneCount * 50;
+
+  // ── Real generation state ──────────────────────────────────────────────
+  const [genProjectId, setGenProjectId] = useState<number | null>(null);
+  const [genVideoUrl, setGenVideoUrl] = useState<string | null>(null);
+  const [genProgress, setGenProgress] = useState(0);
+  const [genStageIdx, setGenStageIdx] = useState(0);
+  const [genError, setGenError] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const genPollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const genStageRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const GEN_STAGES = [
+    "Analysing your brief…",
+    "Designing characters…",
+    "Building storyboard…",
+    "Rendering animation frames…",
+    "Applying style pass…",
+    "Compositing final video…",
+    "Finalising output…",
+  ];
+
+  const stopGen = useCallback(() => {
+    if (genStageRef.current) clearInterval(genStageRef.current);
+    if (genPollRef.current) clearTimeout(genPollRef.current);
+  }, []);
+
+  useEffect(() => () => stopGen(), [stopGen]);
+
+  const utils = trpc.useUtils();
+
+  const startGenPolling = useCallback((pid: number) => {
+    let backoffMs = 8000;
+    const MAX_BACKOFF = 60000;
+    const schedulePoll = () => {
+      genPollRef.current = setTimeout(async () => {
+        try {
+          const result = await utils.billing.checkVideoStatus.fetch({ projectId: pid });
+          if (result.status === "completed" && result.videoUrl) {
+            stopGen();
+            setGenProgress(100);
+            setGenVideoUrl(result.videoUrl);
+            setIsGenerating(false);
+            toast.success("Your animation is ready! 🎬");
+            mp.generationCompleted("WizAnimate");
+            return;
+          } else if (result.status === "failed") {
+            stopGen();
+            setGenError(result.error || "Animation generation failed. Please try again.");
+            setIsGenerating(false);
+            toast.error(result.error || "Animation generation failed.");
+            mp.generationFailed("WizAnimate", "generation_failed");
+            return;
+          }
+          backoffMs = 8000;
+          schedulePoll();
+        } catch {
+          backoffMs = Math.min(backoffMs * 2, MAX_BACKOFF);
+          schedulePoll();
+        }
+      }, backoffMs) as unknown as ReturnType<typeof setTimeout>;
+    };
+    schedulePoll();
+  }, [utils, stopGen]);
+
+  const generateMutation = trpc.billing.generateVideo.useMutation({
+    onSuccess: (data) => {
+      if (data.projectId) {
+        setGenProjectId(data.projectId);
+        startGenPolling(data.projectId);
+      }
+      if (data.status === "completed") {
+        stopGen();
+        setGenProgress(100);
+        setIsGenerating(false);
+        toast.success("Your animation is ready! 🎬");
+      }
+    },
+    onError: (err) => {
+      stopGen();
+      const msg = err.message || "Generation failed. Please try again.";
+      setGenError(msg);
+      setIsGenerating(false);
+      toast.error(msg);
+      mp.generationFailed("WizAnimate", "generation_error");
+    },
+  });
+
+  const handleStartRealRender = useCallback(() => {
+    if (!isAuthenticated) {
+      window.location.href = getLoginUrl("/kids-video");
+      return;
+    }
+    if (!brief.trim() || brief.trim().length < 10) {
+      toast.error("Please enter a description of at least 10 characters.");
+      return;
+    }
+    setGenError(null);
+    setGenVideoUrl(null);
+    setGenProjectId(null);
+    setGenProgress(5);
+    setGenStageIdx(0);
+    setIsGenerating(true);
+    mp.generationStarted("WizAnimate");
+
+    // Progress animation
+    let idx = 0;
+    genStageRef.current = setInterval(() => {
+      idx = Math.min(idx + 1, GEN_STAGES.length - 1);
+      setGenStageIdx(idx);
+      setGenProgress(Math.min(5 + idx * 13, 92));
+      if (idx === GEN_STAGES.length - 1) clearInterval(genStageRef.current!);
+    }, 7000);
+
+    const selectedStyleLabel = ANIM_STYLES.find(s => s.id === animStyle)?.label ?? animStyle;
+    const fullPrompt = [
+      `${selectedStyleLabel} animated video:`,
+      brief.trim(),
+      `Animation style: ${selectedStyleLabel}.`,
+      `Characters: ${Object.entries(charDesc).map(([id, d]) => `${id} — ${d}`).join("; ")}.`,
+      "High quality, smooth animation, vibrant colours, cinematic composition.",
+    ].join(" ");
+
+    generateMutation.mutate({
+      toolType: "text_to_video",
+      prompt: fullPrompt,
+      options: {
+        style: animStyle,
+        duration,
+        animationPreset: "character_animation",
+        sceneCount,
+      },
+    });
+  }, [isAuthenticated, brief, animStyle, duration, sceneCount, charDesc, generateMutation, stopGen]);
 
   const stageIndex = STAGES.findIndex(s => s.key === stage);
 
@@ -1152,13 +1287,49 @@ export default function KidsVideo() {
                 ))}
               </div>
             </div>
-            <button onClick={() => setShowPreRenderModal(true)} style={{
-              width: "100%", padding: "10px",
-              background: `linear-gradient(135deg, ${ACCENT}, #5a3d9a)`,
-              border: "none", borderRadius: "3px",
-              color: "#fff", fontSize: "11px", fontWeight: 900, letterSpacing: "1px", cursor: "pointer",
-            }}>
-               RENDER — {renderQuality}
+            {/* ── Generation progress / output ── */}
+            {isGenerating && (
+              <div style={{ padding: "12px", background: "rgba(124,92,191,0.08)", border: `1px solid ${ACCENT_BORDER}`, borderRadius: "4px", marginBottom: "8px" }}>
+                <div style={{ fontSize: "10px", fontWeight: 700, color: ACCENT_LIGHT, marginBottom: "6px", letterSpacing: "0.5px" }}>
+                  {GEN_STAGES[genStageIdx]}
+                </div>
+                <div style={{ height: "4px", background: "#1a1a1a", borderRadius: "2px", overflow: "hidden" }}>
+                  <div style={{ height: "100%", width: `${genProgress}%`, background: `linear-gradient(90deg, ${ACCENT}, ${ACCENT_LIGHT})`, borderRadius: "2px", transition: "width 1s ease" }} />
+                </div>
+                <div style={{ fontSize: "9px", color: "#555", marginTop: "4px", textAlign: "right" }}>{genProgress}%</div>
+              </div>
+            )}
+            {genError && (
+              <div style={{ padding: "10px", background: "rgba(220,50,50,0.08)", border: "1px solid rgba(220,50,50,0.25)", borderRadius: "4px", marginBottom: "8px" }}>
+                <div style={{ fontSize: "10px", color: "#e06060", fontWeight: 600 }}>⚠ {genError}</div>
+              </div>
+            )}
+            {genVideoUrl && (
+              <div style={{ marginBottom: "8px", border: `1px solid ${ACCENT_BORDER}`, borderRadius: "4px", overflow: "hidden" }}>
+                <video src={genVideoUrl} controls style={{ width: "100%", display: "block", background: "#000" }} />
+                <div style={{ padding: "8px", background: "rgba(124,92,191,0.08)", display: "flex", gap: "6px" }}>
+                  <a href={genVideoUrl} download="WizAnimate-output.mp4" style={{
+                    flex: 1, padding: "7px", background: `linear-gradient(135deg, ${ACCENT}, #5a3d9a)`,
+                    border: "none", borderRadius: "3px", color: "#fff",
+                    fontSize: "10px", fontWeight: 800, letterSpacing: "0.8px",
+                    textAlign: "center", textDecoration: "none", display: "block",
+                  }}>⬇ DOWNLOAD MP4</a>
+                </div>
+              </div>
+            )}
+            <button
+              onClick={() => isGenerating ? undefined : setShowPreRenderModal(true)}
+              disabled={isGenerating}
+              style={{
+                width: "100%", padding: "10px",
+                background: isGenerating ? "rgba(124,92,191,0.3)" : `linear-gradient(135deg, ${ACCENT}, #5a3d9a)`,
+                border: "none", borderRadius: "3px",
+                color: "#fff", fontSize: "11px", fontWeight: 900, letterSpacing: "1px",
+                cursor: isGenerating ? "not-allowed" : "pointer",
+                opacity: isGenerating ? 0.6 : 1,
+              }}
+            >
+              {isGenerating ? "⏳ RENDERING…" : genVideoUrl ? "🔄 RE-RENDER" : `▶ RENDER — ${renderQuality}`}
             </button>
           </RightSection>
 
@@ -1198,28 +1369,39 @@ export default function KidsVideo() {
 
           {/* Animation Features */}
           <RightSection title="Animation Features">
+            <div style={{ fontSize: "9px", color: "#555", marginBottom: "8px", padding: "5px 7px", background: "rgba(212,168,67,0.06)", border: "1px solid rgba(212,168,67,0.15)", borderRadius: "3px" }}>
+              ⚠ Advanced character features are coming soon. Core animation generation is live.
+            </div>
             {[
-              { label: "Character Consistency Lock", val: charLock,    set: setCharLock },
-              { label: "Lip Sync (dialogue scenes)", val: lipSync,     set: setLipSync },
-              { label: "Lyric Overlay on Storyboard", val: lyricOverlay, set: setLyricOverlay },
-              { label: "Beat-Sync Scene Cuts",        val: beatSync,   set: setBeatSync },
-              { label: "Colour Grade Consistency",    val: colourGrade, set: setColourGrade },
+              { label: "Character Consistency Lock", val: charLock,    set: setCharLock, comingSoon: true },
+              { label: "Lip Sync (dialogue scenes)", val: lipSync,     set: setLipSync,  comingSoon: true },
+              { label: "Lyric Overlay on Storyboard", val: lyricOverlay, set: setLyricOverlay, comingSoon: true },
+              { label: "Beat-Sync Scene Cuts",        val: beatSync,   set: setBeatSync, comingSoon: false },
+              { label: "Colour Grade Consistency",    val: colourGrade, set: setColourGrade, comingSoon: false },
             ].map(f => (
               <div key={f.label} style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px",
               }}>
-                <span style={{ fontSize: "10px", color: "#777" }}>{f.label}</span>
-                <button onClick={() => f.set(!f.val)} style={{
-                  width: "32px", height: "16px", borderRadius: "8px",
-                  background: f.val ? ACCENT : "#1e1e1e",
-                  border: `1px solid ${f.val ? ACCENT : "#2a2a2a"}`,
-                  cursor: "pointer", position: "relative", flexShrink: 0,
-                }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                  <span style={{ fontSize: "10px", color: f.comingSoon ? "#444" : "#777" }}>{f.label}</span>
+                  {f.comingSoon && <span style={{ fontSize: "8px", color: GOLD, fontWeight: 700, letterSpacing: "0.5px" }}>COMING SOON</span>}
+                </div>
+                <button
+                  onClick={() => !f.comingSoon && f.set(!f.val)}
+                  title={f.comingSoon ? "Coming soon" : undefined}
+                  style={{
+                    width: "32px", height: "16px", borderRadius: "8px",
+                    background: f.comingSoon ? "#111" : f.val ? ACCENT : "#1e1e1e",
+                    border: `1px solid ${f.comingSoon ? "#1a1a1a" : f.val ? ACCENT : "#2a2a2a"}`,
+                    cursor: f.comingSoon ? "not-allowed" : "pointer",
+                    position: "relative", flexShrink: 0, opacity: f.comingSoon ? 0.35 : 1,
+                  }}
+                >
                   <div style={{
                     position: "absolute", top: "1px",
-                    left: f.val ? "17px" : "1px",
+                    left: f.val && !f.comingSoon ? "17px" : "1px",
                     width: "12px", height: "12px",
-                    borderRadius: "50%", background: f.val ? "#fff" : "#444",
+                    borderRadius: "50%", background: f.val && !f.comingSoon ? "#fff" : "#444",
                     transition: "left 0.2s",
                   }} />
                 </button>
@@ -1267,10 +1449,9 @@ export default function KidsVideo() {
         videoTitle={undefined}
         sceneCount={sceneCount}
         creditCost={kidsCreditCost}
-        onRenderConfirmed={() => {
+          onRenderConfirmed={() => {
           setShowPreRenderModal(false);
-          // KidsVideo uses Stripe checkout — navigate to render stage
-          setStage("render" as Stage);
+          handleStartRealRender();
         }}
       />
     </div>

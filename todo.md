@@ -6558,3 +6558,9 @@
 - [x] Broadcast email tool (admin/email page, send to all subscribers)
 - [x] Broadcast email tool (admin/email page, send to all subscribers)
 - [x] Replace all wizvid.ai email FROM addresses with wiz-ai.io in email.ts
+
+## QA Critical Fixes (May 2026)
+- [x] Issue 1: Wire WizScore COMPOSE SCORE button to wizScore.analyze + wizScore.generateScore + polling
+- [x] Issue 3: Fix Enhancement renderVideoAsync - replace storageGet mock with real ffmpeg audio-mix
+- [x] Issue 4: Build WizSync full render procedure and wire to Full Render button
+- [x] Issue 2: Rebuild WizAnimate/KidsVideo as functional MVP wired to billing.generateVideo
