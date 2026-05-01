@@ -7,7 +7,7 @@ import { notifyOwner } from "./notification";
 import { FREE_TRIAL_CREDITS } from "../products";
 import { ENV } from "./env";
 import { addCredits, getUserCredits } from "../credit-service";
-import { emailNewSignup } from "../email";
+import { emailNewSignup, emailWelcomeUser } from "../email";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
@@ -83,6 +83,21 @@ export function registerOAuthRoutes(app: Express) {
             id: savedUser.id,
             createdAt: new Date(),
           }).catch(() => {});
+          // Welcome email directly to the new user
+          if (userInfo.email) {
+            const origin = (() => {
+              try {
+                const decoded = Buffer.from(state, "base64").toString("utf8");
+                const parsed = JSON.parse(decoded);
+                return parsed.redirectUri ? new URL(parsed.redirectUri).origin : "https://www.wiz-ai.io";
+              } catch { return "https://www.wiz-ai.io"; }
+            })();
+            await emailWelcomeUser({
+              name: userInfo.name || "there",
+              email: userInfo.email,
+              origin,
+            }).catch(() => {});
+          }
         }
       }
 

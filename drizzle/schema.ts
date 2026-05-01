@@ -1089,3 +1089,19 @@ export const experimentAssignments = mysqlTable("experiment_assignments", {
 });
 export type ExperimentAssignment = typeof experimentAssignments.$inferSelect;
 export type InsertExperimentAssignment = typeof experimentAssignments.$inferInsert;
+
+// ── Broadcast Emails ─────────────────────────────────────────────────────────
+/**
+ * Tracks every mailshot sent by the admin via the broadcast email tool.
+ * Each row represents one send campaign.
+ */
+export const broadcastEmails = mysqlTable("broadcast_emails", {
+  id: int("id").primaryKey().autoincrement(),
+  subject: varchar("subject", { length: 500 }).notNull(),
+  bodyHtml: longtext("bodyHtml").notNull(),
+  recipientCount: int("recipientCount").default(0).notNull(),
+  sentAt: timestamp("sentAt").defaultNow().notNull(),
+  sentBy: int("sentBy"), // userId of the admin who sent it
+});
+export type BroadcastEmail = typeof broadcastEmails.$inferSelect;
+export type InsertBroadcastEmail = typeof broadcastEmails.$inferInsert;

@@ -6546,3 +6546,14 @@
 - [x] Footer bottom legal links: add flex-wrap so links don't overflow on mobile
 - [x] WizProductGrid bottom row: remove maxWidth calc(75%+8px) on mobile so tiles use full width
 - [x] WizProductGrid tile height: use responsive height (160px mobile, 220px desktop)
+
+## Email System (May 2026)
+- [x] Welcome email sent to new users on sign-up (Resend, branded HTML template)
+- [x] Welcome email sent to new users on sign-up (Resend, branded HTML template)
+- [x] Welcome email sent to new users on sign-up (Resend, branded HTML template)
+- [x] Subscriber CSV export for Zoho CRM import (admin/email page)
+- [x] Subscriber CSV export for Zoho CRM import (admin/email page)
+- [x] Broadcast email tool (admin/email page, send to all subscribers)
+- [x] Broadcast email tool (admin/email page, send to all subscribers)
+- [x] Broadcast email tool (admin/email page, send to all subscribers)
+- [x] Broadcast email tool (admin/email page, send to all subscribers)

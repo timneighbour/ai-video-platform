@@ -102,6 +102,7 @@ const WizImage = lazy(() => import("@/pages/WizImage"));
 const WizShorts = lazy(() => import("@/pages/WizShorts"));
 const ShowcasePage = lazy(() => import("@/pages/Showcase"));
 const AdminPanel = lazy(() => import("@/pages/AdminPanel"));
+const AdminEmail = lazy(() => import("@/pages/AdminEmail"));
 const AnalyticsDashboard = lazy(() => import("@/pages/AnalyticsDashboard"));
 const WizadoraAdmin = lazy(() => import("@/pages/admin/WizadoraAdmin"));
 const MyProjects = lazy(() => import("@/pages/MyProjects"));
@@ -307,6 +308,7 @@ function Router() {
         <Route path={"/admin"} component={AdminPanel} />
         <Route path={"/admin/analytics"} component={AnalyticsDashboard} />
         <Route path={"/admin/wizadora"} component={WizadoraAdmin} />
+        <Route path={"/admin/email"} component={AdminEmail} />
         <Route path={"/render/success"} component={RenderSuccess} />
         <Route path={"/discover"} component={Discover} />
         <Route path={"/creators"} component={Discover} />

@@ -17,6 +17,8 @@ import { Resend } from "resend";
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const OWNER_EMAIL = "tim@wiz-ai.io";
 const FROM_EMAIL = "WIZ AI Notifications <notifications@wizvid.ai>";
+const FROM_WELCOME = "WIZ AI <welcome@wizvid.ai>";
+const FROM_BROADCAST = "WIZ AI <updates@wizvid.ai>";
 
 let resend: Resend | null = null;
 
@@ -197,6 +199,177 @@ export async function emailFailedPayment(data: {
       "Check Stripe Dashboard → Events for full details."
     ),
   });
+}
+
+/** Welcome email sent directly to a new user on sign-up */
+export async function emailWelcomeUser(user: {
+  name: string;
+  email: string;
+  origin?: string;
+}): Promise<void> {
+  if (!user.email) return;
+  const client = getResend();
+  if (!client) return;
+
+  const firstName = (user.name || "there").split(" ")[0];
+  const startUrl = user.origin ? `${user.origin}/onboarding` : "https://www.wiz-ai.io/onboarding";
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to WIZ AI</title>
+</head>
+<body style="margin:0;padding:0;background:#080808;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#080808;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#0f0f17;border-radius:16px;overflow:hidden;border:1px solid rgba(196,164,100,0.18);">
+          <!-- Gold header bar -->
+          <tr>
+            <td style="height:4px;background:linear-gradient(90deg,#c4a464,#e8c97a,#c4a464);">&nbsp;</td>
+          </tr>
+          <!-- Logo / brand header -->
+          <tr>
+            <td style="padding:36px 40px 28px;background:linear-gradient(135deg,#0f0f17 0%,#1a1508 100%);text-align:center;">
+              <div style="display:inline-block;">
+                <span style="font-size:28px;font-weight:900;letter-spacing:-1px;color:#e8c97a;">WIZ AI</span>
+                <span style="display:block;font-size:12px;font-weight:600;letter-spacing:0.25em;color:rgba(196,164,100,0.55);text-transform:uppercase;margin-top:4px;">Next-Gen AI Creative Studio</span>
+              </div>
+            </td>
+          </tr>
+          <!-- Hero message -->
+          <tr>
+            <td style="padding:32px 40px 24px;">
+              <h1 style="margin:0 0 12px;font-size:24px;font-weight:800;color:#f5f0e8;letter-spacing:-0.5px;">Welcome aboard, ${firstName}! 🎬</h1>
+              <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:rgba(255,255,255,0.65);">You've just unlocked the most powerful AI creative studio on the planet. Generate original music, create cinematic visuals, animate characters, and produce professional videos — all from a single prompt.</p>
+              <p style="margin:0 0 28px;font-size:15px;line-height:1.7;color:rgba(255,255,255,0.65);">Your account is ready. Your free trial credits are waiting. Let's create something extraordinary.</p>
+              <!-- CTA button -->
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="border-radius:12px;background:linear-gradient(135deg,#c4a464,#e8c97a);">
+                    <a href="${startUrl}" style="display:inline-block;padding:16px 36px;font-size:16px;font-weight:800;color:#0a0a0f;text-decoration:none;letter-spacing:-0.3px;">Start Creating — Free →</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Feature highlights -->
+          <tr>
+            <td style="padding:0 40px 32px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(196,164,100,0.12);padding-top:24px;">
+                <tr>
+                  <td style="padding-bottom:16px;">
+                    <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:#e8c97a;">🎵 WizSound™</p>
+                    <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.45);">Generate original, royalty-free music from a text prompt</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-bottom:16px;">
+                    <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:#e8c97a;">🎬 WizVideo™</p>
+                    <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.45);">Turn scripts into cinematic music videos with AI characters</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-bottom:16px;">
+                    <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:#e8c97a;">✨ WizLumina™</p>
+                    <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.45);">Generate stunning AI images and visual art in seconds</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <p style="margin:0 0 4px;font-size:13px;font-weight:700;color:#e8c97a;">🤖 WizPilot™</p>
+                    <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.45);">One prompt. Full pipeline. Zero manual steps.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Secondary CTA -->
+          <tr>
+            <td style="padding:20px 40px 36px;background:rgba(196,164,100,0.04);border-top:1px solid rgba(196,164,100,0.08);">
+              <p style="margin:0 0 12px;font-size:13px;color:rgba(255,255,255,0.40);">Need help getting started?</p>
+              <a href="https://www.wiz-ai.io/help" style="font-size:13px;font-weight:600;color:#c4a464;text-decoration:none;">Visit our Help Centre →</a>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding:20px 40px;border-top:1px solid rgba(255,255,255,0.06);">
+              <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.25);line-height:1.6;">You're receiving this because you created a WIZ AI account. &copy; 2025 WIZ AI · <a href="https://www.wiz-ai.io" style="color:rgba(196,164,100,0.5);text-decoration:none;">wiz-ai.io</a></p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  try {
+    const { error } = await client.emails.send({
+      from: FROM_WELCOME,
+      to: user.email,
+      subject: `Welcome to WIZ AI, ${firstName}! Your creative studio is ready 🎬`,
+      html,
+    });
+    if (error) {
+      console.error("[Email] Welcome email error:", error);
+    } else {
+      console.log(`[Email] Welcome email sent to: ${user.email}`);
+    }
+  } catch (err) {
+    console.error("[Email] Failed to send welcome email:", err);
+  }
+}
+
+/**
+ * Send a broadcast email to a single recipient (used by the admin broadcast tool).
+ * Call this in a loop over all users — Resend handles delivery.
+ */
+export async function emailBroadcastSingle(to: string, name: string, subject: string, bodyHtml: string): Promise<void> {
+  const client = getResend();
+  if (!client) return;
+  const firstName = (name || "there").split(" ")[0];
+  // Inject personalisation token
+  const personalised = bodyHtml.replace(/\{\{name\}\}/g, firstName);
+  const wrappedHtml = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
+<body style="margin:0;padding:0;background:#080808;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#080808;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#0f0f17;border-radius:16px;overflow:hidden;border:1px solid rgba(196,164,100,0.18);">
+          <tr><td style="height:4px;background:linear-gradient(90deg,#c4a464,#e8c97a,#c4a464);">&nbsp;</td></tr>
+          <tr>
+            <td style="padding:28px 40px 20px;background:linear-gradient(135deg,#0f0f17 0%,#1a1508 100%);">
+              <span style="font-size:22px;font-weight:900;letter-spacing:-1px;color:#e8c97a;">WIZ AI</span>
+              <span style="display:block;font-size:11px;font-weight:600;letter-spacing:0.25em;color:rgba(196,164,100,0.50);text-transform:uppercase;margin-top:3px;">Next-Gen AI Creative Studio</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px 40px 36px;font-size:15px;line-height:1.75;color:rgba(255,255,255,0.70);">
+              ${personalised}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:16px 40px 24px;border-top:1px solid rgba(255,255,255,0.06);">
+              <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.25);line-height:1.6;">You're receiving this as a WIZ AI member. &copy; 2025 WIZ AI · <a href="https://www.wiz-ai.io" style="color:rgba(196,164,100,0.5);text-decoration:none;">wiz-ai.io</a></p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  try {
+    await client.emails.send({ from: FROM_BROADCAST, to, subject, html: wrappedHtml });
+  } catch (err) {
+    console.error(`[Email] Broadcast send failed for ${to}:`, err);
+  }
 }
 
 /** Render job completed — notifies owner AND the user who submitted the render */
