@@ -178,7 +178,8 @@ export default function MusicVideoAutopilot() {
   // Also handles ?demo=1&prompt=... (quick-start pre-fill from onboarding)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const urlJobId = params.get("job_id");
+    // Support both ?job_id=X (Stripe redirect) and ?jobId=X (MyProjects / direct link)
+    const urlJobId = params.get("job_id") || params.get("jobId");
     const renderStarted = params.get("render_started") === "true";
     const demoPrompt = params.get("prompt");
     const isDemo = params.get("demo") === "1";
@@ -189,6 +190,23 @@ export default function MusicVideoAutopilot() {
         if (renderStarted) {
           setStep("render");
           toast.success("Payment confirmed!", { description: "Your render has started. Watch the progress below." });
+        } else {
+          // Opening a saved project from MyProjects — fetch job status and route to correct step
+          fetch(`/api/trpc/musicVideo.getJob?input=${encodeURIComponent(JSON.stringify({ jobId: parsedJobId }))}`, {
+            credentials: "include",
+            headers: { "Content-Type": "application/json" }
+          })
+            .then(r => r.json())
+            .then(data => {
+              const status = data?.result?.data?.status;
+              if (status === "rendering" || status === "assembling" || status === "wizsound" || status === "completed") {
+                setStep("render");
+              } else if (status === "storyboard_ready") {
+                setStep("storyboard");
+              }
+              // draft/failed: leave on upload step
+            })
+            .catch(() => { /* silent — leave step as localStorage default */ });
         }
         window.history.replaceState({}, "", window.location.pathname);
       }
