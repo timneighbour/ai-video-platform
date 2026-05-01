@@ -7,6 +7,51 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
 
+// ── Social crawler bot detection ──────────────────────────────────────────────
+// Facebook, Instagram, WhatsApp, LinkedIn, Twitter/X, Slack, Telegram, iMessage,
+// Discord, Pinterest, Google, Bing — all send a bot user-agent to scrape OG tags.
+// Because this is a React SPA, the index.html shell has almost no content when
+// rendered without JS. We detect these bots and return a lightweight pre-rendered
+// HTML page with all OG meta tags baked in so link previews work correctly.
+const SOCIAL_BOT_RE = /facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Slackbot|TelegramBot|Discordbot|Applebot|Pinterest|Googlebot|bingbot|DuckDuckBot/i;
+
+const OG_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wiz-ai-og-preview-5BfppFBqHYgzvQMYcartPf.png";
+const OG_TITLE = "WIZ AI — The AI Creative Studio";
+const OG_DESC = "Turn a simple idea into a cinematic music video in minutes. 10 AI Studios. One Platform. No editing experience needed.";
+const OG_SITE_URL = "https://wiz-ai.io/";
+
+function buildBotHtml(): string {
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>${OG_TITLE}</title>
+<meta name="description" content="${OG_DESC}" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="${OG_SITE_URL}" />
+<meta property="og:title" content="${OG_TITLE}" />
+<meta property="og:description" content="${OG_DESC}" />
+<meta property="og:image" content="${OG_IMAGE}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="WIZ AI — The AI Creative Studio" />
+<meta property="og:site_name" content="WIZ AI" />
+<meta property="og:locale" content="en_US" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="${OG_TITLE}" />
+<meta name="twitter:description" content="${OG_DESC}" />
+<meta name="twitter:image" content="${OG_IMAGE}" />
+<meta name="twitter:image:alt" content="WIZ AI — The AI Creative Studio" />
+<link rel="canonical" href="${OG_SITE_URL}" />
+</head>
+<body>
+<h1>${OG_TITLE}</h1>
+<p>${OG_DESC}</p>
+<a href="${OG_SITE_URL}">Visit WIZ AI</a>
+</body>
+</html>`;
+}
+
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
@@ -31,6 +76,14 @@ export async function setupVite(app: Express, server: Server) {
     }
   });
   app.use("*", async (req, res, next) => {
+    const ua = req.headers["user-agent"] || "";
+    // Serve pre-rendered OG page to social crawlers (dev mode)
+    if (SOCIAL_BOT_RE.test(ua)) {
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      return res.status(200).send(buildBotHtml());
+    }
+
     const url = req.originalUrl;
 
     try {
@@ -116,8 +169,16 @@ export function serveStatic(app: Express) {
       res.status(404).json({ error: "API route not found", path: req.path });
     }
   });
+
   // fall through to index.html if the file doesn't exist
   app.use("*", (req, res) => {
+    const ua = req.headers["user-agent"] || "";
+    // Serve pre-rendered OG page to social crawlers (production mode)
+    if (SOCIAL_BOT_RE.test(ua)) {
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      return res.status(200).send(buildBotHtml());
+    }
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     // Inject canonical header for known public routes
     const pathname = req.path.split("?")[0].replace(/\/+$/, "") || "/";
