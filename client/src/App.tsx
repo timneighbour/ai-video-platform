@@ -104,6 +104,7 @@ const ShowcasePage = lazy(() => import("@/pages/Showcase"));
 const AdminPanel = lazy(() => import("@/pages/AdminPanel"));
 const AnalyticsDashboard = lazy(() => import("@/pages/AnalyticsDashboard"));
 const WizadoraAdmin = lazy(() => import("@/pages/admin/WizadoraAdmin"));
+const MyProjects = lazy(() => import("@/pages/MyProjects"));
 
 // Premium loading fallback — shown while lazy chunks load (especially on iOS/slow connections)
 function PageFallback() {
@@ -283,6 +284,7 @@ function Router() {
         <Route path={"/music-video-ai"} component={WizVideoLandingPage} />{/* SEO alias */}
         <Route path={"/music-video/create"} component={MusicVideoAutopilot} />
         <Route path={"/render-history"} component={RenderHistory} />
+        <Route path={"/my-projects"} component={MyProjects} />
         <Route path={"/kids-video"} component={KidsVideo} />
         <Route path={"/text-to-video"} component={TextToVideoCreator} />
         <Route path={"/ai-video-generator"} component={TextToVideoCreator} />{/* SEO alias */}

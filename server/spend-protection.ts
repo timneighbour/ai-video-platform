@@ -41,11 +41,11 @@ export const PROVIDER_COST_USD: Record<string, number> = {
 
 // ── SPEND CAPS (Item 1 & 2) ───────────────────────────────────────────────────
 // Per-job cap: maximum USD we will spend on a single render job
-// At Atlas Cloud pricing ($0.64-0.80/scene): cap allows ~6-8 scenes per job
-export const MAX_SPEND_PER_JOB_USD = 5.00;
+// At Atlas Cloud pricing ($0.64-0.80/scene): cap allows ~25 scenes per job
+export const MAX_SPEND_PER_JOB_USD = 20.00;
 
 // Daily cap: maximum USD across ALL jobs in a calendar day
-export const MAX_DAILY_SPEND_USD = 20.00;
+export const MAX_DAILY_SPEND_USD = 60.00;
 
 // Per-scene retry limit (Item 3)
 export const MAX_ATTEMPTS_PER_SCENE = 2;     // 1 original + 1 retry maximum
