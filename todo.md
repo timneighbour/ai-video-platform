@@ -6535,3 +6535,5 @@
 - [x] TextToVideoCreator onError detects INSUFFICIENT_CREDITS and shows InsufficientCreditsModal
 - [x] Spend-cap errors (JOB_SPEND_CAP, DAILY_SPEND_CAP) show friendly "Video build paused" toast, not raw cap details
 - [x] All raw error messages replaced with clean user-facing copy
+
+- [x] CTA link audit: Fixed broken href="/wizsound" → href="/products/wizsound" in WizSound section CTA (Home.tsx line 3402). All other product hrefs verified correct. Watch the Demo button already has touchAction:manipulation and WebkitTapHighlightColor:transparent. All footer links validated against App.tsx routes.

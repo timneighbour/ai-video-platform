@@ -3399,7 +3399,7 @@ function SeeTheDifference() {
  <p className="text-white/30 text-sm mb-4">Experience this transformation on your own content
  </p>
  <a
- href="/wizsound"
+ href="/products/wizsound"
  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[--color-gold] text-white font-bold text-sm hover:bg-[--color-gold]/80 transition-all duration-200 shadow-lg"
  style={{ boxShadow: "0 0 30px rgba(196,164,100,0.4)" }}
  >Try WizSound™ Free
