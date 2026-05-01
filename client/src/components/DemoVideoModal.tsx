@@ -705,9 +705,11 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
           {/* -- WizSound toggle pill -- */}
           <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 rounded-full bg-black/85 border border-white/15 backdrop-blur-md p-1 shadow-xl">
-            <button
-              onMouseDown={(e) => { e.preventDefault(); setWizsoundMode(false); }}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
+ <button
+ type="button"
+ onClick={() => setWizsoundMode(false)}
+ style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
+ className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
                 !wizsoundMode
                   ? "bg-white/20 text-white shadow-sm"
                   : "text-white/40 hover:text-white/70"
@@ -716,20 +718,19 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
             >
               Standard Audio
             </button>
-            <button
-              onMouseDown={(e) => { e.preventDefault(); setWizsoundMode(true); }}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-2 ${
-                wizsoundMode ? "text-white" : "text-white/40 hover:text-white/70"
-              }`}
-              style={
-                wizsoundMode
-                  ? {
-                      backgroundImage: "linear-gradient(135deg,rgba(212,175,55,0.9),rgba(196,164,100,0.8))",
-                      boxShadow: "0 0 16px rgba(212,175,55,0.35), 0 0 4px rgba(196,164,100,0.5)",
-                    }
-                  : {}
-              }
-              aria-pressed={wizsoundMode}
+ <button
+ type="button"
+ onClick={() => setWizsoundMode(true)}
+ style={wizsoundMode ? {
+ touchAction: "manipulation",
+ WebkitTapHighlightColor: "transparent",
+ backgroundImage: "linear-gradient(135deg,rgba(212,175,55,0.9),rgba(196,164,100,0.8))",
+ boxShadow: "0 0 16px rgba(212,175,55,0.35), 0 0 4px rgba(196,164,100,0.5)",
+ } : { touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
+ className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer flex items-center gap-2 ${
+ wizsoundMode ? "text-white" : "text-white/40 hover:text-white/70"
+ }`}
+ aria-pressed={wizsoundMode}
             >
               WizSound™
             </button>
@@ -760,9 +761,11 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           />
 
           {/* -- Close -- */}
-          <button
-            onMouseDown={onClose}
-            className="absolute top-4 right-4 z-40 w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/80 transition-all cursor-pointer"
+ <button
+ type="button"
+ onClick={onClose}
+ style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
+ className="absolute top-4 right-4 z-40 w-10 h-10 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white/80 hover:text-white hover:bg-black/80 transition-all cursor-pointer"
             aria-label="Close demo"
           >
             <X className="w-4 h-4" />
@@ -770,9 +773,11 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
           {/* -- Centre play button -- */}
           {!playing && (
-            <button
-              onMouseDown={(e) => { e.preventDefault(); togglePlay(); }}
-              className="absolute inset-0 z-10 flex items-center justify-center group cursor-pointer"
+ <button
+ type="button"
+ onClick={togglePlay}
+ style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
+ className="absolute inset-0 z-10 flex items-center justify-center group cursor-pointer"
               aria-label="Play WIZ AI demo"
             >
               <div className="relative w-20 h-20 sm:w-24 sm:h-24">
@@ -794,8 +799,10 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
             {/* Progress */}
             <div
-              className="w-full h-2 bg-white/15 rounded-full mb-3 cursor-pointer group relative"
-              onMouseDown={handleProgressClick}
+ className="w-full h-2 bg-white/15 rounded-full mb-3 cursor-pointer group relative"
+ onClick={handleProgressClick}
+ onTouchStart={(e) => { e.preventDefault(); const touch = e.touches[0]; const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect(); const pct = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width)); if (duration > 0) { const newTime = pct * duration; if (videoRef.current) videoRef.current.currentTime = newTime; if (audioRef.current) audioRef.current.currentTime = newTime; setCurrentTime(newTime); } }}
+ style={{ touchAction: "none" }}
               role="slider"
               aria-label="Video progress"
               aria-valuenow={Math.round(progressPercent)}
@@ -819,17 +826,21 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
             {/* Button row */}
             <div className="flex items-center gap-3">
-              <button
-                onMouseDown={(e) => { e.preventDefault(); togglePlay(); }}
-                className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white transition-colors cursor-pointer"
+ <button
+ type="button"
+ onClick={togglePlay}
+ style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
+ className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white transition-colors cursor-pointer"
                 aria-label={playing ? "Pause" : "Play"}
               >
                 {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
               </button>
 
-              <button
-                onMouseDown={(e) => { e.preventDefault(); setIsMuted(m => !m); }}
-                className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white transition-colors cursor-pointer"
+ <button
+ type="button"
+ onClick={() => setIsMuted(m => !m)}
+ style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
+ className="w-8 h-8 flex items-center justify-center text-white/80 hover:text-white transition-colors cursor-pointer"
                 aria-label={isMuted ? "Unmute" : "Mute"}
               >
                 {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
@@ -872,9 +883,11 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
                 {fmt(currentTime)} / {fmt(duration)}
               </span>
 
-              <button
-                onMouseDown={handleFullscreen}
-                className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white/80 transition-colors cursor-pointer"
+ <button
+ type="button"
+ onClick={handleFullscreen}
+ style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
+ className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-white/80 transition-colors cursor-pointer"
                 aria-label="Fullscreen"
               >
                 <Maximize2 className="w-4 h-4" />

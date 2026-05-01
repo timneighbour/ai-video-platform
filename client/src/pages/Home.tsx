@@ -948,10 +948,11 @@ function Hero() {
  </p>
 
  {/* CTAs */}
- <div className="flex flex-wrap items-center gap-4 mb-12">
+ <div className="relative z-20 flex flex-wrap items-center gap-4 mb-12">
  <a
  href="/onboarding"
  className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
+ style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
  onClick={() => { mp.heroCTAClicked?.(); mp.startCreatingClicked("hero"); }}
  >
  <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />Start Creating — Free
@@ -959,13 +960,15 @@ function Hero() {
  <a
  href="#products"
  className="btn-secondary inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
+ style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
  >Explore the Studios
  <ArrowSVG className="w-4 h-4" />
  </a>
  {/* ── WATCH DEMO — ultra-premium screaming CTA ── */}
  <button
+ type="button"
  onClick={() => setDemoOpen(true)}
- className="group relative z-10 inline-flex items-center gap-3 min-h-[52px] px-6 py-3 rounded-2xl font-bold text-sm transition-all duration-200 hover:scale-[1.04] active:scale-[0.97]"
+ className="group relative z-20 inline-flex items-center gap-3 min-h-[52px] px-6 py-3 rounded-2xl font-bold text-sm transition-all duration-200 hover:scale-[1.04] active:scale-[0.97]"
  style={{
  background: "linear-gradient(135deg, rgba(196,164,100,0.14) 0%, rgba(232,201,122,0.08) 100%)",
  border: "1.5px solid rgba(196,164,100,0.55)",
@@ -977,6 +980,7 @@ function Hero() {
  ].join(", "),
  WebkitTapHighlightColor: "transparent",
  touchAction: "manipulation",
+ cursor: "pointer",
  }}
  aria-label="Watch the demo video"
  >
