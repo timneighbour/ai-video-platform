@@ -118,7 +118,11 @@ export function WizGenesisModal({
   const [quality, setQuality] = useState<Quality>("hd");
   const [enhanceTier, setEnhanceTier] = useState<EnhanceTier>("cinematic");
   const [isLoading, setIsLoading] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
   const offeredRef = useRef(false);
+
+  // Reset confirmation checkbox whenever the modal opens
+  useEffect(() => { if (open) setConfirmed(false); }, [open]);
 
   const renderStatus = trpc.render.getRenderStatus.useQuery(undefined, { enabled: open, staleTime: 30_000 });
   const creditsQuery = trpc.billing.getCredits.useQuery(undefined, { enabled: open, staleTime: 30_000 });
@@ -440,10 +444,44 @@ export function WizGenesisModal({
             ))}
           </div>
 
+          {/* ── Confirmation checkbox ─────────────────────────────── */}
+          <label
+            className={`flex items-start gap-3 cursor-pointer select-none rounded-xl border px-4 py-3 transition-colors ${
+              confirmed
+                ? "border-[#b8892a]/50 bg-[#b8892a]/5"
+                : "border-white/10 bg-white/[0.02] hover:border-white/20"
+            }`}
+          >
+            <div className="relative mt-0.5 shrink-0">
+              <input
+                type="checkbox"
+                checked={confirmed}
+                onChange={(e) => setConfirmed(e.target.checked)}
+                className="sr-only"
+              />
+              <div
+                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                  confirmed
+                    ? "border-[#b8892a] bg-[#b8892a]"
+                    : "border-white/30 bg-transparent"
+                }`}
+              >
+                {confirmed && <Check className="w-3 h-3 text-black" style={{ strokeWidth: 3 }} />}
+              </div>
+            </div>
+            <span className="text-sm text-zinc-300 leading-snug">
+              I understand this will use{" "}
+              <span className="font-semibold text-[#b8892a]">
+                {creditCost !== undefined ? `${creditCost} Build Credits` : "Build Credits"}
+              </span>{" "}
+              from my balance to start this render.
+            </span>
+          </label>
+
           {/* ── CTA ───────────────────────────────────────────────────── */}
           <Button
             onClick={handleRender}
-            disabled={isLoading}
+            disabled={isLoading || !confirmed}
             className={`w-full h-13 text-base font-bold shadow-lg transition-all ${
               isCinematicMode
                 ? "bg-gradient-to-r from-[#b8892a] via-purple-600 to-[#4a3010] hover:from-[#b8892a] hover:via-purple-700 hover:to-[#4a3010] shadow-violet-900/50 text-white"

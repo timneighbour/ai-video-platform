@@ -6497,3 +6497,9 @@
 - [x] Wire cleanup into WizShorts on URL param open
 - [x] TextToVideoCreator uses React state only — no localStorage to clear
 - [x] KidsVideo uses React state only — no localStorage to clear
+
+## Pre-Render Confirmation Checkbox
+- [x] Add confirmed checkbox state to WizGenesisModal (resets on open)
+- [x] Render CTA disabled until checkbox is checked
+- [x] Checkbox label: "I understand this will use X Build Credits from my balance"
+- [x] Checkbox styled in dark luxury gold theme matching the modal
