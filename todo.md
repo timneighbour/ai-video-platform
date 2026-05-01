@@ -6557,3 +6557,4 @@
 - [x] Broadcast email tool (admin/email page, send to all subscribers)
 - [x] Broadcast email tool (admin/email page, send to all subscribers)
 - [x] Broadcast email tool (admin/email page, send to all subscribers)
+- [x] Replace all wizvid.ai email FROM addresses with wiz-ai.io in email.ts

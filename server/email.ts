@@ -16,9 +16,9 @@ import { Resend } from "resend";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const OWNER_EMAIL = "tim@wiz-ai.io";
-const FROM_EMAIL = "WIZ AI Notifications <notifications@wizvid.ai>";
-const FROM_WELCOME = "WIZ AI <welcome@wizvid.ai>";
-const FROM_BROADCAST = "WIZ AI <updates@wizvid.ai>";
+const FROM_EMAIL = "WIZ AI Notifications <notifications@wiz-ai.io>";
+const FROM_WELCOME = "WIZ AI <welcome@wiz-ai.io>";
+const FROM_BROADCAST = "WIZ AI <updates@wiz-ai.io>";
 
 let resend: Resend | null = null;
 
