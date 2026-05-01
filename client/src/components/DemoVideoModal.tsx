@@ -563,7 +563,12 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   const handleEnded = useCallback(() => {
     mp.demoVideoCompleted();
     setPlaying(false);
-    audioRef.current?.pause();
+    const aud = audioRef.current;
+    if (aud) {
+      aud.pause();
+      aud.currentTime = 0; // reset so next Play starts from beginning
+    }
+    if (videoRef.current) videoRef.current.currentTime = 0; // reset video too
   }, []);
 
   /* -- Play / Pause ------------------------------------------------------------------------ */
