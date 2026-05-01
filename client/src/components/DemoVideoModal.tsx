@@ -19,7 +19,7 @@ const POSTER_URL =
   "/manus-storage/trailer-v2-poster_4a74cc1c.jpg";
 
 const VIDEO_SRC =
-  "/manus-storage/wiz-ai-trailer-v5-clean_d6669870.mp4";
+  "/manus-storage/wiz-ai-trailer-v9-final_7bf377e3.mp4";
 
 // Standard: same source track, flat/dry — reduced bass, no widening, quiet — the "before" experience
 const AUDIO_STANDARD =
