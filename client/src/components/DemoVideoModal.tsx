@@ -19,7 +19,7 @@ const POSTER_URL =
   "/manus-storage/trailer-v2-poster_4a74cc1c.jpg";
 
 const VIDEO_SRC =
-  "/manus-storage/wiz-ai-trailer-v4_8bc994bc.mp4";
+  "/manus-storage/WizAiDemoVideoFINAL_cf182b1e.mp4";
 
 // Standard: same source track, flat/dry — reduced bass, no widening, quiet — the "before" experience
 const AUDIO_STANDARD =
@@ -42,36 +42,34 @@ interface CaptionEntry {
 }
 
 const CAPTION_TIMELINE: CaptionEntry[] = [
-  // Act 1 (0–3s): Opening title
-  { start: 0,    end: 3,    headline: "This changes everything.", accent: "#ffffff" },
-  // Act 2 (3–9s): Platform reveal
-  { start: 3,    end: 9,    headline: "The AI Creative Studio.", sub: "CREATE · ENHANCE · GROW — ten studios, zero compromise.", accent: "#d4af37" },
-  // Act 2b (9–12s): Brand card
-  { start: 9,    end: 12,   headline: "Wiz AI.", sub: "Your all-in-one AI Studio Platform.", accent: "#d4af37" },
-  // Act 3a (12–14s): WizAudio
-  { start: 12,   end: 14,   headline: "Create.", sub: "WizAudio™ — AI music composition.", accent: "#d4af37" },
-  // Act 3b (14–16s): WizImage
-  { start: 14,   end: 16,   headline: "Imagine.", sub: "WizImage™ — AI visual generation.", accent: "#c4a464" },
-  // Act 3c (16–18s): WizVideo
-  { start: 16,   end: 18,   headline: "Animate.", sub: "WizVideo™ — AI video generation.", accent: "#d4af37" },
-  // Act 3d (18–20s): WizAnimate
-  { start: 18,   end: 20,   headline: "Produce.", sub: "WizAnimate™ — Character animation.", accent: "#c4a464" },
-  // Act 3e (20–22s): WizShorts
-  { start: 20,   end: 22,   headline: "Go Viral.", sub: "WizShorts™ — YouTube content creator.", accent: "#d4af37" },
-  // Act 3f (22–24s): WizScore
-  { start: 22,   end: 24,   headline: "All in one.", sub: "WizScore™ — Music to video.", accent: "#c4a464" },
-  // Act 4 (24–30s): Rockstar transformation
-  { start: 24,   end: 30,   headline: "Upload a face. Create a legend.", sub: "Character AI Engine — one photo, infinite possibilities.", accent: "#d4af37" },
-  // Act 5 (30–36s): Female singer lip sync
-  { start: 30,   end: 36,   headline: "Perfectly synced audio.", sub: "WizSync™ — frame-perfect lip sync.", accent: "#c4a464" },
-  // Act 6 (36–42s): WizLumina
-  { start: 36,   end: 42,   headline: "Cinematic enhancement.", sub: "WizLumina™ — every frame, elevated.", accent: "#fbbf24", isLumina: true },
-  // Act 7 (42–48s): WizSound
-  { start: 42,   end: 48,   headline: "Studio-grade audio.", sub: "WizSound™ — powered by proprietary audio AI.", accent: "#d4af37", isSoundUpsell: true },
-  // Act 8 (48–52s): Payoff
-  { start: 48,   end: 52,   headline: "Studio-quality results.", sub: "Every time.", accent: "#d4af37" },
-  // Act 9 (52–53s): End frame
-  { start: 52,   end: 53,   headline: "Create. Enhance. Grow.", accent: "#d4af37" },
+  // Act 1 (0–4s): Hook
+  { start: 0,    end: 4,    headline: "This changes everything.", accent: "#ffffff" },
+  // Act 2 (4–9s): Platform reveal — studio dashboard
+  { start: 4,    end: 9,    headline: "Your all-in-one AI Studio.", sub: "Ten creative tools. One platform.", accent: "#d4af37" },
+  // Act 3a (9–11s): WizAudio
+  { start: 9,    end: 11,   headline: "Create.", sub: "WizAudio™ — AI music composition.", accent: "#d4af37" },
+  // Act 3b (11–13s): WizImage
+  { start: 11,   end: 13,   headline: "Imagine.", sub: "WizImage™ — AI visual generation.", accent: "#c4a464" },
+  // Act 3c (13–15s): WizVideo
+  { start: 13,   end: 15,   headline: "Animate.", sub: "WizVideo™ — AI music video generation.", accent: "#d4af37" },
+  // Act 3d (15–17s): WizAnimate
+  { start: 15,   end: 17,   headline: "Produce.", sub: "WizAnimate™ — Character animation.", accent: "#c4a464" },
+  // Act 3e (17–19s): WizShorts
+  { start: 17,   end: 19,   headline: "Go Viral.", sub: "WizShorts™ — Viral short-form content.", accent: "#d4af37" },
+  // Act 3f (19–23s): WizScore
+  { start: 19,   end: 23,   headline: "Score it.", sub: "WizScore™ — AI cinematic film scoring.", accent: "#c4a464" },
+  // Act 4 (23–29s): Character AI / Rockstar transformation
+  { start: 23,   end: 29,   headline: "Upload a face. Become a legend.", sub: "Character AI Engine — one photo, infinite possibilities.", accent: "#d4af37" },
+  // Act 5 (29–35s): Lip sync
+  { start: 29,   end: 35,   headline: "Perfectly synced.", sub: "WizSync™ — frame-perfect AI lip sync.", accent: "#c4a464" },
+  // Act 6 (35–41s): WizLumina visual enhancement
+  { start: 35,   end: 41,   headline: "Cinematic enhancement.", sub: "WizLumina™ — every frame, elevated.", accent: "#fbbf24", isLumina: true },
+  // Act 7 (41–47s): WizSound audio
+  { start: 41,   end: 47,   headline: "Studio-grade audio.", sub: "WizSound™ — professional audio AI.", accent: "#d4af37", isSoundUpsell: true },
+  // Act 8 (47–50s): Payoff
+  { start: 47,   end: 50,   headline: "Studio-quality results.", sub: "Every time.", accent: "#d4af37" },
+  // Act 9 (50–53s): End card
+  { start: 50,   end: 53,   headline: "Wiz AI.", sub: "Create anything. Instantly.", accent: "#d4af37" },
 ];
 
 function getCaption(t: number): CaptionEntry | null {
