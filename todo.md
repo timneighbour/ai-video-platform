@@ -6483,3 +6483,9 @@
 - [x] Add Studio Lounge dashboard card (logged-in users, "Take a break while your next project builds.")
 - [x] Add Studio Lounge prompt on render/loading screens ("Your project is building. Fancy a break?" + Open Studio Lounge CTA)
 - [x] All provider links open in new tab, no data collection, UTM-ready structure
+
+## Pre-Render Credit Summary Modal
+- [x] Pre-render credit summary modal in MusicVideoAutopilot (WizGenesisModal sceneCount + creditCost props)
+- [x] Pre-render credit summary modal in WizShorts (handleShowRenderModal → WizGenesisModal)
+- [x] Pre-render credit summary modal in TextToVideoCreator (showPreRenderModal → WizGenesisModal)
+- [x] Pre-render credit summary modal in KidsVideo (RENDER button → WizGenesisModal)

@@ -13,6 +13,7 @@ import { mp } from "@/lib/mixpanel";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { StarterTemplates } from "@/components/StarterTemplates";
+import { WizGenesisModal } from "@/components/WizGenesisModal";
 
 // ─── Assets ──────────────────────────────────────────────────────────────────
 const LOGO_IMG = "/manus-storage/wizanimate-logo-new_a84f9808.png";
@@ -167,6 +168,10 @@ export default function KidsVideo() {
   const [addingChar, setAddingChar]   = useState(false);
   const [newCharName, setNewCharName] = useState("");
   const [newCharDesc, setNewCharDesc] = useState("");
+  const [showPreRenderModal, setShowPreRenderModal] = useState(false);
+
+  // Credit cost estimate for KidsVideo: sceneCount × 50 credits (based on server CREDIT_COSTS)
+  const kidsCreditCost = sceneCount * 50;
 
   const stageIndex = STAGES.findIndex(s => s.key === stage);
 
@@ -1147,7 +1152,7 @@ export default function KidsVideo() {
                 ))}
               </div>
             </div>
-            <button style={{
+            <button onClick={() => setShowPreRenderModal(true)} style={{
               width: "100%", padding: "10px",
               background: `linear-gradient(135deg, ${ACCENT}, #5a3d9a)`,
               border: "none", borderRadius: "3px",
@@ -1252,6 +1257,22 @@ export default function KidsVideo() {
         }
       `}</style>
       <LandscapeHint />
+
+      {/* Pre-render credit summary modal */}
+      <WizGenesisModal
+        open={showPreRenderModal}
+        onClose={() => setShowPreRenderModal(false)}
+        jobId={0}
+        jobType="kids_video"
+        videoTitle={undefined}
+        sceneCount={sceneCount}
+        creditCost={kidsCreditCost}
+        onRenderConfirmed={() => {
+          setShowPreRenderModal(false);
+          // KidsVideo uses Stripe checkout — navigate to render stage
+          setStage("render" as Stage);
+        }}
+      />
     </div>
   );
 }

@@ -1571,6 +1571,8 @@ export default function MusicVideoAutopilot() {
           jobId={jobId}
           jobType="music_video"
           videoTitle={title || undefined}
+          sceneCount={scenes.length > 0 ? scenes.length : undefined}
+          creditCost={creditCost > 0 ? creditCost : undefined}
           onRenderConfirmed={handleStartRenderInternal}
         />
       )}

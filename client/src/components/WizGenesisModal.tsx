@@ -30,6 +30,10 @@ interface WizGenesisModalProps {
   jobType?: JobType;
   videoTitle?: string;
   previewImageUrl?: string;
+  /** Number of scenes in the storyboard — used for the credit cost summary */
+  sceneCount?: number;
+  /** Total Build Credits required for this render — shown in the cost summary */
+  creditCost?: number;
   /** Called after billing is confirmed — triggers the actual scene render pipeline */
   onRenderConfirmed?: () => void;
 }
@@ -107,6 +111,8 @@ export function WizGenesisModal({
   jobType = "music_video",
   videoTitle,
   previewImageUrl,
+  sceneCount,
+  creditCost,
   onRenderConfirmed,
 }: WizGenesisModalProps) {
   const [quality, setQuality] = useState<Quality>("hd");
@@ -115,6 +121,8 @@ export function WizGenesisModal({
   const offeredRef = useRef(false);
 
   const renderStatus = trpc.render.getRenderStatus.useQuery(undefined, { enabled: open, staleTime: 30_000 });
+  const creditsQuery = trpc.billing.getCredits.useQuery(undefined, { enabled: open, staleTime: 30_000 });
+  const currentBalance = creditsQuery.data?.balance ?? null;
   const createRenderCheckout = trpc.render.createRenderCheckout.useMutation();
   const useFreeRender = trpc.render.useFreeRender.useMutation();
 
@@ -346,6 +354,51 @@ export function WizGenesisModal({
               })}
             </div>
           </div>
+
+          {/* ── Credit Cost Summary ────────────────────────────────────── */}
+          {(sceneCount !== undefined || creditCost !== undefined) && (
+            <div className="rounded-xl border border-[--color-gold]/20 bg-[--color-gold]/5 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Zap className="w-4 h-4 text-[--color-gold]" />
+                <span className="text-sm font-semibold text-white">Build Credits Required</span>
+              </div>
+              <div className="space-y-2">
+                {sceneCount !== undefined && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-zinc-400">Scenes to render</span>
+                    <span className="text-sm text-white font-medium">{sceneCount} scenes</span>
+                  </div>
+                )}
+                {creditCost !== undefined && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-zinc-400">Credits required</span>
+                    <span className="text-sm font-bold text-[--color-gold]">{creditCost} credits</span>
+                  </div>
+                )}
+                {currentBalance !== null && creditCost !== undefined && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-zinc-400">Your balance</span>
+                      <span className={`text-sm font-semibold ${
+                        currentBalance >= creditCost ? "text-emerald-400" : "text-rose-400"
+                      }`}>{currentBalance} credits</span>
+                    </div>
+                    <div className="border-t border-white/8 pt-2 mt-1 flex items-center justify-between">
+                      <span className="text-xs text-zinc-500">After render</span>
+                      <span className={`text-xs font-semibold ${
+                        currentBalance - creditCost >= 0 ? "text-zinc-300" : "text-rose-400"
+                      }`}>
+                        {currentBalance - creditCost >= 0
+                          ? `${currentBalance - creditCost} credits remaining`
+                          : `${Math.abs(currentBalance - creditCost)} credits short — top up needed`
+                        }
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* ── Price Summary ──────────────────────────────────────────── */}
           <div className="rounded-xl border border-white/8 bg-white/[0.02] p-4">

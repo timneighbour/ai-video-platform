@@ -37,6 +37,7 @@ import { WizBrandBadge } from "@/components/WizBrand";
 import { useSEO } from "@/hooks/useSEO";
 import { mp } from "@/lib/mixpanel";
 import { StudioLoungePrompt } from "@/components/StudioLounge";
+import { WizGenesisModal } from "@/components/WizGenesisModal";
 
 // ─── Accent / Theme Tokens ────────────────────────────────────────────────────
 const V = "#7c3aed";                          // violet-700
@@ -178,6 +179,7 @@ export default function TextToVideoCreator() {
   // ── Generation state ──
   const [projectId, setProjectId] = useState<number | null>(null);
   const [generatedVideoUrl, setGeneratedVideoUrl] = useState<string | null>(null);
+  const [showPreRenderModal, setShowPreRenderModal] = useState(false);
   const [progressPct, setProgressPct] = useState(0);
   const [progressStage, setProgressStage] = useState(0);
   const [generationError, setGenerationError] = useState<string | null>(null);
@@ -315,14 +317,18 @@ export default function TextToVideoCreator() {
     navigator.clipboard.writeText(`${scene.title}\n${scene.description}\nVisual notes: ${scene.visualNotes}`).then(() => toast.success("Copied!"));
   }, []);
 
-  const handleRenderVideo = useCallback(() => {
-    if (!isAuthenticated) { setShowAuthGate(true); return; }
+  const doRenderVideo = useCallback(() => {
     analytics.renderVideoClicked("text_to_video_creator");
     mp.generationStarted("WizVideo", undefined, !!prompt.trim());
     setGenerationError(null); setGeneratedVideoUrl(null); setProjectId(null);
     setStep("generating"); startProgressAnimation();
     generateVideoMutation.mutate({ toolType: "text_to_video", prompt, options: { style, duration, aspectRatio } });
-  }, [isAuthenticated, prompt, style, duration, aspectRatio, generateVideoMutation, startProgressAnimation]);
+  }, [prompt, style, duration, aspectRatio, generateVideoMutation, startProgressAnimation]);
+
+  const handleRenderVideo = useCallback(() => {
+    if (!isAuthenticated) { setShowAuthGate(true); return; }
+    setShowPreRenderModal(true);
+  }, [isAuthenticated]);
 
   const stepIndex = { input: 0, storyboard: 1, generating: 2, done: 2 }[step];
   const styleObj = VIDEO_STYLES.find((s) => s.id === style);
@@ -1022,6 +1028,21 @@ export default function TextToVideoCreator() {
         />
       )}
       <LandscapeHint />
+
+      {/* Pre-render credit summary modal */}
+      <WizGenesisModal
+        open={showPreRenderModal}
+        onClose={() => setShowPreRenderModal(false)}
+        jobId={projectId ?? 0}
+        jobType="text_to_video"
+        videoTitle={prompt.slice(0, 60) || undefined}
+        sceneCount={storyboard.length > 0 ? storyboard.length : 3}
+        creditCost={creditCost}
+        onRenderConfirmed={() => {
+          setShowPreRenderModal(false);
+          doRenderVideo();
+        }}
+      />
     </div>
   );
 }

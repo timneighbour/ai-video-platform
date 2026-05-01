@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import AnimatedEqualiser from "@/components/AnimatedEqualiser";
 import { useSEO } from "@/hooks/useSEO";
+import { WizGenesisModal } from "@/components/WizGenesisModal";
 import {
   Sparkles, Play, Download, ChevronRight,
   Loader2, Film, Zap, CheckCircle2, AlertCircle,
@@ -92,6 +93,8 @@ export default function WizShorts() {
   const [step, setStep] = useState<WizStep>("setup");
   const [jobId, setJobId] = useState<number | null>(null);
   const [scenes, setScenes] = useState<Scene[]>([]);
+  const [jobCreditCost, setJobCreditCost] = useState<number>(0);
+  const [showRenderModal, setShowRenderModal] = useState(false);
 
   const [topic, setTopic] = useState("5 things nobody tells you about starting a YouTube channel");
   const [platform, setPlatform] = useState<Platform>("youtube_shorts");
@@ -195,6 +198,7 @@ export default function WizShorts() {
       const job = await createJobMutation.mutateAsync({ topic: topic.trim(), platform, targetDuration: duration, visualStyle });
       setJobId(job.jobId);
       setTotalScenes(job.sceneCount);
+      setJobCreditCost((job as any).creditCost ?? 0);
       mp.projectCreated("WizShorts");
       toast.info(`Generating ${job.sceneCount} scenes...`);
       const scenesResult = await generateScenesMutation.mutateAsync({ jobId: job.jobId });
@@ -203,6 +207,11 @@ export default function WizShorts() {
     } catch (err: any) {
       toast.error(friendlyError(err, "Failed to create job"));
     }
+  };
+
+  const handleShowRenderModal = () => {
+    if (!jobId) return;
+    setShowRenderModal(true);
   };
 
   const handleStartRender = async () => {
@@ -1076,7 +1085,7 @@ export default function WizShorts() {
                   ))}
                 </div>
                 <Button
-                  onClick={handleStartRender}
+                  onClick={handleShowRenderModal}
                   disabled={startRenderMutation.isPending}
                   className="w-full h-12 font-bold rounded-xl border-0"
                   style={{ background: `linear-gradient(90deg, ${FX} 0%, #a855f7 100%)`, color: "white" }}
@@ -1406,6 +1415,23 @@ export default function WizShorts() {
         </div>
       </div>
       <LandscapeHint />
+
+      {/* Pre-render credit summary modal */}
+      {jobId && (
+        <WizGenesisModal
+          open={showRenderModal}
+          onClose={() => setShowRenderModal(false)}
+          jobId={jobId}
+          jobType="music_video"
+          videoTitle={topic || undefined}
+          sceneCount={scenes.length > 0 ? scenes.length : undefined}
+          creditCost={jobCreditCost > 0 ? jobCreditCost : undefined}
+          onRenderConfirmed={() => {
+            setShowRenderModal(false);
+            handleStartRender();
+          }}
+        />
+      )}
     </div>
   );
 }
