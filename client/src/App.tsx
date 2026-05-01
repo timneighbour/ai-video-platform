@@ -105,9 +105,73 @@ const AdminPanel = lazy(() => import("@/pages/AdminPanel"));
 const AnalyticsDashboard = lazy(() => import("@/pages/AnalyticsDashboard"));
 const WizadoraAdmin = lazy(() => import("@/pages/admin/WizadoraAdmin"));
 
-// Minimal fallback — just a dark screen while the chunk loads
+// Premium loading fallback — shown while lazy chunks load (especially on iOS/slow connections)
 function PageFallback() {
-  return <div className="min-h-screen bg-[#0f0f0f]" />;
+  return (
+    <div
+      className="min-h-screen bg-[#0f0f0f] flex flex-col items-center justify-center"
+      style={{ fontFamily: "'Inter', sans-serif" }}
+    >
+      {/* Logo */}
+      <div className="relative mb-8">
+        <img
+          src="/manus-storage/wizai-logo-premium-transparent_ff33f09f.webp"
+          alt="WIZ AI"
+          className="w-20 h-20 object-contain"
+          style={{ filter: "drop-shadow(0 0 24px oklch(0.78 0.11 75 / 0.6))" }}
+        />
+        {/* Gold pulse ring */}
+        <span
+          className="absolute inset-0 rounded-full"
+          style={{
+            animation: "wizPulse 1.8s ease-in-out infinite",
+            border: "2px solid oklch(0.78 0.11 75 / 0.5)",
+            borderRadius: "50%",
+          }}
+        />
+      </div>
+
+      {/* Loading text */}
+      <p
+        className="text-base font-semibold tracking-widest uppercase mb-2"
+        style={{ color: "oklch(0.78 0.11 75)", letterSpacing: "0.15em" }}
+      >
+        Opening your studio…
+      </p>
+      <p
+        className="text-xs tracking-wide"
+        style={{ color: "oklch(0.78 0.11 75 / 0.45)" }}
+      >
+        Preparing your creative workspace
+      </p>
+
+      {/* Gold progress bar */}
+      <div
+        className="mt-8 rounded-full overflow-hidden"
+        style={{ width: 120, height: 2, background: "oklch(0.78 0.11 75 / 0.15)" }}
+      >
+        <div
+          style={{
+            height: "100%",
+            background: "linear-gradient(90deg, oklch(0.78 0.11 75 / 0.8), oklch(0.92 0.10 75))",
+            animation: "wizBar 1.6s ease-in-out infinite",
+          }}
+        />
+      </div>
+
+      <style>{`
+        @keyframes wizPulse {
+          0%, 100% { transform: scale(1); opacity: 0.6; }
+          50% { transform: scale(1.35); opacity: 0; }
+        }
+        @keyframes wizBar {
+          0% { width: 0%; margin-left: 0%; }
+          50% { width: 70%; margin-left: 15%; }
+          100% { width: 0%; margin-left: 100%; }
+        }
+      `}</style>
+    </div>
+  );
 }
 
 // After OAuth login, the server redirects to "/". This component checks

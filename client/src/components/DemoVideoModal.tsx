@@ -572,8 +572,9 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
   }, []);
 
   /* -- Play / Pause ------------------------------------------------------------------------ */
-  // CRITICAL: synchronous handler — play() calls must be in the same user-gesture tick.
-  // async/await loses gesture context on mobile Safari and some desktop browsers.
+  // CRITICAL: play() calls must be synchronous in the same user-gesture tick.
+  // iOS Safari blocks audio.play() if called inside a .then() callback (loses gesture context).
+  // Strategy: call both video.play() and audio.play() SYNCHRONOUSLY, then resume AudioContext after.
   const togglePlay = useCallback(() => {
     const vid = videoRef.current;
     const aud = audioRef.current;
@@ -585,33 +586,26 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
       mp.demoVideoPaused(vid.currentTime);
       setPlaying(false);
     } else {
-      // Resume AudioContext FIRST (Chrome requires this before MediaElementAudioSourceNode outputs sound)
-      // We call resume() and play() in the same gesture tick — the Promise resolves quickly
-      const ctx = audioCtxRef.current;
-      const resumePromise = ctx && ctx.state === "suspended" ? ctx.resume() : Promise.resolve();
-      resumePromise.then(() => {
-        if (aud) {
-          aud.currentTime = vid.currentTime;
-          aud.muted = false;
-          aud.volume = isMuted ? 0 : 1;
-          applyEQ(wizsoundMode);
-          aud.play().catch((e) => console.warn('[DemoModal] audio blocked:', e.message));
+      // Step 1: Call play() SYNCHRONOUSLY in the gesture tick (iOS Safari requires this)
+      if (aud) {
+        aud.currentTime = vid.currentTime;
+        aud.muted = false;
+        aud.volume = isMuted ? 0 : 1;
+        applyEQ(wizsoundMode);
+        // Fire-and-forget — do NOT await or .then() here (would break iOS gesture context)
+        aud.play().catch((e) => console.warn('[DemoModal] audio blocked:', e.message));
+      }
+      vid.play().then(() => {
+        setPlaying(true);
+        mp.demoVideoPlayed();
+        // Step 2: Resume AudioContext AFTER play() is called (safe to do async here)
+        const ctx = audioCtxRef.current;
+        if (ctx && ctx.state === 'suspended') {
+          ctx.resume().catch(() => {});
         }
-        vid.play().then(() => {
-          setPlaying(true);
-          mp.demoVideoPlayed();
-        }).catch((e) => {
-          console.warn('[DemoModal] video blocked:', e.message);
-          setPlaying(false);
-        });
-      }).catch(() => {
-        // AudioContext resume failed — fall back to direct play (audio may be silent but video plays)
-        if (aud) {
-          aud.muted = false;
-          aud.volume = isMuted ? 0 : 1;
-          aud.play().catch(() => {});
-        }
-        vid.play().then(() => { setPlaying(true); mp.demoVideoPlayed(); }).catch(() => { setPlaying(false); });
+      }).catch((e) => {
+        console.warn('[DemoModal] video blocked:', e.message);
+        setPlaying(false);
       });
     }
   }, [playing, isMuted, wizsoundMode, buildAudioGraph, applyEQ]);
