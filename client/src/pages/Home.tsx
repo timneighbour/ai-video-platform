@@ -1099,7 +1099,7 @@ function ProductGrid() {
 }
 
 // Hero Demo Section — cinematic product showcase video directly below Hero
-const HERO_DEMO_VIDEO = `/manus-storage/wiz-ai-trailer-v4_8bc994bc.mp4`;
+const HERO_DEMO_VIDEO = `/manus-storage/wiz-ai-trailer-v5-clean_d6669870.mp4`;
 const HERO_DEMO_POSTER = `/manus-storage/trailer-v2-poster_4a74cc1c.jpg`;
 function HeroDemoSection() {
  const videoRef = useRef<HTMLVideoElement>(null);
@@ -2581,7 +2581,7 @@ function WizLuminaDemo() {
  playsInline
  preload="auto"
  >
- <source src="/manus-storage/wiz-ai-trailer-v4_8bc994bc.mp4" type="video/mp4" />
+ <source src="/manus-storage/wiz-ai-trailer-v5-clean_d6669870.mp4" type="video/mp4" />
  </video>
  {/* Cinematic overlay */}
  <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.04), transparent 60%)" }} />
