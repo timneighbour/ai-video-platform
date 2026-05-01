@@ -28,6 +28,7 @@ import HeroCinematicBg from "@/components/HeroCinematicBg";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
+import { StudioLoungeSection } from "@/components/StudioLounge";
 // Lucide icons removed — replaced with inline SVGs and product logos
 const ArrowSVG = ({ className = "w-4 h-4", style }: { className?: string; style?: React.CSSProperties }) => (
  <svg className={className} style={style} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
@@ -3800,6 +3801,8 @@ export default function Home() {
  <Showcase />
  {/* 9. Final CTA */}
  <FinalCTA />
+ {/* 10. Studio Lounge — creator comfort section */}
+ <StudioLoungeSection />
  </main>
  <Footer />
  <ContinueProjectBanner />

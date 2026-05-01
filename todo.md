@@ -6476,3 +6476,10 @@
 - [ ] Remove old top caption from full-screen demo modal (CaptionOverlay was previously top-positioned, now bottom — old top one still visible)
 - [ ] Fix audio not playing in the full-screen demo modal
 - [ ] Replace inline homepage demo video (HeroDemoSection) with the same video used in the full-screen modal
+
+## Studio Lounge Feature
+- [x] Create StudioLounge shared component (dark luxury, gold accents, Deliveroo/Uber Eats/Just Eat links with UTM-ready URLs)
+- [x] Add Studio Lounge homepage section (lower page, below hero, "Rendering a project? Order food, coffee or snacks while Wiz AI works.")
+- [x] Add Studio Lounge dashboard card (logged-in users, "Take a break while your next project builds.")
+- [x] Add Studio Lounge prompt on render/loading screens ("Your project is building. Fancy a break?" + Open Studio Lounge CTA)
+- [x] All provider links open in new tab, no data collection, UTM-ready structure

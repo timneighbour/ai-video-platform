@@ -36,6 +36,7 @@ import AuthGate from "@/components/AuthGate";
 import { WizBrandBadge } from "@/components/WizBrand";
 import { useSEO } from "@/hooks/useSEO";
 import { mp } from "@/lib/mixpanel";
+import { StudioLoungePrompt } from "@/components/StudioLounge";
 
 // ─── Accent / Theme Tokens ────────────────────────────────────────────────────
 const V = "#7c3aed";                          // violet-700
@@ -850,6 +851,10 @@ export default function TextToVideoCreator() {
                       <span className={i <= progressStage ? "text-white" : "text-white/72"}>{stage.label}</span>
                     </div>
                   ))}
+                </div>
+                {/* Studio Lounge nudge — shown while rendering */}
+                <div className="pt-4">
+                  <StudioLoungePrompt />
                 </div>
               </div>
             )}

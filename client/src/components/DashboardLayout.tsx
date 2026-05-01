@@ -31,6 +31,7 @@ import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
+import { StudioLoungeCard } from "./StudioLounge";
 
 const WIZANIMATE_LOGO = "/manus-storage/wizanimate-logo-new_a84f9808.png";
 
@@ -271,6 +272,8 @@ function DashboardLayoutContent({
           <SidebarFooter className="p-3 space-y-2">
             {/* Low credit warning — shown when balance is below threshold, hidden when collapsed */}
             <LowCreditBannerSidebar />
+            {/* Studio Lounge — creator comfort, hidden when sidebar is collapsed */}
+            <StudioLoungeCard />
             {/* Credit balance card — hidden when sidebar is collapsed */}
             <div className="group-data-[collapsible=icon]:hidden">
               <CreditBalance variant="card" />
