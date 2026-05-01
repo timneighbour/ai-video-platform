@@ -926,7 +926,7 @@ function Hero() {
  <div className="relative z-10 max-w-7xl mx-auto px-6 pt-[96px] pb-24 w-full">
  <div className="max-w-3xl">
  {/* Eyebrow */}
- <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full border border-[--color-gold]/[0.18] bg-[--color-gold]/[0.04] backdrop-blur-sm mb-8 shadow-[0_0_24px_rgba(196,164,100,0.08)]">
+ <div className="inline-flex flex-wrap items-center gap-2 px-3 sm:px-5 py-2 rounded-full border border-[--color-gold]/[0.18] bg-[--color-gold]/[0.04] backdrop-blur-sm mb-8 shadow-[0_0_24px_rgba(196,164,100,0.08)]">
  <span className="relative flex items-center justify-center w-2 h-2">
  <span className="absolute w-full h-full rounded-full bg-[--color-gold] animate-ping opacity-60" style={{ animationDuration: "2s" }} />
  <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold]" />
@@ -2359,7 +2359,7 @@ className="w-full h-full object-cover object-center"
  <button
  key={t.id}
  onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleTierSwitch(i); }}
- className="relative px-8 py-3.5 rounded-xl text-sm font-bold transition-all duration-400"
+ className="relative px-3 sm:px-8 py-3 sm:py-3.5 rounded-xl text-sm font-bold transition-all duration-400"
  style={{
  background: pillBg,
  border: `1px solid ${pillBorder}`,
@@ -3243,7 +3243,7 @@ function SeeTheDifference() {
  onClick={() => switchTier(tier.key)}
  disabled={isSwitching}
  className={`
- relative px-7 py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 flex flex-col items-center gap-0.5
+ relative px-3 sm:px-7 py-3 sm:py-3.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-300 flex flex-col items-center gap-0.5
  ${isActive
  ? `bg-gradient-to-r ${tier.gradient} text-white shadow-xl`
  : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/10 hover:text-white"
@@ -3695,7 +3695,7 @@ function Footer() {
  </div>
  <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-[--color-silver-dark]/25">
  <p>&copy; 2026 WIZ AI. All rights reserved.</p>
- <div className="flex gap-5">
+ <div className="flex flex-wrap gap-3">
  <a href="/privacy" className="hover:text-[--color-gold-dark] transition-colors">Privacy Policy</a>
  <a href="/terms" className="hover:text-[--color-gold-dark] transition-colors">Terms of Service</a>
  <a href="/refunds" className="hover:text-[--color-gold-dark] transition-colors">Refund Policy</a>

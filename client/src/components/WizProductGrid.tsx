@@ -136,9 +136,10 @@ function Tile({ tile, height = 220 }: { tile: StudioTile; height?: number }) {
     <a
       href={tile.href}
       onClick={() => mp.productCardClicked(tile.name)}
-      className="group relative block overflow-hidden rounded-2xl cursor-pointer"
+      className="group relative block overflow-hidden rounded-2xl cursor-pointer wiz-tile"
+      data-h={height}
       style={{
-        height: `${height}px`,
+        height: `${Math.round(height * 0.73)}px`,
         border: "1px solid rgba(196,164,100,0.18)",
         transition: "border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease",
       }}
@@ -294,7 +295,7 @@ export default function WizProductGrid() {
           </div>
           {/* Bottom row: 3 tiles centred — use a max-w wrapper so they don't stretch full width */}
           <div className="flex justify-center">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full" style={{ maxWidth: 'calc(75% + 8px)' }}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 w-full sm:max-w-[calc(75%+8px)]">
               {CREATE_TILES.slice(4, 7).map((tile) => (
                 <Tile key={tile.name} tile={tile} height={220} />
               ))}
@@ -349,6 +350,10 @@ export default function WizProductGrid() {
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(12px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        @media (min-width: 640px) {
+          .wiz-tile[data-h="220"] { height: 220px !important; }
+          .wiz-tile[data-h="260"] { height: 260px !important; }
         }
       `}</style>
     </section>

@@ -6537,3 +6537,12 @@
 - [x] All raw error messages replaced with clean user-facing copy
 
 - [x] CTA link audit: Fixed broken href="/wizsound" → href="/products/wizsound" in WizSound section CTA (Home.tsx line 3402). All other product hrefs verified correct. Watch the Demo button already has touchAction:manipulation and WebkitTapHighlightColor:transparent. All footer links validated against App.tsx routes.
+
+## Mobile Audit Fixes (May 2026)
+- [x] DemoVideoModal: move close button inside modal (not -top-10 which clips off-screen on mobile)
+- [x] Hero eyebrow badge: allow text-wrap on very small screens
+- [x] SeeTheDifference tier buttons: reduce px-7 to px-3 on mobile so 3 buttons fit on one row
+- [x] WizSoundDemo tier buttons: reduce px-8 to px-3 on mobile so 3 buttons fit without overflow
+- [x] Footer bottom legal links: add flex-wrap so links don't overflow on mobile
+- [x] WizProductGrid bottom row: remove maxWidth calc(75%+8px) on mobile so tiles use full width
+- [x] WizProductGrid tile height: use responsive height (160px mobile, 220px desktop)

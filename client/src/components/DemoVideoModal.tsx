@@ -128,7 +128,7 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center"
+      className="fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto py-4 sm:py-0"
       style={{ background: "rgba(0,0,0,0.92)", backdropFilter: "blur(8px)" }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
@@ -137,16 +137,6 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
         style={{ maxWidth: 960, padding: "0 16px" }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute -top-10 right-4 z-10 w-9 h-9 flex items-center justify-center rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-colors"
-          aria-label="Close"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
         {/* Video container */}
         <div
           className="relative w-full rounded-xl overflow-hidden bg-black"
@@ -212,6 +202,15 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
           {/* Button row */}
           <div className="flex items-center gap-3">
+            {/* Close — always visible on mobile */}
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-8 h-8 flex items-center justify-center text-white/50 hover:text-white transition-colors cursor-pointer"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
             <button
               type="button"
               onClick={togglePlay}
