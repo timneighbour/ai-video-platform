@@ -191,7 +191,7 @@ export function PostRenderRetentionScreen({
       )}
 
       {/* ── Celebration Header ──────────────────────────────────────── */}
-      <div className="text-center mb-6">
+      <div className="screening-room-celebration text-center mb-6">
         <div className="relative w-16 h-16 mx-auto mb-4">
           <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#b8892a]/30 to-[#2e2e36]/30 animate-ping" style={{ animationDuration: "2s" }} />
           <div className="relative w-16 h-16 rounded-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-lg shadow-[#b8892a]/40">
@@ -202,6 +202,12 @@ export function PostRenderRetentionScreen({
         <p className="text-zinc-400 text-sm">
           {videoTitle ? `"${videoTitle}" — ` : ""}Download it, share it, or create something new.
         </p>
+      </div>
+
+      {/* Rotate hint — shown in portrait on phones/tablets */}
+      <div className="rotate-hint-visible" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        <span>Rotate for best experience</span>
       </div>
 
       {/* ── Screening Room Player Chrome ──────────────────────────── */}
@@ -229,7 +235,7 @@ export function PostRenderRetentionScreen({
             autoPlay
             muted
             playsInline
-            className="w-full max-h-72 bg-black"
+            className="w-full max-h-72 bg-black screening-room-video"
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
           />

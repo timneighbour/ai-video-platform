@@ -44,6 +44,7 @@ import BackButton from "@/components/BackButton";
 import { WizBrandPostBadge } from "@/components/WizBrand";
 import SubscriptionUpgradeNudge from "@/components/SubscriptionUpgradeNudge";
 import PostRenderCinematicPackModal from "@/components/PostRenderCinematicPackModal";
+import { LandscapeHint } from "@/components/LandscapeHint";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -208,7 +209,9 @@ export default function RenderHistory() {
 
         {/* Job list */}
         {jobs.length > 0 && (
-          <div className="space-y-3">
+          <>
+          <LandscapeHint label="Rotate to landscape for a better view of your videos." />
+          <div className="space-y-3 render-history-grid">
             {jobs.map((job: any) => {
               const progressPct = job.totalScenes > 0
                 ? Math.round((job.completedScenes / job.totalScenes) * 100)
@@ -362,11 +365,11 @@ export default function RenderHistory() {
                   </div>
                 </div>
               );
-            })}
+             })}
           </div>
+          </>
         )}
       </div>
-
       {/* Scene details drawer */}
       <Dialog open={selectedJobId !== null} onOpenChange={(open) => { if (!open) setSelectedJobId(null); }}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-card border-border">

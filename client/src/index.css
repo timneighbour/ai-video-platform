@@ -1561,3 +1561,87 @@ select {
   0%, 100% { height: 4px; }
   50%       { height: 12px; }
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   LANDSCAPE & TABLET / iPAD RESPONSIVE LAYOUT
+   Covers: phones in landscape, iPad mini (768px), iPad Air (820px),
+           iPad Pro 11" (1024px), iPad Pro 12.9" (1180px)
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* Safe-area insets for iPhone notch / Dynamic Island / iPad home bar */
+.safe-area-top    { padding-top:    env(safe-area-inset-top,    0px); }
+.safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.safe-area-left   { padding-left:   env(safe-area-inset-left,   0px); }
+.safe-area-right  { padding-right:  env(safe-area-inset-right,  0px); }
+
+/* Phone landscape: video player fills screen height */
+@media (max-height: 500px) and (orientation: landscape) {
+  .screening-room-video {
+    max-height: calc(100dvh - 6rem) !important;
+    height: auto;
+    width: 100%;
+  }
+  .screening-room-celebration { display: none; }
+}
+
+/* iPad mini (768px) and iPad Air (820px) landscape */
+@media (min-width: 768px) and (max-width: 1023px) and (orientation: landscape) {
+  .screening-room-video { max-height: 52vw !important; width: 100%; }
+  .scene-grid-mobile { grid-template-columns: repeat(2, 1fr) !important; }
+  .nav-mobile-toggle { display: none !important; }
+  .nav-desktop-links { display: flex !important; }
+}
+
+/* iPad Pro 11" (1024px) landscape */
+@media (min-width: 1024px) and (max-width: 1179px) and (orientation: landscape) {
+  .screening-room-video { max-height: 50vw !important; width: 100%; }
+  .scene-grid-mobile { grid-template-columns: repeat(3, 1fr) !important; }
+  .render-history-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+}
+
+/* iPad Pro 12.9" (1180px+) near-desktop landscape */
+@media (min-width: 1180px) and (orientation: landscape) {
+  .screening-room-video { max-height: 48vw !important; width: 100%; }
+  .scene-grid-mobile { grid-template-columns: repeat(4, 1fr) !important; }
+}
+
+/* Rotate hint: shown in portrait on mobile/tablet on video pages */
+@media (max-width: 1023px) and (orientation: portrait) {
+  .rotate-hint-visible {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+    padding: 0.4rem 0.75rem;
+    background: rgba(184, 137, 42, 0.12);
+    border: 1px solid rgba(184, 137, 42, 0.3);
+    border-radius: 9999px;
+    color: rgba(212, 168, 67, 0.85);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin: 0 auto 0.75rem;
+    width: fit-content;
+    animation: rotate-hint-pulse 2.5s ease-in-out infinite;
+  }
+}
+@keyframes rotate-hint-pulse {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1; }
+}
+
+/* Render history: responsive card grid */
+@media (min-width: 768px) {
+  .render-history-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+}
+@media (min-width: 1280px) {
+  .render-history-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* PostRenderRetentionScreen: landscape two-column layout */
+@media (min-width: 768px) and (orientation: landscape) {
+  .post-render-landscape { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-items: start; }
+  .post-render-landscape-player { position: sticky; top: 1rem; }
+}

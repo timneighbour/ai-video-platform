@@ -6636,3 +6636,19 @@
 - [ ] Verify all refund paths return credits back to user balance (not cash)
 - [ ] Admin credit management panel: Tim can search users, view balance, add/deduct credits with reason
 - [ ] Admin credit panel: show credit transaction history per user
+
+- [x] Mobile phone landscape: video player goes full-width/full-height, controls overlay bottom
+- [x] Mobile phone landscape: show rotate-to-landscape hint in portrait on video pages
+- [x] Tablet landscape: storyboard uses 2-column grid layout (scene list left, preview right)
+- [x] Tablet landscape: video player maximises to fill available width with sidebar controls
+- [x] Tablet portrait: ensure no landscape-only layout bleeds into portrait view
+- [x] All breakpoints: test at 768px (tablet portrait), 1024px (tablet landscape), 375px (phone portrait), 667px (phone landscape)
+
+- [x] iPad mini (768×1024): landscape layout — video player full-width, storyboard 2-col
+- [x] iPad standard/Air (820×1180): landscape layout — wider storyboard grid, sidebar visible
+- [x] iPad Pro 11" (834×1194): landscape layout — full studio layout with persistent sidebar
+- [x] iPad Pro 12.9" (1024×1366): landscape layout — treat as near-desktop, show full nav
+- [x] Add @media (orientation: landscape) and device-specific breakpoints in index.css
+- [x] Ensure nav bar does not collapse on iPad landscape (min-width: 768px stays expanded)
+- [x] Video player on iPad: use aspect-ratio: 16/9 container that fills available width in landscape
+- [x] Storyboard on iPad landscape: scene thumbnails in 3-col grid instead of 1-col list
