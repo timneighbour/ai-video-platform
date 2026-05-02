@@ -191,8 +191,8 @@ export const SUBSCRIPTION_PLANS = {
       "Email support",
       "Cancel anytime",
     ],
-    stripePriceId: process.env.STRIPE_STARTER_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_STARTER_PRICE_ID : "price_1TSQxpIaMYB25uKKAojtuR64",
-    stripeAnnualPriceId: process.env.STRIPE_STARTER_ANNUAL_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_STARTER_ANNUAL_PRICE_ID : "price_1TSQxrIaMYB25uKKrNqZVOc1",
+    stripePriceId: process.env.STRIPE_STARTER_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_STARTER_PRICE_ID : "price_1TSQxpIaMYB25uKKAojtuR64",
+    stripeAnnualPriceId: process.env.STRIPE_STARTER_ANNUAL_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_STARTER_ANNUAL_PRICE_ID : "price_1TSQxrIaMYB25uKKrNqZVOc1",
   },
   creator: {
     name: "Creator",
@@ -220,8 +220,8 @@ export const SUBSCRIPTION_PLANS = {
       "Priority support",
       "Cancel anytime",
     ],
-    stripePriceId: process.env.STRIPE_PRO_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_PRO_PRICE_ID : "price_1TSQxsIaMYB25uKKYpmhAx3J",
-    stripeAnnualPriceId: process.env.STRIPE_PRO_ANNUAL_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_PRO_ANNUAL_PRICE_ID : "price_1TSQxtIaMYB25uKKdOSrkDuG",
+    stripePriceId: process.env.STRIPE_PRO_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_PRO_PRICE_ID : "price_1TSQxsIaMYB25uKKYpmhAx3J",
+    stripeAnnualPriceId: process.env.STRIPE_PRO_ANNUAL_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_PRO_ANNUAL_PRICE_ID : "price_1TSQxtIaMYB25uKKdOSrkDuG",
   },
   pro: {
     name: "Pro",
@@ -249,8 +249,8 @@ export const SUBSCRIPTION_PLANS = {
       "Priority support",
       "Cancel anytime",
     ],
-    stripePriceId: process.env.STRIPE_PRO_PLUS_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_PRO_PLUS_PRICE_ID : "price_1TSQxuIaMYB25uKK9BAlUxk0",
-    stripeAnnualPriceId: process.env.STRIPE_PRO_PLUS_ANNUAL_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_PRO_PLUS_ANNUAL_PRICE_ID : "price_1TSQxwIaMYB25uKKm4inmBFO",
+    stripePriceId: process.env.STRIPE_PRO_PLUS_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_PRO_PLUS_PRICE_ID : "price_1TSQxuIaMYB25uKK9BAlUxk0",
+    stripeAnnualPriceId: process.env.STRIPE_PRO_PLUS_ANNUAL_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_PRO_PLUS_ANNUAL_PRICE_ID : "price_1TSQxwIaMYB25uKKm4inmBFO",
   },
   // Legacy plan aliases — kept for backward compat with existing subscribers
   basic: {
@@ -274,8 +274,8 @@ export const SUBSCRIPTION_PLANS = {
       "Email support",
       "Cancel anytime",
     ],
-    stripePriceId: process.env.STRIPE_BASIC_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_BASIC_PRICE_ID : "price_1TSQxxIaMYB25uKKDfzIR0aC",
-    stripeAnnualPriceId: process.env.STRIPE_BASIC_ANNUAL_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_BASIC_ANNUAL_PRICE_ID : "price_1TSQxyIaMYB25uKKRRu0CoHn",
+    stripePriceId: process.env.STRIPE_BASIC_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_BASIC_PRICE_ID : "price_1TSQxxIaMYB25uKKDfzIR0aC",
+    stripeAnnualPriceId: process.env.STRIPE_BASIC_ANNUAL_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_BASIC_ANNUAL_PRICE_ID : "price_1TSQxyIaMYB25uKKRRu0CoHn",
   },
   studio: {
     name: "Studio",
@@ -303,8 +303,8 @@ export const SUBSCRIPTION_PLANS = {
       "Dedicated account support",
       "Cancel anytime",
     ],
-    stripePriceId: process.env.STRIPE_BUSINESS_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_BUSINESS_PRICE_ID : "price_1TSQy0IaMYB25uKKyUpZzrK2",
-    stripeAnnualPriceId: process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID : "",
+    stripePriceId: process.env.STRIPE_BUSINESS_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_BUSINESS_PRICE_ID : "price_1TSQy0IaMYB25uKKyUpZzrK2",
+    stripeAnnualPriceId: process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID : "",
   },
 } as const;
 
@@ -322,7 +322,7 @@ export const CREDIT_PACKS = {
     credits: 360,   // 3 videos × 8 scenes × 15 credits = 360 credits
     videos: 3,
     popular: false,
-    stripePriceId: process.env.STRIPE_SMALL_PACK_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_SMALL_PACK_PRICE_ID : "price_1TSQy6IaMYB25uKKqcZU88QZ",
+    stripePriceId: process.env.STRIPE_SMALL_PACK_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_SMALL_PACK_PRICE_ID : "price_1TSQy6IaMYB25uKKqcZU88QZ",
   },
   creator: {
     name: "Creator Pack",
@@ -332,7 +332,7 @@ export const CREDIT_PACKS = {
     credits: 1320,  // 8 videos × 11 scenes × 15 credits = 1,320 credits
     videos: 8,
     popular: true,
-    stripePriceId: process.env.STRIPE_MEDIUM_PACK_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_MEDIUM_PACK_PRICE_ID : "price_1TSQy7IaMYB25uKKkKDs8uYZ",
+    stripePriceId: process.env.STRIPE_MEDIUM_PACK_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_MEDIUM_PACK_PRICE_ID : "price_1TSQy7IaMYB25uKKkKDs8uYZ",
   },
   pro: {
     name: "Pro Pack",
@@ -342,7 +342,7 @@ export const CREDIT_PACKS = {
     credits: 3600,  // 20 videos × 12 scenes × 15 credits = 3,600 credits
     videos: 20,
     popular: false,
-    stripePriceId: process.env.STRIPE_LARGE_PACK_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_LARGE_PACK_PRICE_ID : "price_1TSQy9IaMYB25uKKdI8JqVyT",
+    stripePriceId: process.env.STRIPE_LARGE_PACK_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_LARGE_PACK_PRICE_ID : "price_1TSQy9IaMYB25uKKdI8JqVyT",
   },
 } as const;
 
@@ -357,7 +357,7 @@ export const CINEMATIC_PACKS = {
     price: 15,
     credits: 200,
     scenes: 10,
-    stripePriceId: process.env.STRIPE_CINEMATIC_10_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_CINEMATIC_10_PRICE_ID : "price_1TSQyKIaMYB25uKKc3HakTOk",
+    stripePriceId: process.env.STRIPE_CINEMATIC_10_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_CINEMATIC_10_PRICE_ID : "price_1TSQyKIaMYB25uKKc3HakTOk",
   },
   twentyfive: {
     name: "25 Cinematic Scenes",
@@ -365,7 +365,7 @@ export const CINEMATIC_PACKS = {
     price: 32,
     credits: 500,
     scenes: 25,
-    stripePriceId: process.env.STRIPE_CINEMATIC_25_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_CINEMATIC_25_PRICE_ID : "price_1TSQyLIaMYB25uKKjXFJd5BE",
+    stripePriceId: process.env.STRIPE_CINEMATIC_25_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_CINEMATIC_25_PRICE_ID : "price_1TSQyLIaMYB25uKKjXFJd5BE",
   },
   fifty: {
     name: "50 Cinematic Scenes",
@@ -373,7 +373,7 @@ export const CINEMATIC_PACKS = {
     price: 58,
     credits: 1000,
     scenes: 50,
-    stripePriceId: process.env.STRIPE_CINEMATIC_50_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_CINEMATIC_50_PRICE_ID : "price_1TSQyNIaMYB25uKKyR4EXLqX",
+    stripePriceId: process.env.STRIPE_CINEMATIC_50_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_CINEMATIC_50_PRICE_ID : "price_1TSQyNIaMYB25uKKyR4EXLqX",
   },
 } as const;
 
@@ -466,7 +466,7 @@ export const TOPUP_PACKS = {
     bestFor: "One-off extras",
     cta: "Add 3 Credits",
     popular: false,
-    stripePriceId: process.env.STRIPE_TOPUP_QUICK_BOOST_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_TOPUP_QUICK_BOOST_PRICE_ID : "price_1TSQy1IaMYB25uKKCgA48het",
+    stripePriceId: process.env.STRIPE_TOPUP_QUICK_BOOST_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_TOPUP_QUICK_BOOST_PRICE_ID : "price_1TSQy1IaMYB25uKKCgA48het",
   },
   creator_boost: {
     key: "creator_boost",
@@ -477,7 +477,7 @@ export const TOPUP_PACKS = {
     bestFor: "Busy creator weeks",
     cta: "Add 10 Credits",
     popular: true,
-    stripePriceId: process.env.STRIPE_TOPUP_CREATOR_BOOST_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_TOPUP_CREATOR_BOOST_PRICE_ID : "price_1TSQy2IaMYB25uKKjJVCfOx7",
+    stripePriceId: process.env.STRIPE_TOPUP_CREATOR_BOOST_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_TOPUP_CREATOR_BOOST_PRICE_ID : "price_1TSQy2IaMYB25uKKjJVCfOx7",
   },
   studio_boost: {
     key: "studio_boost",
@@ -488,7 +488,7 @@ export const TOPUP_PACKS = {
     bestFor: "Campaigns and content batches",
     cta: "Add 25 Credits",
     popular: false,
-    stripePriceId: process.env.STRIPE_TOPUP_STUDIO_BOOST_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_TOPUP_STUDIO_BOOST_PRICE_ID : "price_1TSQy3IaMYB25uKKtrkCBHWo",
+    stripePriceId: process.env.STRIPE_TOPUP_STUDIO_BOOST_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_TOPUP_STUDIO_BOOST_PRICE_ID : "price_1TSQy3IaMYB25uKKtrkCBHWo",
   },
   pro_bulk_boost: {
     key: "pro_bulk_boost",
@@ -499,7 +499,7 @@ export const TOPUP_PACKS = {
     bestFor: "High-volume creators",
     cta: "Add 60 Credits",
     popular: false,
-    stripePriceId: process.env.STRIPE_TOPUP_PRO_BULK_BOOST_PRICE_ID?.startsWith("price_1TSQ") ? process.env.STRIPE_TOPUP_PRO_BULK_BOOST_PRICE_ID : "price_1TSQy5IaMYB25uKKQcZLvER6",
+    stripePriceId: process.env.STRIPE_TOPUP_PRO_BULK_BOOST_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_TOPUP_PRO_BULK_BOOST_PRICE_ID : "price_1TSQy5IaMYB25uKKQcZLvER6",
   },
 } as const;
 
