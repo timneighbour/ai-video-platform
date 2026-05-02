@@ -916,7 +916,6 @@ function Nav() {
             {/* Simple links */}
             <a href="/pricing" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/80 hover:text-white hover:bg-white/[0.04] transition-all duration-200" onClick={() => setMobileOpen(false)}>Pricing</a>
             <a href="/help" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/80 hover:text-white hover:bg-white/[0.04] transition-all duration-200" onClick={() => setMobileOpen(false)}>Help</a>
-            <StudioLoungeNavButton mobile onClose={() => setMobileOpen(false)} />
 
             {/* CTA buttons */}
             <div className="mt-4 pt-4 flex flex-col gap-2.5" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.10)" }}>
@@ -925,11 +924,7 @@ function Nav() {
                   <a href="/dashboard" className="flex items-center justify-center gap-2 py-3.5 rounded-xl text-[15px] font-bold transition-all duration-200" style={{ background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.20) 0%, oklch(0.60 0.10 65 / 0.15) 100%)", border: "1px solid oklch(0.78 0.11 75 / 0.35)", color: "oklch(0.92 0.10 75)", boxShadow: "0 0 24px oklch(0.78 0.11 75 / 0.10)" }} onClick={() => setMobileOpen(false)}>
                     <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" /> Dashboard
                   </a>
-                  {user?.role === "admin" && (
-                    <a href="/admin" className="flex items-center justify-center gap-2 py-3 rounded-xl text-[14px] font-bold transition-all duration-200" style={{ background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.10) 0%, oklch(0.78 0.11 75 / 0.05) 100%)", border: "1px solid oklch(0.78 0.11 75 / 0.20)", color: "oklch(0.88 0.10 75)" }} onClick={() => setMobileOpen(false)}>
-                      ⚙️ Admin Panel
-                    </a>
-                  )}
+
                 </>
               ) : (
                 <>

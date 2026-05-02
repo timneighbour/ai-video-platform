@@ -6569,3 +6569,50 @@
 
 - [ ] CRITICAL: OAuth mobile sign-in fails with "Permission denied — Redirect URI is not set" on iPhone Safari — investigate OAuth app redirect URI config in Manus OAuth settings
 - [ ] Investigate "A new version of WIZ AI is available vueTvYr — UPDATE NOW" banner appearing on mobile homepage (Manus platform banner leaking to live site)
+
+## 🚨 LAUNCH BLOCKER — DO NOT LAUNCH UNTIL RESOLVED (Added 2026-05-02)
+
+- [ ] **CRITICAL: OAuth custom-domain sign-in broken on wiz-ai.io**
+  - Symptom: "Permission denied — Redirect URI is not set" on manus.im/app-auth for ALL users on ALL devices
+  - Root cause: Manus OAuth server does not have `https://wiz-ai.io/api/oauth/callback` registered as an allowed redirect URI for app `ALJHDNsuNA7bExFuoQZUsx`
+  - This is a Manus platform-level configuration — cannot be fixed from code
+  - Fix required: Submit support ticket to https://help.manus.im requesting that `https://wiz-ai.io/api/oauth/callback` and `https://www.wiz-ai.io/api/oauth/callback` be added to the allowed redirect URIs for project ALJHDNsuNA7bExFuoQZUsx
+  - Status: BLOCKED — awaiting Manus support response
+
+## Launch Readiness Checklist (paused until OAuth blocker resolved)
+
+- [ ] Users can visit wiz-ai.io and sign in (BLOCKED — OAuth issue)
+- [ ] Users can complete onboarding after sign-in
+- [ ] Users can access dashboard
+- [ ] Users can start a project
+- [ ] Stripe checkout works end-to-end on live site
+- [ ] Mobile sign-in and dashboard work correctly
+- [ ] All product creation flows tested (WizVideo, WizAnimate, WizSound, WizLumina)
+
+## Fixes Applied During QA Session (2026-05-02) — Ready to Deploy
+
+- [x] Stripe price IDs updated — all 27 products/prices created in new Stripe sandbox account (correct IDs hardcoded in billing.ts and products.ts)
+- [x] OAuth decodeState fix — server/_core/sdk.ts now correctly parses JSON state (was returning full JSON string as redirectUri on token exchange)
+- [x] Checkpoint saved: 4417e89a — contains both fixes, deployed to live site
+
+## CTA Audit & Fix (2026-05-02) — Reported by Tim
+
+- [ ] Audit and fix Starter subscription CTA — was redirecting to Uber Eats on mobile
+- [ ] Audit and fix Creator pack (£35/month) CTA — was redirecting to admin panel on mobile
+- [ ] Audit and fix ALL subscription plan CTAs (Starter, Pro, Business, Basic)
+- [ ] Audit and fix ALL top-up pack CTAs (Quick Boost, Creator Boost, Pro Bulk Boost, Studio Boost)
+- [ ] Audit and fix ALL cinematic pack CTAs (Cinematic 10, 25, 50)
+- [ ] Audit and fix ALL WizSound pack CTAs (Audio Enhanced, Audio Cinematic)
+- [ ] Audit and fix ALL WizLumina pack CTAs (Render Standard, Render HD, Render 4K)
+- [ ] Audit and fix ALL bundle pack CTAs (Bundle 6, Bundle 15, Bundle 40)
+- [ ] Audit and fix ALL render pack CTAs (Small, Medium, Large)
+- [ ] Ensure every paid CTA triggers correct Stripe checkout (not wrong URL, not admin panel)
+- [ ] Test every CTA on mobile viewport before publishing
+
+## CTA & Stripe Fixes (2026-05-02)
+- [x] Fix all Stripe price IDs in billing.ts - all 27 prices now use correct sandbox account (price_1TSQ*, price_1TNZ*, price_1TOT*)
+- [x] Fix bundle checkout price IDs (6/15/40 render bundles)
+- [x] Fix upgrade checkout price IDs (render quality + audio tier)
+- [x] Remove Studio Lounge from mobile nav (was causing accidental Uber Eats redirects)
+- [x] Remove Admin Panel from public mobile nav (was causing accidental admin redirects for admin users)
+- [x] Fix OAuth decodeState() to correctly parse JSON state (was sending full JSON as redirect URI)
