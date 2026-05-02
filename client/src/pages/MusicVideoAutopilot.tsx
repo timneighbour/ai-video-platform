@@ -195,16 +195,21 @@ export default function MusicVideoAutopilot() {
           toast.success("Payment confirmed!", { description: "Your render has started. Watch the progress below." });
         } else {
           // Opening a saved project from MyProjects — fetch job status and route to correct step
-          fetch(`/api/trpc/musicVideo.getJob?input=${encodeURIComponent(JSON.stringify({ jobId: parsedJobId }))}`, {
+          // tRPC v11 superjson requires input wrapped as { json: { ... } }
+          const tRPCInput = encodeURIComponent(JSON.stringify({ json: { jobId: parsedJobId } }));
+          fetch(`/api/trpc/musicVideo.getJob?input=${tRPCInput}`, {
             credentials: "include",
             headers: { "Content-Type": "application/json" }
           })
             .then(r => r.json())
             .then(data => {
-              const job = data?.result?.data?.job;
+              // tRPC v11 superjson response: array[0].result.data.json
+              const result = Array.isArray(data) ? data[0] : data;
+              const payload = result?.result?.data?.json ?? result?.result?.data;
+              const job = payload?.job;
               const status = job?.status;
               // Restore form fields from saved job data so the form is never blank
-              const scenes = data?.result?.data?.scenes ?? [];
+              const scenes = payload?.scenes ?? [];
               if (job) {
                 if (job.title) setTitle(job.title);
                 if (job.themePrompt) setThemePrompt(job.themePrompt);
@@ -228,7 +233,7 @@ export default function MusicVideoAutopilot() {
                 toast.info("Project restored", { description: "Your saved project details are ready. Upload your audio to continue." });
               }
             })
-            .catch(() => { /* silent — leave step as localStorage default */ });
+            .catch((err) => { console.warn("[MusicVideoAutopilot] Failed to restore job:", err); });
         }
         window.history.replaceState({}, "", window.location.pathname);
       }
