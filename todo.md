@@ -6629,3 +6629,10 @@
   - Fixed MusicVideoAutopilot.tsx: added ?resume= as alias, restored title/theme/genre/mood/sceneSetting/style from job data, added toast for failed/draft jobs
 - [x] Fix live Stripe checkout: price ID validation was rejecting live price IDs (startsWith check was account-specific)
 - [x] Fix live Stripe checkout navigation: gtagSendEvent callback was silently failing, now navigates immediately
+
+## Credit Pricing & Admin Management
+- [ ] Tiered credit pricing: charge more credits per scene for longer videos (15/scene up to 3min, 18/scene 3-5min, 20/scene 5min+)
+- [ ] Update credit cost display on frontend to reflect tiered pricing
+- [ ] Verify all refund paths return credits back to user balance (not cash)
+- [ ] Admin credit management panel: Tim can search users, view balance, add/deduct credits with reason
+- [ ] Admin credit panel: show credit transaction history per user

@@ -35,15 +35,31 @@ export const PLAN_SCENE_LIMITS: Record<string, number> = {
  * These are the credits deducted from the user's balance.
  * Language rule: always say "credits", never "tokens", "cost", or "API".
  *
- * Credit allocation basis:
- *   Free (30 credits) = 1 video × 8 scenes × ~3.75 credits/scene
- *   Starter (240 credits) = 2 videos × 8 scenes × 15 credits/scene
- *   Creator (990 credits) = 6 videos × 11 scenes × 15 credits/scene
- *   Pro (2160 credits) = 12 videos × 12 scenes × 15 credits/scene
+ * TIERED PRICING — longer videos cost more credits per scene:
+ *   Short  (≤3 min / ≤180s):  15 credits/scene  — base rate
+ *   Medium (3–5 min / 181–300s): 18 credits/scene  — 20% premium
+ *   Long   (>5 min / >300s):  20 credits/scene  — 33% premium
  *
- * 15 credits/scene is the standard rate. Each scene ≈ 8s video.
+ * At Starter Pack rate (£0.053/credit):
+ *   Short:  15 × £0.053 = £0.795/scene  vs £0.64 cost  → 24% margin
+ *   Medium: 18 × £0.053 = £0.954/scene  vs £0.64 cost  → 49% margin
+ *   Long:   20 × £0.053 = £1.060/scene  vs £0.64 cost  → 66% margin
  */
-export const CREDITS_PER_SCENE = 15;
+export const CREDITS_PER_SCENE = 15; // base rate (≤3 min)
+
+/** Tiered credits-per-scene based on audio duration */
+export const TIERED_CREDITS_PER_SCENE = {
+  short:  { maxSeconds: 180, creditsPerScene: 15 }, // up to 3 min
+  medium: { maxSeconds: 300, creditsPerScene: 18 }, // 3–5 min
+  long:   { maxSeconds: Infinity, creditsPerScene: 20 }, // 5+ min
+} as const;
+
+/** Get the credits-per-scene rate for a given audio duration */
+export function getCreditsPerScene(audioDurationSeconds: number): number {
+  if (audioDurationSeconds <= TIERED_CREDITS_PER_SCENE.short.maxSeconds) return TIERED_CREDITS_PER_SCENE.short.creditsPerScene;
+  if (audioDurationSeconds <= TIERED_CREDITS_PER_SCENE.medium.maxSeconds) return TIERED_CREDITS_PER_SCENE.medium.creditsPerScene;
+  return TIERED_CREDITS_PER_SCENE.long.creditsPerScene;
+}
 
 export const VIDEO_CREDIT_COSTS = {
   /** Standard video credits by audio duration bucket */

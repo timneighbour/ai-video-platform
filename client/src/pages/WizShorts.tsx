@@ -14,6 +14,7 @@ import AnimatedEqualiser from "@/components/AnimatedEqualiser";
 import { useSEO } from "@/hooks/useSEO";
 import { WizGenesisModal } from "@/components/WizGenesisModal";
 import { clearStaleProjectState } from "@/lib/storageUtils";
+import { CreditCostBanner } from "@/components/CreditCostBanner";
 import {
   Sparkles, Play, Download, ChevronRight,
   Loader2, Film, Zap, CheckCircle2, AlertCircle,
@@ -1096,6 +1097,13 @@ export default function WizShorts() {
                   </div>
                 </div>
 
+                {/* ── UPFRONT COST BANNER ── */}
+                <CreditCostBanner
+                  credits={50}
+                  label="WizShorts"
+                  breakdown="~10 scenes × 5 credits/scene (estimate)"
+                  note="Exact cost calculated when scenes are generated · credits charged at render time"
+                />
                 {/* Generate CTA */}
                 <Button
                   onClick={handleCreateJob}

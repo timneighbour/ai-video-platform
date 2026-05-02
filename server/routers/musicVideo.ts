@@ -157,7 +157,7 @@ export const musicVideoRouter = router({
       }
 
       const sceneCount = calculateSceneCount(input.audioDuration);
-      const creditCost = calculateCreditCost(sceneCount);
+      const creditCost = calculateCreditCost(sceneCount, input.audioDuration);
 
       const [result] = await db.insert(musicVideoJobs).values({
         userId: ctx.user.id,
@@ -1208,8 +1208,26 @@ Rules:
       if (!scene) throw new TRPCError({ code: "NOT_FOUND" });
       // If already has a preview image, return it immediately (unless forceRegenerate)
       if (scene.previewImageUrl && !input.forceRegenerate) return { imageUrl: scene.previewImageUrl };
-      // Clear the cached preview so a fresh image is generated
+
+      // ── CREDIT GUARD FOR PREVIEW REGENERATIONS ──────────────────────────
+      // First full set of previews (one per scene, no existing image) = FREE.
+      // Any forceRegenerate call (user explicitly re-rolling a scene) = 1 credit.
+      const PREVIEW_REGEN_CREDIT_COST = 1;
       if (input.forceRegenerate && scene.previewImageUrl) {
+        // Check user has at least 1 credit
+        const balance = await getUserCredits(ctx.user.id);
+        if (balance < PREVIEW_REGEN_CREDIT_COST) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: `INSUFFICIENT_CREDITS:${PREVIEW_REGEN_CREDIT_COST}:${balance}:${PREVIEW_REGEN_CREDIT_COST - balance}`,
+          });
+        }
+        // Deduct 1 credit and track it on the job
+        await deductCredits(ctx.user.id, PREVIEW_REGEN_CREDIT_COST, `Scene preview regeneration (job ${input.jobId}, scene ${scene.sceneIndex + 1})`);
+        await db.update(musicVideoJobs)
+          .set({ previewCreditsUsed: (job.previewCreditsUsed ?? 0) + PREVIEW_REGEN_CREDIT_COST })
+          .where(eq(musicVideoJobs.id, input.jobId));
+        // Clear the cached preview so a fresh image is generated
         await db.update(musicVideoScenes)
           .set({ previewImageUrl: null })
           .where(eq(musicVideoScenes.id, input.sceneId));

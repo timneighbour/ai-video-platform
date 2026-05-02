@@ -48,8 +48,7 @@ const GROK_IMAGINE_PREFIX = "grok:";
 const execAsync = promisify(exec);
 
 // IMPORTANT: Import from products.ts — do NOT redefine locally. Single source of truth.
-import { CREDITS_PER_SCENE as _CREDITS_PER_SCENE } from "./products";
-const CREDITS_PER_SCENE = _CREDITS_PER_SCENE; // 15 credits/scene (£0.79 revenue vs £0.64 Atlas Cloud cost)
+import { getCreditsPerScene } from "./products";
 const SCENE_DURATION_SECONDS = 8; // each scene is 8 seconds
 
 export function calculateSceneCount(audioDurationSeconds: number): number {
@@ -58,8 +57,16 @@ export function calculateSceneCount(audioDurationSeconds: number): number {
   return Math.max(3, Math.min(45, count));
 }
 
-export function calculateCreditCost(sceneCount: number): number {
-  return sceneCount * CREDITS_PER_SCENE;
+/**
+ * Calculate credit cost using tiered pricing based on audio duration.
+ * Longer videos cost more credits/scene (users are willing to pay more).
+ *   ≤3 min: 15 credits/scene
+ *   3–5 min: 18 credits/scene
+ *   5+ min: 20 credits/scene
+ */
+export function calculateCreditCost(sceneCount: number, audioDurationSeconds: number = 0): number {
+  const creditsPerScene = getCreditsPerScene(audioDurationSeconds);
+  return sceneCount * creditsPerScene;
 }
 
 /**

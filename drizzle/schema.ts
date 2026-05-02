@@ -176,6 +176,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   contextAssetUrls: text("contextAssetUrls"), // JSON: Array<{url: string, mimeType: string, type: 'image'|'video'}> — user-uploaded visual references for storyboard generation
   artistType: mysqlEnum("artistType", ["band", "solo_artist", "animated_characters", "solo_animated"]).default("solo_artist"), // Artist type selection from step 1
   storyboardLockedAt: timestamp("storyboardLockedAt"), // Set when render starts — storyboard is frozen from this point
+  previewCreditsUsed: int("previewCreditsUsed").default(0).notNull(), // Credits charged for scene preview regenerations (first full set per job is free)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -1105,3 +1106,28 @@ export const broadcastEmails = mysqlTable("broadcast_emails", {
 });
 export type BroadcastEmail = typeof broadcastEmails.$inferSelect;
 export type InsertBroadcastEmail = typeof broadcastEmails.$inferInsert;
+
+// ── Credit Disputes ───────────────────────────────────────────────────────────
+/**
+ * Tracks user-submitted credit dispute requests.
+ * Admin reviews each dispute and decides how many credits to refund.
+ * No automatic refunds — admin approval required for every credit return.
+ */
+export const creditDisputes = mysqlTable("creditDisputes", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  jobId: int("jobId"), // Optional: the musicVideoJob or project ID being disputed
+  jobType: varchar("jobType", { length: 32 }), // "music_video" | "short" | "lipsync" | "image" | "other"
+  creditsCharged: int("creditsCharged").notNull(), // How many credits were charged for this job
+  creditsRequested: int("creditsRequested"), // How many credits the user is requesting back (optional)
+  reason: text("reason").notNull(), // User's explanation of the issue
+  status: mysqlEnum("status", ["pending", "approved", "partial", "rejected"]).default("pending").notNull(),
+  adminNote: text("adminNote"), // Admin's internal note when resolving
+  creditsRefunded: int("creditsRefunded").default(0).notNull(), // Actual credits refunded by admin
+  resolvedBy: int("resolvedBy"), // userId of the admin who resolved it
+  resolvedAt: timestamp("resolvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CreditDispute = typeof creditDisputes.$inferSelect;
+export type InsertCreditDispute = typeof creditDisputes.$inferInsert;

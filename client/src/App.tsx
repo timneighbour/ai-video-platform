@@ -23,6 +23,7 @@ const Home = lazy(() => import("./pages/Home"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Subscribe = lazy(() => import("@/pages/Subscribe"));
 const Credits = lazy(() => import("@/pages/Credits"));
+const CreditPricingGuide = lazy(() => import("@/pages/CreditPricingGuide"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Projects = lazy(() => import("@/pages/Projects"));
 const Account = lazy(() => import("@/pages/Account"));
@@ -102,6 +103,7 @@ const WizImage = lazy(() => import("@/pages/WizImage"));
 const WizShorts = lazy(() => import("@/pages/WizShorts"));
 const ShowcasePage = lazy(() => import("@/pages/Showcase"));
 const AdminPanel = lazy(() => import("@/pages/AdminPanel"));
+const AdminCreditsPanel = lazy(() => import("@/pages/AdminCreditsPanel"));
 const AdminEmail = lazy(() => import("@/pages/AdminEmail"));
 const AnalyticsDashboard = lazy(() => import("@/pages/AnalyticsDashboard"));
 const WizadoraAdmin = lazy(() => import("@/pages/admin/WizadoraAdmin"));
@@ -269,6 +271,7 @@ function Router() {
         <Route path={"/technology/wizpilot"} component={TechWizPilot} />
         <Route path={"/subscribe"} component={Subscribe} />
         <Route path={"/credits"} component={Credits} />
+        <Route path={"/credits/guide"} component={CreditPricingGuide} />
         <Route path={"/dashboard"} component={Dashboard} />
         <Route path={"/projects"}>{() => { window.location.replace("/my-projects"); return null; }}</Route>
         <Route path={"/account"} component={Account} />
@@ -306,6 +309,7 @@ function Router() {
         <Route path={"/blog"} component={Blog} />
         <Route path={"/blog/admin"} component={BlogAdmin} />
         <Route path={"/admin"} component={AdminPanel} />
+        <Route path={"/admin/credits"} component={AdminCreditsPanel} />
         <Route path={"/admin/analytics"} component={AnalyticsDashboard} />
         <Route path={"/admin/wizadora"} component={WizadoraAdmin} />
         <Route path={"/admin/email"} component={AdminEmail} />

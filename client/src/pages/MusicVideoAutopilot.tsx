@@ -8,7 +8,7 @@ import { useProjectAutoSave } from "@/hooks/useProjectResume";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import { calculateVideoCreditCost } from "../../../shared/const";
+import { calculateVideoCreditCost, calculateTieredCreditCost, TIERED_CREDITS_PER_SCENE } from "../../../shared/const";
 import { clearStaleProjectState } from "@/lib/storageUtils";
 import { useCreditGuard } from "@/hooks/useCreditGuard";
 import { LowCreditBanner } from "@/components/LowCreditBanner";
@@ -202,6 +202,8 @@ export default function MusicVideoAutopilot() {
   const [mood, setMood] = useLocalStorage("musicVideo_mood", "");
   const [selectedStyle, setSelectedStyle] = useLocalStorage("musicVideo_style", "cinematic");
   const [sceneSetting, setSceneSetting] = useLocalStorage("musicVideo_sceneSetting", "");
+  // User-selected duration cap: null = full song, or a number in seconds to cap the video length
+  const [selectedDurationCap, setSelectedDurationCap] = useLocalStorage<number | null>("musicVideo_durationCap", null);
 
   // Handle URL params: ?job_id=X&render_started=true (redirected from RenderSuccess after Stripe payment)
   // Also handles ?demo=1&prompt=... (quick-start pre-fill from onboarding)
@@ -941,14 +943,67 @@ export default function MusicVideoAutopilot() {
     if (file) handleFileDrop(file);
   };
 
-  const sceneCount = audioDuration > 0 ? Math.max(3, Math.min(45, Math.ceil(audioDuration / 8))) : 0;
+  // effectiveDuration: the duration actually used for scene count + credit calculation
+  // If user selected a cap, use that; otherwise use the full song duration
+  const effectiveDuration = audioDuration > 0
+    ? (selectedDurationCap !== null && selectedDurationCap < audioDuration ? selectedDurationCap : audioDuration)
+    : 0;
+
+  const sceneCount = effectiveDuration > 0 ? Math.max(3, Math.min(45, Math.ceil(effectiveDuration / 8))) : 0;
   const hasLipSync = characters.some(c => c.enableLipSync);
   const creditBreakdown = calculateVideoCreditCost({
-    audioDurationSeconds: audioDuration,
+    audioDurationSeconds: effectiveDuration,
     cinematicSceneCount: 0, // standard render — cinematic upgrades are post-render
     enableLipSync: hasLipSync,
   });
-  const creditCost = audioDuration > 0 ? creditBreakdown.total : 0;
+  const creditCost = effectiveDuration > 0 ? creditBreakdown.total : 0;
+
+  // Tiered cost breakdown for the cost estimator panel (based on effective duration)
+  const tieredBreakdown = effectiveDuration > 0 ? calculateTieredCreditCost({
+    audioDurationSeconds: effectiveDuration,
+    enableLipSync: hasLipSync,
+  }) : null;
+
+  // Build all three tier options for the selector (only show tiers that are <= full song duration)
+  const tierOptions = [
+    {
+      key: 'short' as const,
+      label: 'Standard',
+      description: 'Up to 3 min',
+      maxSeconds: TIERED_CREDITS_PER_SCENE.short.maxSeconds,
+      creditsPerScene: TIERED_CREDITS_PER_SCENE.short.creditsPerScene,
+      color: 'emerald',
+    },
+    {
+      key: 'medium' as const,
+      label: 'Extended',
+      description: '3–5 min',
+      maxSeconds: TIERED_CREDITS_PER_SCENE.medium.maxSeconds,
+      creditsPerScene: TIERED_CREDITS_PER_SCENE.medium.creditsPerScene,
+      color: 'amber',
+    },
+    {
+      key: 'long' as const,
+      label: 'Epic',
+      description: '5+ min',
+      maxSeconds: Infinity,
+      creditsPerScene: TIERED_CREDITS_PER_SCENE.long.creditsPerScene,
+      color: 'red',
+    },
+  ].filter(tier => {
+    // Only show tiers where the song actually fits (or the full song tier)
+    if (audioDuration <= 0) return false;
+    if (tier.key === 'short') return true; // always show short option
+    if (tier.key === 'medium') return audioDuration > TIERED_CREDITS_PER_SCENE.short.maxSeconds;
+    return audioDuration > TIERED_CREDITS_PER_SCENE.medium.maxSeconds;
+  });
+
+  // Get the credit cost for each tier option
+  const tierOptionCosts = tierOptions.map(tier => {
+    const capDuration = tier.maxSeconds === Infinity ? audioDuration : Math.min(audioDuration, tier.maxSeconds);
+    const breakdown = calculateTieredCreditCost({ audioDurationSeconds: capDuration, enableLipSync: hasLipSync });
+    return { ...tier, capDuration, breakdown };
+  });
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _unused = user;
@@ -1020,7 +1075,7 @@ export default function MusicVideoAutopilot() {
       const result = await createJob.mutateAsync({
         title,
         ...(directAudioUrl ? { audioUrl: directAudioUrl } : { audioBase64: base64!, audioMimeType: mimeType! }),
-        audioDuration,
+        audioDuration: effectiveDuration, // use capped duration if user chose a shorter tier
         themePrompt: enrichedThemePrompt,
         genre: genre || undefined,
         mood: mood || undefined,
@@ -2207,6 +2262,92 @@ export default function MusicVideoAutopilot() {
                   )}
                   </>)}
 
+                  {/* ── UPFRONT COST ESTIMATOR — shown immediately after audio is loaded ── */}
+                  {audioDuration > 0 && tieredBreakdown && (
+                    <div className="rounded-xl overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(12,9,18,0.95), rgba(18,14,26,0.95))", border: "1px solid rgba(201,168,76,0.3)", boxShadow: "0 0 24px rgba(201,168,76,0.08), inset 0 1px 0 rgba(255,255,255,0.04)" }}>
+                      {/* Header */}
+                      <div className="flex items-center gap-2.5 px-4 py-3" style={{ background: "linear-gradient(90deg, rgba(201,168,76,0.1), transparent)", borderBottom: "1px solid rgba(201,168,76,0.12)" }}>
+                        <Zap className="w-4 h-4" style={{ color: "#c9a84c" }} />
+                        <span className="text-sm font-bold tracking-wide" style={{ color: "#c9a84c" }}>Build Credits Required</span>
+                        <div className="flex-1" />
+                        <span className="text-lg font-black" style={{ color: "#c9a84c" }}>{tieredBreakdown.total} credits</span>
+                      </div>
+
+                      <div className="px-4 py-3 space-y-3">
+                        {/* Single-tier: just show the breakdown cleanly */}
+                        {tierOptionCosts.length === 1 && (
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-white/60">{tieredBreakdown.sceneCount} scenes × {tieredBreakdown.creditsPerScene} credits/scene</span>
+                            <span className="text-white font-semibold">{tieredBreakdown.baseCredits} credits</span>
+                          </div>
+                        )}
+
+                        {/* Multi-tier: interactive selector */}
+                        {tierOptionCosts.length > 1 && (
+                          <>
+                            <p className="text-xs text-white/50">Your song is {formatDuration(audioDuration)} long — choose how much to use:</p>
+                            <div className="grid gap-2">
+                              {tierOptionCosts.map((tier) => {
+                                const isSelected = effectiveDuration === tier.capDuration;
+                                const colorMap: Record<string, { border: string; bg: string; text: string }> = {
+                                  emerald: { border: 'rgba(16,185,129,0.5)', bg: 'rgba(16,185,129,0.1)', text: '#10b981' },
+                                  amber:   { border: 'rgba(245,158,11,0.5)',  bg: 'rgba(245,158,11,0.1)',  text: '#f59e0b' },
+                                  red:     { border: 'rgba(239,68,68,0.5)',   bg: 'rgba(239,68,68,0.1)',   text: '#ef4444' },
+                                };
+                                const colors = colorMap[tier.color] ?? colorMap.emerald;
+                                return (
+                                  <button
+                                    key={tier.key}
+                                    type="button"
+                                    onClick={() => setSelectedDurationCap(tier.capDuration === audioDuration ? null : tier.capDuration)}
+                                    className="w-full text-left rounded-lg px-3 py-2.5 transition-all"
+                                    style={{
+                                      background: isSelected ? colors.bg : 'rgba(255,255,255,0.03)',
+                                      border: `1px solid ${isSelected ? colors.border : 'rgba(255,255,255,0.07)'}`,
+                                    }}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2.5">
+                                        <div className="w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0"
+                                          style={{ borderColor: isSelected ? colors.text : 'rgba(255,255,255,0.2)' }}>
+                                          {isSelected && <div className="w-2 h-2 rounded-full" style={{ background: colors.text }} />}
+                                        </div>
+                                        <div>
+                                          <span className="text-sm font-bold" style={{ color: isSelected ? colors.text : 'rgba(255,255,255,0.8)' }}>{tier.label}</span>
+                                          <span className="text-xs ml-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                                            {tier.capDuration < audioDuration ? `first ${formatDuration(tier.capDuration)}` : `full song · ${formatDuration(audioDuration)}`}
+                                          </span>
+                                        </div>
+                                      </div>
+                                      <div className="text-right">
+                                        <span className="text-sm font-bold" style={{ color: isSelected ? colors.text : 'rgba(255,255,255,0.6)' }}>{tier.breakdown.total} credits</span>
+                                        <span className="block text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>{tier.breakdown.sceneCount} scenes</span>
+                                      </div>
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </>
+                        )}
+
+                        {/* Lip sync add-on */}
+                        {hasLipSync && (
+                          <div className="flex items-center justify-between text-xs pt-1 border-t border-white/5">
+                            <span className="text-white/50 flex items-center gap-1.5"><Mic className="w-3 h-3" /> Lip sync add-on</span>
+                            <span className="text-white/70">+{tieredBreakdown.lipSyncCredits} credits</span>
+                          </div>
+                        )}
+
+                        {/* Total + note */}
+                        <div className="flex items-center justify-between pt-2 border-t border-[rgba(201,168,76,0.12)]">
+                          <span className="text-xs text-white/40">Storyboard is free · credits charged at build time</span>
+                          <span className="text-base font-black" style={{ color: '#c9a84c' }}>{tieredBreakdown.total} credits</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Audio length limit warning + upgrade prompt - only show in upload tab */}
                   {audioSourceTab === "upload" && audioExceedsLimit && (
                     <div className="rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 px-4 py-3 flex items-start gap-3">
@@ -2640,47 +2781,98 @@ export default function MusicVideoAutopilot() {
             {/* Summary sidebar */}
             <div className="space-y-4">
               <Card className="studio-card border-0">
-                <CardHeader>
-                  <CardTitle className="text-white text-base">Video Summary</CardTitle>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-white text-base flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-[--color-gold]" /> Credit Cost Estimator
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-white/50 flex items-center gap-1.5"><Clock className="w-4 h-4" /> Duration</span>
-                    <span className="text-white">{audioDuration > 0 ? formatDuration(audioDuration) : "—"}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-white/50 flex items-center gap-1.5"><Film className="w-4 h-4" /> Scenes</span>
-                    <span className="text-white">{sceneCount > 0 ? sceneCount : "—"}</span>
-                  </div>
-                  {/* Credit cost breakdown */}
-                  {audioDuration > 0 && (
-                    <div className="border-t border-[rgba(184,137,42,0.10)] pt-3 space-y-2">
-                      <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-2">Credit Breakdown</p>
+                  {audioDuration === 0 ? (
+                    <p className="text-white/40 text-sm">Upload your track to see the credit cost.</p>
+                  ) : (
+                    <>
+                      {/* Song duration row */}
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-white/50 flex items-center gap-1.5"><Zap className="w-3.5 h-3.5" /> Standard video</span>
-                        <span className="text-white">{creditBreakdown.base} Credits</span>
+                        <span className="text-white/50 flex items-center gap-1.5"><Clock className="w-4 h-4" /> Full song</span>
+                        <span className="text-white">{formatDuration(audioDuration)}</span>
                       </div>
-                      {hasLipSync && (
+
+                      {/* Interactive tier selector */}
+                      {tierOptionCosts.length > 1 && (
+                        <>
+                          <p className="text-xs text-white/50 pt-1">Choose how much of your song to use:</p>
+                          <div className="space-y-2">
+                            {tierOptionCosts.map((tier) => {
+                              const isSelected = effectiveDuration === tier.capDuration;
+                              const borderColor = tier.color === 'emerald' ? 'rgba(16,185,129,0.5)' : tier.color === 'amber' ? 'rgba(245,158,11,0.5)' : 'rgba(239,68,68,0.5)';
+                              const bgColor = tier.color === 'emerald' ? 'rgba(16,185,129,0.08)' : tier.color === 'amber' ? 'rgba(245,158,11,0.08)' : 'rgba(239,68,68,0.08)';
+                              const textColor = tier.color === 'emerald' ? '#10b981' : tier.color === 'amber' ? '#f59e0b' : '#ef4444';
+                              return (
+                                <button
+                                  key={tier.key}
+                                  type="button"
+                                  onClick={() => setSelectedDurationCap(tier.capDuration === audioDuration ? null : tier.capDuration)}
+                                  className="w-full text-left rounded-lg p-3 transition-all"
+                                  style={{
+                                    background: isSelected ? bgColor : 'rgba(255,255,255,0.03)',
+                                    border: `1px solid ${isSelected ? borderColor : 'rgba(255,255,255,0.08)'}`,
+                                    boxShadow: isSelected ? `0 0 12px ${bgColor}` : 'none',
+                                  }}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-3 h-3 rounded-full border-2 flex items-center justify-center" style={{ borderColor: isSelected ? textColor : 'rgba(255,255,255,0.2)' }}>
+                                        {isSelected && <div className="w-1.5 h-1.5 rounded-full" style={{ background: textColor }} />}
+                                      </div>
+                                      <span className="text-sm font-semibold" style={{ color: isSelected ? textColor : 'rgba(255,255,255,0.7)' }}>{tier.label}</span>
+                                      <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>{tier.description}</span>
+                                    </div>
+                                    <span className="text-sm font-bold" style={{ color: isSelected ? textColor : 'rgba(255,255,255,0.5)' }}>
+                                      {tier.breakdown.total} credits
+                                    </span>
+                                  </div>
+                                  <div className="mt-1.5 ml-5 text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                                    {tier.breakdown.sceneCount} scenes × {tier.breakdown.creditsPerScene} cr/scene
+                                    {tier.capDuration < audioDuration && (
+                                      <span className="ml-1.5" style={{ color: textColor }}>— uses first {formatDuration(tier.capDuration)}</span>
+                                    )}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
+
+                      {/* Single tier (song is short enough for only one option) */}
+                      {tierOptionCosts.length === 1 && tieredBreakdown && (
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-white/50 flex items-center gap-1.5"><Mic className="w-3.5 h-3.5" /> Lip sync</span>
-                          <span className="text-[--color-silver]">+{creditBreakdown.lipSync} Credits</span>
+                          <span className="text-white/50 flex items-center gap-1.5"><Film className="w-4 h-4" /> Scenes</span>
+                          <span className="text-white">{tieredBreakdown.sceneCount} × {tieredBreakdown.creditsPerScene} cr</span>
                         </div>
                       )}
-                      <div className="flex items-center justify-between text-sm border-t border-[rgba(184,137,42,0.10)] pt-2 mt-1">
-                        <span className="text-zinc-200 font-semibold">Total</span>
-                        <span className="text-[--color-gold] font-bold">{creditBreakdown.total} Credits</span>
+
+                      {/* Selected cost summary */}
+                      {tieredBreakdown && (
+                        <div className="border-t border-[rgba(184,137,42,0.10)] pt-3 space-y-1.5">
+                          {hasLipSync && (
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-white/50 flex items-center gap-1.5"><Mic className="w-3.5 h-3.5" /> Lip sync</span>
+                              <span className="text-[--color-silver]">+{tieredBreakdown.lipSyncCredits} credits</span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-zinc-200 font-semibold">Total to build</span>
+                            <span className="text-[--color-gold] font-bold text-base">{tieredBreakdown.total} credits</span>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="border-t border-[rgba(184,137,42,0.10)] pt-3 text-xs text-white/40">
+                        Storyboard generation is always free. Credits are only charged when you build &amp; download your final video.
                       </div>
-                    </div>
+                    </>
                   )}
-                  {characters.length > 0 && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-white/50 flex items-center gap-1.5"><User className="w-4 h-4" /> Characters</span>
-                      <span className="text-[--color-gold]">{characters.length} added</span>
-                    </div>
-                  )}
-                  <div className="border-t border-[rgba(184,137,42,0.10)] pt-3 text-xs text-white/40">
-                    Storyboard generation is always free. Pay only when you build your final video &amp; download.
-                  </div>
                 </CardContent>
               </Card>
 

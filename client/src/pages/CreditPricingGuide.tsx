@@ -1,0 +1,325 @@
+/**
+ * Credit Pricing Guide — /credits/guide
+ * A transparent, user-friendly explanation of how WIZ AI credits work,
+ * what each tool costs, and real-world examples.
+ */
+import { useLocation } from "wouter";
+import { ArrowLeft, Zap, Film, Mic, Image, Info, CheckCircle2, AlertCircle, MessageCircle } from "@/lib/icons";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useSEO } from "@/hooks/useSEO";
+
+const GOLD = "#C9A84C";
+const DARK = "#0a0a0a";
+
+interface SectionProps {
+  title: string;
+  children: React.ReactNode;
+}
+function Section({ title, children }: SectionProps) {
+  return (
+    <div className="mb-10">
+      <h2 className="text-xl font-bold mb-4" style={{ color: GOLD }}>{title}</h2>
+      {children}
+    </div>
+  );
+}
+
+interface InfoBoxProps {
+  type?: "info" | "warning" | "success";
+  children: React.ReactNode;
+}
+function InfoBox({ type = "info", children }: InfoBoxProps) {
+  const colors = {
+    info: { bg: "rgba(201,168,76,0.08)", border: "rgba(201,168,76,0.3)", icon: <Info className="w-4 h-4 shrink-0" style={{ color: GOLD }} /> },
+    warning: { bg: "rgba(251,146,60,0.08)", border: "rgba(251,146,60,0.3)", icon: <AlertCircle className="w-4 h-4 shrink-0 text-orange-400" /> },
+    success: { bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.3)", icon: <CheckCircle2 className="w-4 h-4 shrink-0 text-green-400" /> },
+  };
+  const c = colors[type];
+  return (
+    <div className="flex gap-3 p-4 rounded-xl text-sm" style={{ background: c.bg, border: `1px solid ${c.border}` }}>
+      {c.icon}
+      <div className="text-gray-300 leading-relaxed">{children}</div>
+    </div>
+  );
+}
+
+export default function CreditPricingGuide() {
+  const [, setLocation] = useLocation();
+  const navigate = (path: string | number) => typeof path === 'string' ? setLocation(path) : window.history.back();
+  useSEO({ title: "How Credits Work — WIZ AI", path: "/credits/guide", description: "Understand exactly how WIZ AI credits work, what each tool costs, and how to get the most from your subscription." });
+
+  return (
+    <div className="min-h-screen" style={{ background: DARK, color: "#e5e5e5" }}>
+      {/* Header */}
+      <div className="sticky top-0 z-10 border-b border-white/10 backdrop-blur-md" style={{ background: "rgba(10,10,10,0.9)" }}>
+        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+            <ArrowLeft className="w-5 h-5 text-gray-400" />
+          </button>
+          <div className="flex items-center gap-2">
+            <Zap className="w-5 h-5" style={{ color: GOLD }} />
+            <span className="font-bold text-white">How Credits Work</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-4 py-10">
+
+        {/* Hero */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4" style={{ background: "rgba(201,168,76,0.15)", border: `1px solid ${GOLD}` }}>
+            <Zap className="w-8 h-8" style={{ color: GOLD }} />
+          </div>
+          <h1 className="text-3xl font-bold text-white mb-3">WIZ AI Credits — Explained</h1>
+          <p className="text-gray-400 text-lg max-w-xl mx-auto">
+            Credits are how you pay for AI rendering. This guide explains exactly what you'll spend before you start, so there are no surprises.
+          </p>
+        </div>
+
+        {/* What are credits */}
+        <Section title="What are credits?">
+          <p className="text-gray-300 mb-4 leading-relaxed">
+            Credits are WIZ AI's rendering currency. Every time you build a video, generate an image, or create a short, credits are deducted from your balance. Your subscription gives you a monthly credit allowance, and you can top up at any time.
+          </p>
+          <InfoBox type="success">
+            <strong>Key rule:</strong> Credits are only charged when you click <strong>"Build Video"</strong> or <strong>"Generate"</strong>. Browsing, editing your storyboard, locking characters, and previewing scenes are all <strong>free</strong>.
+          </InfoBox>
+        </Section>
+
+        {/* When are credits charged */}
+        <Section title="When are credits charged?">
+          <div className="space-y-3">
+            {[
+              { label: "Upload your track", cost: "Free", icon: "✅" },
+              { label: "Generate storyboard (text)", cost: "Free", icon: "✅" },
+              { label: "Lock characters & style", cost: "Free", icon: "✅" },
+              { label: "Generate scene preview images (first set)", cost: "Free", icon: "✅" },
+              { label: "Regenerate a scene preview image", cost: "1 credit per image", icon: "⚡" },
+              { label: "Build your final video", cost: "Credits charged here", icon: "💳", highlight: true },
+              { label: "Download your video", cost: "Free (after build)", icon: "✅" },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center justify-between p-3 rounded-xl" style={{
+                background: item.highlight ? "rgba(201,168,76,0.12)" : "rgba(255,255,255,0.04)",
+                border: item.highlight ? `1px solid ${GOLD}` : "1px solid rgba(255,255,255,0.08)",
+              }}>
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">{item.icon}</span>
+                  <span className={item.highlight ? "text-white font-semibold" : "text-gray-300"}>{item.label}</span>
+                </div>
+                <Badge variant="outline" className={item.highlight ? "border-amber-500 text-amber-400" : "border-white/20 text-gray-400"}>
+                  {item.cost}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        {/* Music Video Autopilot pricing */}
+        <Section title="🎵 Music Video Autopilot (WizPilot)">
+          <p className="text-gray-300 mb-4 leading-relaxed">
+            WizPilot creates one scene per section of your song. The longer your track, the more scenes — and the more credits. Longer videos also cost more credits per scene because they require more AI processing.
+          </p>
+
+          <div className="rounded-xl overflow-hidden mb-4" style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
+            <table className="w-full text-sm">
+              <thead>
+                <tr style={{ background: "rgba(201,168,76,0.15)" }}>
+                  <th className="text-left p-3 text-amber-400 font-semibold">Song Length</th>
+                  <th className="text-center p-3 text-amber-400 font-semibold">Credits/Scene</th>
+                  <th className="text-center p-3 text-amber-400 font-semibold">Typical Scenes</th>
+                  <th className="text-right p-3 text-amber-400 font-semibold">Typical Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { length: "Up to 3 min", rate: 15, scenes: "8–12", total: "120–180", badge: "Standard" },
+                  { length: "3–5 min", rate: 18, scenes: "12–20", total: "216–360", badge: "Medium", highlight: true },
+                  { length: "5+ min", rate: 20, scenes: "20–30+", total: "400–600+", badge: "Long" },
+                ].map((row, i) => (
+                  <tr key={i} style={{ background: row.highlight ? "rgba(201,168,76,0.06)" : i % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent" }}>
+                    <td className="p-3 text-gray-200">
+                      {row.length}
+                      <Badge variant="outline" className="ml-2 text-xs border-white/20 text-gray-500">{row.badge}</Badge>
+                    </td>
+                    <td className="p-3 text-center font-bold" style={{ color: GOLD }}>{row.rate}</td>
+                    <td className="p-3 text-center text-gray-400">{row.scenes}</td>
+                    <td className="p-3 text-right font-semibold text-white">{row.total} credits</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <InfoBox type="info">
+            <strong>Example — "Unstoppable" (3:30 min, 26 scenes):</strong><br />
+            26 scenes × 18 credits/scene = <strong>468 credits</strong>. You'll see this exact number before you confirm.
+          </InfoBox>
+
+          <div className="mt-4">
+            <InfoBox type="warning">
+              <strong>Want to save credits?</strong> Use the <strong>length selector</strong> in WizPilot to trim your video to a shorter section. You can always build the full version later.
+            </InfoBox>
+          </div>
+        </Section>
+
+        {/* Other tools */}
+        <Section title="Other Tools">
+          <div className="space-y-3">
+            {[
+              {
+                icon: <Film className="w-5 h-5" />,
+                name: "WizVideo / Autopilot",
+                description: "AI-generated video from a text prompt",
+                cost: "30–90 credits depending on duration",
+                detail: "Up to 60s = 30 cr · Up to 120s = 60 cr · Up to 180s = 90 cr",
+              },
+              {
+                icon: <Film className="w-5 h-5" />,
+                name: "WizShorts",
+                description: "Short-form vertical video (Reels/TikTok)",
+                cost: "5 credits per scene",
+                detail: "Typical 10-scene short = 50 credits",
+              },
+              {
+                icon: <Film className="w-5 h-5" />,
+                name: "WizAnimate (Kids Video)",
+                description: "Animated educational videos for children",
+                cost: "50 credits per scene",
+                detail: "Higher quality rendering for kids content",
+              },
+              {
+                icon: <Mic className="w-5 h-5" />,
+                name: "WizSync (Lip Sync / Avatar)",
+                description: "Lip-sync a face to any audio",
+                cost: "75 credits flat",
+                detail: "Fixed cost regardless of duration",
+              },
+              {
+                icon: <Image className="w-5 h-5" />,
+                name: "WizImage",
+                description: "AI image generation",
+                cost: "2 credits per image",
+                detail: "Fast and affordable for single images",
+              },
+            ].map((tool, i) => (
+              <div key={i} className="p-4 rounded-xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg shrink-0" style={{ background: "rgba(201,168,76,0.15)", color: GOLD }}>
+                    {tool.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-semibold text-white">{tool.name}</span>
+                      <Badge variant="outline" className="text-xs border-amber-500/50 text-amber-400">{tool.cost}</Badge>
+                    </div>
+                    <p className="text-sm text-gray-400">{tool.description}</p>
+                    <p className="text-xs text-gray-500 mt-1">{tool.detail}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        {/* Before you build */}
+        <Section title="Before you build — what to expect">
+          <p className="text-gray-300 mb-4 leading-relaxed">
+            Every tool shows you the <strong>exact credit cost</strong> before you confirm. You'll always see a breakdown like:
+          </p>
+          <div className="p-5 rounded-xl mb-4" style={{ background: "rgba(201,168,76,0.08)", border: `1px solid ${GOLD}` }}>
+            <div className="text-sm text-gray-400 mb-2">Example cost breakdown (WizPilot)</div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-gray-300">26 scenes × 18 credits/scene</span>
+              <span className="font-bold text-white">468 credits</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500">Your current balance</span>
+              <span className="text-gray-400">600 credits</span>
+            </div>
+            <div className="flex items-center justify-between text-sm mt-1">
+              <span className="text-gray-500">Balance after build</span>
+              <span className="text-green-400">132 credits remaining</span>
+            </div>
+          </div>
+          <InfoBox type="warning">
+            <strong>Important:</strong> Credits are charged when you click <strong>"Build Video"</strong>. Once the render starts, credits are non-refundable unless you raise a dispute and it is approved by our team.
+          </InfoBox>
+        </Section>
+
+        {/* Disputes */}
+        <Section title="Not happy with your video?">
+          <p className="text-gray-300 mb-4 leading-relaxed">
+            We want you to be satisfied with every video. If something went wrong with your render, you can raise a <strong>credit dispute</strong> from your video's result page. Our team will review it and decide whether to return credits to your account.
+          </p>
+          <div className="space-y-3">
+            {[
+              { step: "1", text: "Complete your video and review it in the player" },
+              { step: "2", text: "If you're not happy, click \"Raise a Dispute\" on the result page" },
+              { step: "3", text: "Describe the issue — our team will review within 24–48 hours" },
+              { step: "4", text: "If approved, credits are returned to your account (not cash)" },
+            ].map((item) => (
+              <div key={item.step} className="flex items-center gap-4 p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 font-bold text-sm" style={{ background: "rgba(201,168,76,0.2)", color: GOLD }}>
+                  {item.step}
+                </div>
+                <span className="text-gray-300 text-sm">{item.text}</span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4">
+            <InfoBox type="info">
+              Disputes are reviewed manually by our team. We do not issue automatic refunds. Credits are returned at our discretion based on the nature of the issue.
+            </InfoBox>
+          </div>
+        </Section>
+
+        {/* FAQ */}
+        <Section title="Frequently Asked Questions">
+          <div className="space-y-4">
+            {[
+              {
+                q: "Do unused credits roll over?",
+                a: "Monthly subscription credits reset each billing cycle. Top-up credits never expire as long as your subscription is active.",
+              },
+              {
+                q: "What happens if I run out of credits mid-render?",
+                a: "The render will stop and you'll be notified. Any scenes already completed will be saved. You can top up and continue from where you left off.",
+              },
+              {
+                q: "Why do longer videos cost more per scene?",
+                a: "Longer videos require more AI processing time and resources per scene. The tiered pricing reflects the actual cost of rendering longer, more complex content.",
+              },
+              {
+                q: "Can I get a cash refund?",
+                a: "No. WIZ AI only issues credit refunds, not cash refunds. Credits are returned to your account balance and can be used for any future render.",
+              },
+              {
+                q: "What is a 'scene'?",
+                a: "A scene is one video clip — typically 4–8 seconds long. WizPilot creates one scene per section of your song. A 3-minute song typically produces 10–15 scenes.",
+              },
+            ].map((faq, i) => (
+              <div key={i} className="p-4 rounded-xl" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="flex items-start gap-3">
+                  <MessageCircle className="w-4 h-4 shrink-0 mt-0.5" style={{ color: GOLD }} />
+                  <div>
+                    <p className="font-semibold text-white mb-1">{faq.q}</p>
+                    <p className="text-sm text-gray-400 leading-relaxed">{faq.a}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        {/* CTA */}
+        <div className="text-center pt-4 pb-8">
+          <Button onClick={() => navigate("/dashboard")} className="px-8 py-3 font-bold" style={{ background: `linear-gradient(135deg, ${GOLD}, #a07830)`, color: "#000" }}>
+            Back to Dashboard
+          </Button>
+        </div>
+
+      </div>
+    </div>
+  );
+}

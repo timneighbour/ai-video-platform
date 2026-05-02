@@ -12,6 +12,7 @@ import { Link } from "wouter";
 import StudioAmbientLight from "@/components/StudioAmbientLight";
 import AnimatedEqualiser from "@/components/AnimatedEqualiser";
 import { mp } from "@/lib/mixpanel";
+import { CreditCostBanner } from "@/components/CreditCostBanner";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { StarterTemplates } from "@/components/StarterTemplates";
@@ -1036,6 +1037,13 @@ export default function KidsVideo() {
               </div>
             </div>
 
+            {/* ── UPFRONT COST BANNER ── */}
+            <CreditCostBanner
+              credits={kidsCreditCost}
+              label="WizAnimate Video"
+              breakdown={`${sceneCount} scenes × 50 credits/scene`}
+              note="Storyboard is free · credits charged only when you build your final video"
+            />
             {/* Generate */}
             <button onClick={() => mp.generationStarted("WizAnimate", undefined, brief.trim().length > 0)} style={{
               width: "100%", padding: "14px",

@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoJobs` ADD `previewCreditsUsed` int DEFAULT 0 NOT NULL;

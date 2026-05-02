@@ -36,6 +36,7 @@ import AuthGate from "@/components/AuthGate";
 import { WizBrandBadge } from "@/components/WizBrand";
 import { useSEO } from "@/hooks/useSEO";
 import { mp } from "@/lib/mixpanel";
+import { CreditCostBanner } from "@/components/CreditCostBanner";
 import { StudioLoungePrompt } from "@/components/StudioLounge";
 import { WizGenesisModal } from "@/components/WizGenesisModal";
 import InsufficientCreditsModal from "@/components/InsufficientCreditsModal";
@@ -713,6 +714,14 @@ export default function TextToVideoCreator() {
                         ))}
                       </div>
                     </div>
+
+                    {/* ── UPFRONT COST BANNER ── */}
+                    <CreditCostBanner
+                      credits={creditCost}
+                      label="WizScript Video"
+                      breakdown={`${duration}s video · ${aspectRatio}`}
+                      note="Storyboard is free · credits charged only when you build your final video"
+                    />
 
                     {/* Generate Storyboard CTA */}
                     <button

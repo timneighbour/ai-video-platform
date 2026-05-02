@@ -22,6 +22,7 @@ import { WizBrandBadge } from "@/components/WizBrand";
 import AuthGate from "@/components/AuthGate";
 import { useSEO } from "@/hooks/useSEO";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
+import { CreditCostBanner } from "@/components/CreditCostBanner";
 
 // YouTube brand colour
 const YT_RED = "#FF0000";
@@ -785,6 +786,14 @@ export default function Autopilot() {
                 </p>
               )}
             </div>
+
+            {/* ── UPFRONT COST BANNER ── */}
+            <CreditCostBanner
+              credits={creditCost}
+              label="WizPilot Video"
+              breakdown={`${duration}s video · ${aspectRatio}`}
+              note="Storyboard is free · credits charged only when you build your final video"
+            />
 
             {/* Generate Storyboard CTA */}
             <div className="text-center">

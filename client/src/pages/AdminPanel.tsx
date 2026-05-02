@@ -232,8 +232,11 @@ export default function AdminPanel() {
             <CardDescription>Quick access to other admin sections.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
+            <Link href="/admin/credits">
+              <Button size="sm" className="bg-gradient-to-r from-[#b8892a] to-[#8a6520] hover:from-[#c99a35] hover:to-[#9a7530] text-white font-semibold">💳 Credit Management</Button>
+            </Link>
             <Link href="/admin/analytics">
-              <Button size="sm" className="bg-gradient-to-r from-[#b8892a] to-[#8a6520] hover:from-[#c99a35] hover:to-[#9a7530] text-white font-semibold">Analytics Dashboard</Button>
+              <Button size="sm" variant="outline" className="border-[#b8892a]/40 text-[#e8c97a] hover:bg-[#b8892a]/10">Analytics Dashboard</Button>
             </Link>
             <Link href="/admin/email">
               <Button size="sm" variant="outline" className="border-[#b8892a]/40 text-[#e8c97a] hover:bg-[#b8892a]/10">📧 Email Management</Button>
