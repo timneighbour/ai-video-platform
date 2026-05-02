@@ -279,21 +279,23 @@ export const billingRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        // Monthly price IDs for all 5 tiers
+        // Monthly price IDs — fallback to hardcoded sandbox prices if env var is from wrong account
+        const isValidPrice = (id: string | undefined) =>
+          !!id && (id.startsWith("price_1TSQ") || id.startsWith("price_1TNZ"));
         const monthlyPrices: Record<string, string> = {
-          starter: process.env.STRIPE_STARTER_PRICE_ID || "",
-          basic: process.env.STRIPE_BASIC_PRICE_ID || "",
-          creator: process.env.STRIPE_PRO_PRICE_ID || "",
-          pro: process.env.STRIPE_PRO_PLUS_PRICE_ID || "",
-          studio: process.env.STRIPE_BUSINESS_PRICE_ID || "",
+          starter: isValidPrice(process.env.STRIPE_STARTER_PRICE_ID) ? process.env.STRIPE_STARTER_PRICE_ID! : "price_1TSQxpIaMYB25uKKAojtuR64",
+          basic: isValidPrice(process.env.STRIPE_BASIC_PRICE_ID) ? process.env.STRIPE_BASIC_PRICE_ID! : "price_1TSQxxIaMYB25uKKDfzIR0aC",
+          creator: isValidPrice(process.env.STRIPE_PRO_PRICE_ID) ? process.env.STRIPE_PRO_PRICE_ID! : "price_1TSQxsIaMYB25uKKYpmhAx3J",
+          pro: isValidPrice(process.env.STRIPE_PRO_PLUS_PRICE_ID) ? process.env.STRIPE_PRO_PLUS_PRICE_ID! : "price_1TSQxuIaMYB25uKK9BAlUxk0",
+          studio: isValidPrice(process.env.STRIPE_BUSINESS_PRICE_ID) ? process.env.STRIPE_BUSINESS_PRICE_ID! : "price_1TSQy0IaMYB25uKKyUpZzrK2",
         };
         // Annual price IDs (2 months free)
         const annualPrices: Record<string, string> = {
-          starter: process.env.STRIPE_STARTER_ANNUAL_PRICE_ID || monthlyPrices.starter,
-          basic: process.env.STRIPE_BASIC_ANNUAL_PRICE_ID || monthlyPrices.basic,
-          creator: process.env.STRIPE_PRO_ANNUAL_PRICE_ID || monthlyPrices.creator,
-          pro: process.env.STRIPE_PRO_PLUS_ANNUAL_PRICE_ID || monthlyPrices.pro,
-          studio: process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID || monthlyPrices.studio,
+          starter: isValidPrice(process.env.STRIPE_STARTER_ANNUAL_PRICE_ID) ? process.env.STRIPE_STARTER_ANNUAL_PRICE_ID! : "price_1TSQxrIaMYB25uKKrNqZVOc1",
+          basic: isValidPrice(process.env.STRIPE_BASIC_ANNUAL_PRICE_ID) ? process.env.STRIPE_BASIC_ANNUAL_PRICE_ID! : "price_1TSQxyIaMYB25uKKRRu0CoHn",
+          creator: isValidPrice(process.env.STRIPE_PRO_ANNUAL_PRICE_ID) ? process.env.STRIPE_PRO_ANNUAL_PRICE_ID! : "price_1TSQxtIaMYB25uKKdOSrkDuG",
+          pro: isValidPrice(process.env.STRIPE_PRO_PLUS_ANNUAL_PRICE_ID) ? process.env.STRIPE_PRO_PLUS_ANNUAL_PRICE_ID! : "price_1TSQxwIaMYB25uKKm4inmBFO",
+          studio: isValidPrice(process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID) ? process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID! : monthlyPrices.studio,
         };
 
         const priceId = input.billingInterval === "annual"

@@ -6564,3 +6564,8 @@
 - [x] Issue 3: Fix Enhancement renderVideoAsync - replace storageGet mock with real ffmpeg audio-mix
 - [x] Issue 4: Build WizSync full render procedure and wire to Full Render button
 - [x] Issue 2: Rebuild WizAnimate/KidsVideo as functional MVP wired to billing.generateVideo
+
+## QA Real-User Simulation Bugs (May 2026)
+
+- [ ] CRITICAL: OAuth mobile sign-in fails with "Permission denied — Redirect URI is not set" on iPhone Safari — investigate OAuth app redirect URI config in Manus OAuth settings
+- [ ] Investigate "A new version of WIZ AI is available vueTvYr — UPDATE NOW" banner appearing on mobile homepage (Manus platform banner leaking to live site)
