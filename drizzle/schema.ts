@@ -236,6 +236,8 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   lipSync: boolean("lipSync").default(true).notNull(), // Per-scene lip sync control
   lipSyncStyle: mysqlEnum("lipSyncStyle", ["natural", "expressive", "subtle", "dramatic", "anime"]).default("natural").notNull(), // Lip sync animation style
   userEditedPrompt: boolean("userEditedPrompt").default(false).notNull(), // true when the user has manually edited this scene's prompt
+  focusCharacter: varchar("focusCharacter", { length: 128 }), // Placeholder: character to apply lip sync to (future feature)
+  camera: json("camera"),                                     // Placeholder: { shotType, angle, focus } for future camera direction
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -299,6 +301,7 @@ export const videoCharacters = mysqlTable("videoCharacters", {
   // Body build hint — injected into portrait and scene prompts so AI matches the user's physique
   bodyBuild: mysqlEnum("bodyBuild", ["slim", "lean", "average", "athletic", "stocky", "muscular"]).default("average"),
   normalisedAt: timestamp("normalisedAt"),  // When normaliseCharacter() last ran
+  voiceProfile: longtext("voiceProfile"),    // Placeholder: future lip sync voice matching data (JSON)
   isRealPerson: boolean("isRealPerson").default(false), // true = uploaded photo, false = AI-generated
   characterMode: mysqlEnum("characterMode", ["photo", "ai_generated"]).default("photo"), // Source type
   // MuseTalk lip-sync face video

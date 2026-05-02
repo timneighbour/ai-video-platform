@@ -2268,24 +2268,29 @@ export default function MusicVideoAutopilot() {
                       {/* Header */}
                       <div className="flex items-center gap-2.5 px-4 py-3" style={{ background: "linear-gradient(90deg, rgba(201,168,76,0.1), transparent)", borderBottom: "1px solid rgba(201,168,76,0.12)" }}>
                         <Zap className="w-4 h-4" style={{ color: "#c9a84c" }} />
-                        <span className="text-sm font-bold tracking-wide" style={{ color: "#c9a84c" }}>Build Credits Required</span>
+                        <span className="text-sm font-bold tracking-wide" style={{ color: "#c9a84c" }}>Production Cost</span>
                         <div className="flex-1" />
                         <span className="text-lg font-black" style={{ color: "#c9a84c" }}>{tieredBreakdown.total} credits</span>
                       </div>
 
                       <div className="px-4 py-3 space-y-3">
+                        {/* Premium value prop */}
+                        <p className="text-xs text-white/50 leading-relaxed">
+                          <span className="text-white/70 font-medium">Longer video. More scenes. More AI compute.</span>{" "}
+                          Your credits reflect the quality — WIZ AI delivers every frame.
+                        </p>
                         {/* Single-tier: just show the breakdown cleanly */}
                         {tierOptionCosts.length === 1 && (
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-white/60">{tieredBreakdown.sceneCount} scenes × {tieredBreakdown.creditsPerScene} credits/scene</span>
-                            <span className="text-white font-semibold">{tieredBreakdown.baseCredits} credits</span>
+                          <div className="flex items-center justify-between text-sm py-1.5 px-3 rounded-lg" style={{ background: 'rgba(201,168,76,0.06)', border: '1px solid rgba(201,168,76,0.1)' }}>
+                            <span className="text-white/60">{tieredBreakdown.sceneCount} scenes × {tieredBreakdown.creditsPerScene} cr/scene</span>
+                            <span className="text-white font-bold">{tieredBreakdown.baseCredits} credits</span>
                           </div>
                         )}
 
                         {/* Multi-tier: interactive selector */}
                         {tierOptionCosts.length > 1 && (
                           <>
-                            <p className="text-xs text-white/50">Your song is {formatDuration(audioDuration)} long — choose how much to use:</p>
+                            <p className="text-xs text-white/50">Your song is <span className="text-white/70 font-medium">{formatDuration(audioDuration)}</span> — choose your production length:</p>
                             <div className="grid gap-2">
                               {tierOptionCosts.map((tier) => {
                                 const isSelected = effectiveDuration === tier.capDuration;
@@ -2313,9 +2318,14 @@ export default function MusicVideoAutopilot() {
                                           {isSelected && <div className="w-2 h-2 rounded-full" style={{ background: colors.text }} />}
                                         </div>
                                         <div>
-                                          <span className="text-sm font-bold" style={{ color: isSelected ? colors.text : 'rgba(255,255,255,0.8)' }}>{tier.label}</span>
-                                          <span className="text-xs ml-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                                            {tier.capDuration < audioDuration ? `first ${formatDuration(tier.capDuration)}` : `full song · ${formatDuration(audioDuration)}`}
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-sm font-bold" style={{ color: isSelected ? colors.text : 'rgba(255,255,255,0.8)' }}>{tier.label}</span>
+                                            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                                              {tier.capDuration < audioDuration ? `first ${formatDuration(tier.capDuration)}` : `full song · ${formatDuration(audioDuration)}`}
+                                            </span>
+                                          </div>
+                                          <span className="text-[10px] block mt-0.5" style={{ color: isSelected ? colors.text + 'cc' : 'rgba(255,255,255,0.25)' }}>
+                                            {tier.key === 'short' ? 'Singles & social cuts' : tier.key === 'medium' ? 'Full track, full production' : 'Epic length · cinematic scale'}
                                           </span>
                                         </div>
                                       </div>
@@ -2341,7 +2351,7 @@ export default function MusicVideoAutopilot() {
 
                         {/* Total + note */}
                         <div className="flex items-center justify-between pt-2 border-t border-[rgba(201,168,76,0.12)]">
-                          <span className="text-xs text-white/40">Storyboard is free · credits charged at build time</span>
+                          <span className="text-xs text-white/40">Storyboard is free · charged when you hit Build</span>
                           <span className="text-base font-black" style={{ color: '#c9a84c' }}>{tieredBreakdown.total} credits</span>
                         </div>
                       </div>
