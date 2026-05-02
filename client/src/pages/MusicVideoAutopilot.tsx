@@ -3365,7 +3365,7 @@ export default function MusicVideoAutopilot() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 scene-grid-mobile">
               {scenes.map((scene) => (
                 <React.Fragment key={scene.id}>
                   <Card className="bg-[rgba(10,8,6,0.95)] border-[rgba(184,137,42,0.10)] hover:border-zinc-600 transition-colors overflow-hidden">
