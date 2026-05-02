@@ -319,8 +319,12 @@ export default function Pricing() {
  setLoadingPlan(planId);
  try {
  const result = await createSubscriptionCheckout.mutateAsync({ plan: planId, origin: window.location.origin });
- // gtagSendEvent fires the conversion then navigates — waits up to 2s for the tag
- if (result.checkoutUrl) gtagSendEvent(result.checkoutUrl);
+ if (result.checkoutUrl) {
+ // Fire GA conversion in background, then navigate immediately
+ try { gtagSendEvent(result.checkoutUrl); } catch (_) {}
+ // Navigate immediately regardless of gtag callback
+ setTimeout(() => { window.location.href = result.checkoutUrl!; }, 100);
+ }
  } catch (err) {
  toast.error("Couldn't start checkout", { description: err instanceof Error ? err.message : "Please try again." });
  } finally { setLoadingPlan(null); }
