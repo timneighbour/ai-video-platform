@@ -268,10 +268,21 @@ async function handleCheckoutSessionCompleted(session: any) {
     } else {
       // Handle subscription — metadata.plan from billing router
       const planId = metadata.plan || metadata.plan_id;
+      // Credits granted on subscription activation — must match products.ts SUBSCRIPTION_PLANS
+      // starter: 2 videos × 8 scenes × 15 cr/scene = 240
+      // basic:   2 videos × 8 scenes × 15 cr/scene = 240
+      // creator: 6 videos × 11 scenes × 15 cr/scene = 990
+      // pro:     12 videos × 12 scenes × 15 cr/scene = 2160
+      // studio:  12 videos × 12 scenes × 15 cr/scene = 2160 (maps to STRIPE_BUSINESS_PRICE_ID)
       const planCredits: Record<string, number> = {
-        starter: 1000,
-        pro: 3000,
-        business: 10000,
+        starter: 240,
+        basic: 240,
+        creator: 990,
+        pro: 2160,
+        studio: 2160,
+        // legacy aliases
+        business: 2160,
+        pro_plus: 2160,
       };
 
       const monthlyCredits = planCredits[planId] || 0;
@@ -403,12 +414,51 @@ async function handleInvoicePaid(invoice: any) {
   try {
     // Invoice paid - subscription is active
     if (invoice.subscription) {
-      await db
-        .update(subscriptions)
-        .set({
-          status: "active",
-        })
-        .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription));
+      // Look up the subscription to find the user and plan
+      const [sub] = await db
+        .select()
+        .from(subscriptions)
+        .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription))
+        .limit(1);
+
+      if (sub) {
+        // Update status to active
+        await db
+          .update(subscriptions)
+          .set({ status: "active" })
+          .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription));
+
+        // Grant monthly renewal credits — skip the very first invoice
+        // (checkout.session.completed already handles first-time credit grant)
+        // invoice.billing_reason: 'subscription_create' = first, 'subscription_cycle' = renewal
+        if (invoice.billing_reason === "subscription_cycle") {
+          const renewalCredits: Record<string, number> = {
+            starter: 240,
+            basic: 240,
+            creator: 990,
+            pro: 2160,
+            studio: 2160,
+            business: 2160,
+            pro_plus: 2160,
+          };
+          const credits = renewalCredits[sub.plan] || 0;
+          if (credits > 0) {
+            await addCredits(
+              sub.userId,
+              credits,
+              "subscription_grant",
+              `${sub.plan} plan monthly renewal - ${credits} credits`
+            );
+            console.log(`[Stripe Webhook] Monthly renewal credits granted: userId=${sub.userId}, plan=${sub.plan}, credits=${credits}`);
+          }
+        }
+      } else {
+        // Subscription not found in DB — just mark active by stripe ID
+        await db
+          .update(subscriptions)
+          .set({ status: "active" })
+          .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription));
+      }
     }
 
     return { success: true };

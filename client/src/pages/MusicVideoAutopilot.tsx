@@ -237,8 +237,7 @@ export default function MusicVideoAutopilot() {
               const payload = result?.result?.data?.json ?? result?.result?.data;
               const job = payload?.job;
               const status = job?.status;
-              // Debug: show what we got (remove after fix confirmed)
-              toast.info(`Debug: status=${status ?? 'none'}, title=${job?.title ?? 'none'}`, { duration: 8000 });
+
               // Restore form fields from saved job data so the form is never blank
               // Write to BOTH localStorage (for persistence) AND React state (for immediate re-render)
               const scenes = payload?.scenes ?? [];
