@@ -47,7 +47,9 @@ const GROK_IMAGINE_PREFIX = "grok:";
 
 const execAsync = promisify(exec);
 
-const CREDITS_PER_SCENE = 10;
+// IMPORTANT: Import from products.ts — do NOT redefine locally. Single source of truth.
+import { CREDITS_PER_SCENE as _CREDITS_PER_SCENE } from "./products";
+const CREDITS_PER_SCENE = _CREDITS_PER_SCENE; // 15 credits/scene (£0.79 revenue vs £0.64 Atlas Cloud cost)
 const SCENE_DURATION_SECONDS = 8; // each scene is 8 seconds
 
 export function calculateSceneCount(audioDurationSeconds: number): number {
