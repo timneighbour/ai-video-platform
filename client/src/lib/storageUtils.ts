@@ -26,6 +26,8 @@ const APP_STORAGE_KEYS: Record<string, string[]> = {
     "musicVideo_sunoTracks",
     "musicVideo_sunoTrackIdx",
     "musicVideo_sunoAudioUrl",
+    "musicVideo_restoredAudioUrl",
+    "musicVideo_restoredAudioTitle",
   ],
   wizShorts: ["wizshorts_active_job"],
 };

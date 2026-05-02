@@ -247,6 +247,14 @@ export default function MusicVideoAutopilot() {
                 if (job.mood) { localStorage.setItem("musicVideo_mood", JSON.stringify(job.mood)); setMood(job.mood); }
                 if (job.audioDuration) { localStorage.setItem("musicVideo_duration", JSON.stringify(job.audioDuration)); setAudioDuration(job.audioDuration); }
                 if (job.sceneSetting) { localStorage.setItem("musicVideo_sceneSetting", JSON.stringify(job.sceneSetting)); setSceneSetting(job.sceneSetting); }
+                // Restore the saved audio URL so the user doesn’t need to re-upload
+                if (job.audioUrl) {
+                  localStorage.setItem("musicVideo_restoredAudioUrl", JSON.stringify(job.audioUrl));
+                  setRestoredAudioUrl(job.audioUrl);
+                  const audioTitle = job.title || "Restored Track";
+                  localStorage.setItem("musicVideo_restoredAudioTitle", JSON.stringify(audioTitle));
+                  setRestoredAudioTitle(audioTitle);
+                }
                 // Derive selectedStyle from first scene if available
                 const firstSceneStyle = scenes[0]?.visualStyle;
                 if (firstSceneStyle) { localStorage.setItem("musicVideo_style", JSON.stringify(firstSceneStyle)); setSelectedStyle(firstSceneStyle); }
@@ -278,6 +286,9 @@ export default function MusicVideoAutopilot() {
   const [savedCharacterIds, setSavedCharacterIds] = useState<Record<number, number>>({});
   const [transcriptionText, setTranscriptionText] = useLocalStorage<string | null>("musicVideo_lyrics", null);
   const [audioFile, setAudioFile] = useState<File | null>(null); // Files can't be persisted
+  // When restoring a saved project, we have the S3 URL from the DB — no need to re-upload
+  const [restoredAudioUrl, setRestoredAudioUrl] = useLocalStorage<string | null>("musicVideo_restoredAudioUrl", null);
+  const [restoredAudioTitle, setRestoredAudioTitle] = useLocalStorage<string | null>("musicVideo_restoredAudioTitle", null);
   const [uploadProgress, setUploadProgress] = useState<number>(0); // 0-100 for upload progress bar
   const [isUploading, setIsUploading] = useState(false);
 
@@ -960,7 +971,8 @@ export default function MusicVideoAutopilot() {
       toast.error("Missing fields", { description: "Please fill in all required fields." });
       return;
     }
-    if (!isSunoPath && !audioFile) {
+    const isRestoredPath = !isSunoPath && !audioFile && !!restoredAudioUrl;
+    if (!isSunoPath && !audioFile && !restoredAudioUrl) {
       toast.error("Missing audio", { description: "Please upload your song." });
       return;
     }
@@ -979,6 +991,9 @@ export default function MusicVideoAutopilot() {
       if (isSunoPath) {
         // Suno path: pass the URL directly — backend will fetch + re-upload to S3
         directAudioUrl = sunoGeneratedAudioUrl!;
+      } else if (isRestoredPath) {
+        // Restored path: the audio is already on S3, pass the URL directly
+        directAudioUrl = restoredAudioUrl!;
       } else {
         // Upload path: convert file to base64
         const arrayBuffer = await audioFile!.arrayBuffer();
@@ -1909,7 +1924,7 @@ export default function MusicVideoAutopilot() {
       <div className="max-w-5xl mx-auto px-4 py-6">
         {/* ===== STEP 1: UPLOAD ===== */}
               {/* ── AUDIO UPLOAD BANNER — always visible on upload step ── */}
-      {step === "upload" && !audioFile && !sunoGeneratedAudioUrl && (
+      {step === "upload" && !audioFile && !sunoGeneratedAudioUrl && !restoredAudioUrl && (
         <div className="flex items-center gap-4 px-6 py-4 relative z-10" style={{ background: "linear-gradient(90deg, rgba(20,184,166,0.14) 0%, rgba(20,184,166,0.07) 100%)", borderBottom: "1px solid rgba(20,184,166,0.3)" }}>
           <div className="w-11 h-11 rounded-xl flex items-center justify-center text-sm flex-shrink-0" style={{ background: "rgba(20,184,166,0.15)", border: "1px solid rgba(20,184,166,0.35)" }}></div>
           <div className="flex-1">
@@ -1919,10 +1934,10 @@ export default function MusicVideoAutopilot() {
           <div className="text-xs font-bold px-4 py-2 rounded-lg flex-shrink-0" style={{ background: "rgba(20,184,166,0.12)", border: "1px solid rgba(20,184,166,0.3)", color: "#2dd4bf" }}>START BELOW ↓</div>
         </div>
       )}
-      {step === "upload" && (audioFile || sunoGeneratedAudioUrl) && (
+      {step === "upload" && (audioFile || sunoGeneratedAudioUrl || restoredAudioUrl) && (
         <div className="flex items-center gap-3 px-6 py-3 relative z-10" style={{ background: "rgba(109,184,109,0.08)", borderBottom: "1px solid rgba(109,184,109,0.2)" }}>
           <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: "#4ade80", boxShadow: "0 0 6px #4ade80" }} />
-          <span className="text-xs font-bold text-green-400">AUDIO LOADED — {audioFile?.name || "Generated Track"}</span>
+          <span className="text-xs font-bold text-green-400">AUDIO LOADED — {audioFile?.name || restoredAudioTitle || "Generated Track"}</span>
           <div className="flex-1 h-7 mx-4"><AnimatedEqualiser barCount={40} color="#14b8a6" height={28} alwaysAnimate={true} /></div>
         </div>
       )}
@@ -2101,6 +2116,33 @@ export default function MusicVideoAutopilot() {
                   )}
                   {/* ── Upload ── */}
                   {audioSourceTab === "upload" && (
+                  <>
+                  {/* Restored audio from saved project — show player without requiring re-upload */}
+                  {restoredAudioUrl && !audioFile && (
+                    <div className="rounded-xl p-5 text-center" style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.25)" }}>
+                      <div className="flex items-center gap-2 mb-3 justify-center">
+                        <Check className="w-5 h-5 text-[--color-gold]" />
+                        <p className="text-[--color-gold] font-semibold text-sm">{restoredAudioTitle || title || "Saved Track"}</p>
+                      </div>
+                      <p className="text-white/50 text-xs mb-3">Duration: {formatDuration(audioDuration)}</p>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <WizAudioPlayer
+                          audioUrl={restoredAudioUrl}
+                          title={restoredAudioTitle || title || "Saved Track"}
+                          subtitle={`${formatDuration(audioDuration)} · Saved track`}
+                          barCount={32}
+                        />
+                      </div>
+                      <button
+                        className="mt-3 text-xs text-white/40 hover:text-white/70 underline transition-colors"
+                        onClick={(e) => { e.stopPropagation(); setRestoredAudioUrl(null); setRestoredAudioTitle(null); }}
+                      >
+                        Replace with a different file
+                      </button>
+                    </div>
+                  )}
+                  {/* Standard upload drop zone — shown when no restored audio or user chose to replace */}
+                  {(!restoredAudioUrl || audioFile) && (
                   <div
                     className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
                       isDragging ? "border-[--color-gold] bg-[--color-gold]/15" :
@@ -2163,6 +2205,7 @@ export default function MusicVideoAutopilot() {
                     )}
                   </div>
                   )}
+                  </>)}
 
                   {/* Audio length limit warning + upgrade prompt - only show in upload tab */}
                   {audioSourceTab === "upload" && audioExceedsLimit && (
@@ -2760,7 +2803,7 @@ export default function MusicVideoAutopilot() {
                 onClick={() => { setQuotaError(null); handleUploadAndGenerate(); }}
                 disabled={
                   createJob.isPending || generateStoryboardMutation.isPending || isUploading || !title || !themePrompt ||
-                  (audioSourceTab === "upload" ? !audioFile : !sunoGeneratedAudioUrl)
+                  (audioSourceTab === "upload" ? (!audioFile && !restoredAudioUrl) : !sunoGeneratedAudioUrl)
                 }
               >
                 {createJob.isPending || generateStoryboardMutation.isPending ? (
