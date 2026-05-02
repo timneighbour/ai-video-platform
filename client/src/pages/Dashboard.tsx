@@ -372,7 +372,7 @@ export default function Dashboard() {
               {continueProjects.map((job: any) => (
                 <a
                   key={job.id}
-                  href={`${WIZVIDEO_STUDIO_PAGE}?resume=${job.id}`}
+                  href={`${WIZVIDEO_STUDIO_PAGE}?jobId=${job.id}`}
                   className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-[--color-gold]/30 hover:bg-white/[0.06] transition-all overflow-hidden"
                 >
                   {/* Thumbnail */}
@@ -444,7 +444,7 @@ export default function Dashboard() {
                   key={job.id}
                   href={job.status === "completed" && job.finalVideoUrl
                     ? job.finalVideoUrl
-                    : `${WIZVIDEO_STUDIO_PAGE}?resume=${job.id}`}
+                    : `${WIZVIDEO_STUDIO_PAGE}?jobId=${job.id}`}
                   target={job.status === "completed" && job.finalVideoUrl ? "_blank" : undefined}
                   rel="noopener noreferrer"
                   className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-white/20 transition-all overflow-hidden"

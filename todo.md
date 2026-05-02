@@ -6616,3 +6616,16 @@
 - [x] Remove Studio Lounge from mobile nav (was causing accidental Uber Eats redirects)
 - [x] Remove Admin Panel from public mobile nav (was causing accidental admin redirects for admin users)
 - [x] Fix OAuth decodeState() to correctly parse JSON state (was sending full JSON as redirect URI)
+
+## Bug Fixes (May 2026)
+
+- [ ] Fix project loading: clicking a saved project from dashboard opens blank WizVideo Director instead of restoring saved state (storyboard, song, brief, scenes)
+
+
+## Bug Fixes (May 2026)
+
+- [x] Fix project loading: clicking a saved project from dashboard/projects page opens blank WizVideo Director instead of restoring saved state
+  - Fixed Dashboard.tsx: changed ?resume= to ?jobId= parameter
+  - Fixed MusicVideoAutopilot.tsx: added ?resume= as alias, restored title/theme/genre/mood/sceneSetting/style from job data, added toast for failed/draft jobs
+- [x] Fix live Stripe checkout: price ID validation was rejecting live price IDs (startsWith check was account-specific)
+- [x] Fix live Stripe checkout navigation: gtagSendEvent callback was silently failing, now navigates immediately

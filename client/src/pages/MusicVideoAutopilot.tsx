@@ -179,8 +179,8 @@ export default function MusicVideoAutopilot() {
   // Also handles ?demo=1&prompt=... (quick-start pre-fill from onboarding)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    // Support both ?job_id=X (Stripe redirect) and ?jobId=X (MyProjects / direct link)
-    const urlJobId = params.get("job_id") || params.get("jobId");
+    // Support ?job_id=X (Stripe redirect), ?jobId=X (MyProjects / direct link), and ?resume=X (Dashboard legacy)
+    const urlJobId = params.get("job_id") || params.get("jobId") || params.get("resume");
     const renderStarted = params.get("render_started") === "true";
     const demoPrompt = params.get("prompt");
     const isDemo = params.get("demo") === "1";
@@ -201,13 +201,32 @@ export default function MusicVideoAutopilot() {
           })
             .then(r => r.json())
             .then(data => {
-              const status = data?.result?.data?.status;
+              const job = data?.result?.data?.job;
+              const status = job?.status;
+              // Restore form fields from saved job data so the form is never blank
+              const scenes = data?.result?.data?.scenes ?? [];
+              if (job) {
+                if (job.title) setTitle(job.title);
+                if (job.themePrompt) setThemePrompt(job.themePrompt);
+                if (job.genre) setGenre(job.genre);
+                if (job.mood) setMood(job.mood);
+                if (job.audioDuration) setAudioDuration(job.audioDuration);
+                if (job.sceneSetting) setSceneSetting(job.sceneSetting);
+                // Derive selectedStyle from first scene if available
+                const firstSceneStyle = scenes[0]?.visualStyle;
+                if (firstSceneStyle) setSelectedStyle(firstSceneStyle);
+              }
               if (status === "rendering" || status === "assembling" || status === "wizsound" || status === "completed") {
                 setStep("render");
               } else if (status === "storyboard_ready") {
                 setStep("storyboard");
               }
-              // draft/failed: leave on upload step
+              // draft/failed: show upload step with pre-filled form data
+              if (status === "failed") {
+                toast.error("Previous attempt failed", { description: "Your project details have been restored. Upload your audio and try again." });
+              } else if (status === "draft") {
+                toast.info("Project restored", { description: "Your saved project details are ready. Upload your audio to continue." });
+              }
             })
             .catch(() => { /* silent — leave step as localStorage default */ });
         }
