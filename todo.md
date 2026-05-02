@@ -6652,3 +6652,4 @@
 - [x] Ensure nav bar does not collapse on iPad landscape (min-width: 768px stays expanded)
 - [x] Video player on iPad: use aspect-ratio: 16/9 container that fills available width in landscape
 - [x] Storyboard on iPad landscape: scene thumbnails in 3-col grid instead of 1-col list
+- [x] Premiumise help page: wider layout, cinematic hero, icon-forward category cards, premium FAQ accordions, enhanced support section
