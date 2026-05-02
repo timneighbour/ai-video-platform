@@ -283,18 +283,18 @@ export const billingRouter = router({
         const isValidPrice = (id: string | undefined) =>
           !!id && id.startsWith("price_");
         const monthlyPrices: Record<string, string> = {
-          starter: isValidPrice(process.env.STRIPE_STARTER_PRICE_ID) ? process.env.STRIPE_STARTER_PRICE_ID! : "price_1TSQxpIaMYB25uKKAojtuR64",
-          basic: isValidPrice(process.env.STRIPE_BASIC_PRICE_ID) ? process.env.STRIPE_BASIC_PRICE_ID! : "price_1TSQxxIaMYB25uKKDfzIR0aC",
-          creator: isValidPrice(process.env.STRIPE_PRO_PRICE_ID) ? process.env.STRIPE_PRO_PRICE_ID! : "price_1TSQxsIaMYB25uKKYpmhAx3J",
-          pro: isValidPrice(process.env.STRIPE_PRO_PLUS_PRICE_ID) ? process.env.STRIPE_PRO_PLUS_PRICE_ID! : "price_1TSQxuIaMYB25uKK9BAlUxk0",
-          studio: isValidPrice(process.env.STRIPE_BUSINESS_PRICE_ID) ? process.env.STRIPE_BUSINESS_PRICE_ID! : "price_1TSQy0IaMYB25uKKyUpZzrK2",
+          starter: isValidPrice(process.env.STRIPE_STARTER_PRICE_ID) ? process.env.STRIPE_STARTER_PRICE_ID! : "price_1TSTNUI3gJ5F0DKDCN2k41pY",
+          basic: isValidPrice(process.env.STRIPE_BASIC_PRICE_ID) ? process.env.STRIPE_BASIC_PRICE_ID! : "price_1TSTNiI3gJ5F0DKDHpRPuoGC",
+          creator: isValidPrice(process.env.STRIPE_PRO_PRICE_ID) ? process.env.STRIPE_PRO_PRICE_ID! : "price_1TSTNZI3gJ5F0DKDEq8xu0IX",
+          pro: isValidPrice(process.env.STRIPE_PRO_PLUS_PRICE_ID) ? process.env.STRIPE_PRO_PLUS_PRICE_ID! : "price_1TSTNeI3gJ5F0DKDQkaNwYEa",
+          studio: isValidPrice(process.env.STRIPE_BUSINESS_PRICE_ID) ? process.env.STRIPE_BUSINESS_PRICE_ID! : "price_1TSTNpI3gJ5F0DKD2uRUjNuI",
         };
         // Annual price IDs (2 months free)
         const annualPrices: Record<string, string> = {
-          starter: isValidPrice(process.env.STRIPE_STARTER_ANNUAL_PRICE_ID) ? process.env.STRIPE_STARTER_ANNUAL_PRICE_ID! : "price_1TSQxrIaMYB25uKKrNqZVOc1",
-          basic: isValidPrice(process.env.STRIPE_BASIC_ANNUAL_PRICE_ID) ? process.env.STRIPE_BASIC_ANNUAL_PRICE_ID! : "price_1TSQxyIaMYB25uKKRRu0CoHn",
-          creator: isValidPrice(process.env.STRIPE_PRO_ANNUAL_PRICE_ID) ? process.env.STRIPE_PRO_ANNUAL_PRICE_ID! : "price_1TSQxtIaMYB25uKKdOSrkDuG",
-          pro: isValidPrice(process.env.STRIPE_PRO_PLUS_ANNUAL_PRICE_ID) ? process.env.STRIPE_PRO_PLUS_ANNUAL_PRICE_ID! : "price_1TSQxwIaMYB25uKKm4inmBFO",
+          starter: isValidPrice(process.env.STRIPE_STARTER_ANNUAL_PRICE_ID) ? process.env.STRIPE_STARTER_ANNUAL_PRICE_ID! : "price_1TSTNWI3gJ5F0DKDvB4h1lF8",
+          basic: isValidPrice(process.env.STRIPE_BASIC_ANNUAL_PRICE_ID) ? process.env.STRIPE_BASIC_ANNUAL_PRICE_ID! : "price_1TSTNkI3gJ5F0DKDky82Czt7",
+          creator: isValidPrice(process.env.STRIPE_PRO_ANNUAL_PRICE_ID) ? process.env.STRIPE_PRO_ANNUAL_PRICE_ID! : "price_1TSTNaI3gJ5F0DKDCKaReJbp",
+          pro: isValidPrice(process.env.STRIPE_PRO_PLUS_ANNUAL_PRICE_ID) ? process.env.STRIPE_PRO_PLUS_ANNUAL_PRICE_ID! : "price_1TSTNfI3gJ5F0DKDLkZD1qv3",
           studio: isValidPrice(process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID) ? process.env.STRIPE_BUSINESS_ANNUAL_PRICE_ID! : monthlyPrices.studio,
         };
 
@@ -358,49 +358,49 @@ export const billingRouter = router({
         const creditPacks: Record<string, { priceId: string; credits: number; label: string }> = {
           // Standard packs (new keys)
           starter: {
-            priceId: vp(process.env.STRIPE_SMALL_PACK_PRICE_ID, "price_1TSQy6IaMYB25uKKqcZU88QZ"),
+            priceId: vp(process.env.STRIPE_SMALL_PACK_PRICE_ID, "price_1TSTNtI3gJ5F0DKDgRWgWCRP"),
             credits: 300,
             label: "Starter Pack",
           },
           creator: {
-            priceId: vp(process.env.STRIPE_MEDIUM_PACK_PRICE_ID, "price_1TSQy7IaMYB25uKKkKDs8uYZ"),
+            priceId: vp(process.env.STRIPE_MEDIUM_PACK_PRICE_ID, "price_1TSTNxI3gJ5F0DKDDK3PlFrx"),
             credits: 900,
             label: "Creator Pack",
           },
           pro: {
-            priceId: vp(process.env.STRIPE_LARGE_PACK_PRICE_ID, "price_1TSQy9IaMYB25uKKdI8JqVyT"),
+            priceId: vp(process.env.STRIPE_LARGE_PACK_PRICE_ID, "price_1TSTO5I3gJ5F0DKDgKUsu5NM"),
             credits: 2400,
             label: "Pro Pack",
           },
           // Legacy keys (backward compat)
           small: {
-            priceId: vp(process.env.STRIPE_SMALL_PACK_PRICE_ID, "price_1TSQy6IaMYB25uKKqcZU88QZ"),
+            priceId: vp(process.env.STRIPE_SMALL_PACK_PRICE_ID, "price_1TSTNtI3gJ5F0DKDgRWgWCRP"),
             credits: 300,
             label: "Starter Pack",
           },
           medium: {
-            priceId: vp(process.env.STRIPE_MEDIUM_PACK_PRICE_ID, "price_1TSQy7IaMYB25uKKkKDs8uYZ"),
+            priceId: vp(process.env.STRIPE_MEDIUM_PACK_PRICE_ID, "price_1TSTNxI3gJ5F0DKDDK3PlFrx"),
             credits: 900,
             label: "Creator Pack",
           },
           large: {
-            priceId: vp(process.env.STRIPE_LARGE_PACK_PRICE_ID, "price_1TSQy9IaMYB25uKKdI8JqVyT"),
+            priceId: vp(process.env.STRIPE_LARGE_PACK_PRICE_ID, "price_1TSTO5I3gJ5F0DKDgKUsu5NM"),
             credits: 2400,
             label: "Pro Pack",
           },
           // Cinematic upgrade packs
           cinematic_10: {
-            priceId: vp(process.env.STRIPE_CINEMATIC_10_PRICE_ID, "price_1TSQyKIaMYB25uKKc3HakTOk"),
+            priceId: vp(process.env.STRIPE_CINEMATIC_10_PRICE_ID, "price_1TSTOMI3gJ5F0DKD8PlxlS7d"),
             credits: 200,
             label: "10 Cinematic Scenes",
           },
           cinematic_25: {
-            priceId: vp(process.env.STRIPE_CINEMATIC_25_PRICE_ID, "price_1TSQyLIaMYB25uKKjXFJd5BE"),
+            priceId: vp(process.env.STRIPE_CINEMATIC_25_PRICE_ID, "price_1TSTOPI3gJ5F0DKDrMY7k4E2"),
             credits: 500,
             label: "25 Cinematic Scenes",
           },
           cinematic_50: {
-            priceId: vp(process.env.STRIPE_CINEMATIC_50_PRICE_ID, "price_1TSQyNIaMYB25uKKyR4EXLqX"),
+            priceId: vp(process.env.STRIPE_CINEMATIC_50_PRICE_ID, "price_1TSTOUI3gJ5F0DKDLR8lTnTE"),
             credits: 1000,
             label: "50 Cinematic Scenes",
           },
@@ -898,14 +898,14 @@ export const renderRouter = router({
       // Use env var if valid for current sandbox, otherwise fall back to hardcoded sandbox prices
       const validRenderPrice = (id: string | undefined) => !!id && id.startsWith("price_");
       const qualityPrices: Record<string, { priceId: string; amount: number; label: string }> = {
-        standard: { priceId: validRenderPrice(process.env.STRIPE_RENDER_STANDARD_PRICE_ID) ? process.env.STRIPE_RENDER_STANDARD_PRICE_ID! : "price_1TNZlRIaMYB25uKKhX4HyPeO", amount: 200, label: "Standard Render (720p)" },
-        hd: { priceId: validRenderPrice(process.env.STRIPE_RENDER_HD_PRICE_ID) ? process.env.STRIPE_RENDER_HD_PRICE_ID! : "price_1TNZlSIaMYB25uKK3YCSb9Gk", amount: 400, label: "HD Render (1080p)" },
-        "4k": { priceId: validRenderPrice(process.env.STRIPE_RENDER_4K_PRICE_ID) ? process.env.STRIPE_RENDER_4K_PRICE_ID! : "price_1TNZlSIaMYB25uKKCZtLyHBD", amount: 600, label: "4K Render (2160p)" },
+        standard: { priceId: validRenderPrice(process.env.STRIPE_RENDER_STANDARD_PRICE_ID) ? process.env.STRIPE_RENDER_STANDARD_PRICE_ID! : "price_1TSTO9I3gJ5F0DKDoGgNQ8mw", amount: 200, label: "Standard Render (720p)" },
+        hd: { priceId: validRenderPrice(process.env.STRIPE_RENDER_HD_PRICE_ID) ? process.env.STRIPE_RENDER_HD_PRICE_ID! : "price_1TSTODI3gJ5F0DKD0jArxUEh", amount: 400, label: "HD Render (1080p)" },
+        "4k": { priceId: validRenderPrice(process.env.STRIPE_RENDER_4K_PRICE_ID) ? process.env.STRIPE_RENDER_4K_PRICE_ID! : "price_1TSTOII3gJ5F0DKDoy0EHVvq", amount: 600, label: "4K Render (2160p)" },
       };
       const audioPrices: Record<string, { priceId: string; amount: number; label: string } | null> = {
         standard: null,
-        enhanced: { priceId: validRenderPrice(process.env.STRIPE_AUDIO_ENHANCED_PRICE_ID) ? process.env.STRIPE_AUDIO_ENHANCED_PRICE_ID! : "price_1TNZlTIaMYB25uKKVoQN10KM", amount: 100, label: "Enhanced Audio" },
-        cinematic: { priceId: validRenderPrice(process.env.STRIPE_AUDIO_CINEMATIC_PRICE_ID) ? process.env.STRIPE_AUDIO_CINEMATIC_PRICE_ID! : "price_1TNZlTIaMYB25uKKV3MCx0vv", amount: 300, label: "Cinematic Audio" },
+        enhanced: { priceId: validRenderPrice(process.env.STRIPE_AUDIO_ENHANCED_PRICE_ID) ? process.env.STRIPE_AUDIO_ENHANCED_PRICE_ID! : "price_1TSTOMI3gJ5F0DKD8PlxlS7d", amount: 100, label: "Enhanced Audio" },
+        cinematic: { priceId: validRenderPrice(process.env.STRIPE_AUDIO_CINEMATIC_PRICE_ID) ? process.env.STRIPE_AUDIO_CINEMATIC_PRICE_ID! : "price_1TSTOPI3gJ5F0DKDrMY7k4E2", amount: 300, label: "Cinematic Audio" },
       };
 
       const qualityInfo = qualityPrices[input.quality];
@@ -973,9 +973,9 @@ export const renderRouter = router({
     .mutation(async ({ ctx, input }) => {
       const vb = (id: string | undefined, fallback: string) => (id && id.startsWith("price_")) ? id : fallback;
       const bundlePrices: Record<string, { priceId: string; renders: number; label: string }> = {
-        "6": { priceId: vb(process.env.STRIPE_BUNDLE_6_PRICE_ID, "price_1TNZlWIaMYB25uKKQ4mJmuWi"), renders: 6, label: "6 Render Bundle" },
-        "15": { priceId: vb(process.env.STRIPE_BUNDLE_15_PRICE_ID, "price_1TNZlWIaMYB25uKKIBoYufs6"), renders: 15, label: "15 Render Bundle" },
-        "40": { priceId: vb(process.env.STRIPE_BUNDLE_40_PRICE_ID, "price_1TNZlXIaMYB25uKKSWQFmB5A"), renders: 40, label: "40 Render Bundle" },
+        "6": { priceId: vb(process.env.STRIPE_BUNDLE_6_PRICE_ID, "price_1TSTOgI3gJ5F0DKDvbRUG8d6"), renders: 6, label: "6 Render Bundle" },
+        "15": { priceId: vb(process.env.STRIPE_BUNDLE_15_PRICE_ID, "price_1TSTOkI3gJ5F0DKDGs8pBex6"), renders: 15, label: "15 Render Bundle" },
+        "40": { priceId: vb(process.env.STRIPE_BUNDLE_40_PRICE_ID, "price_1TSTOpI3gJ5F0DKD9ulY6kUr"), renders: 40, label: "40 Render Bundle" },
       };
 
       const bundleInfo = bundlePrices[input.bundle];
@@ -1150,14 +1150,14 @@ export const renderRouter = router({
       // Price tables (in pence)
       const vru = (id: string | undefined, fallback: string) => (id && id.startsWith("price_")) ? id : fallback;
       const qualityPrices: Record<string, { priceId: string; amount: number; label: string; resolution: string }> = {
-        standard: { priceId: vru(process.env.STRIPE_RENDER_STANDARD_PRICE_ID, "price_1TNZlRIaMYB25uKKhX4HyPeO"), amount: 200, label: "Standard Render", resolution: "720p" },
-        hd:       { priceId: vru(process.env.STRIPE_RENDER_HD_PRICE_ID, "price_1TNZlSIaMYB25uKK3YCSb9Gk"),       amount: 400, label: "HD Render",       resolution: "1080p" },
-        "4k":     { priceId: vru(process.env.STRIPE_RENDER_4K_PRICE_ID, "price_1TNZlSIaMYB25uKKCZtLyHBD"),       amount: 600, label: "4K Render",       resolution: "2160p" },
+        standard: { priceId: vru(process.env.STRIPE_RENDER_STANDARD_PRICE_ID, "price_1TSTO9I3gJ5F0DKDoGgNQ8mw"), amount: 200, label: "Standard Render", resolution: "720p" },
+        hd:       { priceId: vru(process.env.STRIPE_RENDER_HD_PRICE_ID, "price_1TSTODI3gJ5F0DKD0jArxUEh"),       amount: 400, label: "HD Render",       resolution: "1080p" },
+        "4k":     { priceId: vru(process.env.STRIPE_RENDER_4K_PRICE_ID, "price_1TSTOII3gJ5F0DKDoy0EHVvq"),       amount: 600, label: "4K Render",       resolution: "2160p" },
       };
       const audioPrices: Record<string, { priceId: string; amount: number; label: string }> = {
         standard:  { priceId: "",                                                                                   amount: 0,   label: "Standard Audio" },
-        enhanced:  { priceId: vru(process.env.STRIPE_AUDIO_ENHANCED_PRICE_ID, "price_1TNZlTIaMYB25uKKVoQN10KM"),   amount: 100, label: "WizSound Enhance" },
-        cinematic: { priceId: vru(process.env.STRIPE_AUDIO_CINEMATIC_PRICE_ID, "price_1TNZlTIaMYB25uKKV3MCx0vv"),  amount: 300, label: "WizSound Cinematic" },
+        enhanced:  { priceId: vru(process.env.STRIPE_AUDIO_ENHANCED_PRICE_ID, "price_1TSTOMI3gJ5F0DKD8PlxlS7d"),   amount: 100, label: "WizSound Enhance" },
+        cinematic: { priceId: vru(process.env.STRIPE_AUDIO_CINEMATIC_PRICE_ID, "price_1TSTOPI3gJ5F0DKDrMY7k4E2"),  amount: 300, label: "WizSound Cinematic" },
       };
 
       const currentQualityAmount  = qualityPrices[existingJob.quality]?.amount  ?? 0;
