@@ -281,7 +281,7 @@ export const billingRouter = router({
       try {
         // Monthly price IDs — fallback to hardcoded sandbox prices if env var is from wrong account
         const isValidPrice = (id: string | undefined) =>
-          !!id && (id.startsWith("price_1TSQ") || id.startsWith("price_1TNZ"));
+          !!id && id.startsWith("price_");
         const monthlyPrices: Record<string, string> = {
           starter: isValidPrice(process.env.STRIPE_STARTER_PRICE_ID) ? process.env.STRIPE_STARTER_PRICE_ID! : "price_1TSQxpIaMYB25uKKAojtuR64",
           basic: isValidPrice(process.env.STRIPE_BASIC_PRICE_ID) ? process.env.STRIPE_BASIC_PRICE_ID! : "price_1TSQxxIaMYB25uKKDfzIR0aC",
@@ -354,7 +354,7 @@ export const billingRouter = router({
     .mutation(async ({ ctx, input }) => {
       try {
         // Use env var if valid for current sandbox, otherwise fall back to hardcoded sandbox prices
-        const vp = (id: string | undefined, fallback: string) => (id && (id.startsWith("price_1TSQ") || id.startsWith("price_1TNZ") || id.startsWith("price_1TOT"))) ? id : fallback;
+        const vp = (id: string | undefined, fallback: string) => (id && id.startsWith("price_")) ? id : fallback;
         const creditPacks: Record<string, { priceId: string; credits: number; label: string }> = {
           // Standard packs (new keys)
           starter: {
@@ -896,7 +896,7 @@ export const renderRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       // Use env var if valid for current sandbox, otherwise fall back to hardcoded sandbox prices
-      const validRenderPrice = (id: string | undefined) => !!id && (id.startsWith("price_1TSQ") || id.startsWith("price_1TNZ") || id.startsWith("price_1TOT"));
+      const validRenderPrice = (id: string | undefined) => !!id && id.startsWith("price_");
       const qualityPrices: Record<string, { priceId: string; amount: number; label: string }> = {
         standard: { priceId: validRenderPrice(process.env.STRIPE_RENDER_STANDARD_PRICE_ID) ? process.env.STRIPE_RENDER_STANDARD_PRICE_ID! : "price_1TNZlRIaMYB25uKKhX4HyPeO", amount: 200, label: "Standard Render (720p)" },
         hd: { priceId: validRenderPrice(process.env.STRIPE_RENDER_HD_PRICE_ID) ? process.env.STRIPE_RENDER_HD_PRICE_ID! : "price_1TNZlSIaMYB25uKK3YCSb9Gk", amount: 400, label: "HD Render (1080p)" },
@@ -971,7 +971,7 @@ export const renderRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const vb = (id: string | undefined, fallback: string) => (id && (id.startsWith("price_1TSQ") || id.startsWith("price_1TNZ") || id.startsWith("price_1TOT"))) ? id : fallback;
+      const vb = (id: string | undefined, fallback: string) => (id && id.startsWith("price_")) ? id : fallback;
       const bundlePrices: Record<string, { priceId: string; renders: number; label: string }> = {
         "6": { priceId: vb(process.env.STRIPE_BUNDLE_6_PRICE_ID, "price_1TNZlWIaMYB25uKKQ4mJmuWi"), renders: 6, label: "6 Render Bundle" },
         "15": { priceId: vb(process.env.STRIPE_BUNDLE_15_PRICE_ID, "price_1TNZlWIaMYB25uKKIBoYufs6"), renders: 15, label: "15 Render Bundle" },
@@ -1148,7 +1148,7 @@ export const renderRouter = router({
       }
 
       // Price tables (in pence)
-      const vru = (id: string | undefined, fallback: string) => (id && (id.startsWith("price_1TSQ") || id.startsWith("price_1TNZ") || id.startsWith("price_1TOT"))) ? id : fallback;
+      const vru = (id: string | undefined, fallback: string) => (id && id.startsWith("price_")) ? id : fallback;
       const qualityPrices: Record<string, { priceId: string; amount: number; label: string; resolution: string }> = {
         standard: { priceId: vru(process.env.STRIPE_RENDER_STANDARD_PRICE_ID, "price_1TNZlRIaMYB25uKKhX4HyPeO"), amount: 200, label: "Standard Render", resolution: "720p" },
         hd:       { priceId: vru(process.env.STRIPE_RENDER_HD_PRICE_ID, "price_1TNZlSIaMYB25uKK3YCSb9Gk"),       amount: 400, label: "HD Render",       resolution: "1080p" },
