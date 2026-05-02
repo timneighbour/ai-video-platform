@@ -172,8 +172,36 @@ export default function MusicVideoAutopilot() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [showAuthGate, setShowAuthGate] = useState(false);
   const [ambience, setAmbience] = useState(65);
+  // --- Synchronous URL param pre-population (runs before hooks initialize) ---
+  // We use a ref to track whether we already did this to avoid double-running.
+  const _didPrePopulate = useRef(false);
+  if (!_didPrePopulate.current) {
+    _didPrePopulate.current = true;
+    const params = new URLSearchParams(window.location.search);
+    const urlJobId = params.get("job_id") || params.get("jobId") || params.get("resume");
+    if (urlJobId) {
+      const parsedJobId = parseInt(urlJobId, 10);
+      if (!isNaN(parsedJobId)) {
+        // Clear stale state synchronously BEFORE hooks read localStorage
+        clearStaleProjectState("musicVideo", parsedJobId);
+        // Pre-set jobId so the hook below initializes with it
+        localStorage.setItem("musicVideo_jobId", JSON.stringify(parsedJobId));
+      }
+    }
+  }
+
   const [step, setStep] = useLocalStorage<Step>("musicVideo_step", "upload");
   const [jobId, setJobId] = useLocalStorage<number | null>("musicVideo_jobId", null);
+
+  // Step 1: Upload form state - PERSISTED TO LOCALSTORAGE
+  // IMPORTANT: These must be declared BEFORE the useEffect below so their setters are available
+  const [title, setTitle] = useLocalStorage("musicVideo_title", "");
+  const [audioDuration, setAudioDuration] = useLocalStorage("musicVideo_duration", 0);
+  const [themePrompt, setThemePrompt] = useLocalStorage("musicVideo_theme", "");
+  const [genre, setGenre] = useLocalStorage("musicVideo_genre", "");
+  const [mood, setMood] = useLocalStorage("musicVideo_mood", "");
+  const [selectedStyle, setSelectedStyle] = useLocalStorage("musicVideo_style", "cinematic");
+  const [sceneSetting, setSceneSetting] = useLocalStorage("musicVideo_sceneSetting", "");
 
   // Handle URL params: ?job_id=X&render_started=true (redirected from RenderSuccess after Stripe payment)
   // Also handles ?demo=1&prompt=... (quick-start pre-fill from onboarding)
@@ -187,8 +215,7 @@ export default function MusicVideoAutopilot() {
     if (urlJobId) {
       const parsedJobId = parseInt(urlJobId, 10);
       if (!isNaN(parsedJobId)) {
-        // Clear any stale localStorage state from a previous session before restoring this project
-        clearStaleProjectState("musicVideo", parsedJobId);
+        // jobId already set synchronously above; just sync the hook state
         setJobId(parsedJobId);
         if (renderStarted) {
           setStep("render");
@@ -211,17 +238,18 @@ export default function MusicVideoAutopilot() {
               // Debug: show what we got (remove after fix confirmed)
               toast.info(`Debug: status=${status ?? 'none'}, title=${job?.title ?? 'none'}`, { duration: 8000 });
               // Restore form fields from saved job data so the form is never blank
+              // Write to BOTH localStorage (for persistence) AND React state (for immediate re-render)
               const scenes = payload?.scenes ?? [];
               if (job) {
-                if (job.title) setTitle(job.title);
-                if (job.themePrompt) setThemePrompt(job.themePrompt);
-                if (job.genre) setGenre(job.genre);
-                if (job.mood) setMood(job.mood);
-                if (job.audioDuration) setAudioDuration(job.audioDuration);
-                if (job.sceneSetting) setSceneSetting(job.sceneSetting);
+                if (job.title) { localStorage.setItem("musicVideo_title", JSON.stringify(job.title)); setTitle(job.title); }
+                if (job.themePrompt) { localStorage.setItem("musicVideo_theme", JSON.stringify(job.themePrompt)); setThemePrompt(job.themePrompt); }
+                if (job.genre) { localStorage.setItem("musicVideo_genre", JSON.stringify(job.genre)); setGenre(job.genre); }
+                if (job.mood) { localStorage.setItem("musicVideo_mood", JSON.stringify(job.mood)); setMood(job.mood); }
+                if (job.audioDuration) { localStorage.setItem("musicVideo_duration", JSON.stringify(job.audioDuration)); setAudioDuration(job.audioDuration); }
+                if (job.sceneSetting) { localStorage.setItem("musicVideo_sceneSetting", JSON.stringify(job.sceneSetting)); setSceneSetting(job.sceneSetting); }
                 // Derive selectedStyle from first scene if available
                 const firstSceneStyle = scenes[0]?.visualStyle;
-                if (firstSceneStyle) setSelectedStyle(firstSceneStyle);
+                if (firstSceneStyle) { localStorage.setItem("musicVideo_style", JSON.stringify(firstSceneStyle)); setSelectedStyle(firstSceneStyle); }
               }
               if (status === "rendering" || status === "assembling" || status === "wizsound" || status === "completed") {
                 setStep("render");
@@ -247,14 +275,6 @@ export default function MusicVideoAutopilot() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Step 1: Upload form state - PERSISTED TO LOCALSTORAGE
-  const [title, setTitle] = useLocalStorage("musicVideo_title", "");
-  const [audioDuration, setAudioDuration] = useLocalStorage("musicVideo_duration", 0);
-  const [themePrompt, setThemePrompt] = useLocalStorage("musicVideo_theme", "");
-  const [genre, setGenre] = useLocalStorage("musicVideo_genre", "");
-  const [mood, setMood] = useLocalStorage("musicVideo_mood", "");
-  const [selectedStyle, setSelectedStyle] = useLocalStorage("musicVideo_style", "cinematic");
-  const [sceneSetting, setSceneSetting] = useLocalStorage("musicVideo_sceneSetting", "");
   const [savedCharacterIds, setSavedCharacterIds] = useState<Record<number, number>>({});
   const [transcriptionText, setTranscriptionText] = useLocalStorage<string | null>("musicVideo_lyrics", null);
   const [audioFile, setAudioFile] = useState<File | null>(null); // Files can't be persisted
