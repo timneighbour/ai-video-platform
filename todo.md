@@ -6653,3 +6653,16 @@
 - [x] Video player on iPad: use aspect-ratio: 16/9 container that fills available width in landscape
 - [x] Storyboard on iPad landscape: scene thumbnails in 3-col grid instead of 1-col list
 - [x] Premiumise help page: wider layout, cinematic hero, icon-forward category cards, premium FAQ accordions, enhanced support section
+
+## SEO Canonical Fix — May 2026
+- [x] Move social bot middleware BEFORE app.use(vite.middlewares) in setupVite() — fixes interception order
+- [x] Social bots (FB, WhatsApp, Twitter, LinkedIn, Slack, etc.) receive per-route canonical/OG tags — verified via curl
+- [x] Production Googlebot path (serveStatic): reads built index.html, injects per-route canonical, og:url, title, description before serving
+- [x] SEARCH_BOT_RE regex catches Googlebot and bingbot for production canonical injection
+- [x] SOCIAL_BOT_RE excludes Googlebot/bingbot (handled separately by SEARCH_BOT_RE)
+- [x] getRouteMeta() covers all 91+ sitemap URLs with correct title/description/canonical
+- [x] Link header added for all routes as belt-and-suspenders canonical signal
+- [ ] Tim: Publish new SEO checkpoint to wiz-ai.io
+- [ ] Tim: Google Search Console → Sitemaps → resubmit sitemap.xml
+- [ ] Tim: GSC URL Inspection → request indexing for the 101 unindexed pages
+- [ ] Tim: Stripe Dashboard → rename "WIZ AI Business Plan" → "WIZ AI Studio Plan"

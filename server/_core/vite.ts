@@ -7,47 +7,263 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
 
-// ── Social crawler bot detection ──────────────────────────────────────────────
-// Facebook, Instagram, WhatsApp, LinkedIn, Twitter/X, Slack, Telegram, iMessage,
-// Discord, Pinterest, Google, Bing — all send a bot user-agent to scrape OG tags.
-// Because this is a React SPA, the index.html shell has almost no content when
-// rendered without JS. We detect these bots and return a lightweight pre-rendered
-// HTML page with all OG meta tags baked in so link previews work correctly.
-const SOCIAL_BOT_RE = /facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Slackbot|TelegramBot|Discordbot|Applebot|Pinterest|Googlebot|bingbot|DuckDuckBot/i;
+// ── Bot detection ─────────────────────────────────────────────────────────────
+// SOCIAL bots: scrape OG tags for link previews (Facebook, WhatsApp, Slack, etc.)
+// These receive a lightweight pre-rendered HTML page with OG meta tags baked in.
+// IMPORTANT: Googlebot and Bing are NOT social bots — they must receive the real
+// SPA HTML so they can discover and index all pages correctly. Including them here
+// was causing every page to return canonical=homepage, blocking indexing of 101 pages.
+const SOCIAL_BOT_RE = /facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Slackbot|TelegramBot|Discordbot|Applebot|Pinterest/i;
+
+// SEARCH bots: Google, Bing, DuckDuckGo — receive the real SPA HTML but we inject
+// a per-route canonical <link> tag directly into the HTML before serving so they
+// don't have to wait for JS to run to discover the correct canonical URL.
+const SEARCH_BOT_RE = /Googlebot|bingbot|DuckDuckBot|AhrefsBot|SemrushBot|MJ12bot/i;
 
 const OG_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wiz-ai-og-preview-5BfppFBqHYgzvQMYcartPf.png";
-const OG_TITLE = "WIZ AI — The AI Creative Studio";
-const OG_DESC = "Turn a simple idea into a cinematic music video in minutes. 10 AI Studios. One Platform. No editing experience needed.";
-const OG_SITE_URL = "https://wiz-ai.io/";
+const BASE_URL = "https://wiz-ai.io";
 
-function buildBotHtml(): string {
+// ── Per-route SEO metadata ────────────────────────────────────────────────────
+// Used by both social bot pre-render and search bot canonical injection.
+interface RouteMeta {
+  title: string;
+  description: string;
+  canonical: string;
+}
+
+function getRouteMeta(pathname: string): RouteMeta {
+  const url = `${BASE_URL}${pathname === "/" ? "" : pathname}`;
+  const meta: Record<string, RouteMeta> = {
+    "/": {
+      title: "WIZ AI — The AI Creative Studio",
+      description: "Turn a simple idea into a cinematic music video in minutes. 10 AI Studios. One Platform. No editing experience needed.",
+      canonical: `${BASE_URL}/`,
+    },
+    "/pricing": {
+      title: "Pricing — WIZ AI",
+      description: "Simple, transparent pricing. Start free, upgrade when you're ready. Starter from £9/mo.",
+      canonical: `${BASE_URL}/pricing`,
+    },
+    "/how-it-works": {
+      title: "How It Works — WIZ AI",
+      description: "See how WIZ AI turns your music into a cinematic video in 3 simple steps.",
+      canonical: `${BASE_URL}/how-it-works`,
+    },
+    "/help": {
+      title: "Help & Support — WIZ AI",
+      description: "Get answers to your questions about WIZ AI products, billing, and technical issues.",
+      canonical: `${BASE_URL}/help`,
+    },
+    "/music-video": {
+      title: "AI Music Video Generator — WIZ AI",
+      description: "Create stunning AI music videos from your songs in minutes. Upload your track and let WIZ AI do the rest.",
+      canonical: `${BASE_URL}/music-video`,
+    },
+    "/music-video-ai": {
+      title: "AI Music Video Maker — WIZ AI",
+      description: "The most advanced AI music video maker. Turn any song into a cinematic visual experience.",
+      canonical: `${BASE_URL}/music-video-ai`,
+    },
+    "/ai-video-generator": {
+      title: "AI Video Generator — WIZ AI",
+      description: "Generate professional AI videos from text, audio, or images. No editing skills required.",
+      canonical: `${BASE_URL}/ai-video-generator`,
+    },
+    "/ai-animation-maker": {
+      title: "AI Animation Maker — WIZ AI",
+      description: "Create stunning AI animations for music videos, kids content, and more.",
+      canonical: `${BASE_URL}/ai-animation-maker`,
+    },
+    "/text-to-video": {
+      title: "Text to Video AI — WIZ AI",
+      description: "Turn any script or text into a professional AI video in minutes.",
+      canonical: `${BASE_URL}/text-to-video`,
+    },
+    "/kids-video": {
+      title: "AI Kids Video Generator — WIZ AI",
+      description: "Create safe, fun, and educational AI animated videos for children.",
+      canonical: `${BASE_URL}/kids-video`,
+    },
+    "/music-video/create": {
+      title: "Create Music Video — WIZ AI",
+      description: "Start creating your AI music video now. Upload your track and customise your visual style.",
+      canonical: `${BASE_URL}/music-video/create`,
+    },
+    "/products/wizvideo": {
+      title: "WizVideo — AI Music Video Studio | WIZ AI",
+      description: "WizVideo is WIZ AI's flagship music video creation studio. Turn any song into a cinematic masterpiece.",
+      canonical: `${BASE_URL}/products/wizvideo`,
+    },
+    "/products/wizsound": {
+      title: "WizSound™ — AI Audio Enhancement | WIZ AI",
+      description: "WizSound™ enhances your audio to cinematic quality using AI. Richer, fuller, more immersive sound.",
+      canonical: `${BASE_URL}/products/wizsound`,
+    },
+    "/products/wizscript": {
+      title: "WizScript — AI Video Creator | WIZ AI",
+      description: "Turn any script into a professional AI video with WizScript. No camera or editing required.",
+      canonical: `${BASE_URL}/products/wizscript`,
+    },
+    "/products/wizanimate": {
+      title: "WizAnimate — AI Animation Studio | WIZ AI",
+      description: "Create stunning AI animations with WizAnimate. Perfect for music videos, kids content, and social media.",
+      canonical: `${BASE_URL}/products/wizanimate`,
+    },
+    "/products/wizimage": {
+      title: "WizImage — AI Image Creator | WIZ AI",
+      description: "Generate stunning AI images for your videos, social media, and creative projects.",
+      canonical: `${BASE_URL}/products/wizimage`,
+    },
+    "/products/wizshorts": {
+      title: "WizShorts — AI Short-Form Video | WIZ AI",
+      description: "Create viral short-form AI videos for TikTok, Reels, and YouTube Shorts in minutes.",
+      canonical: `${BASE_URL}/products/wizshorts`,
+    },
+    "/products/wizgenesis": {
+      title: "WizGenesis™ — AI Video Engine | WIZ AI",
+      description: "WizGenesis™ is the core AI engine powering all WIZ AI video generation.",
+      canonical: `${BASE_URL}/products/wizgenesis`,
+    },
+    "/products/wizboost": {
+      title: "WizBoost™ — Creator Network | WIZ AI",
+      description: "Amplify your content with WizBoost™. Reach more fans and grow your creative career.",
+      canonical: `${BASE_URL}/products/wizboost`,
+    },
+    "/products/wizpilot": {
+      title: "WizPilot™ — Autopilot Video Generation | WIZ AI",
+      description: "Let WizPilot™ handle your entire video creation workflow automatically.",
+      canonical: `${BASE_URL}/products/wizpilot`,
+    },
+    "/products/wizlumina": {
+      title: "WizLumina™ — Visual Enhancement | WIZ AI",
+      description: "WizLumina™ enhances your video visuals to cinematic 4K quality using AI.",
+      canonical: `${BASE_URL}/products/wizlumina`,
+    },
+    "/products/wizcreate": {
+      title: "WizCreate™ — AI Storyboard Engine | WIZ AI",
+      description: "WizCreate™ builds your video storyboard automatically from your music and style preferences.",
+      canonical: `${BASE_URL}/products/wizcreate`,
+    },
+    "/products/wizshorts": {
+      title: "WizShorts — Short-Form AI Video | WIZ AI",
+      description: "Create viral short-form AI videos for TikTok, Reels, and YouTube Shorts.",
+      canonical: `${BASE_URL}/products/wizshorts`,
+    },
+    "/products/wizscore": {
+      title: "WizScore — AI Music Scoring | WIZ AI",
+      description: "Generate original AI music scores for your videos with WizScore.",
+      canonical: `${BASE_URL}/products/wizscore`,
+    },
+    "/products/wizsync-info": {
+      title: "WizSync — Audio-Visual Sync | WIZ AI",
+      description: "WizSync ensures perfect audio-visual synchronisation in every AI video.",
+      canonical: `${BASE_URL}/products/wizsync-info`,
+    },
+    "/discover": {
+      title: "Discover — WIZ AI",
+      description: "Explore the latest AI videos created by the WIZ AI community.",
+      canonical: `${BASE_URL}/discover`,
+    },
+    "/showcase": {
+      title: "Showcase — WIZ AI",
+      description: "See what creators are making with WIZ AI. Real videos, real results.",
+      canonical: `${BASE_URL}/showcase`,
+    },
+    "/uk": {
+      title: "WIZ AI UK — AI Video Creator for UK Artists",
+      description: "WIZ AI is the UK's leading AI video creation platform. Create stunning music videos from your songs.",
+      canonical: `${BASE_URL}/uk`,
+    },
+    "/blog": {
+      title: "Blog — WIZ AI",
+      description: "Tips, tutorials, and news from the WIZ AI team.",
+      canonical: `${BASE_URL}/blog`,
+    },
+    "/subscribe": {
+      title: "Subscribe — WIZ AI",
+      description: "Choose your WIZ AI plan. Start creating AI videos today.",
+      canonical: `${BASE_URL}/subscribe`,
+    },
+    "/privacy": {
+      title: "Privacy Policy — WIZ AI",
+      description: "Read the WIZ AI Privacy Policy.",
+      canonical: `${BASE_URL}/privacy`,
+    },
+    "/terms": {
+      title: "Terms of Service — WIZ AI",
+      description: "Read the WIZ AI Terms of Service.",
+      canonical: `${BASE_URL}/terms`,
+    },
+    "/refunds": {
+      title: "Refund Policy — WIZ AI",
+      description: "Read the WIZ AI Refund Policy.",
+      canonical: `${BASE_URL}/refunds`,
+    },
+    "/cookie-policy": {
+      title: "Cookie Policy — WIZ AI",
+      description: "Read the WIZ AI Cookie Policy.",
+      canonical: `${BASE_URL}/cookie-policy`,
+    },
+  };
+
+  // SEO landing pages — generate meta dynamically from slug
+  if (pathname.startsWith("/seo/")) {
+    const slug = pathname.replace("/seo/", "");
+    const humanTitle = slug.split("-").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    return {
+      title: `${humanTitle} — WIZ AI`,
+      description: `${humanTitle} — Create professional AI videos with WIZ AI. No editing skills required.`,
+      canonical: `${BASE_URL}${pathname}`,
+    };
+  }
+
+  // Technology pages
+  if (pathname.startsWith("/technology/")) {
+    const slug = pathname.replace("/technology/", "");
+    const humanTitle = slug.split("-").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    return {
+      title: `${humanTitle} — WIZ AI Technology`,
+      description: `Learn how WIZ AI uses ${humanTitle.toLowerCase()} to create stunning AI videos.`,
+      canonical: `${BASE_URL}${pathname}`,
+    };
+  }
+
+  return meta[pathname] ?? {
+    title: "WIZ AI — The AI Creative Studio",
+    description: "Turn a simple idea into a cinematic music video in minutes. 10 AI Studios. One Platform.",
+    canonical: `${BASE_URL}${pathname}`,
+  };
+}
+
+function buildBotHtml(pathname: string): string {
+  const meta = getRouteMeta(pathname);
   return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>${OG_TITLE}</title>
-<meta name="description" content="${OG_DESC}" />
+<title>${meta.title}</title>
+<meta name="description" content="${meta.description}" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="${OG_SITE_URL}" />
-<meta property="og:title" content="${OG_TITLE}" />
-<meta property="og:description" content="${OG_DESC}" />
+<meta property="og:url" content="${meta.canonical}" />
+<meta property="og:title" content="${meta.title}" />
+<meta property="og:description" content="${meta.description}" />
 <meta property="og:image" content="${OG_IMAGE}" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
-<meta property="og:image:alt" content="WIZ AI — The AI Creative Studio" />
+<meta property="og:image:alt" content="${meta.title}" />
 <meta property="og:site_name" content="WIZ AI" />
 <meta property="og:locale" content="en_US" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="${OG_TITLE}" />
-<meta name="twitter:description" content="${OG_DESC}" />
+<meta name="twitter:title" content="${meta.title}" />
+<meta name="twitter:description" content="${meta.description}" />
 <meta name="twitter:image" content="${OG_IMAGE}" />
-<meta name="twitter:image:alt" content="WIZ AI — The AI Creative Studio" />
-<link rel="canonical" href="${OG_SITE_URL}" />
+<meta name="twitter:image:alt" content="${meta.title}" />
+<link rel="canonical" href="${meta.canonical}" />
 </head>
 <body>
-<h1>${OG_TITLE}</h1>
-<p>${OG_DESC}</p>
-<a href="${OG_SITE_URL}">Visit WIZ AI</a>
+<h1>${meta.title}</h1>
+<p>${meta.description}</p>
+<a href="${BASE_URL}/">Visit WIZ AI</a>
 </body>
 </html>`;
 }
@@ -66,10 +282,23 @@ export async function setupVite(app: Express, server: Server) {
     appType: "custom",
   });
 
+  // Social bots and search crawlers must be intercepted BEFORE vite.middlewares,
+  // otherwise Vite serves the SPA shell directly and our canonical injection never runs.
+  app.use((req, res, next) => {
+    // Skip API routes entirely
+    if (req.path.startsWith("/api/") || req.path.startsWith("/assets/")) return next();
+    const ua = req.headers["user-agent"] || "";
+    const pathname = req.path.split("?")[0].replace(/\/+$/, "") || "/";
+    if (SOCIAL_BOT_RE.test(ua)) {
+      console.log(`[OG] Social crawler: ${ua.slice(0, 60)} → ${pathname}`);
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      return res.status(200).send(buildBotHtml(pathname));
+    }
+    next();
+  });
   app.use(vite.middlewares);
   // Guard: never serve the SPA shell for /api/* routes — return 404 JSON instead
-  // This prevents tRPC clients from receiving HTML when a route is unmatched or the
-  // server is temporarily degraded (stale DB pool, mid-restart, etc.)
   app.use("/api/*", (req, res, next) => {
     if (!res.headersSent) {
       res.status(404).json({ error: "API route not found", path: req.path });
@@ -77,15 +306,11 @@ export async function setupVite(app: Express, server: Server) {
   });
   app.use("*", async (req, res, next) => {
     const ua = req.headers["user-agent"] || "";
-    // Serve pre-rendered OG page to social crawlers (dev mode)
-    if (SOCIAL_BOT_RE.test(ua)) {
-      res.setHeader("Cache-Control", "public, max-age=3600");
-      res.setHeader("Content-Type", "text/html; charset=utf-8");
-      return res.status(200).send(buildBotHtml());
-    }
+    const pathname = req.path.split("?")[0].replace(/\/+$/, "") || "/";
+    // Search engine crawlers get the real SPA with canonical injected
+    // (social bots already handled above before vite.middlewares)
 
     const url = req.originalUrl;
-
     try {
       const clientTemplate = path.resolve(
         import.meta.dirname,
@@ -93,13 +318,26 @@ export async function setupVite(app: Express, server: Server) {
         "client",
         "index.html"
       );
-
-      // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`
       );
+
+      // For search engine crawlers, inject the correct per-route canonical tag
+      // directly into the HTML before serving so they don't need JS to discover it.
+      if (SEARCH_BOT_RE.test(ua)) {
+        const meta = getRouteMeta(pathname);
+        template = template.replace(
+          /<link rel="canonical"[^>]*>/,
+          `<link rel="canonical" href="${meta.canonical}" />`
+        );
+        template = template.replace(
+          /<meta property="og:url"[^>]*>/,
+          `<meta property="og:url" content="${meta.canonical}" />`
+        );
+      }
+
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
@@ -124,19 +362,17 @@ export function serveStatic(app: Express) {
   app.use(compression({ level: 6, threshold: 1024 }));
 
   // ── Social crawler intercept (MUST be before express.static) ─────────────────
-  // Facebook, WhatsApp, LinkedIn etc. hit the root URL to scrape OG tags.
-  // express.static would serve the SPA index.html shell (almost no content)
-  // before our wildcard handler gets a chance to respond.
-  // By intercepting here we guarantee bots always receive the pre-rendered
-  // OG HTML with the correct title, description, and image — regardless of
-  // whether the static file exists on disk.
+  // Social bots get a per-route pre-rendered OG page.
+  // Search engine bots (Googlebot, Bing) are NOT intercepted here — they receive
+  // the real SPA HTML with per-route canonical injected below.
   app.use((req, res, next) => {
     const ua = req.headers["user-agent"] || "";
     if (SOCIAL_BOT_RE.test(ua)) {
-      console.log(`[OG] Social crawler detected: ${ua.slice(0, 80)}`);
+      const pathname = req.path.split("?")[0].replace(/\/+$/, "") || "/";
+      console.log(`[OG] Social crawler detected: ${ua.slice(0, 80)} → ${pathname}`);
       res.setHeader("Cache-Control", "public, max-age=3600");
       res.setHeader("Content-Type", "text/html; charset=utf-8");
-      return res.status(200).send(buildBotHtml());
+      return res.status(200).send(buildBotHtml(pathname));
     }
     next();
   });
@@ -158,7 +394,6 @@ export function serveStatic(app: Express) {
       maxAge: "1h",
       etag: true,
       setHeaders(res, filePath) {
-        // HTML must never be cached so users always get the latest app shell
         if (filePath.endsWith(".html")) {
           res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
         }
@@ -166,43 +401,68 @@ export function serveStatic(app: Express) {
     })
   );
 
-  // ── Server-side canonical Link headers ────────────────────────────────────
-  // Injected as HTTP headers so crawlers (including those that don't execute JS)
-  // receive the canonical URL before any client-side useSEO hook runs.
-  // Only public, indexable routes are listed here. Auth-gated and duplicate
-  // routes are intentionally omitted (they carry noindex via useSEO instead).
-  const BASE = "https://wiz-ai.io";
-  const CANONICAL_ROUTES = new Set([
-    "/", "/pricing", "/how-it-works", "/help", "/discover",
-    "/text-to-video", "/ai-video-generator",
-    "/music-video", "/music-video/create",
-    "/products/wizvideo", "/products/wizsound", "/products/wizscript",
-    "/products/wizanimate", "/products/wizimage", "/products/wizshorts",
-    "/privacy", "/terms", "/refund",
-  ]);
-
-  // Guard: never serve the SPA shell for /api/* routes — return 404 JSON instead
+  // Guard: never serve the SPA shell for /api/* routes
   app.use("/api/*", (req, res, _next) => {
     if (!res.headersSent) {
       res.status(404).json({ error: "API route not found", path: req.path });
     }
   });
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (req, res) => {
+  // ── Wildcard SPA handler with per-route canonical injection ──────────────────
+  // For search engine crawlers: inject the correct canonical <link> tag directly
+  // into the served HTML so Google doesn't have to execute JS to find it.
+  // This fixes the "101 pages not indexed — alternative page with canonical tag"
+  // issue caused by every page returning canonical=homepage in the static HTML shell.
+  app.use("*", async (req, res) => {
     const ua = req.headers["user-agent"] || "";
-    // Serve pre-rendered OG page to social crawlers (production mode)
+    const pathname = req.path.split("?")[0].replace(/\/+$/, "") || "/";
+
+    // Social bots in production (belt-and-suspenders, should be caught above)
     if (SOCIAL_BOT_RE.test(ua)) {
       res.setHeader("Cache-Control", "public, max-age=3600");
       res.setHeader("Content-Type", "text/html; charset=utf-8");
-      return res.status(200).send(buildBotHtml());
+      return res.status(200).send(buildBotHtml(pathname));
     }
+
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-    // Inject canonical header for known public routes
-    const pathname = req.path.split("?")[0].replace(/\/+$/, "") || "/";
-    if (CANONICAL_ROUTES.has(pathname)) {
-      res.setHeader("Link", `<${BASE}${pathname}>; rel="canonical"`);
+
+    // For search engine crawlers: read the built index.html, inject per-route
+    // canonical and og:url, then serve. This ensures Google sees the correct
+    // canonical without needing JavaScript execution.
+    if (SEARCH_BOT_RE.test(ua)) {
+      try {
+        const indexPath = path.resolve(distPath, "index.html");
+        let html = await fs.promises.readFile(indexPath, "utf-8");
+        const meta = getRouteMeta(pathname);
+        // Replace the default homepage canonical with the correct per-route canonical
+        html = html.replace(
+          /<link rel="canonical"[^>]*>/,
+          `<link rel="canonical" href="${meta.canonical}" />`
+        );
+        html = html.replace(
+          /<meta property="og:url"[^>]*>/,
+          `<meta property="og:url" content="${meta.canonical}" />`
+        );
+        // Also inject the correct title and description for better crawl quality
+        html = html.replace(
+          /<title>[^<]*<\/title>/,
+          `<title>${meta.title}</title>`
+        );
+        html = html.replace(
+          /<meta name="description"[^>]*>/,
+          `<meta name="description" content="${meta.description}" />`
+        );
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        return res.status(200).send(html);
+      } catch {
+        // Fall through to standard sendFile if read fails
+      }
     }
+
+    // Standard SPA fallback for regular users
+    // Also inject Link header for canonical (belt-and-suspenders for all crawlers)
+    const meta = getRouteMeta(pathname);
+    res.setHeader("Link", `<${meta.canonical}>; rel="canonical"`);
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
