@@ -44,6 +44,7 @@ import CreditBalance from "@/components/CreditBalance";
 import EnhancePromptButton from "@/components/EnhancePromptButton";
 import { Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
+import { QuickTopUpModal } from "@/components/QuickTopUpModal";
 import { useSEO } from "@/hooks/useSEO";
 import {
   Music,
@@ -475,6 +476,7 @@ export default function MusicVideoAutopilot() {
   const { checkLowCredits, checkCanAfford, balance: creditBalance } = useCreditGuard();
   const [showCinematicUpsell, setShowCinematicUpsell] = useState(false);
   const [showCinematicPackModal, setShowCinematicPackModal] = useState(false);
+  const [topUpOpen, setTopUpOpen] = useState(false);
   const [showRenderPaywall, setShowRenderPaywall] = useState(false);
   const [showLyricsIntelligence, setShowLyricsIntelligence] = useState(false);
   const [isUpgradingCinematic, setIsUpgradingCinematic] = useState(false);
@@ -2353,6 +2355,41 @@ export default function MusicVideoAutopilot() {
                           <span className="text-xs text-white/40">Storyboard is free · charged when you hit Build</span>
                           <span className="text-base font-black" style={{ color: '#c9a84c' }}>{tieredBreakdown.total} credits</span>
                         </div>
+
+                        {/* Credit balance & shortfall summary */}
+                        {(() => {
+                          const total = tieredBreakdown.total;
+                          const balance = creditBalance ?? 0;
+                          const shortfall = total - balance;
+                          const hasEnough = shortfall <= 0;
+                          return (
+                            <div className="rounded-lg px-3 py-2.5 space-y-2" style={{ background: hasEnough ? 'rgba(16,185,129,0.06)' : 'rgba(239,68,68,0.06)', border: `1px solid ${hasEnough ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}` }}>
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-white/50">Your balance</span>
+                                <span className="font-semibold" style={{ color: hasEnough ? '#10b981' : 'rgba(255,255,255,0.7)' }}>{balance} credits</span>
+                              </div>
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="text-white/50">This project costs</span>
+                                <span className="font-semibold text-white/80">{total} credits</span>
+                              </div>
+                              <div className="flex items-center justify-between text-xs border-t border-white/5 pt-2">
+                                <span className="font-bold" style={{ color: hasEnough ? '#10b981' : '#ef4444' }}>
+                                  {hasEnough ? '✓ You have enough credits' : `${shortfall} credits short`}
+                                </span>
+                                {!hasEnough && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setTopUpOpen(true)}
+                                    className="text-xs font-bold px-2.5 py-1 rounded-md transition-all"
+                                    style={{ background: 'rgba(201,168,76,0.15)', color: '#c9a84c', border: '1px solid rgba(201,168,76,0.3)' }}
+                                  >
+                                    Top up credits →
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   )}
@@ -4563,6 +4600,12 @@ export default function MusicVideoAutopilot() {
       </div>
       </div>
       <LandscapeHint />
+      <QuickTopUpModal
+        open={topUpOpen}
+        onOpenChange={setTopUpOpen}
+        currentBalance={creditBalance ?? 0}
+        estimatedCost={tieredBreakdown?.total}
+      />
     </div>
   );
 }

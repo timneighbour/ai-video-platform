@@ -6671,3 +6671,10 @@
 - [x] Exempt /api/stripe/webhook from the general rate limiter (Stripe IPs share egress — rate limit causes 429s seen as 503s at Cloudflare)
 - [ ] Update Stripe Dashboard webhook endpoint URL to wiz-ai.io (currently pointing to aivideoplatform-aljhdnsu.manus.space)
 - [ ] Confirm live STRIPE_WEBHOOK_SECRET is set (current secret is test-mode 38-char key; live secrets are 64+ chars)
+
+## Credit Cost Transparency — May 5, 2026
+- [x] Add credit balance/shortfall summary + top-up CTA to Production Cost panel in MusicVideoAutopilot
+  - Shows user's current balance vs project cost
+  - Green confirmation if user has enough credits
+  - Red shortfall indicator + 'Top up credits' button if not enough
+  - 'Top up credits' button opens QuickTopUpModal pre-configured with exact cost (auto-selects the right pack)
