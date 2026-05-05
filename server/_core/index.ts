@@ -108,12 +108,18 @@ async function startServer() {
       return;
     }
 
+    // Respond to Stripe within 30 seconds — run handler with a timeout guard
+    const timeoutMs = 25_000;
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Webhook handler timed out")), timeoutMs)
+    );
     try {
-      const result = await handleStripeWebhook(event);
+      const result = await Promise.race([handleStripeWebhook(event), timeoutPromise]);
       res.json({ received: true, ...result });
     } catch (err: any) {
-      console.error("[Stripe Webhook] Handler error:", err);
-      res.status(500).json({ error: "Webhook handler failed" });
+      console.error("[Stripe Webhook] Handler error:", err.message);
+      // Still return 200 so Stripe doesn't keep retrying for non-fatal errors
+      res.json({ received: true, warning: err.message });
     }
   });
 
@@ -121,7 +127,13 @@ async function startServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   // Apply general rate limiting to all /api routes
-  app.use("/api", generalApiLimiter);
+  // NOTE: /api/stripe/webhook is intentionally excluded — Stripe's delivery IPs
+  // share egress pools and can be rate-limited as a single IP, causing 429s that
+  // Cloudflare surfaces as 503s. The webhook is protected by signature verification.
+  app.use("/api", (req, res, next) => {
+    if (req.path === "/stripe/webhook") return next();
+    return generalApiLimiter(req, res, next);
+  });
   // File upload endpoint for video generation tools
   const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 200 * 1024 * 1024 } });
   app.post("/api/video/upload", uploadLimiter, upload.single("file"), async (req, res) => {

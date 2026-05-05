@@ -144,11 +144,6 @@ function getRouteMeta(pathname: string): RouteMeta {
       description: "WizCreate™ builds your video storyboard automatically from your music and style preferences.",
       canonical: `${BASE_URL}/products/wizcreate`,
     },
-    "/products/wizshorts": {
-      title: "WizShorts — Short-Form AI Video | WIZ AI",
-      description: "Create viral short-form AI videos for TikTok, Reels, and YouTube Shorts.",
-      canonical: `${BASE_URL}/products/wizshorts`,
-    },
     "/products/wizscore": {
       title: "WizScore — AI Music Scoring | WIZ AI",
       description: "Generate original AI music scores for your videos with WizScore.",

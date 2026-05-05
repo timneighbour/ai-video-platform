@@ -6666,3 +6666,8 @@
 - [ ] Tim: Google Search Console → Sitemaps → resubmit sitemap.xml
 - [ ] Tim: GSC URL Inspection → request indexing for the 101 unindexed pages
 - [ ] Tim: Stripe Dashboard → rename "WIZ AI Business Plan" → "WIZ AI Studio Plan"
+
+## Stripe Webhook Fix — May 5, 2026
+- [x] Exempt /api/stripe/webhook from the general rate limiter (Stripe IPs share egress — rate limit causes 429s seen as 503s at Cloudflare)
+- [ ] Update Stripe Dashboard webhook endpoint URL to wiz-ai.io (currently pointing to aivideoplatform-aljhdnsu.manus.space)
+- [ ] Confirm live STRIPE_WEBHOOK_SECRET is set (current secret is test-mode 38-char key; live secrets are 64+ chars)
