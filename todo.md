@@ -6678,3 +6678,11 @@
   - Green confirmation if user has enough credits
   - Red shortfall indicator + 'Top up credits' button if not enough
   - 'Top up credits' button opens QuickTopUpModal pre-configured with exact cost (auto-selects the right pack)
+
+## Credit Pack Repricing — Option A (May 2026)
+- [ ] Update TOPUP_PACKS in products.ts with 6 new profitable packs (Spark/Boost/Creator/Studio/Pro/Elite)
+- [ ] Update createCreditCheckout in billing router to accept new pack keys
+- [ ] Update webhook handler to credit correct amounts for new packs
+- [ ] Redesign QuickTopUpModal with new packs + smart shortfall auto-selection
+- [ ] Create new Stripe products/prices for all 6 packs via API
+- [ ] Wire new Stripe price IDs into env secrets

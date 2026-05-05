@@ -17,49 +17,111 @@ import {
 } from "@/lib/icons";
 import CreditBalance from "@/components/CreditBalance";
 
-// ── Standard credit packs ────────────────────────────────────────────────────
+// ── Option A credit packs (profitable pricing) ──────────────────────────────
+// Margin: 25–47% after API costs. 1 scene ≈ 15 credits (short) / 18–20 (long).
 const STANDARD_PACKS = [
   {
-    id: "starter" as const,
-    name: "Starter Pack",
-    tagline: "Ideal for short creations",
-    price: 9,
-    credits: 300,
-    videos: "~10 standard videos",
+    id: "spark" as const,
+    name: "Spark",
+    tagline: "Quick top-up",
+    price: 3.99,
+    priceDisplay: "£3.99",
+    credits: 50,
+    videos: "~3 scenes",
+    perCreditPence: 8.0,
     popular: false,
     perks: [
-      "300 Credits",
-      "~10 × 60-second videos",
+      "50 Credits",
+      "~3 rendered scenes",
+      "Never expires",
+      "Instant delivery",
+    ],
+  },
+  {
+    id: "boost" as const,
+    name: "Boost",
+    tagline: "Short video top-up",
+    price: 9.99,
+    priceDisplay: "£9.99",
+    credits: 150,
+    videos: "~10 scenes",
+    perCreditPence: 6.7,
+    popular: false,
+    perks: [
+      "150 Credits",
+      "~10 rendered scenes",
       "Never expires",
       "Instant delivery",
     ],
   },
   {
     id: "creator" as const,
-    name: "Creator Pack",
-    tagline: "Best value for regular creators",
-    price: 24,
-    credits: 900,
-    videos: "~30 standard videos",
+    name: "Creator",
+    tagline: "Full short video",
+    price: 21.99,
+    priceDisplay: "£21.99",
+    credits: 350,
+    videos: "~23 scenes",
+    perCreditPence: 6.3,
     popular: true,
     perks: [
-      "900 Credits",
-      "~30 × 60-second videos",
+      "350 Credits",
+      "~23 rendered scenes",
+      "Covers a full short video",
+      "Never expires",
+      "Instant delivery",
+    ],
+  },
+  {
+    id: "studio" as const,
+    name: "Studio",
+    tagline: "2 full videos",
+    price: 44.99,
+    priceDisplay: "£44.99",
+    credits: 750,
+    videos: "~50 scenes",
+    perCreditPence: 6.0,
+    popular: false,
+    perks: [
+      "750 Credits",
+      "~50 rendered scenes",
+      "Covers 2 full videos",
       "Never expires",
       "Instant delivery",
     ],
   },
   {
     id: "pro" as const,
-    name: "Pro Pack",
-    tagline: "Built for high-volume creation",
-    price: 59,
-    credits: 2400,
-    videos: "~80 standard videos",
+    name: "Pro",
+    tagline: "4–5 videos",
+    price: 84.99,
+    priceDisplay: "£84.99",
+    credits: 1500,
+    videos: "~100 scenes",
+    perCreditPence: 5.7,
     popular: false,
     perks: [
-      "2,400 Credits",
-      "~80 × 60-second videos",
+      "1,500 Credits",
+      "~100 rendered scenes",
+      "Covers 4–5 full videos",
+      "Never expires",
+      "Instant delivery",
+    ],
+  },
+  {
+    id: "elite" as const,
+    name: "Elite",
+    tagline: "Best per-credit rate",
+    price: 199.99,
+    priceDisplay: "£199.99",
+    credits: 4000,
+    videos: "~267 scenes",
+    perCreditPence: 5.0,
+    popular: false,
+    perks: [
+      "4,000 Credits",
+      "~267 rendered scenes",
+      "10+ full videos",
       "Never expires",
       "Instant delivery",
     ],
@@ -173,10 +235,10 @@ export default function Credits() {
           <div className="flex items-center gap-3 mb-8">
             <Film className="w-5 h-5 text-[--color-gold]" />
             <h2 className="text-xl font-bold">Build Credits</h2>
-            <span className="text-xs text-zinc-500">30–90 Credits per video depending on length</span>
+            <span className="text-xs text-zinc-500">50–4,000 Credits · from £3.99 · never expire</span>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {STANDARD_PACKS.map((pack) => (
               <div
                 key={pack.id}
@@ -202,9 +264,10 @@ export default function Credits() {
                 </div>
 
                 <div className="flex items-end gap-1">
-                  <span className="text-4xl font-bold text-white">£{pack.price}</span>
+                  <span className="text-4xl font-bold text-white">{(pack as { priceDisplay?: string }).priceDisplay ?? `£${pack.price}`}</span>
                   <span className="text-zinc-500 text-sm mb-1">one-time</span>
                 </div>
+                <p className="text-[11px] text-zinc-600 -mt-3">{(pack as { perCreditPence?: number }).perCreditPence?.toFixed(1)}p per credit</p>
 
                 <ul className="space-y-2 flex-1">
                   {pack.perks.map((perk) => (

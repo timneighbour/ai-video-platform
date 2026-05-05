@@ -212,18 +212,25 @@ async function handleCheckoutSessionCompleted(session: any) {
       if (metadata.credits) {
         creditsToAdd = parseInt(metadata.credits, 10) || 0;
       } else {
-        // Legacy fallback using pack_id
+        // Legacy fallback using pack_id — includes both Option A keys and old keys
         const packId = metadata.pack_id || metadata.pack;
         const legacyCreditAmounts: Record<string, number> = {
-          small: 300,
-          medium: 900,
-          large: 2400,
-          starter: 300,
-          creator: 900,
-          pro: 2400,
+          // Option A packs (new)
+          spark: 50,
+          boost: 150,
+          creator: 350,
+          studio: 750,
+          pro: 1500,
+          elite: 4000,
+          // Cinematic packs
           cinematic_10: 200,
           cinematic_25: 500,
           cinematic_50: 1000,
+          // Legacy keys (old billing)
+          small: 50,
+          starter: 50,
+          medium: 350,
+          large: 1500,
         };
         creditsToAdd = legacyCreditAmounts[packId] || 0;
       }

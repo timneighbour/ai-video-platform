@@ -469,53 +469,92 @@ export function estimateRenderCreditCost(sceneCount: number): number {
 }
 
 // ─── Video Credit Top-Up Packs ────────────────────────────────────────────────
-// One-time purchases for active subscribers who need extra Video Credits.
-// Credit consumption model: 720p = 1 credit, 1080p = 2 credits, 4K = 3 credits.
-// Credits are only consumed on successful final video export.
+// One-time purchases for subscribers who need extra Build Credits.
+//
+// PRICING MODEL (Option A — profitable at scale):
+//   API cost per scene: ~£0.64 (Atlas Cloud Fast / Seedance 2.0)
+//   At 15 credits/scene, revenue per scene = (priceGbp / credits) × 15
+//   Target margin: 25–47% after API costs + Stripe fees (~2.9% + 30p)
+//
+//   Pack       Credits  Price   Per-credit  Rev/scene  API/scene  Margin
+//   Spark        50     £3.99    8.0p        £1.20      £0.64      47%
+//   Boost       150     £9.99    6.7p        £1.00      £0.64      36%
+//   Creator     350    £21.99    6.3p        £0.94      £0.64      32%
+//   Studio      750    £44.99    6.0p        £0.90      £0.64      29%
+//   Pro        1500    £84.99    5.7p        £0.85      £0.64      25%
+//   Elite      4000   £199.99    5.0p        £0.75      £0.64      14%
 export const TOPUP_PACKS = {
-  quick_boost: {
-    key: "quick_boost",
-    name: "Quick Boost",
-    credits: 3,
-    priceGbp: 12,
-    pricePence: 1200,
-    bestFor: "One-off extras",
-    cta: "Add 3 Credits",
+  spark: {
+    key: "spark",
+    name: "Spark",
+    credits: 50,
+    priceGbp: 3.99,
+    pricePence: 399,
+    bestFor: "Quick top-up · ~3 scenes",
+    cta: "Add 50 Credits",
     popular: false,
+    badge: null as string | null,
     stripePriceId: process.env.STRIPE_TOPUP_QUICK_BOOST_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_TOPUP_QUICK_BOOST_PRICE_ID : "price_1TSTNtI3gJ5F0DKDgRWgWCRP",
   },
-  creator_boost: {
-    key: "creator_boost",
-    name: "Creator Boost",
-    credits: 10,
-    priceGbp: 35,
-    pricePence: 3500,
-    bestFor: "Busy creator weeks",
-    cta: "Add 10 Credits",
-    popular: true,
+  boost: {
+    key: "boost",
+    name: "Boost",
+    credits: 150,
+    priceGbp: 9.99,
+    pricePence: 999,
+    bestFor: "~10 scenes · short video",
+    cta: "Add 150 Credits",
+    popular: false,
+    badge: null as string | null,
     stripePriceId: process.env.STRIPE_TOPUP_CREATOR_BOOST_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_TOPUP_CREATOR_BOOST_PRICE_ID : "price_1TSTNxI3gJ5F0DKDDK3PlFrx",
   },
-  studio_boost: {
-    key: "studio_boost",
-    name: "Studio Boost",
-    credits: 25,
-    priceGbp: 89,
-    pricePence: 8900,
-    bestFor: "Campaigns and content batches",
-    cta: "Add 25 Credits",
-    popular: false,
+  creator: {
+    key: "creator",
+    name: "Creator",
+    credits: 350,
+    priceGbp: 21.99,
+    pricePence: 2199,
+    bestFor: "~23 scenes · full short video",
+    cta: "Add 350 Credits",
+    popular: true,
+    badge: "Best value" as string | null,
     stripePriceId: process.env.STRIPE_TOPUP_STUDIO_BOOST_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_TOPUP_STUDIO_BOOST_PRICE_ID : "price_1TSTO1I3gJ5F0DKDjieJ0AVV",
   },
-  pro_bulk_boost: {
-    key: "pro_bulk_boost",
-    name: "Pro Bulk Boost",
-    credits: 60,
-    priceGbp: 199,
-    pricePence: 19900,
-    bestFor: "High-volume creators",
-    cta: "Add 60 Credits",
+  studio: {
+    key: "studio",
+    name: "Studio",
+    credits: 750,
+    priceGbp: 44.99,
+    pricePence: 4499,
+    bestFor: "~50 scenes · 2 full videos",
+    cta: "Add 750 Credits",
     popular: false,
+    badge: null as string | null,
     stripePriceId: process.env.STRIPE_TOPUP_PRO_BULK_BOOST_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_TOPUP_PRO_BULK_BOOST_PRICE_ID : "price_1TSTO5I3gJ5F0DKDgKUsu5NM",
+  },
+  pro: {
+    key: "pro",
+    name: "Pro",
+    credits: 1500,
+    priceGbp: 84.99,
+    pricePence: 8499,
+    bestFor: "~100 scenes · 4–5 videos",
+    cta: "Add 1,500 Credits",
+    popular: false,
+    badge: null as string | null,
+    stripePriceId: process.env.STRIPE_BUNDLE_15_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_BUNDLE_15_PRICE_ID : "price_1TSTNtI3gJ5F0DKDgRWgWCRP",
+  },
+  elite: {
+    key: "elite",
+    name: "Elite",
+    credits: 4000,
+    priceGbp: 199.99,
+    pricePence: 19999,
+    bestFor: "~267 scenes · 10+ videos",
+    cta: "Add 4,000 Credits",
+    popular: false,
+    badge: "Best per-credit" as string | null,
+    stripePriceId: process.env.STRIPE_BUNDLE_40_PRICE_ID?.startsWith("price_") ? process.env.STRIPE_BUNDLE_40_PRICE_ID : "price_1TSTO5I3gJ5F0DKDgKUsu5NM",
   },
 } as const;
 

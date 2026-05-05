@@ -1,64 +1,97 @@
 /**
- * QuickTopUpModal — credit pack selector with optional custom amount slider.
+ * QuickTopUpModal — Option A credit pack selector.
  *
- * Shows 3 standard packs + a custom slider (£5–£250) for flexible top-ups.
- * Dispatches Stripe checkout in a new tab without navigating away.
+ * Six tiers: Spark / Boost / Creator / Studio / Pro / Elite
+ * Pricing: 8.0p → 5.0p per credit (profitable at all tiers).
+ * Smart auto-selection: highlights the smallest pack that covers the shortfall.
+ * Transparent cost breakdown: shows scenes covered, cost per scene, and margin note.
  */
 import { useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Zap, Check, Loader2, ExternalLink, SlidersHorizontal } from "@/lib/icons";
+import { Zap, Check, Loader2, ExternalLink, TrendingUp, AlertCircle } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
-interface Pack {
-  key: "starter" | "creator" | "pro" | "custom";
-  label: string;
-  credits: number;
-  price: string;
-  priceGBP: number;
-  videosApprox: number;
-  badge?: string;
-  highlight?: boolean;
-}
+// ── Option A pack definitions (must match server/products.ts TOPUP_PACKS) ──────
+const PACKS = [
+  {
+    key: "spark" as const,
+    name: "Spark",
+    credits: 50,
+    priceGbp: 3.99,
+    priceDisplay: "£3.99",
+    bestFor: "Quick top-up",
+    scenesApprox: 3,        // 50 ÷ 15 cr/scene ≈ 3
+    badge: null as string | null,
+    perCreditPence: 8.0,
+  },
+  {
+    key: "boost" as const,
+    name: "Boost",
+    credits: 150,
+    priceGbp: 9.99,
+    priceDisplay: "£9.99",
+    bestFor: "Short video top-up",
+    scenesApprox: 10,       // 150 ÷ 15 ≈ 10
+    badge: null as string | null,
+    perCreditPence: 6.7,
+  },
+  {
+    key: "creator" as const,
+    name: "Creator",
+    credits: 350,
+    priceGbp: 21.99,
+    priceDisplay: "£21.99",
+    bestFor: "Full short video",
+    scenesApprox: 23,       // 350 ÷ 15 ≈ 23
+    badge: "Best value" as string | null,
+    perCreditPence: 6.3,
+  },
+  {
+    key: "studio" as const,
+    name: "Studio",
+    credits: 750,
+    priceGbp: 44.99,
+    priceDisplay: "£44.99",
+    bestFor: "2 full videos",
+    scenesApprox: 50,       // 750 ÷ 15 = 50
+    badge: null as string | null,
+    perCreditPence: 6.0,
+  },
+  {
+    key: "pro" as const,
+    name: "Pro",
+    credits: 1500,
+    priceGbp: 84.99,
+    priceDisplay: "£84.99",
+    bestFor: "4–5 videos",
+    scenesApprox: 100,      // 1500 ÷ 15 = 100
+    badge: null as string | null,
+    perCreditPence: 5.7,
+  },
+  {
+    key: "elite" as const,
+    name: "Elite",
+    credits: 4000,
+    priceGbp: 199.99,
+    priceDisplay: "£199.99",
+    bestFor: "10+ videos",
+    scenesApprox: 267,      // 4000 ÷ 15 ≈ 267
+    badge: "Best per-credit" as string | null,
+    perCreditPence: 5.0,
+  },
+] as const;
 
-const STANDARD_PACKS: Pack[] = [
-  {
-    key: "starter",
-    label: "Starter Pack",
-    credits: 300,
-    price: "£9",
-    priceGBP: 9,
-    videosApprox: 10,
-  },
-  {
-    key: "creator",
-    label: "Creator Pack",
-    credits: 900,
-    price: "£24",
-    priceGBP: 24,
-    videosApprox: 30,
-    badge: "Best value",
-    highlight: true,
-  },
-  {
-    key: "pro",
-    label: "Pro Pack",
-    credits: 2400,
-    price: "£59",
-    priceGBP: 59,
-    videosApprox: 80,
-  },
-];
+type PackKey = typeof PACKS[number]["key"];
 
-/** Credits per £1 at each tier — higher spend = better rate */
-function creditsForAmount(gbp: number): number {
-  if (gbp >= 50) return Math.round(gbp * 40.7); // ~£59/2400cr rate
-  if (gbp >= 20) return Math.round(gbp * 37.5); // ~£24/900cr rate
-  return Math.round(gbp * 33.3);                // ~£9/300cr rate
+/** Returns the smallest pack that fully covers the shortfall, or "creator" as default. */
+function getRecommendedPack(shortfall: number): PackKey {
+  if (shortfall <= 0) return "creator";
+  const covering = PACKS.find(p => p.credits >= shortfall);
+  return covering?.key ?? "elite";
 }
 
 interface QuickTopUpModalProps {
@@ -74,20 +107,13 @@ export function QuickTopUpModal({
   currentBalance = 0,
   estimatedCost,
 }: QuickTopUpModalProps) {
-  const getDefaultPack = (): Pack["key"] => {
-    if (!estimatedCost) return "creator";
-    const shortfall = estimatedCost - currentBalance;
-    if (shortfall <= 0) return "creator";
-    const covering = STANDARD_PACKS.find(p => p.credits >= shortfall);
-    return covering?.key ?? "pro";
-  };
+  const shortfall = estimatedCost ? Math.max(0, estimatedCost - currentBalance) : 0;
+  const recommendedKey = getRecommendedPack(shortfall);
 
-  const [selectedPack, setSelectedPack] = useState<Pack["key"]>(getDefaultPack);
-  const [customAmount, setCustomAmount] = useState(25);
+  const [selectedKey, setSelectedKey] = useState<PackKey>(recommendedKey);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  const customCredits = creditsForAmount(customAmount);
-  const customVideos = Math.floor(customCredits / 30);
+  const selectedPack = PACKS.find(p => p.key === selectedKey)!;
 
   const checkoutMutation = trpc.billing.createCreditCheckout.useMutation({
     onSuccess: (data) => {
@@ -111,28 +137,19 @@ export function QuickTopUpModal({
 
   const handlePurchase = useCallback(() => {
     setIsRedirecting(true);
-    // For custom amounts, pick the closest standard pack key by price tier
-    let packKey: "starter" | "creator" | "pro" = "starter";
-    if (customAmount >= 50) packKey = "pro";
-    else if (customAmount >= 20) packKey = "creator";
-
-    const packToUse = selectedPack === "custom" ? packKey : selectedPack as "starter" | "creator" | "pro";
     checkoutMutation.mutate({
-      pack: packToUse,
+      pack: selectedKey,
       origin: window.location.origin,
     });
-  }, [selectedPack, customAmount, checkoutMutation]);
+  }, [selectedKey, checkoutMutation]);
 
-  const selected = selectedPack === "custom"
-    ? null
-    : STANDARD_PACKS.find(p => p.key === selectedPack)!;
-
-  const ctaCredits = selected ? selected.credits : customCredits;
-  const ctaPrice = selected ? selected.price : `£${customAmount}`;
+  // After purchase, how many credits will the user have?
+  const balanceAfter = currentBalance + selectedPack.credits;
+  const coversShortfall = balanceAfter >= (estimatedCost ?? 0);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-background border-border">
+      <DialogContent className="sm:max-w-lg bg-background border-border">
         <DialogHeader className="space-y-1">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-full bg-[--color-gold]/15 flex items-center justify-center">
@@ -141,124 +158,133 @@ export function QuickTopUpModal({
             <DialogTitle className="text-lg font-semibold">Top up your Credits</DialogTitle>
           </div>
           <DialogDescription className="text-sm text-muted-foreground">
-            {estimatedCost && estimatedCost > currentBalance
-              ? `You need ${estimatedCost - currentBalance} more Credits to create this video. Choose a pack to continue.`
+            {shortfall > 0
+              ? `You need ${shortfall.toLocaleString()} more credits to build this video. The highlighted pack covers your shortfall.`
               : "Choose a credit pack to keep creating without interruption."}
           </DialogDescription>
         </DialogHeader>
 
-        {/* Balance indicator */}
-        {currentBalance > 0 && (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/40 rounded-md px-3 py-2">
-            <Zap className="h-3 w-3 text-[--color-gold]" />
-            <span>Current balance: <strong className="text-foreground">{currentBalance} Credits</strong></span>
+        {/* Balance + shortfall summary */}
+        {estimatedCost && estimatedCost > 0 && (
+          <div className={cn(
+            "rounded-lg border px-4 py-3 text-sm space-y-1.5",
+            shortfall > 0
+              ? "border-amber-500/30 bg-amber-500/5"
+              : "border-green-500/30 bg-green-500/5"
+          )}>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Your balance</span>
+              <span className="font-medium text-foreground">{currentBalance.toLocaleString()} credits</span>
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>This video costs</span>
+              <span className="font-medium text-foreground">{estimatedCost.toLocaleString()} credits</span>
+            </div>
+            {shortfall > 0 && (
+              <div className="flex justify-between text-xs border-t border-amber-500/20 pt-1.5">
+                <span className="flex items-center gap-1 text-amber-400">
+                  <AlertCircle className="h-3 w-3" />
+                  Shortfall
+                </span>
+                <span className="font-bold text-amber-400">{shortfall.toLocaleString()} credits</span>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Standard pack selector */}
-        <div className="space-y-2">
-          {STANDARD_PACKS.map((pack) => (
-            <button
-              key={pack.key}
-              onClick={() => setSelectedPack(pack.key)}
-              className={cn(
-                "w-full rounded-lg border p-3.5 text-left transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                selectedPack === pack.key
-                  ? "border-primary bg-primary/8 ring-1 ring-primary/30"
-                  : "border-border bg-card hover:border-primary/40 hover:bg-muted/30"
-              )}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={cn(
-                    "h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors",
-                    selectedPack === pack.key
-                      ? "border-primary bg-primary"
-                      : "border-muted-foreground/40"
-                  )}>
-                    {selectedPack === pack.key && (
-                      <Check className="h-2.5 w-2.5 text-primary-foreground" />
+        {/* Pack grid */}
+        <div className="grid grid-cols-1 gap-2">
+          {PACKS.map((pack) => {
+            const isSelected = selectedKey === pack.key;
+            const isRecommended = pack.key === recommendedKey && shortfall > 0;
+            const covers = pack.credits >= shortfall;
+
+            return (
+              <button
+                key={pack.key}
+                onClick={() => setSelectedKey(pack.key)}
+                className={cn(
+                  "w-full rounded-lg border p-3 text-left transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  isSelected
+                    ? "border-primary bg-primary/8 ring-1 ring-primary/30"
+                    : isRecommended
+                      ? "border-[--color-gold]/50 bg-[--color-gold]/5 hover:border-[--color-gold]/70"
+                      : "border-border bg-card hover:border-primary/40 hover:bg-muted/30"
+                )}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  {/* Radio + name */}
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={cn(
+                      "h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors",
+                      isSelected ? "border-primary bg-primary" : "border-muted-foreground/40"
+                    )}>
+                      {isSelected && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-sm font-semibold text-foreground">{pack.name}</span>
+                        {pack.badge && (
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30">
+                            {pack.badge}
+                          </Badge>
+                        )}
+                        {isRecommended && !isSelected && (
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-amber-500/15 text-amber-400 border-amber-500/30">
+                            Recommended
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        <span className="font-medium text-foreground">{pack.credits.toLocaleString()} credits</span>
+                        {" · "}~{pack.scenesApprox} scenes
+                        {" · "}{pack.bestFor}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Price + per-credit */}
+                  <div className="text-right shrink-0">
+                    <span className="text-base font-bold text-foreground">{pack.priceDisplay}</span>
+                    <p className="text-[10px] text-muted-foreground">{pack.perCreditPence.toFixed(1)}p / credit</p>
+                    {!covers && shortfall > 0 && (
+                      <p className="text-[10px] text-amber-400/70 mt-0.5">
+                        +{(shortfall - pack.credits).toLocaleString()} still short
+                      </p>
+                    )}
+                    {covers && shortfall > 0 && (
+                      <p className="text-[10px] text-green-400/80 mt-0.5">
+                        Covers shortfall ✓
+                      </p>
                     )}
                   </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold text-foreground">{pack.label}</span>
-                      {pack.badge && (
-                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30">
-                          {pack.badge}
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      <span className="font-medium text-foreground">{pack.credits.toLocaleString()} Credits</span>
-                      {" · "}≈ {pack.videosApprox} standard videos
-                    </p>
-                  </div>
                 </div>
-                <div className="text-right shrink-0">
-                  <span className="text-base font-bold text-foreground">{pack.price}</span>
-                  <p className="text-[10px] text-muted-foreground">
-                    £{(pack.priceGBP / pack.credits * 30).toFixed(2)}/video
-                  </p>
-                </div>
-              </div>
-            </button>
-          ))}
-
-          {/* Custom amount option */}
-          <button
-            onClick={() => setSelectedPack("custom")}
-            className={cn(
-              "w-full rounded-lg border p-3.5 text-left transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              selectedPack === "custom"
-                ? "border-primary bg-primary/8 ring-1 ring-primary/30"
-                : "border-border bg-card hover:border-primary/40 hover:bg-muted/30"
-            )}
-          >
-            <div className="flex items-center gap-3 mb-1">
-              <div className={cn(
-                "h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors",
-                selectedPack === "custom"
-                  ? "border-primary bg-primary"
-                  : "border-muted-foreground/40"
-              )}>
-                {selectedPack === "custom" && (
-                  <Check className="h-2.5 w-2.5 text-primary-foreground" />
-                )}
-              </div>
-              <div className="flex items-center gap-2 flex-1">
-                <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-sm font-semibold text-foreground">Custom Amount</span>
-              </div>
-              <div className="text-right">
-                <span className="text-base font-bold text-foreground">£{customAmount}</span>
-                <p className="text-[10px] text-muted-foreground">{customCredits.toLocaleString()} Credits</p>
-              </div>
-            </div>
-
-            {selectedPack === "custom" && (
-              <div className="mt-3 px-1 space-y-2" onClick={(e) => e.stopPropagation()}>
-                <Slider
-                  min={5}
-                  max={250}
-                  step={5}
-                  value={[customAmount]}
-                  onValueChange={([v]) => setCustomAmount(v)}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-[10px] text-muted-foreground">
-                  <span>£5</span>
-                  <span className="text-foreground font-medium">≈ {customVideos} standard videos</span>
-                  <span>£250</span>
-                </div>
-              </div>
-            )}
-          </button>
+              </button>
+            );
+          })}
         </div>
 
-        {/* Cost-per-video helper */}
+        {/* After-purchase preview */}
+        {estimatedCost && estimatedCost > 0 && (
+          <div className={cn(
+            "rounded-md border px-3 py-2 text-xs flex items-center justify-between",
+            coversShortfall
+              ? "border-green-500/25 bg-green-500/5 text-green-400"
+              : "border-amber-500/25 bg-amber-500/5 text-amber-400"
+          )}>
+            <span className="flex items-center gap-1.5">
+              <TrendingUp className="h-3 w-3" />
+              After purchase: {balanceAfter.toLocaleString()} credits
+            </span>
+            <span className="font-medium">
+              {coversShortfall ? "Ready to build ✓" : `Still ${(estimatedCost - balanceAfter).toLocaleString()} short`}
+            </span>
+          </div>
+        )}
+
+        {/* Cost transparency note */}
         <p className="text-[11px] text-muted-foreground text-center">
-          Based on a standard 1-minute video (30 Credits). Longer videos or cinematic scenes use more Credits.
+          1 scene ≈ 8 seconds of video · Short videos use 15 cr/scene · Longer videos use 18–20 cr/scene
         </p>
 
         {/* Actions */}
@@ -284,7 +310,7 @@ export function QuickTopUpModal({
             ) : (
               <>
                 <ExternalLink className="h-4 w-4" />
-                Get {ctaCredits.toLocaleString()} Credits · {ctaPrice}
+                Get {selectedPack.credits.toLocaleString()} Credits · {selectedPack.priceDisplay}
               </>
             )}
           </Button>

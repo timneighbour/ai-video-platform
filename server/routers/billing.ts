@@ -344,51 +344,52 @@ export const billingRouter = router({
   createCreditCheckout: protectedProcedure
     .input(
       z.object({
-        // Standard packs: starter (£9/300cr), creator (£24/900cr), pro (£59/2400cr)
-        // Cinematic packs: cinematic_10 (£12/200cr), cinematic_25 (£25/500cr), cinematic_50 (£45/1000cr)
-        // Legacy keys kept for backward compat: small→starter, medium→creator, large→pro
-        pack: z.enum(["small", "medium", "large", "starter", "creator", "pro", "cinematic_10", "cinematic_25", "cinematic_50"]),
+        // Option A packs: spark/boost/creator/studio/pro/elite
+        // Cinematic packs: cinematic_10/cinematic_25/cinematic_50
+        // Legacy keys kept for backward compat: small/medium/large/starter
+        pack: z.enum(["spark", "boost", "creator", "studio", "pro", "elite",
+                      "cinematic_10", "cinematic_25", "cinematic_50",
+                      "small", "medium", "large", "starter"]),
         origin: z.string().url(),
       })
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        // Use env var if valid for current sandbox, otherwise fall back to hardcoded sandbox prices
+        // Use env var if valid, otherwise fall back to sandbox price IDs
         const vp = (id: string | undefined, fallback: string) => (id && id.startsWith("price_")) ? id : fallback;
         const creditPacks: Record<string, { priceId: string; credits: number; label: string }> = {
-          // Standard packs (new keys)
-          starter: {
-            priceId: vp(process.env.STRIPE_SMALL_PACK_PRICE_ID, "price_1TSTNtI3gJ5F0DKDgRWgWCRP"),
-            credits: 300,
-            label: "Starter Pack",
+          // ── Option A packs — dedicated Stripe price IDs ─────────────────────────────────────────────────
+          spark: {
+            priceId: vp(process.env.STRIPE_TOPUP_SPARK_PRICE_ID, "price_1TTsDQIaMYB25uKKl6COgOKx"),
+            credits: 50,
+            label: "Spark Pack (50 credits)",
+          },
+          boost: {
+            priceId: vp(process.env.STRIPE_TOPUP_BOOST_PRICE_ID, "price_1TTsDRIaMYB25uKKeuQxS6MO"),
+            credits: 150,
+            label: "Boost Pack (150 credits)",
           },
           creator: {
-            priceId: vp(process.env.STRIPE_MEDIUM_PACK_PRICE_ID, "price_1TSTNxI3gJ5F0DKDDK3PlFrx"),
-            credits: 900,
-            label: "Creator Pack",
+            priceId: vp(process.env.STRIPE_TOPUP_CREATOR_PRICE_ID, "price_1TTsDTIaMYB25uKKzGvi5oaD"),
+            credits: 350,
+            label: "Creator Pack (350 credits)",
+          },
+          studio: {
+            priceId: vp(process.env.STRIPE_TOPUP_STUDIO_PRICE_ID, "price_1TTsDUIaMYB25uKKFgHLxbE5"),
+            credits: 750,
+            label: "Studio Pack (750 credits)",
           },
           pro: {
-            priceId: vp(process.env.STRIPE_LARGE_PACK_PRICE_ID, "price_1TSTO5I3gJ5F0DKDgKUsu5NM"),
-            credits: 2400,
-            label: "Pro Pack",
+            priceId: vp(process.env.STRIPE_TOPUP_PRO_PRICE_ID, "price_1TTsDWIaMYB25uKKoSvWvtc2"),
+            credits: 1500,
+            label: "Pro Pack (1,500 credits)",
           },
-          // Legacy keys (backward compat)
-          small: {
-            priceId: vp(process.env.STRIPE_SMALL_PACK_PRICE_ID, "price_1TSTNtI3gJ5F0DKDgRWgWCRP"),
-            credits: 300,
-            label: "Starter Pack",
+          elite: {
+            priceId: vp(process.env.STRIPE_TOPUP_ELITE_PRICE_ID, "price_1TTsDXIaMYB25uKKh4Boz0Nj"),
+            credits: 4000,
+            label: "Elite Pack (4,000 credits)",
           },
-          medium: {
-            priceId: vp(process.env.STRIPE_MEDIUM_PACK_PRICE_ID, "price_1TSTNxI3gJ5F0DKDDK3PlFrx"),
-            credits: 900,
-            label: "Creator Pack",
-          },
-          large: {
-            priceId: vp(process.env.STRIPE_LARGE_PACK_PRICE_ID, "price_1TSTO5I3gJ5F0DKDgKUsu5NM"),
-            credits: 2400,
-            label: "Pro Pack",
-          },
-          // Cinematic upgrade packs
+          // ── Cinematic upgrade packs ──────────────────────────────────────────
           cinematic_10: {
             priceId: vp(process.env.STRIPE_CINEMATIC_10_PRICE_ID, "price_1TSTOMI3gJ5F0DKD8PlxlS7d"),
             credits: 200,
@@ -403,6 +404,27 @@ export const billingRouter = router({
             priceId: vp(process.env.STRIPE_CINEMATIC_50_PRICE_ID, "price_1TSTOUI3gJ5F0DKDLR8lTnTE"),
             credits: 1000,
             label: "50 Cinematic Scenes",
+          },
+          // ── Legacy keys (backward compat) ────────────────────────────────────
+          small: {
+            priceId: vp(process.env.STRIPE_TOPUP_QUICK_BOOST_PRICE_ID, "price_1TSTNtI3gJ5F0DKDgRWgWCRP"),
+            credits: 50,
+            label: "Spark Pack (50 credits)",
+          },
+          starter: {
+            priceId: vp(process.env.STRIPE_TOPUP_QUICK_BOOST_PRICE_ID, "price_1TSTNtI3gJ5F0DKDgRWgWCRP"),
+            credits: 50,
+            label: "Spark Pack (50 credits)",
+          },
+          medium: {
+            priceId: vp(process.env.STRIPE_TOPUP_STUDIO_BOOST_PRICE_ID, "price_1TSTO1I3gJ5F0DKDjieJ0AVV"),
+            credits: 350,
+            label: "Creator Pack (350 credits)",
+          },
+          large: {
+            priceId: vp(process.env.STRIPE_BUNDLE_15_PRICE_ID, "price_1TSTNtI3gJ5F0DKDgRWgWCRP"),
+            credits: 1500,
+            label: "Pro Pack (1,500 credits)",
           },
         };
 
