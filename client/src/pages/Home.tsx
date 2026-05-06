@@ -3046,14 +3046,15 @@ function WizVidEngineSection() {
  );
 }
 
-/// See the Difference (Cinematic Demo Player) — v9: separate pre-graded MP4s per tier
+/// See the Difference (Cinematic Demo Player) — v10: corrected colour grades
 
-// Each tier is a fully colour-graded + audio-combined MP4 — no CSS filters, no timestamps
+// v2 grades: Original=natural colour, Enhanced=clean broadcast, Cinematic=subtle film grade
 const STD_VIDEOS = {
-  original: "/manus-storage/std-tier-original_75f14613.mp4",
-  enhanced: "/manus-storage/std-tier-enhanced_a3a51821.mp4",
-  cinematic: "/manus-storage/std-tier-cinematic_fa1f0aa6.mp4",
+  original: "/manus-storage/std-tier-original-v2_c835e887.mp4",
+  enhanced: "/manus-storage/std-tier-enhanced-v2_830fe757.mp4",
+  cinematic: "/manus-storage/std-tier-cinematic-v2_b4142797.mp4",
 };
+const WIZLUMINA_LOGO_STD = "/manus-storage/wizlumina-logo-new_0709f3c5_83ddc673.png";
 
 type StdTier = "original" | "enhanced" | "cinematic";
 
@@ -3218,9 +3219,24 @@ function SeeTheDifference() {
       <div className="container max-w-5xl mx-auto px-4 relative z-10">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/40 tracking-widest uppercase mb-5">
-            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: activeTierData.accentColor }} />
-            WizLumina™ · Live Cinematic Demo
+          {/* WizLumina logo badge */}
+          <div className="flex flex-col items-center gap-3 mb-6">
+            <div className="flex items-center gap-3">
+              <img
+                src={WIZLUMINA_LOGO_STD}
+                alt="WizLumina"
+                className="w-10 h-10 rounded-xl object-contain"
+                style={{ filter: "drop-shadow(0 0 8px oklch(0.65 0.18 290))" }}
+              />
+              <div className="text-left">
+                <p className="text-white font-black text-lg leading-none tracking-tight">WizLumina™</p>
+                <p className="text-white/40 text-xs leading-none mt-0.5 tracking-widest uppercase">Visual Enhancement Engine</p>
+              </div>
+            </div>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/40 tracking-widest uppercase">
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: activeTierData.accentColor }} />
+              Live Cinematic Demo
+            </div>
           </div>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white mb-4">
             See the difference{" "}

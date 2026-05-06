@@ -7100,3 +7100,9 @@
 - [x] Create three genuinely different colour-graded video versions with FFmpeg (Original=flat/raw, Enhanced=sharp/vibrant, Cinematic=golden/film-grade)
 - [x] Redesign SeeTheDifference component as full cinematic immersive player (not static images)
 - [x] Fix tier badge/button colours to premium WizAI scheme (silver/sapphire/gold)
+
+## SeeTheDifference Colour Grade Fixes - May 2026
+- [x] Fix Original tier — natural colour, no saturation change (eq=saturation=1.0)
+- [x] Fix Enhanced tier — clean broadcast quality (saturation=1.25, contrast=1.08, unsharp)
+- [x] Fix Cinematic tier — subtle film grade (teal shadows, warm highlights, vignette, hue=3)
+- [x] Add WizLumina logo to SeeTheDifference section for brand purposes
