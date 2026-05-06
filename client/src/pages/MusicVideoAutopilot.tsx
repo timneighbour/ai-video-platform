@@ -3646,7 +3646,34 @@ export default function MusicVideoAutopilot() {
                       </div>
                     </div>
 
-                    {/* Lyrics are used internally for prompt building but not shown on cards to keep UI clean */}
+                    {/* ── Lyrics strip — shows which part of the song this scene covers ── */}
+                    {scene.lyrics && (
+                      <div className="mb-3 px-3 py-2 rounded-lg bg-[rgba(212,168,67,0.06)] border border-[rgba(212,168,67,0.12)]">
+                        <div className="flex items-start gap-2">
+                          <div className="flex-shrink-0 mt-0.5">
+                            <Music className="w-3 h-3 text-[--color-gold]/60" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-[--color-gold]/50 mb-1">Lyrics</p>
+                            <p className="text-xs text-white/70 leading-relaxed line-clamp-4 font-mono whitespace-pre-wrap">{scene.lyrics.trim()}</p>
+                          </div>
+                          {/* Lip sync status indicator */}
+                          <div className="flex-shrink-0 mt-0.5">
+                            <div
+                              title={scene.lipSync ? `Lip Sync ON — ${scene.lipSyncStyle}` : "Lip Sync OFF"}
+                              className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-semibold border ${
+                                scene.lipSync
+                                  ? "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/20"
+                                  : "bg-white/5 text-white/30 border-white/10"
+                              }`}
+                            >
+                              <Mic className="w-2 h-2" />
+                              {scene.lipSync ? "SYNC" : "OFF"}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Always-visible scene description editor */}
                     <div className="space-y-2">

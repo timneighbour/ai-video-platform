@@ -6,10 +6,11 @@
 import { z } from "zod";
 import { adminProcedure, router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { users, credits, creditTransactions, creditDisputes } from "../../drizzle/schema";
-import { eq, like, or, desc, and } from "drizzle-orm";
+import { users, credits, creditTransactions, creditDisputes, musicVideoJobs, musicVideoScenes } from "../../drizzle/schema";
+import { eq, like, or, desc, and, inArray, lte } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { notifyOwner } from "../_core/notification";
+import { refundCredits } from "../credit-service";
 
 export const adminCreditsRouter = router({
   /**
@@ -269,5 +270,98 @@ export const adminCreditsRouter = router({
       }).where(eq(creditDisputes.id, input.disputeId));
 
       return { success: true };
+    }),
+
+  // ── Admin: List stuck jobs (rendering/assembling > threshold) ──────────────────────
+  listStuckJobs: adminProcedure
+    .input(z.object({
+      thresholdMinutes: z.number().int().min(10).max(1440).default(45),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+
+      const cutoff = new Date(Date.now() - input.thresholdMinutes * 60 * 1000);
+      const stuckJobs = await db
+        .select({
+          id: musicVideoJobs.id,
+          userId: musicVideoJobs.userId,
+          title: musicVideoJobs.title,
+          status: musicVideoJobs.status,
+          creditCost: musicVideoJobs.creditCost,
+          updatedAt: musicVideoJobs.updatedAt,
+          createdAt: musicVideoJobs.createdAt,
+          userName: users.name,
+          userEmail: users.email,
+        })
+        .from(musicVideoJobs)
+        .leftJoin(users, eq(users.id, musicVideoJobs.userId))
+        .where(and(
+          inArray(musicVideoJobs.status, ["rendering", "assembling"]),
+          lte(musicVideoJobs.updatedAt, cutoff)
+        ))
+        .orderBy(desc(musicVideoJobs.updatedAt))
+        .limit(100);
+
+      return stuckJobs.map(j => ({
+        ...j,
+        stuckForMinutes: Math.round((Date.now() - new Date(j.updatedAt).getTime()) / 60000),
+      }));
+    }),
+
+  // ── Admin: Bulk refund stuck jobs ───────────────────────────────────────────────────
+  refundStuckJobs: adminProcedure
+    .input(z.object({
+      jobIds: z.array(z.number().int()).min(1).max(200),
+      adminNote: z.string().max(500).default("Refund: render stuck — provider outage"),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+
+      const jobs = await db
+        .select({ id: musicVideoJobs.id, userId: musicVideoJobs.userId, creditCost: musicVideoJobs.creditCost, status: musicVideoJobs.status, title: musicVideoJobs.title })
+        .from(musicVideoJobs)
+        .where(inArray(musicVideoJobs.id, input.jobIds));
+
+      if (jobs.length === 0) throw new TRPCError({ code: "NOT_FOUND", message: "No jobs found" });
+
+      let refundedCount = 0;
+      let totalCreditsRefunded = 0;
+      const errors: string[] = [];
+
+      for (const job of jobs) {
+        if (job.creditCost <= 0) continue;
+        try {
+          // Mark job as failed with refund message
+          await db.update(musicVideoJobs)
+            .set({
+              status: "failed",
+              errorMessage: `Your video render was stopped due to a provider issue. Your ${job.creditCost} credits have been refunded. Please try again.`,
+              updatedAt: new Date(),
+            })
+            .where(eq(musicVideoJobs.id, job.id));
+
+          // Fail any generating scenes
+          await db.update(musicVideoScenes)
+            .set({ status: "failed", errorMessage: "Render stopped — provider outage. Please retry.", updatedAt: new Date() })
+            .where(and(eq(musicVideoScenes.jobId, job.id), inArray(musicVideoScenes.status, ["generating", "pending"])));
+
+          // Refund credits
+          await refundCredits(job.userId, job.creditCost, `[Admin: ${ctx.user.name ?? ctx.user.id}] ${input.adminNote} (job #${job.id})`, job.id);
+
+          refundedCount++;
+          totalCreditsRefunded += job.creditCost;
+        } catch (err) {
+          errors.push(`Job #${job.id}: ${String(err).slice(0, 100)}`);
+        }
+      }
+
+      await notifyOwner({
+        title: `✅ Admin bulk refund complete — ${refundedCount} jobs`,
+        content: `Admin ${ctx.user.name ?? ctx.user.id} refunded ${totalCreditsRefunded} credits across ${refundedCount} stuck jobs.\n${errors.length > 0 ? `Errors: ${errors.join("; ")}` : "No errors."}`,
+      }).catch(() => {});
+
+      return { success: true, refundedCount, totalCreditsRefunded, errors };
     }),
 });

@@ -594,21 +594,44 @@ export async function startSceneRender(
     ? `${prompt} ${LIP_SYNC_STYLE_PROMPTS[lipSyncStyle] ?? LIP_SYNC_STYLE_PROMPTS.natural}`
     : `${prompt} Cinematic movement only, no singing, no mouth animation.`;
 
-  // ── SAFE LAUNCH PROVIDER CHAIN (Apr 2026) ──────────────────────────────────
-  // ACTIVE:   Atlas Cloud Fast ONLY (~$0.101/sec) — sole provider
-  // DISABLED: fal.ai — previous stuck jobs, Forbidden errors, negative balance, higher cost
-  // DISABLED: WaveSpeed — too expensive and unreliable
-  // DISABLED: Hypereal — no silent fallback to unvetted providers during launch
-  // Policy: If Atlas Cloud fails, surface the error immediately. No silent expensive fallback.
+  // ── PROVIDER CHAIN (May 2026) ─────────────────────────────────────────────
+  // PRIMARY:  Atlas Cloud Fast (~$0.101/sec, 720p, Seedance 2.0 Fast) — proven, best quality
+  // FAILOVER: WaveSpeed (~$0.10/sec, 720p, Seedance 2.0 Fast) — automatic if Atlas exhausted
+  // DISABLED: fal.ai — Forbidden errors, higher cost
+  // DISABLED: Hypereal — not vetted for production
+  // Policy: Try Atlas Cloud first. If Atlas returns 402 (insufficient balance) or is unavailable,
+  //         automatically fall back to WaveSpeed. Surface all other errors immediately.
   if (renderer === "wavespeed" || renderer === "fal_seedance" || renderer === "seedance" || renderer === "atlas_cloud" || renderer === "atlas_cloud_fast") {
-    // Atlas Cloud Fast — SOLE ACTIVE PROVIDER
+    // Step 1: Try Atlas Cloud Fast (primary)
     try {
       return await startSceneRenderAtlasCloud(sceneId, finalPrompt, duration, jobId);
-    } catch (atlasErr) {
-      // Do NOT fall back to fal.ai, Hypereal, or WaveSpeed — all disabled for launch.
-      // Surface the error clearly so the user can retry.
-      console.error(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed. No fallback active (safe launch mode).`, (atlasErr as Error).message?.slice(0, 200));
-      throw new Error(`Video generation failed for scene ${sceneId}. Atlas Cloud is the active provider — please try again in a moment.`);
+    } catch (atlasErr: any) {
+      const atlasMsg = String(atlasErr?.message ?? atlasErr);
+      const isExhausted = atlasMsg.includes("402") || atlasMsg.toLowerCase().includes("insufficient") || atlasMsg.toLowerCase().includes("balance") || atlasMsg.toLowerCase().includes("payment");
+      if (!isExhausted) {
+        // Non-balance error (content policy, network, etc.) — surface immediately, no fallback
+        console.error(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed (non-balance error). No fallback.`, atlasMsg.slice(0, 200));
+        throw new Error(`Video generation failed for scene ${sceneId}. Please try again in a moment.`);
+      }
+      // Step 2: Atlas exhausted — automatically fall back to WaveSpeed
+      console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud balance exhausted — falling back to WaveSpeed automatically.`);
+      // Fire-and-forget owner notification (debounced to 1/hour)
+      import("./provider-health").then(({ notifyAtlasExhausted }) => notifyAtlasExhausted()).catch(() => {});
+      try {
+        return await startSceneRenderWaveSpeed(
+          sceneId,
+          finalPrompt,
+          duration,
+          modelAssignment ?? "bytedance/seedance-2.0-fast/text-to-video",
+          storyboardImageUrl ?? undefined,
+          aspectRatio,
+          jobId
+        );
+      } catch (wsErr: any) {
+        const wsMsg = String(wsErr?.message ?? wsErr);
+        console.error(`[MusicVideo] Scene ${sceneId} WaveSpeed fallback also failed: ${wsMsg.slice(0, 200)}`);
+        throw new Error(`Video generation failed for scene ${sceneId}. Both Atlas Cloud and WaveSpeed are currently unavailable. Please try again shortly.`);
+      }
     }
   }
 

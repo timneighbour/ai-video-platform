@@ -204,13 +204,52 @@ export async function checkAllProviders(): Promise<HealthCheckSummary> {
 /**
  * Quick check: is at least one provider available?
  * Used as a gate before deducting credits.
- * Fast path: checks WaveSpeed first (primary provider), then falls back to others.
+ * Fast path: checks Atlas Cloud first (primary), then WaveSpeed (failover).
  */
 export async function isAnyProviderAvailable(): Promise<boolean> {
-  // Fast path: just check WaveSpeed (primary provider) first
+  // Fast path: check Atlas Cloud (primary) first
+  const atlas = await checkAtlasCloud();
+  if (atlas.status === "available") return true;
+  // Atlas Cloud exhausted or unavailable — check WaveSpeed (automatic failover)
   const ws = await checkWaveSpeed();
   if (ws.status === "available") return true;
-  // If WaveSpeed is down, check the others in parallel
-  const [hypereal, atlas, fal] = await Promise.all([checkHypereal(), checkAtlasCloud(), checkFalAi()]);
-  return [hypereal, atlas, fal].some((p) => p.status === "available");
+  // Last resort: check remaining providers
+  const [hypereal, fal] = await Promise.all([checkHypereal(), checkFalAi()]);
+  return [hypereal, fal].some((p) => p.status === "available");
+}
+
+/**
+ * Get the best available provider name for logging/alerting purposes.
+ * Returns null if no provider is available.
+ */
+export async function getBestAvailableProvider(): Promise<string | null> {
+  const atlas = await checkAtlasCloud();
+  if (atlas.status === "available") return "Atlas Cloud";
+  const ws = await checkWaveSpeed();
+  if (ws.status === "available") return "WaveSpeed (failover)";
+  const [hypereal, fal] = await Promise.all([checkHypereal(), checkFalAi()]);
+  const fallback = [hypereal, fal].find((p) => p.status === "available");
+  return fallback?.provider ?? null;
+}
+
+/**
+ * Notify the owner when Atlas Cloud balance is exhausted and WaveSpeed failover is active.
+ * Called from music-video-service when Atlas returns a balance error.
+ * Debounced — only fires once per hour to avoid notification spam.
+ */
+let _lastAtlasExhaustionAlert = 0;
+export async function notifyAtlasExhausted(): Promise<void> {
+  const now = Date.now();
+  if (now - _lastAtlasExhaustionAlert < 60 * 60 * 1000) return; // 1-hour debounce
+  _lastAtlasExhaustionAlert = now;
+  try {
+    const { notifyOwner } = await import("./_core/notification");
+    await notifyOwner({
+      title: "⚠️ Atlas Cloud balance exhausted — WaveSpeed failover active",
+      content: `Atlas Cloud has run out of credits. WIZ AI has automatically switched to WaveSpeed as the failover provider.\n\nAction required: Top up Atlas Cloud at https://www.atlascloud.ai to restore primary rendering.\n\nWaveSpeed balance: $100 (topped up). Renders will continue uninterrupted.`,
+    });
+    console.warn("[ProviderHealth] Owner notified: Atlas Cloud exhausted, WaveSpeed failover active.");
+  } catch (e) {
+    console.error("[ProviderHealth] Failed to send Atlas exhaustion notification:", e);
+  }
 }

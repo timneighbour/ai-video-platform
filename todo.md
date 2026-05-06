@@ -6840,3 +6840,44 @@
 ### Final Report
 - [x] Compile DNS status, campaign status, improvements, risks, readiness score
 - [x] Generate PDF report
+
+## Render Pipeline Investigation — 6 May 2026
+
+- [ ] Diagnose stuck jobs (IDs 390001, 360001, 330001) — check provider logs
+- [ ] Identify root cause of zero completed WizVideo renders
+- [ ] Check provider call logs (Atlas/Fal/Seedance) for render jobs
+- [ ] Check assembly pipeline (ffmpeg, S3 upload, finalVideoUrl)
+- [ ] Investigate storyboard_ready → Build conversion gap (31 stuck jobs)
+- [ ] Fix render pipeline root cause
+- [ ] Improve user-facing failure handling
+- [ ] Run fresh end-to-end production test render
+- [ ] Confirm at least one job reaches status=completed
+- [ ] Verify credits behaviour on success and failure
+
+## Render Restoration Sprint — Phase 1-3
+
+### Phase 1 — Immediate Stabilisation
+- [ ] Wire WaveSpeed as WizAdora's active backend provider (replace Atlas Cloud routing in music-video-service.ts)
+- [ ] Route: WIZ AI frontend → WizAdora → WaveSpeed (no direct provider calls from frontend)
+- [ ] Run end-to-end production test: storyboard → build → render → assembly → S3 upload → playback → download
+- [ ] Refund/protect credits for all users with stuck renders that produced no usable output
+- [ ] Fix silent failure handling: timeout stale rendering/assembling jobs, fail gracefully, surface retry option
+- [ ] User-friendly error messaging for failed renders
+
+### Phase 2 — Cost-Control Infrastructure
+- [ ] Provider health check system (ping providers, detect exhausted balance)
+- [ ] Provider balance monitoring with admin alerts for low balance
+- [ ] Automatic provider disabling when exhausted/unhealthy
+- [ ] Failover support (primary → fallback provider)
+- [ ] Provider cost visibility in admin panel
+- [ ] WizAdora as full orchestration layer (all renders go through it)
+
+### Phase 3 — Hybrid Cost Strategy (Later)
+- [ ] Design provider routing tiers (premium/fast vs low-cost/self-hosted)
+- [ ] Swappable provider architecture in WizAdora
+
+## Lyrics Restoration Sprint
+- [x] Restore lyrics display on storyboard scene cards in WizVideo (show lyrics for each scene so user can see song position and lip sync status)
+- [ ] Restore lyrics display on storyboard scene cards in WizAnimate (same requirement)
+- [ ] Ensure lip sync indicator is visible per scene on storyboard (on/off toggle visible)
+- [ ] Apply to any other relevant applications that use storyboard scene cards

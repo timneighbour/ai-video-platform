@@ -20,7 +20,7 @@ import {
   transcribeJobAudio,
   mapModelAssignmentToWaveSpeed,
 } from "../music-video-service";
-import { deductCredits, getUserCredits } from "../credit-service";
+import { deductCredits, getUserCredits, refundCredits } from "../credit-service";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import { generateImage } from "../_core/imageGeneration";
 
@@ -1070,8 +1070,69 @@ Rules:
 
       if (!job) throw new TRPCError({ code: "NOT_FOUND" });
 
+      // ── STUCK JOB TIMEOUT GUARD ─────────────────────────────────────────────
+      // Jobs that have been in 'rendering' or 'assembling' for more than 45 minutes
+      // are considered stuck. Auto-fail them with a clear user message and credit refund.
+      const STUCK_TIMEOUT_MS = 45 * 60 * 1000; // 45 minutes
+      const SCENE_STUCK_TIMEOUT_MS = 40 * 60 * 1000; // 40 minutes per scene
+      if (job.status === "rendering" || job.status === "assembling") {
+        const jobAge = Date.now() - new Date(job.updatedAt).getTime();
+        if (jobAge > STUCK_TIMEOUT_MS) {
+          console.error(`[MusicVideo] Job ${input.jobId} has been stuck in '${job.status}' for ${Math.round(jobAge / 60000)} minutes — auto-failing.`);
+          // Fail any scenes still generating
+          await db.update(musicVideoScenes)
+            .set({ status: "failed", errorMessage: "Scene timed out after 40 minutes — please retry", updatedAt: new Date() })
+            .where(and(eq(musicVideoScenes.jobId, input.jobId), inArray(musicVideoScenes.status, ["generating", "pending"])));
+          // Mark job as failed with a user-friendly message
+          await db.update(musicVideoJobs)
+            .set({
+              status: "failed",
+              errorMessage: "Your video took too long to render and has been stopped. This can happen when our video provider is under heavy load. Your credits have been refunded — please try again.",
+              updatedAt: new Date(),
+            })
+            .where(eq(musicVideoJobs.id, input.jobId));
+          // Refund credits if not admin
+          if (ctx.user.role !== "admin" && job.creditCost > 0) {
+            try {
+              await refundCredits(ctx.user.id, job.creditCost, `Refund: render timeout — job #${job.id}`, job.id);
+              console.log(`[MusicVideo] Refunded ${job.creditCost} credits to user ${ctx.user.id} for timed-out job ${job.id}`);
+            } catch (refundErr) {
+              console.error(`[MusicVideo] CRITICAL: Failed to refund credits for timed-out job ${job.id}:`, refundErr);
+            }
+          }
+          return {
+            status: "failed" as const,
+            totalScenes: 0,
+            completedScenes: 0,
+            failedScenes: 0,
+            finalVideoUrl: null,
+            sceneStatuses: [],
+            timedOut: true,
+          };
+        }
+      }
+
       const scenes = await db.select().from(musicVideoScenes)
         .where(eq(musicVideoScenes.jobId, input.jobId));
+
+      // ── PER-SCENE STUCK TIMEOUT ─────────────────────────────────────────────
+      // Individual scenes stuck in 'generating' for >40 minutes are auto-failed
+      // so the job can proceed to assembly with whatever completed scenes exist.
+      for (const scene of scenes) {
+        if (scene.status === "generating" && scene.updatedAt) {
+          const sceneAge = Date.now() - new Date(scene.updatedAt).getTime();
+          if (sceneAge > SCENE_STUCK_TIMEOUT_MS) {
+            console.warn(`[MusicVideo] Scene ${scene.id} stuck in 'generating' for ${Math.round(sceneAge / 60000)} min — auto-failing.`);
+            await db.update(musicVideoScenes)
+              .set({ status: "failed", errorMessage: "Scene timed out after 40 minutes — please use Retry to regenerate this scene", updatedAt: new Date() })
+              .where(eq(musicVideoScenes.id, scene.id));
+          }
+        }
+      }
+      // Reload scenes after timeout checks
+      const freshScenes = await db.select().from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, input.jobId));
+      scenes.splice(0, scenes.length, ...freshScenes);
 
       // Poll each generating scene — isolate errors per-scene so one failure doesn't block others
       let completedCount = 0;
