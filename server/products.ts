@@ -1,7 +1,7 @@
 /**
  * Stripe Products & Pricing Configuration
  * WIZ AI GBP pricing (Apr 2026 — profitable rates):
- *   Free Trial: 30 credits, 1 video, 8 scenes, 30s, watermarked
+ *   Free Trial: 50 credits, 1 video, 8 scenes, 30s, watermarked
  *   Starter:  £29/mo  — 2 videos, 8 scenes/video,  max 60s
  *   Creator:  £79/mo  — 6 videos, 11 scenes/video, max 90s  (Most Popular)
  *   Pro:      £149/mo — 12 videos, 12 scenes/video, max 120s
@@ -15,8 +15,8 @@
  *   Pro:     144 scenes × £0.63 = £91 cost → £58 profit (39% margin)
  */
 
-/** Free trial credits granted to every new user on first sign-up (1 free render, 8 scenes, 30s, watermarked) */
-export const FREE_TRIAL_CREDITS = 30;
+/** Free trial credits granted to every new user on first sign-up (covers a 3-min track, 3 scenes, watermarked) */
+export const FREE_TRIAL_CREDITS = 50;
 
 /**
  * Scene limits per plan — enforced at render time.

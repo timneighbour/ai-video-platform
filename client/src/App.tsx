@@ -109,6 +109,7 @@ const AdminEmail = lazy(() => import("@/pages/AdminEmail"));
 const AnalyticsDashboard = lazy(() => import("@/pages/AnalyticsDashboard"));
 const WizadoraAdmin = lazy(() => import("@/pages/admin/WizadoraAdmin"));
 const MyProjects = lazy(() => import("@/pages/MyProjects"));
+const Unsubscribe = lazy(() => import("@/pages/Unsubscribe"));
 
 // Premium loading fallback — shown while lazy chunks load (especially on iOS/slow connections)
 function PageFallback() {
@@ -306,6 +307,7 @@ function Router() {
         <Route path={"/onboarding"} component={Onboarding} />
         <Route path={"/help"} component={Help} />
         <Route path={"/how-it-works"} component={HowItWorks} />
+        <Route path={"/unsubscribe"} component={Unsubscribe} />
         <Route path={"/privacy"} component={Privacy} />
         <Route path={"/terms"} component={Terms} />
         <Route path={"/refunds"} component={Refunds} />

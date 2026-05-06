@@ -23,6 +23,9 @@ export const users = mysqlTable("users", {
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
   isFoundingCreator: boolean("isFoundingCreator").default(false).notNull(),
   foundingCreatorGrantedAt: timestamp("foundingCreatorGrantedAt"),
+  /** Marketing opt-out — set when user clicks unsubscribe link in campaign emails */
+  marketingOptOut: boolean("marketingOptOut").default(false).notNull(),
+  marketingOptOutAt: timestamp("marketingOptOutAt"),
 });
 
 export type User = typeof users.$inferSelect;

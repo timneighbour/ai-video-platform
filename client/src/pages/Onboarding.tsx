@@ -261,10 +261,16 @@ const Onboarding: React.FC = () => {
               {/* Content */}
               <div className="relative z-10 h-full flex flex-col justify-between p-8 sm:p-10" style={{ minHeight: '340px' }}>
                 <div className="flex items-start justify-between">
-                  {/* Tag */}
-                  <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r ${options[0].tagColor} text-[10px] font-bold text-white tracking-wide uppercase`}>
-                    <Zap className="w-2.5 h-2.5" />
-                    {options[0].tag}
+                  <div className="flex items-center gap-2">
+                    {/* Start Here badge */}
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[10px] font-black text-[#0a0a0f] tracking-wide uppercase shadow-[0_0_16px_rgba(255,255,255,0.3)]">
+                      ★ Start Here
+                    </div>
+                    {/* Tag */}
+                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r ${options[0].tagColor} text-[10px] font-bold text-white tracking-wide uppercase`}>
+                      <Zap className="w-2.5 h-2.5" />
+                      {options[0].tag}
+                    </div>
                   </div>
                   {/* Icon circle */}
                   <div className="w-11 h-11 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -453,8 +459,8 @@ const Onboarding: React.FC = () => {
               <Zap className="w-5 h-5 text-[#b8892a]" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-white mb-1">You have 30 free Build Credits</p>
-              <p className="text-xs text-white/40 leading-relaxed">Storyboard generation is always free — preview your full video before spending a single credit. Credits are only used when you click <span className="text-white/60 font-medium">Build</span> to render the final video. A standard 60-second video costs 30 credits.</p>
+              <p className="text-sm font-bold text-white mb-1">You have 50 free Build Credits</p>
+              <p className="text-xs text-white/40 leading-relaxed">Storyboard generation is always free — preview your full video before spending a single credit. Credits are only used when you click <span className="text-white/60 font-medium">Build</span> to render the final video. A standard 3-scene music video costs 45 credits.</p>
             </div>
             <a href="/pricing" className="flex-shrink-0 text-xs font-semibold text-[#b8892a] hover:text-[#e8c878] transition-colors whitespace-nowrap">See all plans →</a>
           </div>

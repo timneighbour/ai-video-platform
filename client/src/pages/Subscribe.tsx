@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PAY_PER_VIDEO_TIERS, WIZSOUND_PAY_PER_VIDEO_TIERS } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,8 @@ export default function Subscribe() {
 
  useSEO({ title: "Subscribe — WIZ AI Plans & Pricing", path: "/subscribe", description: "Choose your WIZ AI plan. Starter, Creator, and Pro tiers with full access to AI video, music, image, and animation tools. Start with a free trial." });
  const { isAuthenticated } = useAuth();
+ // Track subscription page view
+ useEffect(() => { mp.subscriptionViewed("direct"); }, []);
  const [, setLocation] = useLocation();
  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);

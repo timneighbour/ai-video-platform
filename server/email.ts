@@ -326,8 +326,15 @@ export async function emailWelcomeUser(user: {
 /**
  * Send a broadcast email to a single recipient (used by the admin broadcast tool).
  * Call this in a loop over all users — Resend handles delivery.
+ * @param unsubscribeToken - HMAC token for one-click unsubscribe (base64url encoded)
  */
-export async function emailBroadcastSingle(to: string, name: string, subject: string, bodyHtml: string): Promise<void> {
+export async function emailBroadcastSingle(
+  to: string,
+  name: string,
+  subject: string,
+  bodyHtml: string,
+  unsubscribeToken?: string
+): Promise<void> {
   const client = getResend();
   if (!client) return;
   const firstName = (name || "there").split(" ")[0];
@@ -365,8 +372,24 @@ export async function emailBroadcastSingle(to: string, name: string, subject: st
 </body>
 </html>`;
 
+  const BASE_URL = "https://www.wiz-ai.io";
+  const unsubscribeUrl = unsubscribeToken
+    ? `${BASE_URL}/unsubscribe?token=${encodeURIComponent(unsubscribeToken)}`
+    : `${BASE_URL}/unsubscribe?email=${encodeURIComponent(to)}`;
   try {
-    await client.emails.send({ from: FROM_BROADCAST, to, subject, html: wrappedHtml });
+    await client.emails.send({
+      from: FROM_BROADCAST,
+      to,
+      subject,
+      html: wrappedHtml.replace(
+        `<p style="margin:0;font-size:11px;color:rgba(255,255,255,0.25);line-height:1.6;">You're receiving this as a WIZ AI member. &copy; 2025 WIZ AI · <a href="https://www.wiz-ai.io" style="color:rgba(196,164,100,0.5);text-decoration:none;">wiz-ai.io</a></p>`,
+        `<p style="margin:0;font-size:11px;color:rgba(255,255,255,0.25);line-height:1.6;">You're receiving this as a WIZ AI member. &copy; 2025 WIZ AI &middot; <a href="https://www.wiz-ai.io" style="color:rgba(196,164,100,0.5);text-decoration:none;">wiz-ai.io</a> &middot; <a href="${unsubscribeUrl}" style="color:rgba(196,164,100,0.5);text-decoration:none;">Unsubscribe</a></p>`
+      ),
+      headers: {
+        "List-Unsubscribe": `<${unsubscribeUrl}>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      },
+    });
   } catch (err) {
     console.error(`[Email] Broadcast send failed for ${to}:`, err);
   }

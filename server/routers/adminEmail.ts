@@ -23,6 +23,7 @@ import {
 import { desc, eq, isNotNull, and, ne } from "drizzle-orm";
 import { emailBroadcastSingle } from "../email";
 import { addCredits } from "../credit-service";
+import { generateUnsubscribeToken } from "./unsubscribe";
 
 // Admin guard
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -220,11 +221,11 @@ export const adminEmailRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
       const recipients = await db
-        .select({ id: users.id, name: users.name, email: users.email })
+        .select({ id: users.id, name: users.name, email: users.email, marketingOptOut: users.marketingOptOut })
         .from(users)
         .where(isNotNull(users.email));
 
-      const validRecipients = recipients.filter((r) => r.email && r.email.includes("@"));
+      const validRecipients = recipients.filter((r) => r.email && r.email.includes("@") && !r.marketingOptOut);
 
       if (validRecipients.length === 0) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "No users with email addresses found" });
@@ -357,8 +358,9 @@ export const adminEmailRouter = router({
       // 3. Send personalised email
       const firstName = name.split(" ")[0];
       const subject = `${firstName}, you've been given 100 free credits — WIZ AI is back`;
+      const unsubToken = generateUnsubscribeToken(email);
       try {
-        await emailBroadcastSingle(email, name, subject, foundingCreatorEmailHtml(name));
+        await emailBroadcastSingle(email, name, subject, foundingCreatorEmailHtml(name), unsubToken);
         sent++;
       } catch (e) {
         console.error(`[FoundingCreator] Failed to send email to ${email}:`, e);

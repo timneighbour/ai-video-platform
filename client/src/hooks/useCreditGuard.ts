@@ -12,6 +12,7 @@ import { useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { LOW_CREDIT_THRESHOLD } from "../../../shared/const";
+import { mp } from "@/lib/mixpanel";
 
 export function useCreditGuard() {
   const { data: creditData } = trpc.billing.getCredits.useQuery(undefined, {
@@ -29,6 +30,7 @@ export function useCreditGuard() {
   const checkLowCredits = useCallback(() => {
     if (balance > 0 && balance < LOW_CREDIT_THRESHOLD && !lowCreditToastShown.current) {
       lowCreditToastShown.current = true;
+      mp.creditBalanceLow(balance);
       toast.warning(`You're running low on Credits (${balance} left)`, {
         description: "Top up now to keep creating without interruption.",
         duration: 8000,

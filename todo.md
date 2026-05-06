@@ -6731,3 +6731,67 @@
 - [x] Add useEffect import to WizImage
 - [x] Add mp import to Autopilot
 - [x] All TypeScript checks pass (0 errors)
+
+## Activation Sprint — 6 May 2026
+
+### 1. Email Deliverability
+- [ ] Audit Resend domain DNS records (SPF, DKIM, DMARC) for wiz-ai.io
+- [ ] Confirm notifications@wiz-ai.io and updates@wiz-ai.io verified sending addresses
+- [ ] Verify inbox placement (Gmail, Outlook, Apple Mail, Zoho)
+- [ ] Run spam score test
+- [ ] Verify unsubscribe footer working in all emails
+- [ ] Verify dark mode email rendering
+- [ ] Verify mobile email rendering
+
+### 2. Founding Creator Campaign
+- [ ] Build segmented send list (users who never completed a render)
+- [ ] Write 3 subject line options with preview text
+- [ ] Build full HTML email template (desktop + mobile + dark mode)
+- [ ] Add open/click tracking
+- [ ] Add +100 bonus credit grant mechanism
+- [ ] Build resend strategy for unopened emails (Day 3 follow-up)
+- [ ] Wire campaign to admin email panel
+
+### 3. First-Render Activation Audit
+- [ ] Trace signup to onboarding to first render flow
+- [ ] Identify friction points and abandoned actions
+- [ ] Propose starter templates and beginner presets
+- [ ] Propose Create your first project shortcuts
+- [ ] Implement highest-impact onboarding improvements
+
+### 4. Live Subscription QA
+- [ ] Test Creator plan checkout (live mode)
+- [ ] Test Studio plan checkout (live mode)
+- [ ] Verify credit grants after subscription
+- [ ] Verify billing portal visibility
+- [ ] Verify cancellation handling
+
+### 5. Analytics Funnel Audit
+- [ ] Document full conversion funnel
+- [ ] Identify primary drop-off point
+
+### 6. Premium UX Polish
+- [ ] Emotional impact review across all studio pages
+- [ ] Empty state quality check
+- [ ] Trust signal audit
+
+### 7. Launch Readiness Report
+- [ ] Compile all findings into final report
+
+## Activation Sprint Implementation — 6 May 2026
+
+- [x] Increase FREE_TRIAL_CREDITS from 30 to 50 in server/products.ts
+- [x] Add marketingOptOut column to users table (schema + migration)
+- [x] Add /unsubscribe route (GET + POST) to server
+- [x] Add List-Unsubscribe header to broadcast emails
+- [x] Add unsubscribe link to Founding Creator email footer
+- [x] Add unsubscribe link to emailBroadcastSingle wrapper footer
+- [x] Add Start Here badge to WizVideo Director on Onboarding page
+- [ ] Add credit cost hint to each studio card on Onboarding page
+- [ ] Add Try Sample Audio button to WizVideo studio page
+- [ ] Add first-render celebration modal (cinematic success screen)
+- [ ] Instrument storyboard_generated Mixpanel event
+- [x] Instrument first_render_completed Mixpanel event
+- [x] Instrument credit_balance_low Mixpanel event
+- [x] Instrument subscription_viewed Mixpanel event
+- [ ] Run final activation QA pass

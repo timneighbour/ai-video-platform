@@ -1504,6 +1504,12 @@ export default function MusicVideoAutopilot() {
               setFinalVideoUrl(progress.finalVideoUrl);
               isRenderingRef.current = false;
               mp.buildCompleted("WizVideo");
+              // First render celebration — fires only once per user (localStorage flag)
+              const firstRenderKey = "wizai_first_render_done";
+              if (!localStorage.getItem(firstRenderKey)) {
+                localStorage.setItem(firstRenderKey, "1");
+                mp.firstRenderCompleted("WizVideo");
+              }
               // In-app success notification
               toast.success("Your video is ready!", {
                 description: "Your WIZ AI video has finished building. Check your email for a direct download link.",

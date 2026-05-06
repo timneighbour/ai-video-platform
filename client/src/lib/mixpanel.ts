@@ -230,6 +230,32 @@ export const mp = {
   upgradeCTAClicked: (source: string, currentPlan?: string, targetPlan?: string) =>
     track("Upgrade CTA Clicked", { source, current_plan: currentPlan, target_plan: targetPlan }),
 
-  // ── Generic passthrough ───────────────────────────────────────────────────
+  //  // ── First render celebration ──────────────────────────────────────────
+  /**
+   * Fires when a user completes their very first render (detected via localStorage flag).
+   * @param product  PascalCase product name, e.g. "WizVideo"
+   */
+  firstRenderCompleted: (product: string) =>
+    track("First Render Completed", { product }),
+
+  // ── Credit balance low ────────────────────────────────────────────────────
+  /**
+   * Fires when the user's credit balance drops below the low-credit threshold (30 credits).
+   * @param balance  Current credit balance
+   * @param product  Product page where the low balance was detected
+   */
+  creditBalanceLow: (balance: number, product?: string) =>
+    track("Credit Balance Low", { balance, product }),
+
+  // ── Subscription page viewed ──────────────────────────────────────────────
+  /**
+   * Fires when the user views the /pricing or /subscribe page.
+   * @param source  Where the user came from, e.g. "paywall", "nav", "dashboard", "direct"
+   * @param currentPlan  User's current plan
+   */
+  subscriptionViewed: (source?: string, currentPlan?: string) =>
+    track("Subscription Viewed", { source, current_plan: currentPlan }),
+
+  // ── Generic passthrough ───────────────────────────────────────────────
   track,
 };
