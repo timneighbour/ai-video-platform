@@ -361,32 +361,32 @@ export const billingRouter = router({
         const creditPacks: Record<string, { priceId: string; credits: number; label: string }> = {
           // ── Option A packs — dedicated Stripe price IDs ─────────────────────────────────────────────────
           spark: {
-            priceId: vp(process.env.STRIPE_TOPUP_SPARK_PRICE_ID, "price_1TTsDQIaMYB25uKKl6COgOKx"),
+            priceId: vp(process.env.STRIPE_TOPUP_SPARK_PRICE_ID, "price_1TTtWoI3gJ5F0DKD7KIJfivQ"),
             credits: 50,
             label: "Spark Pack (50 credits)",
           },
           boost: {
-            priceId: vp(process.env.STRIPE_TOPUP_BOOST_PRICE_ID, "price_1TTsDRIaMYB25uKKeuQxS6MO"),
+            priceId: vp(process.env.STRIPE_TOPUP_BOOST_PRICE_ID, "price_1TTtWpI3gJ5F0DKD1HEle02Z"),
             credits: 150,
             label: "Boost Pack (150 credits)",
           },
           creator: {
-            priceId: vp(process.env.STRIPE_TOPUP_CREATOR_PRICE_ID, "price_1TTsDTIaMYB25uKKzGvi5oaD"),
+            priceId: vp(process.env.STRIPE_TOPUP_CREATOR_PRICE_ID, "price_1TTtWqI3gJ5F0DKD3VQIrFWD"),
             credits: 350,
             label: "Creator Pack (350 credits)",
           },
           studio: {
-            priceId: vp(process.env.STRIPE_TOPUP_STUDIO_PRICE_ID, "price_1TTsDUIaMYB25uKKFgHLxbE5"),
+            priceId: vp(process.env.STRIPE_TOPUP_STUDIO_PRICE_ID, "price_1TTtWrI3gJ5F0DKD63teu40R"),
             credits: 750,
             label: "Studio Pack (750 credits)",
           },
           pro: {
-            priceId: vp(process.env.STRIPE_TOPUP_PRO_PRICE_ID, "price_1TTsDWIaMYB25uKKoSvWvtc2"),
+            priceId: vp(process.env.STRIPE_TOPUP_PRO_PRICE_ID, "price_1TTtWtI3gJ5F0DKDnIT3Fj8N"),
             credits: 1500,
             label: "Pro Pack (1,500 credits)",
           },
           elite: {
-            priceId: vp(process.env.STRIPE_TOPUP_ELITE_PRICE_ID, "price_1TTsDXIaMYB25uKKh4Boz0Nj"),
+            priceId: vp(process.env.STRIPE_TOPUP_ELITE_PRICE_ID, "price_1TTtWuI3gJ5F0DKDQgOoecbu"),
             credits: 4000,
             label: "Elite Pack (4,000 credits)",
           },
