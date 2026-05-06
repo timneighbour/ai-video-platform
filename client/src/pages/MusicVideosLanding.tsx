@@ -274,6 +274,144 @@ export default function MusicVideosLanding() {
         </div>
       </section>
 
+      {/* USP Showcase — 4 hero features with marketing assets */}
+      <section className="py-20 px-6 border-t border-white/6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-xs font-bold uppercase tracking-widest text-[#c9a84c] mb-3">The WizVideo Standard</p>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+              Four things no other platform does.
+            </h2>
+            <p className="text-[#a1a1aa] text-lg max-w-2xl mx-auto">
+              Every feature below is exclusive to WizVideo. Not approximated. Not simulated. Built from the ground up.
+            </p>
+          </div>
+
+          {/* Feature rows — alternating image/text layout */}
+          <div className="space-y-16">
+            {/* 1 — Character Lock */}
+            <div className="grid lg:grid-cols-2 gap-10 items-center">
+              <div className="order-2 lg:order-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#c9a84c]/10 border border-[#c9a84c]/25 mb-5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#c9a84c]" />
+                  <span className="text-xs font-bold text-[#c9a84c] tracking-widest uppercase">Exclusive Feature</span>
+                </div>
+                <h3 className="text-3xl font-extrabold text-white mb-4 leading-tight">
+                  Character Lock™
+                </h3>
+                <p className="text-[#a1a1aa] text-base leading-relaxed mb-6">
+                  Your character's face, costume, and performance style are locked from the first scene to the last. No random strangers. No face drift. No inconsistencies. The same person — every single frame.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Reference-to-Video model</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Master portrait anchor</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Zero face substitutions</span>
+                </div>
+              </div>
+              <div className="order-1 lg:order-2 relative">
+                <div className="absolute -inset-3 bg-gradient-to-br from-[#c9a84c]/15 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
+                <img
+                  src="/manus-storage/wizai-marketing-character-lock_1fae56ed.png"
+                  alt="Character Lock™ — Same face every scene"
+                  className="relative w-full rounded-2xl border border-white/10 shadow-2xl object-cover"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+
+            {/* 2 — Real Lip Sync */}
+            <div className="grid lg:grid-cols-2 gap-10 items-center">
+              <div className="relative">
+                <div className="absolute -inset-3 bg-gradient-to-br from-blue-600/15 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
+                <img
+                  src="/manus-storage/wizai-marketing-lip-sync_93f07c62.png"
+                  alt="Real Lip Sync — Phoneme-accurate, frame-perfect"
+                  className="relative w-full rounded-2xl border border-white/10 shadow-2xl object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 mb-5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                  <span className="text-xs font-bold text-blue-400 tracking-widest uppercase">Exclusive Feature</span>
+                </div>
+                <h3 className="text-3xl font-extrabold text-white mb-4 leading-tight">
+                  Real Lip Sync
+                </h3>
+                <p className="text-[#a1a1aa] text-base leading-relaxed mb-6">
+                  WizSync™ extracts the exact 8-second audio segment for each scene and passes it directly to the generation model. The result is phoneme-accurate, frame-perfect lip sync — not a visual approximation. Your character sings the actual words.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Phoneme-accurate</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Audio-driven model</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Per-scene audio clips</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 3 — Lyric-Aware Storyboarding */}
+            <div className="grid lg:grid-cols-2 gap-10 items-center">
+              <div className="order-2 lg:order-1">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/25 mb-5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />
+                  <span className="text-xs font-bold text-violet-400 tracking-widest uppercase">Exclusive Feature</span>
+                </div>
+                <h3 className="text-3xl font-extrabold text-white mb-4 leading-tight">
+                  Lyric-Aware Storyboarding™
+                </h3>
+                <p className="text-[#a1a1aa] text-base leading-relaxed mb-6">
+                  WIZ AI reads your full lyrics before generating a single scene. It extracts your song's theme, emotional arc, narrative, and key imagery — then builds a storyboard where every scene reflects exactly what is being sung at that moment.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Deep song analysis</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Verse/chorus/bridge mapping</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Emotional arc tracking</span>
+                </div>
+              </div>
+              <div className="order-1 lg:order-2 relative">
+                <div className="absolute -inset-3 bg-gradient-to-br from-violet-600/15 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
+                <img
+                  src="/manus-storage/wizai-marketing-lyric-aware_c302161c.png"
+                  alt="Lyric-Aware Storyboarding™ — The AI reads your lyrics"
+                  className="relative w-full rounded-2xl border border-white/10 shadow-2xl object-cover"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+
+            {/* 4 — Scene Director */}
+            <div className="grid lg:grid-cols-2 gap-10 items-center">
+              <div className="relative">
+                <div className="absolute -inset-3 bg-gradient-to-br from-emerald-600/15 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
+                <img
+                  src="/manus-storage/wizai-marketing-scene-director_b5bf748f.png"
+                  alt="Scene Director™ — Direct every scene"
+                  className="relative w-full rounded-2xl border border-white/10 shadow-2xl object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 mb-5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span className="text-xs font-bold text-emerald-400 tracking-widest uppercase">Exclusive Feature</span>
+                </div>
+                <h3 className="text-3xl font-extrabold text-white mb-4 leading-tight">
+                  Scene Director™
+                </h3>
+                <p className="text-[#a1a1aa] text-base leading-relaxed mb-6">
+                  After your video renders, you are the director. Edit any scene's prompt, camera angle, and lip sync setting. Re-render just that scene for free — before you download. Preview Before Download™ means you only commit when you are completely satisfied.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Per-scene editing</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Free re-render before download</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Preview Before Download™</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-24 px-6 border-t border-white/6">
         <div className="max-w-3xl mx-auto text-center">
