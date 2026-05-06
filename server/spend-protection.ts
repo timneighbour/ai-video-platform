@@ -41,16 +41,16 @@ export const PROVIDER_COST_USD: Record<string, number> = {
 
 // ── SPEND CAPS (Item 1 & 2) ───────────────────────────────────────────────────
 // Per-job cap: maximum USD we will spend on a single render job
-// At Atlas Cloud pricing ($0.64-0.80/scene): cap allows ~50 scenes per job
-export const MAX_SPEND_PER_JOB_USD = 40.00;
+// At Atlas Cloud pricing ($0.64-0.80/scene): cap allows ~250 scenes per job
+export const MAX_SPEND_PER_JOB_USD = 200.00;
 
 // Daily cap: maximum USD across ALL jobs in a calendar day
-export const MAX_DAILY_SPEND_USD = 60.00;
+export const MAX_DAILY_SPEND_USD = 300.00;
 
 // Per-scene retry limit (Item 3)
 // Provider failures (balance, timeout, infrastructure) are retryable — limit is higher.
 // Moderation/content failures are hard-blocked regardless of this limit.
-export const MAX_ATTEMPTS_PER_SCENE = 3;     // 1 original + 2 retries (provider failures get extra chance)
+export const MAX_ATTEMPTS_PER_SCENE = 5;     // 1 original + 4 retries (provider failures get extra chance)
 export const MAX_ATTEMPTS_HARD_BLOCK = 1;    // Moderation/content failures: hard-block after 1 attempt
 
 // ── IDEMPOTENCY KEY (Item 4) ─────────────────────────────────────────────────
@@ -77,8 +77,21 @@ export async function getSceneAttemptCount(sceneId: number): Promise<number> {
   const [row] = await db
     .select({ count: sql<number>`COUNT(*)` })
     .from(providerJobLogs)
-    .where(eq(providerJobLogs.sceneId, sceneId));
+    // Exclude "cancelled" entries — these are old attempts that were reset when the user
+    // manually edited the scene prompt. Only count active (submitted/completed/failed) attempts.
+    .where(and(eq(providerJobLogs.sceneId, sceneId), sql`${providerJobLogs.status} != 'cancelled'`));
   return Number(row?.count ?? 0);
+}
+
+// ── RESET: Clear attempt logs for a scene (used when user manually edits & retries) ──────
+// This allows a user who has edited a scene prompt to retry even after hitting the limit.
+// We mark old logs as "cancelled" rather than deleting them, preserving the audit trail.
+export async function resetSceneAttempts(sceneId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(providerJobLogs)
+    .set({ status: "cancelled" })
+    .where(and(eq(providerJobLogs.sceneId, sceneId), eq(providerJobLogs.status, "failed")));
 }
 
 // ── CHECK: Has per-job spend cap been reached? (Item 1) ──────────────────────

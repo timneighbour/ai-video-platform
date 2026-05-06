@@ -30,7 +30,7 @@ import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS, PLAN_SCENE_LIMITS, getPlanMaxSce
 import { classifyScenes } from "../scene-classifier";
 import { buildRoutingPlan, enforceHardStop } from "../renderer-router";
 import { isAnyProviderAvailable, checkAllProviders } from "../provider-health";
-import { classifyFailure, isRetryableFailure } from "../spend-protection";
+import { classifyFailure, isRetryableFailure, resetSceneAttempts } from "../spend-protection";
 import {
   analyseAudioInstruments,
   assignInstrumentsToCharacters,
@@ -2423,6 +2423,9 @@ Rules:
         .set({ status: "pending", taskId: null, videoUrl: null, videoKey: null, errorMessage: null, updatedAt: new Date() })
         .where(eq(musicVideoScenes.id, input.sceneId));
 
+      // Reset spend-protection attempt counter so the retry is not blocked by old failed attempts.
+      await resetSceneAttempts(input.sceneId);
+
       // Ensure job is back in rendering state so polling continues
       if (job.status === "failed") {
         await db.update(musicVideoJobs)
@@ -2487,6 +2490,9 @@ Rules:
       await db.update(musicVideoScenes)
         .set({ status: "pending", taskId: null, videoUrl: null, videoKey: null, errorMessage: null, updatedAt: new Date() })
         .where(and(eq(musicVideoScenes.jobId, input.jobId), eq(musicVideoScenes.status, "failed")));
+
+      // Reset spend-protection attempt counters for all failed scenes
+      await Promise.all(failedScenes.map((s) => resetSceneAttempts(s.id)));
 
       // Ensure job is back in rendering state
       await db.update(musicVideoJobs)
@@ -2566,7 +2572,11 @@ Rules:
         .set(updatePayload as any)
         .where(eq(musicVideoScenes.id, input.sceneId));
 
-      console.log(`[MusicVideo] ${new Date().toISOString()} Scene ${input.sceneId} prompt updated by user ${ctx.user.id}`);
+      // Reset spend-protection attempt counter so the user can retry after editing.
+      // Old failed attempts are marked "cancelled" (not deleted) to preserve audit trail.
+      await resetSceneAttempts(input.sceneId);
+
+      console.log(`[MusicVideo] ${new Date().toISOString()} Scene ${input.sceneId} prompt updated by user ${ctx.user.id} — attempt counter reset`);
       return { success: true, sceneId: input.sceneId, prompt: input.prompt.trim() };
     }),
 

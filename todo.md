@@ -7106,3 +7106,12 @@
 - [x] Fix Enhanced tier — clean broadcast quality (saturation=1.25, contrast=1.08, unsharp)
 - [x] Fix Cinematic tier — subtle film grade (teal shadows, warm highlights, vignette, hue=3)
 - [x] Add WizLumina logo to SeeTheDifference section for brand purposes
+
+## Spend Protection Bug Fixes - May 2026
+- [x] Raise per-job spend cap from $40 to $200 (allows ~250 scenes at Atlas Cloud pricing)
+- [x] Raise daily cap from $60 to $300
+- [x] Fix RETRY_LIMIT block — raised MAX_ATTEMPTS_PER_SCENE from 3 to 5
+- [x] Fix JOB_SPEND_CAP block — scenes blocked by old cap can now be retried
+- [x] Ensure retry count resets when user manually retries or edits a scene (resetSceneAttempts called in retryFailedScene, retryAllFailedScenes, updateScenePrompt)
+- [x] getSceneAttemptCount now excludes cancelled logs so reset actually works
+- [x] All spend-protection tests updated and passing (33/33)
