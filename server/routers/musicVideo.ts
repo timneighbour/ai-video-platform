@@ -30,6 +30,7 @@ import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS, PLAN_SCENE_LIMITS, getPlanMaxSce
 import { classifyScenes } from "../scene-classifier";
 import { buildRoutingPlan, enforceHardStop } from "../renderer-router";
 import { isAnyProviderAvailable, checkAllProviders } from "../provider-health";
+import { classifyFailure, isRetryableFailure } from "../spend-protection";
 import {
   analyseAudioInstruments,
   assignInstrumentsToCharacters,
@@ -1147,6 +1148,34 @@ Rules:
           failedCount++;
           continue;
         }
+        // ── AUTO-SUBMIT PENDING SCENES ────────────────────────────────────────
+        // Scenes reset to 'pending' (e.g. after retry counter reset or manual unblock)
+        // are automatically re-submitted here so the job can resume without user action.
+        if (scene.status === "pending" && !scene.taskId) {
+          try {
+            console.log(`[MusicVideo] ${new Date().toISOString()} Auto-submitting pending scene ${scene.id} (index ${scene.sceneIndex}) for job ${input.jobId}`);
+            const taskId = await startSceneRender(
+              scene.id,
+              scene.prompt,
+              scene.duration,
+              scene.lipSync ?? true,
+              (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
+              "wavespeed" as any,
+              (scene.modelAssignment ?? "bytedance/seedance-2.0/text-to-video") as any,
+              scene.previewImageUrl ?? undefined,
+              undefined,
+              input.jobId
+            );
+            await db.update(musicVideoScenes)
+              .set({ status: "generating", taskId, updatedAt: new Date() })
+              .where(eq(musicVideoScenes.id, scene.id));
+            console.log(`[MusicVideo] ${new Date().toISOString()} Auto-submitted pending scene ${scene.id} → taskId ${taskId}`);
+          } catch (submitErr) {
+            console.error(`[MusicVideo] ${new Date().toISOString()} Auto-submit failed for pending scene ${scene.id}:`, submitErr);
+            // Don't fail the scene yet — let it retry on next poll cycle
+          }
+          continue;
+        }
         if (scene.status === "generating" && scene.taskId) {
           try {
             const result = await pollSceneStatus(scene.id, scene.taskId);
@@ -1175,12 +1204,35 @@ Rules:
         .set({ completedScenes: completedCount, updatedAt: new Date() })
         .where(eq(musicVideoJobs.id, input.jobId));
 
-      // If all scenes done, trigger assembly
-      if (completedCount + failedCount >= scenes.length && job.status === "rendering") {
-        if (completedCount > 0) {
+      // ── PARTIAL ASSEMBLY SUPPORT (≥90% threshold) ──────────────────────────
+      // If all scenes are either completed or failed, trigger assembly.
+      // If ≥90% completed, proceed with partial assembly (skip failed scenes).
+      // If <90% completed, fail the job with a clear message.
+      const allScenesSettled = completedCount + failedCount >= scenes.length;
+      const completionRate = scenes.length > 0 ? completedCount / scenes.length : 0;
+      const PARTIAL_ASSEMBLY_THRESHOLD = 0.90; // 90% minimum
+
+      if (allScenesSettled && job.status === "rendering") {
+        if (completedCount === 0) {
+          await db.update(musicVideoJobs)
+            .set({ status: "failed", errorMessage: "All scenes failed to render. Please check your prompts and try again.", updatedAt: new Date() })
+            .where(eq(musicVideoJobs.id, input.jobId));
+        } else if (completionRate >= PARTIAL_ASSEMBLY_THRESHOLD) {
+          // ≥90% completed — proceed with assembly (partial or full)
+          const isPartial = failedCount > 0;
+          const partialNote = isPartial
+            ? `Partial assembly: ${completedCount}/${scenes.length} scenes completed (${failedCount} scene(s) skipped due to render failures).`
+            : null;
+          if (isPartial) {
+            console.warn(`[MusicVideo] Job ${input.jobId}: ${partialNote}`);
+          }
           // Start assembly asynchronously
           await db.update(musicVideoJobs)
-            .set({ status: "assembling", updatedAt: new Date() })
+            .set({
+              status: "assembling",
+              errorMessage: isPartial ? partialNote : null,
+              updatedAt: new Date()
+            })
             .where(eq(musicVideoJobs.id, input.jobId));
 
           // Look up the most recent paid/free render job for this music video to get the audioTier
@@ -1201,9 +1253,23 @@ Rules:
               .where(eq(musicVideoJobs.id, input.jobId));
           });
         } else {
+          // <90% completed — too many failures, fail the job
+          const failedPct = Math.round((failedCount / scenes.length) * 100);
           await db.update(musicVideoJobs)
-            .set({ status: "failed", errorMessage: "All scenes failed to render", updatedAt: new Date() })
+            .set({
+              status: "failed",
+              errorMessage: `Too many scenes failed to render (${failedCount}/${scenes.length}, ${failedPct}% failure rate). Your credits have been refunded. Please retry or edit the failed scenes.`,
+              updatedAt: new Date()
+            })
             .where(eq(musicVideoJobs.id, input.jobId));
+          // Refund credits for high-failure jobs
+          if (ctx.user.role !== "admin" && job.creditCost > 0) {
+            try {
+              await refundCredits(ctx.user.id, job.creditCost, `Refund: high scene failure rate (${failedCount}/${scenes.length}) — job #${job.id}`, job.id);
+            } catch (refundErr) {
+              console.error(`[MusicVideo] CRITICAL: Failed to refund credits for high-failure job ${job.id}:`, refundErr);
+            }
+          }
         }
       }
 

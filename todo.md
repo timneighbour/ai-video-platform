@@ -6850,7 +6850,7 @@
 - [ ] Investigate storyboard_ready → Build conversion gap (31 stuck jobs)
 - [ ] Fix render pipeline root cause
 - [ ] Improve user-facing failure handling
-- [ ] Run fresh end-to-end production test render
+- [x] Run fresh end-to-end production test render
 - [ ] Confirm at least one job reaches status=completed
 - [ ] Verify credits behaviour on success and failure
 
@@ -6881,3 +6881,19 @@
 - [x] Restore lyrics display on storyboard scene cards in WizAnimate (same requirement)
 - [x] Ensure lip sync indicator is visible per scene on storyboard (on/off toggle visible)
 - [x] Apply to any other relevant applications that use storyboard scene cards
+
+## End-to-End Production Test Render
+
+- [ ] Check provider health before starting (Atlas Cloud + WaveSpeed status)
+- [ ] Upload short test audio track to WizVideo
+- [ ] Generate storyboard (confirm lyrics shown per scene)
+- [ ] Click Build — confirm credit check and deduction
+- [ ] Confirm provider submission succeeds (Atlas Cloud primary)
+- [ ] Confirm scenes generate (all scenes reach completed status)
+- [ ] Confirm assembly runs (ffmpeg + S3 upload)
+- [ ] Confirm project status becomes completed
+- [ ] Confirm final video plays in browser
+- [ ] Confirm download works
+- [ ] Confirm completed project appears in render history/projects page
+- [ ] Record: provider used, actual cost, render time, any retries
+- [ ] Check for console/network errors during render

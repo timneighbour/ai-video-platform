@@ -416,3 +416,6 @@ startTrimWorker();
 // Start Atlas Cloud daily health monitor (runs at 08:00 UTC every day)
 import { startAtlasMonitor } from "../atlas-monitor";
 startAtlasMonitor();
+// Start assembly worker (re-triggers assembly for orphaned assembling jobs every 2 min)
+import { startAssemblyWorker } from "../assemblyWorker";
+startAssemblyWorker();

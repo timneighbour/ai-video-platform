@@ -26,11 +26,11 @@ import { and, eq, gte, sql } from "drizzle-orm";
 // SOLE ACTIVE PROVIDER as of Apr 2026: Atlas Cloud (atlas_cloud / atlas_cloud_fast)
 // fal.ai, WaveSpeed, and Hypereal are all DISABLED for launch.
 export const PROVIDER_COST_USD: Record<string, number> = {
-  fal_seedance:     0.05,  // DISABLED — fal.ai Seedance 2.0 (stuck jobs, Forbidden errors)
-  atlas_cloud_fast: 0.64,  // ACTIVE — Atlas Cloud Fast (~$0.101/sec × 5s + overhead)
-  atlas_cloud:      0.80,  // ACTIVE — Atlas Cloud Standard (higher quality, slower)
-  hypereal:         0.50,  // DISABLED — no silent fallback during launch
-  wavespeed:        3.50,  // DISABLED — too expensive and unreliable
+  fal_seedance:     0.05,  // fal.ai Seedance 2.0 (restricted to non-US users)
+  atlas_cloud_fast: 0.64,  // PRIMARY — Atlas Cloud Fast (~$0.101/sec × 5s + overhead)
+  atlas_cloud:      0.80,  // Atlas Cloud Standard (higher quality, slower)
+  hypereal:         0.50,  // Disabled — no silent fallback during launch
+  wavespeed:        0.80,  // FAILOVER — WaveSpeed Seedance 2.0 Fast 720p ($0.10/sec × 8s)
   kling_standard:   0.60,
   kling_pro:        1.20,
   runway:           0.80,
@@ -48,7 +48,10 @@ export const MAX_SPEND_PER_JOB_USD = 40.00;
 export const MAX_DAILY_SPEND_USD = 60.00;
 
 // Per-scene retry limit (Item 3)
-export const MAX_ATTEMPTS_PER_SCENE = 2;     // 1 original + 1 retry maximum
+// Provider failures (balance, timeout, infrastructure) are retryable — limit is higher.
+// Moderation/content failures are hard-blocked regardless of this limit.
+export const MAX_ATTEMPTS_PER_SCENE = 3;     // 1 original + 2 retries (provider failures get extra chance)
+export const MAX_ATTEMPTS_HARD_BLOCK = 1;    // Moderation/content failures: hard-block after 1 attempt
 
 // ── IDEMPOTENCY KEY (Item 4) ─────────────────────────────────────────────────
 export function makeIdempotencyKey(jobId: number, sceneId: number, provider: string, attempt: number): string {
@@ -178,6 +181,7 @@ export async function checkSubmissionAllowed(params: {
   sceneId: number;
   provider: string;
   attempt: number;
+  lastErrorMessage?: string; // If provided, used to determine smart retry limit
 }): Promise<string | null> {
   // Item 9: Failsafe kill switch
   if (!isSpendProtectionEnabled()) {
@@ -193,10 +197,19 @@ export async function checkSubmissionAllowed(params: {
     return `DUPLICATE_SUBMISSION: Scene ${sceneId} already submitted to ${provider} (attempt ${attempt}). Idempotency key: ${idempotencyKey}`;
   }
 
-  // Item 3: Retry limit — block if too many attempts
+  // Item 3: Retry limit — smart limit based on failure category
   const attemptCount = await getSceneAttemptCount(sceneId);
-  if (attemptCount >= MAX_ATTEMPTS_PER_SCENE) {
-    return `RETRY_LIMIT: Scene ${sceneId} has already been submitted ${attemptCount} times (max ${MAX_ATTEMPTS_PER_SCENE}). No further retries allowed.`;
+  // If the last failure was a hard-block category (moderation/content), apply strict limit
+  const lastErrCategory = params.lastErrorMessage ? classifyFailure(params.lastErrorMessage) : "unknown";
+  const maxAttempts = (lastErrCategory === "moderation" || lastErrCategory === "prompt_error")
+    ? MAX_ATTEMPTS_HARD_BLOCK
+    : MAX_ATTEMPTS_PER_SCENE;
+  if (attemptCount >= maxAttempts) {
+    const isHardBlock = lastErrCategory === "moderation" || lastErrCategory === "prompt_error";
+    const reason = isHardBlock
+      ? `Content policy violation — this scene cannot be retried. Please edit the scene description.`
+      : `Scene ${sceneId} has already been submitted ${attemptCount} times (max ${maxAttempts}). No further retries allowed.`;
+    return `RETRY_LIMIT: ${reason}`;
   }
 
   // Item 1: Per-job spend cap
@@ -212,6 +225,79 @@ export async function checkSubmissionAllowed(params: {
   }
 
   return null; // All checks passed — safe to submit
+}
+
+// ── FAILURE CATEGORISATION ───────────────────────────────────────────────────
+// Classify a failure message into a category to determine retry behaviour.
+export type FailureCategory =
+  | "provider_failure"      // Provider infrastructure error (retryable)
+  | "balance_exhausted"     // Provider ran out of credits (retryable after top-up)
+  | "timeout"               // Request timed out (retryable)
+  | "moderation"            // Content policy violation (hard-block)
+  | "prompt_error"          // Invalid prompt or bad request (hard-block)
+  | "infrastructure"        // Our own infrastructure error (retryable)
+  | "unknown";              // Unclassified (retryable by default)
+
+export function classifyFailure(errorMessage: string): FailureCategory {
+  const msg = errorMessage.toLowerCase();
+  // Hard-block categories
+  if (
+    msg.includes("moderat") ||
+    msg.includes("content policy") ||
+    msg.includes("safety") ||
+    msg.includes("nsfw") ||
+    msg.includes("violat") ||
+    msg.includes("inappropriate")
+  ) return "moderation";
+  if (
+    msg.includes("invalid prompt") ||
+    msg.includes("bad request") ||
+    msg.includes("400") && msg.includes("prompt") ||
+    msg.includes("prompt too long")
+  ) return "prompt_error";
+  // Retryable categories
+  if (
+    msg.includes("insufficient") ||
+    msg.includes("balance") ||
+    msg.includes("credit") ||
+    msg.includes("quota") ||
+    msg.includes("402")
+  ) return "balance_exhausted";
+  if (
+    msg.includes("timeout") ||
+    msg.includes("timed out") ||
+    msg.includes("504") ||
+    msg.includes("408")
+  ) return "timeout";
+  if (
+    msg.includes("503") ||
+    msg.includes("502") ||
+    msg.includes("500") ||
+    msg.includes("unavailable") ||
+    msg.includes("provider") ||
+    msg.includes("upstream") ||
+    msg.includes("network") ||
+    msg.includes("econnreset") ||
+    msg.includes("enotfound")
+  ) return "provider_failure";
+  if (
+    msg.includes("database") ||
+    msg.includes("s3") ||
+    msg.includes("storage")
+  ) return "infrastructure";
+  return "unknown";
+}
+
+// Returns true if the failure is a temporary provider issue and should be retried
+export function isRetryableFailure(errorMessage: string): boolean {
+  const category = classifyFailure(errorMessage);
+  return category !== "moderation" && category !== "prompt_error";
+}
+
+// Returns the max allowed attempts for a given failure category
+export function getMaxAttemptsForCategory(category: FailureCategory): number {
+  if (category === "moderation" || category === "prompt_error") return MAX_ATTEMPTS_HARD_BLOCK;
+  return MAX_ATTEMPTS_PER_SCENE;
 }
 
 // ── SPEND SUMMARY (for admin dashboard / Item 12 proof) ──────────────────────
