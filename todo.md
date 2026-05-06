@@ -7115,3 +7115,10 @@
 - [x] Ensure retry count resets when user manually retries or edits a scene (resetSceneAttempts called in retryFailedScene, retryAllFailedScenes, updateScenePrompt)
 - [x] getSceneAttemptCount now excludes cancelled logs so reset actually works
 - [x] All spend-protection tests updated and passing (33/33)
+
+## WizLumina Professional Colour Grading - May 2026
+- [x] Original tier: LOG/flat simulation — cooler, desaturated, milky blacks, reduced contrast (simulates raw camera footage)
+- [x] Enhanced tier: professional broadcast colour correction — slightly warmer, more vivid, sharpened (natural but polished)
+- [x] Cinematic tier: professional DaVinci-style film grade — teal shadows, warm highlights, vignette, contrast=1.12 (tasteful not extreme)
+- [x] QA: extracted frames from all three, compared side-by-side — difference is clear and honest
+- [x] Uploaded v5 videos to CDN, updated STD_VIDEOS URLs in Home.tsx
