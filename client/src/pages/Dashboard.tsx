@@ -132,6 +132,7 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
 
   const { data: creditData } = trpc.billing.getCredits.useQuery(undefined, { enabled: isAuthenticated });
+  const { data: platformStats } = trpc.platform.stats.useQuery(undefined, { staleTime: 300_000 });
   const { data: subData } = trpc.billing.getSubscription.useQuery(undefined, { enabled: isAuthenticated });
   const { data: renderStatus } = trpc.render.getRenderStatus.useQuery(undefined, { enabled: isAuthenticated, staleTime: 60_000 });
   const utils = trpc.useUtils();
@@ -502,21 +503,52 @@ export default function Dashboard() {
                   <Sparkles className="w-9 h-9 text-white" />
                 </div>
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Let's create your first video</h2>
-              <p className="text-zinc-400 mb-8 max-w-md mx-auto">
-                Upload a track, describe your vision, and WIZ AI will generate a fully produced cinematic music video in minutes.
+              <h2 className="text-2xl font-bold text-white mb-2">Your first WIZ AI video starts here</h2>
+              <p className="text-zinc-400 mb-6 max-w-md mx-auto">
+                Upload a track, describe your vision, and WIZ AI builds a fully produced cinematic music video — scenes, visuals, beat-sync — in minutes.
               </p>
+              {/* Example prompt chips */}
+              <div className="flex flex-wrap justify-center gap-2 mb-8">
+                {["🎬 Cinematic night drive", "🌌 Cosmic journey", "🔥 High-energy performance", "🌊 Dreamy slow-motion"].map((p) => (
+                  <a
+                    key={p}
+                    href={`${WIZVIDEO_STUDIO_PAGE}?demo=1&prompt=${encodeURIComponent(p.replace(/^[^\s]+\s/, ""))}`}
+                    className="text-xs px-3 py-1.5 rounded-full text-zinc-300 hover:text-white transition-colors"
+                    style={{ background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.2)" }}
+                  >
+                    {p}
+                  </a>
+                ))}
+              </div>
               <a href={WIZVIDEO_STUDIO_PAGE}>
                 <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white px-8 h-12 text-base font-semibold shadow-lg shadow-[#b8892a]/30">
                   <Sparkles className="w-5 h-5 mr-2" />
-                  Start Creating
+                  Start Creating — It's Free
                 </Button>
               </a>
+              <p className="text-zinc-600 text-xs mt-4">50 free credits · No card required · First video in minutes</p>
             </div>
           </section>
+        )}        {/* ── Social Proof Strip ────────────────────────────────── */}
+        {platformStats && (
+          <div className="flex flex-wrap justify-center gap-6 py-4 px-4 rounded-xl" style={{ background: "rgba(201,168,76,0.04)", border: "1px solid rgba(201,168,76,0.1)" }}>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-black text-[--color-gold]">{platformStats.creators.toLocaleString()}+</span>
+              <span className="text-xs text-zinc-400">creators</span>
+            </div>
+            <div className="w-px h-8 bg-white/8 self-center hidden sm:block" />
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-black text-[--color-gold]">{platformStats.videosCreated.toLocaleString()}+</span>
+              <span className="text-xs text-zinc-400">videos created</span>
+            </div>
+            <div className="w-px h-8 bg-white/8 self-center hidden sm:block" />
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-black text-[--color-gold]">9</span>
+              <span className="text-xs text-zinc-400">AI studios</span>
+            </div>
+          </div>
         )}
-
-        {/* ── Completed Videos Library ──────────────────────────────── */}
+        {/* ── Completed Videos Library ──────────────────── */}
         {(() => {
           const completedVideos = recentJobsData?.filter((j: any) => j.status === "completed" && j.finalVideoUrl) ?? [];
           if (completedVideos.length === 0) return null;

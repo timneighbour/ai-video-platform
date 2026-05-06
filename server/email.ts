@@ -15,10 +15,12 @@
 import { Resend } from "resend";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const OWNER_EMAIL = "tim@wiz-ai.io";
-const FROM_EMAIL = "WIZ AI Notifications <notifications@wiz-ai.io>";
-const FROM_WELCOME = "WIZ AI <welcome@wiz-ai.io>";
-const FROM_BROADCAST = "WIZ AI <updates@wiz-ai.io>";
+const OWNER_EMAIL = "tim@wiz-ai.io"; // Owner receives at wiz-ai.io (Zoho)
+// Sending domain: wizvid.ai is verified in Resend (SPF + DKIM + DMARC green)
+// wiz-ai.io will be added to Resend once the account is upgraded
+const FROM_EMAIL = "WIZ AI Notifications <notifications@wizvid.ai>";
+const FROM_WELCOME = "WIZ AI <welcome@wizvid.ai>";
+const FROM_BROADCAST = "WIZ AI <updates@wizvid.ai>";
 
 let resend: Resend | null = null;
 

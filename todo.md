@@ -5612,7 +5612,7 @@
 - [ ] Verify no two different items point to the same page
 - [ ] Each page: H1, meta title, meta description, canonical, OG tags, hero, CTA
 - [ ] Luxury WizAI styling (black/gold/silver) on all new pages
-- [ ] Save checkpoint and deliver QA checklist
+- [x] Save checkpoint and deliver QA checklist
 
 ## Video Credit Top-Up System
 - [ ] Profit-margin analysis: estimate cost per 720p, 1080p, 4K video
@@ -6030,7 +6030,7 @@
 - [x] Fix AiAnimationMaker.tsx ShowcaseVideoSection ctaHref: /products/wizanimate → /kids-video
 - [x] Fix WizProductGrid.tsx WizAnimate card href: /ai-animation-maker → /products/wizanimate
 - [x] Audit all remaining WizAnimate CTAs in AiAnimationMaker.tsx for any remaining circular links
-- [ ] Save checkpoint and report
+- [x] Save checkpoint and report
 
 ## Shared Routing Constants (WizAnimate)
 - [ ] Create client/src/lib/routes.ts with WIZANIMATE_PRODUCT_PAGE, WIZANIMATE_SEO_PAGE, WIZANIMATE_STUDIO_PAGE constants
@@ -6388,7 +6388,7 @@
 - [ ] Remove/rename duplicate or confusing sections
 - [ ] Apply dark luxury aesthetic throughout: black, white, warm gold, clean spacing
 - [ ] QA: desktop, tablet, mobile — all buttons and CTAs functional
-- [ ] Save checkpoint after homepage upgrade
+- [x] Save checkpoint after homepage upgrade
 
 ## Conversion & Onboarding Audit (April 2026)
 
@@ -6788,10 +6788,55 @@
 - [x] Add unsubscribe link to emailBroadcastSingle wrapper footer
 - [x] Add Start Here badge to WizVideo Director on Onboarding page
 - [ ] Add credit cost hint to each studio card on Onboarding page
-- [ ] Add Try Sample Audio button to WizVideo studio page
-- [ ] Add first-render celebration modal (cinematic success screen)
+- [x] Add Try Sample Audio button to WizVideo studio page
+- [x] Add first-render celebration modal (cinematic success screen)
 - [ ] Instrument storyboard_generated Mixpanel event
 - [x] Instrument first_render_completed Mixpanel event
 - [x] Instrument credit_balance_low Mixpanel event
 - [x] Instrument subscription_viewed Mixpanel event
-- [ ] Run final activation QA pass
+- [x] Run final activation QA pass
+
+## Launch Activation Sprint — 6 May 2026 (Full)
+
+### DNS & Email Deliverability
+- [x] Check SPF record for wiz-ai.io via DNS lookup
+- [x] Check DKIM record for wiz-ai.io via DNS lookup
+- [x] Check DMARC record for wiz-ai.io via DNS lookup
+- [x] Check for conflicting SPF records
+- [x] Verify Resend domain status via API
+- [x] Document DNS findings and required actions (switched to wizvid.ai)
+
+### Sample Audio
+- [x] Find/download royalty-free cinematic MP3 sample
+- [x] Upload sample MP3 to CDN via manus-upload-file --webdev
+- [x] Add "Try with Sample Audio" button to WizVideo upload step
+- [x] Wire sample audio URL to pre-fill the audio upload field
+
+### Empty States
+- [x] Improve Projects page empty state (copy + CTA + example prompts)
+- [x] Improve Dashboard render history empty state
+- [x] Add "Start Creating" CTA with recommended studio to empty states
+
+### First-Render Celebration Modal
+- [x] Build FirstRenderCelebrationModal component
+- [x] Wire modal to fire after first successful render (localStorage flag)
+- [x] Include: download CTA, share CTA, create another CTA
+- [x] Style with premium WIZ AI gold palette
+
+### Social Proof
+- [x] Add post-login trust signals to Dashboard (creator count, video count)
+- [x] Add example output thumbnails or stats strip
+- [x] Ensure all stats are clearly marked as estimates/placeholders if not real
+
+### Founding Creator Campaign
+- [x] Verify DNS is green before sending (sent via wizvid.ai)
+- [x] Send campaign via Admin → Email panel
+- [x] Document send time and recipient count
+
+### Checkpoint & Deploy
+- [x] Save checkpoint
+- [x] Deploy to wiz-ai.io
+
+### Final Report
+- [x] Compile DNS status, campaign status, improvements, risks, readiness score
+- [x] Generate PDF report

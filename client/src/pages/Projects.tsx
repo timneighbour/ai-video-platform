@@ -558,22 +558,44 @@ export default function Projects() {
 
   /* ── Empty state ─────────────────────────────────────────────────────── */
   const EmptyState = () => (
-    <div className="flex flex-col items-center justify-center py-24 text-center">
-      <div className="w-20 h-20 rounded-2xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center mb-5">
+    <div className="flex flex-col items-center justify-center py-20 text-center px-4">
+      {/* Icon */}
+      <div className="w-20 h-20 rounded-2xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center mb-5" style={{ boxShadow: "0 0 30px rgba(201,168,76,0.12)" }}>
         <Film className="h-9 w-9 text-[--color-gold]" />
       </div>
-      <h3 className="text-xl font-bold text-white mb-2">No projects yet</h3>
-      <p className="text-zinc-500 text-sm mb-8 max-w-xs leading-relaxed">
-        Create your first AI video — choose a tool and let WIZ AI handle the rest.
+      <h3 className="text-2xl font-bold text-white mb-2">Your first creation is one click away</h3>
+      <p className="text-zinc-400 text-sm mb-8 max-w-sm leading-relaxed">
+        Upload a song, describe a vibe, and WIZ AI builds your entire music video — scenes, visuals, and cinematic effects — in minutes.
       </p>
+      {/* Example prompts */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 w-full max-w-xl">
+        {[
+          { icon: "🎬", label: "Cinematic night drive", sub: "Moody, neon-lit streets" },
+          { icon: "🌌", label: "Cosmic journey", sub: "Epic space visuals" },
+          { icon: "🔥", label: "High-energy performance", sub: "Stage lights & crowd" },
+        ].map((p) => (
+          <a
+            key={p.label}
+            href={`${WIZVIDEO_STUDIO_PAGE}?demo=1&prompt=${encodeURIComponent(p.label)}`}
+            className="flex flex-col items-start gap-1 rounded-xl p-3 text-left transition-all hover:scale-[1.02]"
+            style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.15)" }}
+          >
+            <span className="text-lg">{p.icon}</span>
+            <span className="text-white text-xs font-semibold">{p.label}</span>
+            <span className="text-zinc-500 text-xs">{p.sub}</span>
+          </a>
+        ))}
+      </div>
       <a
         href={WIZVIDEO_STUDIO_PAGE}
-        className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white font-semibold px-7 py-3 transition-all shadow-lg shadow-[#b8892a]/25 text-sm"
+        className="inline-flex items-center gap-2 rounded-xl text-white font-semibold px-7 py-3 transition-all shadow-lg text-sm"
+        style={{ background: "linear-gradient(135deg, #b8892a, #4a3010)", boxShadow: "0 4px 20px rgba(184,137,42,0.3)" }}
       >
         <Sparkles className="h-4 w-4" />
-        Create your first video
+        Start Creating with WizVideo
         <ChevronRight className="h-4 w-4" />
       </a>
+      <p className="text-zinc-600 text-xs mt-4">50 free credits included · No card required</p>
     </div>
   );
 

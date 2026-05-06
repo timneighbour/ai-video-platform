@@ -15,6 +15,7 @@ import { LowCreditBanner } from "@/components/LowCreditBanner";
 import InsufficientCreditsModal from "@/components/InsufficientCreditsModal";
 import CinematicUpsellModal, { CinematicScene } from "@/components/CinematicUpsellModal";
 import PostRenderCinematicPackModal from "@/components/PostRenderCinematicPackModal";
+import FirstRenderCelebrationModal, { hasSeenFirstRenderCelebration } from "@/components/FirstRenderCelebrationModal";
 import { RenderPaywallModal } from "@/components/RenderPaywallModal";
 import { WizGenesisModal } from "@/components/WizGenesisModal";
 import { PostRenderRetentionScreen } from "@/components/PostRenderRetentionScreen";
@@ -477,6 +478,7 @@ export default function MusicVideoAutopilot() {
   const { checkLowCredits, checkCanAfford, balance: creditBalance } = useCreditGuard();
   const [showCinematicUpsell, setShowCinematicUpsell] = useState(false);
   const [showCinematicPackModal, setShowCinematicPackModal] = useState(false);
+  const [showFirstRenderCelebration, setShowFirstRenderCelebration] = useState(false);
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [showRenderPaywall, setShowRenderPaywall] = useState(false);
   const [showLyricsIntelligence, setShowLyricsIntelligence] = useState(false);
@@ -1509,6 +1511,9 @@ export default function MusicVideoAutopilot() {
               if (!localStorage.getItem(firstRenderKey)) {
                 localStorage.setItem(firstRenderKey, "1");
                 mp.firstRenderCompleted("WizVideo");
+                if (!hasSeenFirstRenderCelebration()) {
+                  setTimeout(() => setShowFirstRenderCelebration(true), 1500);
+                }
               }
               // In-app success notification
               toast.success("Your video is ready!", {
@@ -1715,6 +1720,21 @@ export default function MusicVideoAutopilot() {
           sceneCount={scenes.length > 0 ? scenes.length : undefined}
           creditCost={creditCost > 0 ? creditCost : undefined}
           onRenderConfirmed={handleStartRenderInternal}
+        />
+      )}
+      {/* First Render Celebration Modal */}
+      {showFirstRenderCelebration && (
+        <FirstRenderCelebrationModal
+          videoUrl={finalVideoUrl}
+          videoTitle={title}
+          onClose={() => setShowFirstRenderCelebration(false)}
+          onDownload={finalVideoUrl ? () => {
+            const a = document.createElement("a");
+            a.href = finalVideoUrl;
+            a.download = `${title || "wiz-ai-video"}.mp4`;
+            a.click();
+          } : undefined}
+          onCreateAnother={() => { window.location.href = "/music-video/create"; }}
         />
       )}
       {/* Post-Render Cinematic Pack Modal — shown immediately after render completes */}
@@ -2264,6 +2284,18 @@ export default function MusicVideoAutopilot() {
                           <p className="text-white/40 text-sm mt-1">MP3, WAV, M4A · Max 100MB · Max 6 minutes</p>
                         </div>
                         <div className="px-5 py-2 rounded-[6px] text-sm font-bold" style={{ background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.3)", color: "rgba(201,168,76,0.9)", boxShadow: "0 0 12px rgba(201,168,76,0.1)" }}>Browse Files</div>
+                        <button
+                          type="button"
+                          className="text-xs text-white/40 hover:text-[--color-gold] transition-colors underline underline-offset-2 mt-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRestoredAudioUrl("/manus-storage/sample-cinematic_4c0c3f8a.mp3");
+                            setRestoredAudioTitle("Sample \u2014 Cinematic Instrumental");
+                            toast.success("Sample audio loaded", { description: "Try the full WizVideo experience with this cinematic track." });
+                          }}
+                        >
+                          \u2726 Try with Sample Audio
+                        </button>
                       </div>
                     )}
                   </div>
