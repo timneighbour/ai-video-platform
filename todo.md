@@ -6686,3 +6686,27 @@
 - [ ] Redesign QuickTopUpModal with new packs + smart shortfall auto-selection
 - [ ] Create new Stripe products/prices for all 6 packs via API
 - [ ] Wire new Stripe price IDs into env secrets
+
+## Session 2026-05-06 (Afternoon)
+
+- [ ] Subscription upsell on credit shortfall — redesign QuickTopUpModal to show pack + Creator plan + Studio plan with value comparison
+- [ ] Post-payment credit balance auto-refresh — refresh balance in header, dashboard, cost panels, and QuickTopUpModal after Stripe checkout
+- [ ] Fix /wizpilot route — verify nav link resolves correctly
+- [ ] Fix /products/wizimage 404 — verify product page route resolves correctly
+- [ ] Test WizShorts credit panel after top-up — confirm balance updates correctly
+- [ ] Add project delete to Projects page unified view
+- [ ] Projects page empty state — friendly message + CTAs when user has no projects
+- [ ] WizScore — decide: build out or hide from nav (currently placeholder)
+- [ ] Mobile nav polish — add back buttons to studio pages that are dead-ends on mobile
+
+## Session 2026-05-06 Afternoon — 9-Item Priority Sprint
+
+- [x] Subscription upsell on credit shortfall (QuickTopUpModal redesign with Subscribe tab)
+- [x] Credit count made prominent on each pack card (credits shown in gold next to pack name)
+- [x] Post-payment credit balance auto-refresh (usePaymentReturnRefresh hook, global in App.tsx)
+- [x] Fix /wizpilot missing from sidebar nav (added WizPilot to DashboardLayout nav)
+- [x] Route QA: /products/wizimage and /wizpilot confirmed registered and functional
+- [x] Project delete from Projects page (already included in unified Projects.tsx rewrite)
+- [x] Projects empty state (already included in unified Projects.tsx rewrite)
+- [x] WizScore decision: confirmed functional (has real backend procedures), not a placeholder
+- [x] Mobile nav back button (LandscapeHint updated with optional backHref prop, default /dashboard)

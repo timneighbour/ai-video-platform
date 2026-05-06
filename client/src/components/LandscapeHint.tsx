@@ -3,33 +3,46 @@
  * Shown only on mobile/tablet in portrait orientation.
  * Hidden on desktop (md breakpoint and above).
  * Dismissible per session via sessionStorage.
+ *
+ * Also renders a persistent mobile back button (top-left) when `backHref` is provided.
  */
 
 import { useState, useEffect } from "react";
-import { X } from "@/lib/icons";
+import { X, ArrowLeft } from "@/lib/icons";
 
 interface LandscapeHintProps {
   /** Optional override label */
   label?: string;
+  /** If provided, renders a back button in the top-left corner on mobile */
+  backHref?: string;
+  /** Label for the back button (default: "Dashboard") */
+  backLabel?: string;
 }
 
-export function LandscapeHint({ label = "For the best studio view, rotate your device to landscape." }: LandscapeHintProps) {
+export function LandscapeHint({
+  label = "For the best studio view, rotate your device to landscape.",
+  backHref = "/dashboard",
+  backLabel = "Dashboard",
+}: LandscapeHintProps) {
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // Only show on mobile/tablet (screen width < 1024px)
-    const isMobileOrTablet = window.innerWidth < 1024;
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      return mobile;
+    };
+    const isMobileOrTablet = checkMobile();
     const isPortrait = window.innerHeight > window.innerWidth;
     const wasDismissed = sessionStorage.getItem("landscape_hint_dismissed") === "1";
-
     if (isMobileOrTablet && isPortrait && !wasDismissed) {
       setVisible(true);
     }
-
     const handleOrientationChange = () => {
+      const nowMobile = checkMobile();
       const nowPortrait = window.innerHeight > window.innerWidth;
-      const nowMobile = window.innerWidth < 1024;
       const stillDismissed = sessionStorage.getItem("landscape_hint_dismissed") === "1";
       if (nowMobile && nowPortrait && !stillDismissed) {
         setVisible(true);
@@ -37,7 +50,6 @@ export function LandscapeHint({ label = "For the best studio view, rotate your d
         setVisible(false);
       }
     };
-
     window.addEventListener("resize", handleOrientationChange);
     return () => window.removeEventListener("resize", handleOrientationChange);
   }, []);
@@ -48,9 +60,22 @@ export function LandscapeHint({ label = "For the best studio view, rotate your d
     setVisible(false);
   };
 
-  if (!visible || dismissed) return null;
-
   return (
+    <>
+      {/* Mobile back button — always visible on mobile */}
+      {backHref && isMobile && (
+        <a
+          href={backHref}
+          className="md:hidden fixed top-4 left-4 z-50 flex items-center gap-1.5 px-3 py-2 rounded-full border border-white/10 bg-black/70 backdrop-blur-md text-white/60 hover:text-white hover:border-white/20 transition-all text-xs font-medium shadow-lg"
+          style={{ backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}
+          aria-label={`Back to ${backLabel}`}
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>{backLabel}</span>
+        </a>
+      )}
+      {/* Landscape rotation nudge */}
+      {visible && !dismissed && (
     <div
       role="status"
       aria-live="polite"
@@ -96,5 +121,7 @@ export function LandscapeHint({ label = "For the best studio view, rotate your d
         <X className="w-3 h-3" />
       </button>
     </div>
+      )}
+    </>
   );
 }

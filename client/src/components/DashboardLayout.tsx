@@ -1,4 +1,4 @@
-import { WIZANIMATE_PRODUCT_PAGE } from "@/lib/routes";
+import { WIZANIMATE_PRODUCT_PAGE, WIZPILOT_STUDIO_PAGE } from "@/lib/routes";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -45,6 +45,7 @@ const menuItems = [
   { icon: Film, label: "WizScore™", path: "/wizscore" },
   { icon: Zap, label: "WizShorts", path: "/wiz-shorts" },
   { icon: Wand2, label: "WizScript", path: "/text-to-video" },
+  { icon: PlayCircle, label: "WizPilot", path: WIZPILOT_STUDIO_PAGE },
   { icon: Mic, label: "AI Voiceover", path: "/tools/voiceover" },
   { icon: FolderOpen, label: "My Projects", path: "/my-projects" },
   { icon: CreditCard, label: "Credits", path: "/credits" },

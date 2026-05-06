@@ -5,6 +5,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { identifyUser, resetIdentity, mp } from "@/lib/mixpanel";
+import { usePaymentReturnRefresh } from "@/hooks/usePaymentReturnRefresh";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
 import { trpc } from "./lib/trpc";
@@ -176,6 +177,12 @@ function PageFallback() {
       `}</style>
     </div>
   );
+}
+
+/** Globally invalidates credit balance when user returns to the tab after Stripe checkout */
+function PaymentReturnRefresh() {
+  usePaymentReturnRefresh();
+  return null;
 }
 
 // After OAuth login, the server redirects to "/". This component checks
@@ -439,6 +446,7 @@ function App() {
             <CrispChat />
           </Suspense>
           <WizAnalyticsTracker />
+          <PaymentReturnRefresh />
           <MixpanelIdentity />
           <NoIndexGuard />
           <Router />
