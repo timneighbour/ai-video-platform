@@ -292,6 +292,7 @@ function Router() {
         <Route path={"/music-creator"} component={MusicCreator} />
         <Route path={"/wiz-image"} component={WizImage} />
         <Route path={"/wiz-shorts"} component={WizShorts} />
+        <Route path={"/music-videos"} component={MusicVideosLanding} />{/* USP showcase landing */}
         <Route path={"/music-video"} component={WizVideoLandingPage} />
         <Route path={"/music-video-ai"} component={WizVideoLandingPage} />{/* SEO alias */}
         <Route path={"/music-video/create"} component={MusicVideoAutopilot} />
