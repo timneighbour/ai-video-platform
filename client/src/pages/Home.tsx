@@ -3051,8 +3051,8 @@ function WizVidEngineSection() {
 // v4: distinct audio per tier — Original=thin/flat/128k, Enhanced=broadcast/192k, Cinematic=deep bass+wide stereo/320k
 const STD_VIDEOS = {
   original: "/manus-storage/std-tier-original-v5_df05d6bf.mp4",
-  enhanced: "/manus-storage/std-tier-enhanced-v5_d7c4177b.mp4",
-  cinematic: "/manus-storage/std-tier-cinematic-v5_558899ea.mp4",
+  enhanced: "/manus-storage/std-tier-enhanced-v6_b0fc7b56.mp4",
+  cinematic: "/manus-storage/std-tier-cinematic-v6_6caf492a.mp4",
 };
 const WIZLUMINA_LOGO_STD = "/manus-storage/wizlumina-logo-new_0709f3c5_83ddc673.png";
 
