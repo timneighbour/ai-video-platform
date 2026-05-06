@@ -1,4 +1,4 @@
-import { WIZANIMATE_PRODUCT_PAGE, WIZVIDEO_STUDIO_PAGE, WIZAUDIO_STUDIO_PAGE } from "@/lib/routes";
+import { WIZANIMATE_PRODUCT_PAGE, WIZVIDEO_STUDIO_PAGE, WIZVIDEO_NEW_PROJECT, WIZAUDIO_STUDIO_PAGE } from "@/lib/routes";
 import { FuelTheSession } from "@/components/FuelTheSession";
 import { ReturnTriggerBanner } from "@/components/ReturnTriggerBanner";
 /**
@@ -45,7 +45,7 @@ const CREATE_ACTIONS = [
     title: "Create Video",
     subtitle: "Music video from your track",
     icon: Film,
-    href: WIZVIDEO_STUDIO_PAGE,
+    href: WIZVIDEO_NEW_PROJECT,
     gradient: "from-[#b8892a] to-[#4a3010]",
     glow: "shadow-[#b8892a]/25",
     badge: "Most Popular",
@@ -78,7 +78,7 @@ const CREATE_ACTIONS = [
     title: "YouTube Video",
     subtitle: "Cinematic content for your channel",
     icon: Youtube,
-    href: WIZVIDEO_STUDIO_PAGE,
+    href: WIZVIDEO_NEW_PROJECT,
     gradient: "from-[#3a2a10] to-[#1a1a1a]",
     glow: "shadow-[#b8892a]/20",
     badge: null,
@@ -263,7 +263,7 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex-shrink-0 flex flex-col gap-2">
-              <a href={WIZVIDEO_STUDIO_PAGE} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white text-xs font-semibold transition-all shadow-lg shadow-[#b8892a]/20">
+              <a href={WIZVIDEO_NEW_PROJECT} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white text-xs font-semibold transition-all shadow-lg shadow-[#b8892a]/20">
                 <Sparkles className="w-3.5 h-3.5" /> Start your first video
               </a>
               <a href="/pricing" className="text-[10px] text-zinc-500 hover:text-[--color-gold] text-center transition-colors">See what each plan unlocks →</a>
@@ -480,7 +480,7 @@ export default function Dashboard() {
               ))}
               {/* New project card */}
               <a
-                href={WIZVIDEO_STUDIO_PAGE}
+                href={WIZVIDEO_NEW_PROJECT}
                 className="group rounded-xl border border-dashed border-white/15 bg-transparent hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15 transition-all flex flex-col items-center justify-center gap-2 aspect-video p-4"
               >
                 <div className="w-8 h-8 rounded-full bg-white/8 group-hover:bg-[--color-gold]/15 flex items-center justify-center transition-colors">
@@ -520,7 +520,7 @@ export default function Dashboard() {
                   </a>
                 ))}
               </div>
-              <a href={WIZVIDEO_STUDIO_PAGE}>
+              <a href={WIZVIDEO_NEW_PROJECT}>
                 <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white px-8 h-12 text-base font-semibold shadow-lg shadow-[#b8892a]/30">
                   <Sparkles className="w-5 h-5 mr-2" />
                   Start Creating — It's Free
@@ -642,7 +642,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex-shrink-0">
-              <a href={WIZVIDEO_STUDIO_PAGE}>
+              <a href={WIZVIDEO_NEW_PROJECT}>
                 <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white px-6 h-11 font-semibold shadow-lg shadow-[#b8892a]/30 whitespace-nowrap">
                   <Wand2 className="w-4 h-4 mr-2" />
                   Upgrade your next video
@@ -664,7 +664,7 @@ export default function Dashboard() {
             {INSPIRATION.map((idea) => (
               <a
                 key={idea.title}
-                href={`${WIZVIDEO_STUDIO_PAGE}?prompt=${encodeURIComponent(idea.prompt)}`}
+                href={`${WIZVIDEO_NEW_PROJECT}&prompt=${encodeURIComponent(idea.prompt)}`}
                 className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15 p-3 transition-all"
               >
                 <span className="inline-block text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[--color-gold]/15 text-[--color-gold] mb-2">
@@ -688,7 +688,7 @@ export default function Dashboard() {
         {hasProjects && (
           <section className="text-center py-8 border-t border-white/8">
             <p className="text-zinc-400 text-sm mb-4">Your next video could be even better.</p>
-            <a href={WIZVIDEO_STUDIO_PAGE}>
+            <a href={WIZVIDEO_NEW_PROJECT}>
               <Button variant="outline" className="border-[--color-gold]/30 text-[--color-gold] bg-transparent hover:bg-[--color-gold]/15 px-6">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Another Video

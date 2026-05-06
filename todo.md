@@ -7122,3 +7122,11 @@
 - [x] Cinematic tier: professional DaVinci-style film grade — teal shadows, warm highlights, vignette, contrast=1.12 (tasteful not extreme)
 - [x] QA: extracted frames from all three, compared side-by-side — difference is clear and honest
 - [x] Uploaded v5 videos to CDN, updated STD_VIDEOS URLs in Home.tsx
+
+## New Video Creation Flow Bug - May 2026
+- [x] When clicking "Create New Video" from dashboard, it loaded the previous/existing project (localStorage persistence bug)
+- [x] Fix: Added ?new=1 param support to MusicVideoAutopilot — clears all musicVideo_* localStorage keys synchronously before hooks initialise
+- [x] Added WIZVIDEO_NEW_PROJECT constant (/music-video/create?new=1) in routes.ts
+- [x] Updated all 8 "Create New" / "Start Creating" / "New Project" / "Get Inspired" buttons in Dashboard to use WIZVIDEO_NEW_PROJECT
+- [x] Existing ?jobId= resume flow unchanged — My Projects links still open the correct saved project
+- [x] TypeScript: 0 errors

@@ -182,8 +182,12 @@ export default function MusicVideoAutopilot() {
   if (!_didPrePopulate.current) {
     _didPrePopulate.current = true;
     const params = new URLSearchParams(window.location.search);
+    const isNew = params.get("new") === "1";
     const urlJobId = params.get("job_id") || params.get("jobId") || params.get("resume");
-    if (urlJobId) {
+    if (isNew) {
+      // ?new=1 — always start a completely fresh blank project, clear all persisted state
+      clearStaleProjectState("musicVideo");
+    } else if (urlJobId) {
       const parsedJobId = parseInt(urlJobId, 10);
       if (!isNaN(parsedJobId)) {
         // Clear stale state synchronously BEFORE hooks read localStorage
@@ -219,6 +223,12 @@ export default function MusicVideoAutopilot() {
     const renderStarted = params.get("render_started") === "true";
     const demoPrompt = params.get("prompt");
     const isDemo = params.get("demo") === "1";
+    const isNew = params.get("new") === "1";
+    if (isNew) {
+      // Fresh start — state already cleared synchronously above; just clean the URL
+      window.history.replaceState({}, "", window.location.pathname);
+      return;
+    }
     if (urlJobId) {
       const parsedJobId = parseInt(urlJobId, 10);
       if (!isNaN(parsedJobId)) {

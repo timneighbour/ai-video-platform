@@ -33,8 +33,10 @@ export const WIZANIMATE_STUDIO_PAGE = "/kids-video";
 // ── WizVideo ──────────────────────────────────────────────────────────────────
 /** Product landing page at /music-video (WizVideoLandingPage) */
 export const WIZVIDEO_PRODUCT_PAGE = "/music-video";
-/** Studio app at /music-video/create (MusicVideoAutopilot) */
+/** Studio app at /music-video/create (MusicVideoAutopilot) — resumes last project from localStorage */
 export const WIZVIDEO_STUDIO_PAGE = "/music-video/create";
+/** Studio app with ?new=1 — always starts a completely fresh blank project, clearing all localStorage */
+export const WIZVIDEO_NEW_PROJECT = "/music-video/create?new=1";
 
 // ── WizAudio ──────────────────────────────────────────────────────────────────
 /** Product info page at /products/wizsound (WizSoundPage) */
