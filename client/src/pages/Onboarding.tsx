@@ -21,6 +21,7 @@ const options = [
     tag: 'Most Popular',
     tagColor: 'from-[#b8892a] to-[#e8c878]',
     stats: ['Full music video', 'AI storyboard', 'Character sync'],
+    creditHint: 'from 30 credits',
   },
   {
     href: '/wiz-shorts',
@@ -36,6 +37,7 @@ const options = [
     tag: 'For Creators',
     tagColor: 'from-[#d946ef] to-[#e879f9]',
     stats: ['4 platforms', 'Auto-captions', 'Viral ready'],
+    creditHint: 'from 15 credits',
   },
   {
     href: '/kids-video',
@@ -51,6 +53,7 @@ const options = [
     tag: 'Animation',
     tagColor: 'from-[#a855f7] to-[#c084fc]',
     stats: ['Beat-matched', 'Character AI', 'Cinematic'],
+    creditHint: 'from 30 credits',
   },
   {
     href: '/text-to-video',
@@ -66,6 +69,7 @@ const options = [
     tag: 'Text → Video',
     tagColor: 'from-[#06b6d4] to-[#67e8f9]',
     stats: ['Any idea', 'Full scenes', 'Instant'],
+    creditHint: 'from 30 credits',
   },
   {
     href: '/music-creator',
@@ -81,6 +85,7 @@ const options = [
     tag: 'Audio AI',
     tagColor: 'from-[#22c55e] to-[#86efac]',
     stats: ['Any genre', 'Royalty-free', 'Studio grade'],
+    creditHint: 'Free to generate',
   },
   {
     href: '/wiz-image',
@@ -96,6 +101,7 @@ const options = [
     tag: 'Image AI',
     tagColor: 'from-[#6366f1] to-[#818cf8]',
     stats: ['8 art styles', 'Photorealistic', 'Instant'],
+    creditHint: '2 credits per image',
   },
   {
     href: '/wizscore',
@@ -111,6 +117,7 @@ const options = [
     tag: 'Video → Music',
     tagColor: 'from-[#e11d48] to-[#fb7185]',
     stats: ['Upload video', 'AI soundtrack', 'Mood-matched'],
+    creditHint: 'Free to try',
   },
 ];
 
@@ -303,6 +310,9 @@ const Onboarding: React.FC = () => {
                       <span>Start Creating</span>
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </div>
+                    {(options[0] as any).creditHint && (
+                      <span className="text-[11px] text-white/30 font-medium">{(options[0] as any).creditHint}</span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -353,9 +363,14 @@ const Onboarding: React.FC = () => {
                       <div>
                         <div className="text-lg font-black text-white mb-0.5">{option.title}</div>
                         <div className="text-xs text-white/45 mb-3">{option.subtitle}</div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-semibold text-white/50 group-hover:text-white/80 transition-colors">Start Creating</span>
-                          <ArrowRight className="w-3.5 h-3.5 text-white/30 group-hover:text-white/70 group-hover:translate-x-0.5 transition-all duration-300" />
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-semibold text-white/50 group-hover:text-white/80 transition-colors">Start Creating</span>
+                            <ArrowRight className="w-3.5 h-3.5 text-white/30 group-hover:text-white/70 group-hover:translate-x-0.5 transition-all duration-300" />
+                          </div>
+                          {(option as any).creditHint && (
+                            <span className="text-[10px] text-white/25 font-medium">{(option as any).creditHint}</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -422,9 +437,14 @@ const Onboarding: React.FC = () => {
                         ))}
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-white/50 group-hover:text-white/80 transition-colors">Start Creating</span>
-                        <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white/70 group-hover:translate-x-0.5 transition-all duration-300" />
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-white/50 group-hover:text-white/80 transition-colors">Start Creating</span>
+                          <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white/70 group-hover:translate-x-0.5 transition-all duration-300" />
+                        </div>
+                        {(option as any).creditHint && (
+                          <span className="text-[10px] text-white/25 font-medium">{(option as any).creditHint}</span>
+                        )}
                       </div>
                     </div>
                   </div>

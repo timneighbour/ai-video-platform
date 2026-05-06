@@ -33,7 +33,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { AlertTriangle, CheckCircle, Clock, XCircle, Key, Activity, DollarSign, Webhook } from "lucide-react";
+import { AlertTriangle, CheckCircle, Clock, XCircle, Key, Activity, DollarSign, Webhook, Heart, RefreshCw, ShieldAlert, Zap } from "lucide-react";
 
 // ─── STATUS BADGE ─────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: string }) {
@@ -517,6 +517,264 @@ function ApiKeysTab() {
   );
 }
 
+// ─── PROVIDER HEADER BADGES ──────────────────────────────────────────────────
+function ProviderHeaderBadges() {
+  const { data, isLoading } = trpc.musicVideo.providerHealth.useQuery(undefined, {
+    refetchInterval: 120_000,
+    staleTime: 60_000,
+  });
+
+  if (isLoading || !data) {
+    return (
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">WizAdora™ Admin</h1>
+          <p className="text-sm text-muted-foreground mt-1">Internal monitoring — checking providers…</p>
+        </div>
+        <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Checking…</Badge>
+      </div>
+    );
+  }
+
+  const atlas = data.providers.find((p) => p.provider === "Atlas Cloud");
+  const wave  = data.providers.find((p) => p.provider === "WaveSpeed");
+
+  const providerBadge = (p: typeof atlas, label: string, role: string) => {
+    if (!p) return null;
+    const isOk = p.status === "available";
+    return (
+      <Badge
+        variant="outline"
+        className={isOk ? "text-green-400 border-green-400" : "text-red-400 border-red-400"}
+        title={p.detail ?? p.status}
+      >
+        {isOk ? <CheckCircle className="w-3 h-3 mr-1" /> : <XCircle className="w-3 h-3 mr-1" />}
+        {label} {role} — {isOk ? (p.detail ?? "available") : p.status.replace(/_/g, " ")}
+      </Badge>
+    );
+  };
+
+  return (
+    <div className="flex items-center justify-between flex-wrap gap-3">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">WizAdora™ Admin</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Internal monitoring — {data.anyAvailable
+            ? <span className="text-green-400">renders operational</span>
+            : <span className="text-red-400 font-semibold">⚠️ no providers available</span>}
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {providerBadge(atlas, "Atlas Cloud", "(primary)")}
+        {providerBadge(wave, "WaveSpeed", "(failover)")}
+      </div>
+    </div>
+  );
+}
+
+// ─── PROVIDER HEALTH TAB ─────────────────────────────────────────────────────
+function ProviderHealthTab() {
+  const { data, isLoading, refetch, isFetching } = trpc.musicVideo.providerHealth.useQuery(undefined, {
+    refetchInterval: 60_000, // auto-refresh every 60s
+  });
+
+  const listStuck = trpc.adminCredits.listStuckJobs.useQuery({ thresholdMinutes: 45 });
+  const refundStuck = trpc.adminCredits.refundStuckJobs.useMutation({
+    onSuccess: (res) => {
+      toast.success(`Refunded ${res.refundedCount} stuck jobs (${res.totalCreditsRefunded} credits returned)`);
+      listStuck.refetch();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const stuckJobs = listStuck.data ?? [];
+  const stuckJobIds = stuckJobs.map((j: any) => j.id);
+
+  const statusColor: Record<string, string> = {
+    available: "text-green-400 border-green-400",
+    insufficient_credits: "text-red-400 border-red-400",
+    invalid_key: "text-red-400 border-red-400",
+    forbidden: "text-yellow-400 border-yellow-400",
+    endpoint_not_found: "text-yellow-400 border-yellow-400",
+    temporarily_unavailable: "text-orange-400 border-orange-400",
+  };
+
+  const statusIcon = (s: string) => {
+    if (s === "available") return <CheckCircle className="w-4 h-4 text-green-400" />;
+    if (s === "insufficient_credits") return <ShieldAlert className="w-4 h-4 text-red-400" />;
+    return <XCircle className="w-4 h-4 text-red-400" />;
+  };
+
+  // Cost reference table
+  const costRef = [
+    { provider: "Atlas Cloud (primary)", model: "Seedance 2.0 Fast 720p", per5s: "$0.51", per8s: "$0.81", perSec: "$0.101" },
+    { provider: "WaveSpeed (failover)",  model: "Seedance 2.0 Fast 720p", per5s: "$0.50", per8s: "$0.80", perSec: "$0.100" },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Live Provider Status */}
+      <Card className="bg-card/50">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Heart className="w-4 h-4 text-green-400" />
+              Live Provider Status
+            </CardTitle>
+            <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
+              {isFetching ? <RefreshCw className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+              Refresh
+            </Button>
+          </div>
+          {data && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Last checked: {new Date(data.checkedAt).toLocaleTimeString("en-GB")} &nbsp;·&nbsp;
+              {data.anyAvailable
+                ? <span className="text-green-400">✓ At least one provider available</span>
+                : <span className="text-red-400">✗ No providers available — renders will fail</span>}
+            </p>
+          )}
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="text-sm text-muted-foreground">Checking providers…</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {data?.providers.map((p) => (
+                <div key={p.provider} className={`rounded-lg border p-3 space-y-1 ${statusColor[p.status] ?? "border-border"}`.replace("text-", "border-")}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {statusIcon(p.status)}
+                      <span className="text-sm font-semibold">{p.provider}</span>
+                      {(p.provider === "Atlas Cloud" || p.provider === "WaveSpeed") && (
+                        <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                          {p.provider === "Atlas Cloud" ? "PRIMARY" : "FAILOVER"}
+                        </Badge>
+                      )}
+                    </div>
+                    <Badge variant="outline" className={`text-xs ${statusColor[p.status] ?? ""}`}>
+                      {p.status.replace(/_/g, " ")}
+                    </Badge>
+                  </div>
+                  {p.detail && <p className="text-xs text-muted-foreground pl-6">{p.detail}</p>}
+                  {p.latencyMs !== undefined && (
+                    <p className="text-xs text-muted-foreground pl-6">Latency: {p.latencyMs}ms</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Cost Reference */}
+      <Card className="bg-card/50">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <DollarSign className="w-4 h-4 text-yellow-400" />
+            Render Cost Reference
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Provider</TableHead>
+                  <TableHead>Model</TableHead>
+                  <TableHead>Per second</TableHead>
+                  <TableHead>Per 5s clip</TableHead>
+                  <TableHead>Per 8s clip</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {costRef.map((row) => (
+                  <TableRow key={row.provider}>
+                    <TableCell className="text-sm font-medium">{row.provider}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{row.model}</TableCell>
+                    <TableCell className="text-xs font-mono">{row.perSec}</TableCell>
+                    <TableCell className="text-xs font-mono">{row.per5s}</TableCell>
+                    <TableCell className="text-xs font-mono">{row.per8s}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">A full 8-scene Starter video costs approximately $6.50 in render costs.</p>
+        </CardContent>
+      </Card>
+
+      {/* Stuck Jobs */}
+      <Card className="bg-card/50">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-yellow-400" />
+              Stuck Jobs (45+ min)
+            </CardTitle>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => listStuck.refetch()}>Refresh</Button>
+              {stuckJobIds.length > 0 && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={refundStuck.isPending}
+                  onClick={() => {
+                    if (confirm(`Refund credits for ${stuckJobIds.length} stuck jobs?`)) {
+                      refundStuck.mutate({ jobIds: stuckJobIds, adminNote: "Bulk refund: render stuck — provider outage" });
+                    }
+                  }}
+                >
+                  {refundStuck.isPending ? "Refunding…" : `Refund ${stuckJobIds.length} Jobs`}
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {listStuck.isLoading ? (
+            <div className="text-sm text-muted-foreground">Loading…</div>
+          ) : stuckJobs.length === 0 ? (
+            <div className="flex items-center gap-2 text-sm text-green-400">
+              <CheckCircle className="w-4 h-4" />
+              No stuck jobs — all renders are progressing normally.
+            </div>
+          ) : (
+            <div className="rounded-md border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Job ID</TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead>Title</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Credits at risk</TableHead>
+                    <TableHead>Stuck for</TableHead>
+                    <TableHead>Created</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {stuckJobs.map((job: any) => (
+                    <TableRow key={job.id}>
+                      <TableCell className="font-mono text-xs">{job.id}</TableCell>
+                      <TableCell className="text-xs">{job.userName ?? job.userId}</TableCell>
+                      <TableCell className="text-xs max-w-[140px] truncate">{job.title ?? "—"}</TableCell>
+                      <TableCell><StatusBadge status={job.status} /></TableCell>
+                      <TableCell className="text-xs text-red-400">{job.creditCost} credits</TableCell>
+                      <TableCell className="text-xs text-yellow-400">{job.stuckForMinutes}m</TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{formatDate(job.createdAt)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 export default function WizadoraAdmin() {
   const { user, loading } = useAuth();
@@ -539,32 +797,15 @@ export default function WizadoraAdmin() {
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">WizAdora™ Admin</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Internal monitoring — Atlas Cloud only — not publicly linked
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Badge variant="outline" className="text-green-400 border-green-400">
-              <CheckCircle className="w-3 h-3 mr-1" />
-              Atlas Cloud Active
-            </Badge>
-            <Badge variant="secondary" className="text-red-400">
-              <XCircle className="w-3 h-3 mr-1" />
-              fal.ai Disabled
-            </Badge>
-            <Badge variant="secondary" className="text-red-400">
-              <XCircle className="w-3 h-3 mr-1" />
-              WaveSpeed Disabled
-            </Badge>
-          </div>
-        </div>
+        <ProviderHeaderBadges />
 
         {/* Tabs */}
-        <Tabs defaultValue="jobs">
-          <TabsList className="grid w-full grid-cols-4 max-w-xl">
+        <Tabs defaultValue="health">
+          <TabsList className="grid w-full grid-cols-5 max-w-2xl">
+            <TabsTrigger value="health" className="flex items-center gap-1">
+              <Heart className="w-3 h-3" />
+              Health
+            </TabsTrigger>
             <TabsTrigger value="jobs" className="flex items-center gap-1">
               <Activity className="w-3 h-3" />
               Jobs
@@ -582,6 +823,10 @@ export default function WizadoraAdmin() {
               API Keys
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="health" className="mt-6">
+            <ProviderHealthTab />
+          </TabsContent>
 
           <TabsContent value="jobs" className="mt-6">
             <JobsTab />
