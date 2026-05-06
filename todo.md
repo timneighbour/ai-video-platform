@@ -7005,3 +7005,67 @@
 - [ ] Show content analysis summary to user on storyboard/generation review page ("Here's what the AI understood about your song/script")
 - [ ] Allow user to correct the AI's understanding before proceeding (edit theme, mood, key imagery)
 - [ ] All downstream generators MUST use contentAnalysis as mandatory context — not optional
+
+## Strategic Priorities (May 2026 Brief)
+
+### Priority 1 — Showcase Render
+- [ ] Prepare showcase render spec: song selection, character prompt, scene direction guide
+- [ ] Document exact steps to trigger showcase render on live site
+
+### Priority 2 — Render Reliability
+- [ ] Add stuck-job timeout detection (jobs stuck >30min in rendering/assembling state)
+- [ ] Add automatic retry for failed scenes (max 2 retries per scene)
+- [ ] Add provider failover logic (Atlas Cloud → fallback if job fails)
+- [ ] Add credit protection: refund credits if job fails with no output
+- [ ] Add partial assembly support: assemble completed scenes if some fail
+- [ ] Improve failed render messaging: clear error states, retry options, support link
+- [ ] Add job health monitoring endpoint for admin
+
+### Priority 3 — Preview & Direct UX Polish
+- [ ] Add per-scene video thumbnail previews in Scene Director panel
+- [ ] Improve rerender progress feedback (scene-level status during rerender)
+- [ ] Add camera direction visual icons (not just text labels)
+- [ ] Improve lip sync toggle with visual indicator (waveform icon when active)
+- [ ] Add prompt enhancement button in Scene Director textarea
+- [ ] Add "Scene X of Y" context header in Scene Director panel
+- [ ] Improve quality guarantee messaging with trust signals
+
+### Priority 4 — Positioning Updates
+- [ ] Update homepage hero: replace "AI video generation" with director-level control messaging
+- [ ] Update onboarding copy: "You're the director" framing
+- [ ] Update pricing page: highlight lip sync, character consistency, quality guarantee
+- [ ] Update product pages: replace generic AI language with premium differentiators
+- [ ] Update dashboard empty states: director-level inspiration copy
+- [ ] Update MusicVideoAutopilot step headers with director framing
+- [ ] Add "AI Performance Capture" and "Lip-Sync Storytelling" to feature lists
+
+### Priority 5 — Build Conversion Improvements
+- [ ] Add estimated build credits display near Build button (before paywall)
+- [ ] Add render time estimate ("~12 minutes for 18 scenes")
+- [ ] Add "1 free scene re-render included" badge near Build button
+- [ ] Add quality guarantee reassurance text near Build button
+- [ ] Add "Preview before download" reassurance near Build button
+- [ ] Add storyboard_ready → build conversion funnel tracking
+
+### Priority 6 — Marketing Assets
+- [ ] Generate Scene Director panel screenshot (high quality)
+- [ ] Generate before/after character consistency comparison visual
+- [ ] Generate rerender workflow step-by-step visual
+- [ ] Generate quality guarantee flow visual
+- [ ] Generate lip sync feature highlight visual
+
+### Priority 7 — Analytics Expansion
+- [ ] Track scene_rerender event (sceneId, jobId, isFree, cameraDirection, lipSync)
+- [ ] Track lip_sync_enabled event (per render)
+- [ ] Track camera_style_selected event (per scene director use)
+- [ ] Track preview_watch_completion event (did user watch >80% before download)
+- [ ] Track download_confirmed event (jobId, timeFromCompletedToDownload)
+- [ ] Track rerender_abandoned event (opened Scene Director but did not rerender)
+- [ ] Track build_conversion event (storyboard_ready → build initiated)
+
+### Priority 8 — Final Deliverables
+- [ ] Generate QA report (render reliability, quality guarantee, lip sync)
+- [ ] Generate updated positioning copy document
+- [ ] Generate conversion recommendations document
+- [ ] Generate infrastructure risks document
+- [ ] Generate launch-ready marketing assets summary

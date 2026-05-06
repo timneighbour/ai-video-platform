@@ -23,9 +23,9 @@ const BRAND = {
 };
 
 const FEATURES = [
-  { icon: "", title: "Full music videos", desc: "Not clips — complete, ready-to-publish videos from a single prompt." },
-  { icon: "", title: "Storyboard preview", desc: "See every scene before you build. Edit any frame. Only pay when you're happy." },
-  { icon: "", title: "WizSound™ audio", desc: "Proprietary cinematic audio enhancement — studio quality, built in." },
+  { icon: "", title: "Director-level control", desc: "Set the scene, direct every shot, control lip sync and character consistency — scene by scene." },
+    { icon: "", title: "Preview before you pay", desc: "Watch your full video, re-direct any scene for free, then confirm download when you're happy." },
+    { icon: "", title: "Phoneme-accurate lip sync", desc: "Character sings directly to camera, mouth synced to every word — powered by Seedance 2.0." },
   { icon: "", title: "Under 5 minutes", desc: "From idea to finished video faster than making a cup of tea." },
 ];
 
@@ -39,7 +39,7 @@ const STATS = [
 
 export default function LandingUK() {
 
-  useSEO({ title: "WIZ AI — UK's Leading AI Video Creator", path: "/uk", description: "Create stunning AI videos, music videos, and animations. Made in the UK. WIZ AI combines cutting-edge AI with cinematic production quality." });
+  useSEO({ title: "WIZ AI — AI Music Video Director Software", path: "/uk", description: "AI-directed music video production software with director-level control. Set the scene, direct every shot, control lip sync and character consistency. UK's leading AI music video platform." });
   const [demoPlaying, setDemoPlaying] = useState(false);
   const [styleIdx, setStyleIdx] = useState(0);
 
@@ -92,8 +92,8 @@ export default function LandingUK() {
           {/* Headline */}
           <h1 className="font-extrabold leading-[1.05] tracking-tight text-white mb-4"
             style={{ fontSize: "clamp(2.6rem, 6vw, 5.5rem)" }}>
-            Create Cinematic AI<br />
-            <span className={BRAND.headline}>Music Videos in Minutes</span>
+            You're the Director.<br />
+            <span className={BRAND.headline}>WIZ AI is Your Crew.</span>
           </h1>
 
           {/* Cycling style */}
@@ -118,7 +118,7 @@ export default function LandingUK() {
 
           {/* Subheadline */}
           <p className="text-white/65 max-w-2xl mx-auto mb-5 leading-relaxed text-lg">
-            Turn your idea or song into a complete video — storyboard, scenes, and final build — all in one place. No editing. No complicated tools.
+            Upload your track. Direct every scene. Control lip sync, camera angles, and character consistency — WIZ AI builds a cinematic music video synced to your lyrics, exactly as you envisioned it.
           </p>
 
           {/* Speed strip */}

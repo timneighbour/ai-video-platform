@@ -2453,6 +2453,33 @@ export default function MusicVideoAutopilot() {
                           <span className="text-base font-black" style={{ color: '#c9a84c' }}>{tieredBreakdown.total} credits</span>
                         </div>
 
+                        {/* Render time + quality guarantee badges */}
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                            <Clock className="w-3 h-3 shrink-0 text-blue-400/70" />
+                            <div>
+                              <div className="text-[10px] font-semibold text-white/70">
+                                {tieredBreakdown.sceneCount ? `~${Math.ceil((tieredBreakdown.sceneCount * 45 + 120) / 60)} min` : '~10 min'}
+                              </div>
+                              <div className="text-[9px] text-white/35">Est. render</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg" style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)' }}>
+                            <RefreshCw className="w-3 h-3 shrink-0 text-green-400/80" />
+                            <div>
+                              <div className="text-[10px] font-semibold text-green-400/80">1 free re-render</div>
+                              <div className="text-[9px] text-white/35">Per scene</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg" style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)' }}>
+                            <ShieldCheck className="w-3 h-3 shrink-0 text-indigo-400/80" />
+                            <div>
+                              <div className="text-[10px] font-semibold text-indigo-400/80">Preview first</div>
+                              <div className="text-[9px] text-white/35">Confirm before DL</div>
+                            </div>
+                          </div>
+                        </div>
+
                         {/* Credit balance & shortfall summary */}
                         {(() => {
                           const total = tieredBreakdown.total;
@@ -4182,7 +4209,13 @@ export default function MusicVideoAutopilot() {
                             <Button
                               className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700 text-white font-semibold"
                               disabled={confirmDownloadMutation.isPending}
-                              onClick={() => jobId && confirmDownloadMutation.mutate({ jobId })}
+                              onClick={() => {
+                                if (!jobId) return;
+                                const reRenderCount = qualityStatus?.scenes.reduce((sum, s) => sum + (s.reRenderCount ?? 0), 0) ?? 0;
+                                const hadFreeRerender = qualityStatus?.scenes.some(s => s.freeReRenderUsed) ?? false;
+                                mp.downloadConfirmed({ jobId, reRenderCount, hadFreeRerender });
+                                confirmDownloadMutation.mutate({ jobId });
+                              }}
                             >
                               {confirmDownloadMutation.isPending ? (
                                 <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Confirming...</>
@@ -4204,7 +4237,13 @@ export default function MusicVideoAutopilot() {
                               <h3 className="text-white font-bold text-lg">Re-direct a Scene</h3>
                               <p className="text-white/50 text-sm">Select a scene, adjust the direction, and re-render it for free</p>
                             </div>
-                            <button onClick={() => setShowSceneDirectorPanel(false)} className="text-white/40 hover:text-white/80">
+                            <button onClick={() => {
+                              // Track abandonment if a scene was selected but not re-rendered
+                              if (selectedSceneForReRender !== null && jobId) {
+                                mp.rerenderAbandoned({ jobId, sceneIndex: qualityStatus?.scenes.find(s => s.id === selectedSceneForReRender)?.sceneIndex ?? 0 });
+                              }
+                              setShowSceneDirectorPanel(false);
+                            }} className="text-white/40 hover:text-white/80">
                               <X className="w-5 h-5" />
                             </button>
                           </div>
@@ -4220,6 +4259,7 @@ export default function MusicVideoAutopilot() {
                                     setSelectedSceneForReRender(s.id);
                                     setSceneReRenderPrompt(s.prompt ?? "");
                                     setSceneReRenderLipSync(s.lipSync ?? true);
+                                    if (jobId) mp.sceneDirectorOpened({ jobId, sceneIndex: s.sceneIndex, freeReRenderAvailable: !s.freeReRenderUsed });
                                   }}
                                   className={`relative rounded-lg border p-2 text-center text-xs font-semibold transition-all ${
                                     selectedSceneForReRender === s.id
@@ -4262,7 +4302,7 @@ export default function MusicVideoAutopilot() {
                                   {["close-up", "wide shot", "medium shot", "tracking shot", "over-the-shoulder", "low angle", "aerial"].map(cam => (
                                     <button
                                       key={cam}
-                                      onClick={() => setSceneReRenderCamera(cam)}
+                                      onClick={() => { setSceneReRenderCamera(cam); mp.cameraStyleSelected(cam, qualityStatus?.scenes.find(s => s.id === selectedSceneForReRender)?.sceneIndex); }}
                                       className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                                         sceneReRenderCamera === cam
                                           ? "border-[--color-gold] bg-[--color-gold]/20 text-[--color-gold]"
@@ -4283,7 +4323,7 @@ export default function MusicVideoAutopilot() {
                                 </div>
                                 <Switch
                                   checked={sceneReRenderLipSync}
-                                  onCheckedChange={setSceneReRenderLipSync}
+                                  onCheckedChange={(v) => { setSceneReRenderLipSync(v); mp.lipSyncToggled(v, qualityStatus?.scenes.find(s => s.id === selectedSceneForReRender)?.sceneIndex); }}
                                 />
                               </div>
 
@@ -4305,6 +4345,8 @@ export default function MusicVideoAutopilot() {
                                 onClick={() => {
                                   if (!jobId || selectedSceneForReRender === null) return;
                                   setIsRequestingReRender(true);
+                                  const sc = qualityStatus?.scenes.find(s => s.id === selectedSceneForReRender);
+                                  if (sc && jobId) mp.sceneRerendered({ jobId, sceneIndex: sc.sceneIndex, isFree: !sc.freeReRenderUsed, cameraStyle: sceneReRenderCamera, lipSyncEnabled: sceneReRenderLipSync });
                                   requestSceneReRenderMutation.mutate({
                                     jobId,
                                     sceneId: selectedSceneForReRender,

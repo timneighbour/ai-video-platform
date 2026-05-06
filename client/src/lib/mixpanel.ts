@@ -256,6 +256,64 @@ export const mp = {
   subscriptionViewed: (source?: string, currentPlan?: string) =>
     track("Subscription Viewed", { source, current_plan: currentPlan }),
 
-  // ── Generic passthrough ───────────────────────────────────────────────
+  //  // ── Quality Guarantee & Director Controls ──────────────────────────────
+  /**
+   * Fires when a user requests a scene re-render from the Scene Director panel.
+   * @param jobId  Music video job ID
+   * @param sceneIndex  0-based scene index
+   * @param isFree  Whether this is the free re-render (first one) or a paid re-render
+   * @param cameraStyle  Camera style selected, e.g. "close-up", "wide", "tracking"
+   * @param lipSyncEnabled  Whether lip sync is enabled for this re-render
+   */
+  sceneRerendered: (props: { jobId: number; sceneIndex: number; isFree: boolean; cameraStyle?: string; lipSyncEnabled?: boolean }) =>
+    track("Scene Re-rendered", { job_id: props.jobId, scene_index: props.sceneIndex, is_free: props.isFree, camera_style: props.cameraStyle, lip_sync_enabled: props.lipSyncEnabled }),
+
+  /**
+   * Fires when the Scene Director panel is opened but closed without submitting a re-render.
+   * Indicates user dissatisfaction but re-render abandonment — useful for prompt UX improvements.
+   */
+  rerenderAbandoned: (props: { jobId: number; sceneIndex: number }) =>
+    track("Re-render Abandoned", { job_id: props.jobId, scene_index: props.sceneIndex }),
+
+  /**
+   * Fires when the user watches the full video preview (>90% playback) before confirming download.
+   * High-intent signal — users who watch the full preview are more likely to confirm.
+   */
+  previewWatchCompleted: (props: { jobId: number; sceneCount: number }) =>
+    track("Preview Watch Completed", { job_id: props.jobId, scene_count: props.sceneCount }),
+
+  /**
+   * Fires when the user clicks "Download & Confirm" and confirms the quality guarantee modal.
+   * This is the final conversion event — user has accepted the video.
+   */
+  downloadConfirmed: (props: { jobId: number; reRenderCount: number; hadFreeRerender: boolean }) =>
+    track("Download Confirmed", { job_id: props.jobId, rerender_count: props.reRenderCount, had_free_rerender: props.hadFreeRerender }),
+
+  /**
+   * Fires when the user selects a camera style in the Scene Director panel.
+   * Useful for understanding which camera styles are most popular.
+   */
+  cameraStyleSelected: (style: string, sceneIndex?: number) =>
+    track("Camera Style Selected", { style, scene_index: sceneIndex }),
+
+  /**
+   * Fires when the user toggles lip sync on or off for a scene.
+   */
+  lipSyncToggled: (enabled: boolean, sceneIndex?: number) =>
+    track("Lip Sync Toggled", { enabled, scene_index: sceneIndex }),
+
+  /**
+   * Fires when the Quality Guarantee banner is shown to the user (video completed, not yet downloaded).
+   */
+  qualityGuaranteeShown: (jobId: number) =>
+    track("Quality Guarantee Shown", { job_id: jobId }),
+
+  /**
+   * Fires when the user opens the Scene Director panel to edit a scene.
+   */
+  sceneDirectorOpened: (props: { jobId: number; sceneIndex: number; freeReRenderAvailable: boolean }) =>
+    track("Scene Director Opened", { job_id: props.jobId, scene_index: props.sceneIndex, free_rerender_available: props.freeReRenderAvailable }),
+
+  // ── Generic passthrough ───────────────────────────────────────────
   track,
 };

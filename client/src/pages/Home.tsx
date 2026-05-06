@@ -937,15 +937,15 @@ function Hero() {
  </div>
 
  {/* Headline */}
- <h1 className="text-[clamp(2.8rem,7.5vw,5.5rem)] font-black leading-[0.93] tracking-tight text-white mb-4">Create. Enhance.<br />
- <span className="metallic-gold">Produce. Grow.</span>
+ <h1 className="text-[clamp(2.8rem,7.5vw,5.5rem)] font-black leading-[0.93] tracking-tight text-white mb-4">Direct. Create.<br />
+ <span className="metallic-gold">Produce. Own It.</span>
  </h1>
  {/* Emotional hook */}
  <p className="text-[clamp(1.05rem,1.9vw,1.25rem)] font-semibold leading-snug max-w-xl mb-6" style={{ color: "oklch(0.82 0.12 72)" }}>
- Turn a simple idea into a cinematic music video in minutes.
+ AI-directed music video production software with director-level control.
  </p>
  {/* Subheadline */}
- <p className="text-[clamp(0.9rem,1.5vw,1.05rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-8">The AI creative studio where you generate original music, create cinematic visuals, animate characters, and produce professional videos — all in one workflow.
+ <p className="text-[clamp(0.9rem,1.5vw,1.05rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-8">Set the scene. Direct every shot. Control lip sync, camera angles, and character consistency — then build a cinematic music video that is entirely yours.
  </p>
 
  {/* CTAs */}
@@ -2886,7 +2886,7 @@ function FeatureBlock() {
  {
  logo: WIZCREATE_LOGO,
  title: "Music Video Creation",
- desc: "Upload your track and WIZ AI builds a full music video — storyboard, scenes, characters, and cinematic visuals synced to every beat and lyric.",
+ desc: "Upload your track, direct every scene, control lip sync and camera angles — WIZ AI builds a cinematic music video synced to every beat and lyric, exactly as you envisioned it.",
  cta: "Create a Music Video",
  href: WIZVIDEO_STUDIO_PAGE,
  badge: "WizCreate™",
@@ -2896,7 +2896,7 @@ function FeatureBlock() {
  {
  logo: WIZAI_LOGO,
  title: "WizPilot Automation",
- desc: "Describe your idea once — WizPilot™ handles everything: storyboard, scenes, performance-sync, audio, build, and delivery. The complete AI music video pipeline in one click.",
+ desc: "Describe your vision once — WizPilot™ builds the full storyboard, directs every scene, syncs lip sync to your audio, and delivers a complete cinematic music video. Director-level output. Zero manual editing.",
  cta: "Try WizPilot",
  href: WIZPILOT_STUDIO_PAGE,
  badge: "WizPilot™",
@@ -3771,7 +3771,7 @@ function ContinueProjectBanner() {
 
 // Page 
 export default function Home() {
- useSEO({ title: "WIZ AI — The AI Creative Studio", path: "/", description: "WIZ AI is the world's first AI creative studio. Music videos, animation, original scores, and cinematic visuals — produced to a professional standard from a single brief. Seven specialised AI studios. One unified production environment." });
+ useSEO({ title: "WIZ AI — AI-Directed Music Video Production Software", path: "/", description: "WIZ AI is AI-directed music video production software with director-level control. Set the scene, direct every shot, control lip sync and character consistency — then build a cinematic music video that is entirely yours. Professional output. No editing required." });
  useReveal();
  useEffect(() => { mp.homepageViewed(); }, []);
  return (

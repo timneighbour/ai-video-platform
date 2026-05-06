@@ -50,7 +50,7 @@ const WIZBEAT_IMAGES = [
 ];
 
 export default function MusicVideosLanding() {
-  useSEO({ title: "AI Music Video Generator — WIZ AI", path: "/music-video", description: "Turn any song into a full cinematic music video with AI. Upload your track, preview every scene, and render in minutes. No editing skills needed." });
+  useSEO({ title: "AI Music Video Director — WIZ AI", path: "/music-video", description: "AI-directed music video production software with director-level control. Set the scene, direct every shot, control lip sync and character consistency — then build a cinematic music video that is entirely yours." });
   const { isAuthenticated } = useAuth();
   const [showAuthGate, setShowAuthGate] = useState(false);
 
@@ -141,13 +141,13 @@ export default function MusicVideosLanding() {
                 AI Music Video Maker
               </div>
               <h1 className="text-5xl sm:text-6xl font-extrabold leading-[1.05] tracking-tight mb-6 text-white">
-                Your song deserves<br />
+                You're the director.<br />
                 <span className="bg-gradient-to-r from-violet-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-                  a real music video
+                  WIZ AI is your crew.
                 </span>
               </h1>
               <p className="text-lg text-[#a1a1aa] leading-relaxed mb-8 max-w-lg">
-                Upload your track. Describe your vision. WizVideo writes the storyboard, generates every scene, and delivers a complete music video — synced to your lyrics.
+                Upload your track. Direct every scene. Control lip sync, camera angles, and character consistency — WIZ AI builds a cinematic music video synced to your lyrics, exactly as you envisioned it.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
                 {isAuthenticated ? (

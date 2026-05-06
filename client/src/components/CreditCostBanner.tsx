@@ -3,12 +3,15 @@
  * so users know exactly what they will spend BEFORE investing time in the workflow.
  *
  * Tone: premium, confident, "you get what you pay for — WIZ AI delivers"
+ * Priority 5: Build conversion improvements — render time estimate, free re-render badge,
+ * quality guarantee reassurance, preview-before-download reassurance.
  *
  * Usage:
- *   <CreditCostBanner credits={390} label="Music Video" breakdown="26 scenes × 15 cr/scene" />
+ *   <CreditCostBanner credits={390} label="Music Video" breakdown="26 scenes × 15 cr/scene"
+ *     sceneCount={26} showQualityGuarantee />
  */
 
-import { Zap, Sparkles } from "lucide-react";
+import { Zap, Sparkles, Clock, ShieldCheck, RefreshCw, Eye } from "lucide-react";
 import { Link } from "wouter";
 
 interface CreditCostBannerProps {
@@ -24,6 +27,21 @@ interface CreditCostBannerProps {
   children?: React.ReactNode;
   /** If true, show a loading state */
   loading?: boolean;
+  /** Number of scenes — used to estimate render time */
+  sceneCount?: number;
+  /** If true, show quality guarantee + preview reassurance badges */
+  showQualityGuarantee?: boolean;
+}
+
+/** Estimate render time from scene count: ~45s per scene + 2min assembly */
+function estimateRenderMinutes(sceneCount: number): string {
+  const totalSeconds = sceneCount * 45 + 120;
+  const minutes = Math.ceil(totalSeconds / 60);
+  if (minutes < 5) return "~5 min";
+  if (minutes <= 10) return `~${minutes} min`;
+  const lower = Math.floor(minutes / 5) * 5;
+  const upper = lower + 5;
+  return `${lower}–${upper} min`;
 }
 
 export function CreditCostBanner({
@@ -33,7 +51,11 @@ export function CreditCostBanner({
   note,
   children,
   loading = false,
+  sceneCount,
+  showQualityGuarantee = false,
 }: CreditCostBannerProps) {
+  const renderEstimate = sceneCount ? estimateRenderMinutes(sceneCount) : null;
+
   return (
     <div
       className="rounded-xl overflow-hidden"
@@ -87,6 +109,55 @@ export function CreditCostBanner({
             style={{ background: "rgba(201,168,76,0.06)", border: "1px solid rgba(201,168,76,0.1)" }}>
             <span className="text-white/60">{breakdown}</span>
             <span className="text-white font-bold tabular-nums">{credits} cr</span>
+          </div>
+        )}
+
+        {/* Render time + quality guarantee badges */}
+        {(renderEstimate || showQualityGuarantee) && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {renderEstimate && (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg"
+                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <Clock className="w-3.5 h-3.5 shrink-0 text-blue-400/70" />
+                <div>
+                  <div className="text-xs font-semibold text-white/80">{renderEstimate}</div>
+                  <div className="text-[10px] text-white/40">Estimated render time</div>
+                </div>
+              </div>
+            )}
+            {showQualityGuarantee && (
+              <>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg"
+                  style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.15)" }}>
+                  <RefreshCw className="w-3.5 h-3.5 shrink-0 text-green-400/80" />
+                  <div>
+                    <div className="text-xs font-semibold text-green-400/90">1 free re-render</div>
+                    <div className="text-[10px] text-white/40">Per scene, before download</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg"
+                  style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.15)" }}>
+                  <Eye className="w-3.5 h-3.5 shrink-0 text-indigo-400/80" />
+                  <div>
+                    <div className="text-xs font-semibold text-indigo-400/90">Preview first</div>
+                    <div className="text-[10px] text-white/40">Confirm before download</div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Quality guarantee reassurance text */}
+        {showQualityGuarantee && (
+          <div className="flex items-start gap-2 px-3 py-2 rounded-lg"
+            style={{ background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.1)" }}>
+            <ShieldCheck className="w-3.5 h-3.5 mt-0.5 shrink-0 text-green-400/70" />
+            <p className="text-xs text-white/50 leading-relaxed">
+              <span className="text-green-400/80 font-medium">Quality Guarantee included.</span>{" "}
+              Watch your full video before confirming. Re-direct any scene for free before you download.
+              Once you download, your video is confirmed.
+            </p>
           </div>
         )}
 

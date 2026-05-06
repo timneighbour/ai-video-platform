@@ -402,11 +402,11 @@ export default function Pricing() {
  <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
  <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold]">Transparent Pricing</span>
  </div>
- <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-5 leading-[1.05]">Create free.<br />
- <span className="metallic-gold">Pay when your video is ready.</span>
- </h1>
- <p className="text-lg sm:text-xl text-white/50 max-w-xl mx-auto leading-relaxed mb-8">Build your entire video at no cost. Only pay when you're ready to download your finished creation.
- </p>
+  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-5 leading-[1.05]">Director-level control.<br />
+  <span className="metallic-gold">Pay when your video is ready.</span>
+  </h1>
+  <p className="text-lg sm:text-xl text-white/50 max-w-xl mx-auto leading-relaxed mb-8">Build your entire music video at no cost — direct every scene, control lip sync and character consistency, preview before you commit. Only pay when you're ready to download.
+  </p>
  {/* Trust pills */}
  <div className="flex flex-wrap items-center justify-center gap-3">
  {[
