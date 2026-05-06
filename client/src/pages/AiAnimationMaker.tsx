@@ -25,7 +25,7 @@ import { WIZANIMATE_PRODUCT_PAGE, WIZANIMATE_STUDIO_PAGE } from "@/lib/routes";
 
 // ── Asset constants ───────────────────────────────────────────────────────────
 const CDN = "/manus-storage";
-const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ff33f09f.webp";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
 const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-new_a84f9808.png`;
 const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-new_85a25756.png`;
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 const WIZVID_ICON =
-  "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+  "/manus-storage/wizai-logo-v3_e7823047.png";
 
 interface WizVidLoaderProps {
   /** When true the loader fades out and unmounts */

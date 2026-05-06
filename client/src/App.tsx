@@ -121,7 +121,7 @@ function PageFallback() {
       {/* Logo */}
       <div className="relative mb-8">
         <img
-          src="/manus-storage/wizai-logo-premium-transparent_ff33f09f.webp"
+          src="/manus-storage/wizai-logo-v3_e7823047.png"
           alt="WIZ AI"
           className="w-20 h-20 object-contain"
           style={{ filter: "drop-shadow(0 0 24px oklch(0.78 0.11 75 / 0.6))" }}

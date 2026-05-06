@@ -5,7 +5,7 @@ import { Sparkles, ArrowLeft, Wand2, Film, Download, Users, MessageSquare,
 import { Link } from "wouter";
 
 const CDN = "/manus-storage";
-const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
 const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-new_0709f3c5.png`;
 const WIZBOOST_LOGO = `${CDN}/wizboost-logo-new_93f2b48b.png`;

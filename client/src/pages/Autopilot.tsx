@@ -432,7 +432,7 @@ export default function Autopilot() {
             <span className="hidden sm:inline">Back to Studio</span>
           </Button>
           <a href="/">
-            <img src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
+            <img src="/manus-storage/wizai-logo-v3_e7823047.png" alt="WIZ AI" className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
           </a>
           <CreditBalance variant="badge" />
         </div>

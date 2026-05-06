@@ -43,7 +43,7 @@ import PublicNavBar from "@/components/PublicNavBar";
 import { PLANS as SHARED_PLANS, TOPUP_PACKS } from "@/lib/plans";
 
 // CDN assets 
-const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
 const PRICING_HERO_BG = "/manus-storage/pricing-hero-bg_7e23edd2.jpg";
 const HIW_STEP1 = "/manus-storage/hiw-step1-choose_1102ddee.jpg";
 const HIW_STEP2 = "/manus-storage/hiw-step2-storyboard_21e66052.jpg";

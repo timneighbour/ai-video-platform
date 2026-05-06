@@ -25,7 +25,7 @@ import {
 
 const CDN = "/manus-storage";
 const LOGO = `${CDN}/wizvideo-logo-v1_9ec37e45.png`;
-const WIZAI_LOGO = `${CDN}/wizai-logo-premium-transparent_ac3f550b.png`;
+const WIZAI_LOGO = `/manus-storage/wizai-logo-v3_e7823047.png`;
 
 const IMGS = {
  hero: `${CDN}/showcase-music-video_678b0f1d.jpg`,
@@ -58,12 +58,12 @@ const HOW_IT_WORKS = [
 ];
 
 const KEY_FEATURES = [
- { title: "Beat-Locked Editing", desc: "Every cut, transition, and camera move is locked to your track's beat grid — no manual keyframing.", img: IMGS.frame4 },
- { title: "Cinematic AI Visuals", desc: "Characters, environments, and lighting generated from your music's mood — not stock footage.", img: IMGS.frame3 },
- { title: "Multi-Style Support", desc: "Cinematic, Anime, 3D, Live Action — switch styles without changing your audio or storyboard.", img: IMGS.frame2 },
- { title: "4K Export", desc: "Full 4K resolution output on Pro and Business plans — broadcast-ready without post-production.", img: IMGS.frame1 },
- { title: "WizSync™ Integration", desc: "Automatic lip sync and character performance driven by your audio — no manual animation.", img: IMGS.frame6 },
- { title: "Batch Generation", desc: "Generate multiple video variants from the same track — test different visual styles simultaneously.", img: IMGS.frame5 },
+ { title: "Character Lock™", desc: "Your character's face, costume, and performance stay identical across every scene. No random strangers. No drift. The character you brief is the character that appears.", img: IMGS.frame4 },
+ { title: "Real Lip Sync", desc: "WizSync™ extracts the exact 8-second audio segment for each scene and passes it to the model. Phoneme-accurate, frame-perfect lip sync — not an approximation.", img: IMGS.frame6 },
+ { title: "Lyric-Aware Storyboarding™", desc: "WIZ AI analyses your full lyrics before generating a single scene — extracting theme, emotional arc, imagery, and mood shifts. Every frame reflects what is being sung.", img: IMGS.frame3 },
+ { title: "Scene Director™", desc: "After every render, edit any scene's prompt, camera angle, and lip sync settings — then re-render just that scene for free. You are not a passive observer. You are the director.", img: IMGS.frame2 },
+ { title: "Preview Before Download™", desc: "Watch the full video before committing. Re-direct any scene for free. Download only when you are satisfied. Once you download, you own it.", img: IMGS.frame1 },
+ { title: "Multi-Style Support", desc: "Cinematic, Anime, 3D, Live Action — applied consistently across every scene. Switch styles without changing your audio or storyboard.", img: IMGS.frame5 },
 ];
 
 const BENEFITS = [

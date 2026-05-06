@@ -96,6 +96,7 @@ import {
 } from "@/lib/icons";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
 import { StarterTemplates } from "@/components/StarterTemplates";
+import { LyricTimelineBar } from "@/components/LyricTimelineBar";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
 
@@ -1884,7 +1885,7 @@ export default function MusicVideoAutopilot() {
             <span className="hidden sm:inline">Back to Studio</span>
           </NavLink>
           <NavLink href="/" className="flex items-center gap-2.5">
-            <img src="/manus-storage/wizai-logo-premium-transparent_ac3f550b.png" alt="WIZ AI" className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(20,184,166,0.20)]" loading="eager" decoding="async" />
+            <img src="/manus-storage/wizai-logo-v3_e7823047.png" alt="WIZ AI" className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(20,184,166,0.20)]" loading="eager" decoding="async" />
             <span className="hidden sm:flex items-center gap-1.5">
               <span className="font-bold text-[16px] tracking-[2px] text-white/90" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>WIZVIDEO</span>
               <span className="text-[8px] font-bold tracking-[2px] text-[#14b8a6] px-1.5 py-0.5 rounded-sm border border-[#14b8a6]/25 uppercase" style={{ background: "rgba(20,184,166,0.08)" }}>DIRECTOR</span>
@@ -3278,6 +3279,19 @@ export default function MusicVideoAutopilot() {
                 </Button>
               </div>
             </div>
+
+            {/* Lyric Timeline Bar — song structure at a glance */}
+            {scenes.length > 0 && (
+              <div className="mb-5 rounded-xl studio-panel px-4 py-4">
+                <LyricTimelineBar
+                  scenes={scenes.map((s) => ({ id: s.id, index: s.id, lyrics: s.lyrics, prompt: s.prompt, status: s.status }))}
+                  onSceneClick={(sceneId) => {
+                    const el = document.getElementById(`scene-card-${sceneId}`);
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }}
+                />
+              </div>
+            )}
 
             {/* Export Format Selection */}
             <div className="mb-4 rounded-xl studio-panel px-4 py-4">
@@ -4709,6 +4723,19 @@ export default function MusicVideoAutopilot() {
                         </div>
                       </div>
                     </div>
+
+                    {/* Lyric Timeline Bar — song structure with live render status */}
+                    {scenes.length > 0 && (
+                      <div className="mb-5 rounded-xl studio-panel px-4 py-4">
+                        <LyricTimelineBar
+                          scenes={scenes.map((s) => {
+                            const liveStatus = perSceneStatuses.find((ps) => ps.id === s.id);
+                            return { id: s.id, index: s.id, lyrics: s.lyrics, prompt: s.prompt, status: liveStatus?.status ?? s.status };
+                          })}
+                          activeSceneId={perSceneStatuses.find((ps) => ps.status === "generating")?.id ?? null}
+                        />
+                      </div>
+                    )}
 
                     {/* Per-scene status grid */}
                     {totalScenes > 0 && (

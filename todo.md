@@ -7069,3 +7069,14 @@
 - [ ] Generate conversion recommendations document
 - [ ] Generate infrastructure risks document
 - [ ] Generate launch-ready marketing assets summary
+
+## Launch Priorities (May 2026 — Tim Approved)
+
+- [ ] Branding consistency audit across all pages and components
+- [ ] Fix all logo/trademark inconsistencies (WIZ AI, WizVideo™, WizSync™, Scene Director™, Character Lock™, Lyric-Aware Storyboarding™, Preview Before Download™, Quality Guarantee™)
+- [ ] Push hero USPs: Character Lock™, Real Lip Sync, Lyric-Aware Storyboarding™, Scene Director™, Preview Before Download™ across homepage, onboarding, pricing, product pages
+- [ ] Remove "AI video generation" language — replace with "creative control + cinematic production + performance authenticity"
+- [ ] Add Timeline & Lyric Awareness UI (lyric section, scene timestamps, verse/chorus/bridge markers, emotional arc)
+- [ ] Instrument Accuracy Layer (reference instrument upload, performance-aware prompt injection)
+- [ ] Marketing assets expansion (Character Lock™ before/after, lyric-aware, lip sync, rerender workflow, multi-character, instrument accuracy, Meta/TikTok/Instagram formats)
+- [ ] Final launch readiness report with all assets

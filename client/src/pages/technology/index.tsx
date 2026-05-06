@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { ArrowRight, CheckCircle, Zap, Cpu, Film, Music, Layers, Eye, Mic, Star, Shield, BarChart3, RefreshCw, Upload, Download, Play } from "lucide-react";
 
 const CDN = "/manus-storage";
-const WIZAI_LOGO = `${CDN}/wizai-logo-premium-transparent_ac3f550b.png`;
+const WIZAI_LOGO = `/manus-storage/wizai-logo-v3_e7823047.png`;
 
 // ─── Shared Technology Page Template ─────────────────────────────────────────
 

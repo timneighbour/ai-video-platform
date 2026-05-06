@@ -63,7 +63,7 @@ const ChevronDownSVG = ({ className = "w-4 h-4", open = false, style }: { classN
 
 // Assets 
 const CDN = "/manus-storage";
-const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ff33f09f.webp";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
 const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
 const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-new_0709f3c5.png`;
 const WIZGENESIS_LOGO = `${CDN}/wizgenesis-logo-new_9814b3d1.png`;
@@ -2078,9 +2078,9 @@ function WhyWizAI() {
  const standards = [
  {
  number: "01",
- title: "Character Lock",
- subtitle: "Consistent characters. Every scene.",
- desc: "WizAnimate™ maintains exact visual consistency across every scene — same face, same costume, same performance. No drift. No inconsistency. The character you brief is the character that appears, from the first frame to the last.",
+ title: "Character Lock™",
+ subtitle: "Same face. Same costume. Every scene.",
+ desc: "WizAnimate™ locks your character's visual identity across every scene — same face, same costume, same performance. No drift. No random strangers. The character you brief is the character that appears, from the first frame to the last.",
  logo: WIZANIMATE_LOGO,
  img: "/manus-storage/why-wiz-formats_98888fe0.png",
  },
@@ -2110,14 +2110,38 @@ function WhyWizAI() {
  },
  {
  number: "05",
- title: "Preview Before Build",
- subtitle: "See everything. Before you commit.",
- desc: "Every scene is reviewed and approved before a single credit is spent on the final build. The complete production — every frame, every scene — is visible before rendering begins. This is how a serious studio works.",
- logo: WIZCREATE_LOGO,
+ title: "Real Lip Sync",
+ subtitle: "Phoneme-accurate. Frame-perfect.",
+ desc: "WizSync™ extracts the exact audio segment for each scene and passes it directly to the generation model. The character's mouth moves to the actual words being sung — not an approximation. Real lip sync. Real performance.",
+ logo: WIZSYNC_LOGO,
  img: "/manus-storage/why-wiz-faster_532c9bed.png",
  },
  {
  number: "06",
+ title: "Scene Director™",
+ subtitle: "You direct. Scene by scene.",
+ desc: "After every render, the Scene Director panel lets you edit any scene's prompt, camera angle, and lip sync settings — then re-render just that scene for free. You are not a passive observer. You are the director.",
+ logo: WIZCREATE_LOGO,
+ img: "/manus-storage/why-wiz-no-editing_37037a03.png",
+ },
+ {
+ number: "07",
+ title: "Lyric-Aware Storyboarding™",
+ subtitle: "Every scene reflects the song.",
+ desc: "Before generating a single scene, WIZ AI analyses the full lyrics — extracting theme, emotional arc, imagery, and mood shifts. Every scene is visually anchored to what is being sung at that exact moment. The video tells the story of the song.",
+ logo: WIZAI_LOGO,
+ img: "/manus-storage/why-wiz-preview_a3e1de16.png",
+ },
+ {
+ number: "08",
+ title: "Preview Before Download™",
+ subtitle: "Watch it. Approve it. Then download.",
+ desc: "Your video is never locked until you confirm it. Watch the full render, re-direct any scene for free, then download when you are satisfied. Once you download, you own it. Until then, it is yours to perfect.",
+ logo: WIZCREATE_LOGO,
+ img: "/manus-storage/why-wiz-creators_3ebbdae1.png",
+ },
+ {
+ number: "09",
  title: "Every Creative Format",
  subtitle: "Music video. Animation. Score. Image. Shorts.",
  desc: "Seven specialised AI studios cover every format a serious creator needs — from full music videos and character animation to original scores, cinematic images, and short-form content. One ecosystem. Every format.",

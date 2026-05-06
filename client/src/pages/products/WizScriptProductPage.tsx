@@ -24,7 +24,7 @@ import {
 
 const CDN = "/manus-storage";
 const LOGO = `${CDN}/wizscript-logo_6e6e7f2e.png`;
-const WIZAI_LOGO = `${CDN}/wizai-logo-premium-transparent_ac3f550b.png`;
+const WIZAI_LOGO = `/manus-storage/wizai-logo-v3_e7823047.png`;
 
 const IMGS = {
  hero: `${CDN}/showcase-text-to-video_c2d4e8f1.jpg`,

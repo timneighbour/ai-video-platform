@@ -29,7 +29,7 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 
-const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
 const DASH_BG_MUSIC_VIDEO = "/manus-storage/dash-card-music-video_894d27ae.jpg";
 const DASH_BG_MUSIC = "/manus-storage/card-wizaudio-v2_ba9bb3e1.jpg";
 const DASH_BG_KIDS = "/manus-storage/dash-card-animation_9f04fd06.jpg";

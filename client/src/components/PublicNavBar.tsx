@@ -32,7 +32,7 @@ const ArrowSVG = ({ className = "w-4 h-4", style }: { className?: string; style?
 
 // ── CDN & Logo constants ──────────────────────────────────────────────────────
 const CDN = "/manus-storage";
-const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ff33f09f_72ea7f44.webp";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
 const WIZSOUND_LOGO = `/manus-storage/wizsound-logo-new_c5cced65.png`;
 const WIZLUMINA_LOGO = `/manus-storage/wizlumina-logo-new_0709f3c5.png`;
 const WIZBOOST_LOGO = `/manus-storage/wizboost-logo-new_93f2b48b.png`;

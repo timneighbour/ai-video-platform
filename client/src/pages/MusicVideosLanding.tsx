@@ -41,7 +41,7 @@ const MUSIC_VIDEO_SHOWCASE = [
     description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt.",
   },
 ];
-const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
 const WIZBEAT_IMAGES = [
   { src: `${CDN}/wizbeat-artist-band_04b2adbf.jpg`, label: "Indie Band" },
   { src: `${CDN}/wizbeat-animated-dog_8d12b77c.jpg`, label: "Animated Character" },
@@ -230,11 +230,12 @@ export default function MusicVideosLanding() {
               </h2>
               <div className="space-y-4">
                 {[
-                  { icon: <Music className="w-5 h-5" />, title: "Lyrics-driven visuals", desc: "Every line of your song becomes a cinematic scene — automatically synced." },
-                  { icon: <Film className="w-5 h-5" />, title: "6 visual styles", desc: "Cinematic, Anime, Stylised 3D, Documentary, Abstract, or Vintage." },
-                  { icon: <Wand2 className="w-5 h-5" />, title: "AI lip-sync characters", desc: "Up to 4 characters with realistic AI lip-sync — real artists or animated." },
-                  { icon: <Zap className="w-5 h-5" />, title: "Full video, not clips", desc: "WizVideo delivers a complete, ready-to-publish music video — not a 10-second clip." },
-                  { icon: <Sparkles className="w-5 h-5" />, title: "Powered by WizSound™", desc: "Proprietary audio enhancement. Choose WizSound Enhance or WizSound Cinematic for richer, more immersive sound." },
+                  { icon: <Sparkles className="w-5 h-5" />, title: "Character Lock™", desc: "Your character's face, costume, and performance stay identical across every scene. No random strangers. No drift. Ever." },
+                  { icon: <Music className="w-5 h-5" />, title: "Real Lip Sync", desc: "WizSync™ passes the exact 8-second audio clip for each scene to the model. Phoneme-accurate, frame-perfect lip sync — not an approximation." },
+                  { icon: <Film className="w-5 h-5" />, title: "Lyric-Aware Storyboarding™", desc: "WIZ AI analyses your full lyrics before generating a single scene. Every frame reflects what is being sung at that exact moment." },
+                  { icon: <Wand2 className="w-5 h-5" />, title: "Scene Director™", desc: "Edit any scene's prompt, camera angle, and lip sync after the render. Re-render just that scene for free. You are the director." },
+                  { icon: <Zap className="w-5 h-5" />, title: "Preview Before Download™", desc: "Watch the full video before committing. Re-direct any scene for free. Download only when you are satisfied. Quality guaranteed." },
+                  { icon: <Film className="w-5 h-5" />, title: "6 visual styles", desc: "Cinematic, Anime, Stylised 3D, Documentary, Abstract, or Vintage — applied consistently across every scene." },
                 ].map((f) => (
                   <div key={f.title} className="flex gap-4 p-5 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/12 transition-all">
                     <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-[#a1a1aa] flex-shrink-0">

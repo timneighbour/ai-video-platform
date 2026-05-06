@@ -121,7 +121,7 @@ const options = [
   },
 ];
 
-const WIZAI_LOGO = "/manus-storage/wizai-logo-premium-transparent_ac3f550b.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
 
 const Onboarding: React.FC = () => {
   useEffect(() => { mp.onboardingStarted(); }, []);
