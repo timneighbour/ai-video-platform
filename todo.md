@@ -7087,3 +7087,16 @@
 - [x] Add premium "Want to create a music video?" section to homepage with 4 USPs — visible to new visitors without requiring navigation
 - [x] Fix all logo backgrounds to be transparent site-wide (no black/white boxes on any logos)
 - [x] Audit and standardise WizAI branding consistency across entire site
+
+## SeeTheDifference Section Fixes - May 2026
+- [x] Fix Original tier video — currently black and white, needs full colour cinematic video
+- [x] Fix tier badge/button colours — currently garish grey/orange/yellow, needs premium WizAI colour scheme
+- [x] Replace static images with looping cinematic video backgrounds for all three tiers
+- [x] Make the visual feel like a moving film not picture stills
+
+## SeeTheDifference Cinematic Redesign - May 2026
+- [x] Source 45-60 second high-quality cinematic footage (canyon/dramatic landscape, lone figure)
+- [x] Generate powerful cinematic audio track (orchestral/cinematic, builds with each tier)
+- [x] Create three genuinely different colour-graded video versions with FFmpeg (Original=flat/raw, Enhanced=sharp/vibrant, Cinematic=golden/film-grade)
+- [x] Redesign SeeTheDifference component as full cinematic immersive player (not static images)
+- [x] Fix tier badge/button colours to premium WizAI scheme (silver/sapphire/gold)
