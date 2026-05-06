@@ -4470,10 +4470,19 @@ export default function MusicVideoAutopilot() {
                                 const isEditing = editingFailedSceneId === scene.id;
                                 // Humanise the raw error message
                                 const rawErr = scene.errorMessage ?? "Unknown error";
-                                const friendlyErr = rawErr.includes("429") || rawErr.toLowerCase().includes("rate limit")
-                                  ? "Rate limit reached — the AI rendering service was busy. Edit the prompt or retry to re-queue."
-                                  : rawErr.includes("timeout") || rawErr.toLowerCase().includes("timed out")
-                                  ? "Request timed out. The scene took too long to generate. Try simplifying the prompt."
+                                const rLow = rawErr.toLowerCase();
+                                const friendlyErr = rawErr.includes("429") || rLow.includes("rate limit")
+                                  ? "The rendering service was temporarily busy. This usually clears in a few minutes — hit Retry to re-queue your scene."
+                                  : rLow.includes("timeout") || rLow.includes("timed out") || rLow.includes("auto-failed")
+                                  ? "This scene took too long and was automatically stopped. Your credits have been protected — hit Retry to try again."
+                                  : rLow.includes("insufficient") || rLow.includes("balance") || (rLow.includes("credit") && !rLow.includes("your credits"))
+                                  ? "The rendering provider ran out of capacity. Your credits are safe — hit Retry and the system will use an alternative provider."
+                                  : rLow.includes("content") || rLow.includes("safety") || rLow.includes("policy") || rLow.includes("moderat")
+                                  ? "This scene was flagged by the content safety filter. Try editing the prompt to remove any sensitive language, then retry."
+                                  : rLow.includes("provider") || rLow.includes("unavailable") || rLow.includes("all providers")
+                                  ? "All rendering providers were temporarily unavailable. Your credits are safe — please retry in a moment."
+                                  : rLow.includes("network") || rLow.includes("connection") || rLow.includes("fetch")
+                                  ? "A network error occurred while communicating with the rendering service. Please retry."
                                   : rawErr.length > 200 ? rawErr.slice(0, 200) + "…" : rawErr;
 
                                 return (
