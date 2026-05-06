@@ -97,6 +97,7 @@ import {
 import { VoicePromptButton } from "@/components/VoicePromptButton";
 import { StarterTemplates } from "@/components/StarterTemplates";
 import { LyricTimelineBar } from "@/components/LyricTimelineBar";
+import { InstrumentAccuracyPanel } from "@/components/InstrumentAccuracyPanel";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
 
@@ -3287,10 +3288,16 @@ export default function MusicVideoAutopilot() {
                   scenes={scenes.map((s) => ({ id: s.id, index: s.id, lyrics: s.lyrics, prompt: s.prompt, status: s.status }))}
                   onSceneClick={(sceneId) => {
                     const el = document.getElementById(`scene-card-${sceneId}`);
+
                     if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
                   }}
                 />
               </div>
+            )}
+
+            {/* Instrument Accuracy Panel */}
+            {jobId && (
+              <InstrumentAccuracyPanel jobId={jobId} isLocked={false} />
             )}
 
             {/* Export Format Selection */}
