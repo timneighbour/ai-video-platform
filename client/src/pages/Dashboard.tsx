@@ -64,8 +64,8 @@ const CREATE_ACTIONS = [
   },
   {
     id: "kids",
-    title: "Kids Animation",
-    subtitle: "Fun animated stories for children",
+    title: "WizAnimate™",
+    subtitle: "AI character animation studio",
     icon: Baby,
     href: WIZANIMATE_PRODUCT_PAGE,
     gradient: "from-[#9090a0] to-[#2e2e36]",

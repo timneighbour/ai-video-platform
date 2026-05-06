@@ -50,8 +50,8 @@ const TEMPLATES: Template[] = [
   {
     id: "kids-story",
     icon: <BookOpen className="w-4 h-4" />,
-    title: "Kids Animation",
-    description: "Colourful animated videos for young audiences",
+    title: "WizAnimate™",
+    description: "AI character animation for young audiences",
     href: WIZANIMATE_PRODUCT_PAGE,
     gradient: "from-[#b8892a]/20 to-orange-600/10",
   },

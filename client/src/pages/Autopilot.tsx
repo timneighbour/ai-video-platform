@@ -23,6 +23,7 @@ import AuthGate from "@/components/AuthGate";
 import { useSEO } from "@/hooks/useSEO";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
 import { CreditCostBanner } from "@/components/CreditCostBanner";
+import { QuickTopUpModal } from "@/components/QuickTopUpModal";
 
 // YouTube brand colour
 const YT_RED = "#FF0000";
@@ -94,6 +95,7 @@ export default function Autopilot() {
   useSEO({ title: "WizPilot™ — AI Video Autopilot — WIZ AI", path: "/wizpilot", description: "Let AI handle everything. WizPilot™ takes your prompt and automatically generates a complete video with scenes, transitions, music, and effects.", noindex: true });
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { balance: creditBalance } = useCreditGuard();
+  const [topUpOpen, setTopUpOpen] = useState(false);
   const [, setLocation] = useLocation();
 
   const [step, setStep] = useState<"input" | "storyboard" | "generating" | "done">("input");
@@ -404,6 +406,7 @@ export default function Autopilot() {
   }
 
   return (
+    <>
     <div className="min-h-screen studio-bg text-white" style={{backgroundColor:'#06050a'}}>
       {/* ── VR Environment: Live Broadcast TV Control Room ── */}
       <div className="env-bg">
@@ -788,12 +791,42 @@ export default function Autopilot() {
             </div>
 
             {/* ── UPFRONT COST BANNER ── */}
-            <CreditCostBanner
-              credits={creditCost}
-              label="WizPilot Video"
-              breakdown={`${duration}s video · ${aspectRatio}`}
-              note="Storyboard is free · credits charged only when you build your final video"
-            />
+            {(() => {
+              const cost = creditCost;
+              const balance = creditBalance ?? 0;
+              const shortfall = cost - balance;
+              const hasEnough = shortfall <= 0;
+              return (
+                <CreditCostBanner
+                  credits={cost}
+                  label="WizPilot Video"
+                  breakdown={`${duration}s video · ${aspectRatio}`}
+                  note="Storyboard is free · credits charged only when you build your final video"
+                >
+                  <div className="rounded-lg px-3 py-2.5 space-y-2" style={{ background: hasEnough ? 'rgba(16,185,129,0.06)' : 'rgba(239,68,68,0.06)', border: `1px solid ${hasEnough ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}` }}>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-white/50">Your balance</span>
+                      <span className="font-semibold" style={{ color: hasEnough ? '#10b981' : 'rgba(255,255,255,0.7)' }}>{balance} credits</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-white/50">This project costs</span>
+                      <span className="font-semibold text-white/80">{cost} credits</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs border-t border-white/5 pt-2">
+                      <span className="font-bold" style={{ color: hasEnough ? '#10b981' : '#ef4444' }}>
+                        {hasEnough ? '✓ You have enough credits' : `${shortfall} credits short`}
+                      </span>
+                      {!hasEnough && (
+                        <button type="button" onClick={() => setTopUpOpen(true)}
+                          className="text-xs font-bold px-2.5 py-1 rounded-md transition-all"
+                          style={{ background: 'rgba(201,168,76,0.15)', color: '#c9a84c', border: '1px solid rgba(201,168,76,0.3)' }}
+                        >Top up credits →</button>
+                      )}
+                    </div>
+                  </div>
+                </CreditCostBanner>
+              );
+            })()}
 
             {/* Generate Storyboard CTA */}
             <div className="text-center">
@@ -1131,5 +1164,7 @@ export default function Autopilot() {
         )}
       </div>
     </div>
+    <QuickTopUpModal open={topUpOpen} onOpenChange={(v) => setTopUpOpen(v)} currentBalance={creditBalance ?? 0} />
+  </>
   );
 }

@@ -186,8 +186,8 @@ export default function CreditPricingGuide() {
               },
               {
                 icon: <Film className="w-5 h-5" />,
-                name: "WizAnimate (Kids Video)",
-                description: "Animated educational videos for children",
+                name: "WizAnimate™",
+                description: "AI character animation studio",
                 cost: "50 credits per scene",
                 detail: "Higher quality rendering for kids content",
               },
