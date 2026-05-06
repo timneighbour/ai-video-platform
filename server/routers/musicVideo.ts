@@ -5,7 +5,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters, renderJobs } from "../../drizzle/schema";
+import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters, renderJobs, kidsVideoJobs, wizShortsJobs } from "../../drizzle/schema";
 import { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../_core/quotaError";
 import { eq, and, desc, inArray, gte, sql } from "drizzle-orm";
 
@@ -3714,6 +3714,112 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
   providerHealth: protectedProcedure.query(async () => {
     const { checkAllProviders } = await import("../provider-health");
     return checkAllProviders();
+  }),
+
+  // List all jobs across all studios (for Projects page unified view)
+  listAllJobs: protectedProcedure.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) return [];
+    const [musicJobs, kidsJobs, shortsJobs] = await Promise.all([
+      db.select({
+        id: musicVideoJobs.id,
+        title: musicVideoJobs.title,
+        status: musicVideoJobs.status,
+        thumbnailUrl: musicVideoJobs.thumbnailUrl,
+        finalVideoUrl: musicVideoJobs.finalVideoUrl,
+        createdAt: musicVideoJobs.createdAt,
+        creditCost: musicVideoJobs.creditCost,
+        isKidsVideo: musicVideoJobs.isKidsVideo,
+        aspectRatio: musicVideoJobs.aspectRatio,
+        audioUrl: musicVideoJobs.audioUrl,
+        audioDuration: musicVideoJobs.audioDuration,
+        genre: musicVideoJobs.genre,
+        mood: musicVideoJobs.mood,
+        isPublic: musicVideoJobs.isPublic,
+        shareSlug: musicVideoJobs.shareSlug,
+        totalScenes: musicVideoJobs.totalScenes,
+        completedScenes: musicVideoJobs.completedScenes,
+      }).from(musicVideoJobs)
+        .where(eq(musicVideoJobs.userId, ctx.user.id))
+        .orderBy(desc(musicVideoJobs.createdAt))
+        .limit(100),
+      db.select({
+        id: kidsVideoJobs.id,
+        storyPrompt: kidsVideoJobs.storyPrompt,
+        renderStatus: kidsVideoJobs.renderStatus,
+        videoUrl: kidsVideoJobs.videoUrl,
+        createdAt: kidsVideoJobs.createdAt,
+        creditsCharged: kidsVideoJobs.creditsCharged,
+      }).from(kidsVideoJobs)
+        .where(eq(kidsVideoJobs.userId, ctx.user.id))
+        .orderBy(desc(kidsVideoJobs.createdAt))
+        .limit(50),
+      db.select({
+        id: wizShortsJobs.id,
+        topic: wizShortsJobs.topic,
+        shortsStatus: wizShortsJobs.status,
+        videoUrl: wizShortsJobs.videoUrl,
+        createdAt: wizShortsJobs.createdAt,
+        creditCost: wizShortsJobs.creditCost,
+      }).from(wizShortsJobs)
+        .where(eq(wizShortsJobs.userId, ctx.user.id))
+        .orderBy(desc(wizShortsJobs.createdAt))
+        .limit(50),
+    ]);
+    type StudioType = "music_video" | "wizanimate" | "wiz_shorts";
+    type NormStatus = "draft" | "rendering" | "completed" | "failed" | "storyboard_ready";
+    const normaliseKidsStatus = (s: string): NormStatus =>
+      s === "completed" ? "completed" : s === "processing" ? "rendering" : s === "failed" ? "failed" : "draft";
+    const normaliseShortsStatus = (s: string): NormStatus =>
+      s === "complete" ? "completed" : s === "failed" ? "failed" : (s === "rendering" || s === "assembling") ? "rendering" : "draft";
+    const result = [
+      ...musicJobs.map(j => ({
+        id: j.id,
+        title: j.title,
+        status: j.status as NormStatus,
+        thumbnailUrl: j.thumbnailUrl,
+        finalVideoUrl: j.finalVideoUrl,
+        createdAt: j.createdAt,
+        creditCost: j.creditCost,
+        studioType: (j.isKidsVideo ? "wizanimate" : "music_video") as StudioType,
+        studioUrl: j.isKidsVideo ? "/kids-video" : "/music-video/create",
+        jobParam: `jobId=${j.id}`,
+        audioUrl: j.audioUrl ?? null,
+        audioDuration: j.audioDuration ?? null,
+        genre: j.genre ?? null,
+        mood: j.mood ?? null,
+        isPublic: j.isPublic ?? false,
+        shareSlug: j.shareSlug ?? null,
+        totalScenes: j.totalScenes ?? 0,
+        completedScenes: j.completedScenes ?? 0,
+        failedScenes: 0,
+      })),
+      ...kidsJobs.map(j => ({
+        id: j.id,
+        title: j.storyPrompt.slice(0, 60) + (j.storyPrompt.length > 60 ? "…" : ""),
+        status: normaliseKidsStatus(j.renderStatus),
+        thumbnailUrl: j.videoUrl,
+        finalVideoUrl: j.videoUrl,
+        createdAt: j.createdAt,
+        creditCost: j.creditsCharged,
+        studioType: "wizanimate" as StudioType,
+        studioUrl: "/kids-video",
+        jobParam: `jobId=${j.id}`,
+      })),
+      ...shortsJobs.map(j => ({
+        id: j.id,
+        title: j.topic,
+        status: normaliseShortsStatus(j.shortsStatus),
+        thumbnailUrl: j.videoUrl,
+        finalVideoUrl: j.videoUrl,
+        createdAt: j.createdAt,
+        creditCost: j.creditCost,
+        studioType: "wiz_shorts" as StudioType,
+        studioUrl: "/wiz-shorts",
+        jobParam: `jobId=${j.id}`,
+      })),
+    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return result;
   }),
 
   // List all public videos (for sitemap)

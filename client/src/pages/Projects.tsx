@@ -1,14 +1,13 @@
-import { WIZVIDEO_STUDIO_PAGE, WIZPILOT_STUDIO_PAGE } from "@/lib/routes";
+import {
+  WIZVIDEO_STUDIO_PAGE,
+  WIZPILOT_STUDIO_PAGE,
+  WIZSHORTS_STUDIO_PAGE,
+  WIZANIMATE_STUDIO_PAGE,
+  WIZSCRIPT_STUDIO_PAGE,
+} from "@/lib/routes";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,7 +39,6 @@ import {
   Globe,
   Link2,
   Plus,
-  Eye,
 } from "@/lib/icons";
 import { useEffect, useState, useMemo } from "react";
 import { useLocation } from "wouter";
@@ -51,47 +49,52 @@ import CreditBalance from "@/components/CreditBalance";
 /* ─────────────────────────────────────────────────────────────────────────── */
 /*  Types                                                                       */
 /* ─────────────────────────────────────────────────────────────────────────── */
+type StudioType = "music_video" | "wizanimate" | "wiz_shorts" | "generated";
+
+type UnifiedJob = {
+  id: number;
+  title: string;
+  status: string;
+  thumbnailUrl: string | null | undefined;
+  finalVideoUrl: string | null | undefined;
+  createdAt: Date;
+  creditCost: number;
+  studioType: StudioType;
+  studioUrl: string;
+  jobParam: string;
+  // music-video-only extras (optional)
+  totalScenes?: number;
+  completedScenes?: number;
+  failedScenes?: number;
+  renderingScenes?: number;
+  audioDuration?: number | null;
+  genre?: string | null;
+  mood?: string | null;
+  isPublic?: boolean;
+  shareSlug?: string | null;
+  audioUrl?: string | null;
+  toolType?: string;
+  outputUrl?: string | null;
+};
+
+type FilterTab = "all" | "active" | "completed" | "draft";
+
+const STUDIO_LABELS: Record<StudioType, string> = {
+  music_video: "WizVideo™",
+  wizanimate: "WizAnimate™",
+  wiz_shorts: "WizShorts™",
+  generated: "WizPilot™",
+};
+
 const TOOL_LABELS: Record<string, string> = {
-  text_to_video: "WizScript",
+  text_to_video: "WizPilot™",
   lip_sync: "Lip Sync",
   video_to_video: "Video to Video",
   voiceover: "Voiceover",
   musetalk_lip_sync: "Lip Sync",
-  seedance_t2v: "WizScript",
+  seedance_t2v: "WizScript™",
   seedance_i2v: "WizImage to Video",
 };
-
-type Project = {
-  id: number;
-  title: string;
-  description: string | null;
-  toolType: string;
-  status: "pending" | "processing" | "completed" | "failed";
-  outputUrl: string | null;
-  creditCost: number;
-  createdAt: Date;
-};
-
-type MusicVideoJob = {
-  id: number;
-  title: string;
-  status: string;
-  audioUrl: string | null;
-  finalVideoUrl: string | null;
-  audioDuration: number | null;
-  totalScenes: number;
-  completedScenes: number;
-  failedScenes: number;
-  renderingScenes: number;
-  createdAt: Date;
-  genre: string | null;
-  mood: string | null;
-  isPublic?: boolean;
-  shareSlug?: string | null;
-  thumbnailUrl?: string | null;
-};
-
-type FilterTab = "all" | "active" | "completed" | "draft";
 
 /* ─────────────────────────────────────────────────────────────────────────── */
 /*  Helpers                                                                     */
@@ -106,7 +109,7 @@ function timeAgo(date: Date): string {
   return new Date(date).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
-function formatDuration(seconds: number | null): string {
+function formatDuration(seconds: number | null | undefined): string {
   if (!seconds) return "";
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
@@ -147,7 +150,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────── */
-/*  PrimaryCTA — status-driven action button                                   */
+/*  PrimaryCTA                                                                  */
 /* ─────────────────────────────────────────────────────────────────────────── */
 function PrimaryCTA({
   status, onContinue, onWatch, onRender, large = false,
@@ -197,7 +200,7 @@ function PrimaryCTA({
 }
 
 /* ─────────────────────────────────────────────────────────────────────────── */
-/*  Scene dots — visual progress for music video scenes                        */
+/*  Scene dots                                                                  */
 /* ─────────────────────────────────────────────────────────────────────────── */
 function SceneDots({ total, completed, failed }: { total: number; completed: number; failed: number }) {
   if (total <= 0) return null;
@@ -229,40 +232,40 @@ function SceneDots({ total, completed, failed }: { total: number; completed: num
 export default function Projects() {
   const { isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
-  const [activeTab, setActiveTab] = useState<"music_videos" | "generated">("music_videos");
   const [filter, setFilter] = useState<FilterTab>("all");
-  const [previewProject, setPreviewProject] = useState<Project | null>(null);
-  const [deleteProjectId, setDeleteProjectId] = useState<number | null>(null);
   const [deleteMusicJobId, setDeleteMusicJobId] = useState<number | null>(null);
   const utils = trpc.useUtils();
 
   /* ── Data ─────────────────────────────────────────────────────────────── */
-  const { data: projects, isLoading: projectsLoading, refetch: refetchProjects } =
-    trpc.billing.getProjects.useQuery(
-      { limit: 50 },
-      { enabled: isAuthenticated && activeTab === "generated", refetchInterval: 8000 }
-    );
-
   const { data: creditData } = trpc.billing.getCredits.useQuery(undefined, { enabled: isAuthenticated });
 
-  const deleteProjectMutation = trpc.billing.deleteProject.useMutation({
-    onSuccess: () => { toast.success("Project deleted."); utils.billing.getProjects.invalidate(); setDeleteProjectId(null); },
-    onError: (err) => { toast.error(err.message || "Failed to delete."); setDeleteProjectId(null); },
-  });
-
-  const { data: musicJobs, isLoading: musicLoading, refetch: refetchMusic } =
-    trpc.musicVideo.listJobs.useQuery(undefined, {
-      enabled: isAuthenticated && activeTab === "music_videos",
-      refetchInterval: 5000,
+  // Unified jobs list (music videos + WizShorts + WizAnimate)
+  const { data: allJobs, isLoading: allJobsLoading, refetch: refetchAll } =
+    trpc.musicVideo.listAllJobs.useQuery(undefined, {
+      enabled: isAuthenticated,
+      refetchInterval: 8000,
     });
 
+  // Generated projects (Autopilot / TextToVideoCreator)
+  const { data: generatedProjects, isLoading: generatedLoading, refetch: refetchGenerated } =
+    trpc.billing.getProjects.useQuery(
+      { limit: 50 },
+      { enabled: isAuthenticated, refetchInterval: 8000 }
+    );
+
   const deleteMusicJobMutation = trpc.musicVideo.deleteJob.useMutation({
-    onSuccess: () => { toast.success("Music video deleted."); utils.musicVideo.listJobs.invalidate(); setDeleteMusicJobId(null); },
+    onSuccess: () => {
+      toast.success("Project deleted.");
+      utils.musicVideo.listAllJobs.invalidate();
+      utils.musicVideo.listJobs.invalidate();
+      setDeleteMusicJobId(null);
+    },
     onError: (err) => { toast.error(err.message || "Failed to delete."); setDeleteMusicJobId(null); },
   });
 
   const togglePublicMutation = trpc.musicVideo.togglePublic.useMutation({
     onSuccess: (data) => {
+      utils.musicVideo.listAllJobs.invalidate();
       utils.musicVideo.listJobs.invalidate();
       if (data.shareSlug) {
         const url = `${window.location.origin}/watch/${data.shareSlug}`;
@@ -277,90 +280,94 @@ export default function Projects() {
 
   useEffect(() => { if (!isAuthenticated) setLocation("/"); }, [isAuthenticated, setLocation]);
 
-  /* ── Sorted lists ─────────────────────────────────────────────────────── */
-  const sortedMusicJobs = useMemo(() => {
-    if (!musicJobs) return [];
-    return [...musicJobs].sort((a, b) => {
+  /* ── Build unified list ─────────────────────────────────────────────── */
+  const unifiedJobs = useMemo((): UnifiedJob[] => {
+    const jobs: UnifiedJob[] = [];
+
+    // From listAllJobs (music videos, WizShorts, WizAnimate)
+    if (allJobs) {
+      for (const j of allJobs) {
+        jobs.push({
+          id: j.id,
+          title: j.title,
+          status: j.status,
+          thumbnailUrl: j.thumbnailUrl,
+          finalVideoUrl: j.finalVideoUrl,
+          createdAt: j.createdAt,
+          creditCost: j.creditCost,
+          studioType: j.studioType as StudioType,
+          studioUrl: j.studioUrl,
+          jobParam: j.jobParam,
+        });
+      }
+    }
+
+    // From getProjects (Autopilot / TextToVideoCreator / LipSync etc.)
+    if (generatedProjects) {
+      for (const p of generatedProjects) {
+        jobs.push({
+          id: p.id,
+          title: p.title,
+          status: p.status,
+          thumbnailUrl: null,
+          finalVideoUrl: p.outputUrl,
+          outputUrl: p.outputUrl,
+          createdAt: p.createdAt,
+          creditCost: p.creditCost,
+          studioType: "generated",
+          studioUrl: WIZPILOT_STUDIO_PAGE,
+          jobParam: `projectId=${p.id}`,
+          toolType: p.toolType,
+        });
+      }
+    }
+
+    return jobs.sort((a, b) => {
       const d = sortPriority(a.status) - sortPriority(b.status);
       return d !== 0 ? d : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-  }, [musicJobs]);
+  }, [allJobs, generatedProjects]);
 
-  const sortedProjects = useMemo(() => {
-    if (!projects) return [];
-    return [...projects].sort((a, b) => {
-      const d = sortPriority(a.status) - sortPriority(b.status);
-      return d !== 0 ? d : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-  }, [projects]);
+  /* ── Filtered list ──────────────────────────────────────────────────── */
+  const filteredJobs = useMemo(() => {
+    if (filter === "all") return unifiedJobs;
+    if (filter === "active") return unifiedJobs.filter(j => ["rendering","assembling","storyboard_ready","pending","queued","processing"].includes(j.status));
+    if (filter === "completed") return unifiedJobs.filter(j => j.status === "completed");
+    if (filter === "draft") return unifiedJobs.filter(j => j.status === "draft");
+    return unifiedJobs;
+  }, [unifiedJobs, filter]);
 
-  const filteredMusicJobs = useMemo(() => {
-    if (filter === "all") return sortedMusicJobs;
-    if (filter === "active") return sortedMusicJobs.filter(j => ["rendering","assembling","storyboard_ready","pending","queued"].includes(j.status));
-    if (filter === "completed") return sortedMusicJobs.filter(j => j.status === "completed");
-    if (filter === "draft") return sortedMusicJobs.filter(j => j.status === "draft");
-    return sortedMusicJobs;
-  }, [sortedMusicJobs, filter]);
-
-  const filteredProjects = useMemo(() => {
-    if (filter === "all") return sortedProjects;
-    if (filter === "active") return sortedProjects.filter(p => ["processing","pending"].includes(p.status));
-    if (filter === "completed") return sortedProjects.filter(p => p.status === "completed");
-    return sortedProjects;
-  }, [sortedProjects, filter]);
-
-  /* ── Counts ─────────────────────────────────────────────────────────────── */
-  const musicRenderingCount = musicJobs?.filter(j => ["rendering","assembling"].includes(j.status)).length ?? 0;
-  const pendingCount = projects?.filter(p => ["processing","pending"].includes(p.status)).length ?? 0;
-  const musicActiveCount = musicJobs?.filter(j => ["rendering","assembling","storyboard_ready","pending","draft"].includes(j.status)).length ?? 0;
-  const musicCompletedCount = musicJobs?.filter(j => j.status === "completed").length ?? 0;
-  const musicDraftCount = musicJobs?.filter(j => j.status === "draft").length ?? 0;
-  const projActiveCount = projects?.filter(p => ["processing","pending"].includes(p.status)).length ?? 0;
-  const projCompletedCount = projects?.filter(p => p.status === "completed").length ?? 0;
-
-  const totalCount = activeTab === "music_videos" ? (musicJobs?.length ?? 0) : (projects?.length ?? 0);
-  const isLoading = activeTab === "music_videos" ? musicLoading : projectsLoading;
-
-  /* ── Primary (hero) project ─────────────────────────────────────────────── */
-  const primaryMusicJob = sortedMusicJobs[0] ?? null;
-  const primaryProject = sortedProjects[0] ?? null;
+  /* ── Counts ─────────────────────────────────────────────────────────── */
+  const totalCount = unifiedJobs.length;
+  const activeCount = unifiedJobs.filter(j => ["rendering","assembling","storyboard_ready","pending","queued","processing"].includes(j.status)).length;
+  const completedCount = unifiedJobs.filter(j => j.status === "completed").length;
+  const draftCount = unifiedJobs.filter(j => j.status === "draft").length;
+  const isLoading = allJobsLoading || generatedLoading;
+  const renderingCount = unifiedJobs.filter(j => ["rendering","assembling","processing"].includes(j.status)).length;
 
   /* ── Handlers ─────────────────────────────────────────────────────────── */
-  const handleContinueMusicJob = (job: MusicVideoJob) => {
-    window.location.href = `${WIZVIDEO_STUDIO_PAGE}?jobId=${job.id}`;
+  const handleContinue = (job: UnifiedJob) => {
+    window.location.href = `${job.studioUrl}?${job.jobParam}`;
   };
 
-  const handleDownload = (project: Project) => {
-    if (!project.outputUrl) { toast.error("Video not ready yet."); return; }
-    const a = document.createElement("a");
-    a.href = project.outputUrl;
-    a.download = `${project.title.replace(/[^a-z0-9]/gi, "_")}.mp4`;
-    a.target = "_blank"; a.rel = "noopener noreferrer";
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    toast.success("Download started!");
+  const handleWatch = (job: UnifiedJob) => {
+    const url = job.finalVideoUrl ?? job.outputUrl;
+    if (!url) { toast.error("Video not ready yet."); return; }
+    window.open(url, "_blank");
   };
 
-  const handleMusicDownloadVideo = (job: MusicVideoJob) => {
-    if (!job.finalVideoUrl) { toast.error("Video not ready yet."); return; }
+  const handleDownload = (job: UnifiedJob) => {
+    const url = job.finalVideoUrl ?? job.outputUrl;
+    if (!url) { toast.error("Video not ready yet."); return; }
     const a = document.createElement("a");
-    a.href = job.finalVideoUrl;
+    a.href = url;
     a.download = `${job.title.replace(/[^a-z0-9]/gi, "_")}.mp4`;
     a.target = "_blank"; a.rel = "noopener noreferrer";
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     toast.success("Download started!");
   };
 
-  const handleMusicDownloadAudio = (job: MusicVideoJob) => {
-    if (!job.audioUrl) return;
-    const a = document.createElement("a");
-    a.href = job.audioUrl;
-    a.download = `${job.title.replace(/[^a-z0-9]/gi, "_")}_audio.mp3`;
-    a.target = "_blank"; a.rel = "noopener noreferrer";
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    toast.success("Audio download started!");
-  };
-
-  /* ── Sub-components ───────────────────────────────────────────────────── */
+  /* ── Sub-components ──────────────────────────────────────────────────── */
   const FilterPill = ({ value, label, count }: { value: FilterTab; label: string; count?: number }) => (
     <button
       onClick={() => setFilter(value)}
@@ -379,144 +386,19 @@ export default function Projects() {
     </button>
   );
 
-  /* ── Music Video Card ─────────────────────────────────────────────────── */
-  const MusicCard = ({ job, isPrimary = false }: { job: MusicVideoJob; isPrimary?: boolean }) => {
-    const progress = job.totalScenes ? Math.round((job.completedScenes / job.totalScenes) * 100) : 0;
-    const rendering = ["rendering","assembling"].includes(job.status);
+  /* ── Unified Project Card ─────────────────────────────────────────────── */
+  const ProjectCard = ({ job, isPrimary = false }: { job: UnifiedJob; isPrimary?: boolean }) => {
     const completed = job.status === "completed";
+    const rendering = ["rendering","assembling","processing"].includes(job.status);
+    const isMusicVideo = job.studioType === "music_video";
+    const videoUrl = job.finalVideoUrl ?? job.outputUrl;
+    const progress = (job.totalScenes && job.completedScenes != null)
+      ? Math.round((job.completedScenes / job.totalScenes) * 100)
+      : 0;
 
-    return (
-      <div className={`relative rounded-2xl border overflow-hidden transition-all duration-200 group ${
-        isPrimary
-          ? "border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/40 via-[#111118] to-[#4a3010]/20 shadow-xl shadow-[#b8892a]/15"
-          : completed
-          ? "border-[--color-silver]/20 bg-[#111118] hover:border-[--color-silver]/40/35 hover:shadow-lg hover:shadow-emerald-900/10"
-          : rendering
-          ? "border-[--color-gold]/30 bg-[#111118] shadow-md shadow-amber-900/10"
-          : "border-white/8 bg-[#111118] hover:border-white/15 hover:shadow-md"
-      }`}>
-        {/* Ambient glow for rendering */}
-        {rendering && <div className="absolute inset-0 bg-gradient-to-br from-[#b8892a]/5 to-transparent pointer-events-none" />}
-        {completed && <div className="absolute inset-0 bg-gradient-to-br from-[#9090a0]/4 to-transparent pointer-events-none" />}
-
-        <div className="p-5">
-          {/* Top row: badge + time */}
-          <div className="flex items-center justify-between mb-3">
-            <StatusBadge status={job.status} />
-            <span className="text-[11px] text-zinc-600">{timeAgo(job.createdAt)}</span>
-          </div>
-
-          {/* Thumbnail + info */}
-          <div className="flex gap-4">
-            <div className={`relative flex-shrink-0 w-24 h-16 rounded-xl overflow-hidden border ${
-              completed ? "border-[--color-silver]/25" : rendering ? "border-[--color-gold]/30" : "border-white/8"
-            } bg-zinc-900`}>
-              {completed && job.finalVideoUrl ? (
-                <>
-                  {job.thumbnailUrl ? (
-                    <img src={job.thumbnailUrl} alt={job.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <video src={job.finalVideoUrl} className="w-full h-full object-cover" muted playsInline preload="metadata" />
-                  )}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/15 transition-colors">
-                    <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                      <Play className="h-3.5 w-3.5 text-white fill-current ml-0.5" />
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-800 to-zinc-900">
-                  {rendering ? (
-                    <div className="relative">
-                      <Loader2 className="h-6 w-6 text-[--color-gold] animate-spin" />
-                      <div className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-[--color-gold] animate-pulse" />
-                    </div>
-                  ) : (
-                    <Music className="h-6 w-6 text-zinc-600" />
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-[15px] truncate leading-tight text-white mb-1">{job.title}</h3>
-              <div className="flex flex-wrap gap-x-2 text-[11px] text-zinc-500">
-                {job.genre && <span className="text-zinc-400">{job.genre}</span>}
-                {job.mood && <><span className="text-zinc-600">·</span><span>{job.mood}</span></>}
-                {job.audioDuration ? <><span className="text-zinc-600">·</span><span>{formatDuration(job.audioDuration)}</span></> : null}
-                <span className="text-zinc-600">·</span><span>{job.completedScenes}/{job.totalScenes} scenes</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Scene progress dots */}
-          {job.totalScenes > 0 && (rendering || completed || job.failedScenes > 0) && (
-            <SceneDots total={job.totalScenes} completed={job.completedScenes} failed={job.failedScenes} />
-          )}
-
-          {/* Render progress bar */}
-          {rendering && job.totalScenes > 0 && (
-            <div className="mt-3">
-              <div className="flex justify-between text-[11px] mb-1.5">
-                <span className="text-[--color-gold] font-medium flex items-center gap-1">
-                  <Loader2 className="h-3 w-3 animate-spin" /> Rendering your video…
-                </span>
-                <span className="text-zinc-500">{progress}%{job.totalScenes - job.completedScenes > 0 && ` · ~${Math.ceil((job.totalScenes - job.completedScenes) * 8)}s`}</span>
-              </div>
-              <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-[#b8892a] to-orange-500 transition-all duration-700" style={{ width: `${Math.max(progress, 3)}%` }} />
-              </div>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="mt-4 pt-3 border-t border-white/5 flex items-center gap-2 flex-wrap">
-            <PrimaryCTA
-              status={job.status}
-              onContinue={() => handleContinueMusicJob(job)}
-              onWatch={() => job.finalVideoUrl ? window.open(job.finalVideoUrl, "_blank") : toast.error("Video not ready yet.")}
-              large={isPrimary}
-            />
-            {completed && job.finalVideoUrl && (
-              <Button size="sm" variant="outline" onClick={() => handleMusicDownloadVideo(job)} className="gap-1.5 border-white/12 text-zinc-400 hover:bg-white/8 hover:text-white h-9 text-xs rounded-lg">
-                <Download className="h-3.5 w-3.5" /> Download
-              </Button>
-            )}
-            {job.audioUrl && (
-              <Button size="sm" variant="outline" onClick={() => handleMusicDownloadAudio(job)} className="gap-1.5 border-white/12 text-zinc-400 hover:bg-white/8 hover:text-white h-9 text-xs rounded-lg">
-                <Music className="h-3.5 w-3.5" /> Audio
-              </Button>
-            )}
-            {completed && job.finalVideoUrl && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => togglePublicMutation.mutate({ jobId: job.id, isPublic: !job.isPublic })}
-                disabled={togglePublicMutation.isPending}
-                className={`gap-1.5 border-white/12 hover:bg-white/8 h-9 text-xs rounded-lg ${
-                  job.isPublic
-                    ? "text-[--color-silver] border-[--color-silver]/25 hover:text-[--color-silver]"
-                    : "text-zinc-400 hover:text-white"
-                }`}
-                title={job.isPublic ? "Public — click to make private" : "Make public for Google indexing"}
-              >
-                {job.isPublic ? <Link2 className="h-3.5 w-3.5" /> : <Globe className="h-3.5 w-3.5" />}
-                {job.isPublic ? "Public" : "Share"}
-              </Button>
-            )}
-            <button onClick={() => setDeleteMusicJobId(job.id)} className="ml-auto p-2 rounded-lg text-zinc-700 hover:text-red-400 hover:bg-red-500/8 transition-colors" title="Delete">
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  /* ── Generated Video Card ─────────────────────────────────────────────── */
-  const GeneratedCard = ({ project, isPrimary = false }: { project: Project; isPrimary?: boolean }) => {
-    const completed = project.status === "completed";
-    const rendering = ["processing","pending"].includes(project.status);
+    const studioLabel = job.studioType === "generated" && job.toolType
+      ? (TOOL_LABELS[job.toolType] ?? STUDIO_LABELS[job.studioType])
+      : STUDIO_LABELS[job.studioType];
 
     return (
       <div className={`relative rounded-2xl border overflow-hidden transition-all duration-200 group ${
@@ -534,8 +416,11 @@ export default function Projects() {
         <div className="p-5">
           {/* Top row */}
           <div className="flex items-center justify-between mb-3">
-            <StatusBadge status={project.status} />
-            <span className="text-[11px] text-zinc-600">{timeAgo(project.createdAt)}</span>
+            <div className="flex items-center gap-2">
+              <StatusBadge status={job.status} />
+              <span className="text-[10px] text-zinc-600 font-medium bg-white/5 px-2 py-0.5 rounded-full">{studioLabel}</span>
+            </div>
+            <span className="text-[11px] text-zinc-600">{timeAgo(job.createdAt)}</span>
           </div>
 
           {/* Thumbnail + info */}
@@ -543,9 +428,13 @@ export default function Projects() {
             <div className={`relative flex-shrink-0 w-24 h-16 rounded-xl overflow-hidden border ${
               completed ? "border-[--color-silver]/25" : rendering ? "border-[--color-gold]/30" : "border-white/8"
             } bg-zinc-900`}>
-              {completed && project.outputUrl ? (
+              {completed && videoUrl ? (
                 <>
-                  <video src={project.outputUrl} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+                  {job.thumbnailUrl ? (
+                    <img src={job.thumbnailUrl} alt={job.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <video src={videoUrl} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+                  )}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/15 transition-colors">
                     <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
                       <Play className="h-3.5 w-3.5 text-white fill-current ml-0.5" />
@@ -560,23 +449,47 @@ export default function Projects() {
                       <div className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-[--color-gold] animate-pulse" />
                     </div>
                   ) : (
-                    <Wand2 className="h-6 w-6 text-zinc-600" />
+                    isMusicVideo ? <Music className="h-6 w-6 text-zinc-600" /> : <Wand2 className="h-6 w-6 text-zinc-600" />
                   )}
                 </div>
               )}
             </div>
 
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-[15px] truncate leading-tight text-white mb-1">{project.title}</h3>
+              <h3 className="font-bold text-[15px] truncate leading-tight text-white mb-1">{job.title}</h3>
               <div className="flex flex-wrap gap-x-2 text-[11px] text-zinc-500">
-                <span className="text-zinc-400">{TOOL_LABELS[project.toolType] ?? project.toolType}</span>
-                <span className="text-zinc-600">·</span><span>{project.creditCost} credits</span>
+                {job.genre && <span className="text-zinc-400">{job.genre}</span>}
+                {job.mood && <><span className="text-zinc-600">·</span><span>{job.mood}</span></>}
+                {job.audioDuration ? <><span className="text-zinc-600">·</span><span>{formatDuration(job.audioDuration)}</span></> : null}
+                {isMusicVideo && job.totalScenes != null && job.completedScenes != null && (
+                  <><span className="text-zinc-600">·</span><span>{job.completedScenes}/{job.totalScenes} scenes</span></>
+                )}
+                {!isMusicVideo && <><span className="text-zinc-600">·</span><span>{job.creditCost} credits</span></>}
               </div>
             </div>
           </div>
 
-          {/* Processing indicator */}
-          {rendering && (
+          {/* Scene progress dots (music video only) */}
+          {isMusicVideo && job.totalScenes != null && job.totalScenes > 0 && (rendering || completed || (job.failedScenes ?? 0) > 0) && (
+            <SceneDots total={job.totalScenes} completed={job.completedScenes ?? 0} failed={job.failedScenes ?? 0} />
+          )}
+
+          {/* Render progress bar */}
+          {rendering && isMusicVideo && job.totalScenes != null && job.totalScenes > 0 && (
+            <div className="mt-3">
+              <div className="flex justify-between text-[11px] mb-1.5">
+                <span className="text-[--color-gold] font-medium flex items-center gap-1">
+                  <Loader2 className="h-3 w-3 animate-spin" /> Rendering your video…
+                </span>
+                <span className="text-zinc-500">{progress}%{(job.totalScenes - (job.completedScenes ?? 0)) > 0 && ` · ~${Math.ceil((job.totalScenes - (job.completedScenes ?? 0)) * 8)}s`}</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-[#b8892a] to-orange-500 transition-all duration-700" style={{ width: `${Math.max(progress, 3)}%` }} />
+              </div>
+            </div>
+          )}
+
+          {rendering && !isMusicVideo && (
             <div className="mt-3">
               <div className="flex justify-between text-[11px] mb-1.5">
                 <span className="text-[--color-gold] font-medium flex items-center gap-1">
@@ -593,19 +506,50 @@ export default function Projects() {
           {/* Actions */}
           <div className="mt-4 pt-3 border-t border-white/5 flex items-center gap-2 flex-wrap">
             <PrimaryCTA
-              status={project.status}
-              onContinue={() => toast.info("Opening project…")}
-              onWatch={() => setPreviewProject(project)}
+              status={job.status}
+              onContinue={() => handleContinue(job)}
+              onWatch={() => handleWatch(job)}
               large={isPrimary}
             />
-            {completed && project.outputUrl && (
-              <Button size="sm" variant="outline" onClick={() => handleDownload(project)} className="gap-1.5 border-white/12 text-zinc-400 hover:bg-white/8 hover:text-white h-9 text-xs rounded-lg">
+            {completed && videoUrl && (
+              <Button size="sm" variant="outline" onClick={() => handleDownload(job)} className="gap-1.5 border-white/12 text-zinc-400 hover:bg-white/8 hover:text-white h-9 text-xs rounded-lg">
                 <Download className="h-3.5 w-3.5" /> Download
               </Button>
             )}
-            <button onClick={() => setDeleteProjectId(project.id)} className="ml-auto p-2 rounded-lg text-zinc-700 hover:text-red-400 hover:bg-red-500/8 transition-colors" title="Delete">
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
+            {isMusicVideo && job.audioUrl && (
+              <Button size="sm" variant="outline" onClick={() => {
+                const a = document.createElement("a");
+                a.href = job.audioUrl!;
+                a.download = `${job.title.replace(/[^a-z0-9]/gi, "_")}_audio.mp3`;
+                a.target = "_blank"; a.rel = "noopener noreferrer";
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                toast.success("Audio download started!");
+              }} className="gap-1.5 border-white/12 text-zinc-400 hover:bg-white/8 hover:text-white h-9 text-xs rounded-lg">
+                <Music className="h-3.5 w-3.5" /> Audio
+              </Button>
+            )}
+            {isMusicVideo && completed && videoUrl && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => togglePublicMutation.mutate({ jobId: job.id, isPublic: !job.isPublic })}
+                disabled={togglePublicMutation.isPending}
+                className={`gap-1.5 border-white/12 hover:bg-white/8 h-9 text-xs rounded-lg ${
+                  job.isPublic
+                    ? "text-[--color-silver] border-[--color-silver]/25 hover:text-[--color-silver]"
+                    : "text-zinc-400 hover:text-white"
+                }`}
+                title={job.isPublic ? "Public — click to make private" : "Make public for Google indexing"}
+              >
+                {job.isPublic ? <Link2 className="h-3.5 w-3.5" /> : <Globe className="h-3.5 w-3.5" />}
+                {job.isPublic ? "Public" : "Share"}
+              </Button>
+            )}
+            {isMusicVideo && (
+              <button onClick={() => setDeleteMusicJobId(job.id)} className="ml-auto p-2 rounded-lg text-zinc-700 hover:text-red-400 hover:bg-red-500/8 transition-colors" title="Delete">
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -616,16 +560,14 @@ export default function Projects() {
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-24 text-center">
       <div className="w-20 h-20 rounded-2xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center mb-5">
-        {activeTab === "music_videos" ? <Music className="h-9 w-9 text-[--color-gold]" /> : <Wand2 className="h-9 w-9 text-[--color-gold]" />}
+        <Film className="h-9 w-9 text-[--color-gold]" />
       </div>
       <h3 className="text-xl font-bold text-white mb-2">No projects yet</h3>
       <p className="text-zinc-500 text-sm mb-8 max-w-xs leading-relaxed">
-        {activeTab === "music_videos"
-          ? "Create your first AI music video — upload a song and let WIZ AI handle the rest."
-          : "Generate your first AI video from a text prompt in seconds."}
+        Create your first AI video — choose a tool and let WIZ AI handle the rest.
       </p>
       <a
-        href={activeTab === "music_videos" ? WIZVIDEO_STUDIO_PAGE : WIZPILOT_STUDIO_PAGE}
+        href={WIZVIDEO_STUDIO_PAGE}
         className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white font-semibold px-7 py-3 transition-all shadow-lg shadow-[#b8892a]/25 text-sm"
       >
         <Sparkles className="h-4 w-4" />
@@ -636,9 +578,7 @@ export default function Projects() {
   );
 
   /* ── Page ───────────────────────────────────────────────────────────────── */
-  const activeCount = activeTab === "music_videos" ? musicActiveCount : projActiveCount;
-  const completedCount = activeTab === "music_videos" ? musicCompletedCount : projCompletedCount;
-  const draftCount = activeTab === "music_videos" ? musicDraftCount : 0;
+  const primaryJob = filteredJobs[0] ?? null;
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -654,34 +594,14 @@ export default function Projects() {
             <h1 className="text-base font-bold text-white tracking-tight">My Projects</h1>
           </div>
           <div className="flex items-center gap-2">
-            {(activeTab === "generated" ? pendingCount : musicRenderingCount) > 0 && (
-              <button onClick={() => activeTab === "generated" ? refetchProjects() : refetchMusic()} className="flex items-center gap-1.5 text-[11px] text-zinc-500 hover:text-white transition-colors px-2 py-1.5 rounded-lg hover:bg-white/5">
+            {renderingCount > 0 && (
+              <button onClick={() => { refetchAll(); refetchGenerated(); }} className="flex items-center gap-1.5 text-[11px] text-zinc-500 hover:text-white transition-colors px-2 py-1.5 rounded-lg hover:bg-white/5">
                 <RefreshCw className="h-3 w-3" />
                 <span className="hidden sm:inline">Refresh</span>
               </button>
             )}
             <CreditBalance variant="badge" />
           </div>
-        </div>
-        {/* Tab bar */}
-        <div className="max-w-4xl mx-auto px-4 flex gap-0 pb-0">
-          {(["music_videos", "generated"] as const).map(tab => (
-            <button
-              key={tab}
-              onClick={() => { setActiveTab(tab); setFilter("all"); }}
-              className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors ${
-                activeTab === tab ? "border-[--color-gold] text-white" : "border-transparent text-zinc-500 hover:text-zinc-300"
-              }`}
-            >
-              {tab === "music_videos" ? <><Music className="h-3.5 w-3.5" /> Music Videos</> : <><Zap className="h-3.5 w-3.5" /> Generated Videos</>}
-              {tab === "music_videos" && (musicJobs?.length ?? 0) > 0 && (
-                <span className="rounded-full bg-[--color-gold]/15 text-[--color-gold] text-[10px] px-1.5 py-0.5 leading-none font-bold">{musicJobs!.length}</span>
-              )}
-              {tab === "generated" && (projects?.length ?? 0) > 0 && (
-                <span className="rounded-full bg-[--color-gold]/15 text-[--color-gold] text-[10px] px-1.5 py-0.5 leading-none font-bold">{projects!.length}</span>
-              )}
-            </button>
-          ))}
         </div>
       </div>
 
@@ -710,14 +630,13 @@ export default function Projects() {
         ) : (
           <>
             {/* ── Hero: Continue last project ─────────────────────────────── */}
-            {((activeTab === "music_videos" && primaryMusicJob) || (activeTab === "generated" && primaryProject)) && (
+            {primaryJob && filter === "all" && (
               <div className="mb-8">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
                   <span className="text-xs font-semibold text-[--color-gold] uppercase tracking-widest">Continue where you left off</span>
                 </div>
-                {activeTab === "music_videos" && primaryMusicJob && <MusicCard job={primaryMusicJob} isPrimary />}
-                {activeTab === "generated" && primaryProject && <GeneratedCard project={primaryProject} isPrimary />}
+                <ProjectCard job={primaryJob} isPrimary />
               </div>
             )}
 
@@ -732,13 +651,13 @@ export default function Projects() {
             )}
 
             {/* ── Project list ─────────────────────────────────────────────── */}
-            {(activeTab === "music_videos" ? filteredMusicJobs : filteredProjects).length === 0 ? (
+            {filteredJobs.length === 0 ? (
               <div className="text-center py-16 text-zinc-500 text-sm">No projects match this filter.</div>
             ) : (
               <div className="flex flex-col gap-3">
-                {activeTab === "music_videos"
-                  ? filteredMusicJobs.map(job => <MusicCard key={job.id} job={job} />)
-                  : filteredProjects.map(project => <GeneratedCard key={project.id} project={project} />)
+                {filteredJobs
+                  .slice(filter === "all" ? 1 : 0)
+                  .map(job => <ProjectCard key={`${job.studioType}-${job.id}`} job={job} />)
                 }
               </div>
             )}
@@ -746,7 +665,7 @@ export default function Projects() {
             {/* ── New project CTA ─────────────────────────────────────────── */}
             <div className="mt-10 pt-6 border-t border-white/5 flex justify-center">
               <a
-                href={activeTab === "music_videos" ? WIZVIDEO_STUDIO_PAGE : WIZPILOT_STUDIO_PAGE}
+                href={WIZVIDEO_STUDIO_PAGE}
                 className="inline-flex items-center gap-2 rounded-xl bg-white/5 hover:bg-white/8 border border-white/8 hover:border-[--color-gold]/30 text-zinc-400 hover:text-white font-medium px-6 py-3 transition-all text-sm"
               >
                 <Plus className="h-4 w-4 text-[--color-gold]" />
@@ -758,51 +677,12 @@ export default function Projects() {
         )}
       </div>
 
-      {/* ── Preview Modal ───────────────────────────────────────────────────── */}
-      <Dialog open={!!previewProject} onOpenChange={(open) => !open && setPreviewProject(null)}>
-        <DialogContent className="max-w-3xl w-full bg-[#111118] border-white/10 p-0 overflow-hidden rounded-2xl">
-          <DialogHeader className="px-6 pt-6 pb-3">
-            <DialogTitle className="text-white text-lg font-bold">{previewProject?.title}</DialogTitle>
-            <DialogDescription className="text-zinc-500 text-sm">
-              {TOOL_LABELS[previewProject?.toolType ?? ""] ?? previewProject?.toolType} · {previewProject?.creditCost} credits · {previewProject?.createdAt ? new Date(previewProject.createdAt).toLocaleDateString() : ""}
-            </DialogDescription>
-          </DialogHeader>
-          {previewProject?.outputUrl && (
-            <div className="bg-black aspect-video w-full">
-              <video src={previewProject.outputUrl} controls autoPlay muted playsInline className="w-full h-full object-contain" />
-            </div>
-          )}
-          <div className="flex gap-3 px-6 py-5">
-            <Button onClick={() => previewProject && handleDownload(previewProject)} className="gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white border-0 flex-1 h-11 rounded-xl font-semibold">
-              <Download className="h-4 w-4" /> Download Video
-            </Button>
-            <Button variant="outline" onClick={() => setPreviewProject(null)} className="border-white/15 text-white hover:bg-white/8 h-11 rounded-xl">Close</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── Delete Generated ────────────────────────────────────────────────── */}
-      <AlertDialog open={deleteProjectId !== null} onOpenChange={(open) => !open && setDeleteProjectId(null)}>
-        <AlertDialogContent className="bg-[#111118] border-white/10 rounded-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Delete this project?</AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-500">This will permanently delete the project and its video. This cannot be undone.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="border-white/15 text-white hover:bg-white/8 bg-transparent rounded-xl">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteProjectId !== null && deleteProjectMutation.mutate({ projectId: deleteProjectId })} disabled={deleteProjectMutation.isPending} className="bg-red-600 hover:bg-red-500 text-white border-0 rounded-xl">
-              {deleteProjectMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />} Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
       {/* ── Delete Music Video ──────────────────────────────────────────────── */}
       <AlertDialog open={deleteMusicJobId !== null} onOpenChange={(open) => !open && setDeleteMusicJobId(null)}>
         <AlertDialogContent className="bg-[#111118] border-white/10 rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Delete this music video?</AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-500">This will permanently delete the project, all scenes, and any generated video.</AlertDialogDescription>
+            <AlertDialogTitle className="text-white">Delete this project?</AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-500">This will permanently delete the project, all scenes, and any generated video. This cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="border-white/15 text-white hover:bg-white/8 bg-transparent rounded-xl">Cancel</AlertDialogCancel>

@@ -11,6 +11,8 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { QuickTopUpModal } from "@/components/QuickTopUpModal";
+import { useCreditGuard } from "@/hooks/useCreditGuard";
 import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -422,6 +424,9 @@ export default function WizSyncPage() {
 
   useSEO({ title: "WizSync™ — AI Voice to Character Assignment — WIZ AI", path: "/wizsync", description: "Automatically assign voices to characters in your AI video. WizSync™ analyses your audio and maps each voice to the right character for perfect lip-sync.", noindex: true });
   const { user, loading: authLoading } = useAuth();
+  const { balance: creditBalance } = useCreditGuard();
+  const [topUpOpen, setTopUpOpen] = useState(false);
+  const WIZSYNC_CREDIT_COST = 5;
   // Studio entry tracking — fires once when an authenticated user lands on this page
   useEffect(() => { if (user) { mp.studioEntered("WizSync"); } }, [user]);
 
@@ -1070,6 +1075,27 @@ export default function WizSyncPage() {
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                     Previews are free — 5 Build Credits are used for a full render
                   </div>
+                  {/* Credit balance panel */}
+                  {user && (
+                    <div className="mt-3 rounded-xl border px-3 py-2.5" style={{ background: "rgba(184,137,42,0.06)", borderColor: "rgba(184,137,42,0.25)" }}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <Zap className="w-3.5 h-3.5" style={{ color: "#b8892a" }} />
+                          <span className="text-[11px] font-semibold" style={{ color: "#b8892a" }}>Full Render — 5 credits</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[11px] font-bold text-white">{creditBalance.toLocaleString()}</span>
+                          <span className="text-[10px] text-white/40 ml-1">balance</span>
+                        </div>
+                      </div>
+                      {creditBalance < WIZSYNC_CREDIT_COST && (
+                        <div className="mt-2 flex items-center justify-between">
+                          <span className="text-[10px] text-red-400">Need {WIZSYNC_CREDIT_COST - creditBalance} more credits</span>
+                          <button onClick={() => setTopUpOpen(true)} className="text-[10px] font-semibold px-2 py-0.5 rounded-lg text-white" style={{ background: "#b8892a" }}>Top up →</button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                   {/* Full render result */}
                   {fullRenderStatus === "completed" && fullRenderUrl && (
                     <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
@@ -1172,9 +1198,14 @@ export default function WizSyncPage() {
               </div>
             ))}
           </div>
-        </div>
-
+         </div>
       </div>
+      <QuickTopUpModal
+        open={topUpOpen}
+        onOpenChange={setTopUpOpen}
+        currentBalance={creditBalance}
+        estimatedCost={WIZSYNC_CREDIT_COST}
+      />
     </div>
   );
 }

@@ -10,9 +10,11 @@ import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import { useSEO } from "@/hooks/useSEO";
 import {
-  ImageIcon, Loader2, ChevronRight,
+  ImageIcon, Loader2, ChevronRight, Zap,
 } from "@/lib/icons";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
+import { QuickTopUpModal } from "@/components/QuickTopUpModal";
+import { useCreditGuard } from "@/hooks/useCreditGuard";
 
 // ─── Accent / Theme Tokens ────────────────────────────────────────────────────
 const A = "#6366f1";          // indigo-500
@@ -71,8 +73,10 @@ const EXPORT_FORMATS = ["PNG", "JPEG", "TIFF", "PSD", "SVG", "WEBP"];
 
 export default function WizImage() {
   useSEO({ title: "WizImage™ — AI Visual Creator", path: "/wiz-image", description: "Create stunning AI visuals: album covers, band photos, tour posters, merch designs and more. Powered by WizImage™ AI Visual Creator.", noindex: true });
-  const { user, loading: authLoading } = useAuth();
-
+   const { user, loading: authLoading } = useAuth();
+  const { balance: creditBalance } = useCreditGuard();
+  const [topUpOpen, setTopUpOpen] = useState(false);
+  const CREDITS_PER_IMAGE = 2;
   // ── State ──
   const [prompt, setPrompt] = useState("Dark cinematic album cover for a five-piece rock band. Dramatic stage lighting with deep purple and gold tones. Smoke and haze effects. Gothic atmosphere. Ultra-realistic, 8K quality, professional photography style.");
   const [imageType, setImageType] = useState("album_cover");
@@ -892,6 +896,28 @@ export default function WizImage() {
             </div>
           </div>
 
+          {/* Credit balance panel */}
+          {user && (
+            <div className="rounded-xl border px-3 py-2.5 mb-2" style={{ background: "rgba(99,102,241,0.06)", borderColor: "rgba(99,102,241,0.25)" }}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5" style={{ color: A }} />
+                  <span className="text-[11px] font-semibold" style={{ color: A }}>WizImage — 2 credits/image</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[11px] font-bold text-white">{creditBalance.toLocaleString()}</span>
+                  <span className="text-[10px] text-white/40 ml-1">balance</span>
+                </div>
+              </div>
+              {creditBalance < CREDITS_PER_IMAGE && (
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-[10px] text-red-400">Insufficient credits — need {CREDITS_PER_IMAGE - creditBalance} more</span>
+                  <button onClick={() => setTopUpOpen(true)} className="text-[10px] font-semibold px-2 py-0.5 rounded-lg text-white" style={{ background: A }}>Top up →</button>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Generate CTA */}
           <button
             onClick={handleGenerate}
@@ -932,6 +958,12 @@ export default function WizImage() {
         </aside>
       </div>
       <LandscapeHint />
+      <QuickTopUpModal
+        open={topUpOpen}
+        onOpenChange={setTopUpOpen}
+        currentBalance={creditBalance}
+        estimatedCost={CREDITS_PER_IMAGE}
+      />
     </div>
   );
 }
