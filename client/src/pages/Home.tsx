@@ -3048,11 +3048,11 @@ function WizVidEngineSection() {
 
 /// See the Difference (Cinematic Demo Player) — v10: corrected colour grades
 
-// v3 grades: Original=flat/cool/desaturated (LOG-style), Enhanced=clean natural colour, Cinematic=strong warm teal-orange film grade
+// v4: distinct audio per tier — Original=thin/flat/128k, Enhanced=broadcast/192k, Cinematic=deep bass+wide stereo/320k
 const STD_VIDEOS = {
-  original: "/manus-storage/std-tier-original-v3_af2cb02c.mp4",
-  enhanced: "/manus-storage/std-tier-enhanced-v3_0fcabb46.mp4",
-  cinematic: "/manus-storage/std-tier-cinematic-v3_62c94ed0.mp4",
+  original: "/manus-storage/std-tier-original-v4_a6975729.mp4",
+  enhanced: "/manus-storage/std-tier-enhanced-v4_561d10fc.mp4",
+  cinematic: "/manus-storage/std-tier-cinematic-v4_1af29db8.mp4",
 };
 const WIZLUMINA_LOGO_STD = "/manus-storage/wizlumina-logo-new_0709f3c5_83ddc673.png";
 
