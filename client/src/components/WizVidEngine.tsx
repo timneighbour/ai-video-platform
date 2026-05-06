@@ -46,7 +46,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(139,92,246,0.35)]",
     border: "border-[--color-gold]/30",
     bg: "bg-[--color-gold]/15",
-    icon: `${CDN}/wizcreate-logo-new_85a25756.png`,
+    icon: `${CDN}/wizcreate-logo-new_85a25756_f4aa29bb.png`,
     href: "/products/wizcreate",
   },
   {
@@ -58,7 +58,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(6,182,212,0.35)]",
     border: "border-cyan-500/40",
     bg: "bg-[--color-silver]/10",
-    icon: "/manus-storage/wizanimate-logo-new_a84f9808.png",
+    icon: "/manus-storage/wizanimate-logo-new_a84f9808_a089857a.png",
     href: WIZANIMATE_PRODUCT_PAGE,
     isBranch: true,
     branchWith: "WizSync™",
@@ -71,7 +71,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(16,185,129,0.35)]",
     border: "border-[--color-silver]/40",
     bg: "bg-[--color-silver]/10",
-    icon: `${CDN}/wizsound-logo-new_c5cced65.png`,
+    icon: `${CDN}/wizsound-logo-new_c5cced65_d334a3bb.png`,
     href: "/products/wizsound",
   },
   {
@@ -82,7 +82,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(245,158,11,0.35)]",
     border: "border-[--color-gold]/30",
     bg: "bg-[--color-gold]/15",
-    icon: `${CDN}/wizlumina-logo-new_0709f3c5.png`,
+    icon: `${CDN}/wizlumina-logo-new_0709f3c5_83ddc673.png`,
     href: "/products/wizlumina",
   },
   {
@@ -93,7 +93,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(244,63,94,0.35)]",
     border: "border-rose-500/40",
     bg: "bg-[--color-silver]/10",
-    icon: `${CDN}/wizgenesis-logo-new_9814b3d1.png`,
+    icon: `${CDN}/wizgenesis-logo-new_9814b3d1_cabaf933.png`,
     href: "/products/wizgenesis",
   },
   {
@@ -104,7 +104,7 @@ const PIPELINE: PipelineStep[] = [
     glow: "shadow-[0_0_24px_rgba(249,115,22,0.35)]",
     border: "border-orange-500/40",
     bg: "bg-orange-500/8",
-    icon: `${CDN}/wizboost-logo-new_93f2b48b.png`,
+    icon: `${CDN}/wizboost-logo-new_93f2b48b_b731a139.png`,
     href: "/products/wizboost",
   },
 ];

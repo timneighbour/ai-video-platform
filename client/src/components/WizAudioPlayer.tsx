@@ -16,7 +16,7 @@ import {
 } from "@/lib/icons";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
 
-const WIZSOUND_LOGO = "/manus-storage/wizsound-logo-new_c5cced65.png";
+const WIZSOUND_LOGO = "/manus-storage/wizsound-logo-new_c5cced65_d334a3bb.png";
 
 /**
  * Proxy external audio CDN URLs through our server to avoid CORS issues.

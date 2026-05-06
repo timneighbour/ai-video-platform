@@ -37,7 +37,7 @@ const STEPS = [
   },
   {
     id: 3,
-    iconImg: "/manus-storage/wizanimate-logo-new_a84f9808.png",
+    iconImg: "/manus-storage/wizanimate-logo-new_a84f9808_a089857a.png",
     label: "Character",
     title: "Lock your character across every scene",
     desc: "Upload a photo or generate an AI character — consistent in every frame.",
@@ -51,7 +51,7 @@ const STEPS = [
   },
   {
     id: 4,
-    iconImg: "/manus-storage/wizcreate-logo-new_85a25756.png",
+    iconImg: "/manus-storage/wizcreate-logo-new_85a25756_f4aa29bb.png",
     label: "Storyboard",
     title: "Control every scene before building",
     desc: "Preview and refine your storyboard — adjust prompts, styles, and timing.",
@@ -65,7 +65,7 @@ const STEPS = [
   },
   {
     id: 5,
-    iconImg: "/manus-storage/wizgenesis-logo-new_9814b3d1.png",
+    iconImg: "/manus-storage/wizgenesis-logo-new_9814b3d1_cabaf933.png",
     label: "Build",
     title: "Build your full video",
     desc: "Only build when you're happy. Choose quality, resolution, and style.",
@@ -93,7 +93,7 @@ const STEPS = [
   },
   {
     id: 7,
-    iconImg: "/manus-storage/wizboost-logo-new_93f2b48b.png",
+    iconImg: "/manus-storage/wizboost-logo-new_93f2b48b_b731a139.png",
     label: "WizBoost",
     title: "Share your content and grow your audience",
     desc: "Publish, share, and promote your creation across every platform.",
@@ -340,7 +340,7 @@ function BoostAnim({ active }: { active: boolean }) {
           animation: active ? "rocketBob 2s ease-in-out infinite" : "none",
         }}
       >
-        <img src="/manus-storage/wizboost-logo-new_93f2b48b.png" alt="WizBoost" className="w-8 h-8 object-contain"  loading="lazy" />
+        <img src="/manus-storage/wizboost-logo-new_93f2b48b_b731a139.png" alt="WizBoost" className="w-8 h-8 object-contain"  loading="lazy" />
       </div>
       {/* Platform icons */}
       <div className="flex gap-1.5">

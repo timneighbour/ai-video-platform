@@ -27,8 +27,8 @@ import {
 } from "@/lib/routes";
 
 const CDN = "/manus-storage";
-const LOGO = `${CDN}/wizanimate-logo-new_a84f9808.png`;
-const WIZAI_LOGO = `/manus-storage/wizai-logo-v3_e7823047.png`;
+const LOGO = `${CDN}/wizanimate-logo-new_a84f9808_a089857a.png`;
+const WIZAI_LOGO = `/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png`;
 
 const IMGS = {
  hero: `${CDN}/showcase-animation-studio_e21a763d.jpg`,

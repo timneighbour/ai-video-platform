@@ -18,7 +18,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "wouter";
 
-const WIZGENESIS_LOGO = "/manus-storage/wizgenesis-logo-new_9814b3d1.png";
+const WIZGENESIS_LOGO = "/manus-storage/wizgenesis-logo-new_9814b3d1_cabaf933.png";
 
 type Quality = "standard" | "hd" | "4k";
 type EnhanceTier = "standard" | "enhance" | "cinematic";

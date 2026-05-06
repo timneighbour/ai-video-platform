@@ -63,14 +63,14 @@ const ChevronDownSVG = ({ className = "w-4 h-4", open = false, style }: { classN
 
 // Assets 
 const CDN = "/manus-storage";
-const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
-const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
-const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-new_0709f3c5.png`;
-const WIZGENESIS_LOGO = `${CDN}/wizgenesis-logo-new_9814b3d1.png`;
-const WIZBOOST_LOGO = `${CDN}/wizboost-logo-new_93f2b48b.png`;
-const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-new_85a25756.png`;
-const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-new_a84f9808.png`;
-const WIZSYNC_LOGO = `${CDN}/wizsync-logo-new_9563f007.png`;
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png";
+const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65_d334a3bb.png`;
+const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-new_0709f3c5_83ddc673.png`;
+const WIZGENESIS_LOGO = `${CDN}/wizgenesis-logo-new_9814b3d1_cabaf933.png`;
+const WIZBOOST_LOGO = `${CDN}/wizboost-logo-new_93f2b48b_b731a139.png`;
+const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-new_85a25756_f4aa29bb.png`;
+const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-new_a84f9808_a089857a.png`;
+const WIZSYNC_LOGO = `${CDN}/wizsync-logo-new_9563f007_70cef76a.png`;
 const HERO_BG_VIDEO = `${CDN}/hero-bg-v2_737633d7.mp4`;
 const HERO_BG_POSTER = `${CDN}/concert-hall_2b6b946b.jpg`;
 const DEMO_POSTER = `${CDN}/trailer-v2-poster_4a74cc1c.jpg`;
@@ -3440,6 +3440,150 @@ function SeeTheDifference() {
 
 
 // Final CTA 
+// ─── Music Video USP Section — visible to all new visitors on homepage ───────
+function MusicVideoUSPSection() {
+  return (
+    <section className="relative bg-[#050505] py-32 px-6 overflow-hidden">
+      {/* Ambient glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] rounded-full opacity-[0.12] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
+      <div className="luxury-divider absolute top-0 left-0 right-0" />
+      <div className="relative z-10 max-w-6xl mx-auto">
+        {/* Section header */}
+        <div className="text-center mb-16 reveal">
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.04] mb-6">
+            <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />
+            <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark]">WizVideo — AI Music Video Director</span>
+          </div>
+          <h2 className="text-[clamp(2.2rem,5vw,4rem)] font-black tracking-tight text-white mb-5 leading-tight">
+            Want to create a music video?<br />
+            <span className="metallic-gold">WIZ AI is your director.</span>
+          </h2>
+          <p className="text-white/50 text-lg max-w-2xl mx-auto mb-8">
+            Upload your track. Direct every scene. Control lip sync, camera angles, and character consistency — WIZ AI builds a cinematic music video synced to your lyrics, exactly as you envisioned it.
+          </p>
+          <a
+            href="/music-video/create"
+            className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base font-bold"
+          >
+            <img src={WIZAI_LOGO} alt="" aria-hidden="true" className="w-4 h-4 object-contain" />
+            Start Creating — Free
+          </a>
+        </div>
+
+        {/* 4 USP feature rows */}
+        <div className="space-y-16 mt-20">
+          {/* 1 — Character Lock */}
+          <div className="grid lg:grid-cols-2 gap-10 items-center reveal">
+            <div className="order-2 lg:order-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[--color-gold]/10 border border-[--color-gold]/25 mb-5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold]" />
+                <span className="text-xs font-bold text-[--color-gold-dark] tracking-widest uppercase">Exclusive Feature</span>
+              </div>
+              <h3 className="text-[clamp(1.6rem,3vw,2.4rem)] font-extrabold text-white mb-4 leading-tight">Character Lock™</h3>
+              <p className="text-white/55 text-base leading-relaxed mb-6">
+                Your character's face, costume, and performance style are locked from the first scene to the last. No random strangers. No face drift. No inconsistencies. The same person — every single frame.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {["Reference-to-Video model", "Master portrait anchor", "Zero face substitutions"].map(t => (
+                  <span key={t} className="text-xs px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-white/50">{t}</span>
+                ))}
+              </div>
+            </div>
+            <div className="order-1 lg:order-2 relative">
+              <div className="absolute -inset-3 bg-gradient-to-br from-[--color-gold]/15 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
+              <img src="/manus-storage/wizai-marketing-character-lock_1fae56ed.png" alt="Character Lock™ — Same face every scene" className="relative w-full rounded-2xl border border-white/10 shadow-2xl object-cover" loading="lazy" />
+            </div>
+          </div>
+
+          {/* 2 — Real Lip Sync */}
+          <div className="grid lg:grid-cols-2 gap-10 items-center reveal">
+            <div className="relative">
+              <div className="absolute -inset-3 bg-gradient-to-br from-blue-600/15 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
+              <img src="/manus-storage/wizai-marketing-lip-sync_93f07c62.png" alt="Real Lip Sync — Phoneme-accurate, frame-perfect" className="relative w-full rounded-2xl border border-white/10 shadow-2xl object-cover" loading="lazy" />
+            </div>
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 mb-5">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                <span className="text-xs font-bold text-blue-400 tracking-widest uppercase">Exclusive Feature</span>
+              </div>
+              <h3 className="text-[clamp(1.6rem,3vw,2.4rem)] font-extrabold text-white mb-4 leading-tight">Real Lip Sync</h3>
+              <p className="text-white/55 text-base leading-relaxed mb-6">
+                WizSync™ extracts the exact 8-second audio segment for each scene and passes it directly to the generation model. The result is phoneme-accurate, frame-perfect lip sync — not a visual approximation. Your character sings the actual words.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {["Phoneme-accurate", "Audio-driven model", "Per-scene audio clips"].map(t => (
+                  <span key={t} className="text-xs px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-white/50">{t}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 3 — Lyric-Aware Storyboarding */}
+          <div className="grid lg:grid-cols-2 gap-10 items-center reveal">
+            <div className="order-2 lg:order-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/25 mb-5">
+                <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />
+                <span className="text-xs font-bold text-violet-400 tracking-widest uppercase">Exclusive Feature</span>
+              </div>
+              <h3 className="text-[clamp(1.6rem,3vw,2.4rem)] font-extrabold text-white mb-4 leading-tight">Lyric-Aware Storyboarding™</h3>
+              <p className="text-white/55 text-base leading-relaxed mb-6">
+                WIZ AI reads your full lyrics before generating a single scene. It extracts your song's theme, emotional arc, narrative, and key imagery — then builds a storyboard where every scene reflects exactly what is being sung at that moment.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {["Deep song analysis", "Verse/chorus/bridge mapping", "Emotional arc tracking"].map(t => (
+                  <span key={t} className="text-xs px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-white/50">{t}</span>
+                ))}
+              </div>
+            </div>
+            <div className="order-1 lg:order-2 relative">
+              <div className="absolute -inset-3 bg-gradient-to-br from-violet-600/15 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
+              <img src="/manus-storage/wizai-marketing-lyric-aware_c302161c.png" alt="Lyric-Aware Storyboarding™" className="relative w-full rounded-2xl border border-white/10 shadow-2xl object-cover" loading="lazy" />
+            </div>
+          </div>
+
+          {/* 4 — Scene Director */}
+          <div className="grid lg:grid-cols-2 gap-10 items-center reveal">
+            <div className="relative">
+              <div className="absolute -inset-3 bg-gradient-to-br from-emerald-600/15 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
+              <img src="/manus-storage/wizai-marketing-scene-director_b5bf748f.png" alt="Scene Director™ — Direct every scene" className="relative w-full rounded-2xl border border-white/10 shadow-2xl object-cover" loading="lazy" />
+            </div>
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 mb-5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span className="text-xs font-bold text-emerald-400 tracking-widest uppercase">Exclusive Feature</span>
+              </div>
+              <h3 className="text-[clamp(1.6rem,3vw,2.4rem)] font-extrabold text-white mb-4 leading-tight">Scene Director™</h3>
+              <p className="text-white/55 text-base leading-relaxed mb-6">
+                After your video renders, you are the director. Edit any scene's prompt, camera angle, and lip sync setting. Re-render just that scene for free — before you download. Preview Before Download™ means you only commit when you are completely satisfied.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {["Per-scene editing", "Free re-render before download", "Preview Before Download™"].map(t => (
+                  <span key={t} className="text-xs px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-white/50">{t}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="text-center mt-20 reveal">
+          <p className="text-white/40 text-sm mb-6">Storyboard generation is always free. You only pay when you're ready to build.</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="/music-video/create" className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base font-bold">
+              <img src={WIZAI_LOGO} alt="" aria-hidden="true" className="w-4 h-4 object-contain" />
+              Create My Music Video
+            </a>
+            <a href="/music-videos" className="btn-secondary inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base">
+              See How It Works
+              <ArrowSVG className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FinalCTA() {
  const guarantees = [
  { label: "No credit card to start" },
@@ -3825,8 +3969,10 @@ export default function Home() {
  <SeeTheDifference />
  {/* 8. Video Showcase — real outputs */}
  <Showcase />
- {/* 9. Final CTA */}
- <FinalCTA />
+      {/* 9. Music Video USP — visible to all new visitors */}
+      <MusicVideoUSPSection />
+      {/* 10. Final CTA */}
+      <FinalCTA />
  {/* 10. Studio Lounge — creator comfort section */}
  <StudioLoungeSection />
  </main>

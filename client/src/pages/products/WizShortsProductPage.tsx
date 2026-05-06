@@ -31,7 +31,7 @@ import {
 
 const CDN = "/manus-storage";
 const LOGO = `${CDN}/wizshorts-logo-v1_533db978.png`;
-const WIZAI_LOGO = `/manus-storage/wizai-logo-v3_e7823047.png`;
+const WIZAI_LOGO = `/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png`;
 
 const IMGS = {
  hero: `${CDN}/hero-wizshorts_83e4e17d.jpg`,

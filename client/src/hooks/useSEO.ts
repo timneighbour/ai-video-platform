@@ -22,7 +22,7 @@ import { useEffect } from "react";
 
 const BASE_URL = "https://wiz-ai.io";
 const DEFAULT_IMAGE =
-  "https://wiz-ai.io/manus-storage/wizai-logo-v3_e7823047.png";
+  "https://wiz-ai.io/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png";
 const DEFAULT_DESCRIPTION =
   "WIZ AI is the premium AI creative platform. Generate videos, music, images, and animation from a single prompt. No editing experience needed.";
 

@@ -36,7 +36,7 @@ const STEPS = [
   },
   {
     step: 3,
-    iconImg: "/manus-storage/wizanimate-logo-new_a84f9808.png",
+    iconImg: "/manus-storage/wizanimate-logo-new_a84f9808_a089857a.png",
     icon: User,
     title: "Lock Your Character",
     desc: "Upload a photo or generate your own AI character — locked across every scene",
@@ -50,7 +50,7 @@ const STEPS = [
   },
   {
     step: 4,
-    iconImg: "/manus-storage/wizcreate-logo-new_85a25756.png",
+    iconImg: "/manus-storage/wizcreate-logo-new_85a25756_f4aa29bb.png",
     icon: Brain,
     title: "Build Your Storyboard",
     desc: "Preview and refine every scene before building your full video",
@@ -64,7 +64,7 @@ const STEPS = [
   },
   {
     step: 5,
-    iconImg: "/manus-storage/wizgenesis-logo-new_9814b3d1.png",
+    iconImg: "/manus-storage/wizgenesis-logo-new_9814b3d1_cabaf933.png",
     icon: Zap,
     title: "Full Video Build",
     desc: "Build your complete video only when you're happy",
@@ -92,7 +92,7 @@ const STEPS = [
   },
   {
     step: 7,
-    iconImg: "/manus-storage/wizboost-logo-new_93f2b48b.png",
+    iconImg: "/manus-storage/wizboost-logo-new_93f2b48b_b731a139.png",
     icon: Rocket,
     title: "Share & Grow",
     desc: "Share your creation, grow your audience, and promote your content",

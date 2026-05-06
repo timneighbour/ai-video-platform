@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { useSEO } from "@/hooks/useSEO";
-const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png";
 
 export default function Refunds() {
   useSEO({ title: "Refund Policy — WIZ AI", path: "/refunds", description: "WIZ AI's refund policy. 7-day refund window for new subscriptions. Credits restored automatically for failed builds." });

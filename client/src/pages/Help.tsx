@@ -13,12 +13,12 @@ const LOGOS = {
   wizimage:  `${CDN}/wizimage-logo-v1_83c86e5c.png`,
   wizshorts: `${CDN}/wizshorts-logo-v1_533db978.png`,
   wizscript: `${CDN}/wizscript-logo-v1_c6af5345.png`,
-  wizanimate:`${CDN}/wizanimate-logo-new_a84f9808.png`,
-  wizgenesis:`${CDN}/wizgenesis-logo-new_9814b3d1.png`,
-  wizsound:  `${CDN}/wizsound-logo-new_c5cced65.png`,
-  wizlumina: `${CDN}/wizlumina-logo-new_0709f3c5.png`,
-  wizboost:  `${CDN}/wizboost-logo-new_93f2b48b.png`,
-  wizcreate: `${CDN}/wizcreate-logo-new_85a25756.png`,
+  wizanimate:`${CDN}/wizanimate-logo-new_a84f9808_a089857a.png`,
+  wizgenesis:`${CDN}/wizgenesis-logo-new_9814b3d1_cabaf933.png`,
+  wizsound:  `${CDN}/wizsound-logo-new_c5cced65_d334a3bb.png`,
+  wizlumina: `${CDN}/wizlumina-logo-new_0709f3c5_83ddc673.png`,
+  wizboost:  `${CDN}/wizboost-logo-new_93f2b48b_b731a139.png`,
+  wizcreate: `${CDN}/wizcreate-logo-new_85a25756_f4aa29bb.png`,
 };
 
 // ── Hero images for product cards ────────────────────────────────────────────

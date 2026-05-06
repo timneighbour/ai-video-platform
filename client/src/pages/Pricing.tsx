@@ -43,7 +43,7 @@ import PublicNavBar from "@/components/PublicNavBar";
 import { PLANS as SHARED_PLANS, TOPUP_PACKS } from "@/lib/plans";
 
 // CDN assets 
-const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png";
 const PRICING_HERO_BG = "/manus-storage/pricing-hero-bg_7e23edd2.jpg";
 const HIW_STEP1 = "/manus-storage/hiw-step1-choose_1102ddee.jpg";
 const HIW_STEP2 = "/manus-storage/hiw-step2-storyboard_21e66052.jpg";
@@ -940,7 +940,7 @@ export default function Pricing() {
  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
  <div className="flex items-center gap-4">
  <img
- src="/manus-storage/wizsound-logo-new_c5cced65.png"
+ src="/manus-storage/wizsound-logo-new_c5cced65_d334a3bb.png"
  alt="WizSound™"
  className="h-10 w-auto object-contain"
  style={{ filter: "drop-shadow(0 0 12px rgba(16,185,129,0.3))" }}

@@ -552,7 +552,7 @@ export default function ShowcasePage() {
         <Link href="/">
           <a className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors text-sm">
             <img
-              src="/manus-storage/wizai-logo-v3_e7823047.png"
+              src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png"
               alt="WIZ AI"
               className="h-7 w-auto"
             />

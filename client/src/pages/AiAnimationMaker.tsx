@@ -25,10 +25,10 @@ import { WIZANIMATE_PRODUCT_PAGE, WIZANIMATE_STUDIO_PAGE } from "@/lib/routes";
 
 // ── Asset constants ───────────────────────────────────────────────────────────
 const CDN = "/manus-storage";
-const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
-const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-new_a84f9808.png`;
-const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-new_85a25756.png`;
-const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png";
+const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-new_a84f9808_a089857a.png`;
+const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-new_85a25756_f4aa29bb.png`;
+const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65_d334a3bb.png`;
 
 // Animation style showcase images (all existing CDN assets)
 const ANIMATION_STYLES = [

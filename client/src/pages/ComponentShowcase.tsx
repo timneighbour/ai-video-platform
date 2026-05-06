@@ -696,7 +696,7 @@ export default function ComponentsShowcase() {
                   <Label>Avatar</Label>
                   <div className="flex gap-4">
                     <Avatar>
-                      <AvatarImage src="/manus-storage/wizai-logo-v3_e7823047.png" />
+                      <AvatarImage src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png" />
                       <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
                     <Avatar>

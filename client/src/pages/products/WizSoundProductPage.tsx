@@ -15,8 +15,8 @@ import {
 } from "@/lib/icons";
 
 const CDN = "/manus-storage";
-const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
-const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
+const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65_d334a3bb.png`;
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png";
 
 // Premium imagery CDN paths
 const IMG = {

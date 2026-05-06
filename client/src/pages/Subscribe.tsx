@@ -88,7 +88,7 @@ export default function Subscribe() {
  <a href="/" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
  <ArrowLeft className="h-4 w-4" />Back to Home
  </a>
- <img src="/manus-storage/wizai-logo-v3_e7823047.png" alt="WIZ AI" className="h-[7.3rem] w-auto object-contain" />
+ <img src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png" alt="WIZ AI" className="h-[7.3rem] w-auto object-contain" />
  <div className="w-24" />
  </div>
  </div>

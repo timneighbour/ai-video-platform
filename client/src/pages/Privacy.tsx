@@ -3,7 +3,7 @@ import { Link } from "wouter";
 import { openCookieSettings } from "@/components/CookieConsentBanner";
 
 const CDN = "https://storage.googleapis.com/wzai-cdn-assets";
-const WIZAI_LOGO = `/manus-storage/wizai-logo-v3_e7823047.png`;
+const WIZAI_LOGO = `/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png`;
 
 export default function Privacy() {
   return (

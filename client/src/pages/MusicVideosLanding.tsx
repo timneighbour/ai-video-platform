@@ -41,7 +41,7 @@ const MUSIC_VIDEO_SHOWCASE = [
     description: "Cinematic 3D animation for a kids YouTube channel. Generated from a character description and theme prompt.",
   },
 ];
-const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png";
 const WIZBEAT_IMAGES = [
   { src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizbeat-indie-band-QBYx42tgc36NweRhP46fgT.webp", label: "Indie Band" },
   { src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizbeat-animated-character-823E4h8WJbEtFk57ZoVx2s.webp", label: "Animated Character" },

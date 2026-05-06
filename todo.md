@@ -7080,3 +7080,10 @@
 - [ ] Instrument Accuracy Layer (reference instrument upload, performance-aware prompt injection)
 - [ ] Marketing assets expansion (Character Lock™ before/after, lyric-aware, lip sync, rerender workflow, multi-character, instrument accuracy, Meta/TikTok/Instagram formats)
 - [ ] Final launch readiness report with all assets
+
+## Current Session - May 2026
+- [x] Restore /music-video route to WizVideoProductPage (original product page with connections to products)
+- [x] Keep /music-videos as the USP showcase landing page (unchanged)
+- [x] Add premium "Want to create a music video?" section to homepage with 4 USPs — visible to new visitors without requiring navigation
+- [x] Fix all logo backgrounds to be transparent site-wide (no black/white boxes on any logos)
+- [x] Audit and standardise WizAI branding consistency across entire site

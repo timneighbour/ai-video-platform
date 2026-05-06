@@ -5,10 +5,10 @@ import { Sparkles, ArrowLeft, Wand2, Film, Download, Users, MessageSquare,
 import { Link } from "wouter";
 
 const CDN = "/manus-storage";
-const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
-const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
-const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-new_0709f3c5.png`;
-const WIZBOOST_LOGO = `${CDN}/wizboost-logo-new_93f2b48b.png`;
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png";
+const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65_d334a3bb.png`;
+const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-new_0709f3c5_83ddc673.png`;
+const WIZBOOST_LOGO = `${CDN}/wizboost-logo-new_93f2b48b_b731a139.png`;
 const STEP_IMAGES = {
   upload:   `${CDN}/step1-upload-audio-byRxxURESoxMZYpCB7FKpm.webp`,
   styles:   `${CDN}/step2-style-collage-P6HWeTbd9g6UsLFLRWYJEi.webp`,

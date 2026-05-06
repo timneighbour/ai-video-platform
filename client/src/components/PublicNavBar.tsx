@@ -32,14 +32,14 @@ const ArrowSVG = ({ className = "w-4 h-4", style }: { className?: string; style?
 
 // ── CDN & Logo constants ──────────────────────────────────────────────────────
 const CDN = "/manus-storage";
-const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
-const WIZSOUND_LOGO = `/manus-storage/wizsound-logo-new_c5cced65.png`;
-const WIZLUMINA_LOGO = `/manus-storage/wizlumina-logo-new_0709f3c5.png`;
-const WIZBOOST_LOGO = `/manus-storage/wizboost-logo-new_93f2b48b.png`;
-const WIZCREATE_LOGO = `/manus-storage/wizcreate-logo-new_85a25756.png`;
-const WIZANIMATE_LOGO = `/manus-storage/wizanimate-logo-new_a84f9808.png`;
-const WIZSYNC_LOGO = `/manus-storage/wizsync-logo-new_9563f007.png`;
-const WIZGENESIS_LOGO = `/manus-storage/wizgenesis-logo-new_9814b3d1.png`;
+const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png";
+const WIZSOUND_LOGO = `/manus-storage/wizsound-logo-new_c5cced65_d334a3bb.png`;
+const WIZLUMINA_LOGO = `/manus-storage/wizlumina-logo-new_0709f3c5_83ddc673.png`;
+const WIZBOOST_LOGO = `/manus-storage/wizboost-logo-new_93f2b48b_b731a139.png`;
+const WIZCREATE_LOGO = `/manus-storage/wizcreate-logo-new_85a25756_f4aa29bb.png`;
+const WIZANIMATE_LOGO = `/manus-storage/wizanimate-logo-new_a84f9808_a089857a.png`;
+const WIZSYNC_LOGO = `/manus-storage/wizsync-logo-new_9563f007_70cef76a.png`;
+const WIZGENESIS_LOGO = `/manus-storage/wizgenesis-logo-new_9814b3d1_cabaf933.png`;
 
 // ── Products — categorised by purpose ────────────────────────────────────────
 // Emblem map: maps product id → React emblem component (size 32)

@@ -21,7 +21,7 @@ import { StarterTemplates } from "@/components/StarterTemplates";
 import { WizGenesisModal } from "@/components/WizGenesisModal";
 
 // ─── Assets ──────────────────────────────────────────────────────────────────
-const LOGO_IMG = "/manus-storage/wizanimate-logo-new_a84f9808.png";
+const LOGO_IMG = "/manus-storage/wizanimate-logo-new_a84f9808_a089857a.png";
 const ENV_IMG = "/manus-storage/wizanimate-studio-pov-v2_e5827366.jpg";
 
 // ─── Constants ───────────────────────────────────────────────────────────────

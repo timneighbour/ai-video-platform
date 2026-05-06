@@ -558,7 +558,7 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
             <ArrowRight className="w-3 h-3" />
           </a>
           <a
-            href="/manus-storage/wizai-logo-v3_e7823047.png"
+            href="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png"
             download="wiz-ai-logo.png"
             target="_blank"
             rel="noopener noreferrer"

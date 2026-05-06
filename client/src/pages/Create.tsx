@@ -27,11 +27,11 @@ import {
 
 const CDN = "/manus-storage";
 const WIZPILOT_LOGO = `${CDN}/wizscript-logo-v1_c6af5345.png`;
-const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65.png`;
-const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-new_0709f3c5.png`;
-const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-new_85a25756.png`;
-const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-new_a84f9808.png`;
-const WIZSYNC_LOGO = `${CDN}/wizsync-logo-new_9563f007.png`;
+const WIZSOUND_LOGO = `${CDN}/wizsound-logo-new_c5cced65_d334a3bb.png`;
+const WIZLUMINA_LOGO = `${CDN}/wizlumina-logo-new_0709f3c5_83ddc673.png`;
+const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-new_85a25756_f4aa29bb.png`;
+const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-new_a84f9808_a089857a.png`;
+const WIZSYNC_LOGO = `${CDN}/wizsync-logo-new_9563f007_70cef76a.png`;
 
 const IMG = {
   musicVideo:   `${CDN}/wizbeat-musician-solo_c77dcffb.jpg`,

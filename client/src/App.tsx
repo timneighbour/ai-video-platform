@@ -121,7 +121,7 @@ function PageFallback() {
       {/* Logo */}
       <div className="relative mb-8">
         <img
-          src="/manus-storage/wizai-logo-v3_e7823047.png"
+          src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png"
           alt="WIZ AI"
           className="w-20 h-20 object-contain"
           style={{ filter: "drop-shadow(0 0 24px oklch(0.78 0.11 75 / 0.6))" }}
@@ -292,9 +292,9 @@ function Router() {
         <Route path={"/music-creator"} component={MusicCreator} />
         <Route path={"/wiz-image"} component={WizImage} />
         <Route path={"/wiz-shorts"} component={WizShorts} />
-        <Route path={"/music-videos"} component={MusicVideosLanding} />{/* canonical music video landing */}
-        <Route path={"/music-video"} component={MusicVideosLanding} />{/* redirect alias → same landing */}
-        <Route path={"/music-video-ai"} component={MusicVideosLanding} />{/* SEO alias */}
+        <Route path={"/music-videos"} component={MusicVideosLanding} />{/* USP showcase landing */}
+        <Route path={"/music-video"} component={WizVideoLandingPage} />{/* original product page */}
+        <Route path={"/music-video-ai"} component={WizVideoLandingPage} />{/* SEO alias */}
         <Route path={"/music-video/create"} component={MusicVideoAutopilot} />
         <Route path={"/render-history"} component={RenderHistory} />
         <Route path={"/my-projects"} component={Projects} />{/* unified projects page */}

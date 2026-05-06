@@ -24,7 +24,7 @@ import {
 
 const CDN = "/manus-storage";
 const LOGO = `${CDN}/wizimage-logo-v1_83c86e5c.png`;
-const WIZAI_LOGO = `/manus-storage/wizai-logo-v3_e7823047.png`;
+const WIZAI_LOGO = `/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png`;
 
 const IMGS = {
  hero: `${CDN}/showcase-wiz-image_b2c3d4e5.jpg`,

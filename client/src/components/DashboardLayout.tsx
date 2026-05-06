@@ -33,7 +33,7 @@ import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { StudioLoungeCard } from "./StudioLounge";
 
-const WIZANIMATE_LOGO = "/manus-storage/wizanimate-logo-new_a84f9808.png";
+const WIZANIMATE_LOGO = "/manus-storage/wizanimate-logo-new_a84f9808_a089857a.png";
 
 const menuItems = [
   { icon: Home, label: "Home", path: "/" },
@@ -227,14 +227,14 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <img
-                    src="/manus-storage/wizai-logo-v3_e7823047.png" loading="eager" decoding="async"
+                    src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png" loading="eager" decoding="async"
                     alt="WIZ AI"
                     className="h-[7.3rem] w-auto object-contain transition-all duration-300 hover:scale-105 hover:brightness-110"
                   />
                 </div>
               ) : (
                 <img
-                  src="/manus-storage/wizai-logo-v3_e7823047.png" loading="eager" decoding="async"
+                  src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png" loading="eager" decoding="async"
                   alt="WIZ AI"
                   className="h-[1.7rem] w-[1.7rem] object-contain rounded"
                 />
