@@ -347,6 +347,7 @@ export const billingRouter = router({
         // Option A packs: spark/boost/creator/studio/pro/elite
         // Cinematic packs: cinematic_10/cinematic_25/cinematic_50
         // Legacy keys kept for backward compat: small/medium/large/starter
+        // Price IDs verified 2026-05-06
         pack: z.enum(["spark", "boost", "creator", "studio", "pro", "elite",
                       "cinematic_10", "cinematic_25", "cinematic_50",
                       "small", "medium", "large", "starter"]),
