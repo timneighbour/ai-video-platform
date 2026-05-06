@@ -635,6 +635,7 @@ function Nav() {
                 </div>
               </NavDropdown>
             </div>
+            <a href="/music-videos" className="nav-link" style={{ color: "oklch(0.78 0.11 75 / 0.75)" }} onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.88 0.11 75 / 1)"; }} onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.78 0.11 75 / 0.75)"; }}>WizVideo</a>
             <a href="/pricing" className="nav-link">Pricing</a>
             <a href="/help" className="nav-link">Help</a>
             <StudioLoungeNavButton />
@@ -914,6 +915,10 @@ function Nav() {
             </div>
 
             {/* Simple links */}
+            <a href="/music-videos" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold transition-all duration-200" style={{ color: "oklch(0.82 0.11 75 / 0.85)" }} onClick={() => setMobileOpen(false)}>
+              <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 shrink-0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "oklch(0.78 0.11 75 / 0.7)" }}><polygon points="5 3 19 12 5 21 5 3" /></svg>
+              WizVideo — AI Music Videos
+            </a>
             <a href="/pricing" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/80 hover:text-white hover:bg-white/[0.04] transition-all duration-200" onClick={() => setMobileOpen(false)}>Pricing</a>
             <a href="/help" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/80 hover:text-white hover:bg-white/[0.04] transition-all duration-200" onClick={() => setMobileOpen(false)}>Help</a>
 

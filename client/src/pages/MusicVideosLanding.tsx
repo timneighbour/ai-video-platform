@@ -43,10 +43,10 @@ const MUSIC_VIDEO_SHOWCASE = [
 ];
 const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047.png";
 const WIZBEAT_IMAGES = [
-  { src: `${CDN}/wizbeat-artist-band_04b2adbf.jpg`, label: "Indie Band" },
-  { src: `${CDN}/wizbeat-animated-dog_8d12b77c.jpg`, label: "Animated Character" },
-  { src: `${CDN}/wizbeat-animated-cat_81ffcf80.jpg`, label: "Animated Singer" },
-  { src: `${CDN}/wizbeat-musician-solo_c77dcffb.jpg`, label: "Solo Artist" },
+  { src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizbeat-indie-band-QBYx42tgc36NweRhP46fgT.webp", label: "Indie Band" },
+  { src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizbeat-animated-character-823E4h8WJbEtFk57ZoVx2s.webp", label: "Animated Character" },
+  { src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizbeat-animated-singer-4kJyYS5GdBHbMgKUwbCW2N.webp", label: "Animated Singer" },
+  { src: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizbeat-solo-artist-69wuFH2c7cPuMbew5JjSjJ.webp", label: "Solo Artist" },
 ];
 
 export default function MusicVideosLanding() {
