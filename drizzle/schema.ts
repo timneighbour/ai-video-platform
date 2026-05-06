@@ -182,6 +182,14 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   artistType: mysqlEnum("artistType", ["band", "solo_artist", "animated_characters", "solo_animated"]).default("solo_artist"), // Artist type selection from step 1
   storyboardLockedAt: timestamp("storyboardLockedAt"), // Set when render starts — storyboard is frozen from this point
   previewCreditsUsed: int("previewCreditsUsed").default(0).notNull(), // Credits charged for scene preview regenerations (first full set per job is free)
+  // --- Quality Guarantee System -------------------------------------------
+  // Users may preview the completed video before downloading.
+  // Free re-renders are available BEFORE download. Once downloaded, no refunds.
+  qualityStatus: mysqlEnum("qualityStatus", ["pending", "previewing", "approved", "rerender_requested", "rerendering"]).default("pending").notNull(),
+  downloadedAt: timestamp("downloadedAt"), // Set when user confirms download — locks out free re-renders
+  reRenderCount: int("reRenderCount").default(0).notNull(), // Number of free re-renders used
+  reRenderReason: text("reRenderReason"), // User's stated reason for re-render (last one)
+  reRenderRequestedAt: timestamp("reRenderRequestedAt"), // When last re-render was requested
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -243,6 +251,11 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   userEditedPrompt: boolean("userEditedPrompt").default(false).notNull(), // true when the user has manually edited this scene's prompt
   focusCharacter: varchar("focusCharacter", { length: 128 }), // Placeholder: character to apply lip sync to (future feature)
   camera: json("camera"),                                     // Placeholder: { shotType, angle, focus } for future camera direction
+  // --- Re-render Tracking (Option A Policy) --------------------------------
+  reRenderCount: int("reRenderCount").default(0).notNull(),   // Total re-renders for this scene
+  freeReRenderUsed: boolean("freeReRenderUsed").default(false).notNull(), // True after first free re-render is used
+  lastReRenderAt: timestamp("lastReRenderAt"),                // When last re-render was requested
+  cameraDirection: varchar("cameraDirection", { length: 64 }), // User-chosen camera: close_up | medium | wide | over_shoulder | tracking
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -20,9 +20,10 @@ describe("Music Video Service", () => {
     expect(count).toBe(3); // minimum 3
   });
 
-  it("calculates credit cost as 10 credits per scene", () => {
-    const cost = calculateCreditCost(18);
-    expect(cost).toBe(180);
+  it("calculates credit cost using tiered pricing (15 credits/scene for short songs)", () => {
+    // 18 scenes, 0s audio duration → falls into 'short' tier → 15 credits/scene
+    const cost = calculateCreditCost(18, 0);
+    expect(cost).toBe(270); // 18 × 15 = 270
   });
 
   it("musicVideoRouter has expected procedures", () => {

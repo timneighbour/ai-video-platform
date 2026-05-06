@@ -17,12 +17,14 @@ import { transcribeAudio } from "./_core/voiceTranscription";
 import { initKlingAI } from "./ai-apis/kling";
 import { submitFalSeedanceVideo, pollFalSeedanceVideo } from "./ai-apis/fal-seedance";
 import { submitHyperealVideo, pollHyperealVideo, HYPEREAL_MODELS } from "./ai-apis/hypereal";
-import { submitAtlasVideo, pollAtlasVideo } from "./ai-apis/atlascloud";
+import { submitAtlasVideo, submitAtlasReferenceToVideo, submitAtlasImageToVideo, pollAtlasVideo } from "./ai-apis/atlascloud";
+import { extractSceneAudioClip } from "./audio-clip-extractor";
 import { submitWaveSpeedVideo, pollWaveSpeedVideo, type WaveSpeedModel } from "./ai-apis/wavespeed";
 import { submitGrokVideo, pollGrokVideo } from "./ai-apis/grok-imagine";
 import type { RendererType } from "./products";
 import { RENDERER_COSTS } from "./products";
 import { applyWizSound, type AudioTier } from "./wizsound";
+import { analyseContent, buildSceneVisualBrief, getSectionAtTime, type ContentAnalysis } from "./content-analyser";
 import {
   checkSubmissionAllowed,
   logProviderSubmission,
@@ -169,9 +171,34 @@ export async function generateStoryboard(
   title: string,
   lyricsSegments?: Array<{ start: number; end: number; text: string }>,
   lockedCharacters?: Array<{ name: string; role: string | null; lockedDescription: string }>,
-  sceneSetting?: string | null
+  sceneSetting?: string | null,
+  existingContentAnalysis?: ContentAnalysis | null
 ): Promise<StoryboardResult> {
   const sceneCount = calculateSceneCount(audioDurationSeconds);
+
+  // ── DEEP SONG UNDERSTANDING ──────────────────────────────────────────────────
+  // Run content analysis BEFORE generating any scenes.
+  // This gives the AI a deep understanding of the song's theme, narrative,
+  // emotional arc, and lyric imagery — used to drive every scene decision.
+  let contentAnalysis: ContentAnalysis | null = existingContentAnalysis ?? null;
+  if (!contentAnalysis) {
+    try {
+      console.log(`[Storyboard] Running deep content analysis for "${title}"...`);
+      contentAnalysis = await analyseContent({
+        lyrics: lyricsSegments?.map(s => s.text).join(" ") ?? "",
+        lyricSegments: lyricsSegments,
+        themePrompt: themePrompt,
+        title,
+        genre: genre ?? undefined,
+        mood: mood ?? undefined,
+        audioDuration: audioDurationSeconds,
+        appType: "music_video",
+      });
+      console.log(`[Storyboard] Content analysis complete: theme="${contentAnalysis.theme}", mood="${contentAnalysis.overallMood}", sections=${contentAnalysis.sections.length}`);
+    } catch (analysisErr: any) {
+      console.warn(`[Storyboard] Content analysis failed (non-fatal), proceeding without:`, analysisErr?.message);
+    }
+  }
   const minutes = Math.floor(audioDurationSeconds / 60);
   const seconds = audioDurationSeconds % 60;
   const durationStr = `${minutes}:${seconds.toString().padStart(2, "0")}`;
@@ -382,14 +409,76 @@ CHARACTER ASSIGNMENT RULES — STRICTLY ENFORCED:
 8. Each character must appear in at least 2 scenes
 9. Prefer solo scenes (one character) — they produce the most consistent results`;
 
+  const sceneSettingConstraint = sceneSetting
+    ? `
+⚠️ USER-SPECIFIED SETTING — THIS IS NON-NEGOTIABLE:
+The user has explicitly requested this visual environment: "${sceneSetting}"
+EVERY scene MUST be set in or directly reference this environment.
+Do NOT substitute generic stages, studios, or landscapes unless the user's setting explicitly includes them.
+Examples of correct behaviour:
+  - User says "desert" → every scene is in a desert (dunes, heat haze, sand, arid sky, etc.)
+  - User says "cliff edge by the sea" → characters perform on clifftops with ocean visible
+  - User says "underwater" → scenes are submerged, with light refracting through water
+  - User says "dark forest" → dense woodland, tree canopy, dappled light
+The setting is the VISUAL WORLD of this music video. It MUST be present in every scene prompt.`
+    : "";
+
+  // Build content analysis context block for scene generation
+  const contentAnalysisBlock = contentAnalysis ? `
+
+═══════════════════════════════════════════════════════════════
+DEEP SONG UNDERSTANDING — THIS IS YOUR CREATIVE FOUNDATION
+You have already analysed this song. Use this understanding to drive EVERY scene decision.
+═══════════════════════════════════════════════════════════════
+
+THEME: ${contentAnalysis.theme}
+NARRATIVE: ${contentAnalysis.narrative}
+EMOTIONAL ARC: ${contentAnalysis.emotionalArc}
+OVERALL MOOD: ${contentAnalysis.overallMood}
+SETTING CONTEXT: ${contentAnalysis.settingContext}
+CAMERA STYLE: ${contentAnalysis.cameraStyle}
+CONTENT TYPE: ${contentAnalysis.contentType}
+
+KEY VISUAL IMAGERY FROM LYRICS (MUST appear in scenes where relevant):
+${contentAnalysis.keyImagery.map((img, i) => `  ${i + 1}. ${img}`).join("\n")}
+
+MOST POWERFUL LYRIC LINES (give these scenes extra visual weight):
+${contentAnalysis.highlightLyrics.map((l, i) => `  ${i + 1}. "${l}"`).join("\n")}
+
+DOMINANT COLOUR PALETTE: ${contentAnalysis.dominantColours.join(", ")}
+GENRE VISUALS: ${contentAnalysis.genreVisuals}
+
+SONG STRUCTURE (MANDATORY — scene type MUST match section):
+${contentAnalysis.sections.map(s => `  [${s.startTime}s–${s.endTime}s] ${s.type.toUpperCase()} (intensity ${s.intensity}/10): ${s.lyrics ? `"${s.lyrics.slice(0, 80)}..."` : "(no lyrics)"}`).join("\n")}
+
+MOOD SHIFTS (lighting MUST change at these points):
+${contentAnalysis.moodShifts.map(m => `  At ${m.atTime}s: ${m.description} → Lighting: ${m.lightingSuggestion}`).join("\n")}
+
+SCENE TYPE RULES (NON-NEGOTIABLE):
+- CHORUS scenes: wide stage shot, full band visible, maximum energy, peak performance
+- VERSE scenes: intimate close-up, storytelling, character-focused, emotional depth
+- BRIDGE/BREAKDOWN scenes: dramatic, abstract, unexpected visual, emotional peak
+- INTRO scenes: establishing shot, build anticipation, set the world
+- OUTRO scenes: resolution, fade, emotional landing
+═══════════════════════════════════════════════════════════════` : "";
+
   const systemPrompt = `You are a professional music video director.
 Your job is to create detailed, cinematic scene descriptions for AI video generation.
+
+⚠️ MOST IMPORTANT RULE — THE USER'S VISION IS SACRED:
+You are directing the user's creative vision, not inventing your own.
+Every scene must faithfully represent what the user has described in their theme, setting, and concept.
+Do NOT replace the user's requested environment with a generic stage, studio, or landscape.
+If the user says "desert", every scene is in a desert. If they say "underwater", every scene is underwater.
+If they say "city rooftop at night", every scene is on a city rooftop at night.
+${sceneSettingConstraint}${contentAnalysisBlock}
+
 Each scene description must be:
 - Highly visual and specific (lighting, camera angle, movement, subjects, atmosphere)
-- Consistent with the overall theme and mood
-${hasLyrics ? "- Visually inspired by the EMOTION and THEME of the lyrics — translate feelings into imagery, do NOT include any text, words, or lyrics visually in the video frame" : ""}
+- Consistent with the overall theme, mood, and USER-SPECIFIED SETTING
+${hasLyrics ? "- MANDATORY: Visually reflect the SPECIFIC LYRIC IMAGERY of that scene window — if the lyrics say 'fire in my eyes', show fire; if they say 'standing on the edge', show a cliff or precipice. Translate the EXACT words into visuals." : ""}
 - Optimised for AI video generation (clear, vivid, no abstract concepts)
-- Varied in camera angles, settings, and visual styles
+- Varied in camera angles and visual styles — but ALWAYS within the user's specified setting/environment
 - Between 60-120 words each
 - CRITICAL: NEVER include text, words, captions, subtitles, or lyrics as visual elements in the video frame
 - CRITICAL: Do NOT include character appearance descriptions in the prompt — they are injected automatically by the system
@@ -576,7 +665,13 @@ export async function startSceneRender(
   /** Export aspect ratio — defaults to 16:9 (YouTube) */
   aspectRatio: "16:9" | "9:16" | "1:1" = "16:9",
   /** Music video job ID — required for spend-protection checks */
-  jobId: number = 0
+  jobId: number = 0,
+  /** Master portrait URL for character consistency (used by Atlas Cloud reference-to-video) */
+  characterImageUrl?: string | null,
+  /** Full song S3 URL for extracting scene audio clips (used by Atlas Cloud reference-to-video for lip sync) */
+  audioUrl?: string | null,
+  /** Start time of this scene in the song (seconds) — used to extract the correct audio segment */
+  sceneStartTime?: number
 ): Promise<string> {
   // ── SPEND PROTECTION: Pre-submission guard (Items 1–4, 9) ─────────────────────────
   // Determine provider for idempotency check (use primary provider in fallback chain)
@@ -602,9 +697,18 @@ export async function startSceneRender(
   // Policy: Try Atlas Cloud first. If Atlas returns 402 (insufficient balance) or is unavailable,
   //         automatically fall back to WaveSpeed. Surface all other errors immediately.
   if (renderer === "wavespeed" || renderer === "fal_seedance" || renderer === "seedance" || renderer === "atlas_cloud" || renderer === "atlas_cloud_fast") {
-    // Step 1: Try Atlas Cloud Fast (primary)
+    // Step 1: Try Atlas Cloud Fast (primary) — with reference-to-video for lip sync when character image is available
     try {
-      return await startSceneRenderAtlasCloud(sceneId, finalPrompt, duration, jobId);
+      return await startSceneRenderAtlasCloud(
+        sceneId,
+        finalPrompt,
+        duration,
+        jobId,
+        characterImageUrl ?? null,
+        audioUrl ?? null,
+        sceneStartTime,
+        lipSync
+      );
     } catch (atlasErr: any) {
       const atlasMsg = String(atlasErr?.message ?? atlasErr);
       const isExhausted = atlasMsg.includes("402") || atlasMsg.toLowerCase().includes("insufficient") || atlasMsg.toLowerCase().includes("balance") || atlasMsg.toLowerCase().includes("payment");
@@ -863,33 +967,96 @@ async function pollSceneStatusGrokImagine(
   }
 }
 
-async function startSceneRenderAtlasCloud(sceneId: number, prompt: string, duration: number, jobId: number = 0): Promise<string> {
+/**
+ * Submit a scene to Atlas Cloud using the best available model:
+ *   1. reference-to-video (reference_images + reference_audios) — BEST: character lock + lip sync
+ *   2. image-to-video (image anchor) — GOOD: character lock, no lip sync
+ *   3. text-to-video — FALLBACK: no character lock
+ *
+ * @param characterImageUrl  Master portrait URL for character consistency (optional)
+ * @param audioUrl           Full song S3 URL for extracting the scene audio clip (optional)
+ * @param sceneStartTime     Start time of this scene in the song (seconds)
+ * @param enableLipSync      Whether to pass audio to the model for lip sync
+ */
+async function startSceneRenderAtlasCloud(
+  sceneId: number,
+  prompt: string,
+  duration: number,
+  jobId: number = 0,
+  characterImageUrl?: string | null,
+  audioUrl?: string | null,
+  sceneStartTime?: number,
+  enableLipSync: boolean = true
+): Promise<string> {
   const MAX_PROMPT_CHARS = 480;
   const safePrompt = prompt.length > MAX_PROMPT_CHARS
     ? prompt.slice(0, MAX_PROMPT_CHARS).replace(/[,;.\s]+$/, "") + "."
     : prompt;
 
-  const trySubmit = async (p: string): Promise<string> => {
-    const { predictionId } = await submitAtlasVideo(p, duration <= 5 ? 5 : 8);
-    if (!predictionId) throw new Error(`Atlas Cloud: no predictionId returned for scene ${sceneId}`);
-    return predictionId;
-  };
-
+  const clipDuration = Math.max(2, Math.min(15, duration));
   let predictionId: string;
-  try {
-    predictionId = await trySubmit(safePrompt);
-  } catch (err: any) {
-    const errMsg = String(err?.message ?? err);
-    console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud first attempt failed (${errMsg}). Retrying with simplified prompt.`);
-    const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + ". Cinematic 16:9 video clip.";
+
+  // ── STRATEGY 1: reference-to-video (character image + audio lip sync) ────────
+  if (characterImageUrl && audioUrl && sceneStartTime !== undefined && enableLipSync) {
     try {
-      predictionId = await trySubmit(fallbackPrompt);
-    } catch (retryErr: any) {
-      throw new Error(`Atlas Cloud failed for scene ${sceneId} after retry: ${String(retryErr?.message ?? retryErr)}`);
+      // Extract the exact 8-second audio segment for this scene
+      const sceneAudioUrl = await extractSceneAudioClip(audioUrl, sceneStartTime, clipDuration, sceneId);
+      const { predictionId: pid } = await submitAtlasReferenceToVideo(
+        safePrompt,
+        [characterImageUrl],
+        [sceneAudioUrl],
+        clipDuration
+      );
+      predictionId = pid;
+      console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud REFERENCE-TO-VIDEO (lip sync) predictionId=${predictionId}`);
+    } catch (r2vErr: any) {
+      const errMsg = String(r2vErr?.message ?? r2vErr);
+      console.warn(`[MusicVideo] Scene ${sceneId} reference-to-video failed (${errMsg.slice(0, 150)}). Falling back to image-to-video.`);
+      // Fall through to strategy 2
+      characterImageUrl = characterImageUrl; // keep for strategy 2
+      try {
+        const { predictionId: pid } = await submitAtlasImageToVideo(safePrompt, characterImageUrl!, clipDuration);
+        predictionId = pid;
+        console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud IMAGE-TO-VIDEO (fallback) predictionId=${predictionId}`);
+      } catch (i2vErr: any) {
+        const i2vMsg = String(i2vErr?.message ?? i2vErr);
+        console.warn(`[MusicVideo] Scene ${sceneId} image-to-video also failed (${i2vMsg.slice(0, 150)}). Falling back to text-to-video.`);
+        const { predictionId: pid } = await submitAtlasVideo(safePrompt, clipDuration);
+        predictionId = pid;
+        console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud TEXT-TO-VIDEO (fallback) predictionId=${predictionId}`);
+      }
+    }
+  }
+  // ── STRATEGY 2: image-to-video (character image, no audio) ───────────────────
+  else if (characterImageUrl) {
+    try {
+      const { predictionId: pid } = await submitAtlasImageToVideo(safePrompt, characterImageUrl, clipDuration);
+      predictionId = pid;
+      console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud IMAGE-TO-VIDEO predictionId=${predictionId}`);
+    } catch (i2vErr: any) {
+      const i2vMsg = String(i2vErr?.message ?? i2vErr);
+      console.warn(`[MusicVideo] Scene ${sceneId} image-to-video failed (${i2vMsg.slice(0, 150)}). Falling back to text-to-video.`);
+      const { predictionId: pid } = await submitAtlasVideo(safePrompt, clipDuration);
+      predictionId = pid;
+      console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud TEXT-TO-VIDEO (fallback) predictionId=${predictionId}`);
+    }
+  }
+  // ── STRATEGY 3: text-to-video (no character image available) ─────────────────
+  else {
+    try {
+      const { predictionId: pid } = await submitAtlasVideo(safePrompt, clipDuration);
+      predictionId = pid;
+      console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud TEXT-TO-VIDEO predictionId=${predictionId}`);
+    } catch (err: any) {
+      const errMsg = String(err?.message ?? err);
+      console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud first attempt failed (${errMsg.slice(0, 150)}). Retrying with simplified prompt.`);
+      const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + ". Cinematic 16:9 video clip.";
+      const { predictionId: pid } = await submitAtlasVideo(fallbackPrompt, clipDuration);
+      predictionId = pid;
     }
   }
 
-  // ── SPEND PROTECTION: Log successful submission (Items 6 & 7) ─────────────────────
+  // ── SPEND PROTECTION: Log successful submission ───────────────────────────────
   if (jobId > 0) {
     const attemptCount = await getSceneAttemptCount(sceneId);
     const idempotencyKey = makeIdempotencyKey(jobId, sceneId, "atlas_cloud", attemptCount + 1);
@@ -904,7 +1071,6 @@ async function startSceneRenderAtlasCloud(sceneId: number, prompt: string, durat
       submissionReason: "scene_render",
     });
   }
-  console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud Seedance 2.0 predictionId=${predictionId}`);
   return `${ATLAS_JOB_ID_PREFIX}${predictionId}`;
 }
 

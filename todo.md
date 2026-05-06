@@ -6897,3 +6897,111 @@
 - [ ] Confirm completed project appears in render history/projects page
 - [ ] Record: provider used, actual cost, render time, any retries
 - [ ] Check for console/network errors during render
+
+## Character Consistency Sprint (Critical Fix)
+- [ ] Research Atlas Cloud image-to-video API parameters and reference image constraints
+- [ ] Generate canonical reference image per locked character using fal.ai FLUX before rendering
+- [ ] Store reference image URL on musicVideoJobs.characterImageUrl
+- [ ] Switch scene rendering to image-to-video mode when characterImageUrl is set
+- [ ] Pass reference image URL to Atlas Cloud for every scene featuring the locked character
+- [ ] Fix storyboard prompt generator: align scene prompts with character appearance and music video genre
+- [ ] UI: show generated reference image to user on storyboard, allow approval or regeneration before rendering
+- [ ] Test full render with character lock enabled and confirm consistent character appearance across all scenes
+
+## Critical: Lip Sync & Character Consistency (May 2026)
+- [ ] Add Atlas Cloud reference-to-video API function (submitAtlasReferenceToVideo) with reference_images + reference_audios fields
+- [ ] Add audio segment extraction helper: extract 8s clip from song at scene start time using ffmpeg
+- [ ] Store per-scene audio clip URL in musicVideoScenes (sceneAudioUrl column)
+- [ ] Update startSceneRenderAtlasCloud to use reference-to-video model when character image is available
+- [ ] Pass actual audio segment as reference_audios for phoneme-accurate lip sync
+- [ ] Generate canonical character portrait (FLUX) before render starts and store as masterPortraitUrl
+- [ ] Fix storyboard scene prompts to describe music video performance (stage, mic, singing) not random landscapes
+- [ ] Ensure every scene uses the same character reference image (no random faces)
+- [ ] Add sceneAudioUrl column to musicVideoScenes schema
+- [ ] Write tests for reference-to-video audio extraction pipeline
+
+## Quality Guarantee & Re-render System (May 2026)
+- [ ] Add freeReRenderUsed boolean column to musicVideoJobs schema
+- [ ] Add reRenderCount int column to musicVideoJobs schema
+- [ ] Add qualityStatus enum column to musicVideoJobs (previewing, approved, rerender_requested, rerendering)
+- [ ] Add requestReRender tRPC procedure: marks job for re-render, deducts 0 credits if first re-render
+- [ ] Add approveVideo tRPC procedure: marks job as approved, enables download
+- [ ] Update scene prompt generator: honour user's themePrompt/setting as hard constraint in every scene
+- [ ] Build VideoPreviewGate component: shows video preview with Approve / Request Re-render buttons
+- [ ] Show quality guarantee badge on pricing and checkout pages ("Free re-render if not satisfied")
+- [ ] Add re-render history to job detail page
+
+## Option A Re-render Policy — Backend (Approved May 2026)
+- [ ] Apply DB migration 0071 (qualityStatus, downloadedAt, reRenderCount columns)
+- [ ] Add sceneReRenderCount column to musicVideoScenes (tracks free re-renders used per scene)
+- [ ] Generate and apply migration for sceneReRenderCount
+- [ ] Add requestSceneReRender tRPC procedure: 0 credits if first re-render, 1 credit if subsequent
+- [ ] Add confirmDownload tRPC procedure: sets downloadedAt, qualityStatus=approved, disables re-renders
+- [ ] Add getJobQualityStatus tRPC query: returns qualityStatus, downloadedAt, reRenderCount per scene
+
+## Preview & Direct UI (Approved May 2026)
+- [ ] Build PreviewAndDirect page at /music-video/:jobId/preview
+- [ ] Full video preview player with audio sync
+- [ ] Scene grid: thumbnail + status + re-render count per scene
+- [ ] Scene edit modal: edit prompt, toggle lip sync, set camera direction
+- [ ] Single-scene re-render button with credit cost indicator (Free / 1 credit)
+- [ ] Re-render all scenes button
+- [ ] Lip sync badge on scenes where it is enabled
+- [ ] Camera direction selector: Close-up, Medium, Wide, Over-the-Shoulder, Tracking
+
+## Download & Confirm Flow (Approved May 2026)
+- [ ] Download & Confirm button on Preview & Direct page
+- [ ] Pre-download modal: quality guarantee messaging, re-render policy explanation, confirmation
+- [ ] Post-download state: download button only, re-render disabled with explanation message
+- [ ] Record downloadedAt timestamp on confirmation
+
+## Storyboard-to-Build Conversion (Approved May 2026)
+- [ ] Show estimated credit cost near Build button on storyboard review page
+- [ ] Add "1 free scene re-render included" badge near Build button
+- [ ] Add "Preview & Direct before download" messaging near Build button
+- [ ] Add quality guarantee confidence messaging on storyboard page
+
+## Failure Handling Improvements (Approved May 2026)
+- [ ] Failed scene state with retry button in Preview & Direct UI
+- [ ] Stuck-job timeout: auto-fail scenes stuck in generating for >20 minutes
+- [ ] Provider-aware error messages (Atlas exhausted vs. content policy vs. network)
+- [ ] Partial assembly: assemble video from completed scenes even if some failed
+- [ ] Credit protection: refund credits for scenes that failed with no output
+
+## Positioning & Messaging Updates (Approved May 2026)
+- [ ] Update onboarding copy: "director-level control", "consistent characters", "cinematic lip sync"
+- [ ] Update product pages with quality guarantee and preview-before-download messaging
+- [ ] Update pricing page: quality guarantee badge, re-render policy explained
+- [ ] Update dashboard with new positioning themes
+
+## Lyrics-to-Scene Visual Mapping (May 2026)
+- [ ] Strengthen storyboard LLM system prompt: lyric imagery is MANDATORY in scene descriptions
+- [ ] Add lyric emotional tone analysis: anger/power → harsh lighting; tender/emotional → soft warm light
+- [ ] Chorus scenes → wide stage shots with full band; verse scenes → intimate narrative; bridge → dramatic/abstract
+- [ ] Pass lyric text as hard constraint in scene prompt builder (not just context)
+- [ ] Ensure user's setting + lyric imagery reinforce each other (e.g. desert + "lost in the sand")
+- [ ] Add lyric snippet overlay option on storyboard preview images
+
+## Deep Song Understanding (May 2026)
+- [ ] Add songAnalysis LLM pass before storyboard generation: extract theme, narrative, emotional arc, key imagery, mood shifts
+- [ ] Store songAnalysis JSON on musicVideoJobs (theme, narrative, emotionalArc[], keyImagery[], moodShifts[])
+- [ ] Pass songAnalysis to storyboard generator as mandatory context
+- [ ] Storyboard LLM must: match scene setting to lyric imagery, match lighting to emotional tone, vary scene type by song section (chorus/verse/bridge)
+- [ ] Chorus scenes: wide stage, full energy, all band visible
+- [ ] Verse scenes: intimate, narrative, close-up storytelling
+- [ ] Bridge/breakdown scenes: dramatic, abstract, or emotional peak
+- [ ] User's theme prompt + lyric imagery must reinforce each other in every scene description
+- [ ] Scene descriptions must reference specific lyric lines from that time window
+- [ ] Add songAnalysis display on storyboard page so user can see what the AI understood about their song
+
+## Deep Content Understanding — All Applications (May 2026)
+- [ ] Build shared server/content-analyser.ts with analyseContent() function (LLM-powered)
+- [ ] analyseContent() extracts: theme, narrative, emotionalArc[], keyImagery[], moodShifts[], sectionMap (intro/verse/chorus/bridge/outro), overallMood, dominantColours, settingContext
+- [ ] Store contentAnalysis JSON on musicVideoJobs (for WizVideo)
+- [ ] Wire analyseContent() into WizVideo storyboard generation (before scene generation)
+- [ ] Wire analyseContent() into WizSound generation (before music composition)
+- [ ] Wire analyseContent() into WizAnimate generation (before animation scripting)
+- [ ] Wire analyseContent() into WizScript generation (before script writing)
+- [ ] Show content analysis summary to user on storyboard/generation review page ("Here's what the AI understood about your song/script")
+- [ ] Allow user to correct the AI's understanding before proceeding (edit theme, mood, key imagery)
+- [ ] All downstream generators MUST use contentAnalysis as mandatory context — not optional

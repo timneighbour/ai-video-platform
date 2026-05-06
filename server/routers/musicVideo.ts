@@ -1008,6 +1008,32 @@ Rules:
             console.warn(`[MusicVideo] Scene ${scene.id} has no storyboard preview image — render will be text-only. Run storyboard preview generation first.`);
           }
 
+          // ── CHARACTER IMAGE URL: Use the primary vocalist's master portrait for lip sync ──
+          // Priority: 1) Primary vocalist's masterPortraitUrl from videoCharacters table
+          //           2) Job-level characterImageUrl (legacy single-character jobs)
+          //           3) null (text-to-video fallback)
+          let sceneCharacterImageUrl: string | null = null;
+          if (primaryVocalistName) {
+            const vocalistChar = allJobCharsForRender.find(
+              c => c.name.toLowerCase() === primaryVocalistName!.toLowerCase()
+            );
+            if (vocalistChar) {
+              // Use masterPortraitUrl if available (FLUX-generated canonical portrait)
+              // Fall back to previewImageUrl (AI-generated character preview) — no photoUrl on videoCharacters
+              sceneCharacterImageUrl = vocalistChar.masterPortraitUrl ?? vocalistChar.previewImageUrl ?? null;
+            }
+          }
+          // Fallback: job-level characterImageUrl
+          if (!sceneCharacterImageUrl && job.characterImageUrl) {
+            sceneCharacterImageUrl = job.characterImageUrl;
+          }
+
+          if (sceneCharacterImageUrl) {
+            console.log(`[MusicVideo] Scene ${scene.id} character image URL: ${sceneCharacterImageUrl.slice(0, 80)}...`);
+          } else {
+            console.log(`[MusicVideo] Scene ${scene.id} no character image URL — will use text-to-video`);
+          }
+
           try {
             // Route through WaveSpeed primary renderer (with Hypereal/Atlas/fal.ai fallback chain)
             // mapModelAssignmentToWaveSpeed converts DB value (e.g. "seedance-2.0") to valid WaveSpeed model path
@@ -1022,7 +1048,10 @@ Rules:
               wsModel, // Correctly mapped WaveSpeed model path
               storyboardImageUrl ?? undefined, // STORYBOARD LOCK: pass approved frame as reference
               (input.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1", // Export format
-              input.jobId // ── SPEND PROTECTION: pass jobId for spend-cap and idempotency checks
+              input.jobId, // ── SPEND PROTECTION: pass jobId for spend-cap and idempotency checks
+              sceneCharacterImageUrl, // ── CHARACTER LOCK: master portrait for reference-to-video
+              job.audioUrl,           // ── LIP SYNC: full song URL for audio clip extraction
+              scene.startTime         // ── LIP SYNC: scene start time for audio clip extraction
             );
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
@@ -3964,4 +3993,200 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
       .where(and(eq(musicVideoJobs.isPublic, true), eq(musicVideoJobs.status, "completed")))
       .orderBy(desc(musicVideoJobs.createdAt));
   }),
+
+  // ───────────────────────────────────────────────────────────────
+  // QUALITY GUARANTEE SYSTEM — Option A: 1 free re-render per scene before download
+  // ───────────────────────────────────────────────────────────────
+
+  /**
+   * Get quality status for a job: qualityStatus, downloadedAt, per-scene re-render counts.
+   * Used by the Preview & Direct page to determine what actions are available.
+   */
+  getJobQualityStatus: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const scenes = await db.select({
+        id: musicVideoScenes.id,
+        sceneIndex: musicVideoScenes.sceneIndex,
+        status: musicVideoScenes.status,
+        videoUrl: musicVideoScenes.videoUrl,
+        reRenderCount: musicVideoScenes.reRenderCount,
+        freeReRenderUsed: musicVideoScenes.freeReRenderUsed,
+        prompt: musicVideoScenes.prompt,
+        lyrics: musicVideoScenes.lyrics,
+        lipSync: musicVideoScenes.lipSync,
+        lipSyncStyle: musicVideoScenes.lipSyncStyle,
+      }).from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, input.jobId))
+        .orderBy(musicVideoScenes.sceneIndex);
+
+      const isDownloaded = !!job.downloadedAt;
+      const canReRender = !isDownloaded && job.status === "completed";
+
+      return {
+        jobId: job.id,
+        qualityStatus: job.qualityStatus ?? "pending",
+        downloadedAt: job.downloadedAt ?? null,
+        isDownloaded,
+        canReRender,
+        finalVideoUrl: job.finalVideoUrl,
+        title: job.title,
+        scenes: scenes.map(s => ({
+          id: s.id,
+          sceneIndex: s.sceneIndex,
+          status: s.status,
+          videoUrl: s.videoUrl,
+          reRenderCount: s.reRenderCount ?? 0,
+          freeReRenderUsed: s.freeReRenderUsed ?? false,
+          creditCostForNextReRender: (s.freeReRenderUsed || (s.reRenderCount ?? 0) > 0) ? 1 : 0,
+          prompt: s.prompt,
+          lyrics: s.lyrics,
+          lipSync: s.lipSync,
+          lipSyncStyle: s.lipSyncStyle,
+          canReRender: canReRender,
+        })),
+      };
+    }),
+
+  /**
+   * Request a re-render for a single scene.
+   * Option A policy:
+   *   - First re-render per scene: FREE (no credit deduction)
+   *   - Subsequent re-renders: 1 credit each
+   *   - Not available after download (downloadedAt is set)
+   *
+   * Optionally accepts an updated prompt and/or lip sync settings.
+   */
+  requestSceneReRender: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      sceneId: z.number().int(),
+      updatedPrompt: z.string().optional(),
+      lipSync: z.boolean().optional(),
+      lipSyncStyle: z.enum(["natural", "expressive", "subtle"]).optional(),
+      cameraDirection: z.string().optional(), // e.g. "close-up", "wide shot", "tracking"
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify job ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+
+      // Block re-renders after download
+      if (job.downloadedAt) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Re-renders are not available after you have downloaded and confirmed your video.",
+        });
+      }
+
+      // Verify scene ownership
+      const [scene] = await db.select().from(musicVideoScenes)
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+      if (!scene) throw new TRPCError({ code: "NOT_FOUND", message: "Scene not found" });
+
+      // Determine credit cost: 0 if first re-render, 1 credit if subsequent
+      const isFirstReRender = !scene.freeReRenderUsed && (scene.reRenderCount ?? 0) === 0;
+      const creditCost = isFirstReRender ? 0 : 1;
+
+      // Deduct credits if not free
+      if (creditCost > 0) {
+        const { deductCredits } = await import("../credit-service");
+        const deducted = await deductCredits(ctx.user.id, creditCost, `Scene re-render (scene ${scene.sceneIndex + 1})`).catch(() => false);
+        if (!deducted) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Insufficient credits. Scene re-renders after the first cost 1 credit each.`,
+          });
+        }
+      }
+
+      // Build updated prompt with camera direction if provided
+      let finalPrompt = input.updatedPrompt ?? scene.prompt;
+      if (input.cameraDirection) {
+        finalPrompt = `${input.cameraDirection.toUpperCase()} SHOT: ${finalPrompt}`;
+      }
+
+      // Update scene: reset status to pending, increment re-render count, update prompt
+      await db.update(musicVideoScenes)
+        .set({
+          status: "pending",
+          videoUrl: null,
+          taskId: null,
+          prompt: finalPrompt,
+          lipSync: input.lipSync ?? scene.lipSync,
+          lipSyncStyle: input.lipSyncStyle ?? scene.lipSyncStyle,
+          reRenderCount: (scene.reRenderCount ?? 0) + 1,
+          freeReRenderUsed: isFirstReRender ? true : (scene.freeReRenderUsed ?? false),
+        })
+        .where(eq(musicVideoScenes.id, input.sceneId));
+
+      // Update job quality status to indicate re-render in progress
+      await db.update(musicVideoJobs)
+        .set({ qualityStatus: "rerendering", status: "rendering" })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      console.log(`[QualityGuarantee] Scene ${scene.sceneIndex + 1} re-render requested for job ${input.jobId} by user ${ctx.user.id}. Free: ${isFirstReRender}, Credits deducted: ${creditCost}`);
+
+      return {
+        success: true,
+        sceneId: input.sceneId,
+        sceneIndex: scene.sceneIndex,
+        creditCostCharged: creditCost,
+        isFreeReRender: isFirstReRender,
+        message: isFirstReRender
+          ? "Your free re-render has been queued. The scene will be regenerated shortly."
+          : `1 credit deducted. Your re-render has been queued.`,
+      };
+    }),
+
+  /**
+   * Confirm download — the user has watched the video and is happy with it.
+   * This locks the video: no more re-renders are available.
+   * Records downloadedAt timestamp and sets qualityStatus to 'approved'.
+   */
+  confirmDownload: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      if (!job.finalVideoUrl) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Video is not ready for download yet." });
+      }
+
+      // Idempotent: if already downloaded, just return the URL
+      if (job.downloadedAt) {
+        return { success: true, finalVideoUrl: job.finalVideoUrl, alreadyDownloaded: true };
+      }
+
+      await db.update(musicVideoJobs)
+        .set({
+          downloadedAt: new Date(),
+          qualityStatus: "approved",
+        })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      console.log(`[QualityGuarantee] Job ${input.jobId} confirmed as downloaded by user ${ctx.user.id}`);
+
+      return {
+        success: true,
+        finalVideoUrl: job.finalVideoUrl,
+        alreadyDownloaded: false,
+        message: "Video confirmed. Enjoy your music video!",
+      };
+    }),
 });

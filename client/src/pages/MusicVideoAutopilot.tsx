@@ -430,6 +430,64 @@ export default function MusicVideoAutopilot() {
   const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; status: string; errorMessage?: string | null; prompt?: string; lyrics?: string | null }>>([]); 
   // Track which scenes are currently being retried
   const [retryingScenes, setRetryingScenes] = useState<Set<number>>(new Set());
+
+  // ── Quality Guarantee State ──────────────────────────────────────────────
+  const [showDownloadConfirmModal, setShowDownloadConfirmModal] = useState(false);
+  const [isDownloadConfirmed, setIsDownloadConfirmed] = useState(false);
+  const [showSceneDirectorPanel, setShowSceneDirectorPanel] = useState(false);
+  const [selectedSceneForReRender, setSelectedSceneForReRender] = useState<number | null>(null);
+  const [sceneReRenderPrompt, setSceneReRenderPrompt] = useState("");
+  const [sceneReRenderLipSync, setSceneReRenderLipSync] = useState(true);
+  const [sceneReRenderCamera, setSceneReRenderCamera] = useState("close-up");
+  const [isRequestingReRender, setIsRequestingReRender] = useState(false);
+
+  // Quality status query — only active when job is completed and not yet downloaded
+  const { data: qualityStatus, refetch: refetchQualityStatus } = trpc.musicVideo.getJobQualityStatus.useQuery(
+    { jobId: jobId! },
+    { enabled: !!jobId && renderStatus === "completed", refetchInterval: false }
+  );
+
+  const confirmDownloadMutation = trpc.musicVideo.confirmDownload.useMutation({
+    onSuccess: (data) => {
+      setIsDownloadConfirmed(true);
+      setShowDownloadConfirmModal(false);
+      toast.success("Video confirmed! Enjoy your music video.");
+      // Trigger the actual download
+      if (data.finalVideoUrl) {
+        fetch(data.finalVideoUrl)
+          .then(r => r.blob())
+          .then(blob => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title || 'wizai'}-${Date.now()}.mp4`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          })
+          .catch(() => window.open(data.finalVideoUrl!, '_blank'));
+      }
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const requestSceneReRenderMutation = trpc.musicVideo.requestSceneReRender.useMutation({
+    onSuccess: (data) => {
+      setShowSceneDirectorPanel(false);
+      setSelectedSceneForReRender(null);
+      setSceneReRenderPrompt("");
+      setIsRequestingReRender(false);
+      toast.success(data.message);
+      // Reset render status to show progress
+      setRenderStatus("rendering");
+      refetchQualityStatus();
+    },
+    onError: (err) => {
+      setIsRequestingReRender(false);
+      toast.error(err.message);
+    },
+  });
   const [renderStartTime, setRenderStartTime] = useState<number | null>(null);
   const [liveElapsed, setLiveElapsed] = useState(0); // seconds, ticks every 1s during render
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -3997,8 +4055,24 @@ export default function MusicVideoAutopilot() {
                       />
                     </div>
 
+                    {/* Quality Guarantee Banner */}
+                    {!isDownloadConfirmed && (
+                      <div className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-4 text-left">
+                        <div className="flex items-start gap-3">
+                          <ShieldCheck className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" />
+                          <div>
+                            <p className="text-emerald-300 font-semibold text-sm mb-1">Quality Guarantee — Watch before you confirm</p>
+                            <p className="text-emerald-200/70 text-xs leading-relaxed">
+                              Not happy with a scene? Click <strong className="text-emerald-300">"Re-direct a Scene"</strong> to edit the prompt, camera angle, or lip sync and re-render it for free.
+                              Once you click <strong className="text-emerald-300">"Download &amp; Confirm"</strong>, your video is locked and re-renders are no longer available.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Primary CTAs */}
-                    <div className="flex gap-3 justify-center mb-8">
+                    <div className="flex gap-3 justify-center mb-6 flex-wrap">
                       <Button
                         className="btn-sheen bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white px-6 h-12 text-base"
                         onClick={() => {
@@ -4008,33 +4082,53 @@ export default function MusicVideoAutopilot() {
                       >
                         <Play className="w-5 h-5 mr-2" /> Play Video
                       </Button>
-                      <Button
-                        variant="outline"
-                        className="border-[--color-gold]/30 text-[--color-gold] bg-[--color-gold]/15 hover:bg-[--color-gold]/15 px-6 h-12 text-base"
-                        onClick={async () => {
-                          if (!finalVideoUrl) return;
-                          try {
-                            // Fetch the video as a blob so the browser triggers a real download
-                            const resp = await fetch(finalVideoUrl);
-                            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                            const blob = await resp.blob();
-                            const blobUrl = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = blobUrl;
-                            a.download = `${title || 'wizai'}-${Date.now()}.mp4`;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            URL.revokeObjectURL(blobUrl);
-                          } catch {
-                            // Fallback: open in new tab (user can save manually)
-                            window.open(finalVideoUrl, '_blank');
-                            toast.info('Video opened in new tab — right-click to save');
-                          }
-                        }}
-                      >
-                        <Download className="w-5 h-5 mr-2" /> Download
-                      </Button>
+
+                      {/* Download & Confirm — shows confirm modal first */}
+                      {!isDownloadConfirmed ? (
+                        <Button
+                          className="btn-sheen bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700 text-white px-6 h-12 text-base font-semibold shadow-lg shadow-emerald-900/40"
+                          onClick={() => setShowDownloadConfirmModal(true)}
+                        >
+                          <Download className="w-5 h-5 mr-2" /> Download &amp; Confirm
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          className="border-emerald-500/30 text-emerald-300 bg-emerald-950/30 px-6 h-12 text-base"
+                          onClick={async () => {
+                            if (!finalVideoUrl) return;
+                            try {
+                              const resp = await fetch(finalVideoUrl);
+                              if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                              const blob = await resp.blob();
+                              const blobUrl = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = blobUrl;
+                              a.download = `${title || 'wizai'}-${Date.now()}.mp4`;
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              URL.revokeObjectURL(blobUrl);
+                            } catch {
+                              window.open(finalVideoUrl, '_blank');
+                            }
+                          }}
+                        >
+                          <Download className="w-5 h-5 mr-2" /> Download Again
+                        </Button>
+                      )}
+
+                      {/* Re-direct a Scene — only available before download */}
+                      {!isDownloadConfirmed && (
+                        <Button
+                          variant="outline"
+                          className="border-[--color-gold]/30 text-[--color-gold] bg-[--color-gold]/10 hover:bg-[--color-gold]/20 px-5 h-12 text-sm"
+                          onClick={() => setShowSceneDirectorPanel(true)}
+                        >
+                          <RefreshCw className="w-4 h-4 mr-2" /> Re-direct a Scene
+                        </Button>
+                      )}
+
                       <Button
                         variant="outline"
                         className="border-[rgba(184,137,42,0.12)]/50 text-white/50 bg-transparent hover:bg-[rgba(24,20,16,0.9)] px-4 h-12 text-sm"
@@ -4056,6 +4150,181 @@ export default function MusicVideoAutopilot() {
                         <Sparkles className="w-5 h-5 mr-2" /> Create Another Video
                       </Button>
                     </div>
+
+                    {/* Download Confirm Modal */}
+                    {showDownloadConfirmModal && (
+                      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                        <div className="bg-[#0e0c0a] border border-[--color-gold]/30 rounded-2xl p-8 max-w-md w-full shadow-2xl">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-12 h-12 rounded-full bg-emerald-900/50 border border-emerald-500/30 flex items-center justify-center">
+                              <ShieldCheck className="w-6 h-6 text-emerald-400" />
+                            </div>
+                            <div>
+                              <h3 className="text-white font-bold text-lg">Confirm &amp; Download</h3>
+                              <p className="text-white/50 text-sm">This action cannot be undone</p>
+                            </div>
+                          </div>
+                          <div className="bg-amber-950/40 border border-amber-500/20 rounded-xl p-4 mb-6">
+                            <p className="text-amber-200 text-sm leading-relaxed">
+                              <strong>Important:</strong> By downloading, you confirm you are happy with your video.
+                              Scene re-renders will no longer be available after this point.
+                              If you want to change any scenes, click <strong>Cancel</strong> and use <strong>"Re-direct a Scene"</strong> first.
+                            </p>
+                          </div>
+                          <div className="flex gap-3">
+                            <Button
+                              variant="outline"
+                              className="flex-1 border-white/20 text-white/70 hover:bg-white/5"
+                              onClick={() => setShowDownloadConfirmModal(false)}
+                            >
+                              Cancel — Let me check again
+                            </Button>
+                            <Button
+                              className="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-500 hover:to-emerald-700 text-white font-semibold"
+                              disabled={confirmDownloadMutation.isPending}
+                              onClick={() => jobId && confirmDownloadMutation.mutate({ jobId })}
+                            >
+                              {confirmDownloadMutation.isPending ? (
+                                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Confirming...</>
+                              ) : (
+                                <><Download className="w-4 h-4 mr-2" /> Yes, Download It</>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Scene Director Panel — re-render individual scenes */}
+                    {showSceneDirectorPanel && !isDownloadConfirmed && (
+                      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                        <div className="bg-[#0e0c0a] border border-[--color-gold]/30 rounded-2xl p-6 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+                          <div className="flex items-center justify-between mb-5">
+                            <div>
+                              <h3 className="text-white font-bold text-lg">Re-direct a Scene</h3>
+                              <p className="text-white/50 text-sm">Select a scene, adjust the direction, and re-render it for free</p>
+                            </div>
+                            <button onClick={() => setShowSceneDirectorPanel(false)} className="text-white/40 hover:text-white/80">
+                              <X className="w-5 h-5" />
+                            </button>
+                          </div>
+
+                          {/* Scene selector */}
+                          <div className="mb-5">
+                            <label className="text-white/60 text-xs font-semibold uppercase tracking-wider mb-2 block">Select Scene to Re-render</label>
+                            <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                              {(qualityStatus?.scenes ?? []).map((s) => (
+                                <button
+                                  key={s.id}
+                                  onClick={() => {
+                                    setSelectedSceneForReRender(s.id);
+                                    setSceneReRenderPrompt(s.prompt ?? "");
+                                    setSceneReRenderLipSync(s.lipSync ?? true);
+                                  }}
+                                  className={`relative rounded-lg border p-2 text-center text-xs font-semibold transition-all ${
+                                    selectedSceneForReRender === s.id
+                                      ? "border-[--color-gold] bg-[--color-gold]/20 text-[--color-gold]"
+                                      : "border-white/10 bg-white/5 text-white/50 hover:border-[--color-gold]/40"
+                                  }`}
+                                >
+                                  <span className="block text-base font-bold">{s.sceneIndex + 1}</span>
+                                  {s.freeReRenderUsed && (
+                                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-500 flex items-center justify-center">
+                                      <span className="text-[7px] text-white font-bold">1c</span>
+                                    </span>
+                                  )}
+                                  {s.reRenderCount > 0 && (
+                                    <span className="text-[9px] text-white/30 block">{s.reRenderCount}x</span>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                            {selectedSceneForReRender !== null && (() => {
+                              const sc = qualityStatus?.scenes.find(s => s.id === selectedSceneForReRender);
+                              if (!sc) return null;
+                              return (
+                                <div className="mt-2 text-xs text-white/40">
+                                  {sc.freeReRenderUsed
+                                    ? "⚠️ Free re-render used — next re-render costs 1 credit"
+                                    : "✅ First re-render is FREE for this scene"}
+                                  {sc.lyrics && <span className="ml-2 italic">"{sc.lyrics.slice(0, 60)}..."</span>}
+                                </div>
+                              );
+                            })()}
+                          </div>
+
+                          {selectedSceneForReRender !== null && (
+                            <>
+                              {/* Camera direction */}
+                              <div className="mb-4">
+                                <label className="text-white/60 text-xs font-semibold uppercase tracking-wider mb-2 block">Camera Direction</label>
+                                <div className="flex flex-wrap gap-2">
+                                  {["close-up", "wide shot", "medium shot", "tracking shot", "over-the-shoulder", "low angle", "aerial"].map(cam => (
+                                    <button
+                                      key={cam}
+                                      onClick={() => setSceneReRenderCamera(cam)}
+                                      className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                                        sceneReRenderCamera === cam
+                                          ? "border-[--color-gold] bg-[--color-gold]/20 text-[--color-gold]"
+                                          : "border-white/10 bg-white/5 text-white/50 hover:border-[--color-gold]/30"
+                                      }`}
+                                    >
+                                      {cam}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Lip sync toggle */}
+                              <div className="mb-4 flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-3">
+                                <div>
+                                  <p className="text-white text-sm font-medium">Lip Sync</p>
+                                  <p className="text-white/40 text-xs">Character sings directly to camera, synced to audio</p>
+                                </div>
+                                <Switch
+                                  checked={sceneReRenderLipSync}
+                                  onCheckedChange={setSceneReRenderLipSync}
+                                />
+                              </div>
+
+                              {/* Scene prompt */}
+                              <div className="mb-5">
+                                <label className="text-white/60 text-xs font-semibold uppercase tracking-wider mb-2 block">Scene Direction (edit to change the scene)</label>
+                                <Textarea
+                                  value={sceneReRenderPrompt}
+                                  onChange={e => setSceneReRenderPrompt(e.target.value)}
+                                  rows={4}
+                                  className="bg-white/5 border-white/10 text-white text-sm resize-none"
+                                  placeholder="Describe the scene: setting, action, mood, camera..."
+                                />
+                              </div>
+
+                              <Button
+                                className="w-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#c9a84c] hover:to-[#5a3a15] text-white font-semibold h-11"
+                                disabled={isRequestingReRender || requestSceneReRenderMutation.isPending}
+                                onClick={() => {
+                                  if (!jobId || selectedSceneForReRender === null) return;
+                                  setIsRequestingReRender(true);
+                                  requestSceneReRenderMutation.mutate({
+                                    jobId,
+                                    sceneId: selectedSceneForReRender,
+                                    updatedPrompt: sceneReRenderPrompt || undefined,
+                                    lipSync: sceneReRenderLipSync,
+                                    cameraDirection: sceneReRenderCamera,
+                                  });
+                                }}
+                              >
+                                {isRequestingReRender ? (
+                                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Queuing Re-render...</>
+                                ) : (
+                                  <><RefreshCw className="w-4 h-4 mr-2" /> Re-render This Scene</>
+                                )}
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Upsell panel — multi-select with Stripe checkout */}
                     <div className="rounded-xl border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/20 to-zinc-900 p-6">

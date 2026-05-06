@@ -12,6 +12,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 import { generateImage } from "../_core/imageGeneration";
 import { storagePut } from "../storage";
+import { analyseContent } from "../content-analyser";
 import Stripe from "stripe";
 
 const CREDIT_COSTS: Record<string, number> = {
@@ -174,6 +175,37 @@ export const kidsVideoRouter = router({
             ).join("\n")}`
           : "";
 
+        // Run content analysis to deeply understand the story before generating scenes
+        let storyAnalysis: Awaited<ReturnType<typeof analyseContent>> | null = null;
+        try {
+          storyAnalysis = await analyseContent({
+            lyrics: job.storyPrompt ?? "",
+            themePrompt: job.storyPrompt ?? "",
+            title: (job.storyPrompt ?? "Kids Animation").slice(0, 60),
+            appType: "wizanimate",
+          });
+          console.log(`[KidsVideo] Story analysis: theme="${storyAnalysis.theme}", mood="${storyAnalysis.overallMood}"`);
+        } catch (err: any) {
+          console.warn(`[KidsVideo] Story analysis failed (non-fatal):`, err?.message);
+        }
+
+        const storyAnalysisBlock = storyAnalysis ? `
+
+STORY UNDERSTANDING (use this to drive every scene):
+- Theme: ${storyAnalysis.theme}
+- Narrative: ${storyAnalysis.narrative}
+- Emotional Arc: ${storyAnalysis.emotionalArc}
+- Key Visual Imagery: ${storyAnalysis.keyImagery.join(", ")}
+- Overall Mood: ${storyAnalysis.overallMood}
+- Setting: ${storyAnalysis.settingContext}
+- Colour Palette: ${storyAnalysis.dominantColours.join(", ")}
+
+SCENE TYPE RULES:
+- Opening scene: establish the world, introduce characters, build wonder
+- Middle scenes: develop the story, show the emotional journey
+- Climax scene: peak moment of the story, most visually dramatic
+- Resolution scene: happy ending, characters at peace, warm and joyful` : "";
+
         const sceneBreakdown = await invokeLLM({
           messages: [
             {
@@ -185,6 +217,7 @@ Each scene must be:
 - Consistent with the EXACT same characters throughout — same colours, same features, same outfits
 - Described in rich visual detail for image generation
 - The imagePrompt must include explicit character descriptions to enforce consistency
+- MANDATORY: Each scene must visually reflect the story's theme, emotional arc, and key imagery${storyAnalysisBlock}
 
 Return JSON: { "scenes": [{ "sceneIndex": 0, "sceneLabel": "Scene 1: ...", "description": "...", "imagePrompt": "..." }] }`,
             },
@@ -193,7 +226,7 @@ Return JSON: { "scenes": [{ "sceneIndex": 0, "sceneLabel": "Scene 1: ...", "desc
               content: `Story idea: "${job.storyPrompt}"
 Animation style: ${job.animationStyle}${characterContext}
 
-Create 4-6 storyboard scenes. Every imagePrompt MUST include the full character description to ensure visual consistency.`,
+Create 4-6 storyboard scenes. Every imagePrompt MUST include the full character description to ensure visual consistency. Every scene MUST reflect the story's emotional arc and key imagery.`,
             },
           ],
           response_format: {

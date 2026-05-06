@@ -2,12 +2,18 @@
  * Atlas Cloud AI — Video Generation Client
  * Docs: https://www.atlascloud.ai/docs
  * Endpoint: https://api.atlascloud.ai/api/v1/model/generateVideo
- * Model: bytedance/seedance-2.0/text-to-video
+ *
+ * Models:
+ *   bytedance/seedance-2.0/text-to-video         — text only
+ *   bytedance/seedance-2.0/image-to-video         — image anchor + text
+ *   bytedance/seedance-2.0/reference-to-video     — reference_images + reference_audios (lip sync)
  */
 import axios from "axios";
 
 const ATLAS_BASE = "https://api.atlascloud.ai/api/v1";
-const ATLAS_MODEL = "bytedance/seedance-2.0/text-to-video";
+const ATLAS_MODEL_T2V = "bytedance/seedance-2.0/text-to-video";
+const ATLAS_MODEL_I2V = "bytedance/seedance-2.0/image-to-video";
+const ATLAS_MODEL_R2V = "bytedance/seedance-2.0/reference-to-video";
 
 function getApiKey(): string {
   const key = process.env.ATLAS_CLOUD_API_KEY;
@@ -38,7 +44,7 @@ export async function submitAtlasVideo(
   const response = await axios.post(
     `${ATLAS_BASE}/model/generateVideo`,
     {
-      model: ATLAS_MODEL,
+      model: ATLAS_MODEL_T2V,
       prompt,
       duration: durationSeconds,
       resolution: "720p",
@@ -60,6 +66,120 @@ export async function submitAtlasVideo(
     );
   }
 
+  return { predictionId };
+}
+
+/**
+ * Submit an image-to-video job to Atlas Cloud.
+ * Uses the character reference image as the first frame anchor for visual consistency.
+ * NOTE: This model does NOT support audio lip sync — use submitAtlasReferenceToVideo for lip sync.
+ */
+export async function submitAtlasImageToVideo(
+  prompt: string,
+  imageUrl: string,
+  durationSeconds: number = 5
+): Promise<AtlasVideoJob> {
+  const apiKey = getApiKey();
+
+  const response = await axios.post(
+    `${ATLAS_BASE}/model/generateVideo`,
+    {
+      model: ATLAS_MODEL_I2V,
+      prompt,
+      image: imageUrl,
+      duration: durationSeconds,
+      resolution: "720p",
+      generate_audio: false,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      timeout: 30_000,
+    }
+  );
+
+  const data = response.data;
+  const predictionId = data?.data?.id;
+  if (!predictionId) {
+    throw new Error(
+      `Atlas Cloud image-to-video: no prediction ID in response: ${JSON.stringify(data)}`
+    );
+  }
+
+  return { predictionId };
+}
+
+/**
+ * Submit a reference-to-video job to Atlas Cloud.
+ *
+ * This is the CORRECT model for music videos with lip sync:
+ *   - reference_images: up to 9 character reference photos (face/body anchor)
+ *   - reference_audios: up to 3 audio clips (2–15s each) for phoneme-accurate lip sync
+ *
+ * The model drives mouth movement from the actual audio waveform — not from text prompts.
+ * This is the only way to achieve frame-accurate lip sync.
+ *
+ * @param prompt         Scene description (camera, action, setting)
+ * @param referenceImages Array of character reference image URLs (max 9)
+ * @param referenceAudios Array of audio clip URLs for lip sync (max 3, each 2–15s, total ≤15s)
+ * @param durationSeconds Clip duration (5 or 8 seconds)
+ */
+export async function submitAtlasReferenceToVideo(
+  prompt: string,
+  referenceImages: string[],
+  referenceAudios: string[],
+  durationSeconds: number = 8
+): Promise<AtlasVideoJob> {
+  const apiKey = getApiKey();
+
+  // Validate constraints
+  if (referenceImages.length === 0) {
+    throw new Error("Atlas Cloud reference-to-video: at least one reference image is required");
+  }
+  if (referenceImages.length > 9) {
+    throw new Error("Atlas Cloud reference-to-video: maximum 9 reference images allowed");
+  }
+  if (referenceAudios.length > 3) {
+    throw new Error("Atlas Cloud reference-to-video: maximum 3 reference audio clips allowed");
+  }
+
+  const body: Record<string, unknown> = {
+    model: ATLAS_MODEL_R2V,
+    prompt,
+    reference_images: referenceImages,
+    duration: durationSeconds,
+    resolution: "720p",
+    generate_audio: false, // music video — audio comes from the track, not generated
+  };
+
+  // Only include reference_audios if provided (lip sync)
+  if (referenceAudios.length > 0) {
+    body.reference_audios = referenceAudios;
+  }
+
+  const response = await axios.post(
+    `${ATLAS_BASE}/model/generateVideo`,
+    body,
+    {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      timeout: 30_000,
+    }
+  );
+
+  const data = response.data;
+  const predictionId = data?.data?.id;
+  if (!predictionId) {
+    throw new Error(
+      `Atlas Cloud reference-to-video: no prediction ID in response: ${JSON.stringify(data)}`
+    );
+  }
+
+  console.log(`[AtlasCloud] reference-to-video submitted: predictionId=${predictionId}, images=${referenceImages.length}, audios=${referenceAudios.length}`);
   return { predictionId };
 }
 
