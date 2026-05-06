@@ -6710,3 +6710,17 @@
 - [x] Projects empty state (already included in unified Projects.tsx rewrite)
 - [x] WizScore decision: confirmed functional (has real backend procedures), not a placeholder
 - [x] Mobile nav back button (LandscapeHint updated with optional backHref prop, default /dashboard)
+
+## Session 2026-05-06 Evening — QA Sprint Continuation
+
+- [x] Analytics tracking added to QuickTopUpModal (checkoutStarted for packs + subscriptions, tab change events)
+- [x] Founding Creator Campaign infrastructure (isFoundingCreator + foundingCreatorGrantedAt DB columns, sendFoundingCreatorCampaign procedure, AdminEmail UI panel)
+- [x] Subscription webhook idempotency fix (prevent duplicate credit grants on checkout.session.completed)
+- [x] WizAnimate rebranding: "Kids Animation" → "WizAnimate™" in Dashboard, HabitLoopPanel, CreditPricingGuide
+- [x] Projects page unified view (listAllJobs queries all 3 job tables, delete + empty state)
+- [ ] Final polish pass — spacing, icons, loading states, empty states, mobile clipping, animation smoothness, hover states
+- [ ] Analytics audit — verify all 7 funnel events fire correctly (signup, checkout, top-up, render, failed render, subscription, project completion)
+- [ ] First-time user journey QA
+- [ ] Compile QA report PDF
+- [ ] DNS fix reminder — SPF + Resend DKIM records needed before Founding Creator campaign
+- [ ] Founding Creator Campaign launch (after DNS verified)

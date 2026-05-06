@@ -30,6 +30,9 @@ import {
   EyeOff,
   ChevronDown,
   ChevronUp,
+  Star,
+  Gift,
+  Zap,
 } from "@/lib/icons";
 import { Link } from "wouter";
 
@@ -79,8 +82,28 @@ export default function AdminEmail() {
   const [showPreview, setShowPreview] = useState(false);
   const [showSubscribers, setShowSubscribers] = useState(false);
   const [confirmSend, setConfirmSend] = useState(false);
+  const [showFoundingPreview, setShowFoundingPreview] = useState(false);
+  const [confirmFoundingSend, setConfirmFoundingSend] = useState(false);
 
   const { data: subscribers, isLoading: subLoading } = trpc.adminEmail.listSubscribers.useQuery();
+  const { data: foundingStats, isLoading: foundingStatsLoading, refetch: refetchFoundingStats } =
+    trpc.adminEmail.getFoundingCreatorStats.useQuery();
+  const { data: foundingPreview } = trpc.adminEmail.getFoundingCreatorEmailPreview.useQuery();
+  const sendFoundingCampaign = trpc.adminEmail.sendFoundingCreatorCampaign.useMutation({
+    onSuccess: (result) => {
+      toast.success(`Founding Creator campaign sent!`, {
+        description: result.message,
+        duration: 6000,
+      });
+      setConfirmFoundingSend(false);
+      refetchFoundingStats();
+      refetchBroadcasts();
+    },
+    onError: (err) => {
+      toast.error("Campaign failed", { description: err.message });
+      setConfirmFoundingSend(false);
+    },
+  });
   const { data: broadcasts, isLoading: broadcastLoading, refetch: refetchBroadcasts } =
     trpc.adminEmail.listBroadcasts.useQuery();
 
@@ -441,6 +464,132 @@ export default function AdminEmail() {
                 ))}
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* ── Founding Creator Campaign ── */}
+        <Card className="border-purple-500/30 bg-gradient-to-br from-purple-950/20 to-indigo-950/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Star className="w-5 h-5 text-yellow-400" />
+              Founding Creator Campaign
+            </CardTitle>
+            <CardDescription>
+              Grant 100 bonus credits and send a personalised re-engagement email to all early users who have never rendered.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {foundingStatsLoading ? (
+              <div className="flex items-center gap-2 text-muted-foreground py-4">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">Loading campaign stats...</span>
+              </div>
+            ) : foundingStats ? (
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { label: "Total Users", value: foundingStats.totalUsers, icon: <Users className="w-4 h-4" /> },
+                    { label: "Eligible", value: foundingStats.eligibleCount, icon: <Gift className="w-4 h-4 text-purple-400" /> },
+                    { label: "Already Sent", value: foundingStats.alreadyGrantedCount, icon: <CheckCircle2 className="w-4 h-4 text-green-400" /> },
+                    { label: "To Send Now", value: foundingStats.toSendCount, icon: <Zap className="w-4 h-4 text-yellow-400" /> },
+                  ].map((s) => (
+                    <div key={s.label} className="bg-muted/30 rounded-lg p-3 text-center border border-border/40">
+                      <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">{s.icon}<span className="text-xs">{s.label}</span></div>
+                      <div className="text-2xl font-bold">{s.value}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {foundingStats.users.length > 0 && (
+                  <div className="rounded-lg border border-border/40 overflow-hidden">
+                    <div className="bg-muted/20 px-3 py-2 text-xs font-medium text-muted-foreground border-b border-border/40">
+                      Eligible recipients ({foundingStats.users.length})
+                    </div>
+                    <div className="max-h-48 overflow-y-auto divide-y divide-border/30">
+                      {foundingStats.users.map((u) => (
+                        <div key={u.id} className="flex items-center justify-between px-3 py-2">
+                          <div>
+                            <span className="text-sm font-medium">{u.name}</span>
+                            <span className="text-xs text-muted-foreground ml-2">{u.email}</span>
+                          </div>
+                          {u.alreadyGranted ? (
+                            <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-400">Sent</Badge>
+                          ) : (
+                            <Badge variant="secondary" className="text-xs bg-yellow-500/10 text-yellow-400">Pending</Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowFoundingPreview(!showFoundingPreview)}
+                    className="text-xs"
+                  >
+                    {showFoundingPreview ? <EyeOff className="w-3 h-3 mr-1" /> : <Eye className="w-3 h-3 mr-1" />}
+                    {showFoundingPreview ? "Hide" : "Preview"} Email
+                  </Button>
+                  {showFoundingPreview && foundingPreview && (
+                    <div className="mt-3 rounded-lg border border-border/40 overflow-hidden">
+                      <iframe
+                        srcDoc={foundingPreview.html}
+                        className="w-full h-[500px]"
+                        title="Founding Creator Email Preview"
+                        sandbox="allow-same-origin"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {foundingStats.toSendCount > 0 ? (
+                  !confirmFoundingSend ? (
+                    <Button
+                      onClick={() => setConfirmFoundingSend(true)}
+                      className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                    >
+                      <Star className="w-4 h-4 mr-2" />
+                      Launch Founding Creator Campaign ({foundingStats.toSendCount} users)
+                    </Button>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-sm text-amber-400 font-medium text-center">
+                        ⚠ This will grant 100 credits and send an email to {foundingStats.toSendCount} users. Confirm?
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => setConfirmFoundingSend(false)}
+                          disabled={sendFoundingCampaign.isPending}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600"
+                          onClick={() => sendFoundingCampaign.mutate()}
+                          disabled={sendFoundingCampaign.isPending}
+                        >
+                          {sendFoundingCampaign.isPending ? (
+                            <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Sending...</>
+                          ) : (
+                            <><Send className="w-4 h-4 mr-2" />Confirm & Send</>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  )
+                ) : (
+                  <div className="flex items-center gap-2 text-green-400 justify-center py-2">
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span className="text-sm font-medium">All eligible users have been contacted</span>
+                  </div>
+                )}
+              </>
+            ) : null}
           </CardContent>
         </Card>
 

@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
+import { mp } from "@/lib/mixpanel";
 import { Zap, Check, Loader2, ExternalLink, TrendingUp, AlertCircle, Crown, Sparkles, Star } from "@/lib/icons";
 import { cn } from "@/lib/utils";
 
@@ -207,6 +208,8 @@ export function QuickTopUpModal({
   });
 
   const handlePurchase = useCallback(() => {
+    const pack = PACKS.find((p) => p.key === selectedKey);
+    if (pack) mp.checkoutStarted(`topup_${pack.key}`, pack.priceGbp);
     setIsRedirecting(true);
     checkoutMutation.mutate({
       pack: selectedKey,
@@ -215,6 +218,7 @@ export function QuickTopUpModal({
   }, [selectedKey, checkoutMutation]);
 
   const handleSubscribe = useCallback(() => {
+    mp.checkoutStarted(`subscribe_${selectedSubPlan}_${subBillingInterval}`);
     setIsRedirecting(true);
     subscriptionMutation.mutate({
       plan: selectedSubPlan,
@@ -273,7 +277,7 @@ export function QuickTopUpModal({
         {/* Tab switcher */}
         <div className="flex rounded-lg border border-border overflow-hidden">
           <button
-            onClick={() => setActiveTab("packs")}
+            onClick={() => { setActiveTab("packs"); mp.track("TopUp Modal Tab Changed", { tab: "packs" }); }}
             className={cn(
               "flex-1 py-2 text-xs font-semibold transition-colors",
               activeTab === "packs"
@@ -285,7 +289,7 @@ export function QuickTopUpModal({
             Top Up Credits
           </button>
           <button
-            onClick={() => setActiveTab("subscribe")}
+            onClick={() => { setActiveTab("subscribe"); mp.track("TopUp Modal Tab Changed", { tab: "subscribe" }); }}
             className={cn(
               "flex-1 py-2 text-xs font-semibold transition-colors border-l border-border",
               activeTab === "subscribe"
@@ -413,7 +417,7 @@ export function QuickTopUpModal({
                 variant="outline"
                 size="sm"
                 className="shrink-0 text-purple-400 border-purple-500/30 hover:bg-purple-500/10 text-xs"
-                onClick={() => setActiveTab("subscribe")}
+                onClick={() => { setActiveTab("subscribe"); mp.track("TopUp Modal Tab Changed", { tab: "subscribe" }); }}
               >
                 See plans
               </Button>
