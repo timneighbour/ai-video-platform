@@ -280,7 +280,7 @@ function Router() {
         <Route path={"/credits"} component={Credits} />
         <Route path={"/credits/guide"} component={CreditPricingGuide} />
         <Route path={"/dashboard"} component={Dashboard} />
-        <Route path={"/projects"}>{() => { window.location.replace("/my-projects"); return null; }}</Route>
+        <Route path={"/projects"} component={Projects} />
         <Route path={"/account"} component={Account} />
         <Route path={"/tools/text-to-video"} component={TextToVideoCreator} />{/* → TextToVideoCreator app */}
         <Route path={"/tools/lip-sync"} component={LipSync} />
@@ -295,7 +295,7 @@ function Router() {
         <Route path={"/music-video-ai"} component={WizVideoLandingPage} />{/* SEO alias */}
         <Route path={"/music-video/create"} component={MusicVideoAutopilot} />
         <Route path={"/render-history"} component={RenderHistory} />
-        <Route path={"/my-projects"} component={MyProjects} />
+        <Route path={"/my-projects"} component={Projects} />{/* unified projects page */}
         <Route path={"/kids-video"} component={KidsVideo} />
         <Route path={"/text-to-video"} component={TextToVideoCreator} />
         <Route path={"/ai-video-generator"} component={TextToVideoCreator} />{/* SEO alias */}

@@ -1,5 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { analytics } from "@/lib/analytics";
+import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -145,6 +146,7 @@ export default function Autopilot() {
     if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
   }, []);
 
+  useEffect(() => { if (isAuthenticated) { mp.studioEntered("WizPilot"); } }, [isAuthenticated]);
   useEffect(() => () => stopProgressAnimation(), [stopProgressAnimation]);
 
   const utils = trpc.useUtils();

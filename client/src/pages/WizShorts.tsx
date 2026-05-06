@@ -153,6 +153,7 @@ export default function WizShorts() {
   useEffect(() => {
     return () => { if (pollIntervalRef.current) clearInterval(pollIntervalRef.current); };
   }, []);
+  useEffect(() => { if (user) { mp.studioEntered("WizShorts"); } }, [user]);
 
   // Quick-start pre-fill: ?demo=1&prompt=... OR ?jobId=X (open from MyProjects)
   useEffect(() => {

@@ -6724,3 +6724,10 @@
 - [ ] Compile QA report PDF
 - [ ] DNS fix reminder — SPF + Resend DKIM records needed before Founding Creator campaign
 - [ ] Founding Creator Campaign launch (after DNS verified)
+
+## Session 2026-05-06 Evening
+- [x] Unify /projects and /my-projects routes to use Projects.tsx (comprehensive page with listAllJobs)
+- [x] Add studioEntered Mixpanel tracking to WizShorts, WizImage, Autopilot (WizPilot), MusicVideoAutopilot
+- [x] Add useEffect import to WizImage
+- [x] Add mp import to Autopilot
+- [x] All TypeScript checks pass (0 errors)

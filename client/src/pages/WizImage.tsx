@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { LandscapeHint } from "@/components/LandscapeHint";
 import { IMAGE_RENDER_QUALITY, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
@@ -74,6 +74,7 @@ const EXPORT_FORMATS = ["PNG", "JPEG", "TIFF", "PSD", "SVG", "WEBP"];
 export default function WizImage() {
   useSEO({ title: "WizImage™ — AI Visual Creator", path: "/wiz-image", description: "Create stunning AI visuals: album covers, band photos, tour posters, merch designs and more. Powered by WizImage™ AI Visual Creator.", noindex: true });
    const { user, loading: authLoading } = useAuth();
+  useEffect(() => { if (user) { mp.studioEntered("WizImage"); } }, [user]);
   const { balance: creditBalance } = useCreditGuard();
   const [topUpOpen, setTopUpOpen] = useState(false);
   const CREDITS_PER_IMAGE = 2;

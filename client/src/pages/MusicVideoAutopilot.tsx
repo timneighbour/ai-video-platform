@@ -208,6 +208,7 @@ export default function MusicVideoAutopilot() {
 
   // Handle URL params: ?job_id=X&render_started=true (redirected from RenderSuccess after Stripe payment)
   // Also handles ?demo=1&prompt=... (quick-start pre-fill from onboarding)
+  useEffect(() => { if (user) { mp.studioEntered("MusicVideoAutopilot"); } }, [user]);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     // Support ?job_id=X (Stripe redirect), ?jobId=X (MyProjects / direct link), and ?resume=X (Dashboard legacy)
