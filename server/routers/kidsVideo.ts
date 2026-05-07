@@ -6,7 +6,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { kidsVideoJobs } from "../../drizzle/schema";
+import { kidsVideoJobs, savedStoryboards } from "../../drizzle/schema";
 import type { KidsStoryboardFrame } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
@@ -15,6 +15,12 @@ import { storagePut } from "../storage";
 import { analyseContent } from "../content-analyser";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import Stripe from "stripe";
+
+async function requireDb() {
+  const db = await getDb();
+  if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+  return db;
+}
 
 const CREDIT_COSTS: Record<string, number> = {
   "5s": 50,
@@ -793,7 +799,6 @@ Return ONLY valid JSON — no markdown, no explanation.`;
     }))
     .mutation(async ({ input, ctx }) => {
       const db = await requireDb();
-      const { savedStoryboards } = await import("../../drizzle/schema");
       const [result] = await db.insert(savedStoryboards).values({
         userId: ctx.user.id,
         title: input.title,
@@ -814,8 +819,6 @@ Return ONLY valid JSON — no markdown, no explanation.`;
   listStoryboards: protectedProcedure
     .query(async ({ ctx }) => {
       const db = await requireDb();
-      const { savedStoryboards } = await import("../../drizzle/schema");
-      const { eq, desc } = await import("drizzle-orm");
       const rows = await db.select().from(savedStoryboards)
         .where(eq(savedStoryboards.userId, ctx.user.id))
         .orderBy(desc(savedStoryboards.createdAt))
@@ -830,8 +833,6 @@ Return ONLY valid JSON — no markdown, no explanation.`;
     .input(z.object({ id: z.number().int().positive() }))
     .mutation(async ({ input, ctx }) => {
       const db = await requireDb();
-      const { savedStoryboards } = await import("../../drizzle/schema");
-      const { eq, and } = await import("drizzle-orm");
       await db.delete(savedStoryboards)
         .where(and(eq(savedStoryboards.id, input.id), eq(savedStoryboards.userId, ctx.user.id)));
       return { ok: true };
