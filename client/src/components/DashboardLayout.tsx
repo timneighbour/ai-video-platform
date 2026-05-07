@@ -47,6 +47,7 @@ const menuItems = [
   { icon: Wand2, label: "WizScript", path: "/text-to-video" },
   { icon: PlayCircle, label: "WizPilot", path: WIZPILOT_STUDIO_PAGE },
   { icon: Mic, label: "AI Voiceover", path: "/tools/voiceover" },
+  { icon: BookOpen, label: "Character Library", path: "/characters" },
   { icon: FolderOpen, label: "My Projects", path: "/my-projects" },
   { icon: CreditCard, label: "Credits", path: "/credits" },
   { icon: Settings, label: "Account", path: "/account" },

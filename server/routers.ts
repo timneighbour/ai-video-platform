@@ -26,6 +26,7 @@ import { voiceRouter } from "./routers/voice";
 import { adminEmailRouter } from "./routers/adminEmail";
 import { adminCreditsRouter } from "./routers/adminCredits";
 import { unsubscribeRouter } from "./routers/unsubscribe";
+import { characterLibraryRouter } from "./routers/characterLibrary";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -54,6 +55,7 @@ export const appRouter = router({
   adminEmail: adminEmailRouter,
   adminCredits: adminCreditsRouter,
   unsubscribe: unsubscribeRouter,
+  characterLibrary: characterLibraryRouter,
   platform: router({
     stats: publicProcedure.query(async () => {
       try {

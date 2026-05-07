@@ -46,6 +46,7 @@ const CrispChat = lazy(() => import("@/components/CrispChat"));
 const MusicCreator = lazy(() => import("@/pages/MusicCreator"));
 const RenderHistory = lazy(() => import("@/pages/RenderHistory"));
 const KidsVideo = lazy(() => import("@/pages/KidsVideo"));
+const CharacterLibrary = lazy(() => import("@/pages/CharacterLibrary"));
 const TextToVideoCreator = lazy(() => import("@/pages/TextToVideoCreator"));
 const HowItWorks = lazy(() => import("@/pages/HowItWorks"));
 const EnhancementStudio = lazy(() => import("@/pages/EnhancementStudio"));
@@ -212,7 +213,7 @@ const PRIVATE_ROUTE_PREFIXES = [
   "/dashboard", "/projects", "/account", "/settings",
   "/music-video/create", "/render-history", "/batch-regeneration",
   "/enhancement-studio", "/tools/", "/wizscore", "/wizsync",
-  "/music-creator", "/wiz-image", "/wiz-shorts", "/kids-video",
+  "/music-creator", "/wiz-image", "/wiz-shorts", "/kids-video", "/characters",
   "/text-to-video", "/onboarding", "/credits", "/subscribe",
   "/wizpilot", "/autopilot",
 ];
@@ -299,6 +300,7 @@ function Router() {
         <Route path={"/render-history"} component={RenderHistory} />
         <Route path={"/my-projects"} component={Projects} />{/* unified projects page */}
         <Route path={"/kids-video"} component={KidsVideo} />
+        <Route path={"/characters"} component={CharacterLibrary} />
         <Route path={"/text-to-video"} component={TextToVideoCreator} />
         <Route path={"/ai-video-generator"} component={TextToVideoCreator} />{/* SEO alias */}
         <Route path={"/ai-animation-maker"} component={AiAnimationMaker} />

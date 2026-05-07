@@ -1152,3 +1152,32 @@ export const creditDisputes = mysqlTable("creditDisputes", {
 });
 export type CreditDispute = typeof creditDisputes.$inferSelect;
 export type InsertCreditDispute = typeof creditDisputes.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Character Library — saved characters reusable across all products
+// ─────────────────────────────────────────────────────────────────────────────
+export const savedCharacters = mysqlTable("savedCharacters", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  /** Display name for the character (e.g. "Freddy the Schnauzer") */
+  name: varchar("name", { length: 255 }).notNull(),
+  /** Full description used for AI generation (traits, costume, colours, etc.) */
+  description: text("description"),
+  /** Voice/lip-sync type for WizSync™ */
+  gender: mysqlEnum("gender", ["male", "female", "neutral"]).default("neutral").notNull(),
+  /** Animation style slug (e.g. "pixar3d", "ghibli", "anime") */
+  animStyle: varchar("animStyle", { length: 64 }),
+  /** S3 URL of the original uploaded reference photo */
+  photoUrl: text("photoUrl"),
+  /** S3 URL of the AI-generated style preview image */
+  previewUrl: text("previewUrl"),
+  /** Comma-separated tags for search/filter (e.g. "animal,dog,pixar") */
+  tags: varchar("tags", { length: 500 }),
+  /** How many times this character has been used across projects */
+  useCount: int("useCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SavedCharacter = typeof savedCharacters.$inferSelect;
+export type InsertSavedCharacter = typeof savedCharacters.$inferInsert;

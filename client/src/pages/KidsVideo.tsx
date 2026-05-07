@@ -392,6 +392,52 @@ export default function KidsVideo() {
     } as any);
   }, [animStyle, charPreviewMutation]);
 
+  // ── Save to Library ────────────────────────────────────────────────────────
+  const saveToLibraryMutation = trpc.characterLibrary.save.useMutation({
+    onSuccess: (_, variables) => {
+      toast.success(`“${variables.name}” saved to your Character Library!`);
+    },
+    onError: (e) => toast.error(`Failed to save: ${e.message}`),
+  });
+  const handleSaveToLibrary = useCallback((char: Character) => {
+    const previewUrl = charPreviewUrls[char.id];
+    saveToLibraryMutation.mutate({
+      name: char.name,
+      description: char.description || undefined,
+      gender: char.gender,
+      animStyle: animStyle || undefined,
+      photoUrl: char.photoUrl && !char.photoUrl.startsWith("blob:") ? char.photoUrl : undefined,
+      previewUrl: previewUrl || undefined,
+      tags: animStyle ? `wizanimate,${animStyle}` : "wizanimate",
+    });
+  }, [charPreviewUrls, animStyle, saveToLibraryMutation]);
+
+  // ── Add from Library picker ───────────────────────────────────────────────
+  const [showLibraryPicker, setShowLibraryPicker] = useState(false);
+  const { data: libraryChars } = trpc.characterLibrary.list.useQuery(
+    undefined,
+    { enabled: showLibraryPicker }
+  );
+  const incrementUseCount = trpc.characterLibrary.incrementUseCount.useMutation();
+  const handleAddFromLibrary = useCallback((libChar: NonNullable<typeof libraryChars>[number]) => {
+    const newId = `char_${Date.now()}`;
+    setCharacters(prev => [...prev, {
+      id: newId,
+      name: libChar.name,
+      description: libChar.description ?? "",
+      gender: (libChar.gender as "male" | "female" | "neutral") ?? "neutral",
+      photoUrl: libChar.photoUrl ?? null,
+      locked: false,
+    }]);
+    if (libChar.previewUrl) {
+      setCharPreviewUrls(prev => ({ ...prev, [newId]: libChar.previewUrl! }));
+    }
+    if (!animStyle && libChar.animStyle) setAnimStyle(libChar.animStyle);
+    incrementUseCount.mutate({ id: libChar.id });
+    setShowLibraryPicker(false);
+    toast.success(`“${libChar.name}” added from your library!`);
+  }, [animStyle, incrementUseCount]);
+
   // ── Demo pre-fill ─────────────────────────────────────────────────────────
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -831,6 +877,88 @@ export default function KidsVideo() {
               <strong>WizSync™</strong> — Character lip-sync and facial animation engine. Set each character’s voice type so WizSync™ can assign the correct vocal register for lip-sync animation.
             </div>
 
+            {/* Add from Library button */}
+            {isAuthenticated && (
+              <div style={{ display: "flex", gap: 10, marginBottom: 16, alignItems: "center" }}>
+                <button
+                  onClick={() => setShowLibraryPicker(true)}
+                  style={{
+                    padding: "9px 16px", background: "rgba(124,92,191,0.12)",
+                    border: `1px solid ${ACCENT_BORDER}`, color: ACCENT_LIGHT,
+                    borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 700,
+                    letterSpacing: "0.03em",
+                  }}
+                >
+                  📚 Add from My Character Library
+                </button>
+                <span style={{ fontSize: 11, color: "#555" }}>or build a new character below</span>
+              </div>
+            )}
+
+            {/* Library Picker Modal */}
+            {showLibraryPicker && (
+              <div style={{
+                position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)",
+                zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center",
+                padding: 20,
+              }} onClick={() => setShowLibraryPicker(false)}>
+                <div
+                  onClick={e => e.stopPropagation()}
+                  style={{
+                    background: "#0f0f0f", border: "1px solid #2a2a2a",
+                    borderRadius: 16, padding: 24, maxWidth: 720, width: "100%",
+                    maxHeight: "80vh", overflowY: "auto",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                    <div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#e0e0e0" }}>My Character Library</div>
+                      <div style={{ fontSize: 12, color: "#555", marginTop: 4 }}>Select a saved character to add to this project</div>
+                    </div>
+                    <button onClick={() => setShowLibraryPicker(false)} style={{ background: "none", border: "none", color: "#555", fontSize: 20, cursor: "pointer" }}>×</button>
+                  </div>
+                  {!libraryChars || libraryChars.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "40px 0", color: "#444" }}>
+                      <div style={{ fontSize: 32, marginBottom: 12 }}>🎭</div>
+                      <div style={{ fontSize: 14, marginBottom: 8 }}>No saved characters yet</div>
+                      <div style={{ fontSize: 12, color: "#333" }}>Build and lock characters, then save them to your library for reuse</div>
+                    </div>
+                  ) : (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12 }}>
+                      {libraryChars.map(lc => (
+                        <div
+                          key={lc.id}
+                          onClick={() => handleAddFromLibrary(lc)}
+                          style={{
+                            borderRadius: 10, overflow: "hidden",
+                            border: "1px solid #1e1e1e", cursor: "pointer",
+                            background: "#0a0a0a", transition: "all 0.2s",
+                          }}
+                        >
+                          <div style={{ height: 120, background: "#111", overflow: "hidden" }}>
+                            {lc.previewUrl ? (
+                              <img src={lc.previewUrl} alt={lc.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            ) : lc.photoUrl ? (
+                              <img src={lc.photoUrl} alt={lc.name} style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.7)" }} />
+                            ) : (
+                              <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36 }}>
+                                {lc.gender === "male" ? "👨" : lc.gender === "female" ? "👩" : "🧑"}
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ padding: "8px 10px" }}>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: "#e0e0e0", marginBottom: 3 }}>{lc.name}</div>
+                            {lc.animStyle && <div style={{ fontSize: 10, color: GOLD }}>{ANIM_STYLES.find(s => s.id === lc.animStyle)?.label ?? lc.animStyle}</div>}
+                            <div style={{ fontSize: 10, color: "#444", marginTop: 2 }}>{lc.gender}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Character cards */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20, marginBottom: 24 }}>
               {characters.map(char => (
@@ -996,6 +1124,23 @@ export default function KidsVideo() {
                         }}
                       >Remove</button>
                     </div>
+                    {/* Save to Library */}
+                    {isAuthenticated && (
+                      <button
+                        onClick={() => handleSaveToLibrary(char)}
+                        disabled={saveToLibraryMutation.isPending}
+                        style={{
+                          marginTop: 6, width: "100%", padding: "7px 10px",
+                          background: "rgba(212,168,67,0.08)",
+                          border: `1px solid ${GOLD_BORDER}`,
+                          color: GOLD, borderRadius: 6, cursor: "pointer",
+                          fontSize: 11, fontWeight: 600, letterSpacing: "0.03em",
+                          opacity: saveToLibraryMutation.isPending ? 0.5 : 1,
+                        }}
+                      >
+                        {saveToLibraryMutation.isPending ? "Saving…" : "💾 Save to Character Library"}
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

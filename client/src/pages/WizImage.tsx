@@ -92,7 +92,18 @@ export default function WizImage() {
   const [selectedCell, setSelectedCell] = useState(0);
   const [hasRef, setHasRef] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
+  const [showSaveLibModal, setShowSaveLibModal] = useState(false);
+  const [libCharName, setLibCharName] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const saveToLibraryMut = trpc.characterLibrary.save.useMutation({
+    onSuccess: (_data, vars) => {
+      toast.success(`“${vars.name}” saved to Character Library!`);
+      setShowSaveLibModal(false);
+      setLibCharName("");
+    },
+    onError: (e) => toast.error(e.message),
+  });
 
   const utils = trpc.useUtils();
 
@@ -750,10 +761,55 @@ export default function WizImage() {
                 >
                   {btn.label}
                 </button>
-              ))}
+              ))
+            }
             </div>
+
+            {/* Save to Character Library */}
+            {generatedImages.length > 0 && (
+              <div className="mt-3 pt-3 border-t" style={{ borderColor: A_BORDER }}>
+                <button
+                  onClick={() => setShowSaveLibModal(true)}
+                  className="w-full text-[10px] px-3 py-2 rounded-md border transition-all flex items-center justify-center gap-1.5"
+                  style={{ background: "rgba(184,137,42,0.08)", borderColor: "rgba(184,137,42,0.35)", color: "#d4a843" }}
+                >
+                  💾 Save to Character Library
+                </button>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Save to Library Modal */}
+        {showSaveLibModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+            <div className="relative w-full max-w-md rounded-2xl border border-amber-500/30 bg-[#0e0b07] shadow-2xl p-6">
+              <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
+              <h2 className="text-lg font-bold text-amber-300 mb-1">Save to Character Library</h2>
+              <p className="text-xs text-amber-200/50 mb-4">This image will be saved as a reusable character across WizAnimate, Music Video, and all Wiz products.</p>
+              <label className="block text-xs font-semibold text-amber-400/70 uppercase tracking-widest mb-1">Character Name</label>
+              <input
+                value={libCharName}
+                onChange={e => setLibCharName(e.target.value)}
+                placeholder="e.g. Freddy the Schnauzer"
+                className="w-full rounded-lg border border-amber-500/20 bg-black/40 px-3 py-2 text-sm text-amber-100 placeholder-amber-700/50 focus:outline-none focus:border-amber-400/60 mb-4"
+              />
+              <div className="flex gap-3">
+                <button onClick={() => setShowSaveLibModal(false)} className="flex-1 rounded-lg border border-amber-500/20 bg-transparent py-2 text-sm text-amber-400/70 hover:text-amber-300 transition-colors">Cancel</button>
+                <button
+                  onClick={() => {
+                    if (!libCharName.trim()) { toast.error("Please enter a character name"); return; }
+                    saveToLibraryMut.mutate({ name: libCharName.trim(), previewUrl: generatedImages[0] });
+                  }}
+                  disabled={saveToLibraryMut.isPending || !libCharName.trim()}
+                  className="flex-1 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-400 py-2 text-sm font-bold text-black hover:from-amber-400 hover:to-yellow-300 disabled:opacity-50 transition-all"
+                >
+                  {saveToLibraryMut.isPending ? "Saving…" : "💾 Save Character"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── RIGHT PANEL ── */}
         <aside className="overflow-y-auto p-3.5 flex flex-col gap-3.5" style={{ maxHeight: "calc(100vh - 64px)", position: "sticky", top: 64, background: "rgba(4,4,14,0.75)", backdropFilter: "blur(12px)" }}>
