@@ -11,6 +11,7 @@ export default function Privacy() {
       <Helmet>
         <title>Privacy Policy — WIZ AI</title>
         <meta name="description" content="WIZ AI Privacy Policy — how we collect, use, and protect your personal data." />
+        <link rel="canonical" href="https://wiz-ai.io/privacy" />
       </Helmet>
 
       {/* Nav */}

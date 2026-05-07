@@ -11,6 +11,7 @@ export default function Terms() {
       <Helmet>
         <title>Terms of Service — WIZ AI</title>
         <meta name="description" content="WIZ AI Terms of Service — your rights, content ownership, subscription terms, and acceptable use policy." />
+        <link rel="canonical" href="https://wiz-ai.io/terms" />
       </Helmet>
 
       {/* Nav */}

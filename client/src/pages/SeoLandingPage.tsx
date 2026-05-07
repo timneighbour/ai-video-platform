@@ -142,7 +142,6 @@ function CTAButton({
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function SeoLandingPage() {
 
-  useSEO({ title: "AI Video Generator — WIZ AI", path: "/seo", description: "Create stunning AI videos, music videos, and animations with WIZ AI. The most advanced AI creative platform for content creators and musicians." });
   const [, params] = useRoute("/seo/:slug");
   const slug = params?.slug;
   const page = SEO_PAGES.find((p) => p.slug === slug);

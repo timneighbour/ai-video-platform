@@ -14,6 +14,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { WizGenesisModal } from "@/components/WizGenesisModal";
 import { Link, useLocation } from "wouter";
+import { useSEO } from "@/hooks/useSEO";
 
 // ─── Assets ──────────────────────────────────────────────────────────────────
 const LOGO_IMG = "/manus-storage/wizanimate-logo-new_a84f9808_a089857a.png";
@@ -98,6 +99,7 @@ const GEN_STAGES = [
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function KidsVideo() {
   useEffect(() => { mp.studioEntered("WizAnimate"); }, []);
+  useSEO({ title: "WizAnimate™ — AI Character Animation Studio | WIZ AI", path: "/kids-video", description: "Create beat-matched AI character animations with WizAnimate™. Upload your audio, lock your characters, and generate a cinematic animated video with lip-sync and consistent characters." });
 
   const { isAuthenticated } = useAuth();
   const { balance: creditBalance } = useCreditGuard();

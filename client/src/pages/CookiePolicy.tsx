@@ -11,6 +11,7 @@ export default function CookiePolicy() {
       <Helmet>
         <title>Cookie Policy — WIZ AI</title>
         <meta name="description" content="WIZ AI Cookie Policy — how we use cookies and how to manage your preferences." />
+        <link rel="canonical" href="https://wiz-ai.io/cookie-policy" />
       </Helmet>
 
       {/* Nav */}

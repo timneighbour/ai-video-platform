@@ -3894,8 +3894,12 @@ function Footer() {
  <div className="flex flex-col gap-3">
  {[
  { label: "How It Works", href: "/#how-it-works" },
- { label: "Showcase", href: "/#showcase" },
- { label: "For Creators", href: "/#built-for" },
+ { label: "Showcase", href: "/discover" },
+ { label: "Pricing", href: "/pricing" },
+ { label: "AI Video Generator", href: "/ai-video-generator" },
+ { label: "AI Music Video", href: "/music-video-ai" },
+ { label: "AI Animation Maker", href: "/ai-animation-maker" },
+ { label: "Text to Video", href: "/text-to-video" },
  ].map((l) => (
  <a key={l.label} href={l.href} className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">{l.label}</a>
  ))}
