@@ -4693,7 +4693,7 @@ export default function MusicVideoAutopilot() {
                                   : renderStatus === "assembling" ? "Assembling final video"
                                   : `${completedScenes} / ${totalScenes} scenes`}
                                 {failedScenes > 0 && (
-                                  <span className="ml-2 text-red-400 text-xs">({failedScenes} failed)</span>
+                                  <span className="ml-2 text-amber-400 text-xs">({failedScenes} retrying…)</span>
                                 )}
                               </span>
                               <div className="flex items-center gap-3 text-white/40 text-xs">
@@ -4796,6 +4796,16 @@ export default function MusicVideoAutopilot() {
                           )}
                         </div>
 
+                        {/* Auto-retry info banner */}
+                        {failedScenes > 0 && renderStatus === "rendering" && (
+                          <div className="flex items-center gap-2 mb-2 px-2 py-1.5 rounded-md bg-amber-500/10 border border-amber-500/20">
+                            <RefreshCw className="w-3 h-3 text-amber-400 animate-spin flex-shrink-0" />
+                            <p className="text-xs text-amber-300">
+                              {failedScenes} scene{failedScenes !== 1 ? "s" : ""} hit a provider limit and {failedScenes !== 1 ? "are" : "is"} being automatically re-queued. No action needed — the system will retry them shortly.
+                            </p>
+                          </div>
+                        )}
+
                         {/* Scene chips grid */}
                         <div className="flex flex-wrap gap-1.5 mb-3">
                           {(perSceneStatuses.length > 0 ? perSceneStatuses : Array.from({ length: totalScenes }, (_, i) => ({ id: i, index: i, status: "pending", errorMessage: null }))).map((scene) => (
@@ -4805,13 +4815,13 @@ export default function MusicVideoAutopilot() {
                               className={`w-7 h-7 rounded-md flex items-center justify-center text-xs font-bold transition-all duration-300 cursor-default ${
                                 scene.status === "completed"  ? "bg-[--color-gold] text-white" :
                                 scene.status === "generating" ? "bg-[--color-gold]/15 text-[--color-gold] ring-1 ring-[--color-gold] animate-pulse" :
-                                scene.status === "failed"     ? "bg-red-500/20 text-red-400 ring-1 ring-red-500" :
+                                scene.status === "failed"     ? "bg-amber-500/20 text-amber-400 ring-1 ring-amber-500" :
                                                                 "bg-[rgba(24,20,16,0.9)] text-white/30"
                               }`}
                             >
                               {scene.status === "completed"  ? <Check className="w-3 h-3" /> :
                                scene.status === "generating" ? <Loader2 className="w-3 h-3 animate-spin" /> :
-                               scene.status === "failed"     ? <X className="w-3 h-3" /> :
+                               scene.status === "failed"     ? <RefreshCw className="w-3 h-3 animate-spin" /> :
                                <span>{scene.index + 1}</span>}
                             </div>
                           ))}

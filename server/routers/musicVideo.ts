@@ -807,8 +807,14 @@ Rules:
         }
       }
 
-      // Fire-and-forget: start each scene render with 3s stagger to avoid 429 rate limits
-      const SCENE_STAGGER_MS = 3000;
+      // Fire-and-forget: start each scene render in batches to avoid API rate limits.
+      // Strategy: dispatch BATCH_SIZE scenes at a time, wait INTER_BATCH_DELAY_MS between batches.
+      // On transient failure (network/rate-limit/provider error), retry up to MAX_DISPATCH_RETRIES
+      // times with exponential backoff before marking the scene as failed.
+      const BATCH_SIZE = 5;               // scenes per batch
+      const INTER_BATCH_DELAY_MS = 12_000; // 12s between batches (gives Atlas Cloud time to accept)
+      const INTRA_BATCH_DELAY_MS = 2_000;  // 2s between scenes within a batch
+      const MAX_DISPATCH_RETRIES = 3;      // max retries for transient failures
       (async () => {
         let successCount = 0;
         let failCount = 0;
@@ -821,7 +827,13 @@ Rules:
             successCount++; // count as success so credit refund logic is not triggered
             continue;
           }
-          if (i > 0) await new Promise((r) => setTimeout(r, SCENE_STAGGER_MS));
+          // Intra-batch stagger: 2s between scenes within a batch
+          if (i > 0 && i % BATCH_SIZE !== 0) await new Promise((r) => setTimeout(r, INTRA_BATCH_DELAY_MS));
+          // Inter-batch pause: 12s between batches to let Atlas Cloud breathe
+          if (i > 0 && i % BATCH_SIZE === 0) {
+            console.log(`[MusicVideo] Batch ${Math.floor(i / BATCH_SIZE)} complete — waiting ${INTER_BATCH_DELAY_MS / 1000}s before next batch...`);
+            await new Promise((r) => setTimeout(r, INTER_BATCH_DELAY_MS));
+          }
           // Use modelAssignment from scene if available, otherwise fall back to router decision
           const rendererType = (scene.modelAssignment as string) ? "wavespeed" : (rendererMap.get(scene.sceneIndex) ?? "seedance");
 
@@ -1060,11 +1072,56 @@ Rules:
             successCount++;
           } catch (err: unknown) {
             const httpStatus = (err as any)?.response?.status;
-            console.error(`[MusicVideo] Scene ${scene.id} start failed (HTTP ${httpStatus ?? "?"})`, err);
-            await db!.update(musicVideoScenes)
-              .set({ status: "failed", errorMessage: String(err), updatedAt: new Date() })
-              .where(eq(musicVideoScenes.id, scene.id));
-            failCount++;
+            const errMsg = String((err as any)?.message ?? err);
+            const isTransient = isRetryableFailure(errMsg) || httpStatus === 429 || httpStatus === 503 || httpStatus === 502;
+            if (isTransient) {
+              // Transient failure — retry with exponential backoff before giving up
+              let retrySuccess = false;
+              for (let attempt = 1; attempt <= MAX_DISPATCH_RETRIES; attempt++) {
+                const backoffMs = Math.min(5_000 * Math.pow(2, attempt - 1), 30_000); // 5s, 10s, 20s
+                console.warn(`[MusicVideo] Scene ${scene.id} transient failure (HTTP ${httpStatus ?? "?"}) — retry ${attempt}/${MAX_DISPATCH_RETRIES} in ${backoffMs / 1000}s...`);
+                await new Promise((r) => setTimeout(r, backoffMs));
+                try {
+                  const retryTaskId = await startSceneRender(
+                    scene.id, enrichedScenePrompt, scene.duration,
+                    scene.lipSync ?? true,
+                    (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
+                    "wavespeed" as any,
+                    mapModelAssignmentToWaveSpeed(scene.modelAssignment ?? "seedance-2.0"),
+                    storyboardImageUrl ?? undefined,
+                    (input.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1",
+                    input.jobId,
+                    sceneCharacterImageUrl,
+                    job.audioUrl,
+                    scene.startTime
+                  );
+                  await db!.update(musicVideoScenes)
+                    .set({ status: "generating", taskId: retryTaskId, updatedAt: new Date() })
+                    .where(eq(musicVideoScenes.id, scene.id));
+                  console.log(`[MusicVideo] Scene ${scene.id} retry ${attempt} succeeded: ${retryTaskId}`);
+                  successCount++;
+                  retrySuccess = true;
+                  break;
+                } catch (retryErr: unknown) {
+                  const retryHttpStatus = (retryErr as any)?.response?.status;
+                  console.warn(`[MusicVideo] Scene ${scene.id} retry ${attempt} failed (HTTP ${retryHttpStatus ?? "?"})`);
+                }
+              }
+              if (!retrySuccess) {
+                console.error(`[MusicVideo] Scene ${scene.id} failed after ${MAX_DISPATCH_RETRIES} retries — marking failed.`);
+                await db!.update(musicVideoScenes)
+                  .set({ status: "failed", errorMessage: `Render failed after ${MAX_DISPATCH_RETRIES} retries. Please use 'Retry All Failed' to try again.`, updatedAt: new Date() })
+                  .where(eq(musicVideoScenes.id, scene.id));
+                failCount++;
+              }
+            } else {
+              // Non-transient failure (content policy, bad prompt, etc.) — fail immediately
+              console.error(`[MusicVideo] Scene ${scene.id} start failed (HTTP ${httpStatus ?? "?"}) — non-retryable:`, errMsg.slice(0, 200));
+              await db!.update(musicVideoScenes)
+                .set({ status: "failed", errorMessage: errMsg.slice(0, 500), updatedAt: new Date() })
+                .where(eq(musicVideoScenes.id, scene.id));
+              failCount++;
+            }
           }
         }
 
@@ -1233,13 +1290,15 @@ Rules:
         .set({ completedScenes: completedCount, updatedAt: new Date() })
         .where(eq(musicVideoJobs.id, input.jobId));
 
-      // ── PARTIAL ASSEMBLY SUPPORT (≥90% threshold) ──────────────────────────
+      // ── PARTIAL ASSEMBLY SUPPORT (≥75% threshold) ──────────────────────────
       // If all scenes are either completed or failed, trigger assembly.
-      // If ≥90% completed, proceed with partial assembly (skip failed scenes).
-      // If <90% completed, fail the job with a clear message.
+      // If ≥75% completed, proceed with partial assembly (skip failed scenes).
+      // If <75% completed, fail the job with a clear message.
+      // Note: With the new auto-retry system, most transient failures are recovered automatically.
+      // The threshold is lowered to 75% to handle edge cases where retries are exhausted.
       const allScenesSettled = completedCount + failedCount >= scenes.length;
       const completionRate = scenes.length > 0 ? completedCount / scenes.length : 0;
-      const PARTIAL_ASSEMBLY_THRESHOLD = 0.90; // 90% minimum
+      const PARTIAL_ASSEMBLY_THRESHOLD = 0.75; // 75% minimum (was 90%)
 
       if (allScenesSettled && job.status === "rendering") {
         if (completedCount === 0) {

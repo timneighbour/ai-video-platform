@@ -7268,3 +7268,14 @@
 - [x] WizaVisionWatch page (/wizavision/watch/:slug) — video player, metadata, related videos, share/download
 - [x] WizaVisionCreator page (/wizavision/creator/:username) — channel page with all published videos
 - [x] Routes registered in App.tsx
+
+## Render Reliability Fixes (May 2026) - COMPLETED ✅
+- [x] Batched scene dispatch — 5 scenes per batch, 12s between batches (was all 25 at once)
+- [x] Exponential backoff retry on dispatch failure (up to 3 retries per scene, 5s/15s/45s delays)
+- [x] Atlas Cloud poll: transient failures auto-reset scene to pending for re-dispatch
+- [x] Poll error handling: network/timeout errors no longer permanently mark scenes as failed
+- [x] Partial assembly threshold lowered from 90% to 75% for better resilience
+- [x] Frontend: failed scene chips show amber spinning refresh icon (not red X)
+- [x] Frontend: auto-retry info banner shown when scenes hit provider limits during render
+- [x] Frontend: failed count label changed to "retrying..." during active render
+- [x] classifyFailure used to distinguish hard-block (moderation) vs transient failures

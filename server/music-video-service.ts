@@ -1124,24 +1124,38 @@ async function pollSceneStatusAtlasCloud(
     }
 
     if (result.status === "failed") {
+      const failReason = result.error ?? "Atlas Cloud generation failed";
       const db2 = await getDb();
+      // Classify the failure — only hard-block content/moderation failures immediately.
+      // For all other failures (provider overload, timeout, infrastructure), reset the scene
+      // to 'pending' so the dispatch loop will automatically re-queue it on the next poll cycle.
+      const { classifyFailure } = await import("./spend-protection");
+      const category = classifyFailure(failReason);
+      const isHardBlock = category === "moderation" || category === "prompt_error";
       if (db2) {
-        await db2.update(musicVideoScenes)
-          .set({ status: "failed", errorMessage: result.error ?? "Atlas Cloud generation failed", updatedAt: new Date() })
-          .where(eq(musicVideoScenes.id, sceneId));
+        if (isHardBlock) {
+          // Content policy — mark as permanently failed
+          await db2.update(musicVideoScenes)
+            .set({ status: "failed", errorMessage: failReason, updatedAt: new Date() })
+            .where(eq(musicVideoScenes.id, sceneId));
+          console.warn(`[AtlasCloud] Scene ${sceneId} hard-blocked (${category}): ${failReason.slice(0, 100)}`);
+        } else {
+          // Transient provider failure — reset to pending for automatic re-dispatch
+          await db2.update(musicVideoScenes)
+            .set({ status: "pending", taskId: null, errorMessage: `Auto-retry: ${failReason.slice(0, 200)}`, updatedAt: new Date() })
+            .where(eq(musicVideoScenes.id, sceneId));
+          console.warn(`[AtlasCloud] Scene ${sceneId} transient failure (${category}) — reset to pending for re-dispatch: ${failReason.slice(0, 100)}`);
+          return { status: "processing" }; // Don't count as failed yet — will be re-dispatched
+        }
       }
       return { status: "failed" };
     }
 
     return { status: "processing" };
   } catch (err: any) {
-    const db2 = await getDb();
-    if (db2) {
-      await db2.update(musicVideoScenes)
-        .set({ status: "failed", errorMessage: String(err?.message ?? err), updatedAt: new Date() })
-        .where(eq(musicVideoScenes.id, sceneId));
-    }
-    return { status: "failed" };
+    // Network/timeout error during polling — don't mark as failed, let it retry next poll cycle
+    console.warn(`[AtlasCloud] Scene ${sceneId} poll error (will retry next cycle):`, String(err?.message ?? err).slice(0, 100));
+    return { status: "processing" };
   }
 }
 
