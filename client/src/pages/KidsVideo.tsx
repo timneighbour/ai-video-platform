@@ -301,6 +301,8 @@ export default function KidsVideo() {
     schedulePoll();
   }, [utils, stopGen]);
 
+  const createJobMutation = trpc.kidsVideo.createJob.useMutation();
+
   const generateMutation = trpc.billing.generateVideo.useMutation({
     onSuccess: (data) => {
       if (data.projectId) {
@@ -366,6 +368,28 @@ export default function KidsVideo() {
       lyrics ? `Lyrics/story beats: ${lyrics.slice(0, 400)}.` : "",
       "High quality, smooth animation, vibrant colours, cinematic composition.",
     ].filter(Boolean).join(" ");
+    // Persist job to DB with audio and character lock data (fire-and-forget)
+    const characterLockData = characters.map(c => ({
+      id: c.id,
+      name: c.name,
+      species: "human",
+      colour: "",
+      features: c.description,
+      outfit: "",
+      photoUrl: c.photoUrl ?? undefined,
+      lockedPrompt: `${c.name} (${c.gender}${c.role ? `, ${c.role}` : ""}${c.willSing ? ", sings" : ""}) — ${c.description}`,
+    }));
+    // Persist job asynchronously — don't block generation
+    if (audioUrl && audioUrl.startsWith("http")) {
+      createJobMutation.mutate({
+        storyPrompt: fullPrompt,
+        animationStyle: ["pixar3d","disney","anime","cartoon","storybook","claymation","ghibli","pixar_movie","manga","retro80s","watercolor"].includes(animStyle)
+          ? (animStyle as "pixar3d" | "disney" | "anime" | "cartoon" | "storybook" | "claymation" | "ghibli" | "pixar_movie" | "manga" | "retro80s" | "watercolor")
+          : "pixar3d",
+        videoLength: (["5s","10s","15s","30s","60s"].includes(duration) ? duration : "30s") as "5s" | "10s" | "15s" | "30s" | "60s",
+        characterLockData,
+      });
+    }
     generateMutation.mutate({
       toolType: "text_to_video",
       prompt: fullPrompt,
@@ -376,7 +400,7 @@ export default function KidsVideo() {
         sceneCount: effectiveSceneCount,
       },
     });
-  }, [isAuthenticated, brief, animStyle, duration, effectiveSceneCount, characters, lyrics, generateMutation, stopGen]);
+  }, [isAuthenticated, brief, animStyle, duration, effectiveSceneCount, characters, lyrics, generateMutation, stopGen, audioUrl, leadCharacterId, createJobMutation]);
 
   // ── Ambient dimmer ─────────────────────────────────────────────────────
   // 0.35 = dark cinematic, 0.75 = bright studio

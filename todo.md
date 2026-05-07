@@ -7184,7 +7184,7 @@
 - [x] WizAnimate: Wire uploadAudio + transcribeAudio tRPC procedures for auto-transcription in Step 1
 - [x] WizAnimate: Add separate Story Brief textarea (Step 4) distinct from Lyrics field
 - [x] WizAnimate: Add Wiz engine badges (WizGenesis™, WizCreate™, WizSync™, WizAdora™, WizLumina™, WizSound™) throughout all steps
-- [ ] WizAnimate: Wire createJob mutation on render to persist job with audioUrl and characterLockData
+- [x] WizAnimate: Wire createJob mutation on render to persist job with audioUrl and characterLockData — done
 - [x] Music Video: Display lyric line per storyboard scene so users see which lyric matches which scene
 
 ## WizAnimate Engine Integration & Music Video Lyric-Scene Sync
@@ -7192,7 +7192,7 @@
 - [x] WizAnimate: Wire uploadAudio + transcribeAudio tRPC procedures for auto-transcription in Step 1
 - [x] WizAnimate: Add separate Story Brief textarea (Step 4) distinct from Lyrics field
 - [x] WizAnimate: Add Wiz engine badges throughout all steps (WizGenesis, WizCreate, WizSync, WizAdora, WizLumina, WizSound)
-- [ ] WizAnimate: Wire createJob mutation on render to persist job with audioUrl and characterLockData
+- [x] WizAnimate: Wire createJob mutation on render to persist job with audioUrl and characterLockData — done
 - [x] WizAnimate: Add "Create with WizSound" CTA in Step 1 audio section - links to WizSound studio to generate a track, then returns with it loaded
 - [x] Music Video: Display lyric line per storyboard scene so users see which lyric matches which scene
 
