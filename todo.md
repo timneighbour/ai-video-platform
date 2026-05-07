@@ -7136,3 +7136,10 @@
 - [x] Raised Zod schema limit to 5000 chars in musicVideo.ts createJob procedure
 - [x] Changed DB column from VARCHAR(512) to TEXT (no length limit) via migration 0072
 - [x] Migration applied: ALTER TABLE musicVideoJobs MODIFY COLUMN sceneSetting text
+
+## Character Lock 0/0 Bug - May 2026
+- [x] Character Lock step showed "0/0 Approved" — root cause: AI-generated characters had previewApproved=false and no auto-approval
+- [x] Fix 1 (server): saveCharacters now sets previewApproved=true for AI-generated characters (mode=ai_generated with aiGeneratedImageUrl)
+- [x] Fix 2 (client): CharacterConfirmationStep auto-approves chars with previewImageUrl and no photos on load
+- [x] Fix 3 (guard): Added fallback UI when step=character_confirmation but jobId is null — shows "Session expired" and Back to Setup button
+- [x] TypeScript: 0 errors

@@ -3193,6 +3193,17 @@ export default function MusicVideoAutopilot() {
         )}
 
         {/* ===== STEP 1.5: CHARACTER CONFIRMATION ===== */}
+        {step === "character_confirmation" && !jobId && (
+          // Guard: if we somehow ended up at character_confirmation without a jobId, redirect back
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <p className="text-white/60 mb-4">Session expired. Please start from the beginning.</p>
+            <button
+              type="button"
+              onClick={() => setStep("upload")}
+              className="px-6 py-2 bg-[--color-gold] text-black font-bold rounded text-sm"
+            >Back to Setup</button>
+          </div>
+        )}
         {step === "character_confirmation" && jobId && (
           <CharacterConfirmationStep
             jobId={jobId}

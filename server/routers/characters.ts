@@ -118,6 +118,10 @@ export const charactersRouter = router({
           console.log(`[saveCharacters] Auto-applying canonical defaults for known band member: ${charInput.name}`);
         }
 
+        // AI-generated characters already have an approved image from CharacterManager —
+        // auto-approve them so the user doesn't need to click "Approve Look" again.
+        const isAiGenerated = charInput.mode === "ai_generated" && !!charInput.aiGeneratedImageUrl;
+
         const [result] = await db.insert(videoCharacters).values({
           jobId: input.jobId,
           userId: ctx.user.id,
@@ -126,6 +130,7 @@ export const charactersRouter = router({
           enableLipSync: charInput.enableLipSync,
           slotIndex: charInput.slotIndex,
           previewImageUrl: charInput.aiGeneratedImageUrl ?? null,
+          previewApproved: isAiGenerated ? true : false, // AI chars are pre-approved
           lockedDescription: charInput.lockedDescription ?? charInput.aiGeneratedBrief ?? null,
           isLocked: charInput.isLocked ?? false,
           characterVisualDetails: resolvedVisualDetails,

@@ -133,13 +133,17 @@ export default function CharacterConfirmationStep({
   // Sync characters from query
   useEffect(() => {
     if (getCharactersQuery.data?.characters) {
-      setCharacters(getCharactersQuery.data.characters.map((c: any) => ({
+      setCharacters(getCharactersQuery.data.characters.map((c: any) => {
+        // AI-generated characters (no photos, has previewImageUrl) are pre-approved —
+        // the user already saw and accepted the image in CharacterManager.
+        const isAiGenerated = (c.characterMode === "ai_generated" || (!c.photoCount && !!c.previewImageUrl));
+        return {
         id: c.id,
         slotIndex: c.slotIndex,
         name: c.name,
         role: c.role,
         previewImageUrl: c.previewImageUrl ?? null,
-        previewApproved: c.previewApproved ?? false,
+        previewApproved: c.previewApproved || isAiGenerated,
         primaryPhotoUrl: c.primaryPhotoUrl ?? null,
         lockedDescription: c.lockedDescription ?? null,
         lockedOutfit: c.lockedOutfit ?? null,
@@ -152,7 +156,8 @@ export default function CharacterConfirmationStep({
         masterSeed: c.masterSeed ?? null,
         characterPrompt: c.characterPrompt ?? null,
         masterPortraitGeneratedAt: c.masterPortraitGeneratedAt ?? null,
-      })));
+      };
+      }));
     }
   }, [getCharactersQuery.data]);
 
