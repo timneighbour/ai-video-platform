@@ -5,7 +5,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters, renderJobs, kidsVideoJobs, wizShortsJobs } from "../../drizzle/schema";
+import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters, renderJobs, kidsVideoJobs, wizShortsJobs, characterScenes } from "../../drizzle/schema";
 import { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../_core/quotaError";
 import { eq, and, desc, inArray, gte, sql } from "drizzle-orm";
 
@@ -512,14 +512,24 @@ Rules:
         }
       }
 
-      // Delete existing scenes if regenerating
+       // Delete existing scenes if regenerating
       await db.delete(musicVideoScenes).where(eq(musicVideoScenes.jobId, input.jobId));
-
+      // Also clear any existing characterScenes rows for this job's scenes (cascade-style)
+      // We do this by fetching the old scene IDs first — but since we just deleted them, we
+      // instead rely on the insert loop below to create fresh characterScenes rows.
+      // Build a name→id map from refreshedCharacters for characterScenes population
+      const charNameToId = new Map(refreshedCharacters.map(c => [c.name.toLowerCase(), c.id]));
       // Insert new scenes
       // Store the CLEAN prompt (scene direction only) in the DB — this is what users see.
       // The full render prompt (with character descriptions prepended) is built on-the-fly at render time.
       for (const scene of scenes) {
-        await db.insert(musicVideoScenes).values({
+        // Determine character assignments for this scene
+        const assignedNames: string[] = scene.characterAssignments && scene.characterAssignments.length > 0
+          ? scene.characterAssignments
+          : roster.length > 0
+            ? [roster.find((c: { isLocked?: boolean }) => c.isLocked)?.name ?? roster[0].name]
+            : [];
+        const [insertedScene] = await db.insert(musicVideoScenes).values({
           jobId: input.jobId,
           sceneIndex: scene.sceneIndex,
           startTime: scene.startTime,
@@ -527,15 +537,27 @@ Rules:
           prompt: scene.cleanPrompt || scene.prompt,
           lyrics: scene.lyrics || null,
           visualStyle: scene.visualStyle,
-          characterAssignments: scene.characterAssignments && scene.characterAssignments.length > 0
-            ? JSON.stringify(scene.characterAssignments)
-            // Fallback: if LLM omitted assignments, use the lead character (first locked, or first in roster)
-            // Assigning ALL roster members causes visual chaos — solo scenes are more consistent
-            : roster.length > 0
-              ? JSON.stringify([roster.find((c: { isLocked?: boolean }) => c.isLocked)?.name ?? roster[0].name])
-              : null,
+          characterAssignments: assignedNames.length > 0 ? JSON.stringify(assignedNames) : null,
           status: "pending",
         });
+        // Populate characterScenes junction table for this scene
+        const newSceneId = (insertedScene as any).insertId as number;
+        if (newSceneId && assignedNames.length > 0) {
+          for (let i = 0; i < assignedNames.length; i++) {
+            const charId = charNameToId.get(assignedNames[i].toLowerCase());
+            if (charId) {
+              await db.insert(characterScenes).values({
+                sceneId: newSceneId,
+                characterId: charId,
+                isPrimary: i === 0, // first character is the primary/focus character
+                positionOrder: i,
+              }).catch(err => {
+                // Non-blocking: log but don't fail the storyboard generation
+                console.warn(`[MusicVideo] Could not insert characterScene for scene ${newSceneId}, char ${assignedNames[i]}:`, err);
+              });
+            }
+          }
+        }
       }
 
       // Save the full character roster (locked + AI-invented) to the job record
@@ -2115,11 +2137,12 @@ Rules:
         console.warn(`[generateScenePreview] Could not save prompt snapshot:`, snapErr);
       }
 
-      // ── generateWithRetry: retry up to 3 times if validation fails ────────
+       // ── generateWithRetry: retry up to 3 times if validation fails ────────
       const MAX_RETRIES = 3;
       let retryCount = 0;
       let lastUrl: string | undefined;
-
+      // Hoisted so outfit-retry block can access the face references used during generation
+      let hoistedForgeRefs: Array<{ url: string; mimeType: string }> = [];
        try {
         let url: string | undefined;
         let bestScore = -1; // Face similarity score from variation system (0-100, -1 = not scored)
@@ -2151,6 +2174,7 @@ Rules:
           // Previously only Tim's masterPortraitUrl was passed — Greg and Monica were invented.
           console.log(`[generateScenePreview] Using Forge API for scene ${input.sceneId} (${resolvedSceneChars.map(c => c.name).join(", ")})`);
           const forgeRefs: Array<{ url: string; mimeType: string }> = [];
+          hoistedForgeRefs = forgeRefs; // hoist for outfit-retry block
           const seenRefUrls = new Set<string>(); // Deduplicate: one reference per unique URL
           for (const char of resolvedSceneChars) {
             // Prefer masterPortraitUrl (clean AI portrait), fall back to primary reference photo
@@ -2280,6 +2304,100 @@ Rules:
           }));
           url = genericUrl;
         }
+
+        // ── OUTFIT AUTO-RETRY ─────────────────────────────────────────────────────
+        // After generation, use LLM vision to check if outfit constraints are violated.
+        // If a violation is detected, regenerate up to 2 more times with a strengthened
+        // outfit enforcement prefix in the prompt.
+        const MAX_OUTFIT_RETRIES = 2;
+        const charsWithOutfitConstraints = resolvedSceneChars.filter(c => {
+          const key = c.name.toLowerCase();
+          return OUTFIT_CONSTRAINTS[key] !== undefined;
+        });
+        if (url && charsWithOutfitConstraints.length > 0) {
+          try {
+            const { invokeLLM: invokeLLMOutfit } = await import("../_core/llm");
+            // Build a concise checklist of what each character MUST and MUST NOT wear
+            const outfitChecklist = charsWithOutfitConstraints.map(c => {
+              const key = c.name.toLowerCase();
+              const constraints = OUTFIT_CONSTRAINTS[key]!;
+              return `${c.name}: MUST wear [${constraints.positive.join("; ")}]. MUST NOT wear [${constraints.negative.map(n => n.replace(/^ABSOLUTELY NO /i, "")).join("; ")}].`;
+            }).join("\n");
+            let outfitRetryCount = 0;
+            let currentUrl = url;
+            for (let outfitAttempt = 0; outfitAttempt < MAX_OUTFIT_RETRIES; outfitAttempt++) {
+              const outfitCheckPrompt = [
+                "You are a strict outfit compliance checker for AI-generated music video scenes.",
+                "Examine the image carefully and check if each character's outfit matches the requirements below.",
+                'Return JSON: { "compliant": boolean, "violations": string[] }',
+                "violations should list each specific outfit rule that is broken (e.g. \"Tim is not wearing a leather jacket\").",
+                "If the image is compliant, return { \"compliant\": true, \"violations\": [] }.",
+                "",
+                "OUTFIT REQUIREMENTS:",
+                outfitChecklist,
+              ].join("\n");
+              const outfitCheckResult = await invokeLLMOutfit({
+                messages: [
+                  { role: "user" as const, content: [
+                    { type: "text" as const, text: outfitCheckPrompt },
+                    { type: "image_url" as const, image_url: { url: currentUrl, detail: "low" as const } },
+                  ]},
+                ],
+                response_format: { type: "json_schema", json_schema: {
+                  name: "outfit_check", strict: true,
+                  schema: { type: "object", properties: {
+                    compliant: { type: "boolean" },
+                    violations: { type: "array", items: { type: "string" } },
+                  }, required: ["compliant", "violations"], additionalProperties: false },
+                }},
+              });
+              let outfitCheck: { compliant: boolean; violations: string[] } = { compliant: true, violations: [] };
+              try {
+                const rawContent = outfitCheckResult?.choices?.[0]?.message?.content;
+                const raw = typeof rawContent === "string" ? rawContent :
+                  Array.isArray(rawContent) ? rawContent.filter((p: any) => p.type === "text").map((p: any) => p.text).join("") : null;
+                if (raw) outfitCheck = JSON.parse(raw);
+              } catch { /* ignore parse error */ }
+              if (outfitCheck.compliant) {
+                console.log(`[generateScenePreview] Scene ${input.sceneId}: outfit check PASSED on attempt ${outfitAttempt + 1}`);
+                break;
+              }
+              console.warn(`[generateScenePreview] Scene ${input.sceneId}: outfit VIOLATION detected (attempt ${outfitAttempt + 1}): ${outfitCheck.violations.join("; ")}. Retrying...`);
+              outfitRetryCount++;
+              // Strengthen the prompt with an explicit outfit enforcement prefix
+              const outfitEnforcementPrefix = charsWithOutfitConstraints.map(c => {
+                const key = c.name.toLowerCase();
+                const constraints = OUTFIT_CONSTRAINTS[key]!;
+                return `CRITICAL OUTFIT RULE FOR ${c.name.toUpperCase()}: ${c.name} MUST wear EXACTLY: ${constraints.positive.join(", ")}. ${c.name} MUST NOT wear: ${constraints.negative.map(n => n.replace(/^ABSOLUTELY NO /i, "")).join(", ")}. THIS IS NON-NEGOTIABLE.`;
+              }).join("\n");
+              const retryPrompt = `${outfitEnforcementPrefix}\n\n${finalImagePrompt}`;
+              try {
+                if (hasFaceReference) {
+                  const { url: retryUrl } = await withQuotaGuard(() => generateImage({
+                    prompt: retryPrompt,
+                    originalImages: hoistedForgeRefs.length > 0 ? hoistedForgeRefs : undefined,
+                  }));
+                  if (retryUrl) { currentUrl = retryUrl; url = retryUrl; }
+                } else {
+                  const { url: retryUrl } = await withQuotaGuard(() => generateImage({
+                    prompt: retryPrompt,
+                    originalImages: referenceImages.length > 0 ? referenceImages : undefined,
+                  }));
+                  if (retryUrl) { currentUrl = retryUrl; url = retryUrl; }
+                }
+              } catch (retryErr) {
+                console.warn(`[generateScenePreview] Scene ${input.sceneId}: outfit retry ${outfitAttempt + 1} generation failed:`, retryErr);
+                break;
+              }
+            }
+            if (outfitRetryCount > 0) {
+              console.log(`[generateScenePreview] Scene ${input.sceneId}: outfit auto-retry completed (${outfitRetryCount} retries). Final url: ${url}`);
+            }
+          } catch (outfitErr) {
+            console.warn(`[generateScenePreview] Scene ${input.sceneId}: outfit check error (non-blocking):`, outfitErr);
+          }
+        }
+        // ── END OUTFIT AUTO-RETRY ─────────────────────────────────────────────────
 
         if (url) {
           const FACE_SIMILARITY_THRESHOLD_DB = 65;

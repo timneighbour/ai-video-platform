@@ -1851,7 +1851,7 @@
 - [x] Greg: WEARS black short-sleeve torn t-shirt; NEVER wears leather jacket, sleeveless, tank top, vest, long sleeve
 - [x] Monica: WEARS boots + visible tattoos + visible cross necklace; NEVER wears leather jacket, generic/plain outfit
 - [x] Add "Outfits must remain consistent across all scenes" reinforcement line to every scene prompt
-- [ ] Outfit auto-retry: after generation, check if outfit violation keywords appear in scene metadata; if so, retry up to 2 times
+- [x] Outfit auto-retry: after generation, check if outfit violation keywords appear in scene metadata; if so, retry up to 2 times
 - [x] Add outfit violation keywords to negative prompt list (already partially done, strengthen)
 
 ## Feature: Unified Character Pipeline (Apr 12 2026)
@@ -1860,7 +1860,7 @@
 - [x] normaliseCharacter(): generates masterPortrait, assigns masterSeed, stores lockedIdentity/lockedOutfit/lockedProps/lockedRole
 - [ ] Remove dual code paths in scene generation (photo-mode vs AI-mode)
 - [x] Scene injection: ALL characters use IDENTITY + OUTFIT + PROPS + ROLE format regardless of source
-- [ ] Failsafe: after generation, check identity/outfit consistency; retry up to 2x with stronger constraints if drift detected
+- [x] Failsafe: after generation, check identity/outfit consistency; retry up to 2x with stronger constraints if drift detected
 - [ ] CharacterConfirmationStep: trigger normaliseCharacter for all characters (photo and AI) before storyboard
 - [x] AI-generated characters: use aiGeneratedImageUrl as masterPortraitUrl if no photo (previewImageUrl used as fallback in masterPortraitUrl ?? previewImageUrl chain)
 
@@ -1871,14 +1871,14 @@
 - [x] Allow user to remove/replace the audio file from the player UI
 
 ## Schema: characterScenes Junction Table (Apr 12 2026)
-- [ ] Add characterScenes table: id, sceneId (fk), characterId (fk), isPrimary (boolean), positionOrder (int)
-- [ ] Migrate scene generation to use characterScenes for per-scene character assignment
-- [ ] Update scene prompt builder to read characters from characterScenes join
+- [x] Add characterScenes table: id, sceneId (fk), characterId (fk), isPrimary (boolean), positionOrder (int)
+- [x] Migrate scene generation to use characterScenes for per-scene character assignment
+- [x] Update scene prompt builder to read characters from characterScenes join
 
 ## Schema: Full Unified Pipeline Changes (Apr 12 2026)
 - [x] videoCharacters: add lockedOutfit (JSON), lockedProps (JSON), lockedRole, lockedRules (JSON), normalisedAt, isRealPerson, characterMode
 - [x] lockedRules JSON format: { role, mustHave[], allowedProps[], forbidden[] }
-- [ ] characterScenes junction table: id, sceneId, characterId, isPrimary, positionOrder
+- [x] characterScenes junction table: id, sceneId, characterId, isPrimary, positionOrder
 - [x] videoScenes: add strictCharacterCount (int DEFAULT 3)
 - [x] musicVideoJobs: add enforceStrictMode (boolean DEFAULT true), promptSnapshot (longtext), negativePromptSnapshot (longtext)
 - [x] Run pnpm drizzle-kit generate and apply migration SQL

@@ -1325,3 +1325,19 @@ export const savedStoryboards = mysqlTable("savedStoryboards", {
 export type SavedStoryboard = typeof savedStoryboards.$inferSelect;
 export type InsertSavedStoryboard = typeof savedStoryboards.$inferInsert;
 
+
+// ─── Character-Scene Junction Table ──────────────────────────────────────────
+// Maps which characters appear in each music video scene, with ordering and
+// primary character designation. This replaces the JSON characterAssignments
+// column in musicVideoScenes for richer per-scene character management.
+export const characterScenes = mysqlTable("characterScenes", {
+  id: int("id").autoincrement().primaryKey(),
+  sceneId: int("sceneId").notNull(),       // FK → musicVideoScenes.id
+  characterId: int("characterId").notNull(), // FK → videoCharacters.id
+  isPrimary: boolean("isPrimary").notNull().default(false), // true = focus character for this scene
+  positionOrder: int("positionOrder").notNull().default(0), // 0 = first/leftmost character
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CharacterScene = typeof characterScenes.$inferSelect;
+export type InsertCharacterScene = typeof characterScenes.$inferInsert;
