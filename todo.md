@@ -6253,9 +6253,9 @@
 
 ## Homepage Content Tightening — Sprint Apr 28 2026
 
-- [ ] Remove UseCases section (duplicated by BuiltFor)
-- [ ] Remove WizVidEngineSection (duplicated by WizEngines)
-- [ ] Remove DemoVideoGallery (duplicated by Showcase)
+- [x] Remove UseCases section (duplicated by BuiltFor)
+- [x] Remove WizVidEngineSection (duplicated by WizEngines)
+- [x] Remove DemoVideoGallery (duplicated by Showcase)
 - [ ] Remove embedded 4-step flow from WizEngines (duplicated by HowItWorks)
 - [ ] Strip workflow prose from WelcomeSection copy (let video carry the explanation)
 - [ ] Replace WhyWizAI card 4 with content ownership differentiator
@@ -6324,9 +6324,9 @@
 - [ ] Remove engine/utility-only treatment of WizScore
 
 ## Homepage Tightening + Lyndhurst Hall Environment — Apr 28 2026
-- [ ] Remove UseCases section (duplicates BuiltFor)
-- [ ] Remove WizVidEngineSection (duplicates WizEngines)
-- [ ] Remove DemoVideoGallery (duplicates Showcase)
+- [x] Remove UseCases section (duplicates BuiltFor)
+- [x] Remove WizVidEngineSection (duplicates WizEngines)
+- [x] Remove DemoVideoGallery (duplicates Showcase)
 - [ ] Trim WizEngines embedded workflow steps (duplicates HowItWorks)
 - [ ] Fix BuiltFor eyebrow/H2 verbatim duplication
 - [ ] Rename SeeTheDifference section to 'The Cinematic Difference'

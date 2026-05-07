@@ -1881,23 +1881,59 @@ Rules:
         ? `CHARACTER ROLE DEFINITIONS:\n\n${roleLines.join("\n\n")}`
         : "";
 
+      // ── SCENE TYPE DETECTION ──────────────────────────────────────────────────
+      // Determines whether character constraints (count prefix, stage orientation,
+      // instrument positioning) should be injected. Non-character shots (crowd pans,
+      // aerials, establishing shots, atmosphere) should honour the user's prompt
+      // verbatim without character count overrides.
+      type SceneType = "character_scene" | "crowd_scene" | "aerial_scene" | "atmosphere_scene" | "establishing_scene";
+      const detectSceneType = (prompt: string): SceneType => {
+        const p = prompt.toLowerCase();
+        // Aerial / bird's eye
+        if (/\baer(?:ial|ials?)\b|\bbird'?s.?eye\b|\boverhead\b|\bdrone\s+shot\b|\bfrom\s+above\b/.test(p)) return "aerial_scene";
+        // Establishing / wide venue shots
+        if (/\bestablishing\b|\bwide\s+(?:venue|shot|view|angle)\b|\bvenue\s+exterior\b|\bopening\s+shot\b|\bpanorama\b/.test(p)) return "establishing_scene";
+        // Crowd / audience shots
+        if (/\bcrowd\s+(?:pan|shot|view|cheering|waving|moshing)\b|\baudience\s+(?:pan|shot|view|cheering|waving)\b|\bfans?\s+(?:cheering|waving|moshing|screaming)\b|\bcrowd\s+only\b/.test(p)) return "crowd_scene";
+        // Atmosphere / abstract / no people
+        if (/\batmosphere\b|\bambient\b|\bno\s+people\b|\bno\s+performers\b|\bno\s+characters\b|\bbackground\s+only\b|\bstage\s+empty\b|\bempty\s+stage\b/.test(p)) return "atmosphere_scene";
+        // Default: character scene
+        return "character_scene";
+      };
+      const sceneType: SceneType = detectSceneType(scene.prompt);
+      const isCharacterScene = sceneType === "character_scene";
+      console.log(`[generateScenePreview] Scene ${input.sceneId}: sceneType=${sceneType}, userEditedPrompt=${scene.userEditedPrompt}`);
+
       // ── Clean scene prompt (BLOCK 4 source) ──────────────────────────────────
-      let cleanScenePrompt = scene.prompt;
-      for (const char of allJobCharacters) {
-        const namePrefix = new RegExp(
-          `${char.name}(?:,\\s*(?:Rock Star|Wears a|Woman in|Man in)[^.]*?\\.\\s*)?(?:${char.name})?`,
-          "gi"
-        );
-        cleanScenePrompt = cleanScenePrompt.replace(namePrefix, char.name);
-      }
-      cleanScenePrompt = cleanScenePrompt.replace(/(\b\w{4,}\b[^.]{10,}?)\1+/g, "$1").trim();
-      cleanScenePrompt = cleanScenePrompt.replace(/["\u201C\u201D][^"\u201C\u201D]{2,80}["\u201C\u201D]/g, "").trim();
-      cleanScenePrompt = cleanScenePrompt.replace(/\blyrics?:\s*[^.\n]*/gi, "").trim();
-      if (job.title) {
-        const escapedTitle = job.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        cleanScenePrompt = cleanScenePrompt.replace(new RegExp(`${escapedTitle}\\s+(?:neon\\s+)?(?:sign|logo|banner|backdrop|screen|display|text|lettering|typography|name)`, "gi"), "");
-        cleanScenePrompt = cleanScenePrompt.replace(new RegExp(`\\b${escapedTitle}\\b`, "gi"), "");
-        cleanScenePrompt = cleanScenePrompt.replace(/\s{2,}/g, " ").trim();
+      // For user-edited prompts: use verbatim as DIRECTOR'S INSTRUCTION (skip name-stripping)
+      // For system-generated prompts: apply normal cleaning pipeline
+      let cleanScenePrompt: string;
+      if (scene.userEditedPrompt) {
+        // User-edited: honour verbatim, only strip band name from text/sign references
+        cleanScenePrompt = scene.prompt;
+        if (job.title) {
+          const escapedTitle = job.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          cleanScenePrompt = cleanScenePrompt.replace(new RegExp(`${escapedTitle}\\s+(?:neon\\s+)?(?:sign|logo|banner|backdrop|screen|display|text|lettering|typography|name)`, "gi"), "");
+          cleanScenePrompt = cleanScenePrompt.replace(/\s{2,}/g, " ").trim();
+        }
+      } else {
+        cleanScenePrompt = scene.prompt;
+        for (const char of allJobCharacters) {
+          const namePrefix = new RegExp(
+            `${char.name}(?:,\\s*(?:Rock Star|Wears a|Woman in|Man in)[^.]*?\\.\\s*)?(?:${char.name})?`,
+            "gi"
+          );
+          cleanScenePrompt = cleanScenePrompt.replace(namePrefix, char.name);
+        }
+        cleanScenePrompt = cleanScenePrompt.replace(/(\b\w{4,}\b[^.]{10,}?)\1+/g, "$1").trim();
+        cleanScenePrompt = cleanScenePrompt.replace(/["\u201C\u201D][^"\u201C\u201D]{2,80}["\u201C\u201D]/g, "").trim();
+        cleanScenePrompt = cleanScenePrompt.replace(/\blyrics?:\s*[^.\n]*/gi, "").trim();
+        if (job.title) {
+          const escapedTitle = job.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          cleanScenePrompt = cleanScenePrompt.replace(new RegExp(`${escapedTitle}\\s+(?:neon\\s+)?(?:sign|logo|banner|backdrop|screen|display|text|lettering|typography|name)`, "gi"), "");
+          cleanScenePrompt = cleanScenePrompt.replace(new RegExp(`\\b${escapedTitle}\\b`, "gi"), "");
+          cleanScenePrompt = cleanScenePrompt.replace(/\s{2,}/g, " ").trim();
+        }
       }
 
       // ── Style and mood ────────────────────────────────────────────────────────
@@ -1935,16 +1971,50 @@ Rules:
           ? `ONLY three people on stage. ONLY: ${sceneCharNamesStr}. NO extra musicians. NO duplicates. NO background silhouettes.`
           : `EXACTLY ${charCount} people on stage — ${sceneCharNamesStr}. NO extra musicians. NO duplicates. NO background silhouettes.`;
 
-      const constraintBlock =
-        `GLOBAL CONSTRAINTS:\n` +
-        `- ${peopleCountRule}\n` +
-        `- NO extra musicians\n` +
-        `- NO duplicates or clones\n` +
-        `- NO background silhouettes\n` +
-        `- NO visible text, logos, or band names\n` +
-        `- NO neon signs, banners, or typography\n` +
-        `- Prefer medium or close shots — faces must be clearly visible\n` +
-        `- NO wide crowd shots unless explicitly stated`;
+      // ── STAGE ORIENTATION & INSTRUMENT POSITIONING LOCK (character scenes only) ───
+      // Only inject these hard constraints for character_scene type.
+      // Non-character shots (crowd pans, aerials, atmosphere) honour the user's prompt verbatim.
+      const stagePositionLines: string[] = [];
+      if (isCharacterScene) {
+        for (const c of resolvedSceneChars) {
+          const cDefaults = getCharacterDefaults(c.name);
+          const lockedPos = cDefaults?.lockedPosition ?? null;
+          const lockedRoleStr = (c.role || cDefaults?.lockedRole) ?? "";
+          if (lockedPos) {
+            stagePositionLines.push(`${c.name}: FIXED POSITION — ${lockedPos}. DO NOT move ${c.name} from this position.`);
+          }
+          // Instrument positioning hard rules per role
+          if (lockedRoleStr.toLowerCase().includes("drummer") || cDefaults?.lockedRules?.role === "drummer") {
+            stagePositionLines.push(`${c.name}: MUST be SEATED BEHIND the drum kit at ALL TIMES. NEVER standing. NEVER away from drums.`);
+          } else if (lockedRoleStr.toLowerCase().includes("bassist") || cDefaults?.lockedRules?.role === "bassist") {
+            stagePositionLines.push(`${c.name}: MUST be STANDING and HOLDING/PLAYING the bass guitar at ALL TIMES. NEVER empty-handed.`);
+          } else if (lockedRoleStr.toLowerCase().includes("vocalist") || cDefaults?.lockedRules?.role === "lead vocalist") {
+            stagePositionLines.push(`${c.name}: MUST be at the MICROPHONE or HOLDING GUITAR. ALWAYS centre stage front. NEVER in the background.`);
+          }
+        }
+      }
+      const stageOrientationBlock = isCharacterScene
+        ? `STAGE ORIENTATION (ABSOLUTE — DO NOT VIOLATE):\n` +
+          `- Camera ALWAYS faces the stage FROM the audience perspective (front-on or slight angle).\n` +
+          `- NEVER shoot from behind the performers.\n` +
+          `- NEVER show the backs of performers as the primary view.\n` +
+          `- Performers face TOWARD the camera (toward the audience).\n` +
+          (stagePositionLines.length > 0 ? stagePositionLines.map(l => `- ${l}`).join("\n") : "")
+        : "";
+
+      const constraintBlock = isCharacterScene
+        ? `GLOBAL CONSTRAINTS:\n` +
+          `- ${peopleCountRule}\n` +
+          `- NO extra musicians\n` +
+          `- NO duplicates or clones\n` +
+          `- NO background silhouettes\n` +
+          `- NO visible text, logos, or band names\n` +
+          `- NO neon signs, banners, or typography\n` +
+          `- Prefer medium or close shots — faces must be clearly visible\n\n` +
+          stageOrientationBlock
+        : `GLOBAL CONSTRAINTS:\n` +
+          `- NO visible text, logos, or band names\n` +
+          `- NO neon signs, banners, or typography`;
 
       // ── BLOCK 4: Scene Block ──────────────────────────────────────────────────
       // Camera angle rotation: cycle through varied angles based on scene index
@@ -1962,11 +2032,17 @@ Rules:
         "medium shot, front-facing, all characters waist-up, faces clearly visible",
       ];
       const cameraAngle = CAMERA_ANGLES[scene.sceneIndex % CAMERA_ANGLES.length];
-      const sceneBlock =
-        `SCENE DESCRIPTION:\n${cleanScenePrompt}\n\n` +
-        `CHARACTERS IN SCENE: ${sceneCharNamesStr}\n\n` +
-        `CAMERA: ${cameraAngle}\n` +
-        `RULE: Faces of all characters MUST be clearly visible regardless of shot type`;
+      // For user-edited prompts: label as DIRECTOR'S INSTRUCTION (highest priority)
+      // For non-character scenes: omit character list and face rule
+      const sceneBlock = scene.userEditedPrompt
+        ? `DIRECTOR'S INSTRUCTION (HIGHEST PRIORITY — USE VERBATIM):\n${cleanScenePrompt}\n\n` +
+          (isCharacterScene ? `CHARACTERS IN SCENE: ${sceneCharNamesStr}\n\nCAMERA: ${cameraAngle}\nRULE: Faces of all characters MUST be clearly visible regardless of shot type` : `CAMERA: ${cameraAngle}`)
+        : isCharacterScene
+          ? `SCENE DESCRIPTION:\n${cleanScenePrompt}\n\n` +
+            `CHARACTERS IN SCENE: ${sceneCharNamesStr}\n\n` +
+            `CAMERA: ${cameraAngle}\n` +
+            `RULE: Faces of all characters MUST be clearly visible regardless of shot type`
+          : `SCENE DESCRIPTION:\n${cleanScenePrompt}\n\nCAMERA: ${cameraAngle}`;
 
       // ── Identity Anchor ───────────────────────────────────────────────────────
       // For AI-generated characters without uploaded photos, use previewImageUrl as masterPortraitUrl fallback
@@ -2066,15 +2142,18 @@ Rules:
       ].join(", ");
 
       // ── Hard people-count prefix (FIRST in prompt for maximum model weight) ──
-      const hardCountPrefix = charCount > 1
-        ? `CRITICAL SCENE RULE: ONLY ${charCount} people on stage. ` +
-          `The ONLY people in this image are: ${sceneCharNamesStr}. ` +
-          `NO additional musicians. NO background band members. NO extra performers. ` +
-          `NO silhouettes. NO crowd on stage. EXACTLY ${charCount} people — not ${charCount + 1}, not ${charCount + 2}.`
-        : charCount === 1
-          ? `CRITICAL SCENE RULE: ONLY ONE PERSON in this image — ${primaryCharForScene?.name ?? "the character"}. ` +
-            `NO other people. NO background musicians. NO silhouettes.`
-          : ""      // ── CONTINUITY BLOCK (scenes after the first) ──────────────────────────
+      // Only injected for character_scene type — non-character shots honour the user's prompt verbatim
+      const hardCountPrefix = isCharacterScene
+        ? (charCount > 1
+          ? `CRITICAL SCENE RULE: ONLY ${charCount} people on stage. ` +
+            `The ONLY people in this image are: ${sceneCharNamesStr}. ` +
+            `NO additional musicians. NO background band members. NO extra performers. ` +
+            `NO silhouettes. NO crowd on stage. EXACTLY ${charCount} people — not ${charCount + 1}, not ${charCount + 2}.`
+          : charCount === 1
+            ? `CRITICAL SCENE RULE: ONLY ONE PERSON in this image — ${primaryCharForScene?.name ?? "the character"}. ` +
+              `NO other people. NO background musicians. NO silhouettes.`
+            : "")
+        : ""      // ── CONTINUITY BLOCK (scenes after the first) ──────────────────────────
       // When a previous scene image is provided, instruct the model to maintain
       // visual consistency: same lighting temperature, colour grading, stage setup,
       // and character positioning relative to the previous frame.
