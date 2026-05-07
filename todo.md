@@ -7130,3 +7130,9 @@
 - [x] Updated all 8 "Create New" / "Start Creating" / "New Project" / "Get Inspired" buttons in Dashboard to use WIZVIDEO_NEW_PROJECT
 - [x] Existing ?jobId= resume flow unchanged — My Projects links still open the correct saved project
 - [x] TypeScript: 0 errors
+
+## sceneSetting Validation Bug - May 2026
+- [x] Fix: sceneSetting field exceeded 512-char limit causing "too_big" validation error
+- [x] Raised Zod schema limit to 5000 chars in musicVideo.ts createJob procedure
+- [x] Changed DB column from VARCHAR(512) to TEXT (no length limit) via migration 0072
+- [x] Migration applied: ALTER TABLE musicVideoJobs MODIFY COLUMN sceneSetting text

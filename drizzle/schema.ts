@@ -158,7 +158,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   finalVideoKey: varchar("finalVideoKey", { length: 512 }),
   creditCost: int("creditCost").default(0).notNull(),
   characterRoster: text("characterRoster"), // JSON array of all characters (locked + AI-invented) with fixed descriptions
-  sceneSetting: varchar("sceneSetting", { length: 512 }), // User-chosen visual environment e.g. "concert venue", "desert", "rooftop"
+  sceneSetting: text("sceneSetting"), // User-chosen visual environment — TEXT (no length limit) so users can paste full descriptions
   characterLockEnabled: boolean("characterLockEnabled").default(true).notNull(), // Whether to enforce face consistency validation across scenes
   // --- Style Lock -------------------------------------------------------
   lockedStyle: text("lockedStyle"), // JSON: { descriptor: string, lighting: string, colourPalette: string, cameraAngle: string, mood: string, rawPromptSuffix: string }

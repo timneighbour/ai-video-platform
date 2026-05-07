@@ -90,7 +90,7 @@ export const musicVideoRouter = router({
         characterImageBase64: z.string().optional(), // base64 encoded character photo
         characterImageMimeType: z.string().optional(), // e.g. "image/jpeg"
         enableLipSync: z.boolean().optional(),
-        sceneSetting: z.string().max(512).optional(), // e.g. "concert venue", "desert", "rooftop"
+        sceneSetting: z.string().max(5000).optional(), // e.g. "concert venue", "desert", "rooftop" — high limit so users can paste full descriptions
       })
     )
     .mutation(async ({ ctx, input }) => {
