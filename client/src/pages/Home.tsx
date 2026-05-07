@@ -1254,6 +1254,197 @@ function HeroDemoSection() {
  );
 }
 
+// WizAI Worlds — brand film showcase section
+const WIZAI_WORLDS_VIDEO = `/manus-storage/WizAiWorldsVideo_2e126b24.mp4`;
+const WIZAI_WORLDS_POSTER = `/manus-storage/WizAiWorldsThumb_30db3080.jpg`;
+function WizAIWorldsSection() {
+ const videoRef = useRef<HTMLVideoElement>(null);
+ const [playing, setPlaying] = useState(false);
+ const [isMuted, setIsMuted] = useState(true);
+ const [showPulse, setShowPulse] = useState(true);
+
+ const handlePlay = useCallback(() => {
+ const v = videoRef.current;
+ if (!v) return;
+ setShowPulse(false);
+ if (v.paused) {
+ v.play().catch(() => {});
+ setPlaying(true);
+ } else {
+ v.pause();
+ setPlaying(false);
+ }
+ }, []);
+
+ const handleToggleMute = useCallback((e: React.MouseEvent) => {
+ e.stopPropagation();
+ const v = videoRef.current;
+ if (!v) return;
+ const newMuted = !isMuted;
+ v.muted = newMuted;
+ setIsMuted(newMuted);
+ }, [isMuted]);
+
+ return (
+ <section className="relative bg-[#030303] py-24 px-6 overflow-hidden">
+ {/* Deep space ambient glow */}
+ <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, oklch(0.20 0.08 260 / 0.18), transparent 70%)" }} />
+ <div className="absolute top-0 left-0 right-0 luxury-divider" />
+
+ <div className="max-w-6xl mx-auto relative z-10">
+ {/* Section header */}
+ <div className="text-center mb-12 reveal">
+ {/* Eyebrow badge */}
+ <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-5 border" style={{ background: "rgba(196,164,100,0.06)", borderColor: "rgba(196,164,100,0.20)" }}>
+ <span className="text-[10px] font-black tracking-[0.25em] uppercase" style={{ color: "oklch(0.78 0.11 75)" }}>Brand Film</span>
+ </div>
+ <h2 className="text-[clamp(2rem,5vw,3.8rem)] font-black tracking-tight text-white mb-4 leading-[1.05]">
+ If ever there was a Wiz&hellip;
+ </h2>
+ <p className="text-white/50 text-lg max-w-2xl mx-auto leading-relaxed">
+ Built for musicians. Designed for filmmakers. Created for animators.
+ The all-in-one AI creative studio that exists in every world.
+ </p>
+ </div>
+
+ {/* Video player — cinematic full-width */}
+ <div
+ className="relative rounded-3xl overflow-hidden reveal"
+ style={{
+ border: "1px solid rgba(196,164,100,0.15)",
+ boxShadow: "0 0 120px rgba(196,164,100,0.06), 0 0 0 1px rgba(255,255,255,0.03), 0 60px 120px rgba(0,0,0,0.8)",
+ }}
+ >
+ {/* Top gradient bar — gold accent line */}
+ <div className="absolute top-0 left-0 right-0 h-[2px] z-20" style={{ background: "linear-gradient(90deg, transparent, oklch(0.78 0.11 75), oklch(0.65 0.14 70), transparent)" }} />
+
+ <div className="relative aspect-video bg-black">
+ <video
+ ref={videoRef}
+ className="w-full h-full object-cover"
+ poster={WIZAI_WORLDS_POSTER}
+ muted
+ playsInline
+ preload="metadata"
+ onEnded={() => setPlaying(false)}
+ style={{
+ transform: !playing ? "scale(1.02)" : "scale(1)",
+ transition: "transform 6s ease-in-out",
+ }}
+ >
+ <source src={WIZAI_WORLDS_VIDEO} type="video/mp4" />
+ </video>
+
+ {/* Play overlay */}
+ {!playing && (
+ <button
+ onClick={handlePlay}
+ className="absolute inset-0 w-full h-full flex flex-col items-center justify-center cursor-pointer transition-all duration-300"
+ style={{
+ background: "linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.55) 100%)",
+ backdropFilter: "blur(1px)",
+ WebkitTapHighlightColor: "transparent",
+ touchAction: "manipulation",
+ border: "none",
+ }}
+ aria-label="Watch the Wiz AI brand film"
+ >
+ {/* Pulsing ring behind button */}
+ {showPulse && (
+ <div className="absolute w-32 h-32 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(196,164,100,0.15), transparent 70%)", animation: "wizWorldsPulse 2.5s ease-in-out infinite" }} />
+ )}
+ <div
+ className="relative w-24 h-24 rounded-full flex items-center justify-center mb-6 hover:scale-110 transition-transform duration-200"
+ style={{
+ background: "linear-gradient(135deg, oklch(0.78 0.11 75), oklch(0.60 0.16 70))",
+ boxShadow: "0 0 60px rgba(196,164,100,0.55), 0 0 120px rgba(196,164,100,0.20)",
+ pointerEvents: "none",
+ }}
+ >
+ <PlaySVG className="w-10 h-10 text-white ml-1.5" />
+ </div>
+ <p className="text-white font-bold text-lg tracking-wide pointer-events-none" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}>Watch the brand film</p>
+ <p className="text-white/50 text-sm mt-1.5 pointer-events-none">50 seconds · 4K</p>
+ </button>
+ )}
+
+ {/* Playing state — waveform indicator */}
+ {playing && (
+ <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-sm border border-white/10 pointer-events-none z-10">
+ <WaveformSVG className="w-4 h-4" color="oklch(0.78 0.11 75)" />
+ <span className="text-[11px] font-bold tracking-widest uppercase text-white/60">Playing</span>
+ </div>
+ )}
+ {/* Pause button */}
+ {playing && (
+ <button
+ onClick={handlePlay}
+ className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:border-white/30 transition-colors z-10"
+ style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
+ aria-label="Pause video"
+ >
+ <PauseSVG className="w-4 h-4 text-white/60" />
+ </button>
+ )}
+ </div>
+ </div>
+
+ {/* Controls row */}
+ <div className="flex items-center justify-between mt-5 px-1">
+ {/* Sound toggle */}
+ <button
+ onClick={handleToggleMute}
+ title={isMuted ? "Enable sound" : "Mute"}
+ className="flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all duration-200 min-h-[44px]"
+ style={{
+ background: isMuted ? "rgba(255,255,255,0.04)" : "rgba(196,164,100,0.10)",
+ borderColor: isMuted ? "rgba(255,255,255,0.10)" : "rgba(196,164,100,0.35)",
+ WebkitTapHighlightColor: "transparent",
+ touchAction: "manipulation",
+ }}
+ >
+ {isMuted ? (
+ <svg className="w-4 h-4 text-white/40 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+ <path strokeLinecap="round" strokeLinejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+ <path strokeLinecap="round" strokeLinejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+ </svg>
+ ) : (
+ <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" style={{ color: 'oklch(0.78 0.11 75)' }}>
+ <path strokeLinecap="round" strokeLinejoin="round" d="M15.536 8.464a5 5 0 010 7.072M12 6v12m-3.536-9.536a5 5 0 000 7.072M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+ </svg>
+ )}
+ <span className="text-[12px] font-semibold tracking-wide" style={{ color: isMuted ? 'rgba(255,255,255,0.40)' : 'oklch(0.78 0.11 75)' }}>
+ {isMuted ? 'Enable sound' : 'Sound on'}
+ </span>
+ </button>
+
+ {/* Three audience tags */}
+ <div className="hidden sm:flex items-center gap-2">
+ {["Musicians", "Filmmakers", "Animators"].map((tag) => (
+ <span key={tag} className="text-[11px] font-semibold tracking-wide px-3 py-1 rounded-full border" style={{ color: "rgba(255,255,255,0.45)", borderColor: "rgba(255,255,255,0.10)", background: "rgba(255,255,255,0.03)" }}>{tag}</span>
+ ))}
+ </div>
+ </div>
+
+ {/* CTA row */}
+ <div className="text-center mt-10 reveal">
+ <a
+ href="/onboarding"
+ className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
+ onClick={() => mp.startCreatingClicked?.('wizai-worlds')}
+ >
+ <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />
+ Create Without Limits
+ </a>
+ <p className="text-white/40 text-xs mt-3">wiz-ai.io &mdash; Imagination Without Limits</p>
+ </div>
+ </div>
+
+ <div className="absolute bottom-0 left-0 right-0 luxury-divider" />
+ </section>
+ );
+}
+
 // Workflow Journey — 7-step creative pipeline 
 function WorkflowJourney() {
  const steps = [
@@ -4031,7 +4222,9 @@ export default function Home() {
  <main id="main-content">
  {/* 1. Hero — 5-second positioning */}
  <Hero />
- {/* 2. Hero Demo — click-to-play product trailer */}
+ {/* 2. WizAI Worlds — brand film showcase */}
+ <WizAIWorldsSection />
+ {/* 3. Hero Demo — click-to-play product trailer */}
  <HeroDemoSection />
  {/* 3. Workflow Journey — 7-step pipeline */}
  <WorkflowJourney />

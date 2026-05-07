@@ -305,6 +305,12 @@ nav a, nav button {
   100% { transform: scale(1.04); }
 }
 
+@keyframes wizWorldsPulse {
+  0%   { transform: scale(0.9); opacity: 0.6; }
+  50%  { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
 @keyframes shimmer {
   0%   { background-position: 200% center; }
   100% { background-position: -200% center; }

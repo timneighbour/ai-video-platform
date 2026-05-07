@@ -7291,3 +7291,12 @@
 - [ ] Add singer/lead character selector — mark one character as lead vocalist
 - [ ] Add inline storyboard preview step — AI scene descriptions after brief+lyrics, per-scene edit
 - [ ] Add Save Storyboard — savedStoryboards DB table, tRPC save/load, UI button
+
+## WizAI Worlds Brand Film — Homepage Integration
+- [x] Upload WizAiWorldsVideo.mp4 (4K, 50s, re-edited by Tim) to CDN
+- [x] Extract cinematic thumbnail from concert scene (frame at 7s)
+- [x] Build WizAIWorldsSection component on homepage — cinematic full-width click-to-play player
+- [x] Position section between Hero and HeroDemoSection for maximum visibility
+- [x] Add gold accent top bar, ambient space glow, pulsing play button, sound toggle, audience tags
+- [x] Add wizWorldsPulse keyframe animation to index.css
+- [x] Section headline: "If ever there was a Wiz…" with sub-copy targeting musicians/filmmakers/animators
