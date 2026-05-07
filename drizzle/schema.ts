@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, longtext, json } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, longtext, json, bigint, tinyint } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -1181,3 +1181,130 @@ export const savedCharacters = mysqlTable("savedCharacters", {
 
 export type SavedCharacter = typeof savedCharacters.$inferSelect;
 export type InsertSavedCharacter = typeof savedCharacters.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CREATIVE STUDIOS SYSTEM
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const creativeProfiles = mysqlTable("creativeProfiles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  type: varchar("type", { length: 50 }).notNull().default("other"),
+  bio: text("bio"),
+  avatarUrl: varchar("avatarUrl", { length: 500 }),
+  colorTheme: varchar("colorTheme", { length: 20 }).notNull().default("#b8892a"),
+  isDefault: tinyint("isDefault").notNull().default(0),
+  createdAt: bigint("createdAt", { mode: "number" }).notNull().$defaultFn(() => Date.now()),
+  updatedAt: bigint("updatedAt", { mode: "number" }).notNull().$defaultFn(() => Date.now()),
+});
+export type CreativeProfile = typeof creativeProfiles.$inferSelect;
+export type InsertCreativeProfile = typeof creativeProfiles.$inferInsert;
+
+export const creatorProjects = mysqlTable("creatorProjects", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  profileId: int("profileId"),
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description"),
+  type: varchar("type", { length: 50 }).notNull().default("other"),
+  status: varchar("status", { length: 30 }).notNull().default("complete"),
+  outputUrl: varchar("outputUrl", { length: 1000 }),
+  thumbnailUrl: varchar("thumbnailUrl", { length: 1000 }),
+  source: varchar("source", { length: 50 }).default("manual"),
+  jobRef: varchar("jobRef", { length: 255 }),
+  durationSeconds: int("durationSeconds"),
+  createdAt: bigint("createdAt", { mode: "number" }).notNull().$defaultFn(() => Date.now()),
+  updatedAt: bigint("updatedAt", { mode: "number" }).notNull().$defaultFn(() => Date.now()),
+});
+export type CreatorProject = typeof creatorProjects.$inferSelect;
+export type InsertCreatorProject = typeof creatorProjects.$inferInsert;
+
+export const socialConnections = mysqlTable("socialConnections", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  platform: varchar("platform", { length: 30 }).notNull(),
+  platformUserId: varchar("platformUserId", { length: 255 }),
+  platformUsername: varchar("platformUsername", { length: 255 }),
+  accessToken: text("accessToken"),
+  refreshToken: text("refreshToken"),
+  tokenExpiresAt: bigint("tokenExpiresAt", { mode: "number" }),
+  isActive: tinyint("isActive").notNull().default(1),
+  createdAt: bigint("createdAt", { mode: "number" }).notNull().$defaultFn(() => Date.now()),
+});
+export type SocialConnection = typeof socialConnections.$inferSelect;
+
+export const socialPublishLogs = mysqlTable("socialPublishLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  projectId: int("projectId"),
+  platform: varchar("platform", { length: 30 }).notNull(),
+  status: varchar("status", { length: 30 }).notNull().default("pending"),
+  platformPostId: varchar("platformPostId", { length: 255 }),
+  platformPostUrl: varchar("platformPostUrl", { length: 1000 }),
+  errorMessage: text("errorMessage"),
+  createdAt: bigint("createdAt", { mode: "number" }).notNull().$defaultFn(() => Date.now()),
+});
+export type SocialPublishLog = typeof socialPublishLogs.$inferSelect;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WIZAVISION — Streaming & Discovery Platform
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const wizavisionVideos = mysqlTable("wizavisionVideos", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  title: varchar("title", { length: 500 }).notNull(),
+  description: text("description"),
+  videoUrl: varchar("videoUrl", { length: 1000 }).notNull(),
+  thumbnailUrl: varchar("thumbnailUrl", { length: 1000 }),
+  duration: int("duration"),
+  mainCategory: varchar("mainCategory", { length: 100 }).notNull().default("music_video"),
+  subCategory: varchar("subCategory", { length: 100 }),
+  genre: varchar("genre", { length: 100 }),
+  visualStyle: varchar("visualStyle", { length: 100 }),
+  mood: varchar("mood", { length: 100 }),
+  tags: text("tags"),
+  creatorName: varchar("creatorName", { length: 255 }),
+  creatorUsername: varchar("creatorUsername", { length: 100 }),
+  creatorAvatarUrl: varchar("creatorAvatarUrl", { length: 1000 }),
+  isPublic: tinyint("isPublic").notNull().default(1),
+  isFeatured: tinyint("isFeatured").notNull().default(0),
+  isStaffPick: tinyint("isStaffPick").notNull().default(0),
+  isKidsSafe: tinyint("isKidsSafe").notNull().default(0),
+  isOriginal: tinyint("isOriginal").notNull().default(0),
+  viewCount: int("viewCount").notNull().default(0),
+  likeCount: int("likeCount").notNull().default(0),
+  sourceType: varchar("sourceType", { length: 50 }).default("user_upload"),
+  projectId: int("projectId"),
+  metaTitle: varchar("metaTitle", { length: 255 }),
+  metaDescription: varchar("metaDescription", { length: 500 }),
+  publishedAt: bigint("publishedAt", { mode: "number" }),
+  createdAt: bigint("createdAt", { mode: "number" }).notNull().$defaultFn(() => Date.now()),
+  updatedAt: bigint("updatedAt", { mode: "number" }).notNull().$defaultFn(() => Date.now()),
+});
+export type WizavisionVideo = typeof wizavisionVideos.$inferSelect;
+export type InsertWizavisionVideo = typeof wizavisionVideos.$inferInsert;
+
+export const wizavisionCreatorChannels = mysqlTable("wizavisionCreatorChannels", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  username: varchar("username", { length: 100 }).notNull().unique(),
+  displayName: varchar("displayName", { length: 255 }).notNull(),
+  bio: text("bio"),
+  avatarUrl: varchar("avatarUrl", { length: 1000 }),
+  bannerUrl: varchar("bannerUrl", { length: 1000 }),
+  websiteUrl: varchar("websiteUrl", { length: 500 }),
+  youtubeUrl: varchar("youtubeUrl", { length: 500 }),
+  tiktokUrl: varchar("tiktokUrl", { length: 500 }),
+  instagramUrl: varchar("instagramUrl", { length: 500 }),
+  followerCount: int("followerCount").notNull().default(0),
+  videoCount: int("videoCount").notNull().default(0),
+  isVerified: tinyint("isVerified").notNull().default(0),
+  isFeatured: tinyint("isFeatured").notNull().default(0),
+  createdAt: bigint("createdAt", { mode: "number" }).notNull().$defaultFn(() => Date.now()),
+  updatedAt: bigint("updatedAt", { mode: "number" }).notNull().$defaultFn(() => Date.now()),
+});
+export type WizavisionCreatorChannel = typeof wizavisionCreatorChannels.$inferSelect;
+export type InsertWizavisionCreatorChannel = typeof wizavisionCreatorChannels.$inferInsert;

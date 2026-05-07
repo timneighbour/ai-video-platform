@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, Music2, CreditCard, Settings, FolderOpen, Home, Sparkles, BookOpen, PlayCircle, Film, ShieldAlert } from "@/lib/icons";
+import { LayoutDashboard, LogOut, PanelLeft, Video, Mic, Wand2, Zap, Music, Music2, CreditCard, Settings, FolderOpen, Home, Sparkles, BookOpen, PlayCircle, Film, ShieldAlert, Layers, Monitor } from "@/lib/icons";
 import CreditBalance from "./CreditBalance";
 import { LowCreditBanner } from "./LowCreditBanner";
 import { trpc } from "@/lib/trpc";
@@ -48,6 +48,8 @@ const menuItems = [
   { icon: PlayCircle, label: "WizPilot", path: WIZPILOT_STUDIO_PAGE },
   { icon: Mic, label: "AI Voiceover", path: "/tools/voiceover" },
   { icon: BookOpen, label: "Character Library", path: "/characters" },
+  { icon: Layers, label: "My Studios", path: "/studios" },
+  { icon: Monitor, label: "WizaVision", path: "/wizavision" },
   { icon: FolderOpen, label: "My Projects", path: "/my-projects" },
   { icon: CreditCard, label: "Credits", path: "/credits" },
   { icon: Settings, label: "Account", path: "/account" },

@@ -111,6 +111,11 @@ const AnalyticsDashboard = lazy(() => import("@/pages/AnalyticsDashboard"));
 const WizadoraAdmin = lazy(() => import("@/pages/admin/WizadoraAdmin"));
 const MyProjects = lazy(() => import("@/pages/MyProjects"));
 const Unsubscribe = lazy(() => import("@/pages/Unsubscribe"));
+const Studios = lazy(() => import("@/pages/Studios"));
+const StudioDetail = lazy(() => import("@/pages/StudioDetail"));
+const WizaVision = lazy(() => import("@/pages/WizaVision"));
+const WizaVisionWatch = lazy(() => import("@/pages/WizaVisionWatch"));
+const WizaVisionCreator = lazy(() => import("@/pages/WizaVisionCreator"));
 
 // Premium loading fallback — shown while lazy chunks load (especially on iOS/slow connections)
 function PageFallback() {
@@ -332,6 +337,11 @@ function Router() {
         <Route path={"/blog/:slug"} component={BlogPost} />
         <Route path={"/seo/:slug"} component={SeoLandingPage} />
         <Route path={"/watch/:slug"} component={WatchPage} />
+        <Route path={"/studios"} component={Studios} />
+        <Route path={"/studios/:id"} component={StudioDetail} />
+        <Route path={"/wizavision"} component={WizaVision} />
+        <Route path={"/wizavision/watch/:slug"} component={WizaVisionWatch} />
+        <Route path={"/wizavision/creator/:username"} component={WizaVisionCreator} />
         <Route path={"/404"} component={NotFound} />
         {/* Final fallback route */}
         <Route component={NotFound} />

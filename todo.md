@@ -7248,3 +7248,23 @@
 - [x] Character Library: Save to Library button in WizImage after image generation
 - [x] Character Library: Premium Air Studio aesthetic — dark luxury, amber/gold accents, cinematic character cards
 - [ ] Character Library: Add Save to Library button in Music Video character step
+
+## Creative Studios System (My Studios) - COMPLETED
+- [x] creativeProfiles DB table (name, type, avatar, colour, bio, isDefault)
+- [x] creatorProjects DB table (links projects to creative profiles)
+- [x] socialConnections DB table (YouTube, TikTok, Instagram, Facebook tokens)
+- [x] socialPublishLogs DB table (tracks publish history)
+- [x] studiosRouter — listProfiles, createProfile, updateProfile, deleteProfile, getProfile, listProjects, saveProject, deleteProject, listSocialConnections, disconnectSocial, logPublish, listPublishLogs
+- [x] Studios page (/studios) — grid of creative profile cards, create/edit/delete modals
+- [x] StudioDetail page (/studios/:id) — all projects in a studio, social publish panel
+- [x] SaveToStudioModal component — save any generated content to a studio
+- [x] My Studios and WizaVision links added to sidebar navigation
+
+## WizaVision Platform - COMPLETED
+- [x] wizavisionVideos DB table (title, slug, videoUrl, thumbnailUrl, category, tags, viewCount, etc.)
+- [x] wizavisionCreatorChannels DB table (username, displayName, bio, avatarUrl, links)
+- [x] wizavisionRouter — publish, myVideos, browse, homepage, getBySlug, incrementView, getChannel, myChannel, updateChannel, featuredCreators
+- [x] WizaVision landing page (/wizavision) — cinematic hero, category grid, featured/trending/recent/staffPicks/kidsContent/creators sections
+- [x] WizaVisionWatch page (/wizavision/watch/:slug) — video player, metadata, related videos, share/download
+- [x] WizaVisionCreator page (/wizavision/creator/:username) — channel page with all published videos
+- [x] Routes registered in App.tsx
