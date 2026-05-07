@@ -1035,12 +1035,11 @@ function Hero() {
  {/* Proof strip — studio-grade capabilities */}
  <div className="flex flex-wrap gap-3 mb-10">
  {[
- { label: "AI Music Video", glow: "oklch(0.70 0.18 260)" },
- { label: "Studio Audio Mastering", glow: "oklch(0.72 0.18 160)" },
- { label: "Cinematic Visual Grade", glow: "oklch(0.78 0.11 75)" },
- { label: "Character Lock Animation", glow: "oklch(0.68 0.18 330)" },
- { label: "Original Score", glow: "oklch(0.78 0.11 75)" },
- { label: "Free Preview Every Scene", glow: "oklch(0.78 0.11 75)" },
+        { label: "Character Lock™", glow: "oklch(0.68 0.18 330)" },
+        { label: "Real Lip Sync", glow: "oklch(0.70 0.18 260)" },
+        { label: "Lyric-Aware Storyboarding™", glow: "oklch(0.72 0.18 160)" },
+        { label: "Scene Director™", glow: "oklch(0.78 0.11 75)" },
+        { label: "Preview Before Download™", glow: "oklch(0.78 0.11 75)" },
  ].map((item) => (
  <span
  key={item.label}

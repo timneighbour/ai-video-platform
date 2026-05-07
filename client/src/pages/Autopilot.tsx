@@ -1031,6 +1031,18 @@ export default function Autopilot() {
                   Build Video — {creditCost} Credits
                 </Button>
               </div>
+              {/* Render time estimate + quality guarantee */}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <span className="inline-flex items-center gap-1.5 text-[11px] text-zinc-500">
+                  <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><circle cx="8" cy="8" r="6.5" /><path d="M8 5v3.5l2 2" /></svg>
+                  ~{Math.max(3, Math.round(storyboard.length * 0.7))} min render
+                </span>
+                <span className="w-px h-3 bg-white/10" />
+                <span className="inline-flex items-center gap-1.5 text-[11px]" style={{ color: 'var(--color-gold)' }}>
+                  <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 1.5L2 4v4c0 3.3 2.5 5.5 6 6 3.5-.5 6-2.7 6-6V4L8 1.5z" /></svg>
+                  Quality Guarantee™ — 1 free scene re-render included
+                </span>
+              </div>
             </div>
 
             <div className="flex items-start gap-2 rounded-xl border border-[--color-silver]/20 bg-[--color-silver]/5 p-4 text-sm text-[--color-silver]">

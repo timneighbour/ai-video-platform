@@ -410,6 +410,17 @@ export function RenderPaywallModal({
             ))}
           </div>
 
+          {/* ── Quality Guarantee badge ───────────────────────────────── */}
+          <div className="rounded-xl border border-[--color-gold]/[0.18] bg-[--color-gold]/[0.04] px-4 py-3 flex items-start gap-3">
+            <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-[--color-gold]/[0.12] border border-[--color-gold]/[0.2] flex items-center justify-center mt-0.5">
+              <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--color-gold)' }} />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white mb-0.5">Quality Guarantee™ included</p>
+              <p className="text-[11px] text-zinc-500 leading-relaxed">Not happy with a scene? Use Scene Director™ to re-direct and re-render any scene for free after your build. You are the director.</p>
+            </div>
+          </div>
+
           {/* ── CTA ───────────────────────────────────────────────────── */}
           <Button
             onClick={handleRender}

@@ -7031,7 +7031,7 @@
 - [ ] Improve quality guarantee messaging with trust signals
 
 ### Priority 4 — Positioning Updates
-- [ ] Update homepage hero: replace "AI video generation" with director-level control messaging
+- [x] Update homepage hero: replace "AI video generation" with director-level control messaging — proof strip now shows Character Lock™, Real Lip Sync, Lyric-Aware Storyboarding™, Scene Director™, Preview Before Download™
 - [ ] Update onboarding copy: "You're the director" framing
 - [ ] Update pricing page: highlight lip sync, character consistency, quality guarantee
 - [ ] Update product pages: replace generic AI language with premium differentiators
@@ -7041,10 +7041,10 @@
 
 ### Priority 5 — Build Conversion Improvements
 - [ ] Add estimated build credits display near Build button (before paywall)
-- [ ] Add render time estimate ("~12 minutes for 18 scenes")
-- [ ] Add "1 free scene re-render included" badge near Build button
-- [ ] Add quality guarantee reassurance text near Build button
-- [ ] Add "Preview before download" reassurance near Build button
+- [x] Add render time estimate (~X min render based on scene count) — added to Autopilot Build button area
+- [x] Add "1 free scene re-render included" badge near Build button — added to Autopilot and RenderPaywallModal
+- [x] Add quality guarantee reassurance text near Build button — Quality Guarantee™ badge added to RenderPaywallModal
+- [x] Add "Preview before download" reassurance near Build button — covered by Quality Guarantee™ badge copy
 - [ ] Add storyboard_ready → build conversion funnel tracking
 
 ### Priority 6 — Marketing Assets
