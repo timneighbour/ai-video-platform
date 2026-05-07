@@ -3,7 +3,7 @@
  * Full rewrite: Wiz engine badges, gender selector, WizSound CTA,
  * auto-transcription, story prompt, full inline video preview + scene edit panel
  */
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, type ReactNode } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { LandscapeHint } from "@/components/LandscapeHint";
@@ -15,6 +15,7 @@ import { getLoginUrl } from "@/const";
 import { WizGenesisModal } from "@/components/WizGenesisModal";
 import { Link, useLocation } from "wouter";
 import { useSEO } from "@/hooks/useSEO";
+import { Music, Users, Palette, FileText, Film, Zap } from "@/lib/icons";
 
 // ─── Assets ──────────────────────────────────────────────────────────────────
 const LOGO_IMG = "/manus-storage/wizanimate-logo-new_a84f9808_a089857a.png";
@@ -689,7 +690,7 @@ export default function KidsVideo() {
         {step === "audio" && (
           <div>
             <StepHeader
-              icon="🎵"
+              icon={<Music className="w-4 h-4" />}
               title="Upload Your Audio Track"
               sub="The animation will be timed to the full length of your track"
               engine="WizSound"
@@ -849,7 +850,7 @@ export default function KidsVideo() {
         {step === "characters" && (
           <div>
             <StepHeader
-              icon="🎭"
+              icon={<Users className="w-4 h-4" />}
               title="Build Your Characters"
               sub="Upload a photo of anyone or anything — we'll animate them in your chosen style"
               engine="WizSync"
@@ -1379,7 +1380,7 @@ export default function KidsVideo() {
         {step === "style" && (
           <div>
             <StepHeader
-              icon="🎨"
+              icon={<Palette className="w-4 h-4" />}
               title="Choose Animation Style"
               sub="This defines the visual look of every scene in your animation"
               engine="WizCreate"
@@ -1466,7 +1467,7 @@ export default function KidsVideo() {
         {step === "brief" && (
           <div>
             <StepHeader
-              icon="📝"
+              icon={<FileText className="w-4 h-4" />}
               title="Story & Production Settings"
               sub="Tell us what happens in your animation and configure the output"
               engine="WizGenesis"
@@ -2097,7 +2098,7 @@ export default function KidsVideo() {
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-function StepHeader({ icon, title, sub, engine }: { icon: string; title: string; sub: string; engine: keyof typeof ENGINE_COLORS }) {
+function StepHeader({ icon, title, sub, engine }: { icon: ReactNode; title: string; sub: string; engine: keyof typeof ENGINE_COLORS }) {
   const ec = ENGINE_COLORS[engine];
   return (
     <div style={{ marginBottom: 28 }}>

@@ -7228,8 +7228,8 @@
 - [ ] Server: Add characterLibrary tRPC router with save, list, get, delete, update procedures
 - [x] Page: Build /characters Character Library page with card grid, search/filter, style badges
 - [ ] Page: Character detail view — shows photo, preview, description, style, usage history
-- [ ] WizAnimate: Add "Save to Library" button on each locked character card
-- [ ] WizAnimate: Add "Add from Library" button in Characters step to import a saved character
+- [x] WizAnimate: Add "Save to Library" button on each locked character card
+- [x] WizAnimate: Add "Add from Library" button in Characters step to import a saved character
 - [x] Music Video: Add "Save to Library" button on each locked character card
 - [x] Music Video: Add "Add from Library" button in Characters step to import a saved character
 - [x] Nav: Add "Characters" link in user dashboard/account menu
