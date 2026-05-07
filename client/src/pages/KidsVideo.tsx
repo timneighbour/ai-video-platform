@@ -357,6 +357,39 @@ export default function KidsVideo() {
     });
   }, [isAuthenticated, brief, animStyle, duration, sceneCount, characters, lyrics, generateMutation, stopGen]);
 
+  // ── Ambient dimmer ─────────────────────────────────────────────────────
+  // 0.35 = dark cinematic, 0.75 = bright studio
+  const [ambience, setAmbience] = useState(0.65);
+
+  // ── Character preview state ──────────────────────────────────────────────
+  const [charPreviewLoading, setCharPreviewLoading] = useState<Record<string, boolean>>({});
+  const [charPreviewUrls, setCharPreviewUrls] = useState<Record<string, string>>({});
+
+  const charPreviewMutation = trpc.kidsVideo.generateCharacterPreview.useMutation({
+    onSuccess: (data, variables) => {
+      setCharPreviewUrls(prev => ({ ...prev, [(variables as any)._charId]: data.previewUrl }));
+      setCharPreviewLoading(prev => ({ ...prev, [(variables as any)._charId]: false }));
+      toast.success("Character preview generated! Adjust the description if needed, then lock.");
+    },
+    onError: (_err, variables) => {
+      setCharPreviewLoading(prev => ({ ...prev, [(variables as any)._charId]: false }));
+      toast.error("Preview generation failed. Please try again.");
+    },
+  });
+
+  const handlePreviewCharacter = useCallback((char: Character) => {
+    if (!animStyle) { toast.error("Please select an animation style first."); return; }
+    setCharPreviewLoading(prev => ({ ...prev, [char.id]: true }));
+    charPreviewMutation.mutate({
+      _charId: char.id,
+      characterName: char.name,
+      description: char.description || char.name,
+      gender: char.gender,
+      animationStyle: animStyle,
+      photoUrl: char.photoUrl && !char.photoUrl.startsWith("blob:") ? char.photoUrl : undefined,
+    } as any);
+  }, [animStyle, charPreviewMutation]);
+
   // ── Demo pre-fill ─────────────────────────────────────────────────────────
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -411,13 +444,16 @@ export default function KidsVideo() {
       flexDirection: "column",
     }}>
       {/* ── Studio Hero ─────────────────────────────────────────────────── */}
-      <div style={{ position: "relative", width: "100%", height: 200, overflow: "hidden", flexShrink: 0 }}>
+      <div style={{ position: "relative", width: "100%", height: 400, overflow: "hidden", flexShrink: 0 }}>
         <img src={ENV_IMG} alt="WizAnimate Studio" style={{
           position: "absolute", inset: 0, width: "100%", height: "100%",
-          objectFit: "cover", objectPosition: "center 40%",
-          filter: "brightness(0.35)",
+          objectFit: "cover", objectPosition: "center 35%",
+          filter: `brightness(${ambience})`,
+          transition: "filter 0.4s ease",
         }} />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg,#080808 0%,rgba(8,8,8,0.2) 60%,transparent 100%)" }} />
+        {/* Warm amber radial glow overlay */}
+        <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at 50% 80%, rgba(212,168,67,${ambience * 0.18}) 0%, transparent 70%)` }} />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg,#080808 0%,rgba(8,8,8,0.15) 55%,transparent 100%)" }} />
         {/* Top nav */}
         <div style={{
           position: "absolute", top: 0, left: 0, right: 0,
@@ -449,18 +485,57 @@ export default function KidsVideo() {
           </div>
         </div>
         {/* Hero title */}
-        <div style={{ position: "absolute", bottom: 20, left: 24, zIndex: 20 }}>
+        <div style={{ position: "absolute", bottom: 28, left: 24, zIndex: 20 }}>
           <div style={{
-            fontFamily: "'Bebas Neue', sans-serif", fontSize: 40, letterSpacing: 3,
-            color: "#fff", textShadow: "0 2px 32px rgba(0,0,0,0.95)", lineHeight: 1,
-          }}>ANIMATION DIRECTOR</div>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>
-            Upload your track · Build your characters · Choose your style · Generate
+            fontFamily: "'Bebas Neue', sans-serif", fontSize: 52, letterSpacing: 4,
+            color: "#fff", textShadow: "0 2px 40px rgba(0,0,0,0.98)", lineHeight: 1,
+          }}>ANIMATION STUDIO</div>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", marginTop: 6, letterSpacing: "0.5px" }}>
+            Upload your track · Build &amp; lock your characters · Choose your style · Generate
+          </div>
+          {/* Wiz engine row */}
+          <div style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
+            {["WizGenesis","WizCreate","WizSync","WizAdora","WizLumina","WizSound"].map(eng => (
+              <div key={eng} style={{
+                fontSize: 8, fontWeight: 700, letterSpacing: "0.8px",
+                padding: "2px 7px", borderRadius: 2,
+                background: ENGINE_COLORS[eng].bg,
+                border: `1px solid ${ENGINE_COLORS[eng].border}`,
+                color: ENGINE_COLORS[eng].text,
+                textTransform: "uppercase",
+              }}>{eng}™</div>
+            ))}
           </div>
         </div>
-        <div style={{ position: "absolute", bottom: 24, right: 24, zIndex: 20, display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ width: 6, height: 6, borderRadius: "50%", background: GREEN, boxShadow: `0 0 6px ${GREEN}` }} />
-          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "2px", color: "rgba(255,255,255,0.6)", textTransform: "uppercase" }}>Studio Ready</span>
+        {/* Ambient dimmer + VU meters */}
+        <div style={{ position: "absolute", bottom: 20, right: 24, zIndex: 20, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
+          {/* VU meter dots */}
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 3 }}>
+            {[14,18,22,28,22,18,14,10].map((h, i) => (
+              <div key={i} style={{
+                width: 4, height: h,
+                background: i < 5 ? GREEN : GOLD,
+                borderRadius: 2,
+                opacity: 0.7 + (i % 3) * 0.1,
+                animation: `vuPulse${i % 3} 1.${2+i}s ease-in-out infinite alternate`,
+              }} />
+            ))}
+          </div>
+          {/* Ambient dimmer */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(0,0,0,0.55)", borderRadius: 6, padding: "6px 12px", backdropFilter: "blur(8px)" }}>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "1px", color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>Ambience</span>
+            <input
+              type="range" min={0.3} max={0.85} step={0.05}
+              value={ambience}
+              onChange={e => setAmbience(parseFloat(e.target.value))}
+              style={{ width: 80, accentColor: GOLD, cursor: "pointer" }}
+            />
+            <span style={{ fontSize: 9, color: GOLD, fontWeight: 700, minWidth: 24 }}>{Math.round(ambience * 100)}%</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: GREEN, boxShadow: `0 0 8px ${GREEN}`, animation: "vuPulse0 2s ease-in-out infinite alternate" }} />
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "2px", color: "rgba(255,255,255,0.6)", textTransform: "uppercase" }}>Studio Ready</span>
+          </div>
         </div>
       </div>
 
@@ -687,6 +762,63 @@ export default function KidsVideo() {
               engine="WizSync"
             />
 
+            {/* Animation style selector — pick style first, then preview characters in it */}
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#666", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 12 }}>
+                🎨 Step 1 of 2 — Choose Animation Style
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10, marginBottom: 8 }}>
+                {ANIM_STYLES.map(s => {
+                  const isSel = animStyle === s.id;
+                  return (
+                    <div
+                      key={s.id}
+                      onClick={() => setAnimStyle(s.id)}
+                      style={{
+                        borderRadius: 8, overflow: "hidden",
+                        border: `2px solid ${isSel ? GOLD : "#1e1e1e"}`,
+                        cursor: "pointer", background: "#0e0e0e",
+                        boxShadow: isSel ? `0 0 16px rgba(212,168,67,0.25)` : "none",
+                        transition: "all 0.2s", position: "relative",
+                      }}
+                    >
+                      <div style={{ height: 100, overflow: "hidden" }}>
+                        <img src={s.img} alt={s.label} style={{
+                          width: "100%", height: "100%", objectFit: "cover",
+                          filter: isSel ? "none" : "brightness(0.6) saturate(0.7)",
+                          transition: "filter 0.2s",
+                        }} />
+                      </div>
+                      <div style={{
+                        padding: "7px 10px",
+                        background: isSel ? GOLD_DIM : "transparent",
+                        display: "flex", alignItems: "center", justifyContent: "space-between",
+                      }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: isSel ? GOLD : "#888" }}>{s.label}</span>
+                        {isSel && <span style={{ fontSize: 10, color: GOLD }}>✓</span>}
+                      </div>
+                      {isSel && (
+                        <div style={{
+                          position: "absolute", top: 6, right: 6,
+                          background: GOLD, color: "#1a0f00",
+                          fontSize: 8, fontWeight: 700, padding: "2px 6px",
+                          borderRadius: 3, letterSpacing: "0.8px",
+                        }}>SELECTED</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              {animStyle && (
+                <div style={{
+                  padding: "8px 14px", background: GOLD_DIM, border: `1px solid ${GOLD_BORDER}`,
+                  borderRadius: 6, fontSize: 12, color: GOLD,
+                }}>
+                  ✨ <strong>{ANIM_STYLES.find(s => s.id === animStyle)?.label}</strong> selected — click “Preview in Style” on any character below to see how they’ll look
+                </div>
+              )}
+            </div>
+
             {/* WizSync info */}
             <div style={{
               background: ENGINE_COLORS.WizSync.bg,
@@ -694,7 +826,7 @@ export default function KidsVideo() {
               borderRadius: 8, padding: "12px 16px", marginBottom: 20,
               fontSize: 12, color: ENGINE_COLORS.WizSync.text,
             }}>
-              <strong>WizSync™</strong> — Character lip-sync and facial animation engine. Set each character's voice type so WizSync™ can assign the correct vocal register for lip-sync animation.
+              <strong>WizSync™</strong> — Character lip-sync and facial animation engine. Set each character’s voice type so WizSync™ can assign the correct vocal register for lip-sync animation.
             </div>
 
             {/* Character cards */}
@@ -811,23 +943,54 @@ export default function KidsVideo() {
                         boxSizing: "border-box", marginBottom: 10,
                       }}
                     />
-                    <div style={{ display: "flex", gap: 8 }}>
+                    {/* Character preview image */}
+                    {charPreviewUrls[char.id] && (
+                      <div style={{ marginBottom: 10, borderRadius: 8, overflow: "hidden", border: `1px solid ${GOLD_BORDER}` }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: GOLD, padding: "5px 10px", background: GOLD_DIM, letterSpacing: "0.8px" }}>
+                          ✨ STYLE PREVIEW — {ANIM_STYLES.find(s => s.id === animStyle)?.label ?? animStyle}
+                        </div>
+                        <img
+                          src={charPreviewUrls[char.id]}
+                          alt={`${char.name} style preview`}
+                          style={{ width: "100%", display: "block", maxHeight: 200, objectFit: "cover" }}
+                        />
+                        <div style={{ fontSize: 11, color: "#666", padding: "6px 10px", background: "#0a0a0a" }}>
+                          Adjust the description above and regenerate if needed, then lock.
+                        </div>
+                      </div>
+                    )}
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      {/* Preview in Style button */}
+                      <button
+                        onClick={() => handlePreviewCharacter(char)}
+                        disabled={charPreviewLoading[char.id] || char.locked}
+                        style={{
+                          flex: 1, minWidth: 120, padding: "8px 10px",
+                          background: charPreviewLoading[char.id] ? GOLD_DIM : GOLD_DIM,
+                          border: `1px solid ${GOLD_BORDER}`,
+                          color: char.locked ? "#555" : GOLD,
+                          borderRadius: 6, cursor: char.locked ? "not-allowed" : "pointer",
+                          fontSize: 11, fontWeight: 700, opacity: char.locked ? 0.5 : 1,
+                        }}
+                      >
+                        {charPreviewLoading[char.id] ? "⏳ Generating…" : charPreviewUrls[char.id] ? "🔄 Regenerate Preview" : "🎨 Preview in Style"}
+                      </button>
                       <button
                         onClick={() => updateCharacter(char.id, { locked: !char.locked })}
                         style={{
-                          flex: 1, padding: "8px 12px",
+                          flex: 1, minWidth: 100, padding: "8px 10px",
                           background: char.locked ? GREEN_DIM : ACCENT_DIM,
                           border: `1px solid ${char.locked ? GREEN_BORDER : ACCENT_BORDER}`,
                           color: char.locked ? GREEN : ACCENT_LIGHT,
-                          borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 700,
+                          borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700,
                         }}
                       >{char.locked ? "✓ Locked In" : "🔒 Lock Character"}</button>
                       <button
                         onClick={() => removeCharacter(char.id)}
                         style={{
-                          padding: "8px 12px", background: "#1a1a1a",
+                          padding: "8px 10px", background: "#1a1a1a",
                           border: "1px solid #2a2a2a", color: "#666",
-                          borderRadius: 6, cursor: "pointer", fontSize: 12,
+                          borderRadius: 6, cursor: "pointer", fontSize: 11,
                         }}
                       >Remove</button>
                     </div>

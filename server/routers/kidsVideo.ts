@@ -655,6 +655,53 @@ Create 4-6 storyboard scenes. Every imagePrompt MUST include the full character 
     }),
 
   /**
+   * Generate a styled character preview image
+   * Takes a reference photo URL + animation style + description
+   * Returns an AI-generated preview of the character in that style
+   */
+  generateCharacterPreview: protectedProcedure
+    .input(z.object({
+      characterName: z.string().max(100),
+      description: z.string().max(1000),
+      gender: z.enum(["male", "female", "neutral"]),
+      animationStyle: z.string().max(100),
+      photoUrl: z.string().url().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const styleDescriptions: Record<string, string> = {
+        "2dcartoon":   "2D cartoon animation style, flat bold outlines, vibrant saturated colours",
+        "ghibli":      "Studio Ghibli hand-drawn animation style, soft watercolour backgrounds, expressive eyes",
+        "pixar3d":     "Pixar 3D CGI animation style, subsurface scattering skin, cinematic lighting",
+        "anime":       "Japanese anime style, large expressive eyes, clean line art, dynamic shading",
+        "stopmotion":  "stop-motion clay puppet animation style, tactile textures, warm studio lighting",
+        "claymation":  "claymation style, soft clay textures, warm colours, handcrafted feel",
+        "motiongfx":   "motion graphics style, geometric shapes, bold typography, clean vector art",
+        "whiteboard":  "whiteboard animation style, black marker line art on white background",
+        "retro80s":    "retro 1980s neon animation style, synthwave colours, pixel-art influences",
+        "watercolour": "watercolour illustration style, soft washes, painterly textures, dreamy atmosphere",
+        "lowpoly":     "low-poly 3D art style, geometric facets, pastel colour palette",
+        "comicbook":   "comic book illustration style, bold ink outlines, halftone shading, dynamic poses",
+        "pixar_movie": "Pixar movie quality 3D CGI, photorealistic skin, cinematic lighting, expressive face",
+        "disney":      "Disney animation style, magical, fluid motion, classic Disney character design",
+        "storybook":   "children's storybook illustration, watercolour, soft textures, fairy-tale aesthetic",
+        "manga":       "black and white manga comic art, bold ink lines, screen tone shading",
+        "watercolor":  "soft watercolour illustration, gentle colour washes, painterly textures",
+        "cartoon":     "classic cartoon style, bold outlines, bright primary colours, exaggerated expressions",
+      };
+      const styleDesc = styleDescriptions[input.animationStyle] ?? `${input.animationStyle} animation style`;
+      const genderHint = input.gender === "male" ? "male" : input.gender === "female" ? "female" : "character";
+      const refHint = input.photoUrl
+        ? `Based on the reference image, render the same ${genderHint} character`
+        : `Create a ${genderHint} character`;
+      const prompt = `${refHint} named "${input.characterName}" in ${styleDesc}. Character description: ${input.description}. Full body character portrait, centred on a neutral background, high quality, consistent character design, no text, no watermarks. The character MUST exactly match the description — same colours, same clothing, same accessories, same markings.`;
+      const originalImages = input.photoUrl
+        ? [{ url: input.photoUrl, mimeType: "image/jpeg" as const }]
+        : undefined;
+      const { url } = await generateImage({ prompt, originalImages });
+      return { previewUrl: url };
+    }),
+
+  /**
    * Transcribe audio from a CDN URL using Whisper
    * Returns full text (lyrics/narration) and timestamped segments
    */

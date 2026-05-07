@@ -7203,3 +7203,22 @@
 - [ ] WizVideo (text-to-video): Add full inline video preview after generation with scene review panel
 - [x] Music Video: Add full inline video preview after generation with scene review panel
 - [ ] All video products: Enforce cost model - preview is FREE, only generation costs credits
+
+## WizAnimate Character Preview & Lock System
+- [ ] WizAnimate: Add generateCharacterPreview procedure to kidsVideo router — takes photo URL + style + description, returns AI-styled preview image
+- [ ] WizAnimate: Character card "Preview in Style" button — generates AI preview of character in chosen animation style
+- [ ] WizAnimate: Character preview regeneration loop — user adjusts description until preview matches, then locks
+- [ ] WizAnimate: Locked character stores preview image URL as visual consistency anchor for all scenes
+- [ ] WizAnimate: Full immersive redesign — 380px hero, amber/gold palette, ambient dimmer, VU meters, "ANIMATION STUDIO" title
+- [ ] WizAnimate: Restructure to 4 steps: Audio → Characters+Style → Story+Lyrics → Render
+- [ ] WizAnimate: Character card shows role field and willSing toggle
+- [x] WizAnimate: Fix title from "ANIMATION DIRECTOR" to "ANIMATION STUDIO"
+- [x] WizAnimate: Expand hero from 200px to 400px with brightness 0.65 (studio monitors visible)
+- [x] WizAnimate: Add ambient dimmer slider in hero (controls studio background brightness)
+- [x] WizAnimate: Add VU meter pulse animation bars in hero
+- [x] WizAnimate: Add Wiz engine badge row in hero (WizGenesis, WizCreate, WizSync, WizAdora, WizLumina, WizSound)
+- [x] WizAnimate: Move animation style selector into Characters step (pick style first, then preview characters in that style)
+- [x] WizAnimate: Add "Preview in Style" button per character card — calls generateCharacterPreview, shows styled preview image
+- [x] WizAnimate: Add "Regenerate Preview" button when preview already exists
+- [x] WizAnimate: Character preview shows style name badge above the preview image
+- [x] WizAnimate: Lock Character button prevents further preview generation (character is committed)
