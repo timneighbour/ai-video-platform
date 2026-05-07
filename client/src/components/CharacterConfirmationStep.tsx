@@ -115,7 +115,9 @@ export default function CharacterConfirmationStep({
   useEffect(() => {
     if (!getCharactersQuery.data?.characters) return;
     const toNormalise = getCharactersQuery.data.characters.filter(
-      (c: any) => c.lockedDescription && !normalisedIds.has(c.id)
+      // Only normalise if: has a lockedDescription, not already normalised in this session,
+      // AND not already normalised in the DB (normalisedAt is null/undefined)
+      (c: any) => c.lockedDescription && !normalisedIds.has(c.id) && !c.normalisedAt
     );
     for (const c of toNormalise) {
       setNormalisedIds(prev => new Set(prev).add(c.id));
