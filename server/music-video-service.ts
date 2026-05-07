@@ -420,8 +420,29 @@ Examples of correct behaviour:
   - User says "cliff edge by the sea" → characters perform on clifftops with ocean visible
   - User says "underwater" → scenes are submerged, with light refracting through water
   - User says "dark forest" → dense woodland, tree canopy, dappled light
-The setting is the VISUAL WORLD of this music video. It MUST be present in every scene prompt.`
-    : "";
+The setting is the VISUAL WORLD of this music video. It MUST be present in every scene prompt.
+
+⚠️ MUSIC VIDEO PERFORMANCE RULE — ALWAYS APPLIES:
+Even within the user-specified setting, this is a MUSIC VIDEO. Characters MUST be performing:
+- Singers must be at a microphone, singing, or performing expressively
+- Guitarists must be playing their guitar
+- Drummers must be seated behind their drum kit, playing
+- Bassists must be holding and playing their bass guitar
+- Characters are ALWAYS in performance mode — not standing idle, not in random poses
+- The setting wraps AROUND the performance (e.g. desert stage, underwater concert, forest clearing concert)`
+    : `
+⚠️ DEFAULT MUSIC VIDEO PERFORMANCE SETTING — MANDATORY:
+No specific setting was provided. This is a MUSIC VIDEO. ALL scenes MUST depict a live music performance.
+Default performance context:
+- Characters perform on a professional concert stage with dramatic stage lighting
+- Singers are at a microphone stand, performing with energy and expression
+- Guitarists are playing their guitar, moving with the music
+- Drummers are seated behind a full drum kit, playing with intensity
+- Bassists are holding and playing their bass guitar
+- Stage has atmospheric lighting: spotlights, coloured gels, haze/smoke effects
+- Camera angles vary: close-up on faces/hands, medium shots of performers, wide shots of the full stage
+- DO NOT generate random landscapes, nature scenes, or non-performance environments unless the theme explicitly calls for them
+- Every scene must feel like it belongs in a professional music video shoot`;
 
   // Build content analysis context block for scene generation
   const contentAnalysisBlock = contentAnalysis ? `

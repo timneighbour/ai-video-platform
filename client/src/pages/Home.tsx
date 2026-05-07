@@ -3650,7 +3650,7 @@ function MusicVideoUSPSection() {
 
 function FinalCTA() {
  const guarantees = [
- { label: "No credit card to start" },
+ { label: "No credit card required" },
  { label: "2 free Build Credits on sign-up" },
  { label: "Preview every scene before you pay" },
  { label: "Own your content. No watermark." },

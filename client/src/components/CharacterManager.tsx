@@ -237,6 +237,13 @@ export function CharacterManager({
   // Consent state — tracks whether the user has accepted the WizPerformer privacy notice
   const [consentGiven, setConsentGiven] = useState(() => hasGivenConsent());
   const [pendingUploadSlot, setPendingUploadSlot] = useState<number | null>(null);
+  // Add from Library modal
+  const [showLibraryPicker, setShowLibraryPicker] = useState(false);
+  const [librarySearch, setLibrarySearch] = useState("");
+  const { data: libraryChars } = trpc.characterLibrary.list.useQuery(
+    { search: librarySearch || undefined },
+    { enabled: showLibraryPicker }
+  );
 
   const reanalyseCharacterPhoto = trpc.musicVideo.reanalyseCharacterPhoto.useMutation();
   const generateCharacterFromDescription = trpc.musicVideo.generateCharacterFromDescription.useMutation();
@@ -249,6 +256,28 @@ export function CharacterManager({
     const nextSlot = characters.length;
     const newChar = createEmptyCharacter(nextSlot, videoStyle);
     onChange([...characters, newChar]);
+  };
+
+  const addFromLibrary = (libChar: { id: number; name: string; description?: string | null; photoUrl?: string | null; animStyle?: string | null; lockedDescription?: string | null }) => {
+    if (characters.length >= maxCharacters) {
+      toast.error("Character limit reached", { description: `Maximum ${maxCharacters} characters allowed.` });
+      return;
+    }
+    const nextSlot = characters.length;
+    const newChar: Character = {
+      ...createEmptyCharacter(nextSlot, videoStyle),
+      name: libChar.name,
+      mode: libChar.photoUrl ? "photo" : "ai_generated",
+      photos: libChar.photoUrl ? [{ previewUrl: libChar.photoUrl, base64: "", mimeType: "image/jpeg", isPrimary: true }] : [],
+      aiGeneratedImageUrl: libChar.photoUrl ?? "",
+      lockedDescription: libChar.lockedDescription ?? libChar.description ?? "",
+      isLocked: !!(libChar.lockedDescription || libChar.description),
+      aiDescription: libChar.description ?? "",
+      aiStyle: (libChar.animStyle as AnimationStyle) ?? "realistic",
+    };
+    onChange([...characters, newChar]);
+    setShowLibraryPicker(false);
+    toast.success(`${libChar.name} added from library`, { description: "Character imported. Review and adjust as needed." });
   };
 
   const removeCharacter = (slotIndex: number) => {
@@ -964,18 +993,96 @@ export function CharacterManager({
         );
       })}
 
-      {/* Add character button */}
+      {/* Add character buttons */}
       {!disabled && characters.length < maxCharacters && (
-        <button
-          type="button"
-          onClick={addCharacter}
-          className="w-full rounded-xl border-2 border-dashed border-zinc-700 hover:border-zinc-500 py-4 flex items-center justify-center gap-2 text-zinc-400 hover:text-zinc-200 transition-all group"
-        >
-          <div className="w-8 h-8 rounded-full bg-zinc-800 group-hover:bg-zinc-700 flex items-center justify-center transition-colors">
-            <Plus className="w-4 h-4" />
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={addCharacter}
+            className="flex-1 rounded-xl border-2 border-dashed border-zinc-700 hover:border-zinc-500 py-4 flex items-center justify-center gap-2 text-zinc-400 hover:text-zinc-200 transition-all group"
+          >
+            <div className="w-8 h-8 rounded-full bg-zinc-800 group-hover:bg-zinc-700 flex items-center justify-center transition-colors">
+              <Plus className="w-4 h-4" />
+            </div>
+            <span className="text-sm font-medium">Add Character {characters.length + 1}{maxCharacters < 99 ? ` of ${maxCharacters}` : ""}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowLibraryPicker(true)}
+            className="rounded-xl border-2 border-dashed border-[--color-gold]/30 hover:border-[--color-gold]/60 py-4 px-5 flex items-center justify-center gap-2 text-[--color-gold]/60 hover:text-[--color-gold] transition-all group"
+            title="Add from Character Library"
+          >
+            <div className="w-8 h-8 rounded-full bg-[--color-gold]/10 group-hover:bg-[--color-gold]/20 flex items-center justify-center transition-colors">
+              <Crown className="w-4 h-4" />
+            </div>
+            <span className="text-sm font-medium hidden sm:inline">From Library</span>
+          </button>
+        </div>
+      )}
+
+      {/* Library Picker Modal */}
+      {showLibraryPicker && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.85)" }}>
+          <div className="w-full max-w-2xl rounded-2xl border border-zinc-700 bg-zinc-900 shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
+              <div className="flex items-center gap-2">
+                <Crown className="w-5 h-5 text-[--color-gold]" />
+                <h3 className="text-white font-bold text-base">Add from Character Library</h3>
+              </div>
+              <button type="button" onClick={() => setShowLibraryPicker(false)} className="text-zinc-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            {/* Search */}
+            <div className="px-6 py-3 border-b border-zinc-800">
+              <input
+                type="text"
+                placeholder="Search saved characters..."
+                value={librarySearch}
+                onChange={(e) => setLibrarySearch(e.target.value)}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[--color-gold]/50"
+              />
+            </div>
+            {/* Character grid */}
+            <div className="p-6 max-h-96 overflow-y-auto">
+              {!libraryChars || libraryChars.length === 0 ? (
+                <div className="text-center py-12">
+                  <Crown className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+                  <p className="text-zinc-400 text-sm font-medium">No saved characters yet</p>
+                  <p className="text-zinc-500 text-xs mt-1">Save characters from your projects to reuse them here.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {libraryChars.map((libChar) => (
+                    <button
+                      key={libChar.id}
+                      type="button"
+                      onClick={() => addFromLibrary(libChar)}
+                      className="group rounded-xl border border-zinc-700 hover:border-[--color-gold]/50 bg-zinc-800 hover:bg-zinc-750 p-3 text-left transition-all"
+                    >
+                      {/* Photo */}
+                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-zinc-700 mb-2">
+                        {libChar.photoUrl ? (
+                          <img src={libChar.photoUrl} alt={libChar.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <User className="w-8 h-8 text-zinc-500" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-white text-xs font-semibold truncate">{libChar.name}</p>
+                      {libChar.animStyle && (
+                        <p className="text-zinc-400 text-xs truncate mt-0.5 capitalize">{libChar.animStyle}</p>
+                      )}
+                      <div className="mt-2 text-[10px] text-[--color-gold] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">+ Add to project</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-          <span className="text-sm font-medium">Add Character {characters.length + 1}{maxCharacters < 99 ? ` of ${maxCharacters}` : ""}</span>
-        </button>
+        </div>
       )}
 
       {characters.length === 0 && (

@@ -7226,19 +7226,19 @@
 ## Character Library
 - [ ] DB: Create savedCharacters table (id, userId, name, description, gender, animStyle, photoUrl, previewUrl, tags, createdAt, updatedAt)
 - [ ] Server: Add characterLibrary tRPC router with save, list, get, delete, update procedures
-- [ ] Page: Build /characters Character Library page with card grid, search/filter, style badges
+- [x] Page: Build /characters Character Library page with card grid, search/filter, style badges
 - [ ] Page: Character detail view — shows photo, preview, description, style, usage history
 - [ ] WizAnimate: Add "Save to Library" button on each locked character card
 - [ ] WizAnimate: Add "Add from Library" button in Characters step to import a saved character
-- [ ] Music Video: Add "Save to Library" button on each locked character card
-- [ ] Music Video: Add "Add from Library" button in Characters step to import a saved character
-- [ ] Nav: Add "Characters" link in user dashboard/account menu
+- [x] Music Video: Add "Save to Library" button on each locked character card
+- [x] Music Video: Add "Add from Library" button in Characters step to import a saved character
+- [x] Nav: Add "Characters" link in user dashboard/account menu
 - [ ] Characters page: Show which projects each character has been used in
 - [ ] Character Library: Premium Air Studio aesthetic — dark luxury, amber/gold accents, cinematic character cards with glowing preview images, studio atmosphere background
 - [ ] Character Library: Add "Save to Library" button in WizImage after character/image generation
 - [ ] Character Library: Add "Add from Library" picker in WizImage character/reference input
-- [ ] Character Library: Register /characters route in App.tsx
-- [ ] Character Library: Add Characters link in dashboard navigation
+- [x] Character Library: Register /characters route in App.tsx
+- [x] Character Library: Add Characters link in dashboard navigation
 - [x] Character Library: Database schema (savedCharacters table) + migration applied
 - [x] Character Library: tRPC router (save, list, get, delete, update, incrementUseCount)
 - [x] Character Library: Premium /characters page with Air Studio aesthetic, cinematic cards, search/filter
