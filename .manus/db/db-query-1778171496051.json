@@ -1,0 +1,58 @@
+{
+  "query": "SELECT DATE(createdAt) as signup_date, COUNT(*) as signups FROM users WHERE createdAt >= '2026-04-25' GROUP BY DATE(createdAt) ORDER BY signup_date DESC;\n\nSELECT COUNT(*) as total_users, MAX(createdAt) as last_signup FROM users;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT DATE(createdAt) as signup_date, COUNT(*) as signups FROM users WHERE createdAt >= '2026-04-25' GROUP BY DATE(createdAt) ORDER BY signup_date DESC;\n\nSELECT COUNT(*) as total_users, MAX(createdAt) as last_signup FROM users;",
+  "rows": [
+    {
+      "signup_date": "2026-05-05",
+      "signups": "3"
+    },
+    {
+      "signup_date": "2026-05-04",
+      "signups": "1"
+    },
+    {
+      "signup_date": "2026-05-02",
+      "signups": "1"
+    },
+    {
+      "signup_date": "2026-05-01",
+      "signups": "2"
+    },
+    {
+      "signup_date": "2026-04-30",
+      "signups": "2"
+    },
+    {
+      "signup_date": "2026-04-29",
+      "signups": "1"
+    },
+    {
+      "signup_date": "2026-04-28",
+      "signups": "2"
+    },
+    {
+      "signup_date": "2026-04-27",
+      "signups": "2"
+    },
+    {
+      "signup_date": "2026-04-26",
+      "signups": "2"
+    },
+    {
+      "signup_date": "2026-04-25",
+      "signups": "1"
+    },
+    {
+      "signup_date": "total_users",
+      "signups": "last_signup"
+    },
+    {
+      "signup_date": "26",
+      "signups": "2026-05-05 22:43:38"
+    }
+  ],
+  "messages": [],
+  "stdout": "signup_date\tsignups\n2026-05-05\t3\n2026-05-04\t1\n2026-05-02\t1\n2026-05-01\t2\n2026-04-30\t2\n2026-04-29\t1\n2026-04-28\t2\n2026-04-27\t2\n2026-04-26\t2\n2026-04-25\t1\ntotal_users\tlast_signup\n26\t2026-05-05 22:43:38\n",
+  "stderr": "",
+  "execution_time_ms": 62
+}

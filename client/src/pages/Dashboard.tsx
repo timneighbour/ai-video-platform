@@ -244,8 +244,8 @@ export default function Dashboard() {
           </h1>
           <p className="text-zinc-400 mt-2 text-base">
             {isNewUser
-              ? "Your studio is ready. Choose a creation type below to get started — your first storyboard is completely free."
-              : `What do you want to create today${user?.name ? `, ${user.name.split(" ")[0]}` : ""}? Your creative workspace — everything in one place.`
+              ? "Your studio is ready. Director-level control over every scene — your first storyboard is completely free."
+              : `What do you want to create today${user?.name ? `, ${user.name.split(" ")[0]}` : ""}? Consistent characters, cinematic lip sync, and full director control — all in one place.`
             }
           </p>
         </div>
@@ -259,7 +259,7 @@ export default function Dashboard() {
             <div className="flex-1">
               <p className="text-sm font-bold text-white mb-1">You have {creditBalance > 0 ? creditBalance : 30} free Build Credits</p>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Storyboard generation is always free. Credits are only used when you click <span className="text-white font-medium">Build</span> to render your final video. A standard 60-second video costs 30 credits.
+                Storyboard generation is always free. Preview your full video before you pay. Credits are only used when you click <span className="text-white font-medium">Build</span> to render. Consistent characters and cinematic lip sync included — no extra charge.
               </p>
             </div>
             <div className="flex-shrink-0 flex flex-col gap-2">

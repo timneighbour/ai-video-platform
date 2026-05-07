@@ -1098,7 +1098,7 @@ export default function Pricing() {
  {/* 8. TRUST STRIP */}
  <section className="max-w-5xl mx-auto px-6 mb-24">
  <div className="rounded-2xl border border-[--color-gold]/[0.1] overflow-hidden">
- <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-white/[0.06]">
+ <div className="grid grid-cols-2 sm:grid-cols-5 divide-x divide-y sm:divide-y-0 divide-white/[0.06]">
  {[
  {
  icon: <Shield className="w-6 h-6 text-[--color-gold]" />,
@@ -1123,6 +1123,12 @@ export default function Pricing() {
  label: "40+ countries",
  sub: "Global payments",
  bg: "from-purple-500/[0.04]",
+ },
+ {
+ icon: <Sparkles className="w-6 h-6 text-[--color-gold]" />,
+ label: "Quality Guarantee",
+ sub: "1 free re-render included",
+ bg: "from-[--color-gold]/[0.06]",
  },
  ].map((item) => (
  <div key={item.label} className={`flex flex-col items-center gap-3 p-6 text-center bg-gradient-to-b ${item.bg} to-transparent`}>

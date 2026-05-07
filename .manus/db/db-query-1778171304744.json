@@ -1,0 +1,146 @@
+{
+  "query": "SELECT id, name, email, createdAt FROM users ORDER BY createdAt DESC LIMIT 20;\n\nSELECT DATE(createdAt) as signup_date, COUNT(*) as signups FROM users GROUP BY DATE(createdAt) ORDER BY signup_date DESC LIMIT 14;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT id, name, email, createdAt FROM users ORDER BY createdAt DESC LIMIT 20;\n\nSELECT DATE(createdAt) as signup_date, COUNT(*) as signups FROM users GROUP BY DATE(createdAt) ORDER BY signup_date DESC LIMIT 14;",
+  "rows": [
+    {
+      "id": "4200053",
+      "name": "tim",
+      "email": "tim@wiz-ai.io",
+      "createdAt": "2026-05-05 22:43:38"
+    },
+    {
+      "id": "4170013",
+      "name": "Titan Gamer",
+      "email": "titangamer20102010@gmail.com",
+      "createdAt": "2026-05-05 12:05:42"
+    },
+    {
+      "id": "4170001",
+      "name": "Alexandru Cosmin Stancu",
+      "email": "bitza.pubg@gmail.com",
+      "createdAt": "2026-05-05 11:52:00"
+    },
+    {
+      "id": "4110001",
+      "name": "Paris",
+      "email": "minasaki22risa@gmail.com",
+      "createdAt": "2026-05-04 14:48:00"
+    },
+    {
+      "id": "3990001",
+      "name": "D.R.V. Brother Wardaan Info Tech",
+      "email": "drvbrothervardaaninfotech@gmail.com",
+      "createdAt": "2026-05-02 08:35:14"
+    },
+    {
+      "id": "3930688",
+      "name": "lusine grigoryan",
+      "email": "lusine.grigoryan7@icloud.com",
+      "createdAt": "2026-05-01 13:57:51"
+    },
+    {
+      "id": "3900001",
+      "name": "Tanwar G",
+      "email": "gtanwar665@gmail.com",
+      "createdAt": "2026-05-01 09:19:43"
+    },
+    {
+      "id": "3780001",
+      "name": "Ruben Gustavin",
+      "email": "gustavinruben@gmail.com",
+      "createdAt": "2026-04-30 11:10:04"
+    },
+    {
+      "id": "3750001",
+      "name": "Өнөболд",
+      "email": "unuu1232@gmail.com",
+      "createdAt": "2026-04-30 09:28:51"
+    },
+    {
+      "id": "3690438",
+      "name": "Tummy Treats",
+      "email": "treatsfortummy@gmail.com",
+      "createdAt": "2026-04-29 08:36:41"
+    },
+    {
+      "id": "3660013",
+      "name": "Hanan Alsaed",
+      "email": "hananalsaed292@gmail.com",
+      "createdAt": "2026-04-28 17:37:24"
+    },
+    {
+      "id": "3631495",
+      "name": "jamy ik ikyboy",
+      "email": "ikyboyj@gmail.com",
+      "createdAt": "2026-04-28 01:25:17"
+    },
+    {
+      "id": "3570032",
+      "name": "Racheal Tamale",
+      "email": "reacheltamale@gmail.com",
+      "createdAt": "2026-04-27 10:56:35"
+    },
+    {
+      "id": "3541416",
+      "name": "Safy Mohamed",
+      "email": "safy21fouad@gmail.com",
+      "createdAt": "2026-04-27 05:35:35"
+    },
+    {
+      "id": "3540048",
+      "name": "Jatinda",
+      "email": "jatinda66@gmail.com",
+      "createdAt": "2026-04-26 18:36:06"
+    },
+    {
+      "id": "3540031",
+      "name": "Malek Dhaouadi",
+      "email": "malek.dhaouadi@esprit.tn",
+      "createdAt": "2026-04-26 18:24:54"
+    },
+    {
+      "id": "3480001",
+      "name": "SANDEEPSINGH RAJPUT",
+      "email": "sandeepsinghr703@gmail.com",
+      "createdAt": "2026-04-25 18:40:44"
+    },
+    {
+      "id": "3331232",
+      "name": "Jessi Cb",
+      "email": "jessicb1409@gmail.com",
+      "createdAt": "2026-04-23 16:52:18"
+    },
+    {
+      "id": "3330001",
+      "name": "Rohit Goje",
+      "email": "rohitgojegoje7@gmail.com",
+      "createdAt": "2026-04-23 08:27:25"
+    },
+    {
+      "id": "3274272",
+      "name": "Rami Aboaloun",
+      "email": "ramy3on@gmail.com",
+      "createdAt": "2026-04-22 10:23:59"
+    }
+  ],
+  "messages": [
+    "signup_date\tsignups",
+    "2026-05-05\t3",
+    "2026-05-04\t1",
+    "2026-05-02\t1",
+    "2026-05-01\t2",
+    "2026-04-30\t2",
+    "2026-04-29\t1",
+    "2026-04-28\t2",
+    "2026-04-27\t2",
+    "2026-04-26\t2",
+    "2026-04-25\t1",
+    "2026-04-23\t2",
+    "2026-04-22\t2",
+    "2026-04-15\t1",
+    "2026-04-14\t3"
+  ],
+  "stdout": "id\tname\temail\tcreatedAt\n4200053\ttim\ttim@wiz-ai.io\t2026-05-05 22:43:38\n4170013\tTitan Gamer\ttitangamer20102010@gmail.com\t2026-05-05 12:05:42\n4170001\tAlexandru Cosmin Stancu\tbitza.pubg@gmail.com\t2026-05-05 11:52:00\n4110001\tParis\tminasaki22risa@gmail.com\t2026-05-04 14:48:00\n3990001\tD.R.V. Brother Wardaan Info Tech\tdrvbrothervardaaninfotech@gmail.com\t2026-05-02 08:35:14\n3930688\tlusine grigoryan\tlusine.grigoryan7@icloud.com\t2026-05-01 13:57:51\n3900001\tTanwar G\tgtanwar665@gmail.com\t2026-05-01 09:19:43\n3780001\tRuben Gustavin\tgustavinruben@gmail.com\t2026-04-30 11:10:04\n3750001\tӨнөболд\tunuu1232@gmail.com\t2026-04-30 09:28:51\n3690438\tTummy Treats\ttreatsfortummy@gmail.com\t2026-04-29 08:36:41\n3660013\tHanan Alsaed\thananalsaed292@gmail.com\t2026-04-28 17:37:24\n3631495\tjamy ik ikyboy\tikyboyj@gmail.com\t2026-04-28 01:25:17\n3570032\tRacheal Tamale\treacheltamale@gmail.com\t2026-04-27 10:56:35\n3541416\tSafy Mohamed\tsafy21fouad@gmail.com\t2026-04-27 05:35:35\n3540048\tJatinda\tjatinda66@gmail.com\t2026-04-26 18:36:06\n3540031\tMalek Dhaouadi\tmalek.dhaouadi@esprit.tn\t2026-04-26 18:24:54\n3480001\tSANDEEPSINGH RAJPUT\tsandeepsinghr703@gmail.com\t2026-04-25 18:40:44\n3331232\tJessi Cb\tjessicb1409@gmail.com\t2026-04-23 16:52:18\n3330001\tRohit Goje\trohitgojegoje7@gmail.com\t2026-04-23 08:27:25\n3274272\tRami Aboaloun\tramy3on@gmail.com\t2026-04-22 10:23:59\nsignup_date\tsignups\n2026-05-05\t3\n2026-05-04\t1\n2026-05-02\t1\n2026-05-01\t2\n2026-04-30\t2\n2026-04-29\t1\n2026-04-28\t2\n2026-04-27\t2\n2026-04-26\t2\n2026-04-25\t1\n2026-04-23\t2\n2026-04-22\t2\n2026-04-15\t1\n2026-04-14\t3\n",
+  "stderr": "",
+  "execution_time_ms": 74
+}

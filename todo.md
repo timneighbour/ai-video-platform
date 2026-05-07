@@ -6969,23 +6969,23 @@
 - [ ] Credit protection: refund credits for scenes that failed with no output
 
 ## Positioning & Messaging Updates (Approved May 2026)
-- [ ] Update onboarding copy: "director-level control", "consistent characters", "cinematic lip sync"
-- [ ] Update product pages with quality guarantee and preview-before-download messaging
-- [ ] Update pricing page: quality guarantee badge, re-render policy explained
-- [ ] Update dashboard with new positioning themes
+- [x] Update onboarding copy: "director-level control", "consistent characters", "cinematic lip sync"
+- [x] Update product pages with quality guarantee and preview-before-download messaging (already in WizVideoProductPage + CreditCostBanner)
+- [x] Update pricing page: quality guarantee badge added to trust strip (5th tile), re-render policy in FAQ
+- [x] Update dashboard with new positioning themes: director control, consistent characters, preview before pay
 
 ## Lyrics-to-Scene Visual Mapping (May 2026)
-- [ ] Strengthen storyboard LLM system prompt: lyric imagery is MANDATORY in scene descriptions
-- [ ] Add lyric emotional tone analysis: anger/power → harsh lighting; tender/emotional → soft warm light
-- [ ] Chorus scenes → wide stage shots with full band; verse scenes → intimate narrative; bridge → dramatic/abstract
-- [ ] Pass lyric text as hard constraint in scene prompt builder (not just context)
+- [x] Strengthen storyboard LLM system prompt: lyric imagery is MANDATORY in scene descriptions (already implemented in music-video-service.ts + content-analyser.ts)
+- [x] Add lyric emotional tone analysis: already in content-analyser.ts moodShifts with lightingSuggestion
+- [x] Chorus/verse/bridge scene type rules: already enforced in storyboard system prompt SCENE TYPE RULES block
+- [x] Pass lyric text as hard constraint: already done — MANDATORY tag in scene prompt builder
 - [ ] Ensure user's setting + lyric imagery reinforce each other (e.g. desert + "lost in the sand")
 - [ ] Add lyric snippet overlay option on storyboard preview images
 
 ## Deep Song Understanding (May 2026)
-- [ ] Add songAnalysis LLM pass before storyboard generation: extract theme, narrative, emotional arc, key imagery, mood shifts
-- [ ] Store songAnalysis JSON on musicVideoJobs (theme, narrative, emotionalArc[], keyImagery[], moodShifts[])
-- [ ] Pass songAnalysis to storyboard generator as mandatory context
+- [x] Add songAnalysis LLM pass: already implemented as analyseContent() in content-analyser.ts, called before storyboard generation
+- [x] Store songAnalysis JSON: already stored via contentAnalysis in music-video-service.ts
+- [x] Pass songAnalysis to storyboard generator: already done — contentAnalysisBlock injected into system prompt
 - [ ] Storyboard LLM must: match scene setting to lyric imagery, match lighting to emotional tone, vary scene type by song section (chorus/verse/bridge)
 - [ ] Chorus scenes: wide stage, full energy, all band visible
 - [ ] Verse scenes: intimate, narrative, close-up storytelling
@@ -7200,7 +7200,7 @@
 - [x] WizAnimate: Show full inline video player after generation - user watches entire video before downloading
 - [x] WizAnimate: Add scene-level edit panel after preview - edit prompt, remove scene, or regenerate single scene (small per-scene credit cost, not full job)
 - [x] WizAnimate: Make preview/review/scene-editing all FREE - only final render costs credits
-- [ ] WizVideo (text-to-video): Add full inline video preview after generation with scene review panel
+- [x] WizVideo (text-to-video): Inline video preview already implemented in done step (video player + download + open buttons)
 - [x] Music Video: Add full inline video preview after generation with scene review panel
 - [ ] All video products: Enforce cost model - preview is FREE, only generation costs credits
 

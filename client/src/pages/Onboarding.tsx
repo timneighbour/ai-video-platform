@@ -11,7 +11,7 @@ const options = [
     href: '/music-video/create',
     title: 'WizVideo™',
     subtitle: 'AI Music Video Director',
-    description: 'Turn your audio track into a full cinematic music video — beat-locked, colour-graded, 4K. AI storyboard, characters, and scenes.',
+    description: 'Director-level control over every scene. Consistent characters, cinematic lip sync, and lyric-aware storyboarding — your vision, rendered in 4K.',
     isPopular: true,
     icon: Film,
     bg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-1-7fzYSK4QF3mixYeH3YCQwJ.webp",
@@ -20,7 +20,7 @@ const options = [
     glowColor: 'rgba(184,137,42,0.35)',
     tag: 'Most Popular',
     tagColor: 'from-[#b8892a] to-[#e8c878]',
-    stats: ['Full music video', 'AI storyboard', 'Character sync'],
+    stats: ['Director control', 'Consistent characters', 'Cinematic lip sync'],
     creditHint: 'from 30 credits',
   },
   {
@@ -43,7 +43,7 @@ const options = [
     href: '/kids-video',
     title: 'WizAnimate™', // direct to studio
     subtitle: 'Character Animation Studio',
-    description: 'Bring your characters to life with fluid AI animation — beat-matched, emotion-driven, and cinematic.',
+    description: 'Lock your characters once and they stay consistent across every scene — beat-matched, emotion-driven, and cinematic animation at your direction.',
     isPopular: false,
     icon: Sparkles,
     bg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime-1-V8cGaKNXBvMPgNtyuk2xCr.webp",
@@ -218,13 +218,13 @@ const Onboarding: React.FC = () => {
             </span>
           </h1>
           <p className="text-lg text-white/40 font-light max-w-xl mx-auto leading-relaxed">
-            No editing skills needed — just describe your idea and WIZ AI does the rest.
+            Director-level control. No editing skills needed — describe your vision and WIZ AI builds it.
           </p>
         </div>
 
         {/* ── Trust badges ───────────────────────────────────────────────── */}
         <div className="flex items-center gap-5 mb-14 text-[11px] text-white/25 font-medium tracking-wide">
-          {['No editing skills needed', 'Ready in minutes', 'Free to start'].map((item, i) => (
+          {['Preview before you pay', 'Consistent characters', 'Free to start'].map((item, i) => (
             <React.Fragment key={item}>
               {i > 0 && <span className="w-1 h-1 rounded-full bg-[#b8892a]/30" />}
               <span>{item}</span>
