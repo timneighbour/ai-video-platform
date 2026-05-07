@@ -28,7 +28,7 @@ export const wizImageRouter = router({
   generateImage: protectedProcedure
     .input(
       z.object({
-        prompt: z.string().min(3).max(1000),
+        prompt: z.string().min(3).max(5000),
         style: z.string().optional(),
         aspectRatio: z.enum(["1:1", "16:9", "9:16", "4:3", "3:4"]).default("1:1"),
       })

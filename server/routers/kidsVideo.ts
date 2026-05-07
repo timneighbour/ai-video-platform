@@ -91,7 +91,7 @@ export const kidsVideoRouter = router({
   createJob: protectedProcedure
     .input(
       z.object({
-        storyPrompt: z.string().min(10).max(1000),
+        storyPrompt: z.string().min(10).max(5000),
         animationStyle: z.enum(["pixar3d", "disney", "anime", "cartoon", "storybook", "claymation", "ghibli", "pixar_movie", "manga", "retro80s", "watercolor"]).default("pixar3d"),
         videoLength: z.enum(["5s", "10s", "15s", "30s", "60s"]).default("15s"),
         screenFormat: z.enum(["16:9", "9:16", "1:1"]).default("16:9"),
@@ -522,7 +522,7 @@ Create 4-6 storyboard scenes. Every imagePrompt MUST include the full character 
     .input(
       z.object({
         jobId: z.number().int(),
-        storyPrompt: z.string().min(10).max(1000).optional(),
+        storyPrompt: z.string().min(10).max(5000).optional(),
         animationStyle: z.enum(["pixar3d", "disney", "anime", "cartoon", "storybook", "claymation", "ghibli", "pixar_movie", "manga", "retro80s", "watercolor"]).optional(),
         videoLength: z.enum(["5s", "10s", "15s", "30s", "60s"]).optional(),
         screenFormat: z.enum(["16:9", "9:16", "1:1"]).optional(),
@@ -699,6 +699,142 @@ Create 4-6 storyboard scenes. Every imagePrompt MUST include the full character 
         : undefined;
       const { url } = await generateImage({ prompt, originalImages });
       return { previewUrl: url };
+    }),
+
+  /**
+   * Preview storyboard — generates scene descriptions from brief + lyrics without creating a job.
+   * Used in the storyboard preview step so users can review/edit before rendering.
+   */
+  previewStoryboard: protectedProcedure
+    .input(z.object({
+      brief: z.string().min(10).max(5000),
+      lyrics: z.string().max(5000).optional(),
+      animStyle: z.string().max(100).optional(),
+      sceneCount: z.number().int().min(1).max(30).optional(),
+      audioDuration: z.number().min(0).optional(),
+      leadCharacterName: z.string().max(100).optional(),
+      characters: z.array(z.object({
+        name: z.string().max(100),
+        description: z.string().max(500),
+        isLead: z.boolean().optional(),
+      })).optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const { invokeLLM } = await import("../_core/llm");
+      const sceneCount = input.sceneCount ?? (input.audioDuration ? Math.min(25, Math.max(4, Math.round(input.audioDuration / 8))) : 8);
+      const charContext = input.characters?.length
+        ? `\nCharacters:\n${input.characters.map(c => `- ${c.name}${c.isLead ? " (LEAD VOCALIST)" : ""}: ${c.description}`).join("\n")}`
+        : "";
+      const leadContext = input.leadCharacterName ? `\nLead vocalist/singer: ${input.leadCharacterName}` : "";
+      const lyricsContext = input.lyrics ? `\nLyrics/narration:\n${input.lyrics.slice(0, 2000)}` : "";
+
+      const systemPrompt = `You are a professional animation director and storyboard artist. 
+Break the given story brief into exactly ${sceneCount} vivid, visual scenes for an animated storyboard.
+Each scene must have a clear visual description (what is seen on screen), a scene label, and a short lyric/narration cue.
+Maintain character consistency and narrative arc throughout all scenes.
+Return ONLY valid JSON — no markdown, no explanation.`;
+
+      const userPrompt = `Story brief: ${input.brief}${charContext}${leadContext}${lyricsContext}\n\nCreate exactly ${sceneCount} storyboard scenes.`;
+
+      const response = await invokeLLM({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "storyboard_preview",
+            strict: true,
+            schema: {
+              type: "object",
+              properties: {
+                scenes: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      sceneIndex: { type: "integer" },
+                      sceneLabel: { type: "string" },
+                      description: { type: "string" },
+                      lyricCue: { type: "string" },
+                      mood: { type: "string" },
+                    },
+                    required: ["sceneIndex", "sceneLabel", "description", "lyricCue", "mood"],
+                    additionalProperties: false,
+                  },
+                },
+              },
+              required: ["scenes"],
+              additionalProperties: false,
+            },
+          },
+        },
+      });
+
+      const rawContent = response.choices?.[0]?.message?.content;
+      const content = typeof rawContent === "string" ? rawContent : null;
+      if (!content) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "LLM returned no content" });
+      const parsed = JSON.parse(content) as { scenes: Array<{ sceneIndex: number; sceneLabel: string; description: string; lyricCue: string; mood: string }> };
+      return { scenes: parsed.scenes };
+    }),
+
+  /**
+   * Save a storyboard to the database so users can reload it later.
+   */
+  saveStoryboard: protectedProcedure
+    .input(z.object({
+      title: z.string().min(1).max(200),
+      brief: z.string().min(1).max(5000),
+      lyrics: z.string().max(5000).optional(),
+      animStyle: z.string().max(100).optional(),
+      sceneCount: z.number().int().min(1).max(30),
+      scenes: z.string(), // JSON string
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await requireDb();
+      const { savedStoryboards } = await import("../../drizzle/schema");
+      const [result] = await db.insert(savedStoryboards).values({
+        userId: ctx.user.id,
+        title: input.title,
+        brief: input.brief,
+        lyrics: input.lyrics ?? null,
+        animStyle: input.animStyle ?? null,
+        sceneCount: input.sceneCount,
+        scenes: input.scenes,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+      return { id: (result as { insertId: number }).insertId };
+    }),
+
+  /**
+   * List all saved storyboards for the current user.
+   */
+  listStoryboards: protectedProcedure
+    .query(async ({ ctx }) => {
+      const db = await requireDb();
+      const { savedStoryboards } = await import("../../drizzle/schema");
+      const { eq, desc } = await import("drizzle-orm");
+      const rows = await db.select().from(savedStoryboards)
+        .where(eq(savedStoryboards.userId, ctx.user.id))
+        .orderBy(desc(savedStoryboards.createdAt))
+        .limit(50);
+      return rows;
+    }),
+
+  /**
+   * Delete a saved storyboard.
+   */
+  deleteStoryboard: protectedProcedure
+    .input(z.object({ id: z.number().int().positive() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await requireDb();
+      const { savedStoryboards } = await import("../../drizzle/schema");
+      const { eq, and } = await import("drizzle-orm");
+      await db.delete(savedStoryboards)
+        .where(and(eq(savedStoryboards.id, input.id), eq(savedStoryboards.userId, ctx.user.id)));
+      return { ok: true };
     }),
 
   /**

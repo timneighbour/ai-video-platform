@@ -64,7 +64,8 @@ const STEPS = [
   { key: "characters", num: 2, label: "Characters",        icon: "🎭", engine: "WizSync"    },
   { key: "style",      num: 3, label: "Animation Style",   icon: "🎨", engine: "WizCreate"  },
   { key: "brief",      num: 4, label: "Story & Lyrics",    icon: "📝", engine: "WizGenesis" },
-  { key: "render",     num: 5, label: "Render",            icon: "🎬", engine: "WizLumina"  },
+  { key: "storyboard", num: 5, label: "Storyboard",        icon: "🎥", engine: "WizBoard"   },
+  { key: "render",     num: 6, label: "Render",            icon: "🎦", engine: "WizLumina"  },
 ] as const;
 type Step = typeof STEPS[number]["key"];
 
@@ -183,6 +184,7 @@ export default function KidsVideo() {
 
   // ── Characters ───────────────────────────────────────────────────────────
   const [characters, setCharacters] = useState<Character[]>([]);
+  const [leadCharacterId, setLeadCharacterId] = useState<string | null>(null);
   const [addingChar, setAddingChar] = useState(false);
   const [newCharName, setNewCharName] = useState("");
   const [newCharDesc, setNewCharDesc] = useState("");
@@ -225,6 +227,7 @@ export default function KidsVideo() {
   // ── Brief / Lyrics ───────────────────────────────────────────────────────
   const [brief, setBrief] = useState("");
   const [sceneCount, setSceneCount] = useState(8);
+  const [autoSceneCount, setAutoSceneCount] = useState(false);
   const [duration, setDuration] = useState("30s");
   const [aspectRatio, setAspectRatio] = useState("16:9");
   const [cameraMove, setCameraMove] = useState("Dynamic (AI decides)");
@@ -243,7 +246,11 @@ export default function KidsVideo() {
   const [previewConfirmed, setPreviewConfirmed] = useState(false);
   const genPollRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
   const genStageRef  = useRef<ReturnType<typeof setInterval> | null>(null);
-  const kidsCreditCost = sceneCount * 50;
+  // When Auto is on, calculate optimal scenes: ~1 scene per 8s of audio, min 4, max 25
+  const effectiveSceneCount = autoSceneCount && audioDuration > 0
+    ? Math.min(25, Math.max(4, Math.round(audioDuration / 8)))
+    : sceneCount;
+  const kidsCreditCost = effectiveSceneCount * 50;
 
   // ── Scene edit state (post-render) ───────────────────────────────────────
   const [sceneEdits, setSceneEdits] = useState<SceneEdit[]>([]);
@@ -338,11 +345,16 @@ export default function KidsVideo() {
       if (idx === GEN_STAGES.length - 1) clearInterval(genStageRef.current!);
     }, 7000);
     const selectedStyleLabel = ANIM_STYLES.find(s => s.id === animStyle)?.label ?? animStyle;
-    const charSummary = characters.map(c => `${c.name} (${c.gender}) — ${c.description}`).join("; ");
+    const leadChar = characters.find(c => c.id === leadCharacterId);
+    const charSummary = characters.map(c => {
+      const isLead = c.id === leadCharacterId;
+      return `${c.name} (${c.gender}${isLead ? ", LEAD VOCALIST/SINGER" : ""}) — ${c.description}`;
+    }).join("; ");
     const fullPrompt = [
       `${selectedStyleLabel} animated video:`,
       brief.trim(),
       `Animation style: ${selectedStyleLabel}.`,
+      leadChar ? `Lead vocalist/singer: ${leadChar.name}.` : "",
       charSummary ? `Characters: ${charSummary}.` : "",
       lyrics ? `Lyrics/story beats: ${lyrics.slice(0, 400)}.` : "",
       "High quality, smooth animation, vibrant colours, cinematic composition.",
@@ -354,10 +366,10 @@ export default function KidsVideo() {
         style: animStyle,
         duration,
         animationPreset: "character_animation",
-        sceneCount,
+        sceneCount: effectiveSceneCount,
       },
     });
-  }, [isAuthenticated, brief, animStyle, duration, sceneCount, characters, lyrics, generateMutation, stopGen]);
+  }, [isAuthenticated, brief, animStyle, duration, effectiveSceneCount, characters, lyrics, generateMutation, stopGen]);
 
   // ── Ambient dimmer ─────────────────────────────────────────────────────
   // 0.35 = dark cinematic, 0.75 = bright studio
@@ -471,14 +483,14 @@ export default function KidsVideo() {
   }, [lyrics]);
 
   const initSceneEdits = useCallback(() => {
-    const edits: SceneEdit[] = Array.from({ length: sceneCount }, (_, i) => ({
+    const edits: SceneEdit[] = Array.from({ length: effectiveSceneCount }, (_, i) => ({
       index: i,
       prompt: `Scene ${i + 1}: ${brief.slice(0, 60)}…`,
       editing: false,
     }));
     setSceneEdits(edits);
     setShowScenePanel(true);
-  }, [sceneCount, brief]);
+  }, [effectiveSceneCount, brief]);
   // ─────────────────────────────────────────────────────────────────────────
   // RENDER
   // ─────────────────────────────────────────────────────────────────────────
@@ -1116,6 +1128,17 @@ export default function KidsVideo() {
                         }}
                       >{char.locked ? "✓ Locked In" : "🔒 Lock Character"}</button>
                       <button
+                        onClick={() => setLeadCharacterId(id => id === char.id ? null : char.id)}
+                        style={{
+                          padding: "8px 10px",
+                          background: leadCharacterId === char.id ? "rgba(255,180,0,0.15)" : "#1a1a1a",
+                          border: `1px solid ${leadCharacterId === char.id ? GOLD_BORDER : "#2a2a2a"}`,
+                          color: leadCharacterId === char.id ? GOLD : "#666",
+                          borderRadius: 6, cursor: "pointer", fontSize: 11, fontWeight: 700,
+                        }}
+                        title="Mark as lead vocalist/singer"
+                      >{leadCharacterId === char.id ? "🎤 Lead Singer" : "🎤 Set as Lead"}</button>
+                      <button
                         onClick={() => removeCharacter(char.id)}
                         style={{
                           padding: "8px 10px", background: "#1a1a1a",
@@ -1447,13 +1470,32 @@ export default function KidsVideo() {
             {/* Production settings grid */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 16, marginBottom: 24 }}>
               <SettingCard label="Number of Scenes">
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <button onClick={() => setSceneCount(c => Math.max(1, c - 1))} style={counterBtn}>−</button>
-                  <span style={{ fontSize: 24, fontWeight: 700, color: "#fff", minWidth: 40, textAlign: "center" }}>{sceneCount}</span>
-                  <button onClick={() => setSceneCount(c => Math.min(20, c + 1))} style={counterBtn}>+</button>
+                {/* Auto toggle */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                  <button
+                    onClick={() => setAutoSceneCount(v => !v)}
+                    style={{
+                      padding: "4px 10px", borderRadius: 4, fontSize: 11, fontWeight: 700,
+                      background: autoSceneCount ? ACCENT : "#1a1a1a",
+                      border: `1px solid ${autoSceneCount ? ACCENT_LIGHT : "#2a2a2a"}`,
+                      color: autoSceneCount ? "#fff" : "#666", cursor: "pointer", letterSpacing: "0.5px",
+                    }}
+                  >AUTO</button>
+                  {autoSceneCount && (
+                    <span style={{ fontSize: 11, color: GOLD }}>
+                      AI will choose {audioDuration > 0 ? `~${Math.min(25, Math.max(4, Math.round(audioDuration / 8)))} scenes` : "optimal count"}
+                    </span>
+                  )}
                 </div>
+                {!autoSceneCount && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <button onClick={() => setSceneCount(c => Math.max(1, c - 1))} style={counterBtn}>−</button>
+                    <span style={{ fontSize: 24, fontWeight: 700, color: "#fff", minWidth: 40, textAlign: "center" }}>{sceneCount}</span>
+                    <button onClick={() => setSceneCount(c => Math.min(25, c + 1))} style={counterBtn}>+</button>
+                  </div>
+                )}
                 <div style={{ fontSize: 11, color: "#555", marginTop: 6 }}>
-                  {sceneCount * 50} credits · ~{audioDuration > 0 ? Math.round(audioDuration / sceneCount) : Math.round(30 / sceneCount)}s per scene
+                  {effectiveSceneCount * 50} credits · ~{audioDuration > 0 ? Math.round(audioDuration / effectiveSceneCount) : Math.round(30 / effectiveSceneCount)}s per scene
                 </div>
               </SettingCard>
 
@@ -1564,15 +1606,30 @@ export default function KidsVideo() {
 
             <StepNav
               onBack={() => setStep("style")}
-              onNext={() => setStep("render")}
-              nextLabel="Continue to Render →"
+              onNext={() => setStep("storyboard")}
+              nextLabel="Preview Storyboard →"
               nextDisabled={brief.trim().length < 10}
               nextHint={brief.trim().length < 10 ? "Add a story brief to continue" : undefined}
             />
           </div>
         )}
 
-        {/* ═══ STEP 5: RENDER ═════════════════════════════════════════════ */}
+        {/* ═══ STEP 5: STORYBOARD PREVIEW ═══════════════════════════════════════════════════════════════════ */}
+        {step === "storyboard" && (
+          <StoryboardPreviewStep
+            brief={brief}
+            lyrics={lyrics}
+            animStyle={animStyle}
+            sceneCount={effectiveSceneCount}
+            audioDuration={audioDuration}
+            leadCharacterName={characters.find(c => c.id === leadCharacterId)?.name}
+            characters={characters.map(c => ({ name: c.name, description: c.description, isLead: c.id === leadCharacterId }))}
+            onBack={() => setStep("brief")}
+            onNext={() => setStep("render")}
+          />
+        )}
+
+        {/* ═══ STEP 6: RENDER ═══════════════════════════════════════════════════════════════════ */}
         {step === "render" && (
           <div>
             <StepHeader
@@ -1982,6 +2039,235 @@ function StepHeader({ icon, title, sub, engine }: { icon: string; title: string;
       </div>
       <p style={{ fontSize: 14, color: "#666", margin: 0, paddingLeft: 40 }}>{sub}</p>
       <div style={{ height: 1, background: "#1e1e1e", marginTop: 20 }} />
+    </div>
+  );
+}
+
+// ─── Storyboard Preview Step ─────────────────────────────────────────────────
+interface StoryboardScene {
+  sceneIndex: number;
+  sceneLabel: string;
+  description: string;
+  lyricCue: string;
+  mood: string;
+}
+
+function StoryboardPreviewStep({
+  brief, lyrics, animStyle, sceneCount, audioDuration,
+  leadCharacterName, characters, onBack, onNext,
+}: {
+  brief: string;
+  lyrics: string;
+  animStyle: string;
+  sceneCount: number;
+  audioDuration: number;
+  leadCharacterName?: string;
+  characters: Array<{ name: string; description: string; isLead: boolean }>;
+  onBack: () => void;
+  onNext: () => void;
+}) {
+  const [scenes, setScenes] = useState<StoryboardScene[]>([]);
+  const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
+  const [saved, setSaved] = useState(false);
+
+  const [storyboardTitle, setStoryboardTitle] = useState("");
+  const [showSavedList, setShowSavedList] = useState(false);
+
+  const previewMutation = trpc.kidsVideo.previewStoryboard.useMutation({
+    onSuccess: (data) => setScenes(data.scenes),
+  });
+
+  const saveMutation = trpc.kidsVideo.saveStoryboard.useMutation({
+    onSuccess: () => {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    },
+  });
+
+  const { data: savedList, refetch: refetchSaved } = trpc.kidsVideo.listStoryboards.useQuery(undefined, { enabled: showSavedList });
+  const deleteMutation = trpc.kidsVideo.deleteStoryboard.useMutation({ onSuccess: () => refetchSaved() });
+
+  // Auto-generate on mount
+  useEffect(() => {
+    if (brief.trim().length >= 10) {
+      previewMutation.mutate({
+        brief,
+        lyrics: lyrics || undefined,
+        animStyle,
+        sceneCount,
+        audioDuration: audioDuration > 0 ? audioDuration : undefined,
+        leadCharacterName: leadCharacterName || undefined,
+        characters: characters.length > 0 ? characters : undefined,
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const startEdit = (idx: number) => {
+    setEditingIdx(idx);
+    setEditText(scenes[idx]?.description ?? "");
+  };
+
+  const saveEdit = (idx: number) => {
+    setScenes(prev => prev.map((s, i) => i === idx ? { ...s, description: editText } : s));
+    setEditingIdx(null);
+  };
+
+  const handleSaveStoryboard = () => {
+    const title = storyboardTitle.trim() || `Storyboard ${new Date().toLocaleDateString()}`;
+    saveMutation.mutate({
+      title,
+      brief,
+      lyrics: lyrics || undefined,
+      animStyle,
+      sceneCount,
+      scenes: JSON.stringify(scenes),
+    });
+  };
+
+  const ACCENT = "#7c5cbf";
+  const GOLD = "#c9a227";
+  const GOLD_BORDER = "rgba(201,162,39,0.3)";
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+        <div>
+          <div style={{ fontSize: 11, color: ACCENT, fontWeight: 700, letterSpacing: "1px", marginBottom: 4 }}>STEP 5 · WIZBOARD™</div>
+          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: "#fff" }}>Storyboard Preview</h2>
+          <p style={{ margin: "4px 0 0", fontSize: 13, color: "#666" }}>Review and edit your scene-by-scene storyboard before rendering</p>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            onClick={() => previewMutation.mutate({ brief, lyrics: lyrics || undefined, animStyle, sceneCount, audioDuration: audioDuration > 0 ? audioDuration : undefined, leadCharacterName: leadCharacterName || undefined, characters: characters.length > 0 ? characters : undefined })}
+            disabled={previewMutation.isPending}
+            style={{ padding: "8px 14px", background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#999", borderRadius: 6, cursor: "pointer", fontSize: 12 }}
+          >{previewMutation.isPending ? "⏳ Generating…" : "🔄 Regenerate"}</button>
+          <button
+            onClick={() => { setShowSavedList(s => !s); }}
+            style={{ padding: "8px 14px", background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#999", borderRadius: 6, cursor: "pointer", fontSize: 12 }}
+          >📂 My Storyboards</button>
+          <button
+            onClick={handleSaveStoryboard}
+            disabled={scenes.length === 0 || saveMutation.isPending}
+            style={{ padding: "8px 14px", background: saved ? "rgba(109,184,109,0.15)" : "rgba(201,162,39,0.1)", border: `1px solid ${saved ? "rgba(109,184,109,0.3)" : GOLD_BORDER}`, color: saved ? "#6db86d" : GOLD, borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 700 }}
+          >{saveMutation.isPending ? "Saving…" : saved ? "✓ Saved!" : "💾 Save Storyboard"}</button>
+        </div>
+      </div>
+
+      {/* Title input for saving */}
+      {scenes.length > 0 && (
+        <div style={{ marginBottom: 16, display: "flex", gap: 8, alignItems: "center" }}>
+          <input
+            type="text"
+            placeholder="Storyboard title (optional)"
+            value={storyboardTitle}
+            onChange={e => setStoryboardTitle(e.target.value)}
+            style={{ flex: 1, background: "#0e0e0e", border: "1px solid #2a2a2a", borderRadius: 6, color: "#ccc", fontSize: 13, padding: "8px 12px" }}
+          />
+        </div>
+      )}
+
+      {/* Saved storyboards panel */}
+      {showSavedList && (
+        <div style={{ background: "#0a0a0a", border: "1px solid #2a2a2a", borderRadius: 10, padding: 16, marginBottom: 20 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", marginBottom: 12 }}>My Saved Storyboards</div>
+          {!savedList || savedList.length === 0 ? (
+            <div style={{ fontSize: 12, color: "#555" }}>No saved storyboards yet. Generate and save one above.</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {savedList.map(sb => (
+                <div key={sb.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#141414", borderRadius: 6, padding: "10px 14px" }}>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>{sb.title}</div>
+                    <div style={{ fontSize: 11, color: "#555", marginTop: 2 }}>{sb.sceneCount} scenes · {new Date(sb.createdAt).toLocaleDateString()}</div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      onClick={() => {
+                        try { setScenes(JSON.parse(sb.scenes)); setShowSavedList(false); } catch {}
+                      }}
+                      style={{ padding: "6px 12px", background: ACCENT, border: "none", color: "#fff", borderRadius: 5, cursor: "pointer", fontSize: 11, fontWeight: 700 }}
+                    >Load</button>
+                    <button
+                      onClick={() => deleteMutation.mutate({ id: sb.id })}
+                      style={{ padding: "6px 12px", background: "rgba(255,80,80,0.1)", border: "1px solid rgba(255,80,80,0.2)", color: "#ff5050", borderRadius: 5, cursor: "pointer", fontSize: 11 }}
+                    >Delete</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {previewMutation.isPending && (
+        <div style={{ textAlign: "center", padding: "60px 20px", color: "#666" }}>
+          <div style={{ fontSize: 32, marginBottom: 12 }}>🎥</div>
+          <div style={{ fontSize: 14, color: ACCENT }}>WizBoard™ is generating your storyboard…</div>
+          <div style={{ fontSize: 12, color: "#444", marginTop: 6 }}>Analysing your brief, lyrics, and characters</div>
+        </div>
+      )}
+
+      {previewMutation.isError && (
+        <div style={{ padding: 16, background: "rgba(255,80,80,0.08)", border: "1px solid rgba(255,80,80,0.2)", borderRadius: 8, color: "#ff5050", fontSize: 13, marginBottom: 16 }}>
+          Failed to generate storyboard. <button onClick={() => previewMutation.mutate({ brief, lyrics: lyrics || undefined, animStyle, sceneCount })} style={{ background: "none", border: "none", color: "#ff8080", cursor: "pointer", textDecoration: "underline" }}>Try again</button>
+        </div>
+      )}
+
+      {scenes.length > 0 && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16, marginBottom: 24 }}>
+          {scenes.map((scene, idx) => (
+            <div key={idx} style={{ background: "#0e0e0e", border: "1px solid #2a2a2a", borderRadius: 10, overflow: "hidden" }}>
+              {/* Scene header */}
+              <div style={{ background: "#141414", padding: "10px 14px", borderBottom: "1px solid #1e1e1e", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div>
+                  <span style={{ fontSize: 10, color: ACCENT, fontWeight: 700, letterSpacing: "0.5px" }}>SCENE {scene.sceneIndex + 1}</span>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", marginTop: 2 }}>{scene.sceneLabel}</div>
+                </div>
+                <span style={{ fontSize: 10, color: "#555", background: "#1a1a1a", padding: "3px 8px", borderRadius: 4 }}>{scene.mood}</span>
+              </div>
+              {/* Scene description */}
+              <div style={{ padding: 14 }}>
+                {editingIdx === idx ? (
+                  <div>
+                    <textarea
+                      value={editText}
+                      onChange={e => setEditText(e.target.value)}
+                      rows={4}
+                      style={{ width: "100%", background: "#1a1a1a", border: "1px solid #3a3a3a", borderRadius: 6, color: "#fff", fontSize: 12, padding: 10, resize: "vertical", boxSizing: "border-box" }}
+                    />
+                    <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                      <button onClick={() => saveEdit(idx)} style={{ flex: 1, padding: "7px", background: ACCENT, border: "none", color: "#fff", borderRadius: 5, cursor: "pointer", fontSize: 12, fontWeight: 700 }}>Save</button>
+                      <button onClick={() => setEditingIdx(null)} style={{ flex: 1, padding: "7px", background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#666", borderRadius: 5, cursor: "pointer", fontSize: 12 }}>Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p style={{ margin: "0 0 10px", fontSize: 12, color: "#ccc", lineHeight: 1.6 }}>{scene.description}</p>
+                    {scene.lyricCue && (
+                      <div style={{ fontSize: 11, color: GOLD, fontStyle: "italic", borderLeft: `2px solid ${GOLD_BORDER}`, paddingLeft: 8, marginBottom: 10 }}>&#x201C;{scene.lyricCue}&#x201D;</div>
+                    )}
+                    <button
+                      onClick={() => startEdit(idx)}
+                      style={{ width: "100%", padding: "7px", background: "#1a1a1a", border: "1px solid #2a2a2a", color: "#888", borderRadius: 5, cursor: "pointer", fontSize: 11 }}
+                    >✏️ Edit Scene</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 16, borderTop: "1px solid #1a1a1a" }}>
+        <button onClick={onBack} style={{ background: "none", border: "1px solid #2a2a2a", color: "#666", padding: "10px 20px", borderRadius: 6, cursor: "pointer", fontSize: 13 }}>← Back</button>
+        <button
+          onClick={onNext}
+          style={{ background: `linear-gradient(135deg, #7c5cbf, #5a3a9a)`, border: "none", color: "#fff", padding: "12px 28px", borderRadius: 6, cursor: "pointer", fontSize: 14, fontWeight: 700, boxShadow: "0 4px 16px rgba(124,92,191,0.3)" }}
+        >Continue to Render →</button>
+      </div>
     </div>
   );
 }

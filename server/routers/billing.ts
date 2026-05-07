@@ -184,7 +184,7 @@ export const billingRouter = router({
     .input(
       z.object({
         toolType: z.enum(["text_to_video", "lip_sync", "video_to_video", "voiceover"]),
-        prompt: z.string().min(10).max(1000),
+        prompt: z.string().min(10).max(5000),
         imageUrl: z.string().url().optional(),
         videoUrl: z.string().url().optional(),
         audioUrl: z.string().url().optional(),

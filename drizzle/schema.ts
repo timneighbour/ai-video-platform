@@ -1308,3 +1308,20 @@ export const wizavisionCreatorChannels = mysqlTable("wizavisionCreatorChannels",
 });
 export type WizavisionCreatorChannel = typeof wizavisionCreatorChannels.$inferSelect;
 export type InsertWizavisionCreatorChannel = typeof wizavisionCreatorChannels.$inferInsert;
+
+// ─── Saved Storyboards ────────────────────────────────────────────────────────
+export const savedStoryboards = mysqlTable("savedStoryboards", {
+  id: int("id").primaryKey().autoincrement(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 200 }).notNull(),
+  brief: text("brief").notNull(),
+  lyrics: text("lyrics"),
+  animStyle: varchar("animStyle", { length: 100 }),
+  sceneCount: int("sceneCount").notNull().default(8),
+  scenes: text("scenes").notNull(),
+  createdAt: bigint("createdAt", { mode: "number" }).notNull().$defaultFn(() => Date.now()),
+  updatedAt: bigint("updatedAt", { mode: "number" }).notNull().$defaultFn(() => Date.now()),
+});
+export type SavedStoryboard = typeof savedStoryboards.$inferSelect;
+export type InsertSavedStoryboard = typeof savedStoryboards.$inferInsert;
+

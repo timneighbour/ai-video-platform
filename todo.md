@@ -7279,3 +7279,15 @@
 - [x] Frontend: auto-retry info banner shown when scenes hit provider limits during render
 - [x] Frontend: failed count label changed to "retrying..." during active render
 - [x] classifyFailure used to distinguish hard-block (moderation) vs transient failures
+
+## WizAnimate Improvements (May 2026)
+- [ ] Fix prompt 1000-char Zod limit — raise to 5000 chars in kidsVideo.ts, billing.ts, musicVideo.ts, wizImage.ts
+- [ ] Add Auto scene count — AI calculates optimal scenes from audio duration + storyline complexity
+- [ ] Add Save Storyboard — savedStoryboards DB table, save/load tRPC procedures, UI in KidsVideo.tsx
+
+## WizAnimate Phase 2 Improvements (May 2026)
+- [ ] Fix broken generateMutation.mutate syntax from sceneCount edit
+- [ ] Add Auto scene count UI — Auto button in scene stepper, calculated from audio duration
+- [ ] Add singer/lead character selector — mark one character as lead vocalist
+- [ ] Add inline storyboard preview step — AI scene descriptions after brief+lyrics, per-scene edit
+- [ ] Add Save Storyboard — savedStoryboards DB table, tRPC save/load, UI button

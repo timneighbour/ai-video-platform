@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `savedStoryboards` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`userId` int NOT NULL,\n\t`title` varchar(200) NOT NULL,\n\t`brief` text NOT NULL,\n\t`lyrics` text,\n\t`animStyle` varchar(100),\n\t`sceneCount` int NOT NULL DEFAULT 8,\n\t`scenes` text NOT NULL,\n\t`createdAt` bigint NOT NULL,\n\t`updatedAt` bigint NOT NULL,\n\tCONSTRAINT `savedStoryboards_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute CREATE TABLE `savedStoryboards` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`userId` int NOT NULL,\n\t`title` varchar(200) NOT NULL,\n\t`brief` text NOT NULL,\n\t`lyrics` text,\n\t`animStyle` varchar(100),\n\t`sceneCount` int NOT NULL DEFAULT 8,\n\t`scenes` text NOT NULL,\n\t`createdAt` bigint NOT NULL,\n\t`updatedAt` bigint NOT NULL,\n\tCONSTRAINT `savedStoryboards_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 159
+}

@@ -525,7 +525,7 @@ Rules:
   updateScene: protectedProcedure
     .input(z.object({
       sceneId: z.number().int(),
-      prompt: z.string().min(10).max(1000),
+      prompt: z.string().min(10).max(5000),
       visualStyle: z.string().max(255).optional(),
       characterAssignments: z.array(z.string()).optional(), // Names of characters in this scene
     }))
@@ -2604,7 +2604,7 @@ Rules:
       sceneId: z.number().int(),
       jobId: z.number().int(),
       prompt: z.string().min(1).max(2000),
-      lyrics: z.string().max(1000).optional(),
+      lyrics: z.string().max(5000).optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
