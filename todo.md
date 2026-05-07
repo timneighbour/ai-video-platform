@@ -7143,3 +7143,11 @@
 - [x] Fix 2 (client): CharacterConfirmationStep auto-approves chars with previewImageUrl and no photos on load
 - [x] Fix 3 (guard): Added fallback UI when step=character_confirmation but jobId is null — shows "Session expired" and Back to Setup button
 - [x] TypeScript: 0 errors
+
+## Character Lock Visual Indicators - May 2026
+- [x] Face-strip grid: approved faces get green glow border, green checkmark badge top-right, green name bar; pending get amber dot
+- [x] Character card border: approved = emerald-500 ring-2 with green glow shadow; pending = zinc-700
+- [x] Character card header: approved = gradient green background, glowing green icon, LOCKED IN badge; pending = amber Pending badge
+- [x] Character name/role text: approved = emerald-200/emerald-400; pending = white/zinc-400
+- [x] Portrait image overlay: approved = LOCKED IN stamp top-right + green bar at bottom; pending = no overlay
+- [x] TypeScript: 0 errors

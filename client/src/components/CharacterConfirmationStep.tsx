@@ -313,7 +313,7 @@ export default function CharacterConfirmationStep({
       {characters.length > 0 && (
         <div style={{display:'grid',gridTemplateColumns:`repeat(${Math.min(characters.length,4)},1fr)`,gap:10,marginBottom:16}}>
           {characters.slice(0,4).map((char) => (
-            <div key={char.id} style={{position:'relative',borderRadius:3,overflow:'hidden',border:`1px solid ${char.previewApproved ? '#6db86d' : '#2a2a2a'}`,background:'#111',aspectRatio:'1/1',cursor:'pointer',transition:'border-color 0.2s'}}>
+            <div key={char.id} style={{position:'relative',borderRadius:6,overflow:'hidden',border:`2px solid ${char.previewApproved ? '#34d399' : '#2a2a2a'}`,background:'#111',aspectRatio:'1/1',cursor:'pointer',transition:'all 0.2s',boxShadow: char.previewApproved ? '0 0 12px rgba(52,211,153,0.3)' : 'none'}}>
               {char.previewImageUrl ? (
                 <img src={char.previewImageUrl} alt={char.name} style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:'top'}} />
               ) : (
@@ -321,8 +321,24 @@ export default function CharacterConfirmationStep({
                   <User style={{width:24,height:24,color:'#444'}} />
                 </div>
               )}
-              <div style={{position:'absolute',bottom:0,left:0,right:0,background:'rgba(0,0,0,0.85)',fontSize:9,fontWeight:600,letterSpacing:1,color: char.previewApproved ? '#d4a843' : '#888',textAlign:'center',padding:'4px',textTransform:'uppercase'}}>
-                {char.name}
+              {/* Approved checkmark badge in top-right corner */}
+              {char.previewApproved && (
+                <div style={{position:'absolute',top:4,right:4,background:'#059669',borderRadius:'50%',width:18,height:18,display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 6px rgba(52,211,153,0.6)'}}>
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M2 5l2.5 2.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              )}
+              {/* Pending indicator in top-right corner */}
+              {!char.previewApproved && (
+                <div style={{position:'absolute',top:4,right:4,background:'#92400e',borderRadius:'50%',width:18,height:18,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <circle cx="5" cy="5" r="3" fill="#fbbf24"/>
+                  </svg>
+                </div>
+              )}
+              <div style={{position:'absolute',bottom:0,left:0,right:0,background: char.previewApproved ? 'rgba(5,150,105,0.85)' : 'rgba(0,0,0,0.85)',fontSize:9,fontWeight:700,letterSpacing:1,color:'#fff',textAlign:'center',padding:'4px',textTransform:'uppercase'}}>
+                {char.previewApproved ? '✓ ' : ''}{char.name}
               </div>
             </div>
           ))}
@@ -354,20 +370,34 @@ export default function CharacterConfirmationStep({
               key={char.id}
               className={`rounded-xl border overflow-hidden transition-all ${
                 char.previewApproved
-                  ? "border-emerald-600/70 ring-1 ring-emerald-500/30"
+                  ? "border-emerald-500 ring-2 ring-emerald-500/40 shadow-[0_0_20px_rgba(52,211,153,0.18)]"
                   : hasPreview
                   ? `ring-1 ${colors.ring} border-zinc-700`
                   : "border-zinc-700"
               }`}
             >
               {/* Character header */}
-              <div className={`px-4 py-3 flex items-center gap-3 ${char.previewApproved ? "bg-emerald-900/20" : colors.bg} border-b border-zinc-700/50`}>
-                <div className={`w-8 h-8 rounded-lg ${char.previewApproved ? "bg-emerald-700" : "bg-zinc-700"} flex items-center justify-center flex-shrink-0`}>
-                  {char.previewApproved ? <CheckCircle2 className="w-4 h-4 text-white" /> : <User className="w-4 h-4 text-white" />}
+              <div className={`px-4 py-3 flex items-center gap-3 border-b ${
+                char.previewApproved
+                  ? "bg-gradient-to-r from-emerald-900/40 to-emerald-900/10 border-emerald-700/40"
+                  : `${colors.bg} border-zinc-700/50`
+              }`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                  char.previewApproved
+                    ? "bg-emerald-600 shadow-[0_0_10px_rgba(52,211,153,0.5)]"
+                    : "bg-zinc-700"
+                }`}>
+                  {char.previewApproved
+                    ? <CheckCircle2 className="w-4 h-4 text-white" />
+                    : <User className="w-4 h-4 text-white" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white font-semibold text-sm truncate">{char.name}</p>
-                  {char.role && <p className="text-zinc-400 text-xs truncate">{char.role}</p>}
+                  <p className={`font-semibold text-sm truncate ${
+                    char.previewApproved ? "text-emerald-200" : "text-white"
+                  }`}>{char.name}</p>
+                  {char.role && <p className={`text-xs truncate ${
+                    char.previewApproved ? "text-emerald-400/70" : "text-zinc-400"
+                  }`}>{char.role}</p>}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   {char.photoCount > 0 && (
@@ -378,8 +408,12 @@ export default function CharacterConfirmationStep({
                       <Anchor className="w-3 h-3" /> Anchored
                     </Badge>
                   )}
-                  {char.previewApproved && (
-                    <Badge className="bg-emerald-900/60 text-emerald-300 border-emerald-700 text-xs">✓ Approved</Badge>
+                  {char.previewApproved ? (
+                    <Badge className="bg-emerald-600/90 text-white border-emerald-500 text-xs font-bold px-2 py-0.5 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> LOCKED IN
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-amber-900/50 text-amber-300 border-amber-700/60 text-xs">Pending</Badge>
                   )}
                 </div>
               </div>
@@ -440,11 +474,20 @@ export default function CharacterConfirmationStep({
                           className="w-full h-full object-contain"
                         />
                       </div>
-                      {/* Approved overlay */}
+                      {/* Approved overlay — LOCKED IN stamp */}
                       {char.previewApproved && (
-                        <div className="absolute inset-0 bg-emerald-900/20 flex items-center justify-center pointer-events-none rounded-lg">
-                          <div className="bg-emerald-900/80 rounded-full p-3">
-                            <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                        <div className="absolute inset-0 pointer-events-none rounded-lg">
+                          {/* subtle green tint */}
+                          <div className="absolute inset-0 bg-emerald-900/10 rounded-lg" />
+                          {/* corner stamp */}
+                          <div className="absolute top-2 right-2 bg-emerald-600/95 rounded-md px-2 py-1 flex items-center gap-1 shadow-lg">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                            <span className="text-white text-[10px] font-bold tracking-wider">LOCKED IN</span>
+                          </div>
+                          {/* bottom green bar */}
+                          <div className="absolute bottom-0 left-0 right-0 bg-emerald-600/80 py-1 flex items-center justify-center gap-1.5 rounded-b-lg">
+                            <CheckCircle2 className="w-3 h-3 text-white" />
+                            <span className="text-white text-[9px] font-bold tracking-widest uppercase">Character Approved</span>
                           </div>
                         </div>
                       )}
