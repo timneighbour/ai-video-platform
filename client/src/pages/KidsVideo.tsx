@@ -230,6 +230,8 @@ export default function KidsVideo() {
   const [cameraMove, setCameraMove] = useState("Dynamic (AI decides)");
   const [beatSync, setBeatSync] = useState(true);
   const [colourGrade, setColourGrade] = useState(true);
+  const [lipSync, setLipSync] = useState(true);
+  const [lyricOverlay, setLyricOverlay] = useState(false);
 
   // ── Generation ───────────────────────────────────────────────────────────
   const [genProjectId, setGenProjectId]   = useState<number | null>(null);
@@ -1383,8 +1385,8 @@ export default function KidsVideo() {
                 {[
                   { label: "Beat-Sync Scene Cuts",      sub: "Cuts timed to the music beat",      val: beatSync,    set: setBeatSync,    live: true  },
                   { label: "Colour Grade Consistency",  sub: "Same grade across all scenes",      val: colourGrade, set: setColourGrade, live: true  },
-                  { label: "Lyric Overlay",             sub: "Show lyrics on screen",             val: false,       set: () => {},       live: false },
-                  { label: "Lip Sync (WizSync™)",       sub: "Character mouths match audio",      val: false,       set: () => {},       live: false },
+                  { label: "Lyric Overlay",             sub: "Show lyrics on screen",             val: lyricOverlay,  set: setLyricOverlay,  live: true  },
+                  { label: "Lip Sync (WizSync™)",       sub: "Character mouths match audio",      val: lipSync,       set: setLipSync,       live: true  },
                 ].map(f => (
                   <div key={f.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                     <div>
