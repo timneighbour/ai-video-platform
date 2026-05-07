@@ -13,6 +13,7 @@ import { invokeLLM } from "../_core/llm";
 import { generateImage } from "../_core/imageGeneration";
 import { storagePut } from "../storage";
 import { analyseContent } from "../content-analyser";
+import { transcribeAudio } from "../_core/voiceTranscription";
 import Stripe from "stripe";
 
 const CREDIT_COSTS: Record<string, number> = {
@@ -623,5 +624,58 @@ Create 4-6 storyboard scenes. Every imagePrompt MUST include the full character 
         .set({ storyboardFrames: JSON.stringify(filtered) })
         .where(eq(kidsVideoJobs.id, input.jobId));
       return { success: true, frames: filtered, totalScenes: filtered.length };
+    }),
+
+  /**
+   * Upload audio file (base64) to S3 and return a permanent CDN URL
+   */
+  uploadAudio: protectedProcedure
+    .input(z.object({
+      audioBase64: z.string(),
+      audioMimeType: z.enum(["audio/mpeg", "audio/wav", "audio/mp4", "audio/ogg", "audio/webm"]),
+      fileName: z.string().max(200).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const audioBuffer = Buffer.from(input.audioBase64, "base64");
+      const sizeMB = audioBuffer.length / (1024 * 1024);
+      if (sizeMB > 16) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Audio file exceeds 16 MB limit" });
+      }
+      const extMap: Record<string, string> = {
+        "audio/mpeg": "mp3",
+        "audio/wav": "wav",
+        "audio/mp4": "m4a",
+        "audio/ogg": "ogg",
+        "audio/webm": "webm",
+      };
+      const ext = extMap[input.audioMimeType] ?? "mp3";
+      const key = `kids-audio/${ctx.user.id}-${Date.now()}.${ext}`;
+      const result = await storagePut(key, audioBuffer, input.audioMimeType);
+      return { audioUrl: result.url, audioKey: result.key };
+    }),
+
+  /**
+   * Transcribe audio from a CDN URL using Whisper
+   * Returns full text (lyrics/narration) and timestamped segments
+   */
+  transcribeAudio: protectedProcedure
+    .input(z.object({
+      audioUrl: z.string().url(),
+      language: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const result = await transcribeAudio({
+        audioUrl: input.audioUrl,
+        language: input.language,
+        prompt: "Song lyrics or narration",
+      });
+      if ("error" in result) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: result.error });
+      }
+      return {
+        text: result.text,
+        language: result.language,
+        segments: result.segments ?? [],
+      };
     }),
 });

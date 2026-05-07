@@ -7151,3 +7151,55 @@
 - [x] Character name/role text: approved = emerald-200/emerald-400; pending = white/zinc-400
 - [x] Portrait image overlay: approved = LOCKED IN stamp top-right + green bar at bottom; pending = no overlay
 - [x] TypeScript: 0 errors
+
+## Animation Studio Full Redesign - May 2026
+- [ ] Audit full Animation Studio codebase (page, components, routers, schema)
+- [ ] Redesign as premium step-by-step layout: Step 1 Audio, Step 2 Characters, Step 3 Style, Step 4 Lyrics/Scenes
+- [ ] Audio upload: prominent, front-and-centre, with waveform visualiser and auto-duration detection
+- [ ] Auto-populate video duration from uploaded audio track length
+- [ ] Auto-transcribe lyrics from uploaded audio (AssemblyAI/Whisper) and display for editing
+- [ ] Character creation: prominent photo upload to transform any photo (person, animal, pet) into animated character
+- [ ] Remove or fix broken preset characters (Maya, Fox etc) that can't be changed
+- [ ] Animation style picker: large visual cards, not tiny scrollable list at bottom of page
+- [ ] Character limit: up to 8-10 characters per project
+- [ ] Premium studio aesthetic matching WizVideo/WizAnimate brand guidelines
+- [ ] All controls visible without excessive scrolling
+- [ ] Fix TypeScript errors introduced by redesign
+
+## WizAnimate Studio "Make It Feel Real" Redesign - May 2026
+- [ ] Remove fake decorative monitor panels — replace with real working viewport
+- [ ] Full-width 3-column layout: left dock (audio/chars) | centre workspace | right dock (properties/status)
+- [ ] Audio upload: prominent top dock, auto-read duration from audio element, waveform scrubber, play/pause
+- [ ] Characters: full-width card grid, photo upload per character (drag & drop), AI generation from photo, up to 10, delete button
+- [ ] Animation styles: large visual grid (4 columns), not tiny thumbnails in a sidebar
+- [ ] Lyrics: auto-transcribe from uploaded audio, show in editable panel, map to scenes
+- [ ] Duration: auto-set from audio file duration, allow manual override
+- [ ] Scene count: auto-calculate from duration
+- [ ] Generate button: always visible, not buried in scroll
+- [ ] Remove hardcoded CHARS (Maya, Owl, Fox) — start with empty character list
+- [ ] Premium dark studio desk aesthetic: deep charcoal panels, amber/gold accents, subtle panel borders
+
+## WizAnimate Engine Integration & Music Video Lyric-Scene Sync
+- [x] WizAnimate: Add gender/voice-type selector per character (WizSync™ lip-sync assignment)
+- [x] WizAnimate: Wire uploadAudio + transcribeAudio tRPC procedures for auto-transcription in Step 1
+- [x] WizAnimate: Add separate Story Brief textarea (Step 4) distinct from Lyrics field
+- [x] WizAnimate: Add Wiz engine badges (WizGenesis™, WizCreate™, WizSync™, WizAdora™, WizLumina™, WizSound™) throughout all steps
+- [ ] WizAnimate: Wire createJob mutation on render to persist job with audioUrl and characterLockData
+- [x] Music Video: Display lyric line per storyboard scene so users see which lyric matches which scene
+
+## WizAnimate Engine Integration & Music Video Lyric-Scene Sync
+- [x] WizAnimate: Add gender/voice-type selector per character (WizSync lip-sync assignment)
+- [x] WizAnimate: Wire uploadAudio + transcribeAudio tRPC procedures for auto-transcription in Step 1
+- [x] WizAnimate: Add separate Story Brief textarea (Step 4) distinct from Lyrics field
+- [x] WizAnimate: Add Wiz engine badges throughout all steps (WizGenesis, WizCreate, WizSync, WizAdora, WizLumina, WizSound)
+- [ ] WizAnimate: Wire createJob mutation on render to persist job with audioUrl and characterLockData
+- [x] WizAnimate: Add "Create with WizSound" CTA in Step 1 audio section - links to WizSound studio to generate a track, then returns with it loaded
+- [x] Music Video: Display lyric line per storyboard scene so users see which lyric matches which scene
+
+## Full Video Preview + Scene Edit/Regenerate (Free Actions)
+- [x] WizAnimate: Show full inline video player after generation - user watches entire video before downloading
+- [x] WizAnimate: Add scene-level edit panel after preview - edit prompt, remove scene, or regenerate single scene (small per-scene credit cost, not full job)
+- [x] WizAnimate: Make preview/review/scene-editing all FREE - only final render costs credits
+- [ ] WizVideo (text-to-video): Add full inline video preview after generation with scene review panel
+- [x] Music Video: Add full inline video preview after generation with scene review panel
+- [ ] All video products: Enforce cost model - preview is FREE, only generation costs credits
