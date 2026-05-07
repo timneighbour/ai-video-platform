@@ -8,7 +8,7 @@ import { useSEO } from "@/hooks/useSEO";
 
 export default function WatchPage() {
 
-  useSEO({ title: "Watch — WIZ AI", path: "/watch", description: "Watch AI-generated videos created with WIZ AI. Cinematic music videos, animations, and visual content powered by WizGenesis™ and WizLumina™." });
+  useSEO({ title: "Watch — WIZ AI", path: "/watch", description: "Watch cinematic music videos, animations, and visual content created with WIZ AI. Powered by WizGenesis™, WizLumina™, and Character Lock™ technology." });
   const { slug } = useParams<{ slug: string }>();
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -27,7 +27,7 @@ export default function WatchPage() {
       "@context": "https://schema.org",
       "@type": "VideoObject",
       name: video.title,
-      description: `AI-generated music video${video.genre ? ` — ${video.genre}` : ""}${video.mood ? `, ${video.mood} mood` : ""}. Created with WIZ AI.`,
+      description: `Cinematic music video${video.genre ? ` — ${video.genre}` : ""}${video.mood ? `, ${video.mood} mood` : ""}. Created with WIZ AI using Character Lock™ and Lyric-Aware Storyboarding™.`,
       thumbnailUrl: video.thumbnailUrl ?? "https://wiz-ai.io/studio-mic_3d8c675d.jpg",
       uploadDate: video.createdAt ? new Date(video.createdAt).toISOString() : new Date().toISOString(),
       duration: video.audioDuration ? `PT${Math.floor(video.audioDuration / 60)}M${video.audioDuration % 60}S` : undefined,
@@ -48,7 +48,7 @@ export default function WatchPage() {
     document.title = `${video.title} — WIZ AI`;
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) {
-      metaDesc.setAttribute("content", `Watch "${video.title}" — an AI-generated music video created with WIZ AI.`);
+              metaDesc.setAttribute("content", `Watch "${video.title}" — a cinematic music video created with WIZ AI.`);
     }
 
     return () => {
@@ -163,7 +163,7 @@ export default function WatchPage() {
               <div className="flex flex-wrap gap-2">
                 {video.genre && <Badge variant="secondary" className="bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30">{video.genre}</Badge>}
                 {video.mood && <Badge variant="secondary" className="bg-blue-900/40 text-blue-300 border-blue-700/50">{video.mood}</Badge>}
-                <Badge variant="secondary" className="bg-white/5 text-white/50 border-white/10">AI Generated</Badge>
+                <Badge variant="secondary" className="bg-white/5 text-white/50 border-white/10">WIZ AI Created</Badge>
               </div>
             </div>
           </div>
@@ -173,7 +173,7 @@ export default function WatchPage() {
             <div className="rounded-xl bg-gradient-to-br from-[#b8892a]/40 to-blue-900/40 border border-[--color-gold]/30 p-6 space-y-4">
               <div className="text-center space-y-2">
                 <Sparkles className="w-8 h-8 text-[--color-gold] mx-auto" />
-                <h2 className="text-white font-bold text-lg">Create Your Own AI Music Video</h2>
+                <h2 className="text-white font-bold text-lg">Create Your Own Cinematic Music Video</h2>
                 <p className="text-white/60 text-sm">Upload any song and WIZ AI generates a full cinematic music video in minutes.</p>
               </div>
               <Link href="/">
@@ -188,7 +188,7 @@ export default function WatchPage() {
             <div className="rounded-xl bg-white/5 border border-white/10 p-5 space-y-3">
               <h3 className="text-white/80 font-semibold text-sm">What WIZ AI Creates</h3>
               {[
-                "Cinematic AI-generated scenes",
+                "Cinematic scenes with Character Lock™",
                 "Lip-synced character videos",
                 "Kids & animated content",
                 "Custom music & soundtracks",
@@ -206,7 +206,7 @@ export default function WatchPage() {
       {/* Footer */}
       <footer className="border-t border-white/10 mt-12 py-6 px-6">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/40">
-          <span>© 2026 WIZ AI — AI-Powered WizVideo</span>
+          <span>© 2026 WIZ AI — Cinematic Music Video Studio</span>
           <div className="flex gap-4">
             <Link href="/privacy"><span className="hover:text-white/70 cursor-pointer transition-colors">Privacy</span></Link>
             <Link href="/terms"><span className="hover:text-white/70 cursor-pointer transition-colors">Terms</span></Link>

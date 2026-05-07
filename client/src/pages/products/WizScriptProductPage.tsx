@@ -103,7 +103,7 @@ const KEY_FEATURES = [
 const BENEFITS = [
  { title: "No screenwriting experience needed", desc: "WizScript™ handles structure, format, and pacing — you provide the concept, the AI writes the screenplay." },
  { title: "From concept to storyboard in minutes", desc: "A full screenplay with storyboard panels that would take a writer days is ready in under 5 minutes." },
- { title: "Built for video production", desc: "Unlike general writing tools, WizScript™ generates scripts specifically designed for AI video generation — scenes are optimised for visual rendering." },
+ { title: "Built for cinematic production", desc: "Unlike general writing tools, WizScript™ generates scripts specifically designed for cinematic video production — scenes are optimised for visual rendering, character consistency, and lyric-aware storytelling." },
  { title: "Genre-aware writing", desc: "The AI understands genre conventions — a thriller script reads differently from a music video treatment or a documentary narration." },
  { title: "Consistent character voice", desc: "Characters maintain their voice and motivation across the entire script — no inconsistent dialogue or personality drift." },
  { title: "Direct pipeline to video", desc: "WizScript™ feeds directly into WizVideo™ and WizAnimate™ — the full production pipeline starts here." },

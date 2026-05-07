@@ -668,7 +668,7 @@ Create 4-6 storyboard scenes. Every imagePrompt MUST include the full character 
   generateCharacterPreview: protectedProcedure
     .input(z.object({
       characterName: z.string().max(100),
-      description: z.string().max(1000),
+      description: z.string().max(5000),
       gender: z.enum(["male", "female", "neutral"]),
       animationStyle: z.string().max(100),
       photoUrl: z.string().url().optional(),

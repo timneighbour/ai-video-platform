@@ -7074,8 +7074,8 @@
 
 - [ ] Branding consistency audit across all pages and components
 - [ ] Fix all logo/trademark inconsistencies (WIZ AI, WizVideo™, WizSync™, Scene Director™, Character Lock™, Lyric-Aware Storyboarding™, Preview Before Download™, Quality Guarantee™)
-- [ ] Push hero USPs: Character Lock™, Real Lip Sync, Lyric-Aware Storyboarding™, Scene Director™, Preview Before Download™ across homepage, onboarding, pricing, product pages
-- [ ] Remove "AI video generation" language — replace with "creative control + cinematic production + performance authenticity"
+- [x] Push hero USPs: Character Lock™, Real Lip Sync, Lyric-Aware Storyboarding™, Scene Director™, Preview Before Download™ across homepage, onboarding, pricing, product pages — done
+- [x] Remove "AI video generation" language — replaced with cinematic/director-level/Character Lock™ language across all product pages and WatchPage
 - [ ] Add Timeline & Lyric Awareness UI (lyric section, scene timestamps, verse/chorus/bridge markers, emotional arc)
 - [ ] Instrument Accuracy Layer (reference instrument upload, performance-aware prompt injection)
 - [ ] Marketing assets expansion (Character Lock™ before/after, lyric-aware, lip sync, rerender workflow, multi-character, instrument accuracy, Meta/TikTok/Instagram formats)
@@ -7281,7 +7281,7 @@
 - [x] classifyFailure used to distinguish hard-block (moderation) vs transient failures
 
 ## WizAnimate Improvements (May 2026)
-- [ ] Fix prompt 1000-char Zod limit — raise to 5000 chars in kidsVideo.ts, billing.ts, musicVideo.ts, wizImage.ts
+- [x] Fix prompt 1000-char Zod limit — raised to 5000 chars in kidsVideo.ts generateCharacterPreview (billing.ts, musicVideo.ts, wizImage.ts already at 5000)
 - [ ] Add Auto scene count — AI calculates optimal scenes from audio duration + storyline complexity
 - [ ] Add Save Storyboard — savedStoryboards DB table, save/load tRPC procedures, UI in KidsVideo.tsx
 

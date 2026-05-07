@@ -68,7 +68,7 @@ const KEY_FEATURES = [
 
 const BENEFITS = [
  { title: "No video editing skills needed", desc: "WizVideo™ handles every step from storyboard to final export — no timeline editing, no keyframing, no post-production." },
- { title: "Music-first design", desc: "Unlike generic AI video tools, WizVideo™ was built specifically for music — every visual decision is driven by your audio." },
+ { title: "Music-first design", desc: "Unlike generic video tools, WizVideo™ was built specifically for music — every visual decision is driven by your audio, your lyrics, and your creative direction." },
  { title: "Professional output quality", desc: "Cinematic colour grading, dynamic camera movement, and broadcast-quality resolution — indistinguishable from produced content." },
  { title: "Minutes, not days", desc: "A full music video that would take a production team days to produce is ready in under 10 minutes." },
  { title: "Unlimited creative iterations", desc: "Regenerate any scene, swap styles, or rebuild the entire video — no extra cost per iteration on the storyboard phase." },
