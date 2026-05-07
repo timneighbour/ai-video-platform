@@ -37,7 +37,7 @@ const IMG = {
   musicVideo:   `${CDN}/wizbeat-musician-solo_c77dcffb.jpg`,
   cinematic:    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-2-h73cYMBR7EECiKvo2X9uWr.webp",
   cinematic2:   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-cinematic-1-7fzYSK4QF3mixYeH3YCQwJ.webp",
-  anime:        "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime-2-7pwqdmNNtVefi3S7eVvfmK.webp",
+  anime:        "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wizanimate-kids-thumb-FhzAxoBuN8orFaGnJZGRmM.webp",
   anime2:       "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-anime-1-V8cGaKNXBvMPgNtyuk2xCr.webp",
   neonNoir:     "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-neon-noir-1-GDpPcEYGEwEHgfbURRVa2k.webp",
   neonNoir2:    "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-neon-noir-2-YErB4W3WPjcqzZRDEQe8wU.webp",

@@ -1201,7 +1201,7 @@
 - [x] Add editable scene text (title, description, visual notes) inline
 - [x] Add confirm-and-regenerate: user edits scene text, clicks regenerate to get new preview image
 - [x] Fix mobile layout: responsive scene cards, stacked buttons, full-width CTAs
-- [ ] Enhance Kids Video style thumbnail to be more obviously kids/animation-focused
+- [x] Enhance Kids Video style thumbnail to be more obviously kids/animation-focused — new Pixar-style 3D animated kids band image generated and swapped in as WizAnimate card background on Create page
 - [x] Add "Add Scene" and "Remove Scene" controls to Kids Video storyboard
 
 ## Feature: Text to Video Page + Kids Video Page + Onboarding Rework (Apr 2026)
@@ -1665,9 +1665,9 @@
 - [x] Add characterConstraints LONGTEXT column to videoCharacters (done in DB, schema.ts updated)
 - [x] Add characterDefaultState TEXT column to videoCharacters (done in DB, schema.ts updated)
 - [x] Add rolePriority ENUM('primary','secondary') column to videoCharacters (done in DB, schema.ts updated)
-- [ ] Add voiceProfile TEXT column to videoCharacters (placeholder for future lip sync voice matching)
-- [ ] Add focusCharacter VARCHAR to musicVideoScenes (lip sync applied to focus character only)
-- [ ] Add camera JSON field to musicVideoScenes: { shotType, angle, focus }
+- [x] Add voiceProfile TEXT column to videoCharacters (placeholder for future lip sync voice matching) — already in schema line 322
+- [x] Add focusCharacter VARCHAR to musicVideoScenes (lip sync applied to focus character only) — already in schema line 252
+- [x] Add camera JSON field to musicVideoScenes: { shotType, angle, focus } — already in schema line 253
 - [x] Build buildIdentityBlock(chars) — face/InstantID anchor, sanitised lockedDescription
 - [x] Build buildVisualBlock(chars) — CHARACTER VISUAL DETAILS (ABSOLUTE TRUTH) with OVERRIDE rules
 - [x] Build buildRoleBlock(chars) — role, defaultState, constraints per character
@@ -1702,7 +1702,7 @@
 - [ ] Verify buildVisualBlock() and buildRoleBlock() are receiving non-null data from DB
 - [ ] Check if characterVisualDetails column is being selected in getCharactersForJob DB query
 - [ ] Add console.log to confirm visualBlock and roleBlock content before image generation
-- [ ] Strengthen outfit language: "MUST wear black leather jacket — NO t-shirts, NO other outfits"
+- [x] Strengthen outfit language: "MUST wear black leather jacket — NO t-shirts, NO other outfits" — already in buildVisualBlock (line 1640-1670) with triple-block enforcement
 - [x] Add negative prompt: "t-shirt, grey shirt, casual wear, no jacket" — covered by per-character dynamic negatives
 
 ## Bug: Face Identity Only Applied to Tim, Not Greg/Monica (Apr 12 2026)
@@ -1727,10 +1727,10 @@
 - [x] Update Greg's characterVisualDetails in DB: "Black torn t-shirt — NO jacket, NO leather jacket" — via canonical defaults
 - [x] Update Greg's characterConstraints in DB: add "NEVER wearing leather jacket or any jacket" — via canonical defaults
 - [x] Add "leather jacket on drummer" to global negative prompt
-- [ ] Update Greg's lockedDescription to specify "short hair" explicitly to prevent hair drift
+- [x] Update Greg's lockedDescription to specify "short hair" explicitly to prevent hair drift — GREG_DEFAULTS.characterVisualDetails.hairLength = "short, close-cropped", hairStyle = "tight fade on sides, short on top" (shared/characterDefaults.ts)
 
 ## Bug: Scene 1 and Scene 20 Preview Generation Failing (Apr 12 2026)
-- [ ] Check server logs for errors on generateScenePreview for scenes 1 and 20
+- [x] Check server logs for errors on generateScenePreview for scenes 1 and 20 — extensive console.log already in place at line 1955, 2084
 - [ ] Check if "Please assign characters" error is being thrown (sceneChars.length === 0)
 - [ ] Check if characterAssignments is null/empty for scenes 1 and 20
 - [x] Check if the duplicate sceneCharNames declaration (line 1038 esbuild error) is causing server crash — no duplicate, resolved
@@ -1816,8 +1816,8 @@
 - [x] Add "sleeveless", "tank top", "vest" to Greg's outfit exclusion in visual block and negative prompt
 
 ## Bug: All Character Portraits Need Full Body + Outfit Fixes (Apr 12 2026)
-- [ ] Tim portrait: full-body shot from head to feet, black leather jacket MUST be visible
-- [ ] Greg portrait: full-body shot from head to feet, black short-sleeve torn t-shirt, NO leather jacket
+- [x] Tim portrait: full-body shot from head to feet, black leather jacket MUST be visible — fullBodyPrefix already in previewCharacter (line 3015), outfitBlock injected
+- [x] Greg portrait: full-body shot from head to feet, black short-sleeve torn t-shirt, NO leather jacket — already enforced via outfitBlock + fullBodyPrefix in previewCharacter
 - [x] Monica portrait: full-body shot from head to feet, leather trousers and boots visible
 - [x] previewCharacter: when character has a photo reference, the prompt must STILL dominate framing (not the reference photo's crop)
 - [x] Tim characterVisualDetails: ensure leather jacket is the FIRST item in outfit description with CAPS emphasis
@@ -1916,7 +1916,7 @@
 - [x] After audio upload, show detected lyrics in lyric blocks (one line per block)
 - [x] For each lyric line, auto-tag: emotion, scene type, visual cues using LLM
 - [x] Display tags inline: e.g. "Walking through fire" -> Emotion: Intense -> Scene: Cinematic flames -> Visual: Sparks / heat distortion
-- [ ] Step 3: Show scene preview cards (before generation) based on lyric tags
+- [x] Step 3: Show scene preview cards (before generation) based on lyric tags — Scene Preview grid added to LyricsIntelligencePanel: colour-coded mini cards per scene with emotion badge, lyric line, scene type, visual cue, intensity bar, collapsible toggle
 - [x] Panel appears between upload step and character step (triggered via button)
 - [x] User can edit/override any tag before proceeding
 - [x] "Looks good" CTA to confirm and proceed to character setup

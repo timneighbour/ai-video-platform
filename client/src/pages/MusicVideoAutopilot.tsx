@@ -19,7 +19,7 @@ import FirstRenderCelebrationModal, { hasSeenFirstRenderCelebration } from "@/co
 import { RenderPaywallModal } from "@/components/RenderPaywallModal";
 import { WizGenesisModal } from "@/components/WizGenesisModal";
 import { PostRenderRetentionScreen } from "@/components/PostRenderRetentionScreen";
-import LyricsIntelligencePanel from "@/components/LyricsIntelligencePanel";
+import { LyricsIntelligencePanel } from "@/components/LyricsIntelligencePanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -1883,7 +1883,7 @@ export default function MusicVideoAutopilot() {
           genre={genre}
           mood={mood}
           style={selectedStyle}
-          onConfirm={(blocks) => {
+          onConfirm={(blocks: import("@/components/LyricsIntelligencePanel").LyricBlock[]) => {
             console.log("[LyricsIntelligence] Confirmed blocks:", blocks.length);
             setShowLyricsIntelligence(false);
             toast.success(`${blocks.length} lyric blocks analysed`, { description: "AI has mapped emotions and visual cues for your lyrics." });
