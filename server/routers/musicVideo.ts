@@ -376,12 +376,43 @@ Rules:
             } catch (structErr) {
               console.warn(`[MusicVideo] Structured visual extraction failed for ${char.name}:`, structErr);
             }
+            // ── Role-derived instrument fallback ──────────────────────────────────
+            // If the photo analysis returned null for instrumentModel (headshot with no instrument),
+            // derive the instrument from the character's role field so it's always injected into prompts.
+            if (!structuredVisualDetails.instrumentModel && char.role) {
+              const roleLower = char.role.toLowerCase();
+              if (roleLower.includes("guitar") || roleLower.includes("guitarist")) {
+                structuredVisualDetails.instrumentModel = "Gibson Les Paul Standard electric guitar";
+                if (!structuredVisualDetails.instrumentColour) structuredVisualDetails.instrumentColour = "sunburst";
+                if (!structuredVisualDetails.instrumentFinish) structuredVisualDetails.instrumentFinish = "gold hardware";
+              } else if (roleLower.includes("bass")) {
+                structuredVisualDetails.instrumentModel = "Fender Precision Bass";
+                if (!structuredVisualDetails.instrumentColour) structuredVisualDetails.instrumentColour = "sunburst";
+                if (!structuredVisualDetails.instrumentFinish) structuredVisualDetails.instrumentFinish = "chrome hardware";
+              } else if (roleLower.includes("drum") || roleLower.includes("percus")) {
+                structuredVisualDetails.instrumentModel = "Pearl Export drum kit";
+                if (!structuredVisualDetails.instrumentColour) structuredVisualDetails.instrumentColour = "black";
+                if (!structuredVisualDetails.instrumentFinish) structuredVisualDetails.instrumentFinish = "chrome hardware";
+              } else if (roleLower.includes("piano") || roleLower.includes("keyboard") || roleLower.includes("keys")) {
+                structuredVisualDetails.instrumentModel = "Roland stage piano keyboard";
+                if (!structuredVisualDetails.instrumentColour) structuredVisualDetails.instrumentColour = "black";
+                if (!structuredVisualDetails.instrumentFinish) structuredVisualDetails.instrumentFinish = "gloss black";
+              } else if (roleLower.includes("violin") || roleLower.includes("fiddle")) {
+                structuredVisualDetails.instrumentModel = "acoustic violin";
+                if (!structuredVisualDetails.instrumentColour) structuredVisualDetails.instrumentColour = "natural wood";
+                if (!structuredVisualDetails.instrumentFinish) structuredVisualDetails.instrumentFinish = "varnished";
+              }
+              if (structuredVisualDetails.instrumentModel) {
+                console.log(`[MusicVideo] Role-derived instrument for ${char.name}: ${structuredVisualDetails.instrumentModel} (from role: "${char.role}")`);
+              }
+            }
             // Merge with any existing characterVisualDetails
+            // Existing visual details (user-set) take precedence over photo-derived ones
             let existingVisual: Record<string, string> = {};
             if (char.characterVisualDetails) {
               try { existingVisual = JSON.parse(char.characterVisualDetails); } catch {}
             }
-            const mergedVisual = { ...existingVisual, ...structuredVisualDetails };
+            const mergedVisual = { ...structuredVisualDetails, ...existingVisual };
             await db.update(videoCharacters)
               .set({ isLocked: true, lockedDescription: description.trim(), characterVisualDetails: JSON.stringify(mergedVisual), updatedAt: new Date() })
               .where(eq(videoCharacters.id, char.id));

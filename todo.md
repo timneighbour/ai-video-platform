@@ -1419,9 +1419,9 @@
 
 ## Session 26 - Character Consistency Bugs (Regression)
 - [x] Fix random extra musicians appearing in multi-character scenes (added ONLY constraint to render prompt)
-- [ ] Fix Tim being shown playing bass in scenes where he should be playing guitar (instrument assignment wrong — AI model compliance issue, prompt-level fix applied)
-- [ ] Investigate whether character locked descriptions include instrument info and if it's being respected
-- [ ] Investigate whether scene prompts are overriding character instrument assignments
+- [x] Fix Tim being shown playing bass in scenes where he should be playing guitar — root cause: photo analysis returned null instrumentModel for headshots; fixed with role-derived instrument fallback in musicVideo.ts lockCharacter flow
+- [x] Investigate whether character locked descriptions include instrument info — confirmed: photo analysis returns null for headshots; role-derived fallback now populates instrumentModel from char.role string
+- [x] Investigate whether scene prompts are overriding character instrument assignments — confirmed: buildVisualBlock correctly injects instrumentModel; root cause was null instrumentModel from headshot analysis, now fixed
 
 ## Session 26 - Character Description Quality Fix
 - [x] Auto re-analyse character photos on storyboard generation when lockedDescription is short (< 150 chars) and photos exist
