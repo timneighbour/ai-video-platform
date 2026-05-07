@@ -7211,7 +7211,7 @@
 - [x] WizAnimate: Locked character stores preview image URL — charPreviewUrls stored in state, passed to storyboard generator as visual anchor
 - [ ] WizAnimate: Full immersive redesign — 380px hero, amber/gold palette, ambient dimmer, VU meters, "ANIMATION STUDIO" title
 - [ ] WizAnimate: Restructure to 4 steps: Audio → Characters+Style → Story+Lyrics → Render
-- [ ] WizAnimate: Character card shows role field and willSing toggle
+- [x] WizAnimate: Character card shows role field (Performance Role input) and willSing toggle (WizSync™ lip-sync toggle) — added to KidsVideo.tsx character cards, passed into charSummary prompt
 - [x] WizAnimate: Fix title from "ANIMATION DIRECTOR" to "ANIMATION STUDIO"
 - [x] WizAnimate: Expand hero from 200px to 400px with brightness 0.65 (studio monitors visible)
 - [x] WizAnimate: Add ambient dimmer slider in hero (controls studio background brightness)

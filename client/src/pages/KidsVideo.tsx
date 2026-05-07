@@ -77,6 +77,8 @@ interface Character {
   gender: "male" | "female" | "neutral";
   photoUrl: string | null;
   locked: boolean;
+  role: string;       // e.g. "Lead Guitarist", "Drummer", "Backing Vocalist"
+  willSing: boolean;  // Whether this character lip-syncs/sings in the video
 }
 
 // ─── Scene edit type (post-render) ────────────────────────────────────────────
@@ -201,6 +203,8 @@ export default function KidsVideo() {
       gender: newCharGender,
       photoUrl: null,
       locked: false,
+      role: "",
+      willSing: false,
     }]);
     setNewCharName("");
     setNewCharDesc("");
@@ -348,7 +352,10 @@ export default function KidsVideo() {
     const leadChar = characters.find(c => c.id === leadCharacterId);
     const charSummary = characters.map(c => {
       const isLead = c.id === leadCharacterId;
-      return `${c.name} (${c.gender}${isLead ? ", LEAD VOCALIST/SINGER" : ""}) — ${c.description}`;
+      const roleTag = c.role ? `, ${c.role}` : "";
+      const singsTag = c.willSing ? ", SINGS/LIP-SYNCS" : "";
+      const leadTag = isLead ? ", LEAD VOCALIST/SINGER" : "";
+      return `${c.name} (${c.gender}${roleTag}${leadTag}${singsTag}) — ${c.description}`;
     }).join("; ");
     const fullPrompt = [
       `${selectedStyleLabel} animated video:`,
@@ -440,6 +447,8 @@ export default function KidsVideo() {
       gender: (libChar.gender as "male" | "female" | "neutral") ?? "neutral",
       photoUrl: libChar.photoUrl ?? null,
       locked: false,
+      role: "",
+      willSing: false,
     }]);
     if (libChar.previewUrl) {
       setCharPreviewUrls(prev => ({ ...prev, [newId]: libChar.previewUrl! }));
@@ -1071,6 +1080,47 @@ export default function KidsVideo() {
                       </div>
                     </div>
 
+                    {/* Role field */}
+                    <div style={{ marginBottom: 10 }}>
+                      <div style={{ fontSize: 10, color: "#555", fontWeight: 700, letterSpacing: "0.8px", marginBottom: 6, textTransform: "uppercase" }}>
+                        Performance Role
+                      </div>
+                      <input
+                        value={char.role}
+                        onChange={e => updateCharacter(char.id, { role: e.target.value })}
+                        placeholder="e.g. Lead Guitarist, Drummer, Backing Vocalist"
+                        disabled={char.locked}
+                        style={{
+                          width: "100%", background: "#141414", border: "1px solid #2a2a2a",
+                          borderRadius: 6, color: char.locked ? "#555" : "#bbb", fontSize: 12,
+                          padding: "7px 10px", fontFamily: "inherit", outline: "none",
+                          boxSizing: "border-box",
+                        }}
+                      />
+                    </div>
+                    {/* willSing toggle */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10, padding: "8px 10px", background: char.willSing ? "rgba(212,168,67,0.08)" : "#0d0d0d", borderRadius: 6, border: `1px solid ${char.willSing ? GOLD_BORDER : "#1e1e1e"}` }}>
+                      <button
+                        onClick={() => !char.locked && updateCharacter(char.id, { willSing: !char.willSing })}
+                        disabled={char.locked}
+                        style={{
+                          width: 36, height: 20, borderRadius: 10, border: "none", cursor: char.locked ? "not-allowed" : "pointer",
+                          background: char.willSing ? GOLD : "#2a2a2a",
+                          position: "relative", flexShrink: 0, transition: "background 0.2s",
+                        }}
+                        title={char.willSing ? "Click to disable lip-sync for this character" : "Click to enable lip-sync/singing for this character"}
+                      >
+                        <span style={{
+                          position: "absolute", top: 2, left: char.willSing ? 18 : 2,
+                          width: 16, height: 16, borderRadius: "50%", background: "#fff",
+                          transition: "left 0.2s",
+                        }} />
+                      </button>
+                      <div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: char.willSing ? GOLD : "#555" }}>🎤 Sings / Lip-Syncs</div>
+                        <div style={{ fontSize: 10, color: "#444" }}>Enable WizSync™ lip-sync for this character</div>
+                      </div>
+                    </div>
                     <textarea
                       value={char.description}
                       onChange={e => updateCharacter(char.id, { description: e.target.value })}
