@@ -118,8 +118,8 @@ export default function CreditPricingGuide() {
           </div>
         </Section>
 
-        {/* Music Video Autopilot pricing */}
-        <Section title="🎵 Music Video Autopilot (WizPilot)">
+        {/* WizPilot pricing */}
+        <Section title="🎵 WizPilot™ — Music Video Creation">
           <p className="text-gray-300 mb-4 leading-relaxed">
             WizPilot creates one AI-rendered scene per section of your song. Longer tracks = more scenes = more AI compute. The tiered pricing reflects the real cost of production — and the quality you receive.
           </p>
@@ -172,7 +172,7 @@ export default function CreditPricingGuide() {
             {[
               {
                 icon: <Film className="w-5 h-5" />,
-                name: "WizVideo / Autopilot",
+                name: "WizVideo™ / WizPilot™",
                 description: "AI-generated video from a text prompt",
                 cost: "30–90 credits depending on duration",
                 detail: "Up to 60s = 30 cr · Up to 120s = 60 cr · Up to 180s = 90 cr",

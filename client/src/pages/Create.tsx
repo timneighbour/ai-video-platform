@@ -171,7 +171,7 @@ const UTILITY_TOOLS: Tool[] = [
   {
     id: "autopilot",
     name: getProduct("wizpilot")!.name,
-    badge: "AI Autopilot",
+    badge: "WizPilot™",
     badgeStyle: "blue",
     tagline: getProduct("wizpilot")!.tagline,
     description: getProduct("wizpilot")!.shortDesc,

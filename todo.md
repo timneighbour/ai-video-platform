@@ -7072,11 +7072,11 @@
 
 ## Launch Priorities (May 2026 — Tim Approved)
 
-- [ ] Branding consistency audit across all pages and components
-- [ ] Fix all logo/trademark inconsistencies (WIZ AI, WizVideo™, WizSync™, Scene Director™, Character Lock™, Lyric-Aware Storyboarding™, Preview Before Download™, Quality Guarantee™)
+- [x] Branding consistency audit across all pages and components — completed
+- [x] Fix all logo/trademark inconsistencies — "AI Autopilot" badge → "WizPilot™" in Create.tsx; CreditPricingGuide section headers updated; WIZ AI capitalisation confirmed correct
 - [x] Push hero USPs: Character Lock™, Real Lip Sync, Lyric-Aware Storyboarding™, Scene Director™, Preview Before Download™ across homepage, onboarding, pricing, product pages — done
 - [x] Remove "AI video generation" language — replaced with cinematic/director-level/Character Lock™ language across all product pages and WatchPage
-- [ ] Add Timeline & Lyric Awareness UI (lyric section, scene timestamps, verse/chorus/bridge markers, emotional arc)
+- [x] Add Timeline & Lyric Awareness UI — LyricTimelineBar component fully implemented with Intro/Verse/Pre-Chorus/Chorus/Bridge/Outro colour-coded segments, timestamps, legend, integrated in MusicVideoAutopilot.tsx
 - [ ] Instrument Accuracy Layer (reference instrument upload, performance-aware prompt injection)
 - [ ] Marketing assets expansion (Character Lock™ before/after, lyric-aware, lip sync, rerender workflow, multi-character, instrument accuracy, Meta/TikTok/Instagram formats)
 - [ ] Final launch readiness report with all assets
@@ -7202,13 +7202,13 @@
 - [x] WizAnimate: Make preview/review/scene-editing all FREE - only final render costs credits
 - [x] WizVideo (text-to-video): Inline video preview already implemented in done step (video player + download + open buttons)
 - [x] Music Video: Add full inline video preview after generation with scene review panel
-- [ ] All video products: Enforce cost model - preview is FREE, only generation costs credits
+- [x] All video products: Cost model enforced — storyboard/preview is FREE, credits only charged on final render (confirmed in billing router + UI)
 
 ## WizAnimate Character Preview & Lock System
-- [ ] WizAnimate: Add generateCharacterPreview procedure to kidsVideo router — takes photo URL + style + description, returns AI-styled preview image
-- [ ] WizAnimate: Character card "Preview in Style" button — generates AI preview of character in chosen animation style
-- [ ] WizAnimate: Character preview regeneration loop — user adjusts description until preview matches, then locks
-- [ ] WizAnimate: Locked character stores preview image URL as visual consistency anchor for all scenes
+- [x] WizAnimate: Add generateCharacterPreview procedure to kidsVideo router — already implemented in kidsVideo.ts (line 668), takes photoUrl + style + description, returns previewUrl
+- [x] WizAnimate: Character card "Preview in Style" button — already in KidsVideo.tsx, uses charPreviewMutation
+- [x] WizAnimate: Character preview regeneration loop — already implemented: user can regenerate preview, adjust description, then lock character
+- [x] WizAnimate: Locked character stores preview image URL — charPreviewUrls stored in state, passed to storyboard generator as visual anchor
 - [ ] WizAnimate: Full immersive redesign — 380px hero, amber/gold palette, ambient dimmer, VU meters, "ANIMATION STUDIO" title
 - [ ] WizAnimate: Restructure to 4 steps: Audio → Characters+Style → Story+Lyrics → Render
 - [ ] WizAnimate: Character card shows role field and willSing toggle
@@ -7247,7 +7247,7 @@
 - [x] Character Library: Add from Library picker in WizAnimate Characters step
 - [x] Character Library: Save to Library button in WizImage after image generation
 - [x] Character Library: Premium Air Studio aesthetic — dark luxury, amber/gold accents, cinematic character cards
-- [ ] Character Library: Add Save to Library button in Music Video character step
+- [x] Character Library: Add Save to Library button in Music Video character step — added to locked character cards in MusicVideoAutopilot.tsx
 
 ## Creative Studios System (My Studios) - COMPLETED
 - [x] creativeProfiles DB table (name, type, avatar, colour, bio, isDefault)
@@ -7282,15 +7282,15 @@
 
 ## WizAnimate Improvements (May 2026)
 - [x] Fix prompt 1000-char Zod limit — raised to 5000 chars in kidsVideo.ts generateCharacterPreview (billing.ts, musicVideo.ts, wizImage.ts already at 5000)
-- [ ] Add Auto scene count — AI calculates optimal scenes from audio duration + storyline complexity
-- [ ] Add Save Storyboard — savedStoryboards DB table, save/load tRPC procedures, UI in KidsVideo.tsx
+- [x] Add Auto scene count — already implemented: autoSceneCount toggle + effectiveSceneCount = Math.min(25, Math.max(4, Math.round(audioDuration / 8)))
+- [x] Add Save Storyboard — already implemented: savedStoryboards DB table, save/load tRPC procedures, UI button in KidsVideo.tsx
 
 ## WizAnimate Phase 2 Improvements (May 2026)
-- [ ] Fix broken generateMutation.mutate syntax from sceneCount edit
-- [ ] Add Auto scene count UI — Auto button in scene stepper, calculated from audio duration
-- [ ] Add singer/lead character selector — mark one character as lead vocalist
-- [ ] Add inline storyboard preview step — AI scene descriptions after brief+lyrics, per-scene edit
-- [ ] Add Save Storyboard — savedStoryboards DB table, tRPC save/load, UI button
+- [x] Fix broken generateMutation.mutate syntax from sceneCount edit — confirmed working, no syntax error
+- [x] Add Auto scene count UI — AUTO toggle button already in KidsVideo.tsx scene stepper, effectiveSceneCount calculated from audioDuration
+- [x] Add singer/lead character selector — leadCharacterId state + "🎤 Set as Lead" button already in KidsVideo.tsx, passed to storyboard generator
+- [x] Add inline storyboard preview step — already implemented: storyboard step in KidsVideo.tsx shows AI scene descriptions with per-scene edit capability
+- [x] Add Save Storyboard — saveMutation (trpc.kidsVideo.saveStoryboard) + "💾 Save Storyboard" button already in KidsVideo.tsx storyboard step
 
 ## WizAI Worlds Brand Film — Homepage Integration
 - [x] Upload WizAiWorldsVideo.mp4 (4K, 50s, re-edited by Tim) to CDN

@@ -559,6 +559,10 @@ export default function MusicVideoAutopilot() {
   const saveCharactersMutation = trpc.characters.saveCharacters.useMutation();
   const lockCharacterMutation = trpc.characters.lockCharacter.useMutation();
   const analysePhotoMutation = trpc.characters.analysePhoto.useMutation();
+  const saveCharToLibraryMutation = trpc.characterLibrary.save.useMutation({
+    onSuccess: (_, variables) => toast.success(`“${variables.name}” saved to your Character Library!`),
+    onError: (e) => toast.error(`Failed to save: ${e.message}`),
+  });
   const generateMasterPortraitMutation = trpc.musicVideo.generateMasterPortrait.useMutation();
   const updateSceneLipSyncMutation = trpc.musicVideo.updateSceneLipSync.useMutation();
   const updateAllScenesLipSyncMutation = trpc.musicVideo.updateAllScenesLipSync.useMutation();
@@ -3535,6 +3539,23 @@ export default function MusicVideoAutopilot() {
                             {char.lockedDescription.slice(0, 70)}{char.lockedDescription.length > 70 ? "…" : ""}
                           </p>
                         )}
+                        {/* Save to Character Library */}
+                        <button
+                          className="mt-2 flex items-center gap-1 text-[10px] text-[--color-gold]/60 hover:text-[--color-gold] transition-colors"
+                          onClick={() => saveCharToLibraryMutation.mutate({
+                            name: char.name,
+                            description: char.lockedDescription || undefined,
+                            gender: "neutral" as const,
+                            animStyle: "music_video",
+                            photoUrl: char.primaryPhotoUrl || undefined,
+                            tags: "music-video,wizpilot",
+                          })}
+                          disabled={saveCharToLibraryMutation.isPending}
+                          title="Save this character to your Character Library for reuse in future projects"
+                        >
+                          <BookmarkCheck className="w-3 h-3" />
+                          {saveCharToLibraryMutation.isPending ? "Saving…" : "Save to Library"}
+                        </button>
                       </div>
                     </div>
                     );
