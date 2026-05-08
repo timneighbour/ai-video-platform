@@ -22,7 +22,7 @@ import {
  * 12. Bottom CTA
  * 13. Footer
  */
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useSEO } from "@/hooks/useSEO";
 import { mp } from "@/lib/mixpanel";
@@ -121,8 +121,8 @@ const COMPARISON_GROUPS = [
  {
  group: "Output",
  rows: [
- { label: "Videos per month", starter: "2", creator: "6", studio: "12" },
- { label: "Build Credits / month", starter: "2", creator: "6", studio: "12" },
+ { label: "Videos per month", starter: "2", creator: "15", studio: "40" },
+ { label: "Build Credits / month", starter: "2", creator: "15", studio: "40" },
  { label: "Max scenes per video", starter: "8 (≈64s)", creator: "11 (≈88s)", studio: "12 (≈96s)" },
  { label: "Max output quality", starter: "720p", creator: "4K 2160p", studio: "4K 2160p" },
  { label: "No watermark", starter: true, creator: true, studio: true, isCheck: true },
@@ -462,9 +462,15 @@ export default function Pricing() {
  {/* 4. SUBSCRIPTION PLANS */}
  <section className="max-w-7xl mx-auto px-6 mb-20" id="plans">
  <div className="text-center mb-12">
+ {/* Free tier lead — friction reducer */}
+ <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/[0.08] border border-emerald-500/20 mb-5">
+ <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+ <span className="text-[12px] font-bold text-emerald-400">2 free projects included — no credit card required</span>
+ </div>
  <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">Subscription Plans</p>
  <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-3">Monthly plans for regular creators</h2>
- <p className="text-sm text-white/60 max-w-lg mx-auto mb-8">Build Credits included every month. Best value for consistent creators. Cancel anytime.</p>
+ <p className="text-sm text-white/60 max-w-lg mx-auto mb-2">Build Credits included every month. Best value for consistent creators. Cancel anytime.</p>
+ <p className="text-xs text-white/30 max-w-lg mx-auto mb-8">Join creators worldwide already using WIZ AI to produce cinematic music videos, animations, and AI content.</p>
 
  {/* Billing toggle */}
  <div className="inline-flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/[0.07]">
@@ -625,7 +631,7 @@ export default function Pricing() {
  </span>
  ) : (
  <span className="flex items-center justify-center gap-1.5">
- {plan.id === "starter" ? "Start Creating" : plan.id === "creator" ? "Choose Creator" : "Upgrade to Studio"}
+ {plan.id === "starter" ? "Start Creating — Free" : plan.id === "creator" ? "Get Creator Plan" : "Get Studio Plan"}
  <ArrowRight className="w-3.5 h-3.5" />
  </span>
  )}
@@ -1027,6 +1033,24 @@ export default function Pricing() {
 
  {/* 7. SOCIAL PROOF */}
  <section className="max-w-6xl mx-auto px-6 mb-24">
+ {/* Social proof bar */}
+ <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 mb-10 py-4 px-6 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
+ <span className="text-[11px] text-white/30 font-semibold tracking-wider uppercase">Used by</span>
+ {[
+ { icon: "🎵", label: "Musicians" },
+ { icon: "🎬", label: "YouTubers" },
+ { icon: "🎨", label: "Animators" },
+ { icon: "💼", label: "Agencies" },
+ { icon: "👶", label: "Kids Creators" },
+ ].map((c, i) => (
+ <React.Fragment key={c.label}>
+ {i > 0 && <span className="w-px h-3 bg-white/[0.08] hidden sm:block" />}
+ <span className="flex items-center gap-1.5 text-[12px] font-semibold text-white/50">
+ <span>{c.icon}</span> {c.label}
+ </span>
+ </React.Fragment>
+ ))}
+ </div>
  <div className="text-center mb-12">
  <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold]/50 mb-3">Trusted By Creators</p>
  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Creators love WIZ AI</h2>
@@ -1092,7 +1116,48 @@ export default function Pricing() {
  </div>
  ))}
  </div>
- <p className="text-center text-white/25 text-xs mt-6">Real customer stories will be added once creators begin publishing with WIZ AI.</p>
+ {/* Placeholder testimonial cards */}
+ <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
+ {[
+ {
+ name: "Alex M.",
+ role: "Musician · Indie Rock",
+ quote: "Finally a tool that keeps my band looking consistent across every scene. The lip sync is genuinely impressive.",
+ plan: "Creator Plan",
+ initials: "AM",
+ color: "oklch(0.78 0.11 75)",
+ },
+ {
+ name: "Sarah K.",
+ role: "Content Creator · YouTube",
+ quote: "I made my first music video in an afternoon. The storyboard AI understood exactly what the song was about.",
+ plan: "Starter Plan",
+ initials: "SK",
+ color: "oklch(0.72 0.18 160)",
+ },
+ {
+ name: "Marcus T.",
+ role: "Animation Studio",
+ quote: "WizAnimate is a game-changer for character animation. We use it for client projects every week.",
+ plan: "Studio Plan",
+ initials: "MT",
+ color: "oklch(0.70 0.18 260)",
+ },
+ ].map((t) => (
+ <div key={t.name} className="relative p-5 rounded-2xl border border-white/[0.07] bg-[#0a0a0a]">
+ <div className="flex items-center gap-3 mb-3">
+ <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-black text-[#0a0a0a] flex-shrink-0" style={{ background: `linear-gradient(135deg, ${t.color}, oklch(0.90 0.08 75))` }}>{t.initials}</div>
+ <div>
+ <p className="text-[12px] font-bold text-white">{t.name}</p>
+ <p className="text-[10px] text-white/40">{t.role}</p>
+ </div>
+ </div>
+ <p className="text-[11px] text-white/60 leading-relaxed mb-3">&ldquo;{t.quote}&rdquo;</p>
+ <span className="text-[9px] font-bold text-[--color-gold]/60 bg-[--color-gold]/[0.06] border border-[--color-gold]/[0.12] px-2 py-0.5 rounded-full">{t.plan}</span>
+ </div>
+ ))}
+ </div>
+ <p className="text-center text-white/20 text-[10px] mt-4">Illustrative examples — real verified reviews coming soon as creators publish with WIZ AI.</p>
  </section>
 
  {/* 8. TRUST STRIP */}

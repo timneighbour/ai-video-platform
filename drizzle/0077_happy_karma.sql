@@ -1,0 +1,1 @@
+ALTER TABLE `blogPosts` MODIFY COLUMN `author` varchar(255) NOT NULL DEFAULT 'WIZ AI Team';

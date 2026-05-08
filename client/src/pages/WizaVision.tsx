@@ -116,6 +116,28 @@ export default function WizaVision() {
 
   return (
     <div className="min-h-screen bg-[#070710] text-white">
+      {/* Minimal sticky nav — escape route back to WIZ AI */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 py-3" style={{ background: "rgba(7,7,16,0.88)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="flex items-center gap-3">
+          <a href="/" className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors text-sm font-medium">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><path d="M10 3L5 8l5 5" /></svg>
+            WIZ AI
+          </a>
+          <span className="text-white/20 text-sm">/</span>
+          <span className="text-[#b8892a] font-bold text-sm tracking-wide">WizaVision</span>
+        </div>
+        <div className="flex items-center gap-3">
+          {user ? (
+            <a href="/dashboard" className="text-sm font-semibold text-white/50 hover:text-white transition-colors">Dashboard</a>
+          ) : (
+            <a href={getLoginUrl()} className="text-sm font-semibold text-white/50 hover:text-white transition-colors">Sign In</a>
+          )}
+          <Button size="sm" className="bg-[#b8892a] hover:bg-[#a07820] text-black font-bold text-xs px-4 h-8"
+            onClick={() => { window.location.href = user ? "/wizavision/publish" : getLoginUrl(); }}>
+            Publish
+          </Button>
+        </div>
+      </nav>
       <div className="relative min-h-[65vh] flex items-end overflow-hidden">
         <div className="absolute inset-0">
           {heroVideo?.thumbnailUrl ? (

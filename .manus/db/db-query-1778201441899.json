@@ -1,0 +1,31 @@
+{
+  "query": "SELECT id, title, excerpt, author, coverImage FROM blogPosts ORDER BY createdAt DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT id, title, excerpt, author, coverImage FROM blogPosts ORDER BY createdAt DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "2",
+      "title": "WizSound™: The Cinematic Audio Engine Behind Every WizVid Video",
+      "excerpt": "Discover how WizSound™ transforms raw audio into an immersive, studio-quality cinematic experience — and why it makes WizVid videos sound different.",
+      "author": "WizVid Team",
+      "coverImage": "https://d2xsxph8kpxj0f.cloudfront.net/wizvid/wizsound-waveform.jpg"
+    },
+    {
+      "id": "3",
+      "title": "7 AI Music Video Styles You Can Create with WizVid",
+      "excerpt": "From Pixar-style animation to epic cinematic films — explore the 7 video styles available in WizVid and find the perfect look for your music.",
+      "author": "WizVid Team",
+      "coverImage": "https://d2xsxph8kpxj0f.cloudfront.net/wizvid/style-collage.jpg"
+    },
+    {
+      "id": "1",
+      "title": "How to Create a Cinematic Music Video with AI in Under 5 Minutes",
+      "excerpt": "Learn how WizVid turns your song or idea into a full cinematic music video — storyboard, scenes, and final render — all in one place.",
+      "author": "WizVid Team",
+      "coverImage": "https://d2xsxph8kpxj0f.cloudfront.net/wizvid/whos-it-for-musicians.jpg"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\texcerpt\tauthor\tcoverImage\n2\tWizSound™: The Cinematic Audio Engine Behind Every WizVid Video\tDiscover how WizSound™ transforms raw audio into an immersive, studio-quality cinematic experience — and why it makes WizVid videos sound different.\tWizVid Team\thttps://d2xsxph8kpxj0f.cloudfront.net/wizvid/wizsound-waveform.jpg\n3\t7 AI Music Video Styles You Can Create with WizVid\tFrom Pixar-style animation to epic cinematic films — explore the 7 video styles available in WizVid and find the perfect look for your music.\tWizVid Team\thttps://d2xsxph8kpxj0f.cloudfront.net/wizvid/style-collage.jpg\n1\tHow to Create a Cinematic Music Video with AI in Under 5 Minutes\tLearn how WizVid turns your song or idea into a full cinematic music video — storyboard, scenes, and final render — all in one place.\tWizVid Team\thttps://d2xsxph8kpxj0f.cloudfront.net/wizvid/whos-it-for-musicians.jpg\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

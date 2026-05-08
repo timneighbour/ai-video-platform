@@ -625,7 +625,7 @@ export const blogPosts = mysqlTable("blogPosts", {
   excerpt: text("excerpt"),
   content: longtext("content").notNull(),
   coverImage: varchar("coverImage", { length: 1024 }),
-  author: varchar("author", { length: 255 }).default("WizVid Team").notNull(),
+  author: varchar("author", { length: 255 }).default("WIZ AI Team").notNull(),
   status: mysqlEnum("status", ["draft", "published"]).default("draft").notNull(),
   tags: text("tags"), // JSON-encoded string array
   metaTitle: varchar("metaTitle", { length: 512 }),

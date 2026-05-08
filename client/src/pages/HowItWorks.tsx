@@ -360,7 +360,7 @@ export default function HowItWorks() {
             }}>Build your audience.</span>
           </h2>
           <p className="text-white/42 text-lg mb-10 max-w-xl mx-auto leading-relaxed">
-            After buildinging, WizBoost connects your content to real viewers, creators, and fans — helping you grow while you create.
+            After building, WizBoost connects your content to real viewers, creators, and fans — helping you grow while you create.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             {[

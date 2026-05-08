@@ -622,6 +622,7 @@ function Nav() {
  </div>
  </NavDropdown>
  </div>
+ <a href="/music-videos" className="nav-link" style={{ color: "oklch(0.78 0.11 75 / 0.75)" }} onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.88 0.11 75 / 1)"; }} onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.78 0.11 75 / 0.75)"; }}>WizVideo</a>
  <a href="/pricing" className="nav-link">Pricing</a>
  <a href="/help" className="nav-link">Help</a>
  </div>
@@ -923,10 +924,10 @@ function Hero() {
  <HeroCinematicBg mouseX={mousePos.x} mouseY={mousePos.y} />
 
  {/* Content */}
- <div className="relative z-10 max-w-7xl mx-auto px-6 pt-[96px] pb-24 w-full">
+ <div className="relative z-10 max-w-7xl mx-auto px-6 pt-[80px] pb-16 w-full">
  <div className="max-w-3xl">
  {/* Eyebrow */}
- <div className="inline-flex flex-wrap items-center gap-2 px-3 sm:px-5 py-2 rounded-full border border-[--color-gold]/[0.18] bg-[--color-gold]/[0.04] backdrop-blur-sm mb-8 shadow-[0_0_24px_rgba(196,164,100,0.08)]">
+ <div className="inline-flex flex-wrap items-center gap-2 px-3 sm:px-5 py-2 rounded-full border border-[--color-gold]/[0.18] bg-[--color-gold]/[0.04] backdrop-blur-sm mb-5 shadow-[0_0_24px_rgba(196,164,100,0.08)]">
  <span className="relative flex items-center justify-center w-2 h-2">
  <span className="absolute w-full h-full rounded-full bg-[--color-gold] animate-ping opacity-60" style={{ animationDuration: "2s" }} />
  <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold]" />
@@ -937,26 +938,27 @@ function Hero() {
  </div>
 
  {/* Headline */}
- <h1 className="text-[clamp(2.8rem,7.5vw,5.5rem)] font-black leading-[0.93] tracking-tight text-white mb-4">Direct. Create.<br />
+ <h1 className="text-[clamp(2.6rem,7vw,5rem)] font-black leading-[0.93] tracking-tight text-white mb-3">Direct. Create.<br />
  <span className="metallic-gold">Produce. Own It.</span>
  </h1>
  {/* Emotional hook */}
- <p className="text-[clamp(1.05rem,1.9vw,1.25rem)] font-semibold leading-snug max-w-xl mb-6" style={{ color: "oklch(0.82 0.12 72)" }}>
+ <p className="text-[clamp(1rem,1.8vw,1.2rem)] font-semibold leading-snug max-w-xl mb-4" style={{ color: "oklch(0.82 0.12 72)" }}>
  AI-directed music video production software with director-level control.
  </p>
  {/* Subheadline */}
- <p className="text-[clamp(0.9rem,1.5vw,1.05rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-8">Set the scene. Direct every shot. Control lip sync, camera angles, and character consistency — then build a cinematic music video that is entirely yours.
+ <p className="text-[clamp(0.875rem,1.4vw,1rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-6">Set the scene. Direct every shot. Control lip sync, camera angles, and character consistency — then build a cinematic music video that is entirely yours.
  </p>
 
  {/* CTAs */}
- <div className="relative z-20 flex flex-wrap items-center gap-4 mb-12">
+ <div className="relative z-20 mb-8">
+ <div className="flex flex-wrap items-center gap-4 mb-2">
  <a
  href="/onboarding"
  className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
  style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
  onClick={() => { mp.heroCTAClicked?.(); mp.startCreatingClicked("hero"); }}
  >
- <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />Start Creating — Free
+ <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />Create Your First Video — Free
  </a>
  <a
  href="#products"
@@ -1030,6 +1032,11 @@ function Hero() {
  {/* Arrow */}
  <ChevronRight className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:translate-x-1" style={{ color: "rgba(196,164,100,0.70)" }} />
  </button>
+ </div>
+ {/* No card required — directly below primary CTA */}
+ <p className="text-[11px] text-white/35 font-medium">
+ <span className="text-green-400/80">✓</span> No credit card required · <span className="text-green-400/80">✓</span> 2 free projects included · <span className="text-green-400/80">✓</span> Cancel anytime
+ </p>
  </div>
 
  {/* Proof strip — studio-grade capabilities */}

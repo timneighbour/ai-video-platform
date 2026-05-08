@@ -7300,3 +7300,27 @@
 - [x] Add gold accent top bar, ambient space glow, pulsing play button, sound toggle, audience tags
 - [x] Add wizWorldsPulse keyframe animation to index.css
 - [x] Section headline: "If ever there was a Wiz…" with sub-copy targeting musicians/filmmakers/animators
+
+## Audit & Polish Fixes (May 8, 2026)
+- [x] Fix Pricing page crash (missing React import)
+- [x] Fix Pricing comparison table data inconsistency (2/6/12 → 2/15/40 Build Credits)
+- [x] Fix typo "buildinging" in HowItWorks.tsx
+- [x] Fix Member Since date format to en-GB locale in Account.tsx
+- [x] Add WIZVIDEO nav link to Home.tsx desktop nav (was missing, present in PublicNavBar)
+- [x] Add sticky nav bar to WizaVision page (no escape route previously)
+- [x] Fix blog post WizVid references → WIZ AI in database
+- [x] Fix broken blog post cover images (old CloudFront URLs → working CDN URLs)
+- [x] Update blog post author from "WizVid Team" to "WIZ AI Team"
+- [x] Update blogPosts schema default author from "WizVid Team" to "WIZ AI Team"
+
+## Audit & Polish Fixes (May 8, 2026)
+- [x] Fix Pricing page crash (missing React import)
+- [x] Fix Pricing comparison table data inconsistency (2/6/12 → 2/15/40 Build Credits)
+- [x] Fix typo "buildinging" in HowItWorks.tsx
+- [x] Fix Member Since date format to en-GB locale in Account.tsx
+- [x] Add WIZVIDEO nav link to Home.tsx desktop nav (was missing, present in PublicNavBar)
+- [x] Add sticky nav bar to WizaVision page (no escape route previously)
+- [x] Fix blog post WizVid references → WIZ AI in database
+- [x] Fix broken blog post cover images (old CloudFront URLs → working CDN URLs)
+- [x] Update blog post author from "WizVid Team" to "WIZ AI Team"
+- [x] Update blogPosts schema default author from "WizVid Team" to "WIZ AI Team"

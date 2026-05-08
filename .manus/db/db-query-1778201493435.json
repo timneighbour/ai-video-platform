@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `blogPosts` MODIFY COLUMN `author` varchar(255) NOT NULL DEFAULT 'WIZ AI Team';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute ALTER TABLE `blogPosts` MODIFY COLUMN `author` varchar(255) NOT NULL DEFAULT 'WIZ AI Team';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 119
+}

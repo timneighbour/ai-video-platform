@@ -209,7 +209,7 @@ export default function Account() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Member Since</label>
                 <Input
-                  value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : ""}
+                  value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : ""}
                   disabled
                   className="bg-muted"
                 />
