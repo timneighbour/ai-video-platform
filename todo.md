@@ -7153,31 +7153,31 @@
 - [x] TypeScript: 0 errors
 
 ## Animation Studio Full Redesign - May 2026
-- [ ] Audit full Animation Studio codebase (page, components, routers, schema)
-- [ ] Redesign as premium step-by-step layout: Step 1 Audio, Step 2 Characters, Step 3 Style, Step 4 Lyrics/Scenes
+- [x] Audit full Animation Studio codebase (page, components, routers, schema)
+- [x] Redesign as premium step-by-step layout: Step 1 Audio, Step 2 Characters, Step 3 Style, Step 4 Lyrics/Scenes
 - [ ] Audio upload: prominent, front-and-centre, with waveform visualiser and auto-duration detection
-- [ ] Auto-populate video duration from uploaded audio track length
-- [ ] Auto-transcribe lyrics from uploaded audio (AssemblyAI/Whisper) and display for editing
-- [ ] Character creation: prominent photo upload to transform any photo (person, animal, pet) into animated character
+- [x] Auto-populate video duration from uploaded audio track length
+- [x] Auto-transcribe lyrics from uploaded audio (AssemblyAI/Whisper) and display for editing
+- [x] Character creation: prominent photo upload to transform any photo (person, animal, pet) into animated character
 - [x] Remove or fix broken preset characters (Maya, Fox etc) that cannot be changed
-- [ ] Animation style picker: large visual cards, not tiny scrollable list at bottom of page
-- [ ] Character limit: up to 8-10 characters per project
-- [ ] Premium studio aesthetic matching WizVideo/WizAnimate brand guidelines
+- [x] Animation style picker: large visual cards, not tiny scrollable list at bottom of page
+- [x] Character limit: up to 8-10 characters per project
+- [x] Premium studio aesthetic matching WizVideo/WizAnimate brand guidelines
 - [ ] All controls visible without excessive scrolling
-- [ ] Fix TypeScript errors introduced by redesign
+- [x] Fix TypeScript errors introduced by redesign
 
 ## WizAnimate Studio "Make It Feel Real" Redesign - May 2026
 - [ ] Remove fake decorative monitor panels — replace with real working viewport
 - [ ] Full-width 3-column layout: left dock (audio/chars) | centre workspace | right dock (properties/status)
 - [ ] Audio upload: prominent top dock, auto-read duration from audio element, waveform scrubber, play/pause
 - [ ] Characters: full-width card grid, photo upload per character (drag & drop), AI generation from photo, up to 10, delete button
-- [ ] Animation styles: large visual grid (4 columns), not tiny thumbnails in a sidebar
+- [x] Animation styles: large visual grid (4 columns), not tiny thumbnails in a sidebar
 - [ ] Lyrics: auto-transcribe from uploaded audio, show in editable panel, map to scenes
-- [ ] Duration: auto-set from audio file duration, allow manual override
-- [ ] Scene count: auto-calculate from duration
-- [ ] Generate button: always visible, not buried in scroll
+- [x] Duration: auto-set from audio file duration, allow manual override
+- [x] Scene count: auto-calculate from duration
+- [x] Generate button: always visible, not buried in scroll
 - [x] Remove hardcoded CHARS (Maya, Owl, Fox) — start with empty character list
-- [ ] Premium dark studio desk aesthetic: deep charcoal panels, amber/gold accents, subtle panel borders
+- [x] Premium dark studio desk aesthetic: deep charcoal panels, amber/gold accents, subtle panel borders
 
 ## WizAnimate Engine Integration & Music Video Lyric-Scene Sync
 - [x] WizAnimate: Add gender/voice-type selector per character (WizSync™ lip-sync assignment)
@@ -7210,7 +7210,7 @@
 - [x] WizAnimate: Character preview regeneration loop — already implemented: user can regenerate preview, adjust description, then lock character
 - [x] WizAnimate: Locked character stores preview image URL — charPreviewUrls stored in state, passed to storyboard generator as visual anchor
 - [x] WizAnimate: Full immersive redesign — 380px hero, amber/gold palette, ambient dimmer, VU meters, "ANIMATION STUDIO" title
-- [ ] WizAnimate: Restructure to 4 steps: Audio → Characters+Style → Story+Lyrics → Render
+- [x] WizAnimate: Restructure to 4 steps: Audio → Characters+Style → Story+Lyrics → Render
 - [x] WizAnimate: Character card shows role field (Performance Role input) and willSing toggle (WizSync™ lip-sync toggle) — added to KidsVideo.tsx character cards, passed into charSummary prompt
 - [x] WizAnimate: Fix title from "ANIMATION DIRECTOR" to "ANIMATION STUDIO"
 - [x] WizAnimate: Expand hero from 200px to 400px with brightness 0.65 (studio monitors visible)
@@ -7224,8 +7224,8 @@
 - [x] WizAnimate: Lock Character button prevents further preview generation (character is committed)
 
 ## Character Library
-- [ ] DB: Create savedCharacters table (id, userId, name, description, gender, animStyle, photoUrl, previewUrl, tags, createdAt, updatedAt)
-- [ ] Server: Add characterLibrary tRPC router with save, list, get, delete, update procedures
+- [x] DB: Create savedCharacters table (id, userId, name, description, gender, animStyle, photoUrl, previewUrl, tags, createdAt, updatedAt)
+- [x] Server: Add characterLibrary tRPC router with save, list, get, delete, update procedures
 - [x] Page: Build /characters Character Library page with card grid, search/filter, style badges
 - [ ] Page: Character detail view — shows photo, preview, description, style, usage history
 - [x] WizAnimate: Add "Save to Library" button on each locked character card
@@ -7235,7 +7235,7 @@
 - [x] Nav: Add "Characters" link in user dashboard/account menu
 - [ ] Characters page: Show which projects each character has been used in
 - [ ] Character Library: Premium Air Studio aesthetic — dark luxury, amber/gold accents, cinematic character cards with glowing preview images, studio atmosphere background
-- [ ] Character Library: Add "Save to Library" button in WizImage after character/image generation
+- [x] Character Library: Add "Save to Library" button in WizImage after character/image generation
 - [ ] Character Library: Add "Add from Library" picker in WizImage character/reference input
 - [x] Character Library: Register /characters route in App.tsx
 - [x] Character Library: Add Characters link in dashboard navigation

@@ -61,19 +61,15 @@ const ANIM_STYLES = [
 
 // ─── Steps ────────────────────────────────────────────────────────────────────
 const STEPS = [
-  { key: "audio",      num: 1, label: "Audio Track",       engine: "WizSound"   },
-  { key: "characters", num: 2, label: "Characters",        engine: "WizSync"    },
-  { key: "style",      num: 3, label: "Animation Style",   engine: "WizCreate"  },
-  { key: "brief",      num: 4, label: "Story & Lyrics",    engine: "WizGenesis" },
-  { key: "storyboard", num: 5, label: "Storyboard",        engine: "WizBoard"   },
-  { key: "render",     num: 6, label: "Render",            engine: "WizLumina"  },
+  { key: "audio",      num: 1, label: "Audio Track",          engine: "WizSound"   },
+  { key: "characters", num: 2, label: "Characters & Style",   engine: "WizSync"    },
+  { key: "brief",      num: 3, label: "Story & Storyboard",   engine: "WizGenesis" },
+  { key: "render",     num: 4, label: "Render",               engine: "WizLumina"  },
 ] as const;
 const STEP_ICONS: Record<string, ReactNode> = {
   audio:      <Music className="w-3.5 h-3.5" />,
   characters: <Users className="w-3.5 h-3.5" />,
-  style:      <Palette className="w-3.5 h-3.5" />,
   brief:      <FileText className="w-3.5 h-3.5" />,
-  storyboard: <Film className="w-3.5 h-3.5" />,
   render:     <Zap className="w-3.5 h-3.5" />,
 };
 type Step = typeof STEPS[number]["key"];
@@ -1378,93 +1374,6 @@ export default function KidsVideo() {
 
             <StepNav
               onBack={() => setStep("audio")}
-              onNext={() => setStep("style")}
-              nextLabel="Continue to Style →"
-            />
-          </div>
-        )}
-
-        {/* ═══ STEP 3: ANIMATION STYLE ════════════════════════════════════ */}
-        {step === "style" && (
-          <div>
-            <StepHeader
-              icon={<Palette className="w-4 h-4" />}
-              title="Choose Animation Style"
-              sub="This defines the visual look of every scene in your animation"
-              engine="WizCreate"
-            />
-
-            {/* WizAdora info */}
-            <div style={{
-              background: ENGINE_COLORS.WizAdora.bg,
-              border: `1px solid ${ENGINE_COLORS.WizAdora.border}`,
-              borderRadius: 8, padding: "12px 16px", marginBottom: 20,
-              fontSize: 12, color: ENGINE_COLORS.WizAdora.text,
-            }}>
-              <strong>WizAdora™</strong> — Motion & character animation engine. Your chosen style will be applied consistently across every scene, with WizAdora™ handling smooth motion, expression, and movement.
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16, marginBottom: 32 }}>
-              {ANIM_STYLES.map(s => {
-                const isSelected = animStyle === s.id;
-                return (
-                  <div
-                    key={s.id}
-                    onClick={() => setAnimStyle(s.id)}
-                    style={{
-                      borderRadius: 10, overflow: "hidden",
-                      border: `2px solid ${isSelected ? ACCENT_LIGHT : "#1e1e1e"}`,
-                      cursor: "pointer", background: "#0e0e0e",
-                      boxShadow: isSelected ? `0 0 20px rgba(124,92,191,0.3)` : "none",
-                      transition: "all 0.2s", position: "relative",
-                    }}
-                  >
-                    <div style={{ height: 140, overflow: "hidden" }}>
-                      <img src={s.img} alt={s.label} style={{
-                        width: "100%", height: "100%", objectFit: "cover",
-                        filter: isSelected ? "none" : "brightness(0.7) saturate(0.8)",
-                        transition: "filter 0.2s",
-                      }} />
-                    </div>
-                    <div style={{
-                      padding: "10px 12px",
-                      background: isSelected ? ACCENT_DIM : "transparent",
-                      display: "flex", alignItems: "center", justifyContent: "space-between",
-                    }}>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: isSelected ? ACCENT_LIGHT : "#aaa" }}>{s.label}</span>
-                      {isSelected && (
-                        <div style={{
-                          width: 18, height: 18, borderRadius: "50%",
-                          background: ACCENT, display: "flex", alignItems: "center",
-                          justifyContent: "center", fontSize: 10, color: "#fff", fontWeight: 700,
-                        }}>✓</div>
-                      )}
-                    </div>
-                    {isSelected && (
-                      <div style={{
-                        position: "absolute", top: 8, right: 8,
-                        background: ACCENT, color: "#fff",
-                        fontSize: 9, fontWeight: 700, padding: "3px 8px",
-                        borderRadius: 4, letterSpacing: "1px",
-                      }}>SELECTED</div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {selectedStyle && (
-              <div style={{
-                padding: "16px 20px",
-                background: ACCENT_DIM, border: `1px solid ${ACCENT_BORDER}`,
-                borderRadius: 8, fontSize: 14, color: ACCENT_LIGHT, marginBottom: 24,
-              }}>
-                ✓ Selected: <strong>{selectedStyle.label}</strong> — every scene will be rendered in this style
-              </div>
-            )}
-
-            <StepNav
-              onBack={() => setStep("characters")}
               onNext={() => setStep("brief")}
               nextLabel="Continue to Story →"
             />
@@ -1688,35 +1597,20 @@ export default function KidsVideo() {
             </div>
 
             <StepNav
-              onBack={() => setStep("style")}
-              onNext={() => setStep("storyboard")}
-              nextLabel="Preview Storyboard →"
+              onBack={() => setStep("characters")}
+              onNext={() => setStep("render")}
+              nextLabel="Generate Animation →"
               nextDisabled={brief.trim().length < 10}
               nextHint={brief.trim().length < 10 ? "Add a story brief to continue" : undefined}
             />
           </div>
         )}
 
-        {/* ═══ STEP 5: STORYBOARD PREVIEW ═══════════════════════════════════════════════════════════════════ */}
-        {step === "storyboard" && (
-          <StoryboardPreviewStep
-            brief={brief}
-            lyrics={lyrics}
-            animStyle={animStyle}
-            sceneCount={effectiveSceneCount}
-            audioDuration={audioDuration}
-            leadCharacterName={characters.find(c => c.id === leadCharacterId)?.name}
-            characters={characters.map(c => ({ name: c.name, description: c.description, isLead: c.id === leadCharacterId }))}
-            onBack={() => setStep("brief")}
-            onNext={() => setStep("render")}
-          />
-        )}
-
         {/* ═══ STEP 6: RENDER ═══════════════════════════════════════════════════════════════════ */}
         {step === "render" && (
           <div>
             <StepHeader
-              icon="🎬"
+              icon={<Zap className="w-4 h-4" />}
               title="Ready to Render"
               sub="Review your settings and start generating your animation"
               engine="WizLumina"
