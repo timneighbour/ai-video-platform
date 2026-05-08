@@ -61,13 +61,21 @@ const ANIM_STYLES = [
 
 // ─── Steps ────────────────────────────────────────────────────────────────────
 const STEPS = [
-  { key: "audio",      num: 1, label: "Audio Track",       icon: "🎵", engine: "WizSound"   },
-  { key: "characters", num: 2, label: "Characters",        icon: "🎭", engine: "WizSync"    },
-  { key: "style",      num: 3, label: "Animation Style",   icon: "🎨", engine: "WizCreate"  },
-  { key: "brief",      num: 4, label: "Story & Lyrics",    icon: "📝", engine: "WizGenesis" },
-  { key: "storyboard", num: 5, label: "Storyboard",        icon: "🎥", engine: "WizBoard"   },
-  { key: "render",     num: 6, label: "Render",            icon: "🎦", engine: "WizLumina"  },
+  { key: "audio",      num: 1, label: "Audio Track",       engine: "WizSound"   },
+  { key: "characters", num: 2, label: "Characters",        engine: "WizSync"    },
+  { key: "style",      num: 3, label: "Animation Style",   engine: "WizCreate"  },
+  { key: "brief",      num: 4, label: "Story & Lyrics",    engine: "WizGenesis" },
+  { key: "storyboard", num: 5, label: "Storyboard",        engine: "WizBoard"   },
+  { key: "render",     num: 6, label: "Render",            engine: "WizLumina"  },
 ] as const;
+const STEP_ICONS: Record<string, ReactNode> = {
+  audio:      <Music className="w-3.5 h-3.5" />,
+  characters: <Users className="w-3.5 h-3.5" />,
+  style:      <Palette className="w-3.5 h-3.5" />,
+  brief:      <FileText className="w-3.5 h-3.5" />,
+  storyboard: <Film className="w-3.5 h-3.5" />,
+  render:     <Zap className="w-3.5 h-3.5" />,
+};
 type Step = typeof STEPS[number]["key"];
 
 // ─── Character type ───────────────────────────────────────────────────────────
@@ -666,7 +674,7 @@ export default function KidsVideo() {
                 color: isDone ? GREEN : isActive ? "#fff" : "#555",
                 fontWeight: 700, flexShrink: 0,
               }}>
-                {isDone ? "✓" : s.icon}
+                {isDone ? "✓" : STEP_ICONS[s.key]}
               </div>
               <div style={{ fontSize: 10, fontWeight: 600, color: isActive ? ACCENT_LIGHT : isDone ? GREEN : "#555", letterSpacing: "0.5px", textAlign: "center", whiteSpace: "nowrap" }}>
                 {s.num}. {s.label}
@@ -2403,3 +2411,4 @@ const counterBtn: React.CSSProperties = {
   color: "#aaa", fontSize: 18, cursor: "pointer",
   display: "flex", alignItems: "center", justifyContent: "center",
 };
+

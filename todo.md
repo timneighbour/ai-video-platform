@@ -7159,7 +7159,7 @@
 - [ ] Auto-populate video duration from uploaded audio track length
 - [ ] Auto-transcribe lyrics from uploaded audio (AssemblyAI/Whisper) and display for editing
 - [ ] Character creation: prominent photo upload to transform any photo (person, animal, pet) into animated character
-- [ ] Remove or fix broken preset characters (Maya, Fox etc) that can't be changed
+- [x] Remove or fix broken preset characters (Maya, Fox etc) that cannot be changed
 - [ ] Animation style picker: large visual cards, not tiny scrollable list at bottom of page
 - [ ] Character limit: up to 8-10 characters per project
 - [ ] Premium studio aesthetic matching WizVideo/WizAnimate brand guidelines
@@ -7176,7 +7176,7 @@
 - [ ] Duration: auto-set from audio file duration, allow manual override
 - [ ] Scene count: auto-calculate from duration
 - [ ] Generate button: always visible, not buried in scroll
-- [ ] Remove hardcoded CHARS (Maya, Owl, Fox) — start with empty character list
+- [x] Remove hardcoded CHARS (Maya, Owl, Fox) — start with empty character list
 - [ ] Premium dark studio desk aesthetic: deep charcoal panels, amber/gold accents, subtle panel borders
 
 ## WizAnimate Engine Integration & Music Video Lyric-Scene Sync
@@ -7209,7 +7209,7 @@
 - [x] WizAnimate: Character card "Preview in Style" button — already in KidsVideo.tsx, uses charPreviewMutation
 - [x] WizAnimate: Character preview regeneration loop — already implemented: user can regenerate preview, adjust description, then lock character
 - [x] WizAnimate: Locked character stores preview image URL — charPreviewUrls stored in state, passed to storyboard generator as visual anchor
-- [ ] WizAnimate: Full immersive redesign — 380px hero, amber/gold palette, ambient dimmer, VU meters, "ANIMATION STUDIO" title
+- [x] WizAnimate: Full immersive redesign — 380px hero, amber/gold palette, ambient dimmer, VU meters, "ANIMATION STUDIO" title
 - [ ] WizAnimate: Restructure to 4 steps: Audio → Characters+Style → Story+Lyrics → Render
 - [x] WizAnimate: Character card shows role field (Performance Role input) and willSing toggle (WizSync™ lip-sync toggle) — added to KidsVideo.tsx character cards, passed into charSummary prompt
 - [x] WizAnimate: Fix title from "ANIMATION DIRECTOR" to "ANIMATION STUDIO"
