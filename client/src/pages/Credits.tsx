@@ -400,10 +400,6 @@ export default function Credits() {
           ))}
         </section>
 
-        {/* Test card notice */}
-        <p className="text-center text-xs text-zinc-600">
-          Test payments: use card <span className="font-mono text-zinc-500">4242 4242 4242 4242</span>, any future date, any CVC.
-        </p>
       </div>
     </div>
   );

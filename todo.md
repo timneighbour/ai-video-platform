@@ -7324,3 +7324,7 @@
 - [x] Fix broken blog post cover images (old CloudFront URLs → working CDN URLs)
 - [x] Update blog post author from "WizVid Team" to "WIZ AI Team"
 - [x] Update blogPosts schema default author from "WizVid Team" to "WIZ AI Team"
+- [x] Remove test payment card notice from Credits page (was visible to real users)
+- [x] Verify all legal pages (Privacy, Terms, Refund) correctly branded as WIZ AI
+- [x] Verify blog post images working after CloudFront URL fix
+- [x] Verify WizaVision nav bar working with back-to-dashboard escape route
