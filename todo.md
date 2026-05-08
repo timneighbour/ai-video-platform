@@ -7334,3 +7334,16 @@
 - [ ] Fix cookie banner — delay appearance until after the cinematic intro completes so it doesn't block the logo
 - [ ] Fix Studio Lounge section — add context so first-time visitors understand what it is
 - [ ] Fix KidsVideo.tsx TypeScript errors (TS2322 false positives from multi-byte box-drawing chars in comments)
+
+## CTA Mobile Bug Fix
+- [x] Fix demo button mobile tap issue — nested button HTML bug fixed (inner replay button changed to div[role=button]); root cause was stale SW cache serving old version
+- [x] Audit all demo buttons for z-index, pointer-events, and touch propagation issues (all correctly wired)
+
+## Paid Conversion Sprint (Priority)
+- [x] Conversion funnel audit — mapped full path, identified drop-off points
+- [x] Smart upgrade prompts — post-storyboard nudge added in MusicVideoAutopilot for free users
+- [x] Post-first-render subscription modal (PostFirstRenderSubscribeModal) — Creator/Studio plans + Founding Creator offer
+- [x] Founding Creator banner (FoundingCreatorBanner) — 7-day countdown, bonus credits, dismissible, integrated in main.tsx
+- [x] Pricing page improvements — videos/month shown, cost per video, subscription vs top-up comparison table, Creator highlighted
+- [x] Analytics tracking — postFirstRenderModalShown, foundingCreatorBannerShown/Clicked, upgradeModalViewed, checkoutAbandoned, subscriptionCompleted, firstRenderToSubscription added to mixpanel.ts
+- [x] Conversion report — friction points, email campaign draft, funnel table, 7-day revenue plan (delivered as markdown document)

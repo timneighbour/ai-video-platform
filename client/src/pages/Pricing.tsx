@@ -584,16 +584,28 @@ export default function Pricing() {
  </div>
 
  {/* Key stats */}
- <div className="grid grid-cols-2 gap-2 mb-4">
+ <div className="grid grid-cols-2 gap-2 mb-3">
  <div className="rounded-xl p-2.5 text-center" style={{ background: `${plan.glowColor}`, border: `1px solid ${plan.borderColor}` }}>
  <div className="text-2xl font-black text-white">{plan.buildsPerMonth}</div>
- <div className="text-[9px] text-white/40 font-medium uppercase tracking-wider mt-0.5">Build Credits/mo</div>
+ <div className="text-[9px] text-white/40 font-medium uppercase tracking-wider mt-0.5">videos/month</div>
  </div>
  <div className="rounded-xl p-2.5 text-center bg-white/[0.03] border border-white/[0.06]">
  <div className="text-[11px] font-bold text-white leading-tight">{plan.outputQuality}</div>
  <div className="text-[9px] text-white/40 font-medium uppercase tracking-wider mt-0.5">max quality</div>
  </div>
  </div>
+ {/* Cost per video vs pay-per-render */}
+ {plan.monthlyPrice > 0 && (
+ <div className="flex items-center justify-between rounded-lg px-3 py-2 mb-3 bg-white/[0.03] border border-white/[0.06]">
+ <span className="text-[10px] text-white/40 font-medium">Cost per video</span>
+ <div className="flex items-center gap-2">
+ <span className="text-[10px] line-through text-white/20">£6 pay-per-render</span>
+ <span className="text-[11px] font-black" style={{ color: plan.accentColor }}>
+ {formatPrice(parseFloat((plan.monthlyPrice / plan.buildsPerMonth).toFixed(2)))}/video
+ </span>
+ </div>
+ </div>
+ )}
 
  {/* Feature list */}
  <ul className="space-y-2 mb-5 flex-1">
@@ -761,6 +773,69 @@ export default function Pricing() {
  </a>
  </div>
  ))}
+ </div>
+ </div>
+ </section>
+
+ {/* 5.5 SUBSCRIPTION VS TOP-UP COMPARISON */}
+ <section className="max-w-4xl mx-auto px-6 mb-20">
+ <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] overflow-hidden">
+ <div className="px-6 py-5 border-b border-white/[0.06]">
+ <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[--color-gold] mb-1">VALUE COMPARISON</p>
+ <h3 className="text-xl font-bold text-white">Subscription vs Pay-per-video</h3>
+ <p className="text-xs text-white/40 mt-1">See how much you save with a monthly plan vs buying credits individually.</p>
+ </div>
+ <div className="overflow-x-auto">
+ <table className="w-full text-sm">
+ <thead>
+ <tr className="border-b border-white/[0.06]">
+ <th className="text-left px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-white/30">Option</th>
+ <th className="text-center px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-white/30">Videos/mo</th>
+ <th className="text-center px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-white/30">Monthly cost</th>
+ <th className="text-center px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-[--color-gold]">Cost/video</th>
+ <th className="text-center px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-white/30">Savings</th>
+ </tr>
+ </thead>
+ <tbody>
+ {[
+ { label: "Pay-per-video (Standard)", videos: 15, cost: 15 * 2, perVideo: "£2.00", saving: null, highlight: false },
+ { label: "Pay-per-video (HD)", videos: 15, cost: 15 * 4, perVideo: "£4.00", saving: null, highlight: false },
+ { label: "Pay-per-video (4K)", videos: 15, cost: 15 * 6, perVideo: "£6.00", saving: null, highlight: false },
+ { label: "Creator Plan (£35/mo)", videos: 15, cost: 35, perVideo: "£2.33", saving: "Save up to £55/mo vs 4K", highlight: true },
+ { label: "Studio Plan (£99/mo)", videos: 40, cost: 99, perVideo: "£2.48", saving: "Save up to £141/mo vs 4K", highlight: false },
+ ].map((row, i) => (
+ <tr key={i} className={`border-b border-white/[0.04] last:border-0 ${
+ row.highlight ? "bg-[rgba(196,164,100,0.06)]" : "hover:bg-white/[0.02]"
+ } transition-colors`}>
+ <td className="px-6 py-3.5">
+ <div className="flex items-center gap-2">
+ {row.highlight && <Crown className="w-3.5 h-3.5 text-[--color-gold] flex-shrink-0" />}
+ <span className={`text-sm font-medium ${row.highlight ? "text-white" : "text-white/60"}`}>{row.label}</span>
+ {row.highlight && <span className="text-[9px] font-black bg-[--color-gold] text-black px-2 py-0.5 rounded-full">BEST VALUE</span>}
+ </div>
+ </td>
+ <td className="text-center px-4 py-3.5 text-white/60">{row.videos}</td>
+ <td className="text-center px-4 py-3.5 text-white/60">{formatPrice(row.cost)}</td>
+ <td className={`text-center px-4 py-3.5 font-bold ${
+ row.highlight ? "text-[--color-gold]" : "text-white/60"
+ }`}>{row.perVideo}</td>
+ <td className="text-center px-4 py-3.5">
+ {row.saving ? (
+ <span className="text-[10px] font-semibold text-emerald-400">{row.saving}</span>
+ ) : (
+ <span className="text-[10px] text-white/20">—</span>
+ )}
+ </td>
+ </tr>
+ ))}
+ </tbody>
+ </table>
+ </div>
+ <div className="px-6 py-4 bg-white/[0.02] border-t border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+ <p className="text-[11px] text-white/40">Creator plan includes 4K quality, WizSync™ character lock, and priority builds — not available on pay-per-video.</p>
+ <a href="#plans" className="flex-shrink-0 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors flex items-center gap-1">
+ See plans <ArrowRight className="w-3 h-3" />
+ </a>
  </div>
  </div>
  </section>

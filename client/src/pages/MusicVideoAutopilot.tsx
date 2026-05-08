@@ -16,6 +16,7 @@ import InsufficientCreditsModal from "@/components/InsufficientCreditsModal";
 import CinematicUpsellModal, { CinematicScene } from "@/components/CinematicUpsellModal";
 import PostRenderCinematicPackModal from "@/components/PostRenderCinematicPackModal";
 import FirstRenderCelebrationModal, { hasSeenFirstRenderCelebration } from "@/components/FirstRenderCelebrationModal";
+import PostFirstRenderSubscribeModal from "@/components/PostFirstRenderSubscribeModal";
 import { RenderPaywallModal } from "@/components/RenderPaywallModal";
 import { WizGenesisModal } from "@/components/WizGenesisModal";
 import { PostRenderRetentionScreen } from "@/components/PostRenderRetentionScreen";
@@ -549,6 +550,8 @@ export default function MusicVideoAutopilot() {
   const [showCinematicUpsell, setShowCinematicUpsell] = useState(false);
   const [showCinematicPackModal, setShowCinematicPackModal] = useState(false);
   const [showFirstRenderCelebration, setShowFirstRenderCelebration] = useState(false);
+  const [showPostFirstRenderSubscribe, setShowPostFirstRenderSubscribe] = useState(false);
+  const { data: subData } = trpc.billing.getSubscription.useQuery(undefined, { enabled: isAuthenticated, staleTime: 60_000 });
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [showRenderPaywall, setShowRenderPaywall] = useState(false);
   const [showLyricsIntelligence, setShowLyricsIntelligence] = useState(false);
@@ -1801,7 +1804,13 @@ export default function MusicVideoAutopilot() {
         <FirstRenderCelebrationModal
           videoUrl={finalVideoUrl}
           videoTitle={title}
-          onClose={() => setShowFirstRenderCelebration(false)}
+          onClose={() => {
+            setShowFirstRenderCelebration(false);
+            // Show subscription offer to free/unsubscribed users after first render
+            if (!subData?.isActive || subData?.plan === 'free') {
+              setTimeout(() => setShowPostFirstRenderSubscribe(true), 700);
+            }
+          }}
           onDownload={finalVideoUrl ? () => {
             const a = document.createElement("a");
             a.href = finalVideoUrl;
@@ -1811,6 +1820,11 @@ export default function MusicVideoAutopilot() {
           onCreateAnother={() => { window.location.href = "/music-video/create"; }}
         />
       )}
+      {/* Post-First-Render Subscribe Modal — shown to free users after celebrating first render */}
+      <PostFirstRenderSubscribeModal
+        open={showPostFirstRenderSubscribe}
+        onClose={() => setShowPostFirstRenderSubscribe(false)}
+      />
       {/* Post-Render Cinematic Pack Modal — shown immediately after render completes */}
       {finalVideoUrl && jobId && (
         <PostRenderCinematicPackModal
@@ -4072,6 +4086,28 @@ export default function MusicVideoAutopilot() {
                 />
               </div>
             )}
+            {/* ── Post-storyboard upgrade nudge (free users only) ── */}
+            {(!subData?.isActive || subData?.plan === 'free') && scenes.length > 0 && (
+              <div className="mx-0 mb-4 rounded-xl border border-[rgba(196,164,100,0.3)] bg-[rgba(196,164,100,0.06)] px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-[rgba(196,164,100,0.15)] border border-[rgba(196,164,100,0.3)] flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Sparkles className="w-4 h-4 text-[--color-gold]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">Your storyboard is ready — subscribe to build faster</p>
+                    <p className="text-xs text-white/50 mt-0.5">Creator plan: 15 videos/month · 4K quality · priority builds · £2.33/video</p>
+                  </div>
+                </div>
+                <a
+                  href="/pricing#plans"
+                  onClick={() => mp.upgradeCTAClicked('post_storyboard_nudge', 'creator')}
+                  className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[--color-gold] text-black text-xs font-black hover:bg-[--color-gold-light] transition-colors whitespace-nowrap"
+                >
+                  → See Creator Plan
+                </a>
+              </div>
+            )}
+
             {/* ── Sticky bottom approval bar ── */}
             <div style={{position:'sticky',bottom:0,left:0,right:0,background:'rgba(8,6,4,0.97)',borderTop:'1px solid rgba(184,137,42,0.15)',backdropFilter:'blur(12px)',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,marginTop:24,zIndex:30}}>
               {/* Approval status dots */}

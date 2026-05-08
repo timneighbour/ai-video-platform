@@ -1729,14 +1729,13 @@ function WelcomeSection() {
  </div>
  </div>
  <div className="reveal">
- <div
- onClick={() => setDemoOpen(true)}
- onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setDemoOpen(true)}
- role="button"
- tabIndex={0}
- className="group relative w-full aspect-video rounded-2xl overflow-hidden border border-[--color-gold]/[0.08] bg-[#080808] hover:border-[--color-gold]/[0.2] transition-all duration-500 shadow-[0_16px_60px_rgba(0,0,0,0.6)] hover:shadow-[0_24px_80px_rgba(0,0,0,0.7),0_0_40px_rgba(196,164,100,0.05)] focus:outline-none cursor-pointer"
- aria-label="Watch WIZ AI demo"
- >
+ <button
+        type="button"
+        onClick={() => setDemoOpen(true)}
+        className="group relative w-full aspect-video rounded-2xl overflow-hidden border border-[--color-gold]/[0.08] bg-[#080808] hover:border-[--color-gold]/[0.2] transition-all duration-500 shadow-[0_16px_60px_rgba(0,0,0,0.6)] hover:shadow-[0_24px_80px_rgba(0,0,0,0.7),0_0_40px_rgba(196,164,100,0.05)] focus:outline-none cursor-pointer p-0 block"
+        style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
+        aria-label="Watch WIZ AI demo"
+        >
  <img
  src={DEMO_POSTER}
  alt="WIZ AI demo"
@@ -1754,15 +1753,18 @@ function WelcomeSection() {
  </div>
  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
  <span className="text-xs text-[--color-silver-dark]/50 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full border border-[--color-gold]/[0.06]">Prompt → Storyboard → Final Video</span>
- <button
+ <div
+ role="button"
+ tabIndex={0}
  onClick={(e) => { e.stopPropagation(); triggerIntroReplay(); }}
- className="flex items-center gap-1 text-xs text-[--color-silver-dark]/40 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full border border-[--color-gold]/[0.06] hover:text-[--color-gold]/70 hover:border-[--color-gold]/20 transition-all"
+ onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); triggerIntroReplay(); } }}
+ className="flex items-center gap-1 text-xs text-[--color-silver-dark]/40 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full border border-[--color-gold]/[0.06] hover:text-[--color-gold]/70 hover:border-[--color-gold]/20 transition-all cursor-pointer select-none"
  aria-label="Replay the WIZ AI intro"
  >
  <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Replay intro
+ </div>
+ </div>
  </button>
- </div>
- </div>
  </div>
  </div>
  </div>

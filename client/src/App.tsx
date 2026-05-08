@@ -340,6 +340,8 @@ function Router() {
         <Route path={"/studios"} component={Studios} />
         <Route path={"/studios/:id"} component={StudioDetail} />
         <Route path={"/wizavision"} component={WizaVision} />
+        <Route path={"/wizavision/browse"} component={WizaVision} />
+        <Route path={"/wizavision/browse/:category"} component={WizaVision} />
         <Route path={"/wizavision/watch/:slug"} component={WizaVisionWatch} />
         <Route path={"/wizavision/creator/:username"} component={WizaVisionCreator} />
         <Route path={"/404"} component={NotFound} />

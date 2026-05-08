@@ -314,6 +314,29 @@ export const mp = {
   sceneDirectorOpened: (props: { jobId: number; sceneIndex: number; freeReRenderAvailable: boolean }) =>
     track("Scene Director Opened", { job_id: props.jobId, scene_index: props.sceneIndex, free_rerender_available: props.freeReRenderAvailable }),
 
-  // ── Generic passthrough ───────────────────────────────────────────
+  // ── Conversion funnel tracking ─────────────────────────────────
+  /** Fires when the post-first-render subscription modal is shown. */
+  postFirstRenderModalShown: (source?: string) =>
+    track("Post First Render Modal Shown", { source }),
+  /** Fires when the Founding Creator banner is shown. */
+  foundingCreatorBannerShown: () =>
+    track("Founding Creator Banner Shown"),
+  /** Fires when the Founding Creator banner CTA is clicked. */
+  foundingCreatorBannerClicked: (destination: string) =>
+    track("Founding Creator Banner Clicked", { destination }),
+  /** Fires when the user views the upgrade modal (any source). */
+  upgradeModalViewed: (source: string, plan?: string) =>
+    track("Upgrade Modal Viewed", { source, plan }),
+  /** Fires when the user abandons checkout (closes modal without subscribing). */
+  checkoutAbandoned: (source: string, plan?: string) =>
+    track("Checkout Abandoned", { source, plan }),
+  /** Fires when a subscription is successfully completed. */
+  subscriptionCompleted: (plan: string, price?: number, source?: string) =>
+    track("Subscription Completed", { plan, price, source }),
+  /** Fires when the first render → subscription conversion path is completed. */
+  firstRenderToSubscription: (plan: string, hoursAfterRender?: number) =>
+    track("First Render to Subscription", { plan, hours_after_render: hoursAfterRender }),
+
+  // ── Generic passthrough ─────────────────────────────────
   track,
 };
