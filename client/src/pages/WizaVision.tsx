@@ -193,6 +193,31 @@ export default function WizaVision() {
         </div>
       </div>
 
+      {/* What is WizaVision? — description section for new visitors */}
+      <div className="max-w-7xl mx-auto px-6 pt-10 pb-4">
+        <div className="rounded-2xl border border-[#b8892a]/15 bg-gradient-to-r from-[#b8892a]/[0.06] to-[#7c3aed]/[0.04] p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6">
+          <div className="w-12 h-12 rounded-xl bg-[#b8892a]/15 border border-[#b8892a]/25 flex items-center justify-center shrink-0">
+            <Play className="w-6 h-6 text-[#b8892a] ml-0.5" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-lg font-black text-white mb-1.5">
+              What is <span className="text-[#b8892a]">WizaVision</span>?
+            </h2>
+            <p className="text-white/55 text-sm leading-relaxed max-w-2xl">
+              WizaVision is WIZ AI&rsquo;s video streaming and discovery platform — a curated home for AI-generated entertainment. Watch music videos, short films, animations, documentaries, and more, all created by the WIZ AI community. Browse by category, discover trending creators, and publish your own AI-generated videos to the world.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <a href="/wizavision/browse" className="text-xs font-bold tracking-wide text-[#b8892a] hover:text-[#d4a843] transition-colors border border-[#b8892a]/30 hover:border-[#b8892a]/60 px-4 py-2 rounded-lg">
+              Browse All
+            </a>
+            <a href="/create" className="text-xs font-bold tracking-wide bg-[#b8892a] hover:bg-[#a07820] text-black px-4 py-2 rounded-lg transition-colors">
+              Create a Video
+            </a>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-6 py-8">
         <form onSubmit={handleSearch} className="relative max-w-2xl">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />

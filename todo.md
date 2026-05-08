@@ -7347,3 +7347,10 @@
 - [x] Pricing page improvements — videos/month shown, cost per video, subscription vs top-up comparison table, Creator highlighted
 - [x] Analytics tracking — postFirstRenderModalShown, foundingCreatorBannerShown/Clicked, upgradeModalViewed, checkoutAbandoned, subscriptionCompleted, firstRenderToSubscription added to mixpanel.ts
 - [x] Conversion report — friction points, email campaign draft, funnel table, 7-day revenue plan (delivered as markdown document)
+
+## WizaVision Discoverability
+- [x] Add WizaVision to public nav desktop dropdown (WIZ Studios section)
+- [x] Add WizaVision to mobile nav menu
+- [x] Add WizaVision to homepage product grid / WizProductGrid (DISCOVER row added)
+- [x] Add "What is WizaVision?" description section to WizaVision page
+- [x] Add WizaVision link to relevant CTAs (Dashboard, Discover page)

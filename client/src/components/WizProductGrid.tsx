@@ -121,12 +121,23 @@ const ENHANCE_TILES: StudioTile[] = [
 
 const GROW_TILES: StudioTile[] = [
   {
-    name: "WizBoost™",
+    name: "WizBoost\u2122",
     benefit: "Optimise, distribute, and grow your audience across every platform",
     href: "/products/wizboost",
     image: HERO_WIZBOOST,
     glowColor: "rgba(196,164,100,0.30)",
     borderHover: "rgba(196,164,100,0.55)",
+  },
+];
+
+const DISCOVER_TILES: StudioTile[] = [
+  {
+    name: "WizaVision",
+    benefit: "Watch & discover AI-generated videos from creators worldwide",
+    href: "/wizavision",
+    image: `/manus-storage/product-wizlumina-hero_ed20683e.jpg`,
+    glowColor: "rgba(120,100,220,0.35)",
+    borderHover: "rgba(140,120,240,0.60)",
   },
 ];
 
@@ -317,6 +328,16 @@ export default function WizProductGrid() {
           <RowLabel label="Grow" count={1} accentColor="#818cf8" />
           <div className="grid grid-cols-1 gap-4">
             {GROW_TILES.map((tile) => (
+              <Tile key={tile.name} tile={tile} height={260} />
+            ))}
+          </div>
+        </div>
+
+        {/* ── Row 4: DISCOVER (WizaVision) ─────────────────────────────── */}
+        <div className="mb-14 reveal">
+          <RowLabel label="Discover" count={1} accentColor="#a78bfa" />
+          <div className="grid grid-cols-1 gap-4">
+            {DISCOVER_TILES.map((tile) => (
               <Tile key={tile.name} tile={tile} height={260} />
             ))}
           </div>
