@@ -406,10 +406,30 @@ function MixpanelIdentity() {
   return null;
 }
 
+// Synchronously detect whether the intro should show on this page load.
+// Doing this outside the component ensures the initial useState value is correct
+// from the very first render — preventing the cookie banner from flashing
+// before the intro starts playing.
+function shouldShowIntroOnLoad(): boolean {
+  if (typeof window === "undefined") return false;
+  const isHomepage = window.location.pathname === "/" || window.location.pathname === "";
+  if (!isHomepage) return false;
+  const ua = navigator.userAgent.toLowerCase();
+  const isBot = /googlebot|lighthouse|chrome-lighthouse|pagespeed|adsbot|bingbot|slurp|duckduckbot|baiduspider|yandex|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot|applebot|msnbot|semrushbot|ahrefsbot|dotbot|petalbot|bytespider|gptbot|chatgpt|ccbot|anthropic|claudebot|headlesschrome/.test(ua);
+  const isPageSpeed = !!(window as any).__lighthouse || !!(window as any).__pagespeed ||
+    document.documentElement.hasAttribute("data-lighthouse") ||
+    navigator.webdriver === true;
+  if (isBot || isPageSpeed) return false;
+  try {
+    return !sessionStorage.getItem(INTRO_SESSION_KEY);
+  } catch {
+    return false;
+  }
+}
+
 function App() {
-  // Start hidden — useEffect checks sessionStorage to avoid blocking first paint.
-  // This ensures the intro NEVER mounts on refresh if already seen.
-  const [showIntro, setShowIntro] = useState<boolean>(false);
+  // Initialize synchronously so cookie banner knows to wait from the very first render
+  const [showIntro, setShowIntro] = useState<boolean>(() => shouldShowIntroOnLoad());
 
   useEffect(() => {
     // Only show intro when landing on the homepage — skip on all other pages
