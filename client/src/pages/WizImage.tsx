@@ -94,7 +94,11 @@ export default function WizImage() {
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [showSaveLibModal, setShowSaveLibModal] = useState(false);
   const [libCharName, setLibCharName] = useState("");
+  const [showLibraryPicker, setShowLibraryPicker] = useState(false);
+  const [libPickerSearch, setLibPickerSearch] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const libraryQuery = trpc.characterLibrary.list.useQuery(undefined, { enabled: showLibraryPicker });
 
   const saveToLibraryMut = trpc.characterLibrary.save.useMutation({
     onSuccess: (_data, vars) => {
@@ -389,20 +393,31 @@ export default function WizImage() {
               <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             {!hasRef ? (
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all"
-                style={{ borderColor: A_BORDER, background: A_DIM }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = A)}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = A_BORDER)}
-              >
-                <div className="text-3xl mb-2"></div>
-                <div className="text-sm font-semibold mb-1" style={{ color: A }}>Upload Your Reference</div>
-                <div className="text-[11px] text-white/40 mb-3">Band photos, artist portraits, album concepts, mood images</div>
-                <button className="px-5 py-2 rounded-full text-xs font-bold text-white" style={{ background: `linear-gradient(135deg, ${A}, #4f46e5)` }}>
-                  Browse & Upload
+              <div className="space-y-2">
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all"
+                  style={{ borderColor: A_BORDER, background: A_DIM }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = A)}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = A_BORDER)}
+                >
+                  <div className="text-3xl mb-2"></div>
+                  <div className="text-sm font-semibold mb-1" style={{ color: A }}>Upload Your Reference</div>
+                  <div className="text-[11px] text-white/40 mb-3">Band photos, artist portraits, album concepts, mood images</div>
+                  <button className="px-5 py-2 rounded-full text-xs font-bold text-white" style={{ background: `linear-gradient(135deg, ${A}, #4f46e5)` }}>
+                    Browse & Upload
+                  </button>
+                  <div className="text-[10px] text-white/30 mt-2">JPG · PNG · WEBP · RAW · up to 50MB</div>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShowLibraryPicker(true); }}
+                  className="w-full py-2 rounded-xl text-xs font-bold border transition-all"
+                  style={{ borderColor: "rgba(212,168,67,0.35)", color: "#d4a843", background: "rgba(212,168,67,0.08)" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(212,168,67,0.15)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(212,168,67,0.08)"; }}
+                >
+                  ★ Use Character from Library
                 </button>
-                <div className="text-[10px] text-white/30 mt-2">JPG · PNG · WEBP · RAW · up to 50MB</div>
               </div>
             ) : (
               <div className="rounded-xl overflow-hidden border" style={{ borderColor: A_BORDER }}>
@@ -1021,6 +1036,60 @@ export default function WizImage() {
         currentBalance={creditBalance}
         estimatedCost={CREDITS_PER_IMAGE}
       />
+
+      {/* ── Library Picker Modal ── */}
+      {showLibraryPicker && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)" }}>
+          <div className="rounded-2xl p-6 w-full max-w-lg" style={{ background: "#0d0d20", border: `1px solid ${A_BORDER}` }}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-bold" style={{ color: "#d4a843" }}>Character Library</h3>
+              <button onClick={() => { setShowLibraryPicker(false); setLibPickerSearch(""); }} className="text-white/40 hover:text-white text-xl leading-none">&times;</button>
+            </div>
+            <input
+              value={libPickerSearch}
+              onChange={(e) => setLibPickerSearch(e.target.value)}
+              placeholder="Search characters…"
+              className="w-full px-3 py-2 rounded-lg text-sm text-white mb-4"
+              style={{ background: "rgba(255,255,255,0.06)", border: `1px solid ${A_BORDER}`, outline: "none" }}
+            />
+            {libraryQuery.isLoading ? (
+              <div className="text-center py-8 text-white/40 text-sm">Loading…</div>
+            ) : !libraryQuery.data?.length ? (
+              <div className="text-center py-8 text-white/40 text-sm">No characters saved yet. Create one in WizAnimate or Music Video.</div>
+            ) : (
+              <div className="grid grid-cols-3 gap-3 max-h-72 overflow-y-auto">
+                {libraryQuery.data
+                  .filter((c: any) => !libPickerSearch || c.name.toLowerCase().includes(libPickerSearch.toLowerCase()))
+                  .map((char: any) => (
+                    <button
+                      key={char.id}
+                      onClick={() => {
+                        setPrompt((prev) => `${prev.trim()} Character reference: ${char.name}${char.description ? ` — ${char.description}` : ""}.`);
+                        toast.success(`${char.name} added as reference`);
+                        setShowLibraryPicker(false);
+                        setLibPickerSearch("");
+                      }}
+                      className="rounded-xl overflow-hidden border transition-all text-left"
+                      style={{ borderColor: A_BORDER, background: "rgba(255,255,255,0.04)" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#d4a843"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = A_BORDER; }}
+                    >
+                      {char.photoUrl ? (
+                        <img src={char.photoUrl} alt={char.name} className="w-full aspect-square object-cover" />
+                      ) : (
+                        <div className="w-full aspect-square flex items-center justify-center text-2xl" style={{ background: A_DIM }}>👤</div>
+                      )}
+                      <div className="p-2">
+                        <div className="text-xs font-semibold text-white truncate">{char.name}</div>
+                        {char.description && <div className="text-[10px] text-white/40 truncate mt-0.5">{char.description}</div>}
+                      </div>
+                    </button>
+                  ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
