@@ -137,7 +137,7 @@ export function ProviderModal({ onClose }: { onClose: () => void }) {
             Where would you like to order from?
           </h3>
           <p className="text-sm mb-6" style={{ color: "rgba(200,185,160,0.45)" }}>
-            Your project is in good hands. Take a moment.
+            Order food &amp; drinks to your door while your video renders. Your project is in good hands.
           </p>
 
           {/* Provider list */}

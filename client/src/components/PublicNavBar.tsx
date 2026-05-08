@@ -129,7 +129,8 @@ function StudioLoungeNavButton({ mobile = false, onClose }: { mobile?: boolean; 
         style={{ color: "rgba(212,175,55,0.8)", touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
         onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(212,175,55,1)"; }}
         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(212,175,55,0.8)"; }}
-        aria-label="Open Studio Lounge"
+        aria-label="Studio Lounge — order food &amp; drinks while you create"
+        title="Order food &amp; drinks while you create"
       >
         <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 shrink-0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3" />

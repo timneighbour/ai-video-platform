@@ -471,7 +471,8 @@ function App() {
             <IntroScreen onComplete={handleIntroClose} />
           )}
           {/* Cookie banner must come after IntroScreen in the DOM so it renders on top */}
-          <CookieConsentBanner />
+          {/* Delay cookie banner while intro is playing so it doesn't block the cinematic logo */}
+          <CookieConsentBanner introActive={showIntro} />
           <PWAInstallBanner />
         </TooltipProvider>
       </ThemeProvider>

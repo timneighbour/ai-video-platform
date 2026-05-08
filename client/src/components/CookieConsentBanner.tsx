@@ -61,18 +61,21 @@ const CATEGORIES = [
 ];
 
 // ── Main banner component ────────────────────────────────────────────────────
-export default function CookieConsentBanner() {
+export default function CookieConsentBanner({ introActive = false }: { introActive?: boolean }) {
   const [visible, setVisible] = useState(false);
   const [showManage, setShowManage] = useState(false);
   const [analytics, setAnalytics] = useState(false);
   const [marketing, setMarketing] = useState(false);
   const [functional, setFunctional] = useState(false);
 
+  // When intro finishes (introActive goes false), show banner if needed
   useEffect(() => {
-    // Show banner if no consent choice has been made
+    if (introActive) return; // Wait until intro completes
     if (!hasConsentChoice()) {
       setVisible(true);
     }
+  }, [introActive]);
+  useEffect(() => {
 
     // Listen for re-open from footer
     const handleOpen = () => {

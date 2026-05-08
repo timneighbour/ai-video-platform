@@ -690,7 +690,7 @@ export default function KidsVideo() {
       {/* ── Step Content ────────────────────────────────────────────────── */}
       <div style={{ flex: 1, overflowY: "auto", padding: "32px 24px", maxWidth: 1100, margin: "0 auto", width: "100%" }}>
 
-        {/* ═══ STEP 1: AUDIO ══════════════════════════════════════════════ */}
+        {/* === STEP 1: AUDIO ============================================== */}
         {step === "audio" && (
           <div>
             <StepHeader
@@ -850,7 +850,7 @@ export default function KidsVideo() {
           </div>
         )}
 
-        {/* ═══ STEP 2: CHARACTERS ════════════════════════════════════════ */}
+        {/* === STEP 2: CHARACTERS ======================================== */}
         {step === "characters" && (
           <div>
             <StepHeader
@@ -1380,7 +1380,7 @@ export default function KidsVideo() {
           </div>
         )}
 
-        {/* ═══ STEP 4: BRIEF / LYRICS ═════════════════════════════════════ */}
+        {/* === STEP 4: BRIEF / LYRICS ===================================== */}
         {step === "brief" && (
           <div>
             <StepHeader
@@ -1606,7 +1606,7 @@ export default function KidsVideo() {
           </div>
         )}
 
-        {/* ═══ STEP 6: RENDER ═══════════════════════════════════════════════════════════════════ */}
+        {/* === STEP 6: RENDER =================================================================== */}
         {step === "render" && (
           <div>
             <StepHeader

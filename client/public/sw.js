@@ -55,8 +55,15 @@ function detectVersion() {
     });
 }
 
+// Track whether this is a first install (no previous SW) or an update
+var isFirstInstall = false;
+
 // ── Install ──────────────────────────────────────────────────────────────────
 self.addEventListener('install', function(event) {
+  // If there's no existing controller, this is a first install
+  if (!self.registration.active) {
+    isFirstInstall = true;
+  }
   event.waitUntil(
     detectVersion().then(function(version) {
       var cacheName = CACHE_NAME_PREFIX + version;
@@ -86,9 +93,12 @@ self.addEventListener('activate', function(event) {
       }).then(function() {
         return self.clients.matchAll({ includeUncontrolled: true, type: 'window' });
       }).then(function(allClients) {
-        allClients.forEach(function(client) {
-          client.postMessage({ type: 'SW_ACTIVATED', version: cacheName });
-        });
+        // Only show the update banner if this is an update, not a first install
+        if (!isFirstInstall) {
+          allClients.forEach(function(client) {
+            client.postMessage({ type: 'SW_ACTIVATED', version: cacheName });
+          });
+        }
         return self.clients.claim();
       });
     })

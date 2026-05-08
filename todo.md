@@ -7328,3 +7328,9 @@
 - [x] Verify all legal pages (Privacy, Terms, Refund) correctly branded as WIZ AI
 - [x] Verify blog post images working after CloudFront URL fix
 - [x] Verify WizaVision nav bar working with back-to-dashboard escape route
+
+## Issues to Fix (May 8 2026 — Tim's audit)
+- [ ] Fix UPDATE NOW banner — should not show on every page load; only show after a real version change
+- [ ] Fix cookie banner — delay appearance until after the cinematic intro completes so it doesn't block the logo
+- [ ] Fix Studio Lounge section — add context so first-time visitors understand what it is
+- [ ] Fix KidsVideo.tsx TypeScript errors (TS2322 false positives from multi-byte box-drawing chars in comments)
