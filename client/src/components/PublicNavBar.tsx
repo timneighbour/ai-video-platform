@@ -223,11 +223,12 @@ function Nav() {
         ref={navRef}
         role="navigation"
         aria-label="Main navigation"
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
             ? "bg-[#060606]/96 backdrop-blur-2xl border-b border-[--color-gold]/[0.08] shadow-[0_2px_60px_rgba(0,0,0,0.7)]"
             : "bg-gradient-to-b from-black/40 to-transparent backdrop-blur-[2px]"
         }`}
+        style={{ top: "var(--founding-banner-h, 0px)" }}
       >
         {/* Subtle top gold line */}
         <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent 0%, oklch(0.78 0.11 75 / 0.35) 30%, oklch(0.78 0.11 75 / 0.55) 50%, oklch(0.78 0.11 75 / 0.35) 70%, transparent 100%)" }} />

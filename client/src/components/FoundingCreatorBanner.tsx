@@ -102,12 +102,22 @@ export default function FoundingCreatorBanner() {
 
   const pad = (n: number) => n.toString().padStart(2, "0");
 
+  // Set CSS variable for banner height so fixed navbars can offset themselves
+  useEffect(() => {
+    document.documentElement.style.setProperty("--founding-banner-h", "44px");
+    return () => {
+      document.documentElement.style.setProperty("--founding-banner-h", "0px");
+    };
+  }, []);
+
   return (
     <div
       role="banner"
       aria-label="Founding Creator limited-time offer"
-      className="relative w-full overflow-hidden"
+      className="fixed left-0 right-0 w-full overflow-hidden"
       style={{
+        top: 0,
+        zIndex: 60,
         background: "linear-gradient(90deg, oklch(0.14 0.04 75) 0%, oklch(0.10 0.03 75) 50%, oklch(0.14 0.04 75) 100%)",
         borderBottom: "1px solid oklch(0.78 0.11 75 / 0.25)",
       }}
