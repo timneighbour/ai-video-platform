@@ -7354,3 +7354,6 @@
 - [x] Add WizaVision to homepage product grid / WizProductGrid (DISCOVER row added)
 - [x] Add "What is WizaVision?" description section to WizaVision page
 - [x] Add WizaVision link to relevant CTAs (Dashboard, Discover page)
+
+## Music Video Storyboard Lyrics Bug
+- [ ] Fix: lyrics not showing on storyboard scene cards in the Music Video creator

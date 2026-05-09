@@ -249,11 +249,17 @@ export const musicVideoRouter = router({
 
       const waitForTranscription = async (): Promise<typeof job | null> => {
         if (job.transcriptionStatus === "done") return job;
-        if (job.transcriptionStatus === "processing") {
-          for (let attempt = 0; attempt < 3; attempt++) {
+        // Wait up to 90s for transcription — songs can take 30-90s via Whisper.
+        // Also handle "pending" status (transcription not yet started) by waiting.
+        if (job.transcriptionStatus === "processing" || job.transcriptionStatus === "pending") {
+          for (let attempt = 0; attempt < 18; attempt++) {
             await new Promise((r) => setTimeout(r, 5000));
             const [refreshed] = await db.select().from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
             if (refreshed?.transcriptionStatus === "done") return refreshed;
+            if (refreshed?.transcriptionStatus === "failed") {
+              console.warn(`[MusicVideo] Transcription failed for job ${input.jobId} — proceeding without lyrics`);
+              return null;
+            }
           }
         }
         return null;
