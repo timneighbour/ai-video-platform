@@ -1219,15 +1219,15 @@ Rules:
       // ── STUCK JOB TIMEOUT GUARD ─────────────────────────────────────────────
       // Jobs that have been in 'rendering' or 'assembling' for more than 45 minutes
       // are considered stuck. Auto-fail them with a clear user message and credit refund.
-      const STUCK_TIMEOUT_MS = 45 * 60 * 1000; // 45 minutes
-      const SCENE_STUCK_TIMEOUT_MS = 40 * 60 * 1000; // 40 minutes per scene
+      const STUCK_TIMEOUT_MS = 120 * 60 * 1000; // 120 minutes
+      const SCENE_STUCK_TIMEOUT_MS = 90 * 60 * 1000; // 90 minutes per scene
       if (job.status === "rendering" || job.status === "assembling") {
         const jobAge = Date.now() - new Date(job.updatedAt).getTime();
         if (jobAge > STUCK_TIMEOUT_MS) {
           console.error(`[MusicVideo] Job ${input.jobId} has been stuck in '${job.status}' for ${Math.round(jobAge / 60000)} minutes — auto-failing.`);
           // Fail any scenes still generating
           await db.update(musicVideoScenes)
-            .set({ status: "failed", errorMessage: "Scene timed out after 40 minutes — please retry", updatedAt: new Date() })
+            .set({ status: "failed", errorMessage: "Scene timed out after 90 minutes — please retry", updatedAt: new Date() })
             .where(and(eq(musicVideoScenes.jobId, input.jobId), inArray(musicVideoScenes.status, ["generating", "pending"])));
           // Mark job as failed with a user-friendly message
           await db.update(musicVideoJobs)
@@ -1237,8 +1237,8 @@ Rules:
               updatedAt: new Date(),
             })
             .where(eq(musicVideoJobs.id, input.jobId));
-          // Refund credits if not admin
-          if (ctx.user.role !== "admin" && job.creditCost > 0) {
+          // Refund credits for all users (including admin) when job times out
+          if (job.creditCost > 0) { // Refund all users including admin
             try {
               await refundCredits(ctx.user.id, job.creditCost, `Refund: render timeout — job #${job.id}`, job.id);
               console.log(`[MusicVideo] Refunded ${job.creditCost} credits to user ${ctx.user.id} for timed-out job ${job.id}`);
@@ -1270,7 +1270,7 @@ Rules:
           if (sceneAge > SCENE_STUCK_TIMEOUT_MS) {
             console.warn(`[MusicVideo] Scene ${scene.id} stuck in 'generating' for ${Math.round(sceneAge / 60000)} min — auto-failing.`);
             await db.update(musicVideoScenes)
-              .set({ status: "failed", errorMessage: "Scene timed out after 40 minutes — please use Retry to regenerate this scene", updatedAt: new Date() })
+              .set({ status: "failed", errorMessage: "Scene timed out after 90 minutes — please use Retry to regenerate this scene", updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
           }
         }
@@ -1409,8 +1409,8 @@ Rules:
               updatedAt: new Date()
             })
             .where(eq(musicVideoJobs.id, input.jobId));
-          // Refund credits for high-failure jobs
-          if (ctx.user.role !== "admin" && job.creditCost > 0) {
+          // Refund credits for all users (including admin) when too many scenes fail
+          if (job.creditCost > 0) { // Refund all users including admin
             try {
               await refundCredits(ctx.user.id, job.creditCost, `Refund: high scene failure rate (${failedCount}/${scenes.length}) — job #${job.id}`, job.id);
             } catch (refundErr) {

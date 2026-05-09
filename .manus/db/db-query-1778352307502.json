@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO creditTransactions (userId, amount, type, description, projectId, createdAt) VALUES (1, 666, 'refund', 'Refund: high scene failure rate (11/37) — job #450002 [manual correction]', 450002, NOW()); UPDATE credits SET balance = balance + 666, totalSpent = totalSpent - 666 WHERE userId = 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute INSERT INTO creditTransactions (userId, amount, type, description, projectId, createdAt) VALUES (1, 666, 'refund', 'Refund: high scene failure rate (11/37) — job #450002 [manual correction]', 450002, NOW()); UPDATE credits SET balance = balance + 666, totalSpent = totalSpent - 666 WHERE userId = 1;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 680
+}

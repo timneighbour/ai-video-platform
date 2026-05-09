@@ -1,0 +1,220 @@
+{
+  "query": "SELECT id, amount, type, description, createdAt FROM creditTransactions WHERE userId = 1 ORDER BY createdAt DESC LIMIT 30;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT id, amount, type, description, createdAt FROM creditTransactions WHERE userId = 1 ORDER BY createdAt DESC LIMIT 30;",
+  "rows": [
+    {
+      "id": "720012",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 22)",
+      "createdAt": "2026-05-09 17:19:26"
+    },
+    {
+      "id": "720011",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 22)",
+      "createdAt": "2026-05-09 17:18:51"
+    },
+    {
+      "id": "720010",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 34)",
+      "createdAt": "2026-05-09 17:17:58"
+    },
+    {
+      "id": "720009",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 32)",
+      "createdAt": "2026-05-09 17:17:02"
+    },
+    {
+      "id": "720008",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 24)",
+      "createdAt": "2026-05-09 17:15:55"
+    },
+    {
+      "id": "720007",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 22)",
+      "createdAt": "2026-05-09 17:11:48"
+    },
+    {
+      "id": "720006",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 15)",
+      "createdAt": "2026-05-09 17:11:04"
+    },
+    {
+      "id": "720005",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 14)",
+      "createdAt": "2026-05-09 17:10:21"
+    },
+    {
+      "id": "720004",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 15)",
+      "createdAt": "2026-05-09 17:10:18"
+    },
+    {
+      "id": "720003",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 20)",
+      "createdAt": "2026-05-09 17:10:09"
+    },
+    {
+      "id": "720002",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 22)",
+      "createdAt": "2026-05-09 17:10:00"
+    },
+    {
+      "id": "720001",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 5)",
+      "createdAt": "2026-05-09 17:06:21"
+    },
+    {
+      "id": "690030",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 24)",
+      "createdAt": "2026-05-06 23:33:08"
+    },
+    {
+      "id": "690029",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 22)",
+      "createdAt": "2026-05-06 23:32:34"
+    },
+    {
+      "id": "690028",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 1)",
+      "createdAt": "2026-05-06 23:31:36"
+    },
+    {
+      "id": "690027",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 7)",
+      "createdAt": "2026-05-06 23:09:58"
+    },
+    {
+      "id": "690026",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 7)",
+      "createdAt": "2026-05-06 23:09:38"
+    },
+    {
+      "id": "690025",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 7)",
+      "createdAt": "2026-05-06 23:08:56"
+    },
+    {
+      "id": "690024",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 7)",
+      "createdAt": "2026-05-06 23:08:30"
+    },
+    {
+      "id": "690023",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 7)",
+      "createdAt": "2026-05-06 23:08:01"
+    },
+    {
+      "id": "690022",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 7)",
+      "createdAt": "2026-05-06 23:07:37"
+    },
+    {
+      "id": "690021",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 14)",
+      "createdAt": "2026-05-06 23:06:48"
+    },
+    {
+      "id": "690020",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 14)",
+      "createdAt": "2026-05-06 23:06:26"
+    },
+    {
+      "id": "690019",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 14)",
+      "createdAt": "2026-05-06 23:05:59"
+    },
+    {
+      "id": "690018",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 14)",
+      "createdAt": "2026-05-06 23:05:38"
+    },
+    {
+      "id": "690017",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 14)",
+      "createdAt": "2026-05-06 23:05:18"
+    },
+    {
+      "id": "690016",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 7)",
+      "createdAt": "2026-05-06 23:04:23"
+    },
+    {
+      "id": "690015",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 14)",
+      "createdAt": "2026-05-06 23:03:43"
+    },
+    {
+      "id": "690014",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 18)",
+      "createdAt": "2026-05-06 23:03:10"
+    },
+    {
+      "id": "690013",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 330001, scene 18)",
+      "createdAt": "2026-05-06 23:02:33"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tamount\ttype\tdescription\tcreatedAt\n720012\t-1\tusage\tScene preview regeneration (job 450002, scene 22)\t2026-05-09 17:19:26\n720011\t-1\tusage\tScene preview regeneration (job 450002, scene 22)\t2026-05-09 17:18:51\n720010\t-1\tusage\tScene preview regeneration (job 450002, scene 34)\t2026-05-09 17:17:58\n720009\t-1\tusage\tScene preview regeneration (job 450002, scene 32)\t2026-05-09 17:17:02\n720008\t-1\tusage\tScene preview regeneration (job 450002, scene 24)\t2026-05-09 17:15:55\n720007\t-1\tusage\tScene preview regeneration (job 450002, scene 22)\t2026-05-09 17:11:48\n720006\t-1\tusage\tScene preview regeneration (job 450002, scene 15)\t2026-05-09 17:11:04\n720005\t-1\tusage\tScene preview regeneration (job 450002, scene 14)\t2026-05-09 17:10:21\n720004\t-1\tusage\tScene preview regeneration (job 450002, scene 15)\t2026-05-09 17:10:18\n720003\t-1\tusage\tScene preview regeneration (job 450002, scene 20)\t2026-05-09 17:10:09\n720002\t-1\tusage\tScene preview regeneration (job 450002, scene 22)\t2026-05-09 17:10:00\n720001\t-1\tusage\tScene preview regeneration (job 450002, scene 5)\t2026-05-09 17:06:21\n690030\t-1\tusage\tScene preview regeneration (job 330001, scene 24)\t2026-05-06 23:33:08\n690029\t-1\tusage\tScene preview regeneration (job 330001, scene 22)\t2026-05-06 23:32:34\n690028\t-1\tusage\tScene preview regeneration (job 330001, scene 1)\t2026-05-06 23:31:36\n690027\t-1\tusage\tScene preview regeneration (job 330001, scene 7)\t2026-05-06 23:09:58\n690026\t-1\tusage\tScene preview regeneration (job 330001, scene 7)\t2026-05-06 23:09:38\n690025\t-1\tusage\tScene preview regeneration (job 330001, scene 7)\t2026-05-06 23:08:56\n690024\t-1\tusage\tScene preview regeneration (job 330001, scene 7)\t2026-05-06 23:08:30\n690023\t-1\tusage\tScene preview regeneration (job 330001, scene 7)\t2026-05-06 23:08:01\n690022\t-1\tusage\tScene preview regeneration (job 330001, scene 7)\t2026-05-06 23:07:37\n690021\t-1\tusage\tScene preview regeneration (job 330001, scene 14)\t2026-05-06 23:06:48\n690020\t-1\tusage\tScene preview regeneration (job 330001, scene 14)\t2026-05-06 23:06:26\n690019\t-1\tusage\tScene preview regeneration (job 330001, scene 14)\t2026-05-06 23:05:59\n690018\t-1\tusage\tScene preview regeneration (job 330001, scene 14)\t2026-05-06 23:05:38\n690017\t-1\tusage\tScene preview regeneration (job 330001, scene 14)\t2026-05-06 23:05:18\n690016\t-1\tusage\tScene preview regeneration (job 330001, scene 7)\t2026-05-06 23:04:23\n690015\t-1\tusage\tScene preview regeneration (job 330001, scene 14)\t2026-05-06 23:03:43\n690014\t-1\tusage\tScene preview regeneration (job 330001, scene 18)\t2026-05-06 23:03:10\n690013\t-1\tusage\tScene preview regeneration (job 330001, scene 18)\t2026-05-06 23:02:33\n",
+  "stderr": "",
+  "execution_time_ms": 559
+}

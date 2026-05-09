@@ -1,0 +1,90 @@
+{
+  "query": "SELECT id, userId, amount, type, description, createdAt FROM creditTransactions WHERE description LIKE '%450002%' OR description LIKE '%Unstoppable%' ORDER BY createdAt DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT id, userId, amount, type, description, createdAt FROM creditTransactions WHERE description LIKE '%450002%' OR description LIKE '%Unstoppable%' ORDER BY createdAt DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "720012",
+      "userId": "1",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 22)",
+      "createdAt": "2026-05-09 17:19:26"
+    },
+    {
+      "id": "720011",
+      "userId": "1",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 22)",
+      "createdAt": "2026-05-09 17:18:51"
+    },
+    {
+      "id": "720010",
+      "userId": "1",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 34)",
+      "createdAt": "2026-05-09 17:17:58"
+    },
+    {
+      "id": "720009",
+      "userId": "1",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 32)",
+      "createdAt": "2026-05-09 17:17:02"
+    },
+    {
+      "id": "720008",
+      "userId": "1",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 24)",
+      "createdAt": "2026-05-09 17:15:55"
+    },
+    {
+      "id": "720007",
+      "userId": "1",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 22)",
+      "createdAt": "2026-05-09 17:11:48"
+    },
+    {
+      "id": "720006",
+      "userId": "1",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 15)",
+      "createdAt": "2026-05-09 17:11:04"
+    },
+    {
+      "id": "720005",
+      "userId": "1",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 14)",
+      "createdAt": "2026-05-09 17:10:21"
+    },
+    {
+      "id": "720004",
+      "userId": "1",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 15)",
+      "createdAt": "2026-05-09 17:10:18"
+    },
+    {
+      "id": "720003",
+      "userId": "1",
+      "amount": "-1",
+      "type": "usage",
+      "description": "Scene preview regeneration (job 450002, scene 20)",
+      "createdAt": "2026-05-09 17:10:09"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tuserId\tamount\ttype\tdescription\tcreatedAt\n720012\t1\t-1\tusage\tScene preview regeneration (job 450002, scene 22)\t2026-05-09 17:19:26\n720011\t1\t-1\tusage\tScene preview regeneration (job 450002, scene 22)\t2026-05-09 17:18:51\n720010\t1\t-1\tusage\tScene preview regeneration (job 450002, scene 34)\t2026-05-09 17:17:58\n720009\t1\t-1\tusage\tScene preview regeneration (job 450002, scene 32)\t2026-05-09 17:17:02\n720008\t1\t-1\tusage\tScene preview regeneration (job 450002, scene 24)\t2026-05-09 17:15:55\n720007\t1\t-1\tusage\tScene preview regeneration (job 450002, scene 22)\t2026-05-09 17:11:48\n720006\t1\t-1\tusage\tScene preview regeneration (job 450002, scene 15)\t2026-05-09 17:11:04\n720005\t1\t-1\tusage\tScene preview regeneration (job 450002, scene 14)\t2026-05-09 17:10:21\n720004\t1\t-1\tusage\tScene preview regeneration (job 450002, scene 15)\t2026-05-09 17:10:18\n720003\t1\t-1\tusage\tScene preview regeneration (job 450002, scene 20)\t2026-05-09 17:10:09\n",
+  "stderr": "",
+  "execution_time_ms": 664
+}

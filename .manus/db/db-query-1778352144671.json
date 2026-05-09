@@ -1,0 +1,190 @@
+{
+  "query": "SELECT id, jobId, sceneIndex, mvSceneStatus, errorMessage, taskId, updatedAt FROM musicVideoScenes WHERE mvSceneStatus = 'failed' ORDER BY updatedAt DESC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT id, jobId, sceneIndex, mvSceneStatus, errorMessage, taskId, updatedAt FROM musicVideoScenes WHERE mvSceneStatus = 'failed' ORDER BY updatedAt DESC LIMIT 20;",
+  "rows": [
+    {
+      "id": "510056",
+      "jobId": "450002",
+      "sceneIndex": "18",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after 40 minutes — please use Retry to regenerate this scene",
+      "taskId": "atlas:8e540a4d28664b6a97cc31d4672cf776",
+      "updatedAt": "2026-05-09 18:21:10"
+    },
+    {
+      "id": "510073",
+      "jobId": "450002",
+      "sceneIndex": "35",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after 40 minutes — please use Retry to regenerate this scene",
+      "taskId": "atlas:dbc315da942a424f82ed8c726a430470",
+      "updatedAt": "2026-05-09 18:15:21"
+    },
+    {
+      "id": "510074",
+      "jobId": "450002",
+      "sceneIndex": "36",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after 40 minutes — please use Retry to regenerate this scene",
+      "taskId": "atlas:c665e3100a334e97b63de43229deefb6",
+      "updatedAt": "2026-05-09 18:15:21"
+    },
+    {
+      "id": "510072",
+      "jobId": "450002",
+      "sceneIndex": "34",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after 40 minutes — please use Retry to regenerate this scene",
+      "taskId": "atlas:4309309647714cfa940bc9790be5cca0",
+      "updatedAt": "2026-05-09 18:15:06"
+    },
+    {
+      "id": "510070",
+      "jobId": "450002",
+      "sceneIndex": "32",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after 40 minutes — please use Retry to regenerate this scene",
+      "taskId": "atlas:4051c07c4f8c41f6b47c283ece0b6e9c",
+      "updatedAt": "2026-05-09 18:14:49"
+    },
+    {
+      "id": "510071",
+      "jobId": "450002",
+      "sceneIndex": "33",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after 40 minutes — please use Retry to regenerate this scene",
+      "taskId": "atlas:615c64107ca041bdaf2e967bd938c469",
+      "updatedAt": "2026-05-09 18:14:49"
+    },
+    {
+      "id": "510068",
+      "jobId": "450002",
+      "sceneIndex": "30",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after 40 minutes — please use Retry to regenerate this scene",
+      "taskId": "atlas:04bceefaa21b4e999df25102c124de0a",
+      "updatedAt": "2026-05-09 18:14:33"
+    },
+    {
+      "id": "510069",
+      "jobId": "450002",
+      "sceneIndex": "31",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after 40 minutes — please use Retry to regenerate this scene",
+      "taskId": "atlas:dbe9c36cf2ca4749abe49426ab8e421c",
+      "updatedAt": "2026-05-09 18:14:33"
+    },
+    {
+      "id": "510043",
+      "jobId": "450002",
+      "sceneIndex": "5",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after 40 minutes — please use Retry to regenerate this scene",
+      "taskId": "atlas:43b65413183a428e9228b5c063dd2bbe",
+      "updatedAt": "2026-05-09 18:14:17"
+    },
+    {
+      "id": "510067",
+      "jobId": "450002",
+      "sceneIndex": "29",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after 40 minutes — please use Retry to regenerate this scene",
+      "taskId": "atlas:20a7a7f687d94ed08a2a8ee6bee6562d",
+      "updatedAt": "2026-05-09 18:14:17"
+    },
+    {
+      "id": "510038",
+      "jobId": "450002",
+      "sceneIndex": "0",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after 40 minutes — please use Retry to regenerate this scene",
+      "taskId": "atlas:516ef60dd3fd4ee5a5ec9930b19d4d8a",
+      "updatedAt": "2026-05-09 18:11:13"
+    },
+    {
+      "id": "420023",
+      "jobId": "330001",
+      "sceneIndex": "22",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Error: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420023 has already been submitted 5 times (max 5). No further retries allowed.",
+      "taskId": "NULL",
+      "updatedAt": "2026-05-07 11:37:01"
+    },
+    {
+      "id": "420022",
+      "jobId": "330001",
+      "sceneIndex": "21",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Error: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420022 has already been submitted 5 times (max 5). No further retries allowed.",
+      "taskId": "NULL",
+      "updatedAt": "2026-05-07 11:36:57"
+    },
+    {
+      "id": "420021",
+      "jobId": "330001",
+      "sceneIndex": "20",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Error: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420021 has already been submitted 5 times (max 5). No further retries allowed.",
+      "taskId": "NULL",
+      "updatedAt": "2026-05-07 11:36:54"
+    },
+    {
+      "id": "420020",
+      "jobId": "330001",
+      "sceneIndex": "19",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Error: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420020 has already been submitted 5 times (max 5). No further retries allowed.",
+      "taskId": "NULL",
+      "updatedAt": "2026-05-07 11:36:51"
+    },
+    {
+      "id": "420019",
+      "jobId": "330001",
+      "sceneIndex": "18",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Error: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420019 has already been submitted 5 times (max 5). No further retries allowed.",
+      "taskId": "NULL",
+      "updatedAt": "2026-05-07 11:36:47"
+    },
+    {
+      "id": "420018",
+      "jobId": "330001",
+      "sceneIndex": "17",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Error: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420018 has already been submitted 5 times (max 5). No further retries allowed.",
+      "taskId": "NULL",
+      "updatedAt": "2026-05-07 11:36:43"
+    },
+    {
+      "id": "420017",
+      "jobId": "330001",
+      "sceneIndex": "16",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Error: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420017 has already been submitted 6 times (max 5). No further retries allowed.",
+      "taskId": "NULL",
+      "updatedAt": "2026-05-07 11:36:40"
+    },
+    {
+      "id": "420016",
+      "jobId": "330001",
+      "sceneIndex": "15",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Error: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420016 has already been submitted 5 times (max 5). No further retries allowed.",
+      "taskId": "NULL",
+      "updatedAt": "2026-05-07 11:36:37"
+    },
+    {
+      "id": "420015",
+      "jobId": "330001",
+      "sceneIndex": "14",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Error: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420015 has already been submitted 5 times (max 5). No further retries allowed.",
+      "taskId": "NULL",
+      "updatedAt": "2026-05-07 11:36:33"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tjobId\tsceneIndex\tmvSceneStatus\terrorMessage\ttaskId\tupdatedAt\n510056\t450002\t18\tfailed\tScene timed out after 40 minutes — please use Retry to regenerate this scene\tatlas:8e540a4d28664b6a97cc31d4672cf776\t2026-05-09 18:21:10\n510073\t450002\t35\tfailed\tScene timed out after 40 minutes — please use Retry to regenerate this scene\tatlas:dbc315da942a424f82ed8c726a430470\t2026-05-09 18:15:21\n510074\t450002\t36\tfailed\tScene timed out after 40 minutes — please use Retry to regenerate this scene\tatlas:c665e3100a334e97b63de43229deefb6\t2026-05-09 18:15:21\n510072\t450002\t34\tfailed\tScene timed out after 40 minutes — please use Retry to regenerate this scene\tatlas:4309309647714cfa940bc9790be5cca0\t2026-05-09 18:15:06\n510070\t450002\t32\tfailed\tScene timed out after 40 minutes — please use Retry to regenerate this scene\tatlas:4051c07c4f8c41f6b47c283ece0b6e9c\t2026-05-09 18:14:49\n510071\t450002\t33\tfailed\tScene timed out after 40 minutes — please use Retry to regenerate this scene\tatlas:615c64107ca041bdaf2e967bd938c469\t2026-05-09 18:14:49\n510068\t450002\t30\tfailed\tScene timed out after 40 minutes — please use Retry to regenerate this scene\tatlas:04bceefaa21b4e999df25102c124de0a\t2026-05-09 18:14:33\n510069\t450002\t31\tfailed\tScene timed out after 40 minutes — please use Retry to regenerate this scene\tatlas:dbe9c36cf2ca4749abe49426ab8e421c\t2026-05-09 18:14:33\n510043\t450002\t5\tfailed\tScene timed out after 40 minutes — please use Retry to regenerate this scene\tatlas:43b65413183a428e9228b5c063dd2bbe\t2026-05-09 18:14:17\n510067\t450002\t29\tfailed\tScene timed out after 40 minutes — please use Retry to regenerate this scene\tatlas:20a7a7f687d94ed08a2a8ee6bee6562d\t2026-05-09 18:14:17\n510038\t450002\t0\tfailed\tScene timed out after 40 minutes — please use Retry to regenerate this scene\tatlas:516ef60dd3fd4ee5a5ec9930b19d4d8a\t2026-05-09 18:11:13\n420023\t330001\t22\tfailed\tError: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420023 has already been submitted 5 times (max 5). No further retries allowed.\tNULL\t2026-05-07 11:37:01\n420022\t330001\t21\tfailed\tError: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420022 has already been submitted 5 times (max 5). No further retries allowed.\tNULL\t2026-05-07 11:36:57\n420021\t330001\t20\tfailed\tError: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420021 has already been submitted 5 times (max 5). No further retries allowed.\tNULL\t2026-05-07 11:36:54\n420020\t330001\t19\tfailed\tError: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420020 has already been submitted 5 times (max 5). No further retries allowed.\tNULL\t2026-05-07 11:36:51\n420019\t330001\t18\tfailed\tError: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420019 has already been submitted 5 times (max 5). No further retries allowed.\tNULL\t2026-05-07 11:36:47\n420018\t330001\t17\tfailed\tError: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420018 has already been submitted 5 times (max 5). No further retries allowed.\tNULL\t2026-05-07 11:36:43\n420017\t330001\t16\tfailed\tError: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420017 has already been submitted 6 times (max 5). No further retries allowed.\tNULL\t2026-05-07 11:36:40\n420016\t330001\t15\tfailed\tError: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420016 has already been submitted 5 times (max 5). No further retries allowed.\tNULL\t2026-05-07 11:36:37\n420015\t330001\t14\tfailed\tError: SPEND_PROTECTION_BLOCK: RETRY_LIMIT: Scene 420015 has already been submitted 5 times (max 5). No further retries allowed.\tNULL\t2026-05-07 11:36:33\n",
+  "stderr": "",
+  "execution_time_ms": 556
+}

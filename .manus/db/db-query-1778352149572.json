@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, title, status, totalScenes, completedScenes, errorMessage, creditCost, updatedAt FROM musicVideoJobs WHERE id = 450002;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT id, title, status, totalScenes, completedScenes, errorMessage, creditCost, updatedAt FROM musicVideoJobs WHERE id = 450002;",
+  "rows": [
+    {
+      "id": "450002",
+      "title": "Unstoppable",
+      "status": "failed",
+      "totalScenes": "37",
+      "completedScenes": "26",
+      "errorMessage": "Too many scenes failed to render (11/37, 30% failure rate). Your credits have been refunded. Please retry or edit the failed scenes.",
+      "creditCost": "666",
+      "updatedAt": "2026-05-09 18:21:10"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tstatus\ttotalScenes\tcompletedScenes\terrorMessage\tcreditCost\tupdatedAt\n450002\tUnstoppable\tfailed\t37\t26\tToo many scenes failed to render (11/37, 30% failure rate). Your credits have been refunded. Please retry or edit the failed scenes.\t666\t2026-05-09 18:21:10\n",
+  "stderr": "",
+  "execution_time_ms": 556
+}

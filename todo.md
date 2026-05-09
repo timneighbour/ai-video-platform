@@ -7355,5 +7355,13 @@
 - [x] Add "What is WizaVision?" description section to WizaVision page
 - [x] Add WizaVision link to relevant CTAs (Dashboard, Discover page)
 
+<<<<<<< Updated upstream
 ## Music Video Storyboard Lyrics Bug
 - [ ] Fix: lyrics not showing on storyboard scene cards in the Music Video creator
+=======
+## Build Failed / Scene Generation Failures
+- [ ] Fix: "Build Failed — Some scenes could not be generated" in Screening Room
+- [ ] Investigate Atlas Cloud credit drain without successful video output
+- [ ] Add credit refund when scenes fail during render
+- [ ] Improve error messaging to show which scenes failed and why
+>>>>>>> Stashed changes

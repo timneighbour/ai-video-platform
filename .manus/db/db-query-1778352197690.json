@@ -1,0 +1,17 @@
+{
+  "query": "SELECT balance, monthlyCredits, topupCredits, totalEarned, totalSpent FROM credits WHERE userId = 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT balance, monthlyCredits, topupCredits, totalEarned, totalSpent FROM credits WHERE userId = 1;",
+  "rows": [
+    {
+      "balance": "9776",
+      "monthlyCredits": "0",
+      "topupCredits": "0",
+      "totalEarned": "20000",
+      "totalSpent": "224"
+    }
+  ],
+  "messages": [],
+  "stdout": "balance\tmonthlyCredits\ttopupCredits\ttotalEarned\ttotalSpent\n9776\t0\t0\t20000\t224\n",
+  "stderr": "",
+  "execution_time_ms": 548
+}
