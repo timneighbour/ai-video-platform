@@ -253,3 +253,223 @@ export async function notifyAtlasExhausted(): Promise<void> {
     console.error("[ProviderHealth] Failed to send Atlas exhaustion notification:", e);
   }
 }
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// RENDER COST PROTECTION — Provider Reliability Tracking & Spend Guards
+// ═══════════════════════════════════════════════════════════════════════════════
+
+import { getDb } from "./db";
+import { providerHealth, providerSpendEvents, musicVideoJobs } from "../drizzle/schema";
+import { eq, desc, sql as drizzleSql } from "drizzle-orm";
+import type { ProviderHealth as ProviderHealthRow } from "../drizzle/schema";
+
+// Provider cost constants (USD per scene)
+export const PROVIDER_COST_PER_SCENE_USD: Record<string, number> = {
+  "atlas-cloud": 0.08,
+  "wavespeed":   0.06,
+  "kling":       0.14,
+  "runway":      0.10,
+  "heygen":      0.05,
+};
+
+const CONSECUTIVE_FAILURE_LIMIT = 3;
+const FAILURE_RATE_LIMIT = 0.40;
+const RECOVERY_COOLDOWN_MS = 30 * 60 * 1000;
+
+const FALLBACK_CHAIN: Record<string, string[]> = {
+  "atlas-cloud": ["wavespeed", "kling"],
+  "wavespeed":   ["kling", "atlas-cloud"],
+  "kling":       ["wavespeed", "atlas-cloud"],
+  "runway":      ["wavespeed", "kling"],
+  "heygen":      ["wavespeed"],
+};
+
+export async function recordProviderOutcome(params: {
+  jobId: number;
+  sceneId?: number;
+  provider: string;
+  status: "success" | "failure" | "timeout" | "probe_success" | "probe_failure";
+  renderTimeMs?: number;
+  errorMessage?: string;
+  isProbe?: boolean;
+}): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  const costUsd = PROVIDER_COST_PER_SCENE_USD[params.provider] ?? 0.08;
+  const isFailure = ["failure", "timeout", "probe_failure"].includes(params.status);
+  await db.insert(providerSpendEvents).values({
+    jobId: params.jobId,
+    sceneId: params.sceneId ?? null,
+    provider: params.provider,
+    costUsd: costUsd.toFixed(4),
+    status: params.status,
+    renderTimeMs: params.renderTimeMs ?? null,
+    isProbe: params.isProbe ?? false,
+    errorMessage: params.errorMessage ?? null,
+  });
+  const existing = await db.select().from(providerHealth)
+    .where(eq(providerHealth.provider, params.provider)).limit(1);
+  if (existing.length === 0) {
+    await db.insert(providerHealth).values({
+      provider: params.provider,
+      successCount: isFailure ? 0 : 1,
+      failureCount: isFailure ? 1 : 0,
+      consecutiveFailures: isFailure ? 1 : 0,
+      totalSpendUsd: costUsd.toFixed(4),
+      wastedSpendUsd: isFailure ? costUsd.toFixed(4) : "0",
+      avgRenderTimeMs: params.renderTimeMs ?? 0,
+      isHealthy: true,
+      mode: params.provider === "atlas-cloud" ? "probe-only" : "full",
+      lastFailureAt: isFailure ? new Date() : null,
+      lastSuccessAt: isFailure ? null : new Date(),
+    });
+    return;
+  }
+
+  const record = existing[0];
+  const newSuccessCount = isFailure ? record.successCount : record.successCount + 1;
+  const newFailureCount = isFailure ? record.failureCount + 1 : record.failureCount;
+  const newConsecutiveFailures = isFailure ? record.consecutiveFailures + 1 : 0;
+  const newTotalSpend = parseFloat(record.totalSpendUsd as string) + costUsd;
+  const newWastedSpend = parseFloat(record.wastedSpendUsd as string) + (isFailure ? costUsd : 0);
+  const totalAttempts = newSuccessCount + newFailureCount;
+  const newAvg = params.renderTimeMs
+    ? Math.round((record.avgRenderTimeMs * (totalAttempts - 1) + params.renderTimeMs) / totalAttempts)
+    : record.avgRenderTimeMs;
+
+  const recentFailureRate = totalAttempts >= 5 ? newFailureCount / Math.min(totalAttempts, 20) : 0;
+  const shouldMarkUnhealthy =
+    newConsecutiveFailures >= CONSECUTIVE_FAILURE_LIMIT ||
+    (totalAttempts >= 10 && recentFailureRate >= FAILURE_RATE_LIMIT);
+  const wasHealthy = record.isHealthy;
+  const nowHealthy = !shouldMarkUnhealthy;
+
+  await db.update(providerHealth).set({
+    successCount: newSuccessCount,
+    failureCount: newFailureCount,
+    consecutiveFailures: newConsecutiveFailures,
+    totalSpendUsd: newTotalSpend.toFixed(4),
+    wastedSpendUsd: newWastedSpend.toFixed(4),
+    avgRenderTimeMs: newAvg,
+    isHealthy: nowHealthy,
+    lastFailureAt: isFailure ? new Date() : record.lastFailureAt,
+    lastSuccessAt: isFailure ? record.lastSuccessAt : new Date(),
+  }).where(eq(providerHealth.provider, params.provider));
+
+  if (wasHealthy && !nowHealthy) {
+    const reason = newConsecutiveFailures >= CONSECUTIVE_FAILURE_LIMIT
+      ? `${newConsecutiveFailures} consecutive failures`
+      : `${Math.round(recentFailureRate * 100)}% failure rate`;
+    console.error(`[ProviderHealth] Provider "${params.provider}" marked UNHEALTHY: ${reason}`);
+    try {
+      const { notifyOwner } = await import("./_core/notification");
+      await notifyOwner({
+        title: `Provider Unhealthy: ${params.provider}`,
+        content: `Provider **${params.provider}** has been automatically marked as unhealthy.\n\n**Reason:** ${reason}\n**Wasted spend:** $${newWastedSpend.toFixed(2)}\n\nScenes will be routed to fallback providers. Visit /admin/provider-health to review.`,
+      });
+    } catch (e) { console.error("[ProviderHealth] Failed to send admin alert:", e); }
+  }
+}
+
+export async function checkProviderRecovery(): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  const unhealthy = await db.select().from(providerHealth).where(eq(providerHealth.isHealthy, false));
+  for (const p of unhealthy) {
+    if (!p.lastFailureAt) continue;
+    const msSince = Date.now() - new Date(p.lastFailureAt).getTime();
+    if (msSince >= RECOVERY_COOLDOWN_MS) {
+      await db.update(providerHealth).set({ isHealthy: true, consecutiveFailures: 0 })
+        .where(eq(providerHealth.provider, p.provider));
+      console.log(`[ProviderHealth] Provider "${p.provider}" auto-recovered`);
+    }
+  }
+}
+
+export async function getBestProvider(
+  preferredProvider: string,
+  sceneCount: number
+): Promise<{ provider: string; blocked: boolean; reason?: string }> {
+  await checkProviderRecovery();
+  const db = await getDb();
+  if (!db) return { provider: preferredProvider, blocked: false };
+  const allHealth = await db.select().from(providerHealth);
+  const healthMap = Object.fromEntries(allHealth.map((h: any) => [h.provider, h]));
+  const preferred = healthMap[preferredProvider];
+
+  if (preferred) {
+    const isProbeOnly = preferred.mode === "probe-only" && sceneCount > 3;
+    const isDisabled = preferred.mode === "disabled";
+    const isUnhealthy = !preferred.isHealthy;
+    if (!isProbeOnly && !isDisabled && !isUnhealthy) {
+      return { provider: preferredProvider, blocked: false };
+    }
+    console.log(`[ProviderHealth] ${preferredProvider} unavailable (mode=${preferred.mode}, healthy=${preferred.isHealthy})`);
+  }
+
+  const fallbacks = FALLBACK_CHAIN[preferredProvider] ?? ["wavespeed", "kling"];
+  for (const fb of fallbacks) {
+    const fh = healthMap[fb];
+    if (fh?.isHealthy && fh.mode !== "disabled") {
+      console.log(`[ProviderHealth] Routed to fallback: ${fb}`);
+      return { provider: fb, blocked: false };
+    }
+  }
+  return { provider: preferredProvider, blocked: true, reason: "All providers are currently unhealthy." };
+}
+
+export async function checkJobSpendLimit(jobId: number): Promise<{
+  exceeded: boolean; currentSpend: number; limit: number;
+}> {
+  const db = await getDb();
+  if (!db) return { exceeded: false, currentSpend: 0, limit: 5 };
+  const job = await db.select({
+    providerSpendUsd: musicVideoJobs.providerSpendUsd,
+    maxSpendLimitUsd: musicVideoJobs.maxSpendLimitUsd,
+  }).from(musicVideoJobs).where(eq(musicVideoJobs.id, jobId)).limit(1);
+  if (!job.length) return { exceeded: false, currentSpend: 0, limit: 5 };
+  const currentSpend = parseFloat((job[0].providerSpendUsd ?? "0") as string);
+  const limit = parseFloat((job[0].maxSpendLimitUsd ?? "5.00") as string);
+  return { exceeded: currentSpend >= limit, currentSpend, limit };
+}
+export async function updateJobSpend(jobId: number, provider: string, isFailure: boolean): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  const costUsd = PROVIDER_COST_PER_SCENE_USD[provider] ?? 0.08;
+  await db.update(musicVideoJobs).set({
+    providerSpendUsd: drizzleSql`COALESCE(provider_spend_usd, 0) + ${costUsd}`,
+    wastedSpendUsd: isFailure ? drizzleSql`COALESCE(wasted_spend_usd, 0) + ${costUsd}` : drizzleSql`COALESCE(wasted_spend_usd, 0)`,
+  }).where(eq(musicVideoJobs.id, jobId));
+}
+export async function getProviderHealthSummary() {
+  const db = await getDb();
+  if (!db) return [];
+  const health = await db.select().from(providerHealth).orderBy(desc(providerHealth.updatedAt));
+  return health.map((h: any) => {
+    const total = h.successCount + h.failureCount;
+    const successRate = total > 0 ? Math.round((h.successCount / total) * 100) : 100;
+    const failureRate = total > 0 ? Math.round((h.failureCount / total) * 100) : 0;
+    const costPerSuccess = h.successCount > 0
+      ? (parseFloat(h.totalSpendUsd as string) / h.successCount).toFixed(4) : "0";
+    const costPerFailure = h.failureCount > 0
+      ? (parseFloat(h.wastedSpendUsd as string) / h.failureCount).toFixed(4) : "0";
+    return {
+      provider: h.provider, isHealthy: h.isHealthy, mode: h.mode,
+      successCount: h.successCount, failureCount: h.failureCount,
+      consecutiveFailures: h.consecutiveFailures, successRate, failureRate,
+      avgRenderTimeSec: Math.round(h.avgRenderTimeMs / 1000),
+      totalSpendUsd: parseFloat(h.totalSpendUsd as string).toFixed(2),
+      wastedSpendUsd: parseFloat(h.wastedSpendUsd as string).toFixed(2),
+      costPerSuccessUsd: costPerSuccess, costPerFailureUsd: costPerFailure,
+      lastFailureAt: h.lastFailureAt, lastSuccessAt: h.lastSuccessAt, updatedAt: h.updatedAt,
+    };
+  });
+}
+
+export async function getRecentSpendEvents(limit = 50) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(providerSpendEvents)
+    .orderBy(desc(providerSpendEvents.createdAt)).limit(limit);
+}

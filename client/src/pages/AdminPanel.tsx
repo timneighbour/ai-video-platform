@@ -241,6 +241,9 @@ export default function AdminPanel() {
             <Link href="/admin/email">
               <Button size="sm" variant="outline" className="border-[#b8892a]/40 text-[#e8c97a] hover:bg-[#b8892a]/10">📧 Email Management</Button>
             </Link>
+            <Link href="/admin/providers">
+              <Button size="sm" className="bg-red-900/60 hover:bg-red-800/70 text-red-200 border border-red-700/50">🛡️ Provider Dashboard</Button>
+            </Link>
             <Link href="/blog/admin">
               <Button variant="outline" size="sm">Blog Admin</Button>
             </Link>

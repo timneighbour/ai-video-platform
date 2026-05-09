@@ -107,6 +107,7 @@ const ShowcasePage = lazy(() => import("@/pages/Showcase"));
 const AdminPanel = lazy(() => import("@/pages/AdminPanel"));
 const AdminCreditsPanel = lazy(() => import("@/pages/AdminCreditsPanel"));
 const AdminEmail = lazy(() => import("@/pages/AdminEmail"));
+const ProviderDashboard = lazy(() => import("@/pages/ProviderDashboard"));
 const AnalyticsDashboard = lazy(() => import("@/pages/AnalyticsDashboard"));
 const WizadoraAdmin = lazy(() => import("@/pages/admin/WizadoraAdmin"));
 const MyProjects = lazy(() => import("@/pages/MyProjects"));
@@ -330,6 +331,7 @@ function Router() {
         <Route path={"/admin/analytics"} component={AnalyticsDashboard} />
         <Route path={"/admin/wizadora"} component={WizadoraAdmin} />
         <Route path={"/admin/email"} component={AdminEmail} />
+        <Route path={"/admin/providers"} component={ProviderDashboard} />
         <Route path={"/render/success"} component={RenderSuccess} />
         <Route path={"/discover"} component={Discover} />
         <Route path={"/creators"} component={Discover} />

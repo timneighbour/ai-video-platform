@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO providerHealth (provider, successCount, failureCount, consecutiveFailures, totalSpendUsd, wastedSpendUsd, avgRenderTimeMs, isHealthy, providerMode) VALUES\n('atlas-cloud', 0, 0, 0, '0', '0', 0, true, 'probe-only'),\n('wavespeed', 0, 0, 0, '0', '0', 0, true, 'full'),\n('kling', 0, 0, 0, '0', '0', 0, true, 'full'),\n('runway', 0, 0, 0, '0', '0', 0, true, 'full'),\n('heygen', 0, 0, 0, '0', '0', 0, true, 'full')\nON DUPLICATE KEY UPDATE providerMode = VALUES(providerMode);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute INSERT INTO providerHealth (provider, successCount, failureCount, consecutiveFailures, totalSpendUsd, wastedSpendUsd, avgRenderTimeMs, isHealthy, providerMode) VALUES\n('atlas-cloud', 0, 0, 0, '0', '0', 0, true, 'probe-only'),\n('wavespeed', 0, 0, 0, '0', '0', 0, true, 'full'),\n('kling', 0, 0, 0, '0', '0', 0, true, 'full'),\n('runway', 0, 0, 0, '0', '0', 0, true, 'full'),\n('heygen', 0, 0, 0, '0', '0', 0, true, 'full')\nON DUPLICATE KEY UPDATE providerMode = VALUES(providerMode);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 595
+}

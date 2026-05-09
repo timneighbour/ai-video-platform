@@ -29,7 +29,7 @@ import { getUserSubscription, mapDbPlanToProductPlan, countVideosThisMonth } fro
 import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS, PLAN_SCENE_LIMITS, getPlanMaxScenesPerVideo } from "../products";
 import { classifyScenes } from "../scene-classifier";
 import { buildRoutingPlan, enforceHardStop } from "../renderer-router";
-import { isAnyProviderAvailable, checkAllProviders } from "../provider-health";
+import { isAnyProviderAvailable, checkAllProviders, getBestProvider, recordProviderOutcome, checkJobSpendLimit, updateJobSpend, PROVIDER_COST_PER_SCENE_USD } from "../provider-health";
 import { classifyFailure, isRetryableFailure, resetSceneAttempts } from "../spend-protection";
 import {
   analyseAudioInstruments,
@@ -1106,6 +1106,20 @@ Rules:
           }
 
           try {
+            // ── SPEND GUARD: check job spend limit before submitting ───────────────────────
+            const spendCheck = await checkJobSpendLimit(input.jobId);
+            if (spendCheck.exceeded) {
+              console.warn(`[SpendGuard] Job ${input.jobId} spend limit exceeded ($${spendCheck.currentSpend.toFixed(2)} / $${spendCheck.limit.toFixed(2)}) — stopping render`);
+              await db!.update(musicVideoJobs).set({ status: "failed", errorMessage: `Spend limit exceeded: $${spendCheck.currentSpend.toFixed(2)} spent (limit $${spendCheck.limit.toFixed(2)})`, updatedAt: new Date() }).where(eq(musicVideoJobs.id, input.jobId));
+              break;
+            }
+            // ── PROVIDER HEALTH ROUTING: use best available provider ─────────────────────
+            const providerCheck = await getBestProvider("wavespeed", scenes.length);
+            if (providerCheck.blocked) {
+              console.error(`[ProviderHealth] All providers blocked for job ${input.jobId}: ${providerCheck.reason}`);
+              await db!.update(musicVideoJobs).set({ status: "failed", errorMessage: `All render providers are currently unavailable. Please try again later.`, updatedAt: new Date() }).where(eq(musicVideoJobs.id, input.jobId));
+              break;
+            }
             // Route through WaveSpeed primary renderer (with Hypereal/Atlas/fal.ai fallback chain)
             // mapModelAssignmentToWaveSpeed converts DB value (e.g. "seedance-2.0") to valid WaveSpeed model path
             const wsModel = mapModelAssignmentToWaveSpeed(scene.modelAssignment ?? "seedance-2.0");
@@ -1324,8 +1338,26 @@ Rules:
         if (scene.status === "generating" && scene.taskId) {
           try {
             const result = await pollSceneStatus(scene.id, scene.taskId);
-            if (result.status === "completed") completedCount++;
-            if (result.status === "failed") failedCount++;
+            if (result.status === "completed") {
+              completedCount++;
+              // Record successful outcome for provider health tracking
+              recordProviderOutcome({
+                jobId: input.jobId, sceneId: scene.id, provider: "wavespeed",
+                status: "success",
+              }).catch(() => {});
+              updateJobSpend(input.jobId, "wavespeed", false).catch(() => {});
+            }
+            if (result.status === "failed") {
+              failedCount++;
+              // Record failure for provider health tracking
+              const isTimeout = (result as any).errorMessage?.includes("timed out");
+              recordProviderOutcome({
+                jobId: input.jobId, sceneId: scene.id, provider: "wavespeed",
+                status: isTimeout ? "timeout" : "failure",
+                errorMessage: (result as any).errorMessage ?? undefined,
+              }).catch(() => {});
+              updateJobSpend(input.jobId, "wavespeed", true).catch(() => {});
+            }
           } catch (pollErr: unknown) {
             const httpStatus = (pollErr as any)?.response?.status;
             if (httpStatus === 429) {

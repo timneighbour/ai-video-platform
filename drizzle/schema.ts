@@ -190,6 +190,12 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   reRenderCount: int("reRenderCount").default(0).notNull(), // Number of free re-renders used
   reRenderReason: text("reRenderReason"), // User's stated reason for re-render (last one)
   reRenderRequestedAt: timestamp("reRenderRequestedAt"), // When last re-render was requested
+  // --- Cost Protection Fields -------------------------------------------
+  providerSpendUsd: decimal("providerSpendUsd", { precision: 8, scale: 4 }).notNull().default("0"), // Total provider API cost for this job
+  wastedSpendUsd: decimal("wastedSpendUsd", { precision: 8, scale: 4 }).notNull().default("0"),   // Provider cost from failed/timed-out scenes
+  maxSpendLimitUsd: decimal("maxSpendLimitUsd", { precision: 6, scale: 2 }).notNull().default("5.00"), // Hard spend cap (default $5)
+  probePassed: boolean("probePassed"),                          // null = not probed, true = probe ok, false = probe failed
+  finalVideoProduced: boolean("finalVideoProduced").notNull().default(false), // true only when final video URL is set
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -256,6 +262,10 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   freeReRenderUsed: boolean("freeReRenderUsed").default(false).notNull(), // True after first free re-render is used
   lastReRenderAt: timestamp("lastReRenderAt"),                // When last re-render was requested
   cameraDirection: varchar("cameraDirection", { length: 64 }), // User-chosen camera: close_up | medium | wide | over_shoulder | tracking
+  // --- Cost Protection Fields -------------------------------------------
+  providerSpendUsd: decimal("providerSpendUsd", { precision: 6, scale: 4 }).notNull().default("0"), // Provider cost for this scene
+  retryCount: int("retryCount").notNull().default(0), // Number of times this scene has been retried
+  providerUsed: varchar("providerUsed", { length: 64 }), // Which provider generated this scene
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -1341,3 +1351,41 @@ export const characterScenes = mysqlTable("characterScenes", {
 });
 export type CharacterScene = typeof characterScenes.$inferSelect;
 export type InsertCharacterScene = typeof characterScenes.$inferInsert;
+
+// ─── Provider Health & Cost Protection ───────────────────────────────────────
+// Tracks per-provider reliability metrics to enable automatic routing,
+// demotion, and spend guards. Updated after every scene completes or fails.
+export const providerHealth = mysqlTable("providerHealth", {
+  id: int("id").autoincrement().primaryKey(),
+  provider: varchar("provider", { length: 64 }).notNull().unique(),
+  successCount: int("successCount").notNull().default(0),
+  failureCount: int("failureCount").notNull().default(0),
+  consecutiveFailures: int("consecutiveFailures").notNull().default(0),
+  totalSpendUsd: decimal("totalSpendUsd", { precision: 10, scale: 4 }).notNull().default("0"),
+  wastedSpendUsd: decimal("wastedSpendUsd", { precision: 10, scale: 4 }).notNull().default("0"),
+  avgRenderTimeMs: int("avgRenderTimeMs").notNull().default(0),
+  isHealthy: boolean("isHealthy").notNull().default(true),
+  mode: mysqlEnum("providerMode", ["full", "probe-only", "disabled"]).notNull().default("full"),
+  lastFailureAt: timestamp("lastFailureAt"),
+  lastSuccessAt: timestamp("lastSuccessAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type ProviderHealth = typeof providerHealth.$inferSelect;
+export type InsertProviderHealth = typeof providerHealth.$inferInsert;
+
+// Logs every individual scene generation attempt with cost and outcome.
+export const providerSpendEvents = mysqlTable("providerSpendEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: int("jobId").notNull(),
+  sceneId: int("sceneId"),
+  provider: varchar("provider", { length: 64 }).notNull(),
+  costUsd: decimal("costUsd", { precision: 8, scale: 4 }).notNull().default("0"),
+  status: mysqlEnum("spendEventStatus", ["success", "failure", "timeout", "probe_success", "probe_failure"]).notNull(),
+  renderTimeMs: int("renderTimeMs"),
+  isProbe: boolean("isProbe").notNull().default(false),
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type ProviderSpendEvent = typeof providerSpendEvents.$inferSelect;
+export type InsertProviderSpendEvent = typeof providerSpendEvents.$inferInsert;

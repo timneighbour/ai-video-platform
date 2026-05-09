@@ -25,6 +25,7 @@ import { currencyRouter } from "./routers/currency";
 import { voiceRouter } from "./routers/voice";
 import { adminEmailRouter } from "./routers/adminEmail";
 import { adminCreditsRouter } from "./routers/adminCredits";
+import { providerHealthRouter } from "./routers/providerHealth";
 import { unsubscribeRouter } from "./routers/unsubscribe";
 import { characterLibraryRouter } from "./routers/characterLibrary";
 import { studiosRouter } from "./routers/studios";
@@ -56,6 +57,7 @@ export const appRouter = router({
   voice: voiceRouter,
   adminEmail: adminEmailRouter,
   adminCredits: adminCreditsRouter,
+  providerHealth: providerHealthRouter,
   unsubscribe: unsubscribeRouter,
   characterLibrary: characterLibraryRouter,
   studios: studiosRouter,

@@ -7365,3 +7365,64 @@
 - [ ] Add credit refund when scenes fail during render
 - [ ] Improve error messaging to show which scenes failed and why
 >>>>>>> Stashed changes
+
+## Render Cost Protection Sprint (Commercial Priority — May 2026)
+
+### Schema
+- [ ] Add providerHealth table: provider, success_count, failure_count, consecutive_failures, total_spend_usd, wasted_spend_usd, avg_render_time_ms, is_healthy, last_failure_at, updated_at
+- [ ] Add providerSpendEvents table: job_id, scene_id, provider, cost_usd, status (success/failure/timeout), render_time_ms, created_at
+- [ ] Add to musicVideoJobs: provider_spend_usd, wasted_spend_usd, probe_passed, max_spend_limit_usd, final_video_produced
+- [ ] Add to musicVideoScenes: provider_spend_usd, retry_count, provider_used
+- [ ] Run migration via webdev_execute_sql
+
+### Provider Health Tracking
+- [ ] After every scene completes/fails: update providerHealth counters and avg render time
+- [ ] Mark provider unhealthy if consecutive_failures >= 3 OR failure_rate >= 40% over last 20 scenes
+- [ ] Auto-recover provider health after 30 min with no new failures
+- [ ] Log every scene outcome to providerSpendEvents
+
+### Provider Spend Guard
+- [ ] Before submitting any scene: check providerHealth.is_healthy for selected provider
+- [ ] If provider unhealthy: auto-route to fallback provider
+- [ ] If all providers unhealthy: block job start and notify admin immediately
+- [ ] Check recent failure rate (last 10 scenes) before launching full job
+
+### Test-First Render Strategy
+- [ ] For jobs with >5 scenes: run 2 probe scenes first before launching full render
+- [ ] If both probe scenes succeed: proceed with full render
+- [ ] If either probe scene fails: mark job probe_failed, refund all credits, alert admin
+- [ ] Show probe status in UI ("Testing provider... 2/2 probe scenes passed — launching full render")
+
+### Hard Render Limits
+- [ ] Max retries per scene: 2
+- [ ] Max failed scenes before aborting job: 20% of total scene count
+- [ ] Max provider spend per job: $5 USD default (configurable per admin)
+- [ ] If spend limit reached mid-job: pause job, refund remaining credits, alert admin
+- [ ] Admin approval required for jobs estimated >$10 USD provider cost
+
+### Cost Tracking Per Job/Scene
+- [ ] Track provider_spend_usd per scene (based on known provider pricing constants)
+- [ ] Track wasted_spend_usd for failed/timed-out scenes
+- [ ] Compute cost_per_successful_video for completed jobs
+- [ ] Store on job record: total_spend, wasted_spend, completed_scenes, failed_scenes, final_video_produced
+
+### Provider Reliability Dashboard (Admin)
+- [ ] Create /admin/provider-health page (admin role only)
+- [ ] Table: provider name, success rate %, avg render time, failure rate %, cost/successful scene, cost/failed scene, total wasted spend, health status badge
+- [ ] Recent spend events log (last 50 events)
+- [ ] Provider ranking (best to worst by cost-per-success)
+- [ ] "Reset Health" button per provider (admin action)
+- [ ] "Demote Provider" toggle per provider
+
+### Atlas Cloud Demotion
+- [ ] Set Atlas Cloud as LOW priority (probe-only mode by default)
+- [ ] For jobs with >10 scenes: route to WaveSpeed (Seedance 2.0) by default
+- [ ] Only use Atlas Cloud for probe renders or jobs with <=3 scenes until reliability improves
+- [ ] Add atlas_cloud_mode config: full / probe-only / disabled
+- [ ] Show warning in UI when Atlas Cloud is selected for large jobs
+
+### Admin Alerts
+- [ ] Send admin notification when provider is marked unhealthy
+- [ ] Send admin notification when a job exceeds spend limit
+- [ ] Send admin notification when probe render fails
+- [ ] Show provider cost incurred on failed job in admin job detail view
