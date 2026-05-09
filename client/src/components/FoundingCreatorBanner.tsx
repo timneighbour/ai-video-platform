@@ -96,19 +96,30 @@ export default function FoundingCreatorBanner() {
     window.location.href = "/pricing?ref=founding";
   };
 
-  // Don't show if: not mounted, dismissed, offer expired, or already subscribed
-  if (!mounted || dismissed || !expiresAt || !countdown) return null;
-  if (isAuthenticated && subData && subData.plan !== "free" && subData.isActive) return null;
-
-  const pad = (n: number) => n.toString().padStart(2, "0");
+  // Determine whether the banner should be visible
+  const shouldShow =
+    mounted &&
+    !dismissed &&
+    !!expiresAt &&
+    !!countdown &&
+    !(isAuthenticated && subData && subData.plan !== "free" && subData.isActive);
 
   // Set CSS variable for banner height so fixed navbars can offset themselves
+  // Must be called unconditionally (Rules of Hooks) — before any early return
   useEffect(() => {
-    document.documentElement.style.setProperty("--founding-banner-h", "44px");
+    if (shouldShow) {
+      document.documentElement.style.setProperty("--founding-banner-h", "44px");
+    } else {
+      document.documentElement.style.setProperty("--founding-banner-h", "0px");
+    }
     return () => {
       document.documentElement.style.setProperty("--founding-banner-h", "0px");
     };
-  }, []);
+  }, [shouldShow]);
+
+  if (!shouldShow) return null;
+
+  const pad = (n: number) => n.toString().padStart(2, "0");
 
   return (
     <div
