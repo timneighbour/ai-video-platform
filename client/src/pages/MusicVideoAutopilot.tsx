@@ -4972,7 +4972,13 @@ export default function MusicVideoAutopilot() {
                                               );
                                               try {
                                                 await retryFailedSceneMutation.mutateAsync({ sceneId: scene.id, jobId });
-                                                toast.success(`Scene ${scene.index + 1} re-queued for rendering`);
+                                                if (isSpendBlocked) {
+                                                  toast.success(`Scene ${scene.index + 1} unblocked and re-queued`, {
+                                                    description: "The retry limit has been reset — your scene is back in the render queue.",
+                                                  });
+                                                } else {
+                                                  toast.success(`Scene ${scene.index + 1} re-queued for rendering`);
+                                                }
                                                 isRenderingRef.current = true;
                                                 setRenderStatus("rendering");
                                               } catch (err: any) {
@@ -5072,7 +5078,13 @@ export default function MusicVideoAutopilot() {
                                                   prev.map((s) => s.id === scene.id ? { ...s, status: "pending", errorMessage: null } : s)
                                                 );
                                                 await retryFailedSceneMutation.mutateAsync({ sceneId: scene.id, jobId });
-                                                toast.success(`Scene ${scene.index + 1} updated and re-queued`);
+                                                if (isSpendBlocked) {
+                                                  toast.success(`Scene ${scene.index + 1} unblocked and re-queued`, {
+                                                    description: "The retry limit has been reset — your scene is back in the render queue.",
+                                                  });
+                                                } else {
+                                                  toast.success(`Scene ${scene.index + 1} updated and re-queued`);
+                                                }
                                                 isRenderingRef.current = true;
                                                 setRenderStatus("rendering");
                                               } catch (err: any) {

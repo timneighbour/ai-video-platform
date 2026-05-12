@@ -7435,3 +7435,6 @@
 - [x] DB hotfix: 88 stuck "submitted" entries for job 450002 manually cancelled so scenes can be retried
 - [x] UI fix: isSpendBlocked detection in MusicVideoAutopilot.tsx for friendly error message on SPEND_PROTECTION_BLOCK errors
 - [x] UI fix: friendly error message for RETRY_LIMIT errors ("Click Retry to re-queue it — the limit has been reset")
+
+## Spend-Blocked Retry Toast (May 2026)
+- [x] Show a distinct success toast when a user retries a scene that was previously blocked by SPEND_PROTECTION_BLOCK or RETRY_LIMIT, confirming the block has been cleared and the scene is re-queued
