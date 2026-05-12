@@ -7644,3 +7644,11 @@
 - [ ] PREVIEW-VIDEO: Confirm completed scene videoUrls appear and are playable in the grid during render
 - [ ] CHECKPOINT: Save checkpoint and publish both features
 
+
+## CRITICAL FIXES — Character Inconsistency + Watermark + Reaper (May 13 2026)
+- [ ] CRIT-1: Audit Character Lock enforcement — check if masterPortraitUrl is injected as reference image in EVERY scene generation call (Atlas + Wavespeed/Seedance)
+- [ ] CRIT-2: Fix Character Lock — ensure character description + portrait reference is prepended to every scene prompt regardless of provider
+- [ ] CRIT-3: Identify watermark source — check which provider (Atlas/Seedance/Wavespeed) adds watermarks and switch to non-watermarked tier or strip watermark
+- [ ] CRIT-4: Reduce stuckSceneReaper threshold from current value to 8 minutes max for production
+- [ ] CRIT-5: Add character consistency validation — log when a scene is generated without a character reference and flag it
+- [ ] CRIT-6: Checkpoint and publish all fixes

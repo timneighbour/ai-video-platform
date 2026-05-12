@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT s.id, s.job_id, s.scene_index, s.status, s.video_url, s.updated_at,\n       j.status as job_status, j.scenes_total, j.scenes_completed\nFROM music_video_scenes s\nJOIN music_video_jobs j ON s.job_id = j.id\nWHERE j.created_at > (NOW() - INTERVAL 2 HOUR)\nORDER BY j.created_at DESC, s.scene_index ASC\nLIMIT 20;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT s.id, s.job_id, s.scene_index, s.status, s.video_url, s.updated_at,\n       j.status as job_status, j.scenes_total, j.scenes_completed\nFROM music_video_scenes s\nJOIN music_video_jobs j ON s.job_id = j.id\nWHERE j.created_at > (NOW() - INTERVAL 2 HOUR)\nORDER BY j.created_at DESC, s.scene_index ASC\nLIMIT 20;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 2: Table 'aljhdnsuna7bexfuoqzusx.music_video_scenes' doesn't exist"
+  ]
+}

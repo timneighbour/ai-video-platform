@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT s.id, s.jobId, s.sceneIndex, s.status, s.videoUrl, s.updatedAt,\n       j.status as jobStatus, j.scenesTotal, j.scenesCompleted\nFROM musicVideoScenes s\nJOIN musicVideoJobs j ON s.jobId = j.id\nWHERE j.createdAt > (NOW() - INTERVAL 3 HOUR)\nORDER BY j.createdAt DESC, s.sceneIndex ASC\nLIMIT 20;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT s.id, s.jobId, s.sceneIndex, s.status, s.videoUrl, s.updatedAt,\n       j.status as jobStatus, j.scenesTotal, j.scenesCompleted\nFROM musicVideoScenes s\nJOIN musicVideoJobs j ON s.jobId = j.id\nWHERE j.createdAt > (NOW() - INTERVAL 3 HOUR)\nORDER BY j.createdAt DESC, s.sceneIndex ASC\nLIMIT 20;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 's.status' in 'field list'"
+  ]
+}

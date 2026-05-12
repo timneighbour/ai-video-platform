@@ -1857,6 +1857,32 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
   const scenes = await db.select().from(musicVideoScenes)
     .where(eq(musicVideoScenes.jobId, musicVideoJobId));
 
+  // ── CHARACTER LOCK: Load the primary vocalist's portrait for reference-to-video ──────────────
+  // This is the fix for character inconsistency: triggerMusicVideoRender was not passing
+  // characterImageUrl to startSceneRender, causing scenes to fall back to text-to-video
+  // with no character reference — resulting in random/different people appearing.
+  const jobCharacters = await db.select().from(videoCharacters)
+    .where(eq(videoCharacters.jobId, musicVideoJobId));
+
+  // Resolve primary vocalist portrait: prefer masterPortraitUrl, then previewImageUrl
+  const primaryVocalist = jobCharacters.find(c =>
+    (c.role ?? "").toLowerCase().includes("singer") ||
+    (c.role ?? "").toLowerCase().includes("vocalist") ||
+    (c.role ?? "").toLowerCase().includes("lead")
+  ) ?? jobCharacters[0] ?? null;
+
+  const characterImageUrl: string | null =
+    primaryVocalist?.masterPortraitUrl ??
+    primaryVocalist?.previewImageUrl ??
+    job.characterImageUrl ??
+    null;
+
+  if (characterImageUrl) {
+    console.log(`[triggerMusicVideoRender] CHARACTER LOCK active for job ${musicVideoJobId}: ${characterImageUrl.slice(0, 80)}...`);
+  } else {
+    console.warn(`[triggerMusicVideoRender] No character portrait found for job ${musicVideoJobId} — scenes will use text-to-video (no character lock)`);
+  }
+
   // Auto-generate missing previews
   const scenesWithoutPreview = scenes.filter(s => !s.previewImageUrl);
   if (scenesWithoutPreview.length > 0) {
@@ -1897,7 +1923,11 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
           rendererType,
           (scene.modelAssignment as any) ?? "bytedance/seedance-2.0/text-to-video",
           scene.previewImageUrl ?? undefined,
-          (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" // Use persisted export format
+          (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1", // Use persisted export format
+          musicVideoJobId,       // ── SPEND PROTECTION: pass jobId
+          characterImageUrl,     // ── CHARACTER LOCK: primary vocalist portrait
+          job.audioUrl ?? null,  // ── LIP SYNC: full song URL for audio clip extraction
+          scene.startTime        // ── LIP SYNC: scene start time for audio segment
         );
         await db!.update(musicVideoScenes)
           .set({ taskId, status: "generating", updatedAt: new Date() })

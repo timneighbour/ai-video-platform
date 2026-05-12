@@ -1,0 +1,100 @@
+{
+  "query": "\nSELECT s.id, s.jobId, s.sceneIndex, s.mvSceneStatus, s.videoUrl, s.errorMessage, s.updatedAt, s.taskId\nFROM musicVideoScenes s\nJOIN musicVideoJobs j ON s.jobId = j.id\nWHERE j.createdAt > (NOW() - INTERVAL 4 HOUR)\nORDER BY j.createdAt DESC, s.sceneIndex ASC\nLIMIT 20;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT s.id, s.jobId, s.sceneIndex, s.mvSceneStatus, s.videoUrl, s.errorMessage, s.updatedAt, s.taskId\nFROM musicVideoScenes s\nJOIN musicVideoJobs j ON s.jobId = j.id\nWHERE j.createdAt > (NOW() - INTERVAL 4 HOUR)\nORDER BY j.createdAt DESC, s.sceneIndex ASC\nLIMIT 20;\n",
+  "rows": [
+    {
+      "id": "540001",
+      "jobId": "510025",
+      "sceneIndex": "0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540001-1778625604931.mp4",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-12 22:40:06",
+      "taskId": "atlas:f7627240933e444b9cae45c3ef5d8eef"
+    },
+    {
+      "id": "540002",
+      "jobId": "510025",
+      "sceneIndex": "1",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540002-1778625656676.mp4",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-12 22:40:57",
+      "taskId": "wavespeed:seedance:89a048f70c42463fb5f76b25630399b2"
+    },
+    {
+      "id": "540003",
+      "jobId": "510025",
+      "sceneIndex": "2",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540003-1778626755226.mp4",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-12 22:59:16",
+      "taskId": "atlas:2f974eb687ac428da72e1247d983bc1c"
+    },
+    {
+      "id": "540004",
+      "jobId": "510025",
+      "sceneIndex": "3",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540004-1778625856799.mp4",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-12 22:44:17",
+      "taskId": "wavespeed:seedance:9b05bad652bd4aa793cb74b2503b4633"
+    },
+    {
+      "id": "540005",
+      "jobId": "510025",
+      "sceneIndex": "4",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540005-1778626735132.mp4",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-12 22:58:56",
+      "taskId": "atlas:1e07500f7ef04902bf23c542eee1bccb"
+    },
+    {
+      "id": "540006",
+      "jobId": "510025",
+      "sceneIndex": "5",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540006-1778626757721.mp4",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-12 22:59:19",
+      "taskId": "atlas:f4a5221388bd4285bea7e57ebc96ff63"
+    },
+    {
+      "id": "540007",
+      "jobId": "510025",
+      "sceneIndex": "6",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540007-1778625748908.mp4",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-12 22:42:33",
+      "taskId": "wavespeed:seedance:65ccc949423e4b8893a0fbd6d100212d"
+    },
+    {
+      "id": "540008",
+      "jobId": "510025",
+      "sceneIndex": "7",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540008-1778626760480.mp4",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-12 22:59:22",
+      "taskId": "atlas:563b56f39fe04634ae89a9ff64410557"
+    },
+    {
+      "id": "540009",
+      "jobId": "510025",
+      "sceneIndex": "8",
+      "mvSceneStatus": "generating",
+      "videoUrl": "NULL",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-12 23:15:08",
+      "taskId": "atlas:c96e177ecd5f4affa2dc9a22ed3a5af4"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tjobId\tsceneIndex\tmvSceneStatus\tvideoUrl\terrorMessage\tupdatedAt\ttaskId\n540001\t510025\t0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540001-1778625604931.mp4\tNULL\t2026-05-12 22:40:06\tatlas:f7627240933e444b9cae45c3ef5d8eef\n540002\t510025\t1\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540002-1778625656676.mp4\tNULL\t2026-05-12 22:40:57\twavespeed:seedance:89a048f70c42463fb5f76b25630399b2\n540003\t510025\t2\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540003-1778626755226.mp4\tNULL\t2026-05-12 22:59:16\tatlas:2f974eb687ac428da72e1247d983bc1c\n540004\t510025\t3\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540004-1778625856799.mp4\tNULL\t2026-05-12 22:44:17\twavespeed:seedance:9b05bad652bd4aa793cb74b2503b4633\n540005\t510025\t4\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540005-1778626735132.mp4\tNULL\t2026-05-12 22:58:56\tatlas:1e07500f7ef04902bf23c542eee1bccb\n540006\t510025\t5\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540006-1778626757721.mp4\tNULL\t2026-05-12 22:59:19\tatlas:f4a5221388bd4285bea7e57ebc96ff63\n540007\t510025\t6\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540007-1778625748908.mp4\tNULL\t2026-05-12 22:42:33\twavespeed:seedance:65ccc949423e4b8893a0fbd6d100212d\n540008\t510025\t7\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540008-1778626760480.mp4\tNULL\t2026-05-12 22:59:22\tatlas:563b56f39fe04634ae89a9ff64410557\n540009\t510025\t8\tgenerating\tNULL\tNULL\t2026-05-12 23:15:08\tatlas:c96e177ecd5f4affa2dc9a22ed3a5af4\n",
+  "stderr": "",
+  "execution_time_ms": 267
+}

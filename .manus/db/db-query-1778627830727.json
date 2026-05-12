@@ -1,0 +1,73 @@
+{
+  "query": "SHOW TABLES LIKE '%scene%'; SHOW TABLES LIKE '%job%'; SHOW TABLES LIKE '%video%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SHOW TABLES LIKE '%scene%'; SHOW TABLES LIKE '%job%'; SHOW TABLES LIKE '%video%';",
+  "rows": [
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "characterScenes"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "musicVideoScenes"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "sceneActionLogs"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "wizShortsScenes"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%job%)"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "enhancementJobs"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "kidsVideoJobs"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "musicVideoJobs"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "providerJobLogs"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "renderJobs"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "wizScoreJobs"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "wizShortsJobs"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "wizSyncJobs"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "wizadora_jobs"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%video%)"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "kidsVideoJobs"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "musicVideoJobs"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "musicVideoScenes"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "videoCharacterPhotos"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "videoCharacters"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "wizavisionVideos"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)\ncharacterScenes\nmusicVideoScenes\nsceneActionLogs\nwizShortsScenes\nTables_in_ALJHDNsuNA7bExFuoQZUsx (%job%)\nenhancementJobs\nkidsVideoJobs\nmusicVideoJobs\nproviderJobLogs\nrenderJobs\nwizScoreJobs\nwizShortsJobs\nwizSyncJobs\nwizadora_jobs\nTables_in_ALJHDNsuNA7bExFuoQZUsx (%video%)\nkidsVideoJobs\nmusicVideoJobs\nmusicVideoScenes\nvideoCharacterPhotos\nvideoCharacters\nwizavisionVideos\n",
+  "stderr": "",
+  "execution_time_ms": 267
+}

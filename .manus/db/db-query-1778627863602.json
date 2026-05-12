@@ -1,0 +1,9 @@
+{
+  "query": "\nUPDATE musicVideoScenes \nSET mvSceneStatus = 'failed', \n    errorMessage = 'Scene timed out during generation (Atlas Cloud task did not complete). Please retry this scene.'\nWHERE id = 540009 AND mvSceneStatus = 'generating';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nUPDATE musicVideoScenes \nSET mvSceneStatus = 'failed', \n    errorMessage = 'Scene timed out during generation (Atlas Cloud task did not complete). Please retry this scene.'\nWHERE id = 540009 AND mvSceneStatus = 'generating';\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 280
+}

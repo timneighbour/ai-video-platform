@@ -1,0 +1,100 @@
+{
+  "query": "\nSELECT s.sceneIndex, s.modelAssignment, s.mvSceneStatus, s.videoUrl\nFROM musicVideoScenes s\nJOIN musicVideoJobs j ON s.jobId = j.id\nORDER BY j.createdAt DESC, s.sceneIndex ASC\nLIMIT 15;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT s.sceneIndex, s.modelAssignment, s.mvSceneStatus, s.videoUrl\nFROM musicVideoScenes s\nJOIN musicVideoJobs j ON s.jobId = j.id\nORDER BY j.createdAt DESC, s.sceneIndex ASC\nLIMIT 15;\n",
+  "rows": [
+    {
+      "sceneIndex": "0",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540001-1778625604931.mp4"
+    },
+    {
+      "sceneIndex": "1",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540002-1778625656676.mp4"
+    },
+    {
+      "sceneIndex": "2",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540003-1778626755226.mp4"
+    },
+    {
+      "sceneIndex": "3",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540004-1778625856799.mp4"
+    },
+    {
+      "sceneIndex": "4",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540005-1778626735132.mp4"
+    },
+    {
+      "sceneIndex": "5",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540006-1778626757721.mp4"
+    },
+    {
+      "sceneIndex": "6",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540007-1778625748908.mp4"
+    },
+    {
+      "sceneIndex": "7",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540008-1778626760480.mp4"
+    },
+    {
+      "sceneIndex": "8",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "generating",
+      "videoUrl": "NULL"
+    },
+    {
+      "sceneIndex": "0",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/510038-1778603992149.mp4"
+    },
+    {
+      "sceneIndex": "1",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/510039-1778348017395.mp4"
+    },
+    {
+      "sceneIndex": "2",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/510040-1778348047650.mp4"
+    },
+    {
+      "sceneIndex": "3",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/510041-1778348069184.mp4"
+    },
+    {
+      "sceneIndex": "4",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/510042-1778348460804.mp4"
+    },
+    {
+      "sceneIndex": "5",
+      "modelAssignment": "seedance-2.0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/510043-1778605606482.mp4"
+    }
+  ],
+  "messages": [],
+  "stdout": "sceneIndex\tmodelAssignment\tmvSceneStatus\tvideoUrl\n0\tseedance-2.0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540001-1778625604931.mp4\n1\tseedance-2.0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540002-1778625656676.mp4\n2\tseedance-2.0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540003-1778626755226.mp4\n3\tseedance-2.0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540004-1778625856799.mp4\n4\tseedance-2.0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540005-1778626735132.mp4\n5\tseedance-2.0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540006-1778626757721.mp4\n6\tseedance-2.0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540007-1778625748908.mp4\n7\tseedance-2.0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540008-1778626760480.mp4\n8\tseedance-2.0\tgenerating\tNULL\n0\tseedance-2.0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/510038-1778603992149.mp4\n1\tseedance-2.0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/510039-1778348017395.mp4\n2\tseedance-2.0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/510040-1778348047650.mp4\n3\tseedance-2.0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/510041-1778348069184.mp4\n4\tseedance-2.0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/510042-1778348460804.mp4\n5\tseedance-2.0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/510043-1778605606482.mp4\n",
+  "stderr": "",
+  "execution_time_ms": 364
+}
