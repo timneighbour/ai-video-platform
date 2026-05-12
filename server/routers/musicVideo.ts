@@ -1472,6 +1472,9 @@ Rules:
         completedScenes: completedCount,
         failedScenes: failedCount,
         finalVideoUrl: updatedJob?.finalVideoUrl ?? null,
+        // Timestamp when the job entered 'rendering' — used by the frontend elapsed timer
+        // so the timer is accurate even after a page refresh.
+        jobStartedAt: (updatedJob ?? job).updatedAt ? new Date((updatedJob ?? job).updatedAt).getTime() : null,
         // Per-scene status for real-time progress display
         sceneStatuses: updatedScenes.map((s) => ({
           id: s.id,

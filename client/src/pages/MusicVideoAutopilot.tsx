@@ -1559,6 +1559,11 @@ export default function MusicVideoAutopilot() {
             setTotalScenes(progress.totalScenes);
             setFailedScenes(progress.failedScenes);
             setRenderStatus(progress.status);
+            // Seed the elapsed timer from the server timestamp if we don't have a local start time
+            // (e.g. after a page refresh mid-render). Use jobStartedAt from the server as the anchor.
+            if (!renderStartTime && progress.jobStartedAt) {
+              setRenderStartTime(progress.jobStartedAt);
+            }
             if (progress.sceneStatuses) {
               setPerSceneStatuses((prev) => {
                 // Merge: keep existing prompt/lyrics from storyboard scenes or previous poll

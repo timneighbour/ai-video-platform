@@ -1,0 +1,25 @@
+{
+  "query": "\nSELECT \n  j.id, j.title, j.status, j.completedScenes, j.totalScenes, j.finalVideoUrl,\n  j.errorMessage, j.updatedAt,\n  COUNT(CASE WHEN s.mvSceneStatus = 'completed' THEN 1 END) as completed,\n  COUNT(CASE WHEN s.mvSceneStatus = 'generating' THEN 1 END) as generating,\n  COUNT(CASE WHEN s.mvSceneStatus = 'pending' THEN 1 END) as pending,\n  COUNT(CASE WHEN s.mvSceneStatus = 'failed' THEN 1 END) as failed,\n  COUNT(*) as total\nFROM musicVideoJobs j\nLEFT JOIN musicVideoScenes s ON s.jobId = j.id\nWHERE j.id = 450002\nGROUP BY j.id;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT \n  j.id, j.title, j.status, j.completedScenes, j.totalScenes, j.finalVideoUrl,\n  j.errorMessage, j.updatedAt,\n  COUNT(CASE WHEN s.mvSceneStatus = 'completed' THEN 1 END) as completed,\n  COUNT(CASE WHEN s.mvSceneStatus = 'generating' THEN 1 END) as generating,\n  COUNT(CASE WHEN s.mvSceneStatus = 'pending' THEN 1 END) as pending,\n  COUNT(CASE WHEN s.mvSceneStatus = 'failed' THEN 1 END) as failed,\n  COUNT(*) as total\nFROM musicVideoJobs j\nLEFT JOIN musicVideoScenes s ON s.jobId = j.id\nWHERE j.id = 450002\nGROUP BY j.id;\n",
+  "rows": [
+    {
+      "id": "450002",
+      "title": "Unstoppable",
+      "status": "assembling",
+      "completedScenes": "37",
+      "totalScenes": "37",
+      "finalVideoUrl": "NULL",
+      "errorMessage": "QC Warning: Scene count mismatch: expected 37, got 35 (2 scenes missing or failed)",
+      "updatedAt": "2026-05-12 17:14:04",
+      "completed": "37",
+      "generating": "0",
+      "pending": "0",
+      "failed": "0",
+      "total": "37"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tstatus\tcompletedScenes\ttotalScenes\tfinalVideoUrl\terrorMessage\tupdatedAt\tcompleted\tgenerating\tpending\tfailed\ttotal\n450002\tUnstoppable\tassembling\t37\t37\tNULL\tQC Warning: Scene count mismatch: expected 37, got 35 (2 scenes missing or failed)\t2026-05-12 17:14:04\t37\t0\t0\t0\t37\n",
+  "stderr": "",
+  "execution_time_ms": 254
+}

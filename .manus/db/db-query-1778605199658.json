@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, sceneIndex, mvSceneStatus, taskId, errorMessage FROM musicVideoScenes WHERE jobId = 450002 AND mvSceneStatus IN ('generating','pending') ORDER BY sceneIndex;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT id, sceneIndex, mvSceneStatus, taskId, errorMessage FROM musicVideoScenes WHERE jobId = 450002 AND mvSceneStatus IN ('generating','pending') ORDER BY sceneIndex;",
+  "rows": [
+    {
+      "id": "510043",
+      "sceneIndex": "5",
+      "mvSceneStatus": "generating",
+      "taskId": "atlas:d28aa0f4aea446268ad46cd30c948276",
+      "errorMessage": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsceneIndex\tmvSceneStatus\ttaskId\terrorMessage\n510043\t5\tgenerating\tatlas:d28aa0f4aea446268ad46cd30c948276\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 313
+}

@@ -7474,3 +7474,12 @@
 ## Stage Indicator Light-Up Fix (May 2026 — Round 2)
 - [x] Fix stage indicators not lighting up: renderStatus is 'idle' on initial load so statusToStageIdx returns undefined and currentIdx stays -1; seed renderStatus from the first pollProgress response immediately on step="render"
 - [x] Ensure the stage block is only rendered when renderStatus is a known active status (not idle)
+
+## End-to-End Reliability Sprint (May 2026)
+- [x] Fix stuck-scene reaper cron auth — patch sdk.ts with cron short-circuit so platform cron sessions are recognised
+- [x] Fix reaper column name bugs (status vs mvSceneStatus/pjlStatus in TypeScript Drizzle ORM)
+- [x] Register stuckSceneReaper heartbeat cron (every 5 minutes, task UID: hay82FgsEbTgnNkLVtqko8)
+- [x] Fix '0s elapsed' timer — add jobStartedAt to pollProgress response, seed renderStartTime from server on page reload
+- [x] Audit assembleMusicVideo → completed transition — confirmed solid, email notification in place
+- [x] Clear QC false-positive warning on job 450002 (scenes recovered after QC check ran)
+- [ ] Verify first successful end-to-end video delivery for job 450002 (Unstoppable)
