@@ -7470,3 +7470,7 @@
 ## Stage Indicator & Scene Status Dot Fix (May 2026)
 - [x] Fix 5-stage pipeline indicators not lighting up (Analysing Audio / Animating Scenes / Syncing Performance / Enhancing Audio / Building Final)
 - [x] Fix Scene Status dot legend (Queued / Generating / Done) not reflecting live scene states
+
+## Stage Indicator Light-Up Fix (May 2026 — Round 2)
+- [x] Fix stage indicators not lighting up: renderStatus is 'idle' on initial load so statusToStageIdx returns undefined and currentIdx stays -1; seed renderStatus from the first pollProgress response immediately on step="render"
+- [x] Ensure the stage block is only rendered when renderStatus is a known active status (not idle)

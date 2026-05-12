@@ -4619,20 +4619,27 @@ export default function MusicVideoAutopilot() {
                       // assembling             → 2 (Syncing Performance)
                       // assembling (post-WizSound phase) → 3 (Enhancing Audio) — inferred from progress
                       // completed              → 4 (Building Final / done)
+                      // Map every real DB job status + transient frontend states to a stage index.
+                      // "idle" / "storyboard_ready" / "draft" → stage 0 (Analysing Audio) — job just kicked off.
+                      // "rendering" → stage 1 (Animating Scenes) — scenes are being generated.
+                      // "assembling" → stage 2 (Syncing Performance) — scenes done, stitching.
+                      // "assembling" + allScenesDone → stage 3 (Enhancing Audio) — WizSound phase.
+                      // "completed" → stage 4 (Building Final — all lit).
+                      // Unknown / "failed" → stage 1 (keep Animating Scenes lit).
                       const statusToStageIdx: Record<string, number> = {
+                        "idle":            0,
                         "draft":           0,
                         "storyboard_ready":0,
                         "rendering":       1,
                         "assembling":      2,
                         "completed":       4,
-                        "failed":          1, // keep Animating Scenes lit on failure
+                        "failed":          1,
                       };
                       // Promote assembling → stage 3 (Enhancing Audio) once all scenes are done
-                      // (assembly includes WizSound processing which is the audio enhancement step)
                       const allScenesDone = totalScenes > 0 && completedScenes >= totalScenes;
                       const effectiveStageIdx = renderStatus === "assembling" && allScenesDone
                         ? 3
-                        : (statusToStageIdx[renderStatus] ?? 1);
+                        : (statusToStageIdx[renderStatus] ?? 0);
                       const currentIdx = effectiveStageIdx;
                       return (
                         <>
