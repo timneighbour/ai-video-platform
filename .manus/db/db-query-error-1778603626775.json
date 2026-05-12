@@ -1,0 +1,8 @@
+{
+  "query": "SELECT s.id as sceneId, s.sceneIndex, s.mvSceneStatus as status, s.taskId, s.updatedAt,\n  p.status as providerStatus, p.createdAt as logCreatedAt\nFROM musicVideoScenes s\nLEFT JOIN providerJobLogs p ON p.sceneId = s.id AND p.status IN ('submitted', 'failed')\nWHERE s.jobId = 450002 AND s.mvSceneStatus = 'generating'\nORDER BY s.sceneIndex;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT s.id as sceneId, s.sceneIndex, s.mvSceneStatus as status, s.taskId, s.updatedAt,\n  p.status as providerStatus, p.createdAt as logCreatedAt\nFROM musicVideoScenes s\nLEFT JOIN providerJobLogs p ON p.sceneId = s.id AND p.status IN ('submitted', 'failed')\nWHERE s.jobId = 450002 AND s.mvSceneStatus = 'generating'\nORDER BY s.sceneIndex;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'p.status' in 'on clause'"
+  ]
+}

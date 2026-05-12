@@ -17,6 +17,7 @@ import { eq } from "drizzle-orm";
 import { handleStripeWebhook } from "../webhooks";
 import { wizadoraRouter } from "../wizadora/router";
 import Stripe from "stripe";
+import { stuckSceneReaperHandler } from "../scheduled/stuckSceneReaper";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -380,6 +381,9 @@ async function startServer() {
       res.status(500).send("Error generating sitemap");
     }
   });
+
+  // ── Scheduled: stuck-scene reaper (Manus Heartbeat cron) ───────────────────
+  app.post("/api/scheduled/stuckSceneReaper", stuckSceneReaperHandler);
 
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {

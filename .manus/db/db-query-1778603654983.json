@@ -1,0 +1,52 @@
+{
+  "query": "SELECT s.id, s.sceneIndex, s.mvSceneStatus, s.errorMessage, s.updatedAt\nFROM musicVideoScenes s\nWHERE s.id IN (510038, 510043, 510070, 510071, 510073, 510074)\nORDER BY s.sceneIndex;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT s.id, s.sceneIndex, s.mvSceneStatus, s.errorMessage, s.updatedAt\nFROM musicVideoScenes s\nWHERE s.id IN (510038, 510043, 510070, 510071, 510073, 510074)\nORDER BY s.sceneIndex;",
+  "rows": [
+    {
+      "id": "510038",
+      "sceneIndex": "0",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Atlas Cloud timeout — scene did not complete within expected window. Please retry.",
+      "updatedAt": "2026-05-12 16:34:10"
+    },
+    {
+      "id": "510043",
+      "sceneIndex": "5",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Atlas Cloud timeout — scene did not complete within expected window. Please retry.",
+      "updatedAt": "2026-05-12 16:34:10"
+    },
+    {
+      "id": "510070",
+      "sceneIndex": "32",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Atlas Cloud timeout — scene did not complete within expected window. Please retry.",
+      "updatedAt": "2026-05-12 16:34:10"
+    },
+    {
+      "id": "510071",
+      "sceneIndex": "33",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Atlas Cloud timeout — scene did not complete within expected window. Please retry.",
+      "updatedAt": "2026-05-12 16:34:10"
+    },
+    {
+      "id": "510073",
+      "sceneIndex": "35",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Atlas Cloud timeout — scene did not complete within expected window. Please retry.",
+      "updatedAt": "2026-05-12 16:34:10"
+    },
+    {
+      "id": "510074",
+      "sceneIndex": "36",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Atlas Cloud timeout — scene did not complete within expected window. Please retry.",
+      "updatedAt": "2026-05-12 16:34:10"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsceneIndex\tmvSceneStatus\terrorMessage\tupdatedAt\n510038\t0\tfailed\tAtlas Cloud timeout — scene did not complete within expected window. Please retry.\t2026-05-12 16:34:10\n510043\t5\tfailed\tAtlas Cloud timeout — scene did not complete within expected window. Please retry.\t2026-05-12 16:34:10\n510070\t32\tfailed\tAtlas Cloud timeout — scene did not complete within expected window. Please retry.\t2026-05-12 16:34:10\n510071\t33\tfailed\tAtlas Cloud timeout — scene did not complete within expected window. Please retry.\t2026-05-12 16:34:10\n510073\t35\tfailed\tAtlas Cloud timeout — scene did not complete within expected window. Please retry.\t2026-05-12 16:34:10\n510074\t36\tfailed\tAtlas Cloud timeout — scene did not complete within expected window. Please retry.\t2026-05-12 16:34:10\n",
+  "stderr": "",
+  "execution_time_ms": 257
+}

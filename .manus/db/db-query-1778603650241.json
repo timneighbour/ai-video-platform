@@ -1,0 +1,9 @@
+{
+  "query": "-- Mark the 6 stuck scenes as failed\nUPDATE musicVideoScenes\nSET mvSceneStatus = 'failed',\n    errorMessage = 'Atlas Cloud timeout — scene did not complete within expected window. Please retry.',\n    updatedAt = NOW()\nWHERE id IN (510038, 510043, 510070, 510071, 510073, 510074)\n  AND mvSceneStatus = 'generating';\n\n-- Cancel all open providerJobLogs for these scenes\nUPDATE providerJobLogs\nSET pjlStatus = 'cancelled'\nWHERE sceneId IN (510038, 510043, 510070, 510071, 510073, 510074)\n  AND pjlStatus IN ('submitted', 'failed');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute -- Mark the 6 stuck scenes as failed\nUPDATE musicVideoScenes\nSET mvSceneStatus = 'failed',\n    errorMessage = 'Atlas Cloud timeout — scene did not complete within expected window. Please retry.',\n    updatedAt = NOW()\nWHERE id IN (510038, 510043, 510070, 510071, 510073, 510074)\n  AND mvSceneStatus = 'generating';\n\n-- Cancel all open providerJobLogs for these scenes\nUPDATE providerJobLogs\nSET pjlStatus = 'cancelled'\nWHERE sceneId IN (510038, 510043, 510070, 510071, 510073, 510074)\n  AND pjlStatus IN ('submitted', 'failed');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 279
+}

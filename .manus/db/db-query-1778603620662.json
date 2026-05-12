@@ -1,0 +1,30 @@
+{
+  "query": "SELECT j.id as jobId, j.title, j.status as jobStatus,\n  COUNT(s.id) as totalScenes,\n  SUM(CASE WHEN s.mvSceneStatus = 'completed' THEN 1 ELSE 0 END) as completed,\n  SUM(CASE WHEN s.mvSceneStatus = 'generating' THEN 1 ELSE 0 END) as generating,\n  SUM(CASE WHEN s.mvSceneStatus = 'pending' THEN 1 ELSE 0 END) as pending,\n  SUM(CASE WHEN s.mvSceneStatus = 'failed' THEN 1 ELSE 0 END) as failed\nFROM musicVideoJobs j\nJOIN musicVideoScenes s ON s.jobId = j.id\nWHERE j.status = 'rendering'\nGROUP BY j.id, j.title, j.status\nORDER BY j.id DESC\nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT j.id as jobId, j.title, j.status as jobStatus,\n  COUNT(s.id) as totalScenes,\n  SUM(CASE WHEN s.mvSceneStatus = 'completed' THEN 1 ELSE 0 END) as completed,\n  SUM(CASE WHEN s.mvSceneStatus = 'generating' THEN 1 ELSE 0 END) as generating,\n  SUM(CASE WHEN s.mvSceneStatus = 'pending' THEN 1 ELSE 0 END) as pending,\n  SUM(CASE WHEN s.mvSceneStatus = 'failed' THEN 1 ELSE 0 END) as failed\nFROM musicVideoJobs j\nJOIN musicVideoScenes s ON s.jobId = j.id\nWHERE j.status = 'rendering'\nGROUP BY j.id, j.title, j.status\nORDER BY j.id DESC\nLIMIT 10;",
+  "rows": [
+    {
+      "jobId": "450002",
+      "title": "Unstoppable",
+      "jobStatus": "rendering",
+      "totalScenes": "37",
+      "completed": "31",
+      "generating": "6",
+      "pending": "0",
+      "failed": "0"
+    },
+    {
+      "jobId": "270001",
+      "title": "Ordinary",
+      "jobStatus": "rendering",
+      "totalScenes": "25",
+      "completed": "7",
+      "generating": "6",
+      "pending": "0",
+      "failed": "12"
+    }
+  ],
+  "messages": [],
+  "stdout": "jobId\ttitle\tjobStatus\ttotalScenes\tcompleted\tgenerating\tpending\tfailed\n450002\tUnstoppable\trendering\t37\t31\t6\t0\t0\n270001\tOrdinary\trendering\t25\t7\t6\t0\t12\n",
+  "stderr": "",
+  "execution_time_ms": 369
+}

@@ -7452,3 +7452,12 @@
 - [x] Add getSceneActionHistory tRPC procedure (returns last 30 entries for current user)
 - [x] Build SceneHistoryLog component with table of recent retried/cancelled scenes
 - [x] Wire SceneHistoryLog into Dashboard.tsx below the recent projects section
+
+## Stuck Scene Reaper — Automatic Timeout Recovery (May 2026)
+- [x] Create server/scheduled/stuckSceneReaper.ts handler that finds scenes stuck in 'generating' > 15 min and force-fails them
+- [x] Cancel open providerJobLogs for timed-out scenes so retry counter resets
+- [x] Auto-retry scenes that have < 3 prior attempts (re-queue immediately after force-fail)
+- [x] Mount /api/scheduled/stuckSceneReaper in server/_core/index.ts before Vite fallthrough
+- [ ] Register the heartbeat cron via manus-heartbeat CLI (every 5 minutes: "0 */5 * * * *") — requires deploy first
+- [x] Write vitest tests for the reaper logic
+- [x] Save checkpoint and ask user to deploy before activating the cron

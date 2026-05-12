@@ -1,0 +1,110 @@
+{
+  "query": "SELECT s.id as sceneId, s.sceneIndex, s.mvSceneStatus as sceneStatus, s.taskId, s.updatedAt,\n  p.pjlStatus as providerStatus, p.submittedAt, p.attemptNumber\nFROM musicVideoScenes s\nLEFT JOIN providerJobLogs p ON p.sceneId = s.id AND p.pjlStatus IN ('submitted', 'failed')\nWHERE s.jobId = 450002 AND s.mvSceneStatus = 'generating'\nORDER BY s.sceneIndex;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT s.id as sceneId, s.sceneIndex, s.mvSceneStatus as sceneStatus, s.taskId, s.updatedAt,\n  p.pjlStatus as providerStatus, p.submittedAt, p.attemptNumber\nFROM musicVideoScenes s\nLEFT JOIN providerJobLogs p ON p.sceneId = s.id AND p.pjlStatus IN ('submitted', 'failed')\nWHERE s.jobId = 450002 AND s.mvSceneStatus = 'generating'\nORDER BY s.sceneIndex;",
+  "rows": [
+    {
+      "sceneId": "510038",
+      "sceneIndex": "0",
+      "sceneStatus": "generating",
+      "taskId": "atlas:dc76b4d1c80540858764a21cf1794334",
+      "updatedAt": "2026-05-12 15:45:25",
+      "providerStatus": "NULL",
+      "submittedAt": "NULL",
+      "attemptNumber": "NULL"
+    },
+    {
+      "sceneId": "510043",
+      "sceneIndex": "5",
+      "sceneStatus": "generating",
+      "taskId": "atlas:07d79f1659a44f4ba1df3efbf67f12f3",
+      "updatedAt": "2026-05-12 16:08:43",
+      "providerStatus": "submitted",
+      "submittedAt": "2026-05-12 16:08:42",
+      "attemptNumber": "1"
+    },
+    {
+      "sceneId": "510070",
+      "sceneIndex": "32",
+      "sceneStatus": "generating",
+      "taskId": "atlas:f51e453dfcc2448398b8dddbb443aa24",
+      "updatedAt": "2026-05-12 16:09:13",
+      "providerStatus": "submitted",
+      "submittedAt": "2026-05-12 16:09:13",
+      "attemptNumber": "2"
+    },
+    {
+      "sceneId": "510070",
+      "sceneIndex": "32",
+      "sceneStatus": "generating",
+      "taskId": "atlas:f51e453dfcc2448398b8dddbb443aa24",
+      "updatedAt": "2026-05-12 16:09:13",
+      "providerStatus": "submitted",
+      "submittedAt": "2026-05-12 16:08:53",
+      "attemptNumber": "1"
+    },
+    {
+      "sceneId": "510071",
+      "sceneIndex": "33",
+      "sceneStatus": "generating",
+      "taskId": "atlas:98fc6369b0204fb580728e792b7151bf",
+      "updatedAt": "2026-05-12 16:09:19",
+      "providerStatus": "submitted",
+      "submittedAt": "2026-05-12 16:09:18",
+      "attemptNumber": "2"
+    },
+    {
+      "sceneId": "510071",
+      "sceneIndex": "33",
+      "sceneStatus": "generating",
+      "taskId": "atlas:98fc6369b0204fb580728e792b7151bf",
+      "updatedAt": "2026-05-12 16:09:19",
+      "providerStatus": "submitted",
+      "submittedAt": "2026-05-12 16:08:54",
+      "attemptNumber": "1"
+    },
+    {
+      "sceneId": "510073",
+      "sceneIndex": "35",
+      "sceneStatus": "generating",
+      "taskId": "atlas:2c90be431a77473f8b3d3fd515fd041e",
+      "updatedAt": "2026-05-12 16:09:32",
+      "providerStatus": "submitted",
+      "submittedAt": "2026-05-12 16:09:32",
+      "attemptNumber": "2"
+    },
+    {
+      "sceneId": "510073",
+      "sceneIndex": "35",
+      "sceneStatus": "generating",
+      "taskId": "atlas:2c90be431a77473f8b3d3fd515fd041e",
+      "updatedAt": "2026-05-12 16:09:32",
+      "providerStatus": "submitted",
+      "submittedAt": "2026-05-12 16:08:54",
+      "attemptNumber": "1"
+    },
+    {
+      "sceneId": "510074",
+      "sceneIndex": "36",
+      "sceneStatus": "generating",
+      "taskId": "atlas:9fe2777c05f6490a9010e83a56df3afe",
+      "updatedAt": "2026-05-12 16:09:38",
+      "providerStatus": "submitted",
+      "submittedAt": "2026-05-12 16:09:37",
+      "attemptNumber": "2"
+    },
+    {
+      "sceneId": "510074",
+      "sceneIndex": "36",
+      "sceneStatus": "generating",
+      "taskId": "atlas:9fe2777c05f6490a9010e83a56df3afe",
+      "updatedAt": "2026-05-12 16:09:38",
+      "providerStatus": "submitted",
+      "submittedAt": "2026-05-12 16:08:54",
+      "attemptNumber": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "sceneId\tsceneIndex\tsceneStatus\ttaskId\tupdatedAt\tproviderStatus\tsubmittedAt\tattemptNumber\n510038\t0\tgenerating\tatlas:dc76b4d1c80540858764a21cf1794334\t2026-05-12 15:45:25\tNULL\tNULL\tNULL\n510043\t5\tgenerating\tatlas:07d79f1659a44f4ba1df3efbf67f12f3\t2026-05-12 16:08:43\tsubmitted\t2026-05-12 16:08:42\t1\n510070\t32\tgenerating\tatlas:f51e453dfcc2448398b8dddbb443aa24\t2026-05-12 16:09:13\tsubmitted\t2026-05-12 16:09:13\t2\n510070\t32\tgenerating\tatlas:f51e453dfcc2448398b8dddbb443aa24\t2026-05-12 16:09:13\tsubmitted\t2026-05-12 16:08:53\t1\n510071\t33\tgenerating\tatlas:98fc6369b0204fb580728e792b7151bf\t2026-05-12 16:09:19\tsubmitted\t2026-05-12 16:09:18\t2\n510071\t33\tgenerating\tatlas:98fc6369b0204fb580728e792b7151bf\t2026-05-12 16:09:19\tsubmitted\t2026-05-12 16:08:54\t1\n510073\t35\tgenerating\tatlas:2c90be431a77473f8b3d3fd515fd041e\t2026-05-12 16:09:32\tsubmitted\t2026-05-12 16:09:32\t2\n510073\t35\tgenerating\tatlas:2c90be431a77473f8b3d3fd515fd041e\t2026-05-12 16:09:32\tsubmitted\t2026-05-12 16:08:54\t1\n510074\t36\tgenerating\tatlas:9fe2777c05f6490a9010e83a56df3afe\t2026-05-12 16:09:38\tsubmitted\t2026-05-12 16:09:37\t2\n510074\t36\tgenerating\tatlas:9fe2777c05f6490a9010e83a56df3afe\t2026-05-12 16:09:38\tsubmitted\t2026-05-12 16:08:54\t1\n",
+  "stderr": "",
+  "execution_time_ms": 260
+}
