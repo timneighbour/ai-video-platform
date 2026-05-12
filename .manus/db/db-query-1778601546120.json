@@ -1,0 +1,45 @@
+{
+  "query": "\nSELECT mvj.id as jobId, mvj.status, mvj.title,\n  (SELECT COUNT(*) FROM musicVideoScenes WHERE jobId = mvj.id AND status = 'failed') as failedScenes,\n  (SELECT COUNT(*) FROM musicVideoScenes WHERE jobId = mvj.id) as totalScenes\nFROM musicVideoJobs mvj\nORDER BY mvj.id DESC\nLIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT mvj.id as jobId, mvj.status, mvj.title,\n  (SELECT COUNT(*) FROM musicVideoScenes WHERE jobId = mvj.id AND status = 'failed') as failedScenes,\n  (SELECT COUNT(*) FROM musicVideoScenes WHERE jobId = mvj.id) as totalScenes\nFROM musicVideoJobs mvj\nORDER BY mvj.id DESC\nLIMIT 5;\n",
+  "rows": [
+    {
+      "jobId": "450002",
+      "status": "rendering",
+      "title": "Unstoppable",
+      "failedScenes": "0",
+      "totalScenes": "37"
+    },
+    {
+      "jobId": "450001",
+      "status": "storyboard_ready",
+      "title": "Unstoppable",
+      "failedScenes": "0",
+      "totalScenes": "37"
+    },
+    {
+      "jobId": "420003",
+      "status": "draft",
+      "title": "Unstoppable",
+      "failedScenes": "0",
+      "totalScenes": "0"
+    },
+    {
+      "jobId": "420002",
+      "status": "draft",
+      "title": "Unstoppable",
+      "failedScenes": "0",
+      "totalScenes": "0"
+    },
+    {
+      "jobId": "420001",
+      "status": "draft",
+      "title": "Unstoppable",
+      "failedScenes": "0",
+      "totalScenes": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "jobId\tstatus\ttitle\tfailedScenes\ttotalScenes\n450002\trendering\tUnstoppable\t0\t37\n450001\tstoryboard_ready\tUnstoppable\t0\t37\n420003\tdraft\tUnstoppable\t0\t0\n420002\tdraft\tUnstoppable\t0\t0\n420001\tdraft\tUnstoppable\t0\t0\n",
+  "stderr": "",
+  "execution_time_ms": 262
+}

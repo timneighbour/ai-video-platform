@@ -1,0 +1,13 @@
+{
+  "query": "\nUPDATE providerJobLogs \nSET pjlStatus = 'cancelled'\nWHERE jobId = 450002 \nAND pjlStatus = 'submitted';\n\nSELECT COUNT(*) as cancelledCount FROM providerJobLogs WHERE jobId = 450002 AND pjlStatus = 'cancelled';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nUPDATE providerJobLogs \nSET pjlStatus = 'cancelled'\nWHERE jobId = 450002 \nAND pjlStatus = 'submitted';\n\nSELECT COUNT(*) as cancelledCount FROM providerJobLogs WHERE jobId = 450002 AND pjlStatus = 'cancelled';\n",
+  "rows": [
+    {
+      "cancelledCount": "88"
+    }
+  ],
+  "messages": [],
+  "stdout": "cancelledCount\n88\n",
+  "stderr": "",
+  "execution_time_ms": 288
+}

@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT pjl.sceneId, pjl.status, COUNT(*) as count\nFROM providerJobLogs pjl\nWHERE pjl.sceneId IN (\n  SELECT id FROM musicVideoScenes \n  WHERE jobId = (SELECT MAX(jobId) FROM musicVideoScenes WHERE status = 'failed')\n  AND status = 'failed'\n  LIMIT 10\n)\nGROUP BY pjl.sceneId, pjl.status\nORDER BY pjl.sceneId, pjl.status;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT pjl.sceneId, pjl.status, COUNT(*) as count\nFROM providerJobLogs pjl\nWHERE pjl.sceneId IN (\n  SELECT id FROM musicVideoScenes \n  WHERE jobId = (SELECT MAX(jobId) FROM musicVideoScenes WHERE status = 'failed')\n  AND status = 'failed'\n  LIMIT 10\n)\nGROUP BY pjl.sceneId, pjl.status\nORDER BY pjl.sceneId, pjl.status;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'pjl.status' in 'group statement'"
+  ]
+}

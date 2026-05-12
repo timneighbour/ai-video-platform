@@ -5,7 +5,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters, renderJobs, kidsVideoJobs, wizShortsJobs, characterScenes } from "../../drizzle/schema";
+import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters, renderJobs, kidsVideoJobs, wizShortsJobs, characterScenes, providerJobLogs } from "../../drizzle/schema";
 import { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../_core/quotaError";
 import { eq, and, desc, inArray, gte, sql } from "drizzle-orm";
 
@@ -1286,6 +1286,14 @@ Rules:
             await db.update(musicVideoScenes)
               .set({ status: "failed", errorMessage: "Scene timed out after 90 minutes — please use Retry to regenerate this scene", updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
+            // Mark any stuck 'submitted' providerJobLogs entries as 'failed' so
+            // resetSceneAttempts() can cancel them on the next user retry.
+            await db.update(providerJobLogs)
+              .set({ status: "failed", failedAt: new Date() })
+              .where(and(
+                eq(providerJobLogs.sceneId, scene.id),
+                sql`${providerJobLogs.status} = 'submitted'`
+              ));
           }
         }
       }

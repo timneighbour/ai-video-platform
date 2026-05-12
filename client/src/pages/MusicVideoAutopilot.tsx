@@ -4904,7 +4904,10 @@ export default function MusicVideoAutopilot() {
                                 // Humanise the raw error message
                                 const rawErr = scene.errorMessage ?? "Unknown error";
                                 const rLow = rawErr.toLowerCase();
-                                const friendlyErr = rawErr.includes("429") || rLow.includes("rate limit")
+                                const isSpendBlocked = rLow.includes("spend_protection_block") || rLow.includes("retry_limit");
+                                const friendlyErr = isSpendBlocked
+                                  ? "This scene hit the retry limit. Click Retry to re-queue it — the limit has been reset."
+                                  : rawErr.includes("429") || rLow.includes("rate limit")
                                   ? "The rendering service was temporarily busy. This usually clears in a few minutes — hit Retry to re-queue your scene."
                                   : rLow.includes("timeout") || rLow.includes("timed out") || rLow.includes("auto-failed")
                                   ? "This scene took too long and was automatically stopped. Your credits have been protected — hit Retry to try again."

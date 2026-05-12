@@ -7426,3 +7426,12 @@
 - [ ] Send admin notification when a job exceeds spend limit
 - [ ] Send admin notification when probe render fails
 - [ ] Show provider cost incurred on failed job in admin job detail view
+
+## SPEND_PROTECTION_BLOCK Fix (May 2026)
+- [x] Root cause: providerJobLogs entries stuck in "submitted" status never updated to "failed" after timeout
+- [x] Fix resetSceneAttempts() to cancel both "failed" AND "submitted" entries (spend-protection.ts)
+- [x] Fix timeout handler in musicVideo.ts to update stuck "submitted" providerJobLogs to "failed" when scene times out
+- [x] Add providerJobLogs to schema import in musicVideo.ts
+- [x] DB hotfix: 88 stuck "submitted" entries for job 450002 manually cancelled so scenes can be retried
+- [x] UI fix: isSpendBlocked detection in MusicVideoAutopilot.tsx for friendly error message on SPEND_PROTECTION_BLOCK errors
+- [x] UI fix: friendly error message for RETRY_LIMIT errors ("Click Retry to re-queue it — the limit has been reset")

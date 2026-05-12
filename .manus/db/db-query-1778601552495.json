@@ -1,0 +1,160 @@
+{
+  "query": "\nSELECT pjl.sceneId, pjl.pjlStatus, COUNT(*) as cnt\nFROM providerJobLogs pjl\nWHERE pjl.jobId = 450002\nGROUP BY pjl.sceneId, pjl.pjlStatus\nORDER BY pjl.sceneId, pjl.pjlStatus\nLIMIT 30;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT pjl.sceneId, pjl.pjlStatus, COUNT(*) as cnt\nFROM providerJobLogs pjl\nWHERE pjl.jobId = 450002\nGROUP BY pjl.sceneId, pjl.pjlStatus\nORDER BY pjl.sceneId, pjl.pjlStatus\nLIMIT 30;\n",
+  "rows": [
+    {
+      "sceneId": "510038",
+      "pjlStatus": "submitted",
+      "cnt": "6"
+    },
+    {
+      "sceneId": "510039",
+      "pjlStatus": "submitted",
+      "cnt": "2"
+    },
+    {
+      "sceneId": "510040",
+      "pjlStatus": "submitted",
+      "cnt": "2"
+    },
+    {
+      "sceneId": "510041",
+      "pjlStatus": "submitted",
+      "cnt": "2"
+    },
+    {
+      "sceneId": "510042",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510043",
+      "pjlStatus": "submitted",
+      "cnt": "5"
+    },
+    {
+      "sceneId": "510044",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510045",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510046",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510047",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510048",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510049",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510050",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510051",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510052",
+      "pjlStatus": "submitted",
+      "cnt": "2"
+    },
+    {
+      "sceneId": "510053",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510054",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510055",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510056",
+      "pjlStatus": "submitted",
+      "cnt": "5"
+    },
+    {
+      "sceneId": "510057",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510058",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510059",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510060",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510061",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510062",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510063",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510064",
+      "pjlStatus": "submitted",
+      "cnt": "1"
+    },
+    {
+      "sceneId": "510065",
+      "pjlStatus": "submitted",
+      "cnt": "2"
+    },
+    {
+      "sceneId": "510066",
+      "pjlStatus": "submitted",
+      "cnt": "2"
+    },
+    {
+      "sceneId": "510067",
+      "pjlStatus": "submitted",
+      "cnt": "5"
+    }
+  ],
+  "messages": [],
+  "stdout": "sceneId\tpjlStatus\tcnt\n510038\tsubmitted\t6\n510039\tsubmitted\t2\n510040\tsubmitted\t2\n510041\tsubmitted\t2\n510042\tsubmitted\t1\n510043\tsubmitted\t5\n510044\tsubmitted\t1\n510045\tsubmitted\t1\n510046\tsubmitted\t1\n510047\tsubmitted\t1\n510048\tsubmitted\t1\n510049\tsubmitted\t1\n510050\tsubmitted\t1\n510051\tsubmitted\t1\n510052\tsubmitted\t2\n510053\tsubmitted\t1\n510054\tsubmitted\t1\n510055\tsubmitted\t1\n510056\tsubmitted\t5\n510057\tsubmitted\t1\n510058\tsubmitted\t1\n510059\tsubmitted\t1\n510060\tsubmitted\t1\n510061\tsubmitted\t1\n510062\tsubmitted\t1\n510063\tsubmitted\t1\n510064\tsubmitted\t1\n510065\tsubmitted\t2\n510066\tsubmitted\t2\n510067\tsubmitted\t5\n",
+  "stderr": "",
+  "execution_time_ms": 255
+}

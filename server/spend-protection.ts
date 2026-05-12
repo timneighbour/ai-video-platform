@@ -89,9 +89,16 @@ export async function getSceneAttemptCount(sceneId: number): Promise<number> {
 export async function resetSceneAttempts(sceneId: number): Promise<void> {
   const db = await getDb();
   if (!db) return;
+  // Cancel both 'failed' AND 'submitted' (stuck/timed-out) entries so the retry
+  // is not blocked by old attempts that never transitioned out of 'submitted' state.
   await db.update(providerJobLogs)
     .set({ status: "cancelled" })
-    .where(and(eq(providerJobLogs.sceneId, sceneId), eq(providerJobLogs.status, "failed")));
+    .where(
+      and(
+        eq(providerJobLogs.sceneId, sceneId),
+        sql`${providerJobLogs.status} IN ('failed', 'submitted')`
+      )
+    );
 }
 
 // ── CHECK: Has per-job spend cap been reached? (Item 1) ──────────────────────
