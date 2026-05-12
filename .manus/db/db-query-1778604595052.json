@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE musicVideoScenes SET mvSceneStatus = 'failed', errorMessage = 'Atlas Cloud timeout — auto-failed by reaper', taskId = NULL WHERE id IN (510043, 510071);\nUPDATE providerJobLogs SET pjlStatus = 'cancelled', failedAt = NOW() WHERE sceneId IN (510043, 510071) AND pjlStatus IN ('submitted', 'pending');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute UPDATE musicVideoScenes SET mvSceneStatus = 'failed', errorMessage = 'Atlas Cloud timeout — auto-failed by reaper', taskId = NULL WHERE id IN (510043, 510071);\nUPDATE providerJobLogs SET pjlStatus = 'cancelled', failedAt = NOW() WHERE sceneId IN (510043, 510071) AND pjlStatus IN ('submitted', 'pending');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 285
+}

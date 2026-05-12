@@ -73,7 +73,7 @@ export async function stuckSceneReaperHandler(req: Request, res: Response) {
       .from(musicVideoScenes)
       .where(
         and(
-          eq(musicVideoScenes.status, "generating"),
+          eq(musicVideoScenes.status as any, "generating"),
           lte(musicVideoScenes.updatedAt, cutoff)
         )
       );
@@ -98,7 +98,7 @@ export async function stuckSceneReaperHandler(req: Request, res: Response) {
     await db
       .update(musicVideoScenes)
       .set({
-        status: "failed",
+        status: "failed" as any,
         errorMessage:
           "Automatic timeout recovery: scene did not complete within the expected window. Retrying automatically.",
         updatedAt: new Date(),
@@ -108,11 +108,11 @@ export async function stuckSceneReaperHandler(req: Request, res: Response) {
     // ── 3. Cancel all open providerJobLogs for these scenes ───────────────────
     await db
       .update(providerJobLogs)
-      .set({ status: "cancelled" } as any)
+      .set({ status: "cancelled" as any, failedAt: new Date() })
       .where(
         and(
           inArray(providerJobLogs.sceneId, sceneIds),
-          inArray(providerJobLogs.status, ["submitted", "failed"] as any)
+          inArray(providerJobLogs.status as any, ["submitted", "pending"])
         )
       );
 
@@ -173,7 +173,7 @@ export async function stuckSceneReaperHandler(req: Request, res: Response) {
           errorMessage:
             "Scene timed out after multiple attempts. Please retry manually from your dashboard.",
           updatedAt: new Date(),
-        })
+        } as any)
         .where(inArray(musicVideoScenes.id, manualRetryScenes.map((s) => s.id)));
     }
 
@@ -184,7 +184,7 @@ export async function stuckSceneReaperHandler(req: Request, res: Response) {
         // Reset to pending first
         await db
           .update(musicVideoScenes)
-          .set({ status: "pending", taskId: null, videoUrl: null, videoKey: null, errorMessage: null, updatedAt: new Date() })
+          .set({ status: "pending" as any, taskId: null, videoUrl: null, errorMessage: null, updatedAt: new Date() })
           .where(eq(musicVideoScenes.id, scene.id));
 
         // Ensure the parent job is still in rendering state
@@ -218,7 +218,7 @@ export async function stuckSceneReaperHandler(req: Request, res: Response) {
             );
             await db!
               .update(musicVideoScenes)
-              .set({ status: "generating", taskId, updatedAt: new Date() })
+              .set({ status: "generating" as any, taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
             console.log(
               `[StuckSceneReaper] Auto-retried scene ${scene.id} (job ${scene.jobId}) → taskId ${taskId}`
@@ -227,7 +227,7 @@ export async function stuckSceneReaperHandler(req: Request, res: Response) {
             console.error(`[StuckSceneReaper] Auto-retry failed for scene ${scene.id}:`, err);
             await db!
               .update(musicVideoScenes)
-              .set({ status: "failed", errorMessage: String(err), updatedAt: new Date() })
+              .set({ status: "failed" as any, errorMessage: String(err), updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
           }
         })();

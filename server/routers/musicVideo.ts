@@ -1234,7 +1234,7 @@ Rules:
       // Jobs that have been in 'rendering' or 'assembling' for more than 45 minutes
       // are considered stuck. Auto-fail them with a clear user message and credit refund.
       const STUCK_TIMEOUT_MS = 120 * 60 * 1000; // 120 minutes
-      const SCENE_STUCK_TIMEOUT_MS = 90 * 60 * 1000; // 90 minutes per scene
+      const SCENE_STUCK_TIMEOUT_MS = 20 * 60 * 1000; // 20 minutes per scene (cron reaper catches at 15min; this is the in-process fallback)
       if (job.status === "rendering" || job.status === "assembling") {
         const jobAge = Date.now() - new Date(job.updatedAt).getTime();
         if (jobAge > STUCK_TIMEOUT_MS) {

@@ -1,0 +1,8 @@
+{
+  "query": "\nUPDATE musicVideoScenes SET mvSceneStatus = 'failed', errorMessage = 'Atlas Cloud timeout — auto-failed by reaper', taskId = NULL, updatedAt = NOW() WHERE id IN (510043, 510071);\n\nUPDATE providerJobLogs SET jobStatus = 'cancelled', updatedAt = NOW() WHERE sceneId IN (510043, 510071) AND jobStatus IN ('submitted', 'pending');\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nUPDATE musicVideoScenes SET mvSceneStatus = 'failed', errorMessage = 'Atlas Cloud timeout — auto-failed by reaper', taskId = NULL, updatedAt = NOW() WHERE id IN (510043, 510071);\n\nUPDATE providerJobLogs SET jobStatus = 'cancelled', updatedAt = NOW() WHERE sceneId IN (510043, 510071) AND jobStatus IN ('submitted', 'pending');\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 4: Unknown column 'jobstatus' in 'where clause'"
+  ]
+}

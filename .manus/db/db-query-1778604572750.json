@@ -1,0 +1,24 @@
+{
+  "query": "SELECT id, sceneIndex, mvSceneStatus, taskId, updatedAt FROM musicVideoScenes WHERE jobId = 450002 AND mvSceneStatus IN ('generating','pending') ORDER BY sceneIndex;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT id, sceneIndex, mvSceneStatus, taskId, updatedAt FROM musicVideoScenes WHERE jobId = 450002 AND mvSceneStatus IN ('generating','pending') ORDER BY sceneIndex;",
+  "rows": [
+    {
+      "id": "510043",
+      "sceneIndex": "5",
+      "mvSceneStatus": "generating",
+      "taskId": "atlas:5d168c3a184f40e1a916ad8942c271ed",
+      "updatedAt": "2026-05-12 16:36:24"
+    },
+    {
+      "id": "510071",
+      "sceneIndex": "33",
+      "mvSceneStatus": "generating",
+      "taskId": "atlas:7528e2627b664a14a32b00a8a77cb0ac",
+      "updatedAt": "2026-05-12 16:36:34"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsceneIndex\tmvSceneStatus\ttaskId\tupdatedAt\n510043\t5\tgenerating\tatlas:5d168c3a184f40e1a916ad8942c271ed\t2026-05-12 16:36:24\n510071\t33\tgenerating\tatlas:7528e2627b664a14a32b00a8a77cb0ac\t2026-05-12 16:36:34\n",
+  "stderr": "",
+  "execution_time_ms": 259
+}
