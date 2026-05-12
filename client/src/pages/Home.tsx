@@ -938,9 +938,9 @@ function Hero() {
  <span className="absolute w-full h-full rounded-full bg-[--color-gold] animate-ping opacity-60" style={{ animationDuration: "2s" }} />
  <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold]" />
  </span>
- <span className="text-[11px] font-bold tracking-[0.28em] uppercase text-[--color-gold-dark]">WIZ AI — The AI Creative Studio</span>
+ <span className="text-[11px] font-bold tracking-[0.28em] uppercase text-[--color-gold-dark]">WIZ AI — Premium Cinematic Music Video Production</span>
  <span className="w-px h-3 bg-[--color-gold]/20" />
- <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[--color-gold]/50">10 Studios. One Platform.</span>
+ <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[--color-gold]/50">AI-Directed. Cinematically Produced.</span>
  </div>
 
  {/* Headline */}
@@ -949,10 +949,10 @@ function Hero() {
  </h1>
  {/* Emotional hook */}
  <p className="text-[clamp(1rem,1.8vw,1.2rem)] font-semibold leading-snug max-w-xl mb-4" style={{ color: "oklch(0.82 0.12 72)" }}>
- AI-directed music video production software with director-level control.
+ Premium AI-directed cinematic music video production with intelligent scene orchestration.
  </p>
  {/* Subheadline */}
- <p className="text-[clamp(0.875rem,1.4vw,1rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-6">Set the scene. Direct every shot. Control lip sync, camera angles, and character consistency — then build a cinematic music video that is entirely yours.
+ <p className="text-[clamp(0.875rem,1.4vw,1rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-6">Cinematic-first storyboarding. Character Lock™ identity consistency. WizSync™ Portrait-to-LipSync™ performance enhancement. Automatic reliability. Every video feels professionally directed — because it is.
  </p>
 
  {/* CTAs */}
@@ -1720,7 +1720,7 @@ function WelcomeSection() {
  <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-5">The Studio in Action</p>
  <h2 className="text-[clamp(2rem,4vw,3rem)] font-black tracking-tight text-white leading-tight mb-6">One brief.<br />Studio-grade output.
  </h2>
- <p className="text-[--color-silver-dark]/55 text-base leading-relaxed mb-8">Describe your idea. WIZ AI builds the storyboard, generates every scene, applies studio audio mastering and cinematic grading, and delivers a complete production — ready to publish.
+ <p className="text-[--color-silver-dark]/55 text-base leading-relaxed mb-8">Describe your vision. WIZ AI builds a cinematic-first storyboard, intelligently orchestrates every scene, applies WizSync™ Portrait-to-LipSync™ performance enhancement, and delivers a complete production that feels professionally directed — not AI-generated.
  </p>
  <div className="flex flex-col sm:flex-row gap-4">
  <a
@@ -2998,8 +2998,8 @@ function FeatureBlock() {
  },
  {
  logo: WIZAI_LOGO,
- title: "WizPilot Automation",
- desc: "Describe your vision once — WizPilot™ builds the full storyboard, directs every scene, syncs lip sync to your audio, and delivers a complete cinematic music video. Director-level output. Zero manual editing.",
+ title: "AI-Directed Cinematic Production",
+ desc: "Describe your vision once — WizPilot™ builds a cinematic-first storyboard, orchestrates every scene intelligently, applies WizSync™ Portrait-to-LipSync™ for genuine performance, and delivers a complete music video that feels professionally directed.",
  cta: "Try WizPilot",
  href: WIZPILOT_STUDIO_PAGE,
  badge: "WizPilot™",
@@ -3938,7 +3938,7 @@ function ContinueProjectBanner() {
 
 // Page 
 export default function Home() {
- useSEO({ title: "WIZ AI — AI-Directed Music Video Production Software", path: "/", description: "WIZ AI is AI-directed music video production software with director-level control. Set the scene, direct every shot, control lip sync and character consistency — then build a cinematic music video that is entirely yours. Professional output. No editing required." });
+ useSEO({ title: "WIZ AI — Premium AI-Directed Cinematic Music Video Production", path: "/", description: "WIZ AI is a premium AI-directed cinematic music video production platform. Cinematic-first storyboarding, Character Lock™ identity consistency, WizSync™ Portrait-to-LipSync™ performance enhancement, and intelligent scene orchestration. Every video feels professionally directed — not AI-generated." });
  useReveal();
  useEffect(() => { mp.homepageViewed(); }, []);
  return (

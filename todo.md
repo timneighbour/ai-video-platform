@@ -7496,8 +7496,8 @@
 - [ ] Add lip sync activation rules: only activate when character image uploaded + scene tagged + camera angle supports it
 - [ ] Add cost protection: max premium lip sync scenes per video, credit usage rules
 - [ ] Add UI states: Lip Sync Enabled, Premium Lip Sync Processing, Hero Scene Enhancement, Lip Sync Optimisation
-- [ ] Add WizSync branding to UI (do not market as phoneme-perfect unless provider completed successfully)
-- [ ] Verify TypeScript 0 errors and save checkpoint
+- [x] Add WizSync branding to UI (do not market as phoneme-perfect unless provider completed successfully)
+- [x] Verify TypeScript 0 errors and save checkpoint
 
 ## WizSync™ Lip Sync Strategy — Full Implementation
 
@@ -7511,17 +7511,72 @@
 - [ ] Add lip sync activation rules: only activate when character image uploaded + scene tagged + camera angle supports it
 - [ ] Add cost protection: max premium lip sync scenes per video, credit usage rules
 - [ ] Add UI states: Lip Sync Enabled, Premium Lip Sync Processing, Hero Scene Enhancement, Lip Sync Optimisation
-- [ ] Add WizSync branding to UI (do not market as phoneme-perfect unless provider completed successfully)
-- [ ] Verify TypeScript 0 errors and save checkpoint
+- [x] Add WizSync branding to UI (do not market as phoneme-perfect unless provider completed successfully)
+- [x] Verify TypeScript 0 errors and save checkpoint
 
 ## Tim's 8-Priority Action Plan (12 May 2026)
 
 - [ ] P1: Run full end-to-end WizPilot showcase render (female performer, emotional song, Character Lock, WizSync portrait lip sync, cinematic-first storyboard)
 - [ ] P2: Validate WizSync portrait pipeline (portrait → Seedance i2v → MuseTalk → final video); deliver before/after comparison, cost analysis, processing duration
 - [ ] P3: Validate cinematic storyboard logic (confirm ≤2 hero singing close-ups, majority atmospheric/narrative scenes, natural pacing)
-- [ ] P4: Reliability validation — stuckSceneReaper, AssemblyWorker retry, SPEND_PROTECTION_BLOCK recovery, retry+undo flow, render timers, failed scene recovery
-- [ ] P5: Update WizSync™ branding in CharacterManager UI — Portrait-to-LipSync™ positioning, not "perfect lip sync everywhere"
-- [ ] P5: Update WizPilot assembly phase UI to surface WizSync™ branding during lip sync step
+- [x] P4: Reliability validation — stuckSceneReaper, AssemblyWorker retry, SPEND_PROTECTION_BLOCK recovery, retry+undo flow, render timers, failed scene recovery
+- [x] P5: Update WizSync™ branding in CharacterManager UI — Portrait-to-LipSync™ positioning, not "perfect lip sync everywhere"
+- [x] P5: Update WizPilot assembly phase UI to surface WizSync™ branding during lip sync step
 - [ ] P6: Capture marketing assets (storyboard timeline, Scene Director, before/after lip sync, cinematic scenes, render workflow screenshots)
 - [ ] P7: Commercial readiness review — confirm spend guards, quality-over-quantity logic, no fake singing scenes
-- [ ] P8: Deliver launch readiness assessment PDF (reliability report, WizSync pipeline summary, provider cost report, cinematic storyboard screenshots, marketing asset guidance)
+- [x] P8: Deliver launch readiness assessment PDF (reliability report, WizSync pipeline summary, provider cost report, cinematic storyboard screenshots, marketing asset guidance)
+
+## Tim's Approved Action Plan — Post-Launch-Readiness Sprint (12 May 2026)
+
+### Priority 1 — Full End-to-End Showcase Render
+- [ ] SHOWCASE-P1: Run full WizPilot showcase render in production (female performer, emotional song, Character Lock, WizSync™ active, cinematic-first storyboard)
+- [ ] SHOWCASE-P1: Confirm render completes successfully end-to-end
+- [ ] SHOWCASE-P1: Capture final showcase video URL and storyboard
+
+### Priority 2 — WizSync™ Pipeline Validation
+- [ ] SHOWCASE-P2: Confirm server logs show Portrait → Seedance i2v → S3 upload → MuseTalk → final replacement
+- [ ] SHOWCASE-P2: Capture before/after comparison (assembled video vs lip-synced video)
+- [ ] SHOWCASE-P2: Record render duration for each WizSync™ stage
+- [ ] SHOWCASE-P2: Record provider costs (Seedance i2v + MuseTalk)
+- [ ] SHOWCASE-P2: Document quality observations
+
+### Priority 3 — Cinematic Storyboard Audit
+- [ ] SHOWCASE-P3: Audit scene distribution (wide shots, atmospheric, narrative, instrument cutaways, hero close-ups)
+- [ ] SHOWCASE-P3: Confirm ≤2 hero singing close-ups
+- [ ] SHOWCASE-P3: Confirm no repetitive avatar close-ups
+- [ ] SHOWCASE-P3: Confirm emotional narrative pacing
+- [ ] SHOWCASE-P3: Produce scene distribution report
+
+### Priority 4 — Launch Asset Capture
+- [ ] SHOWCASE-P4: Capture storyboard timeline screenshots
+- [ ] SHOWCASE-P4: Capture Scene Director screenshots
+- [ ] SHOWCASE-P4: Capture WizSync™ UI screenshots (CharacterManager with WizSync™ active)
+- [ ] SHOWCASE-P4: Capture Character Lock™ UI screenshots
+- [ ] SHOWCASE-P4: Capture render workflow screenshots (pipeline stages)
+- [ ] SHOWCASE-P4: Capture before/after WizSync™ video comparison clips
+- [ ] SHOWCASE-P4: Capture cinematic scene stills from final video
+
+### Priority 5 — Platform Messaging Update
+- [ ] MESSAGING-P5: Update homepage hero headline to reflect "Premium AI-Directed Cinematic Music Video Production"
+- [ ] MESSAGING-P5: Update homepage subtext away from "AI video generator" toward cinematic production language
+- [ ] MESSAGING-P5: Add WizSync™ Portrait-to-LipSync™ as a key differentiator on homepage
+- [ ] MESSAGING-P5: Add Character Lock™ as a key differentiator on homepage
+- [ ] MESSAGING-P5: Update features section with cinematic-first storyboard messaging
+- [ ] MESSAGING-P5: Remove or replace any "AI video generator" language across the site
+
+### Priority 6 — Commercial Readiness Confirmation
+- [ ] COMMERCIAL-P6: Confirm render reliability from showcase render
+- [ ] COMMERCIAL-P6: Confirm showcase quality meets "cinematic, emotional, believable, artist-focused" standard
+- [ ] COMMERCIAL-P6: Confirm provider stability (Atlas Cloud + fal.ai)
+- [ ] COMMERCIAL-P6: Confirm spend protection working (no runaway costs)
+- [ ] COMMERCIAL-P6: Confirm recovery systems operational (reaper + AssemblyWorker)
+
+### Priority 7 — Final Deliverables
+- [ ] DELIVERABLE-P7: Showcase render video delivered
+- [ ] DELIVERABLE-P7: Storyboard audit report delivered
+- [ ] DELIVERABLE-P7: WizSync™ validation log delivered
+- [ ] DELIVERABLE-P7: Cinematic scene distribution report delivered
+- [ ] DELIVERABLE-P7: Launch asset pack delivered
+- [ ] DELIVERABLE-P7: Provider cost report delivered
+- [ ] DELIVERABLE-P7: Reliability observations delivered
+- [ ] DELIVERABLE-P7: Launch readiness confirmation PDF delivered
