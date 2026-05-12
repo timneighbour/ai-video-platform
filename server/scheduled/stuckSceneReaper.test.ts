@@ -110,12 +110,12 @@ describe("stuckSceneReaper", () => {
     );
   });
 
-  it("STUCK_THRESHOLD_MS is 15 minutes (900000 ms)", async () => {
+  it("STUCK_THRESHOLD_MS is 8 minutes (480000 ms) — reduced from 15 for faster auto-recovery", async () => {
     // Read the constant value from the module source to confirm it hasn't drifted
     const src = await import("fs").then((fs) =>
       fs.readFileSync(new URL("./stuckSceneReaper.ts", import.meta.url).pathname, "utf-8")
     );
-    expect(src).toContain("15 * 60 * 1000");
+    expect(src).toContain("8 * 60 * 1000");
   });
 
   it("AUTO_RETRY_MAX_ATTEMPTS is 3", async () => {

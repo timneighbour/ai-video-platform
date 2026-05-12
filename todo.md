@@ -7652,3 +7652,12 @@
 - [ ] CRIT-4: Reduce stuckSceneReaper threshold from current value to 8 minutes max for production
 - [ ] CRIT-5: Add character consistency validation — log when a scene is generated without a character reference and flag it
 - [ ] CRIT-6: Checkpoint and publish all fixes
+
+## Phase 1 Orchestration Hardening (WizAdora)
+
+- [ ] ORCH-1: Circuit breaker per provider (open/half-open/closed state, prevents hammering failing providers)
+- [ ] ORCH-2: Queue health monitor endpoint + scheduled check (stuck job count, queue depth, provider error rates)
+- [ ] ORCH-3: Provider spiral detection (auto-degrade provider after N failures in rolling window)
+- [ ] ORCH-4: Register stuckSceneReaper heartbeat cron in production via manus-heartbeat CLI
+- [ ] ORCH-5: Reduce stuckSceneReaper threshold from 15 min to 8 min for faster auto-recovery
+- [ ] ORCH-6: Surface queue health and circuit breaker status in admin dashboard

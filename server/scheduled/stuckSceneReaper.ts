@@ -27,7 +27,7 @@ import { startSceneRender } from "../music-video-service";
 import { sdk } from "../_core/sdk";
 
 /** Scenes stuck longer than this are considered timed-out. */
-const STUCK_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
+const STUCK_THRESHOLD_MS = 8 * 60 * 1000; // 8 minutes (reduced from 15 for faster auto-recovery)
 
 /**
  * Scenes with fewer than this many prior attempts will be auto-retried

@@ -9,6 +9,8 @@ import { getDb } from "../db";
 import { providerHealth, providerSpendEvents, musicVideoJobs } from "../../drizzle/schema";
 import { eq, desc, and, gte, sql } from "drizzle-orm";
 import { getProviderHealthSummary, getRecentSpendEvents } from "../provider-health";
+import { getQueueHealth } from "../queue-health";
+import { getAllCircuitBreakerStatuses, resetCircuitBreaker } from "../circuit-breaker";
 
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
@@ -121,5 +123,25 @@ export const providerHealthRouter = router({
         .set({ isHealthy: true, consecutiveFailures: 0, updatedAt: new Date() })
         .where(eq(providerHealth.provider, input.provider));
       return { success: true };
+    }),
+
+  // ── WizAdora Phase 1: Queue Health Monitor ─────────────────────────────────
+  // Returns full queue health snapshot including circuit breaker states,
+  // provider spirals, stale scenes, and overall health assessment.
+  getQueueHealth: adminProcedure.query(async () => {
+    return getQueueHealth();
+  }),
+
+  // Get circuit breaker statuses for all providers
+  getCircuitBreakers: adminProcedure.query(() => {
+    return getAllCircuitBreakerStatuses();
+  }),
+
+  // Manually reset a circuit breaker (admin override)
+  resetCircuitBreaker: adminProcedure
+    .input(z.object({ provider: z.string() }))
+    .mutation(({ input }) => {
+      resetCircuitBreaker(input.provider);
+      return { success: true, provider: input.provider };
     }),
 });

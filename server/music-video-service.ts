@@ -25,6 +25,8 @@ import type { RendererType } from "./products";
 import { RENDERER_COSTS } from "./products";
 import { applyWizSound, type AudioTier } from "./wizsound";
 import { analyseContent, buildSceneVisualBrief, getSectionAtTime, type ContentAnalysis } from "./content-analyser";
+import { getCircuitBreaker } from "./circuit-breaker";
+import { isProviderDegraded } from "./queue-health";
 import {
   checkSubmissionAllowed,
   logProviderSubmission,
@@ -741,45 +743,65 @@ export async function startSceneRender(
   // Policy: Try Atlas Cloud first. If Atlas returns 402 (insufficient balance) or is unavailable,
   //         automatically fall back to WaveSpeed. Surface all other errors immediately.
   if (renderer === "wavespeed" || renderer === "fal_seedance" || renderer === "seedance" || renderer === "atlas_cloud" || renderer === "atlas_cloud_fast") {
-    // Step 1: Try Atlas Cloud Fast (primary) — with reference-to-video for lip sync when character image is available
-    try {
-      return await startSceneRenderAtlasCloud(
-        sceneId,
-        finalPrompt,
-        duration,
-        jobId,
-        characterImageUrl ?? null,
-        audioUrl ?? null,
-        sceneStartTime,
-        lipSync
-      );
-    } catch (atlasErr: any) {
-      const atlasMsg = String(atlasErr?.message ?? atlasErr);
-      const isExhausted = atlasMsg.includes("402") || atlasMsg.toLowerCase().includes("insufficient") || atlasMsg.toLowerCase().includes("balance") || atlasMsg.toLowerCase().includes("payment");
-      if (!isExhausted) {
-        // Non-balance error (content policy, network, etc.) — surface immediately, no fallback
-        console.error(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed (non-balance error). No fallback.`, atlasMsg.slice(0, 200));
-        throw new Error(`Video generation failed for scene ${sceneId}. Please try again in a moment.`);
-      }
-      // Step 2: Atlas exhausted — automatically fall back to WaveSpeed
-      console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud balance exhausted — falling back to WaveSpeed automatically.`);
-      // Fire-and-forget owner notification (debounced to 1/hour)
-      import("./provider-health").then(({ notifyAtlasExhausted }) => notifyAtlasExhausted()).catch(() => {});
+    // ── Circuit Breaker Check ────────────────────────────────────────────────
+    const atlasCircuit = getCircuitBreaker("atlas_cloud");
+    const atlasOpen = isProviderDegraded("atlas_cloud") || !atlasCircuit.canRequest();
+
+    if (!atlasOpen) {
+      // Step 1: Try Atlas Cloud Fast (primary) — with reference-to-video for lip sync when character image is available
       try {
-        return await startSceneRenderWaveSpeed(
+        const result = await startSceneRenderAtlasCloud(
           sceneId,
           finalPrompt,
           duration,
-          modelAssignment ?? "bytedance/seedance-2.0-fast/text-to-video",
-          storyboardImageUrl ?? undefined,
-          aspectRatio,
-          jobId
+          jobId,
+          characterImageUrl ?? null,
+          audioUrl ?? null,
+          sceneStartTime,
+          lipSync
         );
-      } catch (wsErr: any) {
-        const wsMsg = String(wsErr?.message ?? wsErr);
-        console.error(`[MusicVideo] Scene ${sceneId} WaveSpeed fallback also failed: ${wsMsg.slice(0, 200)}`);
-        throw new Error(`Video generation failed for scene ${sceneId}. Both Atlas Cloud and WaveSpeed are currently unavailable. Please try again shortly.`);
+        atlasCircuit.recordSuccess();
+        return result;
+      } catch (atlasErr: any) {
+        const atlasMsg = String(atlasErr?.message ?? atlasErr);
+        const isExhausted = atlasMsg.includes("402") || atlasMsg.toLowerCase().includes("insufficient") || atlasMsg.toLowerCase().includes("balance") || atlasMsg.toLowerCase().includes("payment");
+        if (!isExhausted) {
+          // Non-balance error (content policy, network, etc.) — record failure and surface immediately
+          atlasCircuit.recordFailure();
+          console.error(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed (non-balance error). No fallback.`, atlasMsg.slice(0, 200));
+          throw new Error(`Video generation failed for scene ${sceneId}. Please try again in a moment.`);
+        }
+        // Balance exhausted — don't penalise circuit breaker for billing issues, just fall through to WaveSpeed
+        console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud balance exhausted — falling back to WaveSpeed automatically.`);
+        // Fire-and-forget owner notification (debounced to 1/hour)
+        import("./provider-health").then(({ notifyAtlasExhausted }) => notifyAtlasExhausted()).catch(() => {});
       }
+    } else {
+      console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud circuit is OPEN — routing directly to WaveSpeed.`);
+    }
+
+    // Step 2: WaveSpeed fallback (Atlas exhausted or circuit open)
+    const wsCircuit = getCircuitBreaker("wavespeed");
+    if (!wsCircuit.canRequest()) {
+      throw new Error(`Video generation failed for scene ${sceneId}. Both Atlas Cloud and WaveSpeed circuits are OPEN. Please try again shortly.`);
+    }
+    try {
+      const wsResult = await startSceneRenderWaveSpeed(
+        sceneId,
+        finalPrompt,
+        duration,
+        modelAssignment ?? "bytedance/seedance-2.0-fast/text-to-video",
+        storyboardImageUrl ?? undefined,
+        aspectRatio,
+        jobId
+      );
+      wsCircuit.recordSuccess();
+      return wsResult;
+    } catch (wsErr: any) {
+      wsCircuit.recordFailure();
+      const wsMsg = String(wsErr?.message ?? wsErr);
+      console.error(`[MusicVideo] Scene ${sceneId} WaveSpeed fallback also failed: ${wsMsg.slice(0, 200)}`);
+      throw new Error(`Video generation failed for scene ${sceneId}. Both Atlas Cloud and WaveSpeed are currently unavailable. Please try again shortly.`);
     }
   }
 
