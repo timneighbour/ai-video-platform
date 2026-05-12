@@ -7461,3 +7461,12 @@
 - [ ] Register the heartbeat cron via manus-heartbeat CLI (every 5 minutes: "0 */5 * * * *") — requires deploy first
 - [x] Write vitest tests for the reaper logic
 - [x] Save checkpoint and ask user to deploy before activating the cron
+
+## Stage Progress Indicators Fix (May 2026)
+- [ ] Find stage indicator component (Analysing Audio / Animating Scenes / Syncing Performance / Enhancing Audio / Building Final)
+- [ ] Fix active/completed logic so each step lights up at the correct job status
+- [ ] Verify all 5 stages transition correctly end-to-end
+
+## Stage Indicator & Scene Status Dot Fix (May 2026)
+- [x] Fix 5-stage pipeline indicators not lighting up (Analysing Audio / Animating Scenes / Syncing Performance / Enhancing Audio / Building Final)
+- [x] Fix Scene Status dot legend (Queued / Generating / Done) not reflecting live scene states

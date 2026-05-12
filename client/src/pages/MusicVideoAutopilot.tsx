@@ -4613,10 +4613,27 @@ export default function MusicVideoAutopilot() {
                         { key: "wizsound",   label: "Enhancing Audio",          icon: <Sparkles className="w-4 h-4" /> },
                         { key: "completed",  label: "Building Final",          icon: <CheckCircle2 className="w-4 h-4" /> },
                       ];
-                      const stageOrder = ["queued", "rendering", "assembling", "wizsound", "completed"];
-                      // Map legacy "assembling" to cover wizsound too until server emits it
-                      const effectiveStatus = renderStatus === "failed" ? "rendering" : renderStatus;
-                      const currentIdx = stageOrder.indexOf(effectiveStatus);
+                      // Map real DB job statuses to stage indices:
+                      // draft/storyboard_ready → 0 (Analysing Audio)
+                      // rendering              → 1 (Animating Scenes)
+                      // assembling             → 2 (Syncing Performance)
+                      // assembling (post-WizSound phase) → 3 (Enhancing Audio) — inferred from progress
+                      // completed              → 4 (Building Final / done)
+                      const statusToStageIdx: Record<string, number> = {
+                        "draft":           0,
+                        "storyboard_ready":0,
+                        "rendering":       1,
+                        "assembling":      2,
+                        "completed":       4,
+                        "failed":          1, // keep Animating Scenes lit on failure
+                      };
+                      // Promote assembling → stage 3 (Enhancing Audio) once all scenes are done
+                      // (assembly includes WizSound processing which is the audio enhancement step)
+                      const allScenesDone = totalScenes > 0 && completedScenes >= totalScenes;
+                      const effectiveStageIdx = renderStatus === "assembling" && allScenesDone
+                        ? 3
+                        : (statusToStageIdx[renderStatus] ?? 1);
+                      const currentIdx = effectiveStageIdx;
                       return (
                         <>
                         {/* Clapperboard pipeline header rail */}
@@ -4886,11 +4903,11 @@ export default function MusicVideoAutopilot() {
                         </div>
 
                         {/* Legend */}
-                        <div className="flex gap-4 text-xs text-white/30 mb-3">
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-[rgba(24,20,16,0.9)] inline-block" /> Queued</span>
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-[--color-gold]/15 ring-1 ring-[--color-gold] inline-block" /> Generating</span>
+                        <div className="flex gap-4 text-xs text-white/50 mb-3">
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-zinc-700 border border-zinc-600 inline-block" /> Queued</span>
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-[--color-gold]/30 ring-1 ring-[--color-gold] inline-block" /> Generating</span>
                           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-[--color-gold] inline-block" /> Done</span>
-                          {failedScenes > 0 && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-red-500/20 ring-1 ring-red-500 inline-block" /> Failed</span>}
+                          {failedScenes > 0 && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-amber-500/40 ring-1 ring-amber-400 inline-block" /> Failed</span>}
                         </div>
 
                         {/* Failed scene detail cards with edit-before-retry */}
