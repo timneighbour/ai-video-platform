@@ -561,6 +561,13 @@
       "when": 1778602676654,
       "tag": "0079_goofy_wallflower",
       "breakpoints": true
+    },
+    {
+      "idx": 80,
+      "version": "5",
+      "when": 1778616051937,
+      "tag": "0080_slim_thunderbolt_ross",
+      "breakpoints": true
     }
   ]
 }

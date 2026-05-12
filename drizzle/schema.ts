@@ -252,7 +252,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   faceValidationScores: text("faceValidationScores"), // JSON: { characterName: confidenceScore } per assigned character
   faceValidationAttempts: int("faceValidationAttempts").default(0), // Number of regeneration attempts due to face mismatch
   modelAssignment: mysqlEnum("modelAssignment", ["seedance-2.0", "hailuo-minimax"]).default("seedance-2.0").notNull(), // WaveSpeed model: seedance-2.0 for character-heavy, hailuo-minimax for wide/atmospheric
-  lipSync: boolean("lipSync").default(true).notNull(), // Per-scene lip sync control
+  lipSync: boolean("lipSync").default(false).notNull(), // Per-scene lip sync control — false by default; set true only for close-up character scenes (seedance-2.0)
   lipSyncStyle: mysqlEnum("lipSyncStyle", ["natural", "expressive", "subtle", "dramatic", "anime"]).default("natural").notNull(), // Lip sync animation style
   userEditedPrompt: boolean("userEditedPrompt").default(false).notNull(), // true when the user has manually edited this scene's prompt
   focusCharacter: varchar("focusCharacter", { length: 128 }), // Placeholder: character to apply lip sync to (future feature)

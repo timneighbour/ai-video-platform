@@ -535,6 +535,12 @@ Rules:
           : roster.length > 0
             ? [roster.find((c: { isLocked?: boolean }) => c.isLocked)?.name ?? roster[0].name]
             : [];
+        // Smart lip sync assignment:
+        // Only enable lip sync for close-up character scenes (seedance-2.0 model).
+        // Wide/atmospheric shots (hailuo-minimax) never get fake singing prompts.
+        // This prevents the broken "mouth movements synced to music" prompt on scenes
+        // where no character face is even visible.
+        const smartLipSync = scene.modelAssignment === "seedance-2.0" && assignedNames.length > 0;
         const [insertedScene] = await db.insert(musicVideoScenes).values({
           jobId: input.jobId,
           sceneIndex: scene.sceneIndex,
@@ -545,6 +551,7 @@ Rules:
           visualStyle: scene.visualStyle,
           characterAssignments: assignedNames.length > 0 ? JSON.stringify(assignedNames) : null,
           status: "pending",
+          lipSync: smartLipSync,
         });
         // Populate characterScenes junction table for this scene
         const newSceneId = (insertedScene as any).insertId as number;

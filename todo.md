@@ -7483,3 +7483,33 @@
 - [x] Audit assembleMusicVideo → completed transition — confirmed solid, email notification in place
 - [x] Clear QC false-positive warning on job 450002 (scenes recovered after QC check ran)
 - [ ] Verify first successful end-to-end video delivery for job 450002 (Unstoppable)
+
+## WizSync™ Lip Sync Strategy — Full Implementation
+
+- [ ] Produce WizSync strategy document: provider comparison, cost analysis, implementation timeline, pricing model
+- [ ] Default render fix: strip fake singing mouth movement from all scene generation prompts
+- [ ] Add cinematic fallback prompt library (silhouettes, crowd energy, instrument close-ups, environmental shots)
+- [ ] Build smart lip sync scene selector: LLM analyses storyboard and tags hero/close-up singing scenes
+- [ ] Add lipSyncTier field to musicVideoScenes schema (none | premium | hero)
+- [ ] Wire HeyGen Avatar IV as primary premium lip sync provider for tagged scenes
+- [ ] Wire MuseTalk (fal.ai) as fallback lip sync provider
+- [ ] Add lip sync activation rules: only activate when character image uploaded + scene tagged + camera angle supports it
+- [ ] Add cost protection: max premium lip sync scenes per video, credit usage rules
+- [ ] Add UI states: Lip Sync Enabled, Premium Lip Sync Processing, Hero Scene Enhancement, Lip Sync Optimisation
+- [ ] Add WizSync branding to UI (do not market as phoneme-perfect unless provider completed successfully)
+- [ ] Verify TypeScript 0 errors and save checkpoint
+
+## WizSync™ Lip Sync Strategy — Full Implementation
+
+- [ ] Produce WizSync strategy document: provider comparison, cost analysis, implementation timeline, pricing model
+- [ ] Default render fix: strip fake singing mouth movement from all scene generation prompts
+- [ ] Add cinematic fallback prompt library (silhouettes, crowd energy, instrument close-ups, environmental shots)
+- [ ] Build smart lip sync scene selector: LLM analyses storyboard and tags hero/close-up singing scenes
+- [ ] Add lipSyncTier field to musicVideoScenes schema (none | premium | hero)
+- [ ] Wire HeyGen Avatar IV as primary premium lip sync provider for tagged scenes
+- [ ] Wire MuseTalk (fal.ai) as fallback lip sync provider
+- [ ] Add lip sync activation rules: only activate when character image uploaded + scene tagged + camera angle supports it
+- [ ] Add cost protection: max premium lip sync scenes per video, credit usage rules
+- [ ] Add UI states: Lip Sync Enabled, Premium Lip Sync Processing, Hero Scene Enhancement, Lip Sync Optimisation
+- [ ] Add WizSync branding to UI (do not market as phoneme-perfect unless provider completed successfully)
+- [ ] Verify TypeScript 0 errors and save checkpoint

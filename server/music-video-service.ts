@@ -159,6 +159,7 @@ export interface StoryboardResult {
     visualStyle: string;
     lyrics: string;
     characterAssignments: string[];
+    modelAssignment?: string; // "seedance-2.0" | "hailuo-minimax" — drives model selection and smart lip sync
   }>;
   roster: StoryboardCharacter[]; // full character roster (locked + AI-invented)
 }

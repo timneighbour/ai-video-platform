@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoScenes` MODIFY COLUMN `lipSync` boolean NOT NULL DEFAULT false;
