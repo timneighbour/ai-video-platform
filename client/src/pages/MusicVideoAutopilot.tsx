@@ -5200,6 +5200,54 @@ export default function MusicVideoAutopilot() {
                     <p className="text-white/70 text-xs text-center">
                       Each scene takes 1–3 minutes. You can leave this page — rendering continues in the background.
                     </p>
+
+                    {/* ===== STUDIO LOUNGE ===== */}
+                    <div className="mt-6 rounded-xl border border-[rgba(184,137,42,0.18)] bg-[rgba(14,11,8,0.85)] overflow-hidden">
+                      <div className="flex items-center gap-2 px-4 py-3 border-b border-[rgba(184,137,42,0.12)]">
+                        <span className="text-base">🍽️</span>
+                        <div>
+                          <p className="text-xs font-semibold text-[--color-gold] uppercase tracking-widest">Studio Lounge</p>
+                          <p className="text-xs text-white/40">Your render is running — why not order something while you wait?</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-0 divide-x divide-[rgba(184,137,42,0.10)]">
+                        <a
+                          href="https://deliveroo.co.uk"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex flex-col items-center gap-2 px-3 py-4 hover:bg-[rgba(184,137,42,0.06)] transition-colors group"
+                        >
+                          <span className="text-2xl group-hover:scale-110 transition-transform">🐿️</span>
+                          <span className="text-xs font-semibold text-white/80 group-hover:text-[--color-gold] transition-colors">Deliveroo</span>
+                          <span className="text-[10px] text-white/30">deliveroo.co.uk</span>
+                        </a>
+                        <a
+                          href="https://www.just-eat.co.uk"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex flex-col items-center gap-2 px-3 py-4 hover:bg-[rgba(184,137,42,0.06)] transition-colors group"
+                        >
+                          <span className="text-2xl group-hover:scale-110 transition-transform">🍕</span>
+                          <span className="text-xs font-semibold text-white/80 group-hover:text-[--color-gold] transition-colors">Just Eat</span>
+                          <span className="text-[10px] text-white/30">just-eat.co.uk</span>
+                        </a>
+                        <a
+                          href="https://www.ubereats.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex flex-col items-center gap-2 px-3 py-4 hover:bg-[rgba(184,137,42,0.06)] transition-colors group"
+                        >
+                          <span className="text-2xl group-hover:scale-110 transition-transform">🛵</span>
+                          <span className="text-xs font-semibold text-white/80 group-hover:text-[--color-gold] transition-colors">Uber Eats</span>
+                          <span className="text-[10px] text-white/30">ubereats.com</span>
+                        </a>
+                      </div>
+                      <div className="px-4 py-2 border-t border-[rgba(184,137,42,0.08)]">
+                        <p className="text-[10px] text-white/20 text-center">Links open in a new tab — your render keeps going in the background ✓</p>
+                      </div>
+                    </div>
+                    {/* ===== END STUDIO LOUNGE ===== */}
+
                   </div>
                 )}
               </CardContent>

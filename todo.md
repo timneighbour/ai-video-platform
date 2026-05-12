@@ -7618,3 +7618,16 @@
 - [ ] CREATIVE-7: Capture launch assets during render — storyboard, stills, WizSync™ UI, silhouettes, before/after
 - [x] STRATEGIC-1: Platform identity locked = "AI-assisted cinematic music video direction" (not generic AI avatar generation)
 - [x] STRATEGIC-2: Core differentiators = Character Lock™, WizSync™ Portrait-to-LipSync™, cinematic-first storyboarding, intelligent scene orchestration, selective performance enhancement, emotionally cinematic storytelling
+
+## UX Fix — Song Title Validation (12 May 2026)
+
+- [x] UX-1: Highlight Song Title field with amber border + "Required to generate storyboard" label when empty
+- [x] UX-2: Show inline error message below Song Title field when user clicks Generate without filling it in
+- [x] UX-3: Scroll Song Title field into view and focus it when Generate is clicked with empty title
+- [x] UX-4: Checkpoint saved (d5c9d913) — publish to wiz-ai.io
+
+## Studio Lounge Feature (12 May 2026)
+
+- [ ] LOUNGE-1: Build StudioLounge component — premium dark panel with food & drink menu, add-to-order, order confirmation toast
+- [ ] LOUNGE-2: Inject Studio Lounge into WizPilot render waiting screen (below scene progress)
+- [ ] LOUNGE-3: Checkpoint and publish
