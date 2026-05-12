@@ -1389,3 +1389,20 @@ export const providerSpendEvents = mysqlTable("providerSpendEvents", {
 });
 export type ProviderSpendEvent = typeof providerSpendEvents.$inferSelect;
 export type InsertProviderSpendEvent = typeof providerSpendEvents.$inferInsert;
+
+// ── Scene Action History Log ──────────────────────────────────────────────────
+// Records every user-initiated retry or cancel action on a music video scene.
+// Used to populate the Scene History section on the user dashboard.
+export const sceneActionLogs = mysqlTable("sceneActionLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  jobId: int("jobId").notNull(),
+  sceneId: int("sceneId").notNull(),
+  action: mysqlEnum("salAction", ["retry", "cancel"]).notNull(),
+  sceneIndex: int("sceneIndex").notNull().default(0),
+  jobTitle: varchar("jobTitle", { length: 255 }),
+  errorMessageBefore: text("errorMessageBefore"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type SceneActionLog = typeof sceneActionLogs.$inferSelect;
+export type InsertSceneActionLog = typeof sceneActionLogs.$inferInsert;

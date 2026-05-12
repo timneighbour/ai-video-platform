@@ -7444,3 +7444,11 @@
 - [x] Undo calls new cancelScene tRPC procedure which marks scene as failed and cancels open providerJobLogs entries
 - [x] On successful undo: scene card reverts to failed state, toast.info confirms cancellation
 - [x] On failed undo (scene already rendering): toast.error explains it cannot be undone
+
+## Scene Action History Log in Dashboard (May 2026)
+- [x] Add sceneActionLogs DB table (id, userId, jobId, sceneId, action: retry|cancel, sceneIndex, jobTitle, errorMessageBefore, createdAt)
+- [x] Run DB migration for sceneActionLogs table
+- [x] Record log entry in retryFailedScene and cancelScene procedures
+- [x] Add getSceneActionHistory tRPC procedure (returns last 30 entries for current user)
+- [x] Build SceneHistoryLog component with table of recent retried/cancelled scenes
+- [x] Wire SceneHistoryLog into Dashboard.tsx below the recent projects section

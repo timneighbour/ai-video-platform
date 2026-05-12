@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE `sceneActionLogs` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`userId` int NOT NULL,\n\t`jobId` int NOT NULL,\n\t`sceneId` int NOT NULL,\n\t`salAction` enum('retry','cancel') NOT NULL,\n\t`sceneIndex` int NOT NULL DEFAULT 0,\n\t`jobTitle` varchar(255),\n\t`errorMessageBefore` text,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `sceneActionLogs_id` PRIMARY KEY(`id`)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute CREATE TABLE `sceneActionLogs` (\n\t`id` int AUTO_INCREMENT NOT NULL,\n\t`userId` int NOT NULL,\n\t`jobId` int NOT NULL,\n\t`sceneId` int NOT NULL,\n\t`salAction` enum('retry','cancel') NOT NULL,\n\t`sceneIndex` int NOT NULL DEFAULT 0,\n\t`jobTitle` varchar(255),\n\t`errorMessageBefore` text,\n\t`createdAt` timestamp NOT NULL DEFAULT (now()),\n\tCONSTRAINT `sceneActionLogs_id` PRIMARY KEY(`id`)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 402
+}

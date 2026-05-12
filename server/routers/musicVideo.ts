@@ -5,7 +5,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters, renderJobs, kidsVideoJobs, wizShortsJobs, characterScenes, providerJobLogs } from "../../drizzle/schema";
+import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters, renderJobs, kidsVideoJobs, wizShortsJobs, characterScenes, providerJobLogs, sceneActionLogs } from "../../drizzle/schema";
 import { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../_core/quotaError";
 import { eq, and, desc, inArray, gte, sql } from "drizzle-orm";
 
@@ -2766,6 +2766,17 @@ Rules:
           .where(eq(musicVideoJobs.id, input.jobId));
       }
 
+      // Log the retry action for the dashboard history
+      await db.insert(sceneActionLogs).values({
+        userId: ctx.user.id,
+        jobId: input.jobId,
+        sceneId: input.sceneId,
+        action: "retry",
+        sceneIndex: scene.sceneIndex ?? 0,
+        jobTitle: job.title ?? null,
+        errorMessageBefore: scene.errorMessage ?? null,
+      }).catch(() => { /* non-fatal */ });
+
       // Re-queue the render asynchronously
       // STORYBOARD LOCK: pass the approved preview image as visual anchor
       const retryStoryboardUrl = scene.previewImageUrl ?? undefined;
@@ -2906,6 +2917,16 @@ Rules:
             sql`${providerJobLogs.status} IN ('submitted', 'failed')`
           )
         );
+      // Log the cancel action for the dashboard history
+      await db.insert(sceneActionLogs).values({
+        userId: ctx.user.id,
+        jobId: input.jobId,
+        sceneId: input.sceneId,
+        action: "cancel",
+        sceneIndex: scene.sceneIndex ?? 0,
+        jobTitle: job.title ?? null,
+        errorMessageBefore: null,
+      }).catch(() => { /* non-fatal */ });
       console.log(`[MusicVideo] ${new Date().toISOString()} Scene ${input.sceneId} cancelled by user`);
       return { success: true };
     }),
@@ -4569,5 +4590,19 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
         alreadyDownloaded: false,
         message: "Video confirmed. Enjoy your music video!",
       };
+    }),
+
+  // Returns the last 30 scene action log entries for the current user (retries + cancels)
+  getSceneActionHistory: protectedProcedure
+    .query(async ({ ctx }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const rows = await db
+        .select()
+        .from(sceneActionLogs)
+        .where(eq(sceneActionLogs.userId, ctx.user.id))
+        .orderBy(desc(sceneActionLogs.createdAt))
+        .limit(30);
+      return rows;
     }),
 });

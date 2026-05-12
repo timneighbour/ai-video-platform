@@ -1,4 +1,5 @@
 import { WIZANIMATE_PRODUCT_PAGE, WIZVIDEO_STUDIO_PAGE, WIZVIDEO_NEW_PROJECT, WIZAUDIO_STUDIO_PAGE } from "@/lib/routes";
+import { SceneHistoryLog } from "@/components/SceneHistoryLog";
 import { FuelTheSession } from "@/components/FuelTheSession";
 import { ReturnTriggerBanner } from "@/components/ReturnTriggerBanner";
 /**
@@ -695,6 +696,11 @@ export default function Dashboard() {
               </Button>
             </a>
           </section>
+        )}
+
+        {/* ── Scene Action History Log ───────────────────────────────────── */}
+        {hasProjects && (
+          <SceneHistoryLog />
         )}
 
         {/* ── Post-first-project upgrade nudge ───────────────────────────────── */}
