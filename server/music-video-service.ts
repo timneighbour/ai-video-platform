@@ -476,16 +476,24 @@ ${contentAnalysis.sections.map(s => `  [${s.startTime}s–${s.endTime}s] ${s.typ
 MOOD SHIFTS (lighting MUST change at these points):
 ${contentAnalysis.moodShifts.map(m => `  At ${m.atTime}s: ${m.description} → Lighting: ${m.lightingSuggestion}`).join("\n")}
 
-SCENE TYPE RULES (NON-NEGOTIABLE):
-- CHORUS scenes: wide stage shot, full band visible, maximum energy, peak performance
-- VERSE scenes: intimate close-up, storytelling, character-focused, emotional depth
-- BRIDGE/BREAKDOWN scenes: dramatic, abstract, unexpected visual, emotional peak
-- INTRO scenes: establishing shot, build anticipation, set the world
-- OUTRO scenes: resolution, fade, emotional landing
+SCENE TYPE RULES (NON-NEGOTIABLE — CINEMATIC STORYTELLING FIRST):
+- CHORUS scenes: wide stage shot, full band visible, maximum energy, crowd reaction, silhouette against light, peak performance — NOT a close-up of a singing face
+- VERSE scenes: intimate storytelling — instrument close-up, hands on strings, emotional cutaway, environmental detail, character in environment — NOT a generic singing close-up
+- BRIDGE/BREAKDOWN scenes: dramatic abstract visual, unexpected angle, emotional peak, slow-motion detail, atmospheric environment
+- INTRO scenes: establishing shot, world-building, anticipation — reveal the environment before the performer
+- OUTRO scenes: resolution, fade, emotional landing, environment returning to stillness
+
+CINEMATIC VARIETY MANDATE — for every 5 scenes, include at minimum:
+- 1 wide/establishing shot (full environment, performer small in frame)
+- 1 instrument or hands close-up (no face visible)
+- 1 atmospheric/environmental cutaway (crowd, sky, light, texture)
+- 1 silhouette or dramatic backlit shot
+- Only 1 direct singing close-up (and only if lyrics are emotionally powerful at that moment)
 ═══════════════════════════════════════════════════════════════` : "";
 
-  const systemPrompt = `You are a professional music video director.
-Your job is to create detailed, cinematic scene descriptions for AI video generation.
+  const systemPrompt = `You are a premium cinematic music video director — not an AI avatar generator.
+Your job is to create detailed, emotionally directed scene descriptions for AI video generation.
+Think: Hype Williams, David Fincher, Anton Corbijn. Every scene must feel like it belongs in a premium music video, not a generic AI singing clip.
 
 ⚠️ MOST IMPORTANT RULE — THE USER'S VISION IS SACRED:
 You are directing the user's creative vision, not inventing your own.
@@ -493,6 +501,19 @@ Every scene must faithfully represent what the user has described in their theme
 Do NOT replace the user's requested environment with a generic stage, studio, or landscape.
 If the user says "desert", every scene is in a desert. If they say "underwater", every scene is underwater.
 If they say "city rooftop at night", every scene is on a city rooftop at night.
+
+⚠️ CINEMATIC STORYTELLING MANDATE:
+Do NOT default to visible singing close-ups in every scene. This is the most common mistake in AI music video generation and produces generic, unconvincing results.
+Instead, prioritise:
+- Cinematic emotion and atmosphere
+- Environmental storytelling
+- Performance energy (not just mouths moving)
+- Instrument close-ups and hands
+- Silhouette shots and dramatic backlight
+- Crowd movement and reaction
+- Dramatic camera work (Dutch angle, crane shot, rack focus)
+- Slow-motion detail (sweat, light, fabric, smoke)
+A singing close-up should be EARNED — reserved for the most emotionally powerful lyric moments, not used as a default.
 ${sceneSettingConstraint}${contentAnalysisBlock}
 
 Each scene description must be:
@@ -534,9 +555,10 @@ ${sceneList}
 - visualStyle: string (e.g. "cinematic", "dark neon", "ethereal", "gritty realism", "anime")
 - characterAssignments: array of character names from [${allCharacterNames}] who appear in this scene
 - modelAssignment: string, either "seedance-2.0" or "hailuo-minimax"
-  • Use "seedance-2.0" for scenes with close-up character faces, detailed facial expressions, or where character likeness is critical
-  • Use "hailuo-minimax" for wide shots, atmospheric scenes, crowd shots, instrument cutaways, or scenes where character detail is less critical
-  • When in doubt, prefer "seedance-2.0" for locked characters
+  • Use "seedance-2.0" ONLY for hero close-up performance shots where character likeness and facial expression are critical (e.g. the most powerful lyric moment, a direct-to-camera performance shot)
+  • Use "hailuo-minimax" for: wide shots, atmospheric scenes, crowd shots, instrument cutaways, silhouette shots, environmental scenes, any scene where the character's face is not the primary focus
+  • Default to "hailuo-minimax" unless the scene specifically requires a close-up character face — this produces better cinematic results
+  • Aim for no more than 30–40% of scenes using "seedance-2.0"
 
 Distribute characters thoughtfully — each must appear in at least 2 scenes. Solo scenes are encouraged.`
 
@@ -1523,37 +1545,85 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     }
 
     // ── MUSETALK POST-PROCESSING ─────────────────────────────────────────────────
-    // If any character has enableLipSync + faceVideoUrl, apply MuseTalk to the final video.
-    // This syncs the character's lips to the audio track using fal.ai MuseTalk.
+    // Phase 2: Portrait-to-LipSync pipeline.
+    // If any character has enableLipSync=true, we apply MuseTalk to the final assembled video.
+    // Face reference priority:
+    //   1. faceVideoUrl (user-uploaded face video) — best quality
+    //   2. masterPortraitUrl (locked character portrait photo) — auto-generated via Seedance i2v
+    //   3. previewImageUrl (character preview image) — fallback portrait
+    // If none available, MuseTalk is skipped and the original video is used.
     let finalVideoPath = finalVideo;
     try {
       const lipSyncChars = await dbConn.select()
         .from(videoCharacters)
         .where(and(eq(videoCharacters.jobId, jobId), eq(videoCharacters.enableLipSync, true)));
+
+      // Pick the best candidate: prefer explicit face video, then portrait-based
       const charWithFaceVideo = lipSyncChars.find(c => c.faceVideoUrl);
-      if (charWithFaceVideo?.faceVideoUrl) {
-        console.log(`[MuseTalk] Applying lip-sync for character ${charWithFaceVideo.name} (job ${jobId})`);
+      const charWithPortrait = lipSyncChars.find(c => c.masterPortraitUrl || c.previewImageUrl);
+      const lipSyncChar = charWithFaceVideo ?? charWithPortrait;
+
+      if (lipSyncChar) {
+        console.log(`[MuseTalk] Applying lip-sync for character ${lipSyncChar.name} (job ${jobId})`);
         await dbConn.update(musicVideoJobs)
-          .set({ errorMessage: "Applying MuseTalk lip-sync...", updatedAt: new Date() })
+          .set({ errorMessage: "Applying WizSync lip-sync...", updatedAt: new Date() })
           .where(eq(musicVideoJobs.id, jobId));
-        // Upload the assembled video to S3 first so MuseTalk can access it via URL
-        const preMusetalkKey = `music-videos/job-${jobId}-pre-musetalk-${Date.now()}.mp4`;
-        const preMtBuf = fs.readFileSync(finalVideo);
-        const { url: preMtUrl } = await storagePut(preMusetalkKey, preMtBuf, "video/mp4");
-        // Apply MuseTalk: source_video_url = assembled video, audio_url = enhanced audio
+
         const { initFalAI } = await import("./ai-apis/falai");
         const falClient = initFalAI();
-        const museTalkUrl = await falClient.museTalkLipSync({
-          source_video_url: preMtUrl,
-          audio_url: job.audioUrl,
-        });
-        // Download MuseTalk output and save to disk
-        const mtResp = await fetch(museTalkUrl);
-        const mtBuf = Buffer.from(await mtResp.arrayBuffer());
-        const mtFile = path.join(tmpDir, "final-musetalk.mp4");
-        fs.writeFileSync(mtFile, mtBuf);
-        finalVideoPath = mtFile;
-        console.log(`[MuseTalk] Lip-sync complete for job ${jobId}`);
+
+        // ── Resolve face video URL ──────────────────────────────────────────────
+        let faceVideoUrl: string | null = lipSyncChar.faceVideoUrl ?? null;
+
+        if (!faceVideoUrl) {
+          // No face video uploaded — generate one from the portrait using Seedance i2v
+          const portraitUrl = lipSyncChar.masterPortraitUrl ?? lipSyncChar.previewImageUrl;
+          if (portraitUrl) {
+            console.log(`[MuseTalk] No face video — generating portrait animation for ${lipSyncChar.name}`);
+            try {
+              const seedanceResult = await falClient.seedanceImageToVideo({
+                prompt: "Close-up face, subtle natural head movement, gentle breathing, realistic, cinematic",
+                image_url: portraitUrl,
+                duration: 5,
+                aspect_ratio: "1:1",
+              });
+              // Upload the generated face video to S3
+              const faceVidResp = await fetch(seedanceResult);
+              const faceVidBuf = Buffer.from(await faceVidResp.arrayBuffer());
+              const faceVidKey = `music-videos/job-${jobId}-face-${lipSyncChar.id}-${Date.now()}.mp4`;
+              const { url: uploadedFaceUrl } = await storagePut(faceVidKey, faceVidBuf, "video/mp4");
+              faceVideoUrl = uploadedFaceUrl;
+              console.log(`[MuseTalk] Portrait animation generated: ${faceVideoUrl}`);
+            } catch (genErr) {
+              console.warn(`[MuseTalk] Portrait animation failed: ${genErr}. Skipping MuseTalk.`);
+            }
+          }
+        }
+
+        if (faceVideoUrl) {
+          // Upload the assembled video to S3 so MuseTalk can access it via URL
+          const preMusetalkKey = `music-videos/job-${jobId}-pre-musetalk-${Date.now()}.mp4`;
+          const preMtBuf = fs.readFileSync(finalVideo);
+          const { url: preMtUrl } = await storagePut(preMusetalkKey, preMtBuf, "video/mp4");
+
+          // Apply MuseTalk: source_video_url = face video, audio_url = enhanced audio
+          const museTalkUrl = await falClient.museTalkLipSync({
+            source_video_url: faceVideoUrl,
+            audio_url: job.audioUrl ?? "",
+          });
+
+          // Download MuseTalk output and save to disk
+          const mtResp = await fetch(museTalkUrl);
+          const mtBuf = Buffer.from(await mtResp.arrayBuffer());
+          const mtFile = path.join(tmpDir, "final-musetalk.mp4");
+          fs.writeFileSync(mtFile, mtBuf);
+          finalVideoPath = mtFile;
+          console.log(`[MuseTalk] WizSync lip-sync complete for job ${jobId}`);
+          // Suppress the status message now that we're done
+          await dbConn.update(musicVideoJobs)
+            .set({ errorMessage: null, updatedAt: new Date() })
+            .where(eq(musicVideoJobs.id, jobId));
+        }
       }
     } catch (mtErr) {
       // MuseTalk failure is non-fatal — continue with original video

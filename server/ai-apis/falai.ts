@@ -161,6 +161,29 @@ export class FalAIClient {
   }
 
   /**
+   * Seedance 1.5 Pro: image-to-video — synchronous wrapper.
+   * Uses fal.subscribe to block until the video is ready and returns the video URL directly.
+   * Typical turnaround: 60–180 seconds.
+   */
+  async seedanceImageToVideo(input: SeedanceI2VInput): Promise<string> {
+    const result = await fal.subscribe("bytedance/seedance/v1.5/pro/image-to-video", {
+      input: {
+        prompt: input.prompt,
+        image_url: input.image_url,
+        duration: input.duration ?? 5,
+        aspect_ratio: input.aspect_ratio ?? "16:9",
+      },
+      logs: false,
+    }) as { data: SeedanceOutput };
+
+    const videoUrl = result.data?.video?.url;
+    if (!videoUrl) {
+      throw new Error("Seedance i2v: no video URL in response");
+    }
+    return videoUrl;
+  }
+
+  /**
    * Poll Seedance queue status (works for both i2v and t2v).
    */
   async seedanceStatus(
