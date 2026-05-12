@@ -1,0 +1,20 @@
+{
+  "query": "\nSELECT id, title, status, completedScenes, totalScenes, finalVideoUrl, errorMessage, updatedAt\nFROM musicVideoJobs\nWHERE id = 450002;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, title, status, completedScenes, totalScenes, finalVideoUrl, errorMessage, updatedAt\nFROM musicVideoJobs\nWHERE id = 450002;\n",
+  "rows": [
+    {
+      "id": "450002",
+      "title": "Unstoppable",
+      "status": "assembling",
+      "completedScenes": "37",
+      "totalScenes": "37",
+      "finalVideoUrl": "NULL",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-12 19:33:20"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tstatus\tcompletedScenes\ttotalScenes\tfinalVideoUrl\terrorMessage\tupdatedAt\n450002\tUnstoppable\tassembling\t37\t37\tNULL\tNULL\t2026-05-12 19:33:20\n",
+  "stderr": "",
+  "execution_time_ms": 269
+}

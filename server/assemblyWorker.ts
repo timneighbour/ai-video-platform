@@ -6,17 +6,18 @@
  * via pollProgress (which requires the user to be on the page).
  *
  * Solution: This worker runs every 2 minutes and re-triggers assembly for any job
- * that has been in "assembling" status for more than 5 minutes without a finalVideoUrl.
+ * that has been in "assembling" status for more than 3 minutes without a finalVideoUrl.
+ * On pickup it resets updatedAt to "now" so the job is not double-triggered.
  *
  * Start this worker once at server startup from server/_core/index.ts.
  */
 import { assembleMusicVideo } from "./music-video-service";
 import { getDb } from "./db";
 import { musicVideoJobs, renderJobs } from "../drizzle/schema";
-import { and, eq, isNull, lt, desc } from "drizzle-orm";
+import { and, eq, isNull, lt, desc, sql } from "drizzle-orm";
 
 const WORKER_INTERVAL_MS = 2 * 60 * 1000; // 2 minutes
-const STUCK_THRESHOLD_MINUTES = 5; // Jobs assembling for >5 min without finalVideoUrl
+const STUCK_THRESHOLD_MINUTES = 3; // Jobs assembling for >3 min without finalVideoUrl
 
 // Track in-flight assemblies to avoid double-triggering
 const inFlightAssemblies = new Set<number>();
@@ -46,7 +47,7 @@ async function processOrphanedAssemblyJobs(): Promise<void> {
 
     if (stuckJobs.length === 0) return;
 
-      console.log(`[AssemblyWorker] Found ${stuckJobs.length} orphaned assembling job(s): ${stuckJobs.map((j: { id: number }) => j.id).join(", ")}`);
+    console.log(`[AssemblyWorker] Found ${stuckJobs.length} orphaned assembling job(s): ${stuckJobs.map((j: { id: number }) => j.id).join(", ")}`);
 
     for (const job of stuckJobs) {
       if (inFlightAssemblies.has(job.id)) {
@@ -54,7 +55,15 @@ async function processOrphanedAssemblyJobs(): Promise<void> {
         continue;
       }
 
+      // Mark the job as picked up by bumping updatedAt to now — prevents double-trigger
+      // on the next worker interval while assembly is running
+      await db
+        .update(musicVideoJobs)
+        .set({ updatedAt: sql`NOW()` })
+        .where(eq(musicVideoJobs.id, job.id));
+
       inFlightAssemblies.add(job.id);
+
       // Look up audioTier from the most recent renderJob for this musicVideoJob
       const [latestRenderJob] = await db
         .select({ audioTier: renderJobs.audioTier })
@@ -78,6 +87,14 @@ async function processOrphanedAssemblyJobs(): Promise<void> {
         })
         .catch((err) => {
           console.error(`[AssemblyWorker] ❌ Job ${job.id} assembly failed:`, err instanceof Error ? err.message : String(err));
+          // Reset updatedAt to a past time so the next worker interval can retry
+          getDb().then(db2 => {
+            if (!db2) return;
+            db2.update(musicVideoJobs)
+              .set({ updatedAt: new Date(Date.now() - 10 * 60 * 1000) }) // 10 min ago
+              .where(eq(musicVideoJobs.id, job.id))
+              .catch(() => {});
+          });
         })
         .finally(() => {
           inFlightAssemblies.delete(job.id);
@@ -107,5 +124,5 @@ export function startAssemblyWorker(): void {
     });
   }, WORKER_INTERVAL_MS);
 
-  console.log(`[AssemblyWorker] Started — checking every ${WORKER_INTERVAL_MS / 60000} min for orphaned assembly jobs`);
+  console.log(`[AssemblyWorker] Started — checking every ${WORKER_INTERVAL_MS / 60000} min for orphaned assembly jobs (threshold: ${STUCK_THRESHOLD_MINUTES} min)`);
 }
