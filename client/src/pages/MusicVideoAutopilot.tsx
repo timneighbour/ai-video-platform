@@ -572,6 +572,7 @@ export default function MusicVideoAutopilot() {
   const updateSceneLipSyncStyleMutation = trpc.musicVideo.updateSceneLipSyncStyle.useMutation();
   const regenerateSceneMutation = trpc.musicVideo.regenerateScene.useMutation();
   const retryFailedSceneMutation = trpc.musicVideo.retryFailedScene.useMutation();
+  const cancelSceneMutation = trpc.musicVideo.cancelScene.useMutation();
   const retryAllFailedScenesMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
   const updateScenePromptMutation = trpc.musicVideo.updateScenePrompt.useMutation();
   const deleteSceneMutation = trpc.musicVideo.deleteScene.useMutation();
@@ -4972,12 +4973,27 @@ export default function MusicVideoAutopilot() {
                                               );
                                               try {
                                                 await retryFailedSceneMutation.mutateAsync({ sceneId: scene.id, jobId });
+                                                const undoRetry = async () => {
+                                                  try {
+                                                    await cancelSceneMutation.mutateAsync({ sceneId: scene.id, jobId });
+                                                    setRetryingScenes((prev) => { const n = new Set(prev); n.delete(scene.id); return n; });
+                                                    setPerSceneStatuses((prev) =>
+                                                      prev.map((s) => s.id === scene.id ? { ...s, status: "failed", errorMessage: "Cancelled by user" } : s)
+                                                    );
+                                                    toast.info(`Scene ${scene.index + 1} retry cancelled`);
+                                                  } catch {
+                                                    toast.error("Could not undo — the scene may have already started rendering");
+                                                  }
+                                                };
                                                 if (isSpendBlocked) {
                                                   toast.success(`Scene ${scene.index + 1} unblocked and re-queued`, {
                                                     description: "The retry limit has been reset — your scene is back in the render queue.",
+                                                    action: { label: "Undo", onClick: undoRetry },
                                                   });
                                                 } else {
-                                                  toast.success(`Scene ${scene.index + 1} re-queued for rendering`);
+                                                  toast.success(`Scene ${scene.index + 1} re-queued for rendering`, {
+                                                    action: { label: "Undo", onClick: undoRetry },
+                                                  });
                                                 }
                                                 isRenderingRef.current = true;
                                                 setRenderStatus("rendering");
@@ -5078,12 +5094,27 @@ export default function MusicVideoAutopilot() {
                                                   prev.map((s) => s.id === scene.id ? { ...s, status: "pending", errorMessage: null } : s)
                                                 );
                                                 await retryFailedSceneMutation.mutateAsync({ sceneId: scene.id, jobId });
+                                                const undoSaveRetry = async () => {
+                                                  try {
+                                                    await cancelSceneMutation.mutateAsync({ sceneId: scene.id, jobId });
+                                                    setRetryingScenes((prev) => { const n = new Set(prev); n.delete(scene.id); return n; });
+                                                    setPerSceneStatuses((prev) =>
+                                                      prev.map((s) => s.id === scene.id ? { ...s, status: "failed", errorMessage: "Cancelled by user" } : s)
+                                                    );
+                                                    toast.info(`Scene ${scene.index + 1} retry cancelled`);
+                                                  } catch {
+                                                    toast.error("Could not undo — the scene may have already started rendering");
+                                                  }
+                                                };
                                                 if (isSpendBlocked) {
                                                   toast.success(`Scene ${scene.index + 1} unblocked and re-queued`, {
                                                     description: "The retry limit has been reset — your scene is back in the render queue.",
+                                                    action: { label: "Undo", onClick: undoSaveRetry },
                                                   });
                                                 } else {
-                                                  toast.success(`Scene ${scene.index + 1} updated and re-queued`);
+                                                  toast.success(`Scene ${scene.index + 1} updated and re-queued`, {
+                                                    action: { label: "Undo", onClick: undoSaveRetry },
+                                                  });
                                                 }
                                                 isRenderingRef.current = true;
                                                 setRenderStatus("rendering");

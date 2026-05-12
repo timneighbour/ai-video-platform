@@ -7438,3 +7438,9 @@
 
 ## Spend-Blocked Retry Toast (May 2026)
 - [x] Show a distinct success toast when a user retries a scene that was previously blocked by SPEND_PROTECTION_BLOCK or RETRY_LIMIT, confirming the block has been cleared and the scene is re-queued
+
+## Undo Retry Toast Action (May 2026)
+- [x] Add Undo action button to retry success toasts (quick-retry and save-and-retry paths)
+- [x] Undo calls new cancelScene tRPC procedure which marks scene as failed and cancels open providerJobLogs entries
+- [x] On successful undo: scene card reverts to failed state, toast.info confirms cancellation
+- [x] On failed undo (scene already rendering): toast.error explains it cannot be undone

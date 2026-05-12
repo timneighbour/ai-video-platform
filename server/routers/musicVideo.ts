@@ -2872,6 +2872,44 @@ Rules:
       return { success: true, retriedCount: failedScenes.length };
     }),
 
+  // Cancel a scene that is currently pending/generating — used by the Undo action in the retry toast.
+  // Marks the scene as failed with a user-cancelled error message so it shows up as retryable again.
+  cancelScene: protectedProcedure
+    .input(z.object({
+      sceneId: z.number().int(),
+      jobId: z.number().int(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      const [scene] = await db.select().from(musicVideoScenes)
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+      if (!scene) throw new TRPCError({ code: "NOT_FOUND" });
+      // Only allow cancellation of scenes that are pending or generating (i.e. just re-queued)
+      if (scene.status !== "pending" && scene.status !== "generating") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Scene cannot be cancelled in its current state" });
+      }
+      // Mark scene as failed with a cancellation message so the user can retry again later
+      await db.update(musicVideoScenes)
+        .set({ status: "failed", taskId: null, errorMessage: "Cancelled by user", updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, input.sceneId));
+      // Cancel any open providerJobLogs entries for this scene
+      await db.update(providerJobLogs)
+        .set({ status: "cancelled" })
+        .where(
+          and(
+            eq(providerJobLogs.sceneId, input.sceneId),
+            sql`${providerJobLogs.status} IN ('submitted', 'failed')`
+          )
+        );
+      console.log(`[MusicVideo] ${new Date().toISOString()} Scene ${input.sceneId} cancelled by user`);
+      return { success: true };
+    }),
+
   // Update the visual prompt (and optionally lyrics) for a scene before retrying
   updateScenePrompt: protectedProcedure
     .input(z.object({
