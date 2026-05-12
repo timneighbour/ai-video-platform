@@ -4714,14 +4714,14 @@ export default function MusicVideoAutopilot() {
                       </div>
                       <h2 className="text-xl font-bold text-white mb-1">
                         {renderStatus === "wizsound" ? "Enhancing audio..."
-                          : renderStatus === "assembling" ? "Building your animation..."
+                          : renderStatus === "assembling" ? "Applying WizSync™ Performance Sync..."
                           : "Generating your scenes..."}
                       </h2>
                       <p className="text-white/50 text-sm mb-3">
                         {renderStatus === "wizsound"
                           ? "WizSound™ is applying cinematic audio mastering to your final video..."
                           : renderStatus === "assembling"
-                          ? "All scenes generated! Stitching clips together with your audio track..."
+                          ? "All scenes generated! Assembling your video and applying WizSync™ Portrait-to-LipSync™ for cinematic performance..."
                           : `Generating ${totalScenes} cinematic scenes — this usually takes 5–15 minutes.`}
                       </p>
                       {/* Quality & audio tier badges */}
@@ -4777,7 +4777,7 @@ export default function MusicVideoAutopilot() {
                             <div className="flex justify-between items-center text-sm mb-2">
                               <span className="text-white/70 font-medium">
                                 {renderStatus === "wizsound" ? "Applying WizSound™ mastering"
-                                  : renderStatus === "assembling" ? "Assembling final video"
+                                  : renderStatus === "assembling" ? "WizSync™ Portrait-to-LipSync™ in progress"
                                   : `${completedScenes} / ${totalScenes} scenes`}
                                 {failedScenes > 0 && (
                                   <span className="ml-2 text-amber-400 text-xs">({failedScenes} retrying…)</span>

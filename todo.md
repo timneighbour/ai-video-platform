@@ -7513,3 +7513,15 @@
 - [ ] Add UI states: Lip Sync Enabled, Premium Lip Sync Processing, Hero Scene Enhancement, Lip Sync Optimisation
 - [ ] Add WizSync branding to UI (do not market as phoneme-perfect unless provider completed successfully)
 - [ ] Verify TypeScript 0 errors and save checkpoint
+
+## Tim's 8-Priority Action Plan (12 May 2026)
+
+- [ ] P1: Run full end-to-end WizPilot showcase render (female performer, emotional song, Character Lock, WizSync portrait lip sync, cinematic-first storyboard)
+- [ ] P2: Validate WizSync portrait pipeline (portrait → Seedance i2v → MuseTalk → final video); deliver before/after comparison, cost analysis, processing duration
+- [ ] P3: Validate cinematic storyboard logic (confirm ≤2 hero singing close-ups, majority atmospheric/narrative scenes, natural pacing)
+- [ ] P4: Reliability validation — stuckSceneReaper, AssemblyWorker retry, SPEND_PROTECTION_BLOCK recovery, retry+undo flow, render timers, failed scene recovery
+- [ ] P5: Update WizSync™ branding in CharacterManager UI — Portrait-to-LipSync™ positioning, not "perfect lip sync everywhere"
+- [ ] P5: Update WizPilot assembly phase UI to surface WizSync™ branding during lip sync step
+- [ ] P6: Capture marketing assets (storyboard timeline, Scene Director, before/after lip sync, cinematic scenes, render workflow screenshots)
+- [ ] P7: Commercial readiness review — confirm spend guards, quality-over-quantity logic, no fake singing scenes
+- [ ] P8: Deliver launch readiness assessment PDF (reliability report, WizSync pipeline summary, provider cost report, cinematic storyboard screenshots, marketing asset guidance)

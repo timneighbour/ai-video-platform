@@ -903,15 +903,18 @@ export function CharacterManager({
                 </div>
               )}
 
-              {/* ── Lip Sync ── */}
+              {/* ── WizSync™ Lip Sync ── */}
               <div className={`rounded-lg border p-3 transition-all ${char.enableLipSync ? "border-[--color-gold]/40 bg-[--color-gold]/10" : "border-zinc-700 bg-zinc-800/30"}`}>
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <Mic className={`w-4 h-4 ${char.enableLipSync ? "text-[--color-gold]" : "text-zinc-500"}`} />
                     <div>
-                      <p className="text-white text-sm font-medium">Lip Sync</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-white text-sm font-medium">WizSync™</p>
+                        <span className="text-[9px] font-semibold uppercase tracking-widest px-1.5 py-0.5 rounded bg-[--color-gold]/20 text-[--color-gold] border border-[--color-gold]/30">Portrait‑to‑LipSync</span>
+                      </div>
                       <p className="text-zinc-400 text-xs">
-                        Sync mouth to audio track
+                        AI Performance Enhancement — cinematic hero-shot lip sync
                         {char.mode === "photo" && char.photos.length === 0 && <span className="text-yellow-400 ml-1">— add a photo first</span>}
                         {char.mode === "ai_generated" && !char.aiGeneratedImageUrl && <span className="text-yellow-400 ml-1">— generate character first</span>}
                       </p>
@@ -922,7 +925,7 @@ export function CharacterManager({
                     onCheckedChange={(v) => {
                       const hasContent = char.mode === "photo" ? char.photos.length > 0 : !!char.aiGeneratedImageUrl;
                       if (v && !hasContent) {
-                        toast.error("Add content first", { description: char.mode === "photo" ? "Upload a photo to enable lip sync." : "Generate a character image first." });
+                        toast.error("Add content first", { description: char.mode === "photo" ? "Upload a photo to enable WizSync." : "Generate a character image first." });
                         return;
                       }
                       updateCharacter(char.slotIndex, { enableLipSync: v });
@@ -930,61 +933,79 @@ export function CharacterManager({
                     disabled={disabled}
                   />
                 </div>
-                {/* Performance sync face video upload — shown when lip sync is enabled */}
+
+                {/* WizSync active — explain the portrait pipeline */}
                 {char.enableLipSync && (
-                  <div className="mt-3 border-t border-[--color-gold]/20 pt-3">
-                    <p className="text-[11px] font-semibold text-[--color-gold]/70 uppercase tracking-widest mb-2">Performance Sync Video</p>
-                    <p className="text-[11px] text-zinc-400 mb-2">
-                      Upload a short video (3–10s) of this character's face for realistic lip-sync. Leave empty to use AI-generated mouth animation.
-                    </p>
-                    {char.faceVideoUrl ? (
-                      <div className="flex items-center gap-2">
-                        <video src={char.faceVideoUrl} className="w-16 h-16 rounded-lg object-cover border border-[--color-gold]/30" muted playsInline />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-white font-medium truncate">Face video uploaded</p>
-                          <p className="text-[10px] text-zinc-400">WizSync will sync lips to audio</p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => updateCharacter(char.slotIndex, { faceVideoUrl: undefined })}
-                          className="text-zinc-500 hover:text-red-400 transition-colors text-xs"
-                          disabled={disabled}
-                        >
-                          Remove
-                        </button>
+                  <div className="mt-3 border-t border-[--color-gold]/20 pt-3 space-y-3">
+                    {/* How WizSync works */}
+                    <div className="rounded-md bg-[--color-gold]/5 border border-[--color-gold]/20 px-3 py-2">
+                      <p className="text-[11px] font-semibold text-[--color-gold] uppercase tracking-widest mb-1">How WizSync™ Works</p>
+                      <p className="text-[11px] text-zinc-300 leading-relaxed">
+                        WizSync automatically animates your character’s portrait into a cinematic performance, then applies precision lip sync to the audio track. No face video required — your locked portrait is used automatically.
+                      </p>
+                      <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">Portrait → Animation</span>
+                        <span className="text-[10px] text-zinc-600">→</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">Seedance i2v</span>
+                        <span className="text-[10px] text-zinc-600">→</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[--color-gold]/20 text-[--color-gold] border border-[--color-gold]/30">MuseTalk Sync</span>
                       </div>
-                    ) : (
-                      <label className={`flex items-center gap-2 rounded-lg border border-dashed border-[--color-gold]/30 bg-[--color-gold]/5 px-3 py-2 cursor-pointer hover:border-[--color-gold]/60 hover:bg-[--color-gold]/10 transition-all ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
-                        <input
-                          type="file"
-                          accept="video/*"
-                          className="hidden"
-                          disabled={disabled}
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            if (file.size > 50 * 1024 * 1024) {
-                              toast.error('File too large', { description: 'Face video must be under 50MB.' });
-                              return;
-                            }
-                            // Upload via tRPC upload endpoint
-                            const formData = new FormData();
-                            formData.append('file', file);
-                            try {
-                              const res = await fetch('/api/video/upload', { method: 'POST', body: formData });
-                              if (!res.ok) throw new Error('Upload failed');
-                              const { url } = await res.json() as { url: string };
-                              updateCharacter(char.slotIndex, { faceVideoUrl: url });
-                              toast.success('Face video uploaded');
-                            } catch {
-                              toast.error('Upload failed', { description: 'Please try again.' });
-                            }
-                          }}
-                        />
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-[--color-gold]/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                        <span className="text-xs text-[--color-gold]/70">Upload face video (MP4/MOV, max 50MB)</span>
-                      </label>
-                    )}
+                    </div>
+
+                    {/* Optional: upload a face video for higher quality */}
+                    <div>
+                      <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5">Optional — Upload Face Video for Higher Quality</p>
+                      {char.faceVideoUrl ? (
+                        <div className="flex items-center gap-2">
+                          <video src={char.faceVideoUrl} className="w-16 h-16 rounded-lg object-cover border border-[--color-gold]/30" muted playsInline />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-white font-medium truncate">Face video uploaded</p>
+                            <p className="text-[10px] text-[--color-gold]/70">WizSync™ will use this video for premium lip sync</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => updateCharacter(char.slotIndex, { faceVideoUrl: undefined })}
+                            className="text-zinc-500 hover:text-red-400 transition-colors text-xs"
+                            disabled={disabled}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ) : (
+                        <label className={`flex items-center gap-2 rounded-lg border border-dashed border-zinc-700 bg-zinc-800/30 px-3 py-2 cursor-pointer hover:border-[--color-gold]/40 hover:bg-[--color-gold]/5 transition-all ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
+                          <input
+                            type="file"
+                            accept="video/*"
+                            className="hidden"
+                            disabled={disabled}
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              if (file.size > 50 * 1024 * 1024) {
+                                toast.error('File too large', { description: 'Face video must be under 50MB.' });
+                                return;
+                              }
+                              const formData = new FormData();
+                              formData.append('file', file);
+                              try {
+                                const res = await fetch('/api/video/upload', { method: 'POST', body: formData });
+                                if (!res.ok) throw new Error('Upload failed');
+                                const { url } = await res.json() as { url: string };
+                                updateCharacter(char.slotIndex, { faceVideoUrl: url });
+                                toast.success('Face video uploaded', { description: 'WizSync™ will use this for premium performance sync.' });
+                              } catch {
+                                toast.error('Upload failed', { description: 'Please try again.' });
+                              }
+                            }}
+                          />
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                          <div>
+                            <p className="text-xs text-zinc-400">Upload face video (MP4/MOV, max 50MB)</p>
+                            <p className="text-[10px] text-zinc-600">3–10s close-up — overrides portrait animation</p>
+                          </div>
+                        </label>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>

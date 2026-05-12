@@ -45,6 +45,16 @@ mockDb.set.mockImplementation((v: unknown) => {
 vi.mock("../../server/db", () => ({ getDb: vi.fn().mockResolvedValue(mockDb) }));
 vi.mock("../../server/spend-protection", () => ({ resetSceneAttempts: vi.fn().mockResolvedValue(undefined) }));
 vi.mock("../../server/music-video-service", () => ({ startSceneRender: vi.fn().mockResolvedValue("task_abc123") }));
+// Mock the SDK so cron auth passes when the header is present
+vi.mock("../../server/_core/sdk", () => ({
+  sdk: {
+    authenticateRequest: vi.fn().mockImplementation((req: any) => {
+      const uid = req.headers?.["x-manus-cron-task-uid"];
+      if (!uid) throw new Error("no cron header");
+      return Promise.resolve({ isCron: true, taskUid: uid });
+    }),
+  },
+}));
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
