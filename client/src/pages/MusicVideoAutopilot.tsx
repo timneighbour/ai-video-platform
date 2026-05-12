@@ -205,6 +205,7 @@ export default function MusicVideoAutopilot() {
   // Step 1: Upload form state - PERSISTED TO LOCALSTORAGE
   // IMPORTANT: These must be declared BEFORE the useEffect below so their setters are available
   const [title, setTitle] = useLocalStorage("musicVideo_title", "");
+  const [titleTouched, setTitleTouched] = useState(false);
   const [audioDuration, setAudioDuration] = useLocalStorage("musicVideo_duration", 0);
   const [themePrompt, setThemePrompt] = useLocalStorage("musicVideo_theme", "");
   const [genre, setGenre] = useLocalStorage("musicVideo_genre", "");
@@ -2577,14 +2578,30 @@ export default function MusicVideoAutopilot() {
                     </div>
                   )}
 
-                  <div>
-                    <Label className="text-white/70">Song Title *</Label>
+                  <div id="song-title-field">
+                    <Label className={`text-white/70 ${!title && titleTouched ? 'text-amber-400' : ''}`}>
+                      Song Title <span className="text-amber-400">*</span>
+                      {!title && titleTouched && (
+                        <span className="ml-2 text-xs font-normal text-amber-400">Required to generate storyboard</span>
+                      )}
+                    </Label>
                     <Input
+                      id="title-input"
                       value={title}
-                      onChange={(e) => setTitle(e.target.value)}
+                      onChange={(e) => { setTitle(e.target.value); setTitleTouched(true); }}
+                      onBlur={() => setTitleTouched(true)}
                       placeholder="e.g. Midnight Dreams"
-                      className="mt-1 bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white placeholder:text-white/40"
+                      className={`mt-1 bg-[rgba(24,20,16,0.9)] text-white placeholder:text-white/40 transition-colors ${
+                        !title && titleTouched
+                          ? 'border-amber-400/70 ring-1 ring-amber-400/40'
+                          : 'border-[rgba(184,137,42,0.12)]'
+                      }`}
                     />
+                    {!title && titleTouched && (
+                      <p className="mt-1 text-xs text-amber-400 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" /> Please enter a song title before generating your storyboard.
+                      </p>
+                    )}
                   </div>
 
                   {/* Lyrics / Transcription Panel — shows as soon as audio is selected */}
@@ -3196,11 +3213,20 @@ export default function MusicVideoAutopilot() {
                   </button>
                 </div>
               )}
-              <Button
+                <Button
                 className="w-full btn-primary btn-sheen py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={() => { setQuotaError(null); handleUploadAndGenerate(); }}
+                onClick={() => {
+                  if (!title) {
+                    setTitleTouched(true);
+                    document.getElementById('song-title-field')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setTimeout(() => document.getElementById('title-input')?.focus(), 400);
+                    return;
+                  }
+                  setQuotaError(null);
+                  handleUploadAndGenerate();
+                }}
                 disabled={
-                  createJob.isPending || generateStoryboardMutation.isPending || isUploading || !title || !themePrompt ||
+                  createJob.isPending || generateStoryboardMutation.isPending || isUploading || !themePrompt ||
                   (audioSourceTab === "upload" ? (!audioFile && !restoredAudioUrl) : !sunoGeneratedAudioUrl)
                 }
               >

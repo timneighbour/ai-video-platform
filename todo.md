@@ -7580,3 +7580,41 @@
 - [ ] DELIVERABLE-P7: Provider cost report delivered
 - [ ] DELIVERABLE-P7: Reliability observations delivered
 - [ ] DELIVERABLE-P7: Launch readiness confirmation PDF delivered
+
+## Showcase Validation Render — Updated Priorities (12 May 2026)
+
+- [ ] VALIDATION-1: Use 60–90 second song for first validation render (reduce provider risk, faster iteration)
+- [ ] VALIDATION-1: Generate 60–90s cinematic female vocal track via WizAudio
+- [ ] VALIDATION-2: Confirm storyboard has atmospheric wide shots, silhouette scenes, environmental storytelling, max 1–2 hero singing close-ups
+- [ ] VALIDATION-2: Confirm no repetitive avatar close-ups or generic AI karaoke energy
+- [ ] VALIDATION-3: Validate WizSync™ full pipeline: Portrait → Seedance i2v → S3 upload → MuseTalk → final video replacement
+- [ ] VALIDATION-3: Capture WizSync™ logs, timing, before/after comparisons, quality observations
+- [ ] VALIDATION-4: Audit Character Lock™: facial consistency, hair, outfit, emotional continuity across all scenes
+- [ ] VALIDATION-5: Capture launch assets: storyboard timeline, Scene Director, atmospheric frames, WizSync™ UI, before/after, hero shots
+- [ ] VALIDATION-6: Evaluate emotional quality — does it feel like a professionally directed cinematic music video?
+- [ ] VALIDATION-7: Reinforce platform positioning: WIZ AI = Premium AI-directed cinematic music video production
+- [ ] VALIDATION-8: Deliver all 8 deliverables: showcase render, storyboard audit, scene distribution, WizSync™ report, character consistency, provider costs, launch assets, launch readiness conclusion
+
+## Showcase Validation Render — Approved Priorities v2 (12 May 2026)
+
+- [ ] RENDER-1: Execute 75s controlled validation render — 4-6 scenes, cinematic-first, Character Lock™ + WizSync™ enabled
+- [ ] RENDER-2: Storyboard quality review — atmospheric wide shots, silhouette scenes, max 1 singing close-up, no repetitive avatar shots
+- [ ] RENDER-3: Validate WizSync™ full pipeline — Portrait → Seedance i2v → S3 → MuseTalk → final replacement
+- [ ] RENDER-4: Validate Character Lock™ — facial, hair, outfit, emotional continuity across all scenes
+- [ ] RENDER-5: Validate cinematic quality — "Does this feel like a professionally directed cinematic music video?"
+- [ ] RENDER-6: Reliability validation — no stuck scenes, successful assembly, AssemblyWorker, retry handling, WizSync™ stage execution
+- [ ] RENDER-7: Capture launch assets — storyboard timeline, cinematic stills, WizSync™ UI, before/after, render workflow screenshots
+- [ ] RENDER-8: Commercial positioning — WIZ AI = Premium AI-directed cinematic music video production
+- [ ] RENDER-9: Deliver all 9 deliverables — render, storyboard audit, WizSync™ report, character audit, cinematic assessment, reliability, costs, launch assets, launch readiness conclusion
+
+## v3 Showcase Render — Approved Creative Rules (12 May 2026)
+
+- [x] CREATIVE-1: Performance energy throughout — side-profile, silhouette, medium shots, movement throughout video
+- [x] CREATIVE-2: Restrained hero lip sync — max 1-2 direct front-facing WizSync™ close-ups only
+- [x] CREATIVE-3: Scene distribution approved — atmospheric opener → medium performance → silhouette → hero WizSync™ → environmental detail → cinematic outro
+- [x] CREATIVE-4: Storyboard review rules — no 3+ consecutive close-ups, no avatar-heavy sequencing, regenerate if feels "AI-generated"
+- [x] CREATIVE-5: WizSync™ = selective premium enhancement on hero moments only, NOT every scene
+- [x] CREATIVE-6: Primary success metric = "Does this feel like a professionally directed cinematic music video?"
+- [ ] CREATIVE-7: Capture launch assets during render — storyboard, stills, WizSync™ UI, silhouettes, before/after
+- [x] STRATEGIC-1: Platform identity locked = "AI-assisted cinematic music video direction" (not generic AI avatar generation)
+- [x] STRATEGIC-2: Core differentiators = Character Lock™, WizSync™ Portrait-to-LipSync™, cinematic-first storyboarding, intelligent scene orchestration, selective performance enhancement, emotionally cinematic storytelling
