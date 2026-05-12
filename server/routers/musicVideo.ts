@@ -1488,6 +1488,7 @@ Rules:
           index: s.sceneIndex,
           status: s.status, // "pending" | "generating" | "completed" | "failed"
           errorMessage: s.errorMessage ?? null,
+          videoUrl: s.videoUrl ?? null,
         })),
       };
     }),

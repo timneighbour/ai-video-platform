@@ -171,6 +171,79 @@ function PostRenderUpgradeConnector({ jobId }: { jobId: number }) {
   );
 }
 
+// ── Live Scene Preview Grid ─────────────────────────────────────────────────
+interface ScenePreviewGridProps {
+  scenes: Array<{ id: number; index: number; status: string; videoUrl?: string | null }>;
+}
+function ScenePreviewGrid({ scenes }: ScenePreviewGridProps) {
+  const [playingId, setPlayingId] = React.useState<number | null>(null);
+  const hasAny = scenes.some((s) => (s.status === "completed" && s.videoUrl) || s.status === "generating");
+  if (!hasAny) return null;
+  return (
+    <div className="mb-4">
+      <p className="text-xs text-white/40 font-medium uppercase tracking-wide mb-2">Completed Scenes — Click to Play</p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        {scenes.map((scene) => {
+          const isPlaying = playingId === scene.id;
+          if (scene.status === "completed" && scene.videoUrl) {
+            return (
+              <div
+                key={scene.id}
+                className="relative rounded-lg overflow-hidden border border-[rgba(184,137,42,0.25)] bg-black cursor-pointer group"
+                style={{ aspectRatio: "16/9" }}
+                onClick={() => setPlayingId(isPlaying ? null : scene.id)}
+              >
+                {isPlaying ? (
+                  <video
+                    src={scene.videoUrl!}
+                    autoPlay
+                    loop
+                    controls
+                    className="w-full h-full object-cover"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ) : (
+                  <>
+                    <video
+                      src={scene.videoUrl!}
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                      muted
+                      preload="metadata"
+                    />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-[--color-gold]/90 flex items-center justify-center mb-1">
+                        <svg className="w-4 h-4 text-black ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                      </div>
+                      <span className="text-[10px] text-white/70 font-medium">Scene {scene.index + 1}</span>
+                    </div>
+                  </>
+                )}
+                <div className="absolute top-1 left-1 bg-[--color-gold] text-black text-[9px] font-bold px-1.5 py-0.5 rounded">
+                  {scene.index + 1}
+                </div>
+              </div>
+            );
+          } else if (scene.status === "generating") {
+            return (
+              <div
+                key={scene.id}
+                className="relative rounded-lg overflow-hidden border border-[rgba(184,137,42,0.12)] bg-[rgba(24,20,16,0.9)] animate-pulse"
+                style={{ aspectRatio: "16/9" }}
+              >
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <Loader2 className="w-5 h-5 text-[--color-gold] animate-spin mb-1" />
+                  <span className="text-[10px] text-white/40">Scene {scene.index + 1}</span>
+                </div>
+              </div>
+            );
+          }
+          return null;
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function MusicVideoAutopilot() {
 
   useSEO({ title: "WizVideo™ — AI Music Video Director", path: "/music-video/create", description: "Upload your song and create a full AI music video. Automatic scene generation, character consistency, beat-synced visuals, and cinematic effects." });
@@ -441,7 +514,7 @@ export default function MusicVideoAutopilot() {
   const [sceneStatuses, setSceneStatuses] = useState<Record<number, string>>({});
   const [failedScenes, setFailedScenes] = useState(0);
   // Per-scene statuses from pollProgress for the real-time progress grid
-  const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; status: string; errorMessage?: string | null; prompt?: string; lyrics?: string | null }>>([]); 
+  const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; status: string; errorMessage?: string | null; prompt?: string; lyrics?: string | null; videoUrl?: string | null }>>([]); 
   // Track which scenes are currently being retried
   const [retryingScenes, setRetryingScenes] = useState<Set<number>>(new Set());
 
@@ -1569,11 +1642,13 @@ export default function MusicVideoAutopilot() {
               setPerSceneStatuses((prev) => {
                 // Merge: keep existing prompt/lyrics from storyboard scenes or previous poll
                 const prevMap = new Map(prev.map((s) => [s.id, s]));
-                return (progress.sceneStatuses as Array<{ id: number; index: number; status: string; errorMessage?: string | null }>).map((s) => ({
+                return (progress.sceneStatuses as Array<{ id: number; index: number; status: string; errorMessage?: string | null; videoUrl?: string | null }>).map((s) => ({
                   ...s,
                   // Preserve prompt/lyrics from the storyboard scenes array if available
                   prompt: prevMap.get(s.id)?.prompt ?? scenes.find((sc) => sc.id === s.id)?.prompt ?? undefined,
                   lyrics: prevMap.get(s.id)?.lyrics ?? scenes.find((sc) => sc.id === s.id)?.lyrics ?? undefined,
+                  // Preserve videoUrl — once set, keep it even if a later poll omits it
+                  videoUrl: s.videoUrl ?? prevMap.get(s.id)?.videoUrl ?? null,
                 }));
               });
               // Clear retrying state for scenes that are no longer failed
@@ -4948,6 +5023,10 @@ export default function MusicVideoAutopilot() {
                           {failedScenes > 0 && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-amber-500/40 ring-1 ring-amber-400 inline-block" /> Failed</span>}
                         </div>
 
+                        {/* ===== LIVE SCENE PREVIEW GRID ===== */}
+                        <ScenePreviewGrid scenes={perSceneStatuses} />
+                        {/* ===== END LIVE SCENE PREVIEW GRID ===== */}
+
                         {/* Failed scene detail cards with edit-before-retry */}
                         {perSceneStatuses.filter((s) => s.status === "failed").length > 0 && (
                           <div className="space-y-2">
@@ -5202,48 +5281,99 @@ export default function MusicVideoAutopilot() {
                     </p>
 
                     {/* ===== STUDIO LOUNGE ===== */}
-                    <div className="mt-6 rounded-xl border border-[rgba(184,137,42,0.18)] bg-[rgba(14,11,8,0.85)] overflow-hidden">
-                      <div className="flex items-center gap-2 px-4 py-3 border-b border-[rgba(184,137,42,0.12)]">
-                        <span className="text-base">🍽️</span>
-                        <div>
-                          <p className="text-xs font-semibold text-[--color-gold] uppercase tracking-widest">Studio Lounge</p>
-                          <p className="text-xs text-white/40">Your render is running — why not order something while you wait?</p>
+                    <div className="mt-8 rounded-2xl overflow-hidden" style={{background: 'linear-gradient(135deg, rgba(10,8,5,0.97) 0%, rgba(20,15,8,0.97) 100%)', border: '1px solid rgba(184,137,42,0.22)', boxShadow: '0 0 40px rgba(184,137,42,0.06), inset 0 1px 0 rgba(255,220,100,0.08)'}}>
+                      {/* Gold shimmer header */}
+                      <div className="relative px-5 py-4 overflow-hidden" style={{background: 'linear-gradient(90deg, rgba(184,137,42,0.12) 0%, rgba(212,168,67,0.18) 50%, rgba(184,137,42,0.12) 100%)', borderBottom: '1px solid rgba(184,137,42,0.15)'}}>
+                        {/* Shimmer sweep */}
+                        <div className="absolute inset-0 pointer-events-none" style={{background: 'linear-gradient(105deg, transparent 30%, rgba(255,220,100,0.06) 50%, transparent 70%)', animation: 'shimmer 3s ease-in-out infinite'}} />
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{background: 'linear-gradient(135deg, rgba(184,137,42,0.3), rgba(212,168,67,0.15))', border: '1px solid rgba(184,137,42,0.4)'}}>
+                              <span className="text-sm">🍷</span>
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold tracking-[0.2em] uppercase" style={{background: 'linear-gradient(90deg, #d4a843, #f0cc6e, #d4a843)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'}}>Studio Lounge</p>
+                              <p className="text-[11px] text-white/40 tracking-wide">Your scenes are rendering — treat yourself</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            <span className="text-[10px] text-emerald-400/70 font-medium tracking-wider uppercase">Open Now</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="grid grid-cols-3 gap-0 divide-x divide-[rgba(184,137,42,0.10)]">
+
+                      {/* Delivery brand cards */}
+                      <div className="grid grid-cols-3 gap-3 p-4">
+                        {/* Deliveroo */}
                         <a
                           href="https://deliveroo.co.uk"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex flex-col items-center gap-2 px-3 py-4 hover:bg-[rgba(184,137,42,0.06)] transition-colors group"
+                          className="group relative rounded-xl overflow-hidden flex flex-col items-center gap-2.5 py-5 px-3 transition-all duration-300"
+                          style={{background: 'linear-gradient(160deg, rgba(0,204,136,0.08) 0%, rgba(0,204,136,0.03) 100%)', border: '1px solid rgba(0,204,136,0.15)', boxShadow: '0 2px 12px rgba(0,0,0,0.3)'}}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.border = '1px solid rgba(0,204,136,0.45)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(0,204,136,0.15)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.border = '1px solid rgba(0,204,136,0.15)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
                         >
-                          <span className="text-2xl group-hover:scale-110 transition-transform">🐿️</span>
-                          <span className="text-xs font-semibold text-white/80 group-hover:text-[--color-gold] transition-colors">Deliveroo</span>
-                          <span className="text-[10px] text-white/30">deliveroo.co.uk</span>
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl" style={{background: 'rgba(0,204,136,0.12)', border: '1px solid rgba(0,204,136,0.25)'}}>🐿️</div>
+                          <div className="text-center">
+                            <p className="text-xs font-bold text-white tracking-wide">Deliveroo</p>
+                            <p className="text-[9px] mt-0.5" style={{color: 'rgba(0,204,136,0.7)'}}>Fast delivery</p>
+                          </div>
+                          <div className="text-[9px] text-white/20 flex items-center gap-1">
+                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                            deliveroo.co.uk
+                          </div>
                         </a>
+
+                        {/* Just Eat */}
                         <a
                           href="https://www.just-eat.co.uk"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex flex-col items-center gap-2 px-3 py-4 hover:bg-[rgba(184,137,42,0.06)] transition-colors group"
+                          className="group relative rounded-xl overflow-hidden flex flex-col items-center gap-2.5 py-5 px-3 transition-all duration-300"
+                          style={{background: 'linear-gradient(160deg, rgba(255,103,0,0.08) 0%, rgba(255,103,0,0.03) 100%)', border: '1px solid rgba(255,103,0,0.15)', boxShadow: '0 2px 12px rgba(0,0,0,0.3)'}}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.border = '1px solid rgba(255,103,0,0.45)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(255,103,0,0.15)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.border = '1px solid rgba(255,103,0,0.15)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
                         >
-                          <span className="text-2xl group-hover:scale-110 transition-transform">🍕</span>
-                          <span className="text-xs font-semibold text-white/80 group-hover:text-[--color-gold] transition-colors">Just Eat</span>
-                          <span className="text-[10px] text-white/30">just-eat.co.uk</span>
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl" style={{background: 'rgba(255,103,0,0.12)', border: '1px solid rgba(255,103,0,0.25)'}}>🍕</div>
+                          <div className="text-center">
+                            <p className="text-xs font-bold text-white tracking-wide">Just Eat</p>
+                            <p className="text-[9px] mt-0.5" style={{color: 'rgba(255,103,0,0.7)'}}>1000s of restaurants</p>
+                          </div>
+                          <div className="text-[9px] text-white/20 flex items-center gap-1">
+                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                            just-eat.co.uk
+                          </div>
                         </a>
+
+                        {/* Uber Eats */}
                         <a
                           href="https://www.ubereats.com"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex flex-col items-center gap-2 px-3 py-4 hover:bg-[rgba(184,137,42,0.06)] transition-colors group"
+                          className="group relative rounded-xl overflow-hidden flex flex-col items-center gap-2.5 py-5 px-3 transition-all duration-300"
+                          style={{background: 'linear-gradient(160deg, rgba(6,211,40,0.08) 0%, rgba(6,211,40,0.03) 100%)', border: '1px solid rgba(6,211,40,0.15)', boxShadow: '0 2px 12px rgba(0,0,0,0.3)'}}
+                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.border = '1px solid rgba(6,211,40,0.45)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(6,211,40,0.15)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.border = '1px solid rgba(6,211,40,0.15)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
                         >
-                          <span className="text-2xl group-hover:scale-110 transition-transform">🛵</span>
-                          <span className="text-xs font-semibold text-white/80 group-hover:text-[--color-gold] transition-colors">Uber Eats</span>
-                          <span className="text-[10px] text-white/30">ubereats.com</span>
+                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl" style={{background: 'rgba(6,211,40,0.12)', border: '1px solid rgba(6,211,40,0.25)'}}>🛵</div>
+                          <div className="text-center">
+                            <p className="text-xs font-bold text-white tracking-wide">Uber Eats</p>
+                            <p className="text-[9px] mt-0.5" style={{color: 'rgba(6,211,40,0.7)'}}>Track in real time</p>
+                          </div>
+                          <div className="text-[9px] text-white/20 flex items-center gap-1">
+                            <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                            ubereats.com
+                          </div>
                         </a>
                       </div>
-                      <div className="px-4 py-2 border-t border-[rgba(184,137,42,0.08)]">
-                        <p className="text-[10px] text-white/20 text-center">Links open in a new tab — your render keeps going in the background ✓</p>
+
+                      {/* Footer note */}
+                      <div className="px-5 py-2.5 flex items-center justify-center gap-2" style={{borderTop: '1px solid rgba(184,137,42,0.08)'}}>
+                        <span className="w-1 h-1 rounded-full bg-[--color-gold]/40" />
+                        <p className="text-[10px] text-white/20 tracking-wide">Opens in a new tab — your render continues uninterrupted</p>
+                        <span className="w-1 h-1 rounded-full bg-[--color-gold]/40" />
                       </div>
                     </div>
                     {/* ===== END STUDIO LOUNGE ===== */}

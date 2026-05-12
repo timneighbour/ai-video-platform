@@ -7631,3 +7631,16 @@
 - [ ] LOUNGE-1: Build StudioLounge component — premium dark panel with food & drink menu, add-to-order, order confirmation toast
 - [ ] LOUNGE-2: Inject Studio Lounge into WizPilot render waiting screen (below scene progress)
 - [ ] LOUNGE-3: Checkpoint and publish
+
+## Live Scene Preview Grid on Render Screen (12 May 2026)
+
+- [ ] PREVIEW-1: Show completed scene video clips in a grid on the render waiting screen as they finish
+- [ ] PREVIEW-2: Click any completed scene card to play the video clip in a modal/inline player
+- [ ] PREVIEW-3: Checkpoint and publish
+
+## Studio Lounge Premium Redesign + Live Scene Preview (12 May 2026)
+- [ ] LOUNGE-PREMIUM: Redesign Studio Lounge to premium cinematic aesthetic — gold shimmer header, brand-coloured delivery cards, premium typography, animated hover states
+- [ ] PREVIEW-FIX: Fix TypeScript error (useState inside render function) in live scene preview grid — extract to proper component
+- [ ] PREVIEW-VIDEO: Confirm completed scene videoUrls appear and are playable in the grid during render
+- [ ] CHECKPOINT: Save checkpoint and publish both features
+
