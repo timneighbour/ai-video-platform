@@ -1574,8 +1574,16 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     //   2. masterPortraitUrl (locked character portrait photo) — auto-generated via Seedance i2v
     //   3. previewImageUrl (character preview image) — fallback portrait
     // If none available, MuseTalk is skipped and the original video is used.
+    // TIMEOUT: The entire MuseTalk block is capped at 90 seconds. If it hangs (fal.ai slow/unresponsive),
+    // we skip it and continue with the original assembled video so the job completes.
     let finalVideoPath = finalVideo;
-    try {
+    const MUSETALK_TIMEOUT_MS = 90_000; // 90 seconds hard cap
+    const SEEDANCE_I2V_TIMEOUT_MS = 60_000; // 60 seconds for portrait animation
+    const musetalkTimeoutPromise = new Promise<"timeout">((resolve) =>
+      setTimeout(() => resolve("timeout"), MUSETALK_TIMEOUT_MS)
+    );
+
+    const musetalkWorkPromise = (async () => {
       const lipSyncChars = await dbConn.select()
         .from(videoCharacters)
         .where(and(eq(videoCharacters.jobId, jobId), eq(videoCharacters.enableLipSync, true)));
@@ -1585,71 +1593,91 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       const charWithPortrait = lipSyncChars.find(c => c.masterPortraitUrl || c.previewImageUrl);
       const lipSyncChar = charWithFaceVideo ?? charWithPortrait;
 
-      if (lipSyncChar) {
-        console.log(`[MuseTalk] Applying lip-sync for character ${lipSyncChar.name} (job ${jobId})`);
-        await dbConn.update(musicVideoJobs)
-          .set({ errorMessage: "Applying WizSync lip-sync...", updatedAt: new Date() })
-          .where(eq(musicVideoJobs.id, jobId));
+      if (!lipSyncChar) return; // No lip-sync characters — skip
 
-        const { initFalAI } = await import("./ai-apis/falai");
-        const falClient = initFalAI();
+      console.log(`[MuseTalk] Applying lip-sync for character ${lipSyncChar.name} (job ${jobId})`);
+      await dbConn.update(musicVideoJobs)
+        .set({ errorMessage: "Applying WizSync lip-sync...", updatedAt: new Date() })
+        .where(eq(musicVideoJobs.id, jobId));
 
-        // ── Resolve face video URL ──────────────────────────────────────────────
-        let faceVideoUrl: string | null = lipSyncChar.faceVideoUrl ?? null;
+      const { initFalAI } = await import("./ai-apis/falai");
+      const falClient = initFalAI();
 
-        if (!faceVideoUrl) {
-          // No face video uploaded — generate one from the portrait using Seedance i2v
-          const portraitUrl = lipSyncChar.masterPortraitUrl ?? lipSyncChar.previewImageUrl;
-          if (portraitUrl) {
-            console.log(`[MuseTalk] No face video — generating portrait animation for ${lipSyncChar.name}`);
-            try {
-              const seedanceResult = await falClient.seedanceImageToVideo({
+      // ── Resolve face video URL ──────────────────────────────────────────────
+      let faceVideoUrl: string | null = lipSyncChar.faceVideoUrl ?? null;
+
+      if (!faceVideoUrl) {
+        // No face video uploaded — generate one from the portrait using Seedance i2v
+        const portraitUrl = lipSyncChar.masterPortraitUrl ?? lipSyncChar.previewImageUrl;
+        if (portraitUrl) {
+          console.log(`[MuseTalk] No face video — generating portrait animation for ${lipSyncChar.name}`);
+          try {
+            // Race Seedance i2v against a 60-second timeout
+            const seedanceRace = await Promise.race([
+              falClient.seedanceImageToVideo({
                 prompt: "Close-up face, subtle natural head movement, gentle breathing, realistic, cinematic",
                 image_url: portraitUrl,
                 duration: 5,
                 aspect_ratio: "1:1",
-              });
-              // Upload the generated face video to S3
-              const faceVidResp = await fetch(seedanceResult);
-              const faceVidBuf = Buffer.from(await faceVidResp.arrayBuffer());
-              const faceVidKey = `music-videos/job-${jobId}-face-${lipSyncChar.id}-${Date.now()}.mp4`;
-              const { url: uploadedFaceUrl } = await storagePut(faceVidKey, faceVidBuf, "video/mp4");
-              faceVideoUrl = uploadedFaceUrl;
-              console.log(`[MuseTalk] Portrait animation generated: ${faceVideoUrl}`);
-            } catch (genErr) {
-              console.warn(`[MuseTalk] Portrait animation failed: ${genErr}. Skipping MuseTalk.`);
-            }
+              }),
+              new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error("Seedance i2v timeout after 60s")), SEEDANCE_I2V_TIMEOUT_MS)
+              ),
+            ]);
+            // Upload the generated face video to S3
+            const faceVidResp = await fetch(seedanceRace);
+            const faceVidBuf = Buffer.from(await faceVidResp.arrayBuffer());
+            const faceVidKey = `music-videos/job-${jobId}-face-${lipSyncChar.id}-${Date.now()}.mp4`;
+            const { url: uploadedFaceUrl } = await storagePut(faceVidKey, faceVidBuf, "video/mp4");
+            faceVideoUrl = uploadedFaceUrl;
+            console.log(`[MuseTalk] Portrait animation generated: ${faceVideoUrl}`);
+          } catch (genErr) {
+            console.warn(`[MuseTalk] Portrait animation failed: ${genErr}. Skipping MuseTalk.`);
           }
         }
+      }
 
-        if (faceVideoUrl) {
-          // Upload the assembled video to S3 so MuseTalk can access it via URL
-          const preMusetalkKey = `music-videos/job-${jobId}-pre-musetalk-${Date.now()}.mp4`;
-          const preMtBuf = fs.readFileSync(finalVideo);
-          const { url: preMtUrl } = await storagePut(preMusetalkKey, preMtBuf, "video/mp4");
+      if (faceVideoUrl) {
+        // Upload the assembled video to S3 so MuseTalk can access it via URL
+        const preMusetalkKey = `music-videos/job-${jobId}-pre-musetalk-${Date.now()}.mp4`;
+        const preMtBuf = fs.readFileSync(finalVideo);
+        const { url: preMtUrl } = await storagePut(preMusetalkKey, preMtBuf, "video/mp4");
 
-          // Apply MuseTalk: source_video_url = face video, audio_url = enhanced audio
-          const museTalkUrl = await falClient.museTalkLipSync({
-            source_video_url: faceVideoUrl,
-            audio_url: job.audioUrl ?? "",
-          });
+        // Apply MuseTalk: source_video_url = face video, audio_url = enhanced audio
+        const museTalkUrl = await falClient.museTalkLipSync({
+          source_video_url: faceVideoUrl,
+          audio_url: job.audioUrl ?? "",
+        });
 
-          // Download MuseTalk output and save to disk
-          const mtResp = await fetch(museTalkUrl);
-          const mtBuf = Buffer.from(await mtResp.arrayBuffer());
-          const mtFile = path.join(tmpDir, "final-musetalk.mp4");
-          fs.writeFileSync(mtFile, mtBuf);
-          finalVideoPath = mtFile;
-          console.log(`[MuseTalk] WizSync lip-sync complete for job ${jobId}`);
-          // Suppress the status message now that we're done
-          await dbConn.update(musicVideoJobs)
-            .set({ errorMessage: null, updatedAt: new Date() })
-            .where(eq(musicVideoJobs.id, jobId));
-        }
+        // Download MuseTalk output and save to disk
+        const mtResp = await fetch(museTalkUrl);
+        const mtBuf = Buffer.from(await mtResp.arrayBuffer());
+        const mtFile = path.join(tmpDir, "final-musetalk.mp4");
+        fs.writeFileSync(mtFile, mtBuf);
+        finalVideoPath = mtFile;
+        console.log(`[MuseTalk] WizSync lip-sync complete for job ${jobId}`);
+        // Suppress the status message now that we're done
+        await dbConn.update(musicVideoJobs)
+          .set({ errorMessage: null, updatedAt: new Date() })
+          .where(eq(musicVideoJobs.id, jobId));
+      }
+    })();
+
+    try {
+      const raceResult = await Promise.race([musetalkWorkPromise, musetalkTimeoutPromise]);
+      if (raceResult === "timeout") {
+        console.warn(`[MuseTalk] WizSync timed out after ${MUSETALK_TIMEOUT_MS / 1000}s for job ${jobId}. Skipping — using original assembled video.`);
+        // Clear the "Applying WizSync..." status message so the UI doesn't stay stuck
+        await dbConn.update(musicVideoJobs)
+          .set({ errorMessage: null, updatedAt: new Date() })
+          .where(eq(musicVideoJobs.id, jobId));
       }
     } catch (mtErr) {
       // MuseTalk failure is non-fatal — continue with original video
       console.warn(`[MuseTalk] Post-processing failed for job ${jobId}: ${mtErr}. Using original video.`);
+      await dbConn.update(musicVideoJobs)
+        .set({ errorMessage: null, updatedAt: new Date() })
+        .where(eq(musicVideoJobs.id, jobId));
     }
 
     const finalBuffer = fs.readFileSync(finalVideoPath);
@@ -1879,30 +1907,71 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
   const scenes = await db.select().from(musicVideoScenes)
     .where(eq(musicVideoScenes.jobId, musicVideoJobId));
 
-  // ── CHARACTER LOCK: Load the primary vocalist's portrait for reference-to-video ──────────────
-  // This is the fix for character inconsistency: triggerMusicVideoRender was not passing
-  // characterImageUrl to startSceneRender, causing scenes to fall back to text-to-video
-  // with no character reference — resulting in random/different people appearing.
+  // ── CHARACTER LOCK: Build a per-scene character portrait map ─────────────────────────────────
+  // CRITICAL FIX: Each scene uses the portrait of the character(s) assigned to THAT scene
+  // via the scene's `characterAssignments` JSON array. Using one shared portrait for all scenes
+  // was the root cause of character inconsistency (e.g. Tim appearing in Greg's drummer scenes).
+  //
+  // Resolution priority per character: masterPortraitUrl > previewImageUrl > job.characterImageUrl
   const jobCharacters = await db.select().from(videoCharacters)
     .where(eq(videoCharacters.jobId, musicVideoJobId));
 
-  // Resolve primary vocalist portrait: prefer masterPortraitUrl, then previewImageUrl
+  // Build a name→character map for O(1) lookup (case-insensitive)
+  const charByName = new Map(
+    jobCharacters.map(c => [c.name.toLowerCase().trim(), c])
+  );
+
+  // Fallback: primary vocalist portrait used only when a scene has NO characterAssignments
   const primaryVocalist = jobCharacters.find(c =>
     (c.role ?? "").toLowerCase().includes("singer") ||
     (c.role ?? "").toLowerCase().includes("vocalist") ||
     (c.role ?? "").toLowerCase().includes("lead")
   ) ?? jobCharacters[0] ?? null;
 
-  const characterImageUrl: string | null =
+  const fallbackCharacterImageUrl: string | null =
     primaryVocalist?.masterPortraitUrl ??
     primaryVocalist?.previewImageUrl ??
     job.characterImageUrl ??
     null;
 
-  if (characterImageUrl) {
-    console.log(`[triggerMusicVideoRender] CHARACTER LOCK active for job ${musicVideoJobId}: ${characterImageUrl.slice(0, 80)}...`);
+  /**
+   * Resolve the best portrait URL for a given scene.
+   * - If the scene has characterAssignments, use the first assigned character's portrait.
+   * - If no assignments (or none match the roster), fall back to the primary vocalist.
+   * - Returns null if no portrait is available at all.
+   */
+  function resolveSceneCharacterImageUrl(scene: { characterAssignments?: string | null }): string | null {
+    let assignments: string[] = [];
+    try {
+      if (scene.characterAssignments) {
+        const parsed = JSON.parse(scene.characterAssignments);
+        if (Array.isArray(parsed)) assignments = parsed.map(String);
+      }
+    } catch { /* ignore parse errors */ }
+
+    if (assignments.length > 0) {
+      for (const name of assignments) {
+        const char = charByName.get(name.toLowerCase().trim());
+        if (char) {
+          const portrait = char.masterPortraitUrl ?? char.previewImageUrl ?? null;
+          if (portrait) {
+            console.log(`[triggerMusicVideoRender] Scene character lock: "${name}" → ${portrait.slice(0, 80)}...`);
+            return portrait;
+          }
+        }
+      }
+      // Assignments exist but none had a portrait — log and fall through to fallback
+      console.warn(`[triggerMusicVideoRender] Scene assignments [${assignments.join(", ")}] had no portraits — using fallback`);
+    }
+
+    // No assignments or no portraits found — use primary vocalist fallback
+    return fallbackCharacterImageUrl;
+  }
+
+  if (fallbackCharacterImageUrl) {
+    console.log(`[triggerMusicVideoRender] Fallback CHARACTER LOCK for job ${musicVideoJobId}: ${fallbackCharacterImageUrl.slice(0, 80)}...`);
   } else {
-    console.warn(`[triggerMusicVideoRender] No character portrait found for job ${musicVideoJobId} — scenes will use text-to-video (no character lock)`);
+    console.warn(`[triggerMusicVideoRender] No character portraits found for job ${musicVideoJobId} — scenes without assignments will use text-to-video`);
   }
 
   // Auto-generate missing previews
@@ -1947,7 +2016,7 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
           scene.previewImageUrl ?? undefined,
           (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1", // Use persisted export format
           musicVideoJobId,       // ── SPEND PROTECTION: pass jobId
-          characterImageUrl,     // ── CHARACTER LOCK: primary vocalist portrait
+          resolveSceneCharacterImageUrl(scene), // ── CHARACTER LOCK: per-scene portrait
           job.audioUrl ?? null,  // ── LIP SYNC: full song URL for audio clip extraction
           scene.startTime        // ── LIP SYNC: scene start time for audio segment
         );

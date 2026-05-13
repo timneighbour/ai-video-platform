@@ -1,0 +1,28 @@
+{
+  "query": "\nSELECT id, title, status, totalScenes, completedScenes, updatedAt, createdAt\nFROM musicVideoJobs\nWHERE status IN ('assembling', 'rendering')\nORDER BY updatedAt DESC\nLIMIT 10;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, title, status, totalScenes, completedScenes, updatedAt, createdAt\nFROM musicVideoJobs\nWHERE status IN ('assembling', 'rendering')\nORDER BY updatedAt DESC\nLIMIT 10;\n",
+  "rows": [
+    {
+      "id": "510025",
+      "title": "Aria Showcase",
+      "status": "assembling",
+      "totalScenes": "9",
+      "completedScenes": "9",
+      "updatedAt": "2026-05-13 00:02:14",
+      "createdAt": "2026-05-12 22:32:41"
+    },
+    {
+      "id": "270001",
+      "title": "Ordinary",
+      "status": "rendering",
+      "totalScenes": "25",
+      "completedScenes": "7",
+      "updatedAt": "2026-05-06 22:58:33",
+      "createdAt": "2026-04-14 04:01:26"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tstatus\ttotalScenes\tcompletedScenes\tupdatedAt\tcreatedAt\n510025\tAria Showcase\tassembling\t9\t9\t2026-05-13 00:02:14\t2026-05-12 22:32:41\n270001\tOrdinary\trendering\t25\t7\t2026-05-06 22:58:33\t2026-04-14 04:01:26\n",
+  "stderr": "",
+  "execution_time_ms": 304
+}
