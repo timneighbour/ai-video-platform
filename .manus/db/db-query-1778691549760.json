@@ -1,0 +1,20 @@
+{
+  "query": "\nSELECT j.id, j.status as jobStatus, j.updatedAt,\n       COUNT(s.id) as totalScenes,\n       SUM(CASE WHEN s.mvSceneStatus = 'pending' THEN 1 ELSE 0 END) as pendingScenes,\n       SUM(CASE WHEN s.mvSceneStatus = 'generating' THEN 1 ELSE 0 END) as generatingScenes,\n       SUM(CASE WHEN s.mvSceneStatus = 'completed' THEN 1 ELSE 0 END) as completedScenes,\n       SUM(CASE WHEN s.mvSceneStatus = 'failed' THEN 1 ELSE 0 END) as failedScenes\nFROM musicVideoJobs j\nLEFT JOIN musicVideoScenes s ON s.jobId = j.id\nWHERE j.id = 510025\nGROUP BY j.id, j.status, j.updatedAt;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT j.id, j.status as jobStatus, j.updatedAt,\n       COUNT(s.id) as totalScenes,\n       SUM(CASE WHEN s.mvSceneStatus = 'pending' THEN 1 ELSE 0 END) as pendingScenes,\n       SUM(CASE WHEN s.mvSceneStatus = 'generating' THEN 1 ELSE 0 END) as generatingScenes,\n       SUM(CASE WHEN s.mvSceneStatus = 'completed' THEN 1 ELSE 0 END) as completedScenes,\n       SUM(CASE WHEN s.mvSceneStatus = 'failed' THEN 1 ELSE 0 END) as failedScenes\nFROM musicVideoJobs j\nLEFT JOIN musicVideoScenes s ON s.jobId = j.id\nWHERE j.id = 510025\nGROUP BY j.id, j.status, j.updatedAt;\n",
+  "rows": [
+    {
+      "id": "510025",
+      "jobStatus": "rendering",
+      "updatedAt": "2026-05-13 16:43:05",
+      "totalScenes": "9",
+      "pendingScenes": "2",
+      "generatingScenes": "0",
+      "completedScenes": "7",
+      "failedScenes": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tjobStatus\tupdatedAt\ttotalScenes\tpendingScenes\tgeneratingScenes\tcompletedScenes\tfailedScenes\n510025\trendering\t2026-05-13 16:43:05\t9\t2\t0\t7\t0\n",
+  "stderr": "",
+  "execution_time_ms": 622
+}

@@ -7740,3 +7740,20 @@
 - [x] PULID-7: approveCharacterPreview now writes masterPortraitUrl for AI characters on approval
 - [ ] PULID-8: Regenerate all 9 storyboard frames for job 510025 using Flux PuLID face lock
 - [ ] PULID-9: Reset all scenes for job 510025 to pending after face-locked storyboard regeneration
+
+## Best-in-Class Pipeline Upgrade — Tim's Directive (May 13 2026)
+
+### Sync Labs sync-3 Lip Sync (replaces HeyGen)
+- [ ] SYNCLABS-1: Implement server/ai-apis/synclabs-lipsync.ts — sync-3 API (submitSyncLabsLipSync, pollSyncLabsLipSync, waitForSyncLabsLipSync)
+- [ ] SYNCLABS-2: Add vocals isolation step before lip sync — pass vocals-only track to sync-3 for best results
+- [ ] SYNCLABS-3: Replace HeyGen lipsync calls in assembleMusicVideo with Sync Labs sync-3
+- [ ] SYNCLABS-4: Add SYNC_LABS_API_KEY to secrets
+
+### Kling 3.0 Subject Binding (character-consistent scene generation)
+- [ ] KLING3-1: Implement Kling 3.0 Subject Binding in scene generation — pass up to 4 reference images via image_reference parameter
+- [ ] KLING3-2: Wire Kling 3.0 as premium renderer option alongside WaveSpeed for character-heavy scenes
+
+### Hero Shot Prompt Engineering for sync-3
+- [ ] HEROSHOTPROMPT-1: Update hero shot scene prompts — include 'person is speaking naturally, mouth slightly open, lips moving' for sync-3 compatibility
+- [ ] HEROSHOTPROMPT-2: Add vocals isolation utility function (strip instrumentals from audio URL before passing to lip sync)
+

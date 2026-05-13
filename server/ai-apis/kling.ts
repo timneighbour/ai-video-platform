@@ -16,6 +16,21 @@ import { withRetry } from "../utils/rateLimitRetry";
 
 const KLING_API_BASE = "https://api-singapore.klingai.com";
 
+/**
+ * Kling 3.0 Subject Binding — image_reference parameter.
+ * Accepts up to 4 reference images to lock character identity across all frames.
+ * This is the core feature for consistent AI character generation.
+ *
+ * subject_token_type: "human" for people, "animal" for animals, "object" for objects.
+ * The model uses these images to maintain face and body identity throughout the video.
+ */
+export interface KlingImageReference {
+  /** Publicly accessible URL of the reference image */
+  url: string;
+  /** Token type — use "human" for character face/body locking */
+  subject_token_type: "human" | "animal" | "object";
+}
+
 interface KlingVideoRequest {
   model_name?: string;
   prompt: string;
@@ -26,6 +41,12 @@ interface KlingVideoRequest {
   aspect_ratio?: "1:1" | "9:16" | "16:9";
   callback_url?: string;
   external_task_id?: string;
+  /**
+   * Kling 3.0 Subject Binding — up to 4 reference images for character consistency.
+   * Inject the character portrait (and optionally storyboard angles) here.
+   * Only supported on kling-v3 model.
+   */
+  image_reference?: KlingImageReference[];
 }
 
 interface KlingVideoResponse {
@@ -112,6 +133,11 @@ export class KlingAIClient {
               aspect_ratio: request.aspect_ratio || "16:9",
               callback_url: request.callback_url || "",
               external_task_id: request.external_task_id || "",
+              // Kling 3.0 Subject Binding: inject character portrait(s) for face-locked generation.
+              // Up to 4 reference images. Only pass when provided (omit for non-character scenes).
+              ...(request.image_reference && request.image_reference.length > 0
+                ? { image_reference: request.image_reference }
+                : {}),
             },
             {
               headers: {

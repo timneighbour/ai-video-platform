@@ -1,0 +1,50 @@
+{
+  "query": "\nSELECT \n  s.plan,\n  s.status,\n  s.createdAt,\n  s.stripeSubscriptionId,\n  u.email,\n  u.name\nFROM subscriptions s\nLEFT JOIN users u ON s.userId = u.id\nORDER BY s.createdAt DESC;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT \n  s.plan,\n  s.status,\n  s.createdAt,\n  s.stripeSubscriptionId,\n  u.email,\n  u.name\nFROM subscriptions s\nLEFT JOIN users u ON s.userId = u.id\nORDER BY s.createdAt DESC;\n",
+  "rows": [
+    {
+      "plan": "studio",
+      "status": "active",
+      "createdAt": "2026-04-15 17:48:39",
+      "stripeSubscriptionId": "NULL",
+      "email": "timneighbour@mac.com",
+      "name": "Tim Neighbour"
+    },
+    {
+      "plan": "studio",
+      "status": "active",
+      "createdAt": "2026-04-15 17:48:39",
+      "stripeSubscriptionId": "NULL",
+      "email": "timneighbour@icloud.com",
+      "name": "timneighbour"
+    },
+    {
+      "plan": "studio",
+      "status": "active",
+      "createdAt": "2026-04-15 17:48:39",
+      "stripeSubscriptionId": "NULL",
+      "email": "timneighbour@me.com",
+      "name": "timneighbour"
+    },
+    {
+      "plan": "studio",
+      "status": "canceled",
+      "createdAt": "2026-04-15 17:47:57",
+      "stripeSubscriptionId": "NULL",
+      "email": "timneighbour@mac.com",
+      "name": "Tim Neighbour"
+    },
+    {
+      "plan": "starter",
+      "status": "canceled",
+      "createdAt": "2026-04-15 11:05:10",
+      "stripeSubscriptionId": "NULL",
+      "email": "timneighbour@icloud.com",
+      "name": "timneighbour"
+    }
+  ],
+  "messages": [],
+  "stdout": "plan\tstatus\tcreatedAt\tstripeSubscriptionId\temail\tname\nstudio\tactive\t2026-04-15 17:48:39\tNULL\ttimneighbour@mac.com\tTim Neighbour\nstudio\tactive\t2026-04-15 17:48:39\tNULL\ttimneighbour@icloud.com\ttimneighbour\nstudio\tactive\t2026-04-15 17:48:39\tNULL\ttimneighbour@me.com\ttimneighbour\nstudio\tcanceled\t2026-04-15 17:47:57\tNULL\ttimneighbour@mac.com\tTim Neighbour\nstarter\tcanceled\t2026-04-15 11:05:10\tNULL\ttimneighbour@icloud.com\ttimneighbour\n",
+  "stderr": "",
+  "execution_time_ms": 614
+}

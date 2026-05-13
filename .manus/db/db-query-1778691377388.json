@@ -1,0 +1,17 @@
+{
+  "query": "\nSELECT id, name, masterPortraitUrl, previewImageUrl, lockedDescription\nFROM videoCharacters\nWHERE jobId = 510025;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, name, masterPortraitUrl, previewImageUrl, lockedDescription\nFROM videoCharacters\nWHERE jobId = 510025;\n",
+  "rows": [
+    {
+      "id": "390001",
+      "name": "Aria",
+      "masterPortraitUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778624573673.png",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778624573673.png",
+      "lockedDescription": "A full-length standing figure of Aria, a dark brunette female artist with an average build and typical physique, standing confidently. She has long, straight dark brunette hair falling past her shoulders, framing an elegant face with emotionally expressive dark eyes. Her gaze is direct and powerful, yet hints at vulnerability. She wears a striking, floor-length black cinematic coat with intricate silver detailing along the lapels and cuffs, which is slightly open to reveal a dark, form-fitting top underneath. Her legs are clad in sleek black leather trousers that hug her knees and calves, leading down to her ankles and feet, which are encased in polished black leather ankle boots with a subtle heel. The overall impression is grounded and powerful."
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tmasterPortraitUrl\tpreviewImageUrl\tlockedDescription\n390001\tAria\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778624573673.png\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778624573673.png\tA full-length standing figure of Aria, a dark brunette female artist with an average build and typical physique, standing confidently. She has long, straight dark brunette hair falling past her shoulders, framing an elegant face with emotionally expressive dark eyes. Her gaze is direct and powerful, yet hints at vulnerability. She wears a striking, floor-length black cinematic coat with intricate silver detailing along the lapels and cuffs, which is slightly open to reveal a dark, form-fitting top underneath. Her legs are clad in sleek black leather trousers that hug her knees and calves, leading down to her ankles and feet, which are encased in polished black leather ankle boots with a subtle heel. The overall impression is grounded and powerful.\n",
+  "stderr": "",
+  "execution_time_ms": 614
+}

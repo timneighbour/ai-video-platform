@@ -1,0 +1,73 @@
+{
+  "query": "\nSELECT s.id, s.sceneIndex, s.prompt, s.previewImageUrl, s.duration\nFROM musicVideoScenes s\nWHERE s.jobId = 510025\nORDER BY s.sceneIndex ASC;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT s.id, s.sceneIndex, s.prompt, s.previewImageUrl, s.duration\nFROM musicVideoScenes s\nWHERE s.jobId = 510025\nORDER BY s.sceneIndex ASC;\n",
+  "rows": [
+    {
+      "id": "540001",
+      "sceneIndex": "0",
+      "prompt": "Wide, atmospheric establishing shot of a rain-soaked city rooftop at night. Heavy rain streaks across the frame. Distant city lights blur into amber and gold. Aria stands small in the frame, a solitary silhouette against the dark, vast urban sprawl, her back to the camera, looking out. The mood is melancholic and confined. Cool, desaturated blues and charcoal greys dominate the palette. A sense of quiet despair.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625206994.png",
+      "duration": "8"
+    },
+    {
+      "id": "540002",
+      "sceneIndex": "1",
+      "prompt": "Medium shot, slightly Dutch angle, of Aria from a three-quarter back angle on the rain-slicked rooftop. Her long coat billows slightly in a gentle wind, catching the faint, cool blue light. Rain glistens on her shoulders. She slowly turns her head, her expression obscured, as if feeling the 'walls leaning in'. The city lights below are out of focus, creating a bokeh effect. High contrast, low key lighting.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625222441.png",
+      "duration": "8"
+    },
+    {
+      "id": "540003",
+      "sceneIndex": "2",
+      "prompt": "Close-up on Aria's hand, rain dripping down her fingers, reaching out as if 'searching for the fading light'. The hand is slightly out of focus in the foreground, with the blurred, glittering lights of the city in the background. The surface of the wet rooftop reflects the cold blue light. Emphasize texture of rain and wet fabric. The atmosphere is somber and searching.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625234037.png",
+      "duration": "8"
+    },
+    {
+      "id": "540004",
+      "sceneIndex": "3",
+      "prompt": "Dynamic medium shot of Aria, side profile, on the rooftop. Rain lashes around her. She begins to move with more intensity, her head tilted slightly upwards, as if feeling an internal 'tidal wave of grace' building. The lighting subtly shifts, introducing deeper blues and hints of amber from the city lights becoming more defined. Her coat swirls with her movement.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625245039.png",
+      "duration": "8"
+    },
+    {
+      "id": "540005",
+      "sceneIndex": "4",
+      "prompt": "Dramatic low-angle shot of Aria, her face partially obscured by rain and shadow, as she powerfully sings. Her head is thrown back slightly, capturing the raw emotion of 'edges start to break'. The camera is tight enough to capture her mouth for lip-sync, but still emphasizes the dramatic lighting and rain. A subtle shift to more intense, dynamic lighting.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625257337.png",
+      "duration": "8"
+    },
+    {
+      "id": "540006",
+      "sceneIndex": "5",
+      "prompt": "Slow-motion shot of Aria, full body, spinning on the rooftop, her long coat dramatically flaring out, rain drops suspended around her. This visualizes 'letting go of every single ghost'. The city lights below are a vibrant, blurred backdrop. The lighting becomes more high-contrast, with strong backlighting creating a powerful silhouette effect as she moves.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625294048.png",
+      "duration": "8"
+    },
+    {
+      "id": "540007",
+      "sceneIndex": "6",
+      "prompt": "Hero close-up of Aria, eyes intense and defiant, as she passionately sings 'I am open now, I am standing tall'. Rain streaks down her face, blending with tears or sweat. Her expression is one of powerful release and triumph. Dramatic, high-contrast lighting illuminates her face, with hints of warm light breaking through the cool tones. Focus on her powerful vocal performance.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625306852.png",
+      "duration": "8"
+    },
+    {
+      "id": "540008",
+      "sceneIndex": "7",
+      "prompt": "Wide, sweeping crane shot moving upwards, revealing Aria standing tall and defiant on the rain-soaked rooftop, arms outstretched, embracing the 'wreckage of it all'. The city sprawls beneath her, a sea of amber and gold lights. The sky above is dark and dramatic, with a powerful, almost ethereal light breaking through the clouds, as if the 'sky comes down'.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625318883.png",
+      "duration": "8"
+    },
+    {
+      "id": "540009",
+      "sceneIndex": "8",
+      "prompt": "Medium shot of Aria, her face now calm and resolute, looking directly into the camera with a knowing, powerful gaze, as if seeing 'the truth behind the lies'. Rain continues to fall gently around her. The lighting remains dramatic but softer, emphasizing her resolved expression. Her coat is still, reflecting a sense of peace and acceptance. Fade to black.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625331702.png",
+      "duration": "7"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsceneIndex\tprompt\tpreviewImageUrl\tduration\n540001\t0\tWide, atmospheric establishing shot of a rain-soaked city rooftop at night. Heavy rain streaks across the frame. Distant city lights blur into amber and gold. Aria stands small in the frame, a solitary silhouette against the dark, vast urban sprawl, her back to the camera, looking out. The mood is melancholic and confined. Cool, desaturated blues and charcoal greys dominate the palette. A sense of quiet despair.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625206994.png\t8\n540002\t1\tMedium shot, slightly Dutch angle, of Aria from a three-quarter back angle on the rain-slicked rooftop. Her long coat billows slightly in a gentle wind, catching the faint, cool blue light. Rain glistens on her shoulders. She slowly turns her head, her expression obscured, as if feeling the 'walls leaning in'. The city lights below are out of focus, creating a bokeh effect. High contrast, low key lighting.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625222441.png\t8\n540003\t2\tClose-up on Aria's hand, rain dripping down her fingers, reaching out as if 'searching for the fading light'. The hand is slightly out of focus in the foreground, with the blurred, glittering lights of the city in the background. The surface of the wet rooftop reflects the cold blue light. Emphasize texture of rain and wet fabric. The atmosphere is somber and searching.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625234037.png\t8\n540004\t3\tDynamic medium shot of Aria, side profile, on the rooftop. Rain lashes around her. She begins to move with more intensity, her head tilted slightly upwards, as if feeling an internal 'tidal wave of grace' building. The lighting subtly shifts, introducing deeper blues and hints of amber from the city lights becoming more defined. Her coat swirls with her movement.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625245039.png\t8\n540005\t4\tDramatic low-angle shot of Aria, her face partially obscured by rain and shadow, as she powerfully sings. Her head is thrown back slightly, capturing the raw emotion of 'edges start to break'. The camera is tight enough to capture her mouth for lip-sync, but still emphasizes the dramatic lighting and rain. A subtle shift to more intense, dynamic lighting.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625257337.png\t8\n540006\t5\tSlow-motion shot of Aria, full body, spinning on the rooftop, her long coat dramatically flaring out, rain drops suspended around her. This visualizes 'letting go of every single ghost'. The city lights below are a vibrant, blurred backdrop. The lighting becomes more high-contrast, with strong backlighting creating a powerful silhouette effect as she moves.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625294048.png\t8\n540007\t6\tHero close-up of Aria, eyes intense and defiant, as she passionately sings 'I am open now, I am standing tall'. Rain streaks down her face, blending with tears or sweat. Her expression is one of powerful release and triumph. Dramatic, high-contrast lighting illuminates her face, with hints of warm light breaking through the cool tones. Focus on her powerful vocal performance.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625306852.png\t8\n540008\t7\tWide, sweeping crane shot moving upwards, revealing Aria standing tall and defiant on the rain-soaked rooftop, arms outstretched, embracing the 'wreckage of it all'. The city sprawls beneath her, a sea of amber and gold lights. The sky above is dark and dramatic, with a powerful, almost ethereal light breaking through the clouds, as if the 'sky comes down'.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625318883.png\t8\n540009\t8\tMedium shot of Aria, her face now calm and resolute, looking directly into the camera with a knowing, powerful gaze, as if seeing 'the truth behind the lies'. Rain continues to fall gently around her. The lighting remains dramatic but softer, emphasizing her resolved expression. Her coat is still, reflecting a sense of peace and acceptance. Fade to black.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625331702.png\t7\n",
+  "stderr": "",
+  "execution_time_ms": 582
+}

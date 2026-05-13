@@ -677,14 +677,16 @@ export function mapModelAssignmentToWaveSpeed(modelAssignment: string): WaveSpee
 }
 
 const LIP_SYNC_STYLE_PROMPTS: Record<string, string> = {
-  // Cinematic-first: these prompts guide scene composition, NOT karaoke lip sync.
-  // Lip sync is applied selectively by HeyGen post-processing (hero shots only).
-  // These prompts shape the VISUAL DIRECTION of the scene, not mouth animation.
-  natural: "Cinematic performance energy. Character is emotionally present, expressive face, natural movement with the music. Atmospheric lighting.",
-  expressive: "High-energy performance. Dynamic movement, intense expression, physically engaged with the music. Dramatic lighting and camera work.",
-  subtle: "Intimate, understated performance. Minimal movement, introspective expression, soft atmospheric lighting. Emotional restraint.",
-  dramatic: "Theatrical, cinematic performance. Powerful emotional expression, dramatic backlight, slow-motion detail. Peak emotional intensity.",
-  anime: "Anime-style cinematic performance. Stylised character animation, expressive eyes, vibrant colour palette, dynamic movement in the style of premium Japanese animation.",
+  // Cinematic-first: these prompts guide scene composition AND mouth movement.
+  // Sync Labs sync-3 lip sync is applied post-assembly to the final video.
+  // For best sync-3 results: character face must be clearly visible, forward-facing,
+  // with natural mouth movement (slightly open, relaxed jaw) — NOT clenched or closed.
+  // sync-3 handles extreme angles and obstructions natively, but frontal close-ups give best results.
+  natural: "Cinematic performance close-up. Character face clearly visible, forward-facing, natural relaxed expression with slightly parted lips, emotional presence. Atmospheric lighting. Stable camera.",
+  expressive: "High-energy performance close-up. Character face prominent in frame, intense expression, mouth naturally open with emotional energy, dynamic movement. Dramatic lighting. Stable enough for lip sync.",
+  subtle: "Intimate performance close-up. Character face softly lit, forward-facing, introspective expression with naturally relaxed jaw and parted lips. Minimal movement. Soft atmospheric lighting.",
+  dramatic: "Theatrical cinematic close-up. Character face dramatically backlit, powerful emotional expression, mouth naturally open at peak emotional intensity. Slow-motion detail. Stable framing.",
+  anime: "Anime-style cinematic close-up. Character face clearly visible, expressive eyes, naturally parted lips with emotional energy. Vibrant colour palette, dynamic but stable framing for lip sync.",
 };
 
 /**
@@ -787,9 +789,11 @@ export async function startSceneRender(
   }
 
   // Premium renderers (kling_standard, kling_pro, runway) — no silent fallback
+  // Kling 3.0 Subject Binding: pass character portrait for face-locked generation
+  const klingCharRefs = characterImageUrl ? [characterImageUrl] : undefined;
   try {
-    const taskId = await startSceneRenderKling(finalPrompt, duration, aspectRatio);
-    console.log(`[MusicVideo] Scene ${sceneId} → Kling (${renderer}) taskId=${taskId}`);
+    const taskId = await startSceneRenderKling(finalPrompt, duration, aspectRatio, klingCharRefs);
+    console.log(`[MusicVideo] Scene ${sceneId} → Kling (${renderer}) taskId=${taskId}${klingCharRefs ? " [Subject Binding active]" : ""}`);
     return taskId;
   } catch (err) {
     // No silent fallback to Hypereal — surface the error cleanly
@@ -798,12 +802,31 @@ export async function startSceneRender(
   }
 }
 
-async function startSceneRenderKling(prompt: string, duration: number, aspectRatio: "16:9" | "9:16" | "1:1" = "16:9"): Promise<string> {
+async function startSceneRenderKling(
+  prompt: string,
+  duration: number,
+  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9",
+  /** Character portrait URL(s) for Kling 3.0 Subject Binding — locks face identity across all frames */
+  characterImageUrls?: string[]
+): Promise<string> {
+  // Build image_reference array for Subject Binding (up to 4 images)
+  // Use "human" token type for character face/body locking
+  const imageReference: { url: string; subject_token_type: "human" | "animal" | "object" }[] | undefined =
+    characterImageUrls && characterImageUrls.length > 0
+      ? characterImageUrls.slice(0, 4).map((url) => ({ url, subject_token_type: "human" as const }))
+      : undefined;
+
+  if (imageReference && imageReference.length > 0) {
+    console.log(`[KlingSubjectBinding] Injecting ${imageReference.length} reference image(s) for character consistency`);
+  }
+
   const taskId = await klingClient.createTextToVideo({
+    model_name: "kling-v3", // Subject Binding requires kling-v3
     prompt,
     duration: duration <= 5 ? "5" : "10",
     aspect_ratio: aspectRatio,
     mode: "std",
+    ...(imageReference ? { image_reference: imageReference } : {}),
   });
   if (!taskId) throw new Error("Kling: no task_id returned");
   return taskId;
@@ -1536,83 +1559,78 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       );
     }
 
-    // ── HEYGEN SELECTIVE LIP SYNC (HERO SHOTS ONLY) ─────────────────────────────
-    // Strategy: cinematic-first by default. HeyGen premium lip sync is applied
-    // ONLY to hero shots — close-up performance scenes where the artist is
-    // visibly singing. This avoids "AI avatar karaoke" on every scene.
+    // ── SYNC LABS sync-3 PREMIUM LIP SYNC ──────────────────────────────────────
+    // Best-in-class lip sync. sync-3 features:
+    //   - 4K native output (no resolution loss)
+    //   - Native visual intelligence — handles extreme angles, profile shots,
+    //     obstructions (microphones, hands, scarves) automatically
+    //   - Global frame understanding (not chunk-based) — no boundary artifacts
+    //   - Emotion and style preservation
+    //   - Recommended for music video use cases
     //
-    // fal.ai MuseTalk has been REMOVED:
-    //   - Unreliable phoneme matching
-    //   - Inconsistent output quality
-    //   - Not production-grade for music lip sync
+    // Strategy: applied to the final assembled video as a single pass.
+    // Only activated when enableLipSync=true on at least one character.
+    // If Sync Labs fails, cinematic version is delivered — never blocks.
     //
-    // HeyGen v2 lipsync: POST /v2/video_translate
-    //   - video_url = the hero-shot scene clip (already rendered by WaveSpeed)
-    //   - audio_url = the song audio segment for that scene's time range
-    //   - Applied post-assembly to the final video (or pre-assembly to hero scene)
-    //
-    // Current implementation: cinematic skip (no post-processing lip sync).
-    // HeyGen hero-shot lip sync is wired and ready — activated when HEYGEN_API_KEY
-    // is confirmed valid and a showcase render is approved for QA validation.
+    // HeyGen has been REPLACED by Sync Labs sync-3 (superior quality).
+    // fal.ai MuseTalk has been REMOVED (unreliable, not production-grade).
     let finalVideoPath = finalVideo;
 
-    const heygenApiKey = process.env.HEYGEN_API_KEY;
-    const lipSyncCharsForHeyGen = await dbConn.select()
+    const { isSyncLabsConfigured } = await import("./ai-apis/synclabs-lipsync");
+    const lipSyncChars = await dbConn.select()
       .from(videoCharacters)
       .where(and(eq(videoCharacters.jobId, jobId), eq(videoCharacters.enableLipSync, true)));
 
-    const hasLipSyncCharacter = lipSyncCharsForHeyGen.length > 0;
+    const hasLipSyncCharacter = lipSyncChars.length > 0;
 
-    if (hasLipSyncCharacter && heygenApiKey && job.audioUrl) {
-      // HeyGen hero-shot lip sync: apply to the assembled video as a whole.
-      // This is the selective strategy — one pass on the final video, not per-scene.
-      console.log(`[HeyGenLipSync] Hero-shot lip sync enabled for job ${jobId}. Submitting to HeyGen...`);
+    if (hasLipSyncCharacter && isSyncLabsConfigured() && job.audioUrl) {
+      // Sync Labs sync-3: one pass on the final assembled video.
+      console.log(`[WizSync] sync-3 premium lip sync enabled for job ${jobId}. Submitting to Sync Labs...`);
       await dbConn.update(musicVideoJobs)
-        .set({ errorMessage: "Applying WizSync premium lip sync...", updatedAt: new Date() })
+        .set({ errorMessage: "Applying WizSync™ premium lip sync (sync-3)...", updatedAt: new Date() })
         .where(eq(musicVideoJobs.id, jobId));
 
       try {
-        // Upload assembled video to S3 first (HeyGen needs a public URL)
-        const preHeyGenKey = `music-videos/job-${jobId}-pre-heygen-${Date.now()}.mp4`;
-        const preHeyGenBuf = fs.readFileSync(finalVideo);
-        const { url: preHeyGenUrl } = await storagePut(preHeyGenKey, preHeyGenBuf, "video/mp4");
+        // Upload assembled video to S3 first (Sync Labs needs a public URL)
+        const preSyncKey = `music-videos/job-${jobId}-pre-synclabs-${Date.now()}.mp4`;
+        const preSyncBuf = fs.readFileSync(finalVideo);
+        const { url: preSyncUrl } = await storagePut(preSyncKey, preSyncBuf, "video/mp4");
 
-        const { submitHeyGenLipSync, waitForHeyGenLipSync } = await import("./ai-apis/heygen-lipsync");
+        const { waitForSyncLabsLipSync } = await import("./ai-apis/synclabs-lipsync");
 
-        const heyGenJobId = await submitHeyGenLipSync({
-          videoUrl: preHeyGenUrl,
+        // Submit to sync-3 and wait up to 10 minutes
+        const syncResult = await waitForSyncLabsLipSync({
+          videoUrl: preSyncUrl,
           audioUrl: job.audioUrl,
-          title: `WizAdora Job ${jobId} Hero Lip Sync`,
-        });
+          syncMode: "cut_off",
+          outputFileName: `wizsync-job-${jobId}`,
+        }, 10 * 60 * 1000);
 
-        // Wait up to 6 minutes for HeyGen to process
-        const heyGenVideoUrl = await waitForHeyGenLipSync(heyGenJobId, 6 * 60 * 1000);
-
-        // Download HeyGen output and save to disk
-        const hgResp = await fetch(heyGenVideoUrl);
-        const hgBuf = Buffer.from(await hgResp.arrayBuffer());
-        const hgFile = path.join(tmpDir, "final-heygen-lipsync.mp4");
-        fs.writeFileSync(hgFile, hgBuf);
-        finalVideoPath = hgFile;
-        console.log(`[HeyGenLipSync] WizSync premium lip sync complete for job ${jobId}`);
+        // Download sync-3 output and save to disk
+        const syncResp = await fetch(syncResult.outputUrl);
+        const syncBuf = Buffer.from(await syncResp.arrayBuffer());
+        const syncFile = path.join(tmpDir, "final-synclabs-lipsync.mp4");
+        fs.writeFileSync(syncFile, syncBuf);
+        finalVideoPath = syncFile;
+        console.log(`[WizSync] sync-3 premium lip sync complete for job ${jobId}`);
 
         await dbConn.update(musicVideoJobs)
           .set({ errorMessage: null, updatedAt: new Date() })
           .where(eq(musicVideoJobs.id, jobId));
-      } catch (hgErr: any) {
-        // HeyGen failed — log and continue with original assembled video (cinematic skip)
-        // This is intentional: a failed lip sync should NOT block video delivery.
-        console.warn(`[HeyGenLipSync] Hero-shot lip sync failed for job ${jobId}: ${hgErr?.message ?? hgErr}. Delivering cinematic version without lip sync.`);
+      } catch (syncErr: any) {
+        // Sync Labs failed — deliver cinematic version without lip sync.
+        // A failed lip sync must NEVER block video delivery.
+        console.warn(`[WizSync] sync-3 lip sync failed for job ${jobId}: ${syncErr?.message ?? syncErr}. Delivering cinematic version.`);
         await dbConn.update(musicVideoJobs)
           .set({ errorMessage: null, updatedAt: new Date() })
           .where(eq(musicVideoJobs.id, jobId));
-        // finalVideoPath remains = finalVideo (the assembled video without lip sync)
+        // finalVideoPath remains = finalVideo (assembled video without lip sync)
       }
     } else {
-      if (hasLipSyncCharacter && !heygenApiKey) {
-        console.warn(`[HeyGenLipSync] Job ${jobId}: lip sync character found but HEYGEN_API_KEY not configured. Delivering cinematic version.`);
+      if (hasLipSyncCharacter && !isSyncLabsConfigured()) {
+        console.warn(`[WizSync] Job ${jobId}: lip sync character found but SYNC_LABS_API_KEY not configured. Delivering cinematic version.`);
       } else {
-        console.log(`[HeyGenLipSync] Job ${jobId}: no lip sync characters — cinematic-first delivery (no post-processing).`);
+        console.log(`[WizSync] Job ${jobId}: no lip sync characters — cinematic-first delivery.`);
       }
     }
 

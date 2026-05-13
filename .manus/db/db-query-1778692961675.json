@@ -1,0 +1,62 @@
+{
+  "query": "\nSELECT 'Total Users' as metric, CAST(COUNT(*) AS CHAR) as value FROM users\nUNION ALL\nSELECT 'Users with Stripe Customer', CAST(COUNT(*) AS CHAR) FROM users WHERE stripeCustomerId IS NOT NULL\nUNION ALL\nSELECT 'Active Subscriptions', CAST(COUNT(*) AS CHAR) FROM subscriptions WHERE status = 'active'\nUNION ALL\nSELECT 'Total Subscriptions (all time)', CAST(COUNT(*) AS CHAR) FROM subscriptions\nUNION ALL\nSELECT 'Subscription Plans Breakdown', GROUP_CONCAT(plan, ': ', cnt ORDER BY cnt DESC SEPARATOR ' | ') FROM (SELECT plan, COUNT(*) as cnt FROM subscriptions WHERE status = 'active' GROUP BY plan) t\nUNION ALL\nSELECT 'Total Top-up Purchases', CAST(COUNT(*) AS CHAR) FROM topupPurchases\nUNION ALL\nSELECT 'Total Top-up Revenue (GBP pence)', CAST(COALESCE(SUM(amountPaid), 0) AS CHAR) FROM topupPurchases\nUNION ALL\nSELECT 'Total Music Video Jobs', CAST(COUNT(*) AS CHAR) FROM musicVideoJobs\nUNION ALL\nSELECT 'Completed Jobs', CAST(COUNT(*) AS CHAR) FROM musicVideoJobs WHERE status = 'completed'\nUNION ALL\nSELECT 'Failed Jobs', CAST(COUNT(*) AS CHAR) FROM musicVideoJobs WHERE status = 'failed'\nUNION ALL\nSELECT 'Rendering Jobs', CAST(COUNT(*) AS CHAR) FROM musicVideoJobs WHERE status = 'rendering'\nUNION ALL\nSELECT 'Total Credit Transactions', CAST(COUNT(*) AS CHAR) FROM creditTransactions\nUNION ALL\nSELECT 'Credits Purchased (purchase type)', CAST(COALESCE(SUM(amount), 0) AS CHAR) FROM creditTransactions WHERE type = 'purchase';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT 'Total Users' as metric, CAST(COUNT(*) AS CHAR) as value FROM users\nUNION ALL\nSELECT 'Users with Stripe Customer', CAST(COUNT(*) AS CHAR) FROM users WHERE stripeCustomerId IS NOT NULL\nUNION ALL\nSELECT 'Active Subscriptions', CAST(COUNT(*) AS CHAR) FROM subscriptions WHERE status = 'active'\nUNION ALL\nSELECT 'Total Subscriptions (all time)', CAST(COUNT(*) AS CHAR) FROM subscriptions\nUNION ALL\nSELECT 'Subscription Plans Breakdown', GROUP_CONCAT(plan, ': ', cnt ORDER BY cnt DESC SEPARATOR ' | ') FROM (SELECT plan, COUNT(*) as cnt FROM subscriptions WHERE status = 'active' GROUP BY plan) t\nUNION ALL\nSELECT 'Total Top-up Purchases', CAST(COUNT(*) AS CHAR) FROM topupPurchases\nUNION ALL\nSELECT 'Total Top-up Revenue (GBP pence)', CAST(COALESCE(SUM(amountPaid), 0) AS CHAR) FROM topupPurchases\nUNION ALL\nSELECT 'Total Music Video Jobs', CAST(COUNT(*) AS CHAR) FROM musicVideoJobs\nUNION ALL\nSELECT 'Completed Jobs', CAST(COUNT(*) AS CHAR) FROM musicVideoJobs WHERE status = 'completed'\nUNION ALL\nSELECT 'Failed Jobs', CAST(COUNT(*) AS CHAR) FROM musicVideoJobs WHERE status = 'failed'\nUNION ALL\nSELECT 'Rendering Jobs', CAST(COUNT(*) AS CHAR) FROM musicVideoJobs WHERE status = 'rendering'\nUNION ALL\nSELECT 'Total Credit Transactions', CAST(COUNT(*) AS CHAR) FROM creditTransactions\nUNION ALL\nSELECT 'Credits Purchased (purchase type)', CAST(COALESCE(SUM(amount), 0) AS CHAR) FROM creditTransactions WHERE type = 'purchase';\n",
+  "rows": [
+    {
+      "metric": "Total Subscriptions (all time)",
+      "value": "5"
+    },
+    {
+      "metric": "Users with Stripe Customer",
+      "value": "0"
+    },
+    {
+      "metric": "Total Users",
+      "value": "29"
+    },
+    {
+      "metric": "Active Subscriptions",
+      "value": "3"
+    },
+    {
+      "metric": "Subscription Plans Breakdown",
+      "value": "studio: 3"
+    },
+    {
+      "metric": "Total Top-up Revenue (GBP pence)",
+      "value": "0"
+    },
+    {
+      "metric": "Total Top-up Purchases",
+      "value": "0"
+    },
+    {
+      "metric": "Total Music Video Jobs",
+      "value": "51"
+    },
+    {
+      "metric": "Failed Jobs",
+      "value": "2"
+    },
+    {
+      "metric": "Completed Jobs",
+      "value": "3"
+    },
+    {
+      "metric": "Total Credit Transactions",
+      "value": "102"
+    },
+    {
+      "metric": "Credits Purchased (purchase type)",
+      "value": "0"
+    },
+    {
+      "metric": "Rendering Jobs",
+      "value": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "metric\tvalue\nTotal Subscriptions (all time)\t5\nUsers with Stripe Customer\t0\nTotal Users\t29\nActive Subscriptions\t3\nSubscription Plans Breakdown\tstudio: 3\nTotal Top-up Revenue (GBP pence)\t0\nTotal Top-up Purchases\t0\nTotal Music Video Jobs\t51\nFailed Jobs\t2\nCompleted Jobs\t3\nTotal Credit Transactions\t102\nCredits Purchased (purchase type)\t0\nRendering Jobs\t1\n",
+  "stderr": "",
+  "execution_time_ms": 581
+}
