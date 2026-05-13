@@ -693,6 +693,45 @@ Rules:
           });
         }
       }
+      // ── CHARACTER LOCK™ HARD GATE────────────────────────────────────────────────────
+      // Character Lock™ is a HARD PLATFORM REQUIREMENT for artist-based videos.
+      // Render is BLOCKED unless at least one character has a masterPortraitUrl or
+      // previewImageUrl that can be injected as a reference image into every WaveSpeed call.
+      // A raw photo upload alone is not sufficient — the portrait must have been generated.
+      if (job.artistType === "solo_artist" || job.artistType === "band") {
+        const jobCharsForGate = await db.select({
+          id: videoCharacters.id,
+          name: videoCharacters.name,
+          masterPortraitUrl: videoCharacters.masterPortraitUrl,
+          previewImageUrl: videoCharacters.previewImageUrl,
+        }).from(videoCharacters).where(eq(videoCharacters.jobId, input.jobId));
+
+        const hasPortrait = jobCharsForGate.some(
+          c => !!(c.masterPortraitUrl ?? c.previewImageUrl)
+        );
+
+        // Fallback: accept job-level characterImageUrl (legacy single-character jobs)
+        const hasLegacyPhoto = !!job.characterImageUrl;
+
+        if (!hasPortrait && !hasLegacyPhoto) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              "Character Lock™ required — your character portrait has not been generated yet. " +
+              "Please go to the Cast step, upload a photo of your artist, and click \"Generate Portrait\" " +
+              "before rendering. This ensures your character looks consistent across every scene.",
+          });
+        }
+
+        if (!hasPortrait && hasLegacyPhoto) {
+          // Legacy job: has a raw photo but no AI portrait. Warn but allow.
+          console.warn(`[MusicVideo] Job ${input.jobId} has legacy characterImageUrl but no masterPortraitUrl. Character consistency may be reduced.`);
+        }
+
+        if (hasPortrait) {
+          console.log(`[MusicVideo] Job ${input.jobId} Character Lock™ ACTIVE: ${jobCharsForGate.filter(c => c.masterPortraitUrl ?? c.previewImageUrl).length} portrait(s) ready.`);
+        }
+      }
 
       // ── PROVIDER HEALTH GATE ─────────────────────────────────────────────────
       // Before deducting credits, verify at least one video provider is available.

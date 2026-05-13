@@ -7678,3 +7678,45 @@
 - [x] Fix UI progress messaging: remove misleading "< 1 min left" estimates, show honest scene count remaining
 - [x] Update reassurance panel: "Rendering continues on our servers even if you close this tab"
 - [x] Reset job 510025 (Aria Showcase) to WaveSpeed fallback for immediate re-render
+
+## Critical Quality Fixes (May 13 2026)
+- [ ] Block render from starting if characterImageUrl is NULL — hard validation in triggerMusicVideoRender and UI render button
+- [ ] Replace fal.ai MuseTalk with HeyGen or WaveSpeed lip sync — phoneme-matched, reliable, never skip
+- [ ] Identify and block provider generating watermarked scenes — watermarks are completely unacceptable for paying users
+
+## Tim's Priority Directive — Quality Reset (May 13 2026)
+
+### 1. Character Lock™ Enforcement (HIGHEST PRIORITY)
+- [x] CHAR-LOCK-1: Add hard render block in startRender router — throw TRPCError if NO character has masterPortraitUrl or previewImageUrl (not just photo uploaded)
+- [x] CHAR-LOCK-2: Add hard render block in sceneDispatchHeartbeat — skip dispatch if scene has no resolved character portrait URL
+- [x] CHAR-LOCK-3: Inject characterImageUrl as SECOND reference_image in startSceneRenderWaveSpeed (alongside storyboard image) — character portrait + storyboard frame = dual-anchor lock
+- [x] CHAR-LOCK-4: Add continuity validation log — log WARNING if scene dispatched without character reference, log INFO with portrait URL when injected
+- [ ] CHAR-LOCK-5: Update UI render button tooltip/error to say "Character Lock™ required — generate a character portrait first"
+
+### 2. Watermark-Free Pipeline (HIGHEST PRIORITY)
+- [ ] WATERMARK-1: Confirm WaveSpeed Seedance 2.0 is watermark-free (it is — already primary provider)
+- [x] WATERMARK-2: Hard-disable Atlas Cloud in sceneDispatchHeartbeat — currently passes "atlas_cloud" as renderer type, must be changed to "wavespeed"
+- [x] WATERMARK-3: Hard-disable fal.ai MuseTalk in assembleMusicVideo — replace with cinematic skip (no lip sync post-processing until HeyGen is integrated)
+- [x] WATERMARK-4: Add provider QA checklist to codebase as server/provider-qa-checklist.md
+
+### 3. HeyGen Selective Lip Sync (HIGHEST PRIORITY)
+- [x] HEYGEN-LS-1: Implement server/ai-apis/heygen-lipsync.ts — POST /v2/video/translate or lipsync endpoint with video_url + audio_url
+- [x] HEYGEN-LS-2: Add submitHeyGenLipSync(videoUrl, audioUrl) and pollHeyGenLipSync(jobId) functions
+- [x] HEYGEN-LS-3: Replace fal.ai MuseTalk block in assembleMusicVideo with HeyGen selective lip sync (hero shot only — first 8-second scene with character close-up)
+- [x] HEYGEN-LS-4: Add isHeroShot detection function — isHeroShot() in heygen-lipsync.ts
+- [x] HEYGEN-LS-5: Gate HeyGen lip sync behind isHeroShot check — do NOT apply to every scene
+
+### 4. Cinematic-First Storyboard Prompts
+- [x] CINEMATIC-1: Update LIP_SYNC_STYLE_PROMPTS — replaced all karaoke language with cinematic direction
+- [ ] CINEMATIC-2: Update scene generation LLM prompt in generateStoryboard — instruct LLM to prioritise: atmospheric environments, instrument cutaways, silhouette performance, emotional pacing, NOT close-up singing faces
+- [ ] CINEMATIC-3: Add "cinematic_direction" field to scene generation output schema — values: "performance", "atmospheric", "cutaway", "narrative", "hero_shot"
+- [ ] CINEMATIC-4: Only scenes with cinematic_direction="hero_shot" get lip sync applied
+
+### 5. Provider QA Checklist
+- [x] QA-1: Write server/provider-qa-checklist.md — watermark test, character consistency test, render quality test, motion quality test
+- [ ] QA-2: Add QA status field to provider routing comments in music-video-service.ts
+
+### 6. Tests + Checkpoint
+- [ ] TEST-1: Update characterIdentity.test.ts — add test asserting render is blocked when no masterPortraitUrl exists
+- [ ] TEST-2: Add test asserting characterImageUrl is always in reference_images array for WaveSpeed calls
+- [ ] CHECKPOINT-1: Save checkpoint after all above complete

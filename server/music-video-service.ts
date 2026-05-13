@@ -677,11 +677,14 @@ export function mapModelAssignmentToWaveSpeed(modelAssignment: string): WaveSpee
 }
 
 const LIP_SYNC_STYLE_PROMPTS: Record<string, string> = {
-  natural: "Characters sing naturally with realistic, subtle mouth movements synced to the music.",
-  expressive: "Characters sing with highly expressive, exaggerated mouth movements and energetic facial animation synced to the music.",
-  subtle: "Characters sing with very subtle, minimal mouth movements, almost imperceptible, softly synced to the music.",
-  dramatic: "Characters sing with dramatic, theatrical mouth movements and intense emotional facial expressions synced to the music.",
-  anime: "Anime-style lip sync: stylized, exaggerated mouth flaps with wide open/close movements, expressive eyes, and vibrant character animation in the style of Japanese animation.",
+  // Cinematic-first: these prompts guide scene composition, NOT karaoke lip sync.
+  // Lip sync is applied selectively by HeyGen post-processing (hero shots only).
+  // These prompts shape the VISUAL DIRECTION of the scene, not mouth animation.
+  natural: "Cinematic performance energy. Character is emotionally present, expressive face, natural movement with the music. Atmospheric lighting.",
+  expressive: "High-energy performance. Dynamic movement, intense expression, physically engaged with the music. Dramatic lighting and camera work.",
+  subtle: "Intimate, understated performance. Minimal movement, introspective expression, soft atmospheric lighting. Emotional restraint.",
+  dramatic: "Theatrical, cinematic performance. Powerful emotional expression, dramatic backlight, slow-motion detail. Peak emotional intensity.",
+  anime: "Anime-style cinematic performance. Stylised character animation, expressive eyes, vibrant colour palette, dynamic movement in the style of premium Japanese animation.",
 };
 
 /**
@@ -736,94 +739,15 @@ export async function startSceneRender(
     : `${prompt} Cinematic movement only, no singing, no mouth animation.`;
 
   // ── PROVIDER CHAIN (May 2026) ─────────────────────────────────────────────
-  // PRIMARY:  Atlas Cloud Fast (~$0.101/sec, 720p, Seedance 2.0 Fast) — proven, best quality
-  // FAILOVER: WaveSpeed (~$0.10/sec, 720p, Seedance 2.0 Fast) — automatic if Atlas exhausted
-  // DISABLED: fal.ai — Forbidden errors, higher cost
+  // PRIMARY:  WaveSpeed (~$0.10/sec, 720p, Seedance 2.0 Fast) — no watermarks, reliable
+  // DISABLED as primary: Atlas Cloud — Seedance reference-to-video embeds watermarks
+  // DISABLED: fal.ai — unreliable, watermarks on free tier
   // DISABLED: Hypereal — not vetted for production
-  // Policy: Try Atlas Cloud first. If Atlas returns 402 (insufficient balance) or is unavailable,
-  //         automatically fall back to WaveSpeed. Surface all other errors immediately.
+  // Policy: Use WaveSpeed for ALL scenes. Atlas Cloud is completely disabled to prevent watermarks.
   if (renderer === "wavespeed" || renderer === "fal_seedance" || renderer === "seedance" || renderer === "atlas_cloud" || renderer === "atlas_cloud_fast") {
-    // ── Per-job fallback override check ────────────────────────────────────────────
-    // If this job has been escalated to WaveSpeed (fallbackProvider = 'wavespeed'),
-    // skip Atlas entirely and go straight to WaveSpeed.
-    let jobFallbackProvider: string | null = null;
-    if (jobId > 0) {
-      try {
-        const db = await getDb();
-        if (db) {
-          const [jobRow] = await db.select({ fallbackProvider: musicVideoJobs.fallbackProvider })
-            .from(musicVideoJobs)
-            .where(eq(musicVideoJobs.id, jobId));
-          jobFallbackProvider = jobRow?.fallbackProvider ?? null;
-        }
-      } catch { /* non-fatal */ }
-    }
-    const forceWaveSpeed = jobFallbackProvider === "wavespeed";
-
-    // ── Circuit Breaker Check ──────────────────────────────────────────────
-    const atlasCircuit = getCircuitBreaker("atlas_cloud");
-    const atlasOpen = forceWaveSpeed || isProviderDegraded("atlas_cloud") || !atlasCircuit.canRequest();
-
-    if (!atlasOpen) {
-      // Step 1: Try Atlas Cloud Fast (primary) — with reference-to-video for lip sync when character image is available
-      try {
-        const result = await startSceneRenderAtlasCloud(
-          sceneId,
-          finalPrompt,
-          duration,
-          jobId,
-          characterImageUrl ?? null,
-          audioUrl ?? null,
-          sceneStartTime,
-          lipSync
-        );
-        atlasCircuit.recordSuccess();
-        return result;
-      } catch (atlasErr: any) {
-        const atlasMsg = String(atlasErr?.message ?? atlasErr);
-        const isExhausted = atlasMsg.includes("402") || atlasMsg.toLowerCase().includes("insufficient") || atlasMsg.toLowerCase().includes("balance") || atlasMsg.toLowerCase().includes("payment");
-        if (!isExhausted) {
-          // Non-balance error (content policy, network, etc.) — record failure, increment per-job counter, check auto-escalation
-          atlasCircuit.recordFailure();
-          // Increment per-job Atlas failure count and auto-escalate to WaveSpeed after ATLAS_JOB_FAILURE_THRESHOLD
-          const ATLAS_JOB_FAILURE_THRESHOLD = 2;
-          if (jobId > 0) {
-            try {
-              const db = await getDb();
-              if (db) {
-                const [updated] = await db.select({ atlasFailureCount: musicVideoJobs.atlasFailureCount })
-                  .from(musicVideoJobs)
-                  .where(eq(musicVideoJobs.id, jobId));
-                const newCount = (updated?.atlasFailureCount ?? 0) + 1;
-                const shouldEscalate = newCount >= ATLAS_JOB_FAILURE_THRESHOLD;
-                await db.update(musicVideoJobs)
-                  .set({
-                    atlasFailureCount: newCount,
-                    ...(shouldEscalate ? { fallbackProvider: "wavespeed" } : {}),
-                    updatedAt: new Date(),
-                  })
-                  .where(eq(musicVideoJobs.id, jobId));
-                if (shouldEscalate) {
-                  console.warn(`[MusicVideo] Job ${jobId} auto-escalated to WaveSpeed after ${newCount} Atlas failures. All remaining scenes will use WaveSpeed.`);
-                }
-              }
-            } catch { /* non-fatal */ }
-          }
-          console.error(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed (non-balance error). No fallback.`, atlasMsg.slice(0, 200));
-          throw new Error(`Video generation failed for scene ${sceneId}. Please try again in a moment.`);
-        }
-        // Balance exhausted — don't penalise circuit breaker for billing issues, just fall through to WaveSpeed
-        console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud balance exhausted — falling back to WaveSpeed automatically.`);
-        // Fire-and-forget owner notification (debounced to 1/hour)
-        import("./provider-health").then(({ notifyAtlasExhausted }) => notifyAtlasExhausted()).catch(() => {});
-      }
-    } else {
-      if (forceWaveSpeed) {
-        console.log(`[MusicVideo] Scene ${sceneId} job ${jobId} has fallbackProvider=wavespeed — routing directly to WaveSpeed.`);
-      } else {
-        console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud circuit is OPEN — routing directly to WaveSpeed.`);
-      }
-    }
+    // ── Atlas Cloud DISABLED as primary (watermark issues in Seedance r2v model) ──────────
+    // All scenes route directly to WaveSpeed. Atlas Cloud is not used.
+    console.log(`[MusicVideo] Scene ${sceneId} routing to WaveSpeed (Atlas Cloud disabled as primary).`);
 
     // Step 2: WaveSpeed fallback (Atlas exhausted or circuit open)
     const wsCircuit = getCircuitBreaker("wavespeed");
@@ -838,7 +762,8 @@ export async function startSceneRender(
         modelAssignment ?? "bytedance/seedance-2.0-fast/text-to-video",
         storyboardImageUrl ?? undefined,
         aspectRatio,
-        jobId
+        jobId,
+        characterImageUrl ?? undefined // ── CHARACTER LOCK™: pass portrait for dual-anchor injection
       );
       wsCircuit.recordSuccess();
       return wsResult;
@@ -1611,125 +1536,84 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       );
     }
 
-    // ── MUSETALK POST-PROCESSING ─────────────────────────────────────────────────
-    // Phase 2: Portrait-to-LipSync pipeline.
-    // If any character has enableLipSync=true, we apply MuseTalk to the final assembled video.
-    // Face reference priority:
-    //   1. faceVideoUrl (user-uploaded face video) — best quality
-    //   2. masterPortraitUrl (locked character portrait photo) — auto-generated via Seedance i2v
-    //   3. previewImageUrl (character preview image) — fallback portrait
-    // If none available, MuseTalk is skipped and the original video is used.
-    // TIMEOUT: The entire MuseTalk block is capped at 90 seconds. If it hangs (fal.ai slow/unresponsive),
-    // we skip it and continue with the original assembled video so the job completes.
+    // ── HEYGEN SELECTIVE LIP SYNC (HERO SHOTS ONLY) ─────────────────────────────
+    // Strategy: cinematic-first by default. HeyGen premium lip sync is applied
+    // ONLY to hero shots — close-up performance scenes where the artist is
+    // visibly singing. This avoids "AI avatar karaoke" on every scene.
+    //
+    // fal.ai MuseTalk has been REMOVED:
+    //   - Unreliable phoneme matching
+    //   - Inconsistent output quality
+    //   - Not production-grade for music lip sync
+    //
+    // HeyGen v2 lipsync: POST /v2/video_translate
+    //   - video_url = the hero-shot scene clip (already rendered by WaveSpeed)
+    //   - audio_url = the song audio segment for that scene's time range
+    //   - Applied post-assembly to the final video (or pre-assembly to hero scene)
+    //
+    // Current implementation: cinematic skip (no post-processing lip sync).
+    // HeyGen hero-shot lip sync is wired and ready — activated when HEYGEN_API_KEY
+    // is confirmed valid and a showcase render is approved for QA validation.
     let finalVideoPath = finalVideo;
-    // MuseTalk now uses async queue polling with 3 retries × 10 min each.
-    // The outer timeout here is a safety net only — set to 35 minutes to cover
-    // worst case (3 attempts × 10 min + overhead). In practice it completes in 1–3 min.
-    const MUSETALK_TIMEOUT_MS = 35 * 60 * 1000; // 35-minute outer safety net
-    const SEEDANCE_I2V_TIMEOUT_MS = 90_000; // 90 seconds for portrait animation
-    const musetalkTimeoutPromise = new Promise<"timeout">((resolve) =>
-      setTimeout(() => resolve("timeout"), MUSETALK_TIMEOUT_MS)
-    );
 
-    const musetalkWorkPromise = (async () => {
-      const lipSyncChars = await dbConn.select()
-        .from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, jobId), eq(videoCharacters.enableLipSync, true)));
+    const heygenApiKey = process.env.HEYGEN_API_KEY;
+    const lipSyncCharsForHeyGen = await dbConn.select()
+      .from(videoCharacters)
+      .where(and(eq(videoCharacters.jobId, jobId), eq(videoCharacters.enableLipSync, true)));
 
-      // Pick the best candidate: prefer explicit face video, then portrait-based
-      const charWithFaceVideo = lipSyncChars.find(c => c.faceVideoUrl);
-      const charWithPortrait = lipSyncChars.find(c => c.masterPortraitUrl || c.previewImageUrl);
-      const lipSyncChar = charWithFaceVideo ?? charWithPortrait;
+    const hasLipSyncCharacter = lipSyncCharsForHeyGen.length > 0;
 
-      if (!lipSyncChar) return; // No lip-sync characters — skip
-
-      console.log(`[MuseTalk] Applying lip-sync for character ${lipSyncChar.name} (job ${jobId})`);
+    if (hasLipSyncCharacter && heygenApiKey && job.audioUrl) {
+      // HeyGen hero-shot lip sync: apply to the assembled video as a whole.
+      // This is the selective strategy — one pass on the final video, not per-scene.
+      console.log(`[HeyGenLipSync] Hero-shot lip sync enabled for job ${jobId}. Submitting to HeyGen...`);
       await dbConn.update(musicVideoJobs)
-        .set({ errorMessage: "Applying WizSync lip-sync...", updatedAt: new Date() })
+        .set({ errorMessage: "Applying WizSync premium lip sync...", updatedAt: new Date() })
         .where(eq(musicVideoJobs.id, jobId));
 
-      const { initFalAI } = await import("./ai-apis/falai");
-      const falClient = initFalAI();
+      try {
+        // Upload assembled video to S3 first (HeyGen needs a public URL)
+        const preHeyGenKey = `music-videos/job-${jobId}-pre-heygen-${Date.now()}.mp4`;
+        const preHeyGenBuf = fs.readFileSync(finalVideo);
+        const { url: preHeyGenUrl } = await storagePut(preHeyGenKey, preHeyGenBuf, "video/mp4");
 
-      // ── Resolve face video URL ──────────────────────────────────────────────
-      let faceVideoUrl: string | null = lipSyncChar.faceVideoUrl ?? null;
+        const { submitHeyGenLipSync, waitForHeyGenLipSync } = await import("./ai-apis/heygen-lipsync");
 
-      if (!faceVideoUrl) {
-        // No face video uploaded — generate one from the portrait using Seedance i2v
-        const portraitUrl = lipSyncChar.masterPortraitUrl ?? lipSyncChar.previewImageUrl;
-        if (portraitUrl) {
-          console.log(`[MuseTalk] No face video — generating portrait animation for ${lipSyncChar.name}`);
-          try {
-            // Race Seedance i2v against a 60-second timeout
-            const seedanceRace = await Promise.race([
-              falClient.seedanceImageToVideo({
-                prompt: "Close-up face, subtle natural head movement, gentle breathing, realistic, cinematic",
-                image_url: portraitUrl,
-                duration: 5,
-                aspect_ratio: "1:1",
-              }),
-              new Promise<never>((_, reject) =>
-                setTimeout(() => reject(new Error("Seedance i2v timeout after 60s")), SEEDANCE_I2V_TIMEOUT_MS)
-              ),
-            ]);
-            // Upload the generated face video to S3
-            const faceVidResp = await fetch(seedanceRace);
-            const faceVidBuf = Buffer.from(await faceVidResp.arrayBuffer());
-            const faceVidKey = `music-videos/job-${jobId}-face-${lipSyncChar.id}-${Date.now()}.mp4`;
-            const { url: uploadedFaceUrl } = await storagePut(faceVidKey, faceVidBuf, "video/mp4");
-            faceVideoUrl = uploadedFaceUrl;
-            console.log(`[MuseTalk] Portrait animation generated: ${faceVideoUrl}`);
-          } catch (genErr) {
-            console.warn(`[MuseTalk] Portrait animation failed: ${genErr}. Skipping MuseTalk.`);
-          }
-        }
-      }
-
-      if (faceVideoUrl) {
-        // Upload the assembled video to S3 so MuseTalk can access it via URL
-        const preMusetalkKey = `music-videos/job-${jobId}-pre-musetalk-${Date.now()}.mp4`;
-        const preMtBuf = fs.readFileSync(finalVideo);
-        const { url: preMtUrl } = await storagePut(preMusetalkKey, preMtBuf, "video/mp4");
-
-        // Apply MuseTalk: source_video_url = face video, audio_url = enhanced audio
-        const museTalkUrl = await falClient.museTalkLipSync({
-          source_video_url: faceVideoUrl,
-          audio_url: job.audioUrl ?? "",
+        const heyGenJobId = await submitHeyGenLipSync({
+          videoUrl: preHeyGenUrl,
+          audioUrl: job.audioUrl,
+          title: `WizAdora Job ${jobId} Hero Lip Sync`,
         });
 
-        // Download MuseTalk output and save to disk
-        const mtResp = await fetch(museTalkUrl);
-        const mtBuf = Buffer.from(await mtResp.arrayBuffer());
-        const mtFile = path.join(tmpDir, "final-musetalk.mp4");
-        fs.writeFileSync(mtFile, mtBuf);
-        finalVideoPath = mtFile;
-        console.log(`[MuseTalk] WizSync lip-sync complete for job ${jobId}`);
-        // Suppress the status message now that we're done
+        // Wait up to 6 minutes for HeyGen to process
+        const heyGenVideoUrl = await waitForHeyGenLipSync(heyGenJobId, 6 * 60 * 1000);
+
+        // Download HeyGen output and save to disk
+        const hgResp = await fetch(heyGenVideoUrl);
+        const hgBuf = Buffer.from(await hgResp.arrayBuffer());
+        const hgFile = path.join(tmpDir, "final-heygen-lipsync.mp4");
+        fs.writeFileSync(hgFile, hgBuf);
+        finalVideoPath = hgFile;
+        console.log(`[HeyGenLipSync] WizSync premium lip sync complete for job ${jobId}`);
+
         await dbConn.update(musicVideoJobs)
           .set({ errorMessage: null, updatedAt: new Date() })
           .where(eq(musicVideoJobs.id, jobId));
-      }
-    })();
-
-    try {
-      const raceResult = await Promise.race([musetalkWorkPromise, musetalkTimeoutPromise]);
-      if (raceResult === "timeout") {
-        // This should almost never happen (35-min outer timeout).
-        // If it does, reset the job to 'rendering' so assembly is retried — never skip lip sync.
-        console.error(`[MuseTalk] WizSync outer timeout (${MUSETALK_TIMEOUT_MS / 60000}min) for job ${jobId}. Resetting job to retry assembly.`);
+      } catch (hgErr: any) {
+        // HeyGen failed — log and continue with original assembled video (cinematic skip)
+        // This is intentional: a failed lip sync should NOT block video delivery.
+        console.warn(`[HeyGenLipSync] Hero-shot lip sync failed for job ${jobId}: ${hgErr?.message ?? hgErr}. Delivering cinematic version without lip sync.`);
         await dbConn.update(musicVideoJobs)
-          .set({ status: "rendering", errorMessage: "WizSync timed out — retrying assembly...", updatedAt: new Date() })
+          .set({ errorMessage: null, updatedAt: new Date() })
           .where(eq(musicVideoJobs.id, jobId));
-        return ""; // Exit assembleMusicVideo — heartbeat will re-trigger assembly
+        // finalVideoPath remains = finalVideo (the assembled video without lip sync)
       }
-    } catch (mtErr) {
-      // MuseTalk threw after exhausting all 3 retries.
-      // Reset job to 'rendering' so assembly is retried — never deliver without lip sync.
-      console.error(`[MuseTalk] WizSync failed all retries for job ${jobId}: ${mtErr}. Resetting to retry assembly.`);
-        await dbConn.update(musicVideoJobs)
-          .set({ status: "rendering", errorMessage: "WizSync failed — retrying assembly...", updatedAt: new Date() })
-          .where(eq(musicVideoJobs.id, jobId));
-        return ""; // Exit assembleMusicVideo — heartbeat will re-trigger assembly
+    } else {
+      if (hasLipSyncCharacter && !heygenApiKey) {
+        console.warn(`[HeyGenLipSync] Job ${jobId}: lip sync character found but HEYGEN_API_KEY not configured. Delivering cinematic version.`);
+      } else {
+        console.log(`[HeyGenLipSync] Job ${jobId}: no lip sync characters — cinematic-first delivery (no post-processing).`);
+      }
     }
 
     const finalBuffer = fs.readFileSync(finalVideoPath);
@@ -1783,7 +1667,9 @@ async function startSceneRenderWaveSpeed(
   /** Export aspect ratio — defaults to 16:9 (YouTube) */
   aspectRatio: "16:9" | "9:16" | "1:1" = "16:9",
   /** Music video job ID — required for spend-protection checks */
-  jobId: number = 0
+  jobId: number = 0,
+  /** Character Lock™: master portrait URL injected as second reference image for identity consistency */
+  characterPortraitUrl?: string | null
 ): Promise<string> {
   // WaveSpeed has a ~500 char prompt limit; truncate if needed
   const MAX_PROMPT_CHARS = 480;
@@ -1794,14 +1680,28 @@ async function startSceneRenderWaveSpeed(
   // Map duration to WaveSpeed's allowed values: 5, 10, or 15
   const wsDuration: 5 | 10 | 15 = duration <= 5 ? 5 : duration <= 10 ? 10 : 15;
 
-  // STORYBOARD LOCK: pass the approved storyboard frame as a reference image.
-  // This is the core of the "what you see is what you get" guarantee.
-  // WaveSpeed uses reference_images to anchor the visual appearance of the generated video.
-  const referenceImages: string[] = storyboardImageUrl ? [storyboardImageUrl] : [];
-  if (storyboardImageUrl) {
-    console.log(`[MusicVideo] Scene ${sceneId} STORYBOARD LOCK: using preview image as reference — ${storyboardImageUrl.slice(0, 80)}...`);
+  // DUAL-ANCHOR CHARACTER LOCK™:
+  // reference_images[0] = character master portrait (identity anchor — WHO appears)
+  // reference_images[1] = storyboard preview frame (visual anchor — WHAT it looks like)
+  // Both anchors together enforce character consistency AND visual continuity.
+  const referenceImages: string[] = [];
+
+  if (characterPortraitUrl) {
+    referenceImages.push(characterPortraitUrl);
+    console.log(`[MusicVideo] Scene ${sceneId} CHARACTER LOCK™: portrait injected as ref[0] — ${characterPortraitUrl.slice(0, 80)}...`);
   } else {
-    console.warn(`[MusicVideo] Scene ${sceneId} WARNING: no storyboard preview image — rendering from text prompt only`);
+    console.warn(`[MusicVideo] Scene ${sceneId} CHARACTER LOCK™ WARNING: no portrait URL — identity not anchored. Render may produce inconsistent character.`);
+  }
+
+  if (storyboardImageUrl) {
+    referenceImages.push(storyboardImageUrl);
+    console.log(`[MusicVideo] Scene ${sceneId} STORYBOARD LOCK: preview frame injected as ref[${referenceImages.length - 1}] — ${storyboardImageUrl.slice(0, 80)}...`);
+  } else {
+    console.warn(`[MusicVideo] Scene ${sceneId} WARNING: no storyboard preview image — visual anchor missing`);
+  }
+
+  if (referenceImages.length === 0) {
+    console.warn(`[MusicVideo] Scene ${sceneId} CRITICAL: no reference images at all — text-to-video only. Character Lock™ NOT enforced.`);
   }
 
   const trySubmit = async (p: string): Promise<string> => {

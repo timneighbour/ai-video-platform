@@ -1,0 +1,18 @@
+{
+  "query": "\nSELECT id, title, characterImageUrl, characterRoster, sceneSetting, artistType\nFROM musicVideoJobs WHERE id = 510025;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, title, characterImageUrl, characterRoster, sceneSetting, artistType\nFROM musicVideoJobs WHERE id = 510025;\n",
+  "rows": [
+    {
+      "id": "510025",
+      "title": "Aria Showcase",
+      "characterImageUrl": "NULL",
+      "characterRoster": "[{\"name\":\"Aria\",\"role\":\"Lead Vocalist\",\"isLocked\":true,\"description\":\"A full-length standing figure of Aria, a dark brunette female artist with an average build and typical physique, standing confidently. She has long, straight dark brunette hair falling past her shoulders, framing an elegant face with emotionally expressive dark eyes. Her gaze is direct and powerful, yet hints at vulnerability. She wears a striking, floor-length black cinematic coat with intricate silver detailing along the lapels and cuffs, which is slightly open to reveal a dark, form-fitting top underneath. Her legs are clad in sleek black leather trousers that hug her knees and calves, leading down to her ankles and feet, which are encased in polished black leather ankle boots with a subtle heel. The overall impression is grounded and powerful.\"}]",
+      "sceneSetting": "NULL",
+      "artistType": "solo_artist"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tcharacterImageUrl\tcharacterRoster\tsceneSetting\tartistType\n510025\tAria Showcase\tNULL\t[{\"name\":\"Aria\",\"role\":\"Lead Vocalist\",\"isLocked\":true,\"description\":\"A full-length standing figure of Aria, a dark brunette female artist with an average build and typical physique, standing confidently. She has long, straight dark brunette hair falling past her shoulders, framing an elegant face with emotionally expressive dark eyes. Her gaze is direct and powerful, yet hints at vulnerability. She wears a striking, floor-length black cinematic coat with intricate silver detailing along the lapels and cuffs, which is slightly open to reveal a dark, form-fitting top underneath. Her legs are clad in sleek black leather trousers that hug her knees and calves, leading down to her ankles and feet, which are encased in polished black leather ankle boots with a subtle heel. The overall impression is grounded and powerful.\"}]\tNULL\tsolo_artist\n",
+  "stderr": "",
+  "execution_time_ms": 576
+}

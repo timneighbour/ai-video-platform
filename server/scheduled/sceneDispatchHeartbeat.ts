@@ -129,20 +129,49 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               `[SceneDispatch] Dispatching scene ${scene.id} (index ${scene.sceneIndex}) for job ${job.id} — provider: ${job.fallbackProvider ?? "atlas_cloud"}`
             );
 
+            // ── CHARACTER LOCK™: Resolve per-scene portrait URL ─────────────────────────────
+            // Priority: masterPortraitUrl > previewImageUrl > job.characterImageUrl
+            // This is fetched per-scene to honour characterAssignments.
+            let resolvedCharacterUrl: string | undefined = job.characterImageUrl ?? undefined;
+            try {
+              const { videoCharacters } = await import("../../drizzle/schema");
+              const { eq: eqChar } = await import("drizzle-orm");
+              const jobChars = await db.select().from(videoCharacters).where(eqChar(videoCharacters.jobId, job.id));
+              if (jobChars.length > 0) {
+                let assignments: string[] = [];
+                try { if (scene.characterAssignments) assignments = JSON.parse(scene.characterAssignments); } catch {}
+                let matchedChar = assignments.length > 0
+                  ? jobChars.find(c => assignments.some(a => a.toLowerCase() === c.name.toLowerCase()))
+                  : null;
+                const bestChar = matchedChar ?? jobChars.find(c => c.masterPortraitUrl) ?? jobChars.find(c => c.previewImageUrl) ?? jobChars[0];
+                if (bestChar) {
+                  resolvedCharacterUrl = bestChar.masterPortraitUrl ?? bestChar.previewImageUrl ?? resolvedCharacterUrl;
+                }
+              }
+            } catch (charErr) {
+              console.warn(`[SceneDispatch] Character portrait resolution failed for scene ${scene.id}:`, charErr);
+            }
+
+            if (resolvedCharacterUrl) {
+              console.log(`[SceneDispatch] Scene ${scene.id} CHARACTER LOCK™ active: ${resolvedCharacterUrl.slice(0, 80)}...`);
+            } else {
+              console.warn(`[SceneDispatch] Scene ${scene.id} WARNING: no character portrait — rendering text-only (Character Lock™ not enforced)`);
+            }
+
             const taskId = await startSceneRender(
               scene.id,
               scene.prompt ?? "",
               scene.duration ?? 5,
               scene.lipSync ?? true,
               (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
-              "atlas_cloud" as any,
+              "wavespeed" as any, // ── WATERMARK-FREE: WaveSpeed only, Atlas Cloud DISABLED
               (scene.modelAssignment === "hailuo-minimax"
                 ? "bytedance/seedance-2.0-fast/text-to-video"
                 : "bytedance/seedance-2.0/text-to-video") as any,
               scene.previewImageUrl ?? undefined,
               (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1",
               job.id,
-              job.characterImageUrl ?? undefined,
+              resolvedCharacterUrl, // ── CHARACTER LOCK™: per-scene portrait
               job.audioUrl ?? undefined,
               scene.startTime ? scene.startTime / 1000 : undefined // convert ms to seconds
             );

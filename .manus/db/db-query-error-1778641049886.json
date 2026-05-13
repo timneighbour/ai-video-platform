@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT s.id, s.sceneIndex, s.status, s.taskId, s.videoUrl,\n       p.provider, p.createdAt as providerLogTime\nFROM musicVideoScenes s\nLEFT JOIN providerJobLogs p ON p.sceneId = s.id\nWHERE s.jobId = 510025\nORDER BY s.sceneIndex, p.createdAt DESC;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT s.id, s.sceneIndex, s.status, s.taskId, s.videoUrl,\n       p.provider, p.createdAt as providerLogTime\nFROM musicVideoScenes s\nLEFT JOIN providerJobLogs p ON p.sceneId = s.id\nWHERE s.jobId = 510025\nORDER BY s.sceneIndex, p.createdAt DESC;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 's.status' in 'field list'"
+  ]
+}
