@@ -1,0 +1,30 @@
+{
+  "query": "\nSELECT id, title, genre, mood, LEFT(themePrompt, 300) as themePrompt, LEFT(sceneSetting, 300) as sceneSetting\nFROM musicVideoJobs\nWHERE id IN (510025, 450002);\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, title, genre, mood, LEFT(themePrompt, 300) as themePrompt, LEFT(sceneSetting, 300) as sceneSetting\nFROM musicVideoJobs\nWHERE id IN (510025, 450002);\n",
+  "rows": [],
+  "messages": [
+    "450002\tUnstoppable\tCinematic Rock\tNULL\tCore Theme",
+    "A cinematic journey about emotional control, manipulation, fear, and spiritual awakening in a world where people are slowly losing themselves.",
+    "The central character feels hunted emotionally and psychologically, surrounded by people who move through life mechanically while unseen forces \t1. Rooftop Performance Location",
+    "* massive cinematic city rooftop at night",
+    "* rain",
+    "* distant skyline lights",
+    "* dramatic spotlight performance",
+    "* emotional singing directly to camera",
+    "Purpose:",
+    "Main emotional performance location.",
+    "⸻",
+    "2. Brutalist Concrete Corridors",
+    "* endless concrete hallways",
+    "* flicker",
+    "510025\tAria Showcase\tCinematic alternative pop, emotionally raw female vocal, powerful chorus\tDark\tScene distribution (4‒6 scenes): The video should contain a mix of performance",
+    "energy and cinematic atmosphere. The performer should feel present and musical",
+    "throughout — not just in one shot.",
+    "Prioritise this scene mix:",
+    "Wide atmospheric establishing shot — rain-soaked rooftop, city below,",
+    "performer \tNULL"
+  ],
+  "stdout": "id\ttitle\tgenre\tmood\tthemePrompt\tsceneSetting\n450002\tUnstoppable\tCinematic Rock\tNULL\tCore Theme\n\nA cinematic journey about emotional control, manipulation, fear, and spiritual awakening in a world where people are slowly losing themselves.\n\nThe central character feels hunted emotionally and psychologically, surrounded by people who move through life mechanically while unseen forces \t1. Rooftop Performance Location\n\n* massive cinematic city rooftop at night\n* rain\n* distant skyline lights\n* dramatic spotlight performance\n* emotional singing directly to camera\n\nPurpose:\nMain emotional performance location.\n\n⸻\n\n2. Brutalist Concrete Corridors\n\n* endless concrete hallways\n* flicker\n510025\tAria Showcase\tCinematic alternative pop, emotionally raw female vocal, powerful chorus\tDark\tScene distribution (4‒6 scenes): The video should contain a mix of performance\nenergy and cinematic atmosphere. The performer should feel present and musical\nthroughout — not just in one shot.\nPrioritise this scene mix:\nWide atmospheric establishing shot — rain-soaked rooftop, city below,\nperformer \tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 586
+}

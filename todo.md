@@ -7728,3 +7728,15 @@
 - [x] FIX-3: sceneDispatchHeartbeat — inject character lockedDescription as text anchor prefix in WaveSpeed prompt (reinforces identity when image reference alone is insufficient)
 - [x] PATCH-510025: Aria masterPortraitUrl set from previewImageUrl in DB directly
 - [x] PATCH-510025: All 9 scenes reset to pending, job reset to rendering for retry
+
+## Flux PuLID Face Lock for AI Characters — May 13, 2026
+
+- [x] PULID-1: Wire generateFaceConsistentImage (fluxPuLID.ts) into generateScenePreview else branch for AI-described characters
+- [x] PULID-2: AI characters with masterPortraitUrl now use Flux PuLID (idWeight 1.2, landscape_16_9) for storyboard frames
+- [x] PULID-3: Graceful fallback to generic generateImage if Flux PuLID fails or FAL_AI_API_KEY missing
+- [x] PULID-4: Delete redundant faceConsistentImage.ts helper (using existing fluxPuLID.ts)
+- [x] PULID-5: Update flux-pulid-integration.test.ts to reflect V3 Flux PuLID path
+- [x] PULID-6: previewCharacter procedure now writes masterPortraitUrl for AI characters (no photos)
+- [x] PULID-7: approveCharacterPreview now writes masterPortraitUrl for AI characters on approval
+- [ ] PULID-8: Regenerate all 9 storyboard frames for job 510025 using Flux PuLID face lock
+- [ ] PULID-9: Reset all scenes for job 510025 to pending after face-locked storyboard regeneration

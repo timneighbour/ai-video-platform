@@ -1,0 +1,328 @@
+{
+  "query": "\nSELECT id, jobId, sceneIndex, prompt, previewImageUrl\nFROM musicVideoScenes\nWHERE jobId IN (510025, 450002)\nORDER BY jobId, sceneIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, jobId, sceneIndex, prompt, previewImageUrl\nFROM musicVideoScenes\nWHERE jobId IN (510025, 450002)\nORDER BY jobId, sceneIndex;\n",
+  "rows": [
+    {
+      "id": "510038",
+      "jobId": "450002",
+      "sceneIndex": "0",
+      "prompt": "Wide, sweeping shot of the massive cinematic city rooftop at night, rain pouring down. Distant skyline lights glimmer through the downpour. The atmosphere is vast and desolate. A single dramatic spotlight cuts through the rain, illuminating an empty space, anticipating a performance. Deep blues and grays dominate the palette, with stark whites from city lights.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346291060.png"
+    },
+    {
+      "id": "510039",
+      "jobId": "450002",
+      "sceneIndex": "1",
+      "prompt": "Medium shot of Leah on the massive cinematic city rooftop at night, rain soaking her. She stands under a dramatic spotlight, looking directly into the camera with a vulnerable yet powerful expression. Rain streaks across the lens. The mood is somber and observational. Muted purples and deep blues create a cool, melancholic tone.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346301607.png"
+    },
+    {
+      "id": "510040",
+      "jobId": "450002",
+      "sceneIndex": "2",
+      "prompt": "Slow-motion shot of Mechanical Figure 1 walking down an endless brutalist concrete corridor. Flickering lights cast long, distorted shadows. The camera is low, emphasizing the repetitive perspective lines, creating a sense of surveillance and psychological control. The figure moves with unsettling stiffness. Desaturated, cool tones with stark contrasts.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346312206.png"
+    },
+    {
+      "id": "510041",
+      "jobId": "450002",
+      "sceneIndex": "3",
+      "prompt": "Close-up of Leah's face on the massive cinematic city rooftop at night. Rain drips from her hair as she sings expressively, eyes filled with a quiet desperation. The dramatic spotlight highlights her features, casting deep shadows. Her mouth is clearly visible for lip-sync. The lighting is soft, diffused, with cool, desaturated tones.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346332926.png"
+    },
+    {
+      "id": "510042",
+      "jobId": "450002",
+      "sceneIndex": "4",
+      "prompt": "Wide shot of a sunlit open field. Dancing Figure 1 moves slowly and gracefully, bathed in overexposed warm sunlight. The atmosphere is dreamlike, beautiful but unsettling. The camera slowly tracks her, emphasizing the ethereal quality. Golden hues and soft whites dominate, creating a sense of distance and longing.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346394326.png"
+    },
+    {
+      "id": "510043",
+      "jobId": "450002",
+      "sceneIndex": "5",
+      "prompt": "An empty urban street at night, wet and reflective from recent rain. Neon reflections shimmer on the puddles. Drifting smoke adds to the lonely, abandoned city feeling. The camera slowly pans across the street, emphasizing the vast emptiness. Deep blues, purples, and vibrant neon colors create a sense of isolation and emotional confusion.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346350686.png"
+    },
+    {
+      "id": "510044",
+      "jobId": "450002",
+      "sceneIndex": "6",
+      "prompt": "POV shot from an underground tunnel/train platform, looking down the repeating perspective lines. Cinematic industrial lighting creates stark shadows. Shadows of unseen figures move in the distance, enhancing the tension and paranoia. The environment feels oppressive and foreboding. Grays, blacks, and harsh yellow industrial lights.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346362430.png"
+    },
+    {
+      "id": "510045",
+      "jobId": "450002",
+      "sceneIndex": "7",
+      "prompt": "Medium shot of Leah on the massive cinematic city rooftop at night, rain falling. She sings with a somber, observational lament, her gaze distant. The dramatic spotlight subtly backlights her, creating a soft glow. Soft, diffused light with desaturated, cool tones, almost ritualistic, as she 'Pray(s) for the souls that dance in the sun'.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346376487.png"
+    },
+    {
+      "id": "510046",
+      "jobId": "450002",
+      "sceneIndex": "8",
+      "prompt": "Wide shot of the sunlit open field. Dancing Figure 1 moves slowly, almost ethereally, amidst other indistinct figures. The overexposed warm sunlight creates a dreamlike, hazy atmosphere. The 'souls that dance in the sun' are visually represented by these figures. Soft, backlighting, with golden hues, emphasizing distance and a sense of loss.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346385398.png"
+    },
+    {
+      "id": "510047",
+      "jobId": "450002",
+      "sceneIndex": "9",
+      "prompt": "Close-up of Leah on the massive cinematic city rooftop at night, rain streaking her face. She sings with a profound sense of lament, her eyes conveying the weight of the 'lungs that live life by the hand'. The dramatic spotlight emphasizes her emotional depth. Her mouth is visible for lip-sync. Muted purples and deep blues with soft, cool lighting.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346395794.png"
+    },
+    {
+      "id": "510048",
+      "jobId": "450002",
+      "sceneIndex": "10",
+      "prompt": "Slow-motion tracking shot of Mechanical Figure 2 walking through endless brutalist concrete corridors. Flickering lights create unsettling patterns on the concrete. Her movements are rigid, reflecting 'the lost that dance in the sun' in a controlled, mechanical way. The camera emphasizes the surveillance feeling. Desaturated, cool tones with stark contrasts.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346404499.png"
+    },
+    {
+      "id": "510049",
+      "jobId": "450002",
+      "sceneIndex": "11",
+      "prompt": "Long shot of Leah standing alone on the massive cinematic city rooftop at night, rain falling. She looks out over the distant skyline, her silhouette stark against the city lights. An ethereal vocalization begins, building unease. Subtle pulsing light, perhaps from an unknown source, creates shifting shadows. Slightly warmer, but still muted tones.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346414211.png"
+    },
+    {
+      "id": "510050",
+      "jobId": "450002",
+      "sceneIndex": "12",
+      "prompt": "Tracking shot through an empty urban street at night, wet and reflective. Neon reflections stretch and distort. Drifting smoke swirls around, creating a mysterious, transitional atmosphere. The camera moves slowly, emphasizing the unease and mystery. Subtle pulsing light, with muted purples and deep blues, hinting at an unknown source.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346426816.png"
+    },
+    {
+      "id": "510051",
+      "jobId": "450002",
+      "sceneIndex": "13",
+      "prompt": "Close-up of Leah's face on the massive cinematic city rooftop at night, rain streaking. Her expression shifts to one of growing unease and mystery, a subtle hint of fear. The dramatic spotlight pulses faintly. Her mouth is visible for lip-sync, as she sings 'I'm sorry'. Slightly warmer, but still muted lighting, creating long, shifting shadows.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346629994.png"
+    },
+    {
+      "id": "510052",
+      "jobId": "450002",
+      "sceneIndex": "14",
+      "prompt": "Medium shot of Leah on the massive cinematic city rooftop at night, rain pouring. She sings directly to camera with a newfound urgency and defiance. The dramatic spotlight becomes harsher, more directional, creating stark contrasts. Increased saturation, with hints of red and orange, signifying alarm as she sings 'So let them take you away'.  No subtitles",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346672472.png"
+    },
+    {
+      "id": "510053",
+      "jobId": "450002",
+      "sceneIndex": "15",
+      "prompt": "Wide stage shot in the massive dark performance space. Leah stands center, bathed in cinematic stage lighting and fog. She sings with maximum energy, her voice a defiant warning. Huge shadows stretch behind her. The lighting is harsh and directional, with strong contrasts, hints of red and orange, reflecting 'Don't let them take you away'.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346469882.png"
+    },
+    {
+      "id": "510054",
+      "jobId": "450002",
+      "sceneIndex": "16",
+      "prompt": "Close-up of Leah's face in the massive dark performance space, singing with intense defiance. Her eyes convey a fierce resolve against being 'confuse, abuse'. Cinematic stage lighting creates stark highlights and deep shadows. Her mouth is visible for lip-sync. Harsher, directional light, increased saturation, with fiery oranges/reds.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346483425.png"
+    },
+    {
+      "id": "510055",
+      "jobId": "450002",
+      "sceneIndex": "17",
+      "prompt": "Medium shot of Mechanical Figure 3 in a brutalist concrete corridor, moving with puppet-like stiffness. A flickering light source creates a sense of unease and control. The camera focuses on his blank expression, representing 'all that you've given away'. Desaturated, cool tones with stark contrasts, emphasizing the psychological control.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346492356.png"
+    },
+    {
+      "id": "510056",
+      "jobId": "450002",
+      "sceneIndex": "18",
+      "prompt": "Medium shot of Leah on the massive cinematic city rooftop at night, rain falling. She is singing with a somber, reflective tone, looking out at the distant skyline. The dramatic spotlight is softer, diffused, creating a moment of quiet contemplation before the next verse. Muted purples and deep blues with cool tones.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346503393.png"
+    },
+    {
+      "id": "510057",
+      "jobId": "450002",
+      "sceneIndex": "19",
+      "prompt": "Close-up of Leah's face on the massive cinematic city rooftop at night, rain streaking. She sings with a determined expression, emphasizing 'save your voice'. The dramatic spotlight is focused, highlighting her resolve. Her mouth is visible for lip-sync. Harsher, directional light, with increased saturation, hinting at inner strength.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346617807.png"
+    },
+    {
+      "id": "510058",
+      "jobId": "450002",
+      "sceneIndex": "20",
+      "prompt": "Tracking shot of Leah walking with purpose through empty urban streets at night, wet and reflective. Neon reflections stretch and distort around her. Drifting smoke swirls. Her gaze is fixed forward, embodying 'stay on course and never look behind'. Deep blues and purples, with neon highlights, symbolizing isolation and determination.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346526744.png"
+    },
+    {
+      "id": "510060",
+      "jobId": "450002",
+      "sceneIndex": "22",
+      "prompt": "Wide shot of Leah silhouetted against a distant glowing star in the final cosmic location. A vast, desolate landscape surrounds her. The sunrise is just beginning, casting a warm, golden light. This represents 'Beyond that distant star'. Bright, uplifting light, with vibrant gold and fiery oranges/reds, symbolizing spiritual awakening and strength.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346550770.png"
+    },
+    {
+      "id": "510061",
+      "jobId": "450002",
+      "sceneIndex": "23",
+      "prompt": "Medium shot of Leah in the massive dark performance space. She sings with powerful assertion, her expression defiant. Cinematic stage lighting and fog create a dramatic atmosphere. Huge shadows dance behind her. The lighting is harsh and directional, with strong contrasts and hints of red/orange, leading into 'So let them take you away'.  No subtitles.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346964481.png"
+    },
+    {
+      "id": "510062",
+      "jobId": "450002",
+      "sceneIndex": "24",
+      "prompt": "Wide stage shot in the massive dark performance space. Leah stands center, bathed in cinematic stage lighting and fog, singing with maximum energy. Huge shadows stretch dramatically. The lighting is harsh and directional, with strong contrasts, hints of red and orange, reflecting the defiance of the chorus.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346577089.png"
+    },
+    {
+      "id": "510063",
+      "jobId": "450002",
+      "sceneIndex": "25",
+      "prompt": "Close-up of Leah's face in the massive dark performance space, singing with intense defiance. Her eyes convey a fierce resolve against being 'confuse, abuse'. Cinematic stage lighting creates stark highlights and deep shadows. Her mouth is visible for lip-sync. Harsher, directional light, increased saturation, with fiery oranges/reds.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346589089.png"
+    },
+    {
+      "id": "510064",
+      "jobId": "450002",
+      "sceneIndex": "26",
+      "prompt": "Medium shot of Mechanical Figure 1 in a brutalist concrete corridor, moving with unsettling stiffness. Flickering lights create a sense of surveillance. The camera focuses on his vacant stare, representing the loss of self, 'all that you've given away'. Desaturated, cool tones with stark contrasts, emphasizing psychological control.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346597204.png"
+    },
+    {
+      "id": "510065",
+      "jobId": "450002",
+      "sceneIndex": "27",
+      "prompt": "Wide shot of Leah on the massive cinematic city rooftop at night, rain pouring. She sings with a powerful, emotional intensity. The dramatic spotlight pulses, creating a sense of unease and anticipation for the breakdown. Muted purples and deep blues with cool tones, preparing for an intense shift.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346609410.png"
+    },
+    {
+      "id": "510066",
+      "jobId": "450002",
+      "sceneIndex": "28",
+      "prompt": "Long shot of Mechanical Figure 2 and Mechanical Figure 3 walking slowly in unison down an endless brutalist concrete corridor. Flickering lights create long, shifting shadows, enhancing the surveillance feeling. Their silhouettes are stark against the cold concrete. Desaturated, cool tones with stark contrasts, emphasizing fear and control.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346618996.png"
+    },
+    {
+      "id": "510067",
+      "jobId": "450002",
+      "sceneIndex": "29",
+      "prompt": "Close-up of Leah's face on the massive cinematic city rooftop at night, rain streaking. Her expression is anxious, questioning, but with an underlying defiance. The dramatic spotlight rapidly shifts between light and shadow, almost strobing. Her mouth is visible for lip-sync. Rapid shifts between cool, intense colors and deep shadows.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346629705.png"
+    },
+    {
+      "id": "510068",
+      "jobId": "450002",
+      "sceneIndex": "30",
+      "prompt": "POV shot from an underground tunnel/train platform. The perspective lines stretch into the distance. Shadows of unseen figures move rapidly and erratically, creating intense paranoia. Cinematic industrial lighting flickers rapidly. Rapid shifts between light and shadow, with strong highlights and deep shadows, reflecting the anxious questioning.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346640689.png"
+    },
+    {
+      "id": "510069",
+      "jobId": "450002",
+      "sceneIndex": "31",
+      "prompt": "Medium shot of Leah on the massive cinematic city rooftop at night, rain pouring. She sings with intense, anxious questioning, directly to camera, 'Are they coming to take you away?'. The dramatic spotlight rapidly shifts and strobes. A return to cooler, more intense colors, with strong highlights and deep shadows. No subtitles.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778347031980.png"
+    },
+    {
+      "id": "510070",
+      "jobId": "450002",
+      "sceneIndex": "32",
+      "prompt": "Wide shot of Leah on the massive cinematic city rooftop at night, rain and fog swirling around her. She stands defiantly, looking up at the sky, as if confronting the unseen forces. Distant skyline lights are blurred. The dramatic spotlight strobes intensely. Rapid shifts between light and shadow, with strong highlights and deep shadows.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346666324.png"
+    },
+    {
+      "id": "510071",
+      "jobId": "450002",
+      "sceneIndex": "33",
+      "prompt": "Close-up of Leah's face on the massive cinematic city rooftop at night, rain streaking. Her eyes are wide with a mix of fear and defiance, her mouth visible for lip-sync as she repeats 'Are they coming to take you away?'. The dramatic spotlight strobes intensely, creating a sense of urgency. Rapid shifts between light and shadow, with strong highlights. No subtitles.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778347087043.png"
+    },
+    {
+      "id": "510072",
+      "jobId": "450002",
+      "sceneIndex": "34",
+      "prompt": "Long shot of Leah on the massive cinematic city rooftop at night, rain and fog swirling. She turns slowly, looking over her shoulder, as if sensing a presence. The dramatic spotlight flickers, creating a sense of paranoia. Deep blues and grays, with stark whites, emphasizing the anxious, questioning mood.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346699295.png"
+    },
+    {
+      "id": "510073",
+      "jobId": "450002",
+      "sceneIndex": "35",
+      "prompt": "Medium shot of Leah in the final cosmic location. She is silhouetted against the beginning sunrise, a distant glowing star visible. The vast landscape is slowly illuminated. Her expression is one of emotional finality and resilience, looking towards the light. The lighting shifts from deep blues to warm golds, symbolizing hope and transcendence.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346711211.png"
+    },
+    {
+      "id": "510074",
+      "jobId": "450002",
+      "sceneIndex": "36",
+      "prompt": "Extreme wide shot of the final cosmic location. Leah's silhouette stands small against the vast landscape, as the sunrise fully breaks over the horizon, washing the scene in vibrant gold and orange. The distant glowing star is now a beacon of hope. The emotional final frame fades slowly to black, leaving a sense of transcendence.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346727440.png"
+    },
+    {
+      "id": "540001",
+      "jobId": "510025",
+      "sceneIndex": "0",
+      "prompt": "Wide, atmospheric establishing shot of a rain-soaked city rooftop at night. Heavy rain streaks across the frame. Distant city lights blur into amber and gold. Aria stands small in the frame, a solitary silhouette against the dark, vast urban sprawl, her back to the camera, looking out. The mood is melancholic and confined. Cool, desaturated blues and charcoal greys dominate the palette. A sense of quiet despair.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625206994.png"
+    },
+    {
+      "id": "540002",
+      "jobId": "510025",
+      "sceneIndex": "1",
+      "prompt": "Medium shot, slightly Dutch angle, of Aria from a three-quarter back angle on the rain-slicked rooftop. Her long coat billows slightly in a gentle wind, catching the faint, cool blue light. Rain glistens on her shoulders. She slowly turns her head, her expression obscured, as if feeling the 'walls leaning in'. The city lights below are out of focus, creating a bokeh effect. High contrast, low key lighting.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625222441.png"
+    },
+    {
+      "id": "540003",
+      "jobId": "510025",
+      "sceneIndex": "2",
+      "prompt": "Close-up on Aria's hand, rain dripping down her fingers, reaching out as if 'searching for the fading light'. The hand is slightly out of focus in the foreground, with the blurred, glittering lights of the city in the background. The surface of the wet rooftop reflects the cold blue light. Emphasize texture of rain and wet fabric. The atmosphere is somber and searching.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625234037.png"
+    },
+    {
+      "id": "540004",
+      "jobId": "510025",
+      "sceneIndex": "3",
+      "prompt": "Dynamic medium shot of Aria, side profile, on the rooftop. Rain lashes around her. She begins to move with more intensity, her head tilted slightly upwards, as if feeling an internal 'tidal wave of grace' building. The lighting subtly shifts, introducing deeper blues and hints of amber from the city lights becoming more defined. Her coat swirls with her movement.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625245039.png"
+    },
+    {
+      "id": "540005",
+      "jobId": "510025",
+      "sceneIndex": "4",
+      "prompt": "Dramatic low-angle shot of Aria, her face partially obscured by rain and shadow, as she powerfully sings. Her head is thrown back slightly, capturing the raw emotion of 'edges start to break'. The camera is tight enough to capture her mouth for lip-sync, but still emphasizes the dramatic lighting and rain. A subtle shift to more intense, dynamic lighting.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625257337.png"
+    },
+    {
+      "id": "540006",
+      "jobId": "510025",
+      "sceneIndex": "5",
+      "prompt": "Slow-motion shot of Aria, full body, spinning on the rooftop, her long coat dramatically flaring out, rain drops suspended around her. This visualizes 'letting go of every single ghost'. The city lights below are a vibrant, blurred backdrop. The lighting becomes more high-contrast, with strong backlighting creating a powerful silhouette effect as she moves.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625294048.png"
+    },
+    {
+      "id": "540007",
+      "jobId": "510025",
+      "sceneIndex": "6",
+      "prompt": "Hero close-up of Aria, eyes intense and defiant, as she passionately sings 'I am open now, I am standing tall'. Rain streaks down her face, blending with tears or sweat. Her expression is one of powerful release and triumph. Dramatic, high-contrast lighting illuminates her face, with hints of warm light breaking through the cool tones. Focus on her powerful vocal performance.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625306852.png"
+    },
+    {
+      "id": "540008",
+      "jobId": "510025",
+      "sceneIndex": "7",
+      "prompt": "Wide, sweeping crane shot moving upwards, revealing Aria standing tall and defiant on the rain-soaked rooftop, arms outstretched, embracing the 'wreckage of it all'. The city sprawls beneath her, a sea of amber and gold lights. The sky above is dark and dramatic, with a powerful, almost ethereal light breaking through the clouds, as if the 'sky comes down'.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625318883.png"
+    },
+    {
+      "id": "540009",
+      "jobId": "510025",
+      "sceneIndex": "8",
+      "prompt": "Medium shot of Aria, her face now calm and resolute, looking directly into the camera with a knowing, powerful gaze, as if seeing 'the truth behind the lies'. Rain continues to fall gently around her. The lighting remains dramatic but softer, emphasizing her resolved expression. Her coat is still, reflecting a sense of peace and acceptance. Fade to black.",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625331702.png"
+    }
+  ],
+  "messages": [
+    "510059\t450002\t21\tClose-up of Leah's face on the massive cinematic city rooftop at night, rain falling. She sings with a powerful declaration of resilience and hope. Her eyes convey deep emotion as she sings 'For nothing's unstoppable Except a beating heart'. Bright, uplifting light, a strong key light on her, with warmer, more vibrant colors, suggesting determination.  No subtitles.",
+    "\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778347174317.png"
+  ],
+  "stdout": "id\tjobId\tsceneIndex\tprompt\tpreviewImageUrl\n510038\t450002\t0\tWide, sweeping shot of the massive cinematic city rooftop at night, rain pouring down. Distant skyline lights glimmer through the downpour. The atmosphere is vast and desolate. A single dramatic spotlight cuts through the rain, illuminating an empty space, anticipating a performance. Deep blues and grays dominate the palette, with stark whites from city lights.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346291060.png\n510039\t450002\t1\tMedium shot of Leah on the massive cinematic city rooftop at night, rain soaking her. She stands under a dramatic spotlight, looking directly into the camera with a vulnerable yet powerful expression. Rain streaks across the lens. The mood is somber and observational. Muted purples and deep blues create a cool, melancholic tone.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346301607.png\n510040\t450002\t2\tSlow-motion shot of Mechanical Figure 1 walking down an endless brutalist concrete corridor. Flickering lights cast long, distorted shadows. The camera is low, emphasizing the repetitive perspective lines, creating a sense of surveillance and psychological control. The figure moves with unsettling stiffness. Desaturated, cool tones with stark contrasts.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346312206.png\n510041\t450002\t3\tClose-up of Leah's face on the massive cinematic city rooftop at night. Rain drips from her hair as she sings expressively, eyes filled with a quiet desperation. The dramatic spotlight highlights her features, casting deep shadows. Her mouth is clearly visible for lip-sync. The lighting is soft, diffused, with cool, desaturated tones.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346332926.png\n510042\t450002\t4\tWide shot of a sunlit open field. Dancing Figure 1 moves slowly and gracefully, bathed in overexposed warm sunlight. The atmosphere is dreamlike, beautiful but unsettling. The camera slowly tracks her, emphasizing the ethereal quality. Golden hues and soft whites dominate, creating a sense of distance and longing.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346394326.png\n510043\t450002\t5\tAn empty urban street at night, wet and reflective from recent rain. Neon reflections shimmer on the puddles. Drifting smoke adds to the lonely, abandoned city feeling. The camera slowly pans across the street, emphasizing the vast emptiness. Deep blues, purples, and vibrant neon colors create a sense of isolation and emotional confusion.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346350686.png\n510044\t450002\t6\tPOV shot from an underground tunnel/train platform, looking down the repeating perspective lines. Cinematic industrial lighting creates stark shadows. Shadows of unseen figures move in the distance, enhancing the tension and paranoia. The environment feels oppressive and foreboding. Grays, blacks, and harsh yellow industrial lights.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346362430.png\n510045\t450002\t7\tMedium shot of Leah on the massive cinematic city rooftop at night, rain falling. She sings with a somber, observational lament, her gaze distant. The dramatic spotlight subtly backlights her, creating a soft glow. Soft, diffused light with desaturated, cool tones, almost ritualistic, as she 'Pray(s) for the souls that dance in the sun'.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346376487.png\n510046\t450002\t8\tWide shot of the sunlit open field. Dancing Figure 1 moves slowly, almost ethereally, amidst other indistinct figures. The overexposed warm sunlight creates a dreamlike, hazy atmosphere. The 'souls that dance in the sun' are visually represented by these figures. Soft, backlighting, with golden hues, emphasizing distance and a sense of loss.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346385398.png\n510047\t450002\t9\tClose-up of Leah on the massive cinematic city rooftop at night, rain streaking her face. She sings with a profound sense of lament, her eyes conveying the weight of the 'lungs that live life by the hand'. The dramatic spotlight emphasizes her emotional depth. Her mouth is visible for lip-sync. Muted purples and deep blues with soft, cool lighting.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346395794.png\n510048\t450002\t10\tSlow-motion tracking shot of Mechanical Figure 2 walking through endless brutalist concrete corridors. Flickering lights create unsettling patterns on the concrete. Her movements are rigid, reflecting 'the lost that dance in the sun' in a controlled, mechanical way. The camera emphasizes the surveillance feeling. Desaturated, cool tones with stark contrasts.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346404499.png\n510049\t450002\t11\tLong shot of Leah standing alone on the massive cinematic city rooftop at night, rain falling. She looks out over the distant skyline, her silhouette stark against the city lights. An ethereal vocalization begins, building unease. Subtle pulsing light, perhaps from an unknown source, creates shifting shadows. Slightly warmer, but still muted tones.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346414211.png\n510050\t450002\t12\tTracking shot through an empty urban street at night, wet and reflective. Neon reflections stretch and distort. Drifting smoke swirls around, creating a mysterious, transitional atmosphere. The camera moves slowly, emphasizing the unease and mystery. Subtle pulsing light, with muted purples and deep blues, hinting at an unknown source.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346426816.png\n510051\t450002\t13\tClose-up of Leah's face on the massive cinematic city rooftop at night, rain streaking. Her expression shifts to one of growing unease and mystery, a subtle hint of fear. The dramatic spotlight pulses faintly. Her mouth is visible for lip-sync, as she sings 'I'm sorry'. Slightly warmer, but still muted lighting, creating long, shifting shadows.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346629994.png\n510052\t450002\t14\tMedium shot of Leah on the massive cinematic city rooftop at night, rain pouring. She sings directly to camera with a newfound urgency and defiance. The dramatic spotlight becomes harsher, more directional, creating stark contrasts. Increased saturation, with hints of red and orange, signifying alarm as she sings 'So let them take you away'.  No subtitles\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346672472.png\n510053\t450002\t15\tWide stage shot in the massive dark performance space. Leah stands center, bathed in cinematic stage lighting and fog. She sings with maximum energy, her voice a defiant warning. Huge shadows stretch behind her. The lighting is harsh and directional, with strong contrasts, hints of red and orange, reflecting 'Don't let them take you away'.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346469882.png\n510054\t450002\t16\tClose-up of Leah's face in the massive dark performance space, singing with intense defiance. Her eyes convey a fierce resolve against being 'confuse, abuse'. Cinematic stage lighting creates stark highlights and deep shadows. Her mouth is visible for lip-sync. Harsher, directional light, increased saturation, with fiery oranges/reds.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346483425.png\n510055\t450002\t17\tMedium shot of Mechanical Figure 3 in a brutalist concrete corridor, moving with puppet-like stiffness. A flickering light source creates a sense of unease and control. The camera focuses on his blank expression, representing 'all that you've given away'. Desaturated, cool tones with stark contrasts, emphasizing the psychological control.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346492356.png\n510056\t450002\t18\tMedium shot of Leah on the massive cinematic city rooftop at night, rain falling. She is singing with a somber, reflective tone, looking out at the distant skyline. The dramatic spotlight is softer, diffused, creating a moment of quiet contemplation before the next verse. Muted purples and deep blues with cool tones.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346503393.png\n510057\t450002\t19\tClose-up of Leah's face on the massive cinematic city rooftop at night, rain streaking. She sings with a determined expression, emphasizing 'save your voice'. The dramatic spotlight is focused, highlighting her resolve. Her mouth is visible for lip-sync. Harsher, directional light, with increased saturation, hinting at inner strength.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346617807.png\n510058\t450002\t20\tTracking shot of Leah walking with purpose through empty urban streets at night, wet and reflective. Neon reflections stretch and distort around her. Drifting smoke swirls. Her gaze is fixed forward, embodying 'stay on course and never look behind'. Deep blues and purples, with neon highlights, symbolizing isolation and determination.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346526744.png\n510059\t450002\t21\tClose-up of Leah's face on the massive cinematic city rooftop at night, rain falling. She sings with a powerful declaration of resilience and hope. Her eyes convey deep emotion as she sings 'For nothing's unstoppable Except a beating heart'. Bright, uplifting light, a strong key light on her, with warmer, more vibrant colors, suggesting determination.  No subtitles.\n\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778347174317.png\n510060\t450002\t22\tWide shot of Leah silhouetted against a distant glowing star in the final cosmic location. A vast, desolate landscape surrounds her. The sunrise is just beginning, casting a warm, golden light. This represents 'Beyond that distant star'. Bright, uplifting light, with vibrant gold and fiery oranges/reds, symbolizing spiritual awakening and strength.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346550770.png\n510061\t450002\t23\tMedium shot of Leah in the massive dark performance space. She sings with powerful assertion, her expression defiant. Cinematic stage lighting and fog create a dramatic atmosphere. Huge shadows dance behind her. The lighting is harsh and directional, with strong contrasts and hints of red/orange, leading into 'So let them take you away'.  No subtitles.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346964481.png\n510062\t450002\t24\tWide stage shot in the massive dark performance space. Leah stands center, bathed in cinematic stage lighting and fog, singing with maximum energy. Huge shadows stretch dramatically. The lighting is harsh and directional, with strong contrasts, hints of red and orange, reflecting the defiance of the chorus.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346577089.png\n510063\t450002\t25\tClose-up of Leah's face in the massive dark performance space, singing with intense defiance. Her eyes convey a fierce resolve against being 'confuse, abuse'. Cinematic stage lighting creates stark highlights and deep shadows. Her mouth is visible for lip-sync. Harsher, directional light, increased saturation, with fiery oranges/reds.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346589089.png\n510064\t450002\t26\tMedium shot of Mechanical Figure 1 in a brutalist concrete corridor, moving with unsettling stiffness. Flickering lights create a sense of surveillance. The camera focuses on his vacant stare, representing the loss of self, 'all that you've given away'. Desaturated, cool tones with stark contrasts, emphasizing psychological control.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346597204.png\n510065\t450002\t27\tWide shot of Leah on the massive cinematic city rooftop at night, rain pouring. She sings with a powerful, emotional intensity. The dramatic spotlight pulses, creating a sense of unease and anticipation for the breakdown. Muted purples and deep blues with cool tones, preparing for an intense shift.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346609410.png\n510066\t450002\t28\tLong shot of Mechanical Figure 2 and Mechanical Figure 3 walking slowly in unison down an endless brutalist concrete corridor. Flickering lights create long, shifting shadows, enhancing the surveillance feeling. Their silhouettes are stark against the cold concrete. Desaturated, cool tones with stark contrasts, emphasizing fear and control.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346618996.png\n510067\t450002\t29\tClose-up of Leah's face on the massive cinematic city rooftop at night, rain streaking. Her expression is anxious, questioning, but with an underlying defiance. The dramatic spotlight rapidly shifts between light and shadow, almost strobing. Her mouth is visible for lip-sync. Rapid shifts between cool, intense colors and deep shadows.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346629705.png\n510068\t450002\t30\tPOV shot from an underground tunnel/train platform. The perspective lines stretch into the distance. Shadows of unseen figures move rapidly and erratically, creating intense paranoia. Cinematic industrial lighting flickers rapidly. Rapid shifts between light and shadow, with strong highlights and deep shadows, reflecting the anxious questioning.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346640689.png\n510069\t450002\t31\tMedium shot of Leah on the massive cinematic city rooftop at night, rain pouring. She sings with intense, anxious questioning, directly to camera, 'Are they coming to take you away?'. The dramatic spotlight rapidly shifts and strobes. A return to cooler, more intense colors, with strong highlights and deep shadows. No subtitles.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778347031980.png\n510070\t450002\t32\tWide shot of Leah on the massive cinematic city rooftop at night, rain and fog swirling around her. She stands defiantly, looking up at the sky, as if confronting the unseen forces. Distant skyline lights are blurred. The dramatic spotlight strobes intensely. Rapid shifts between light and shadow, with strong highlights and deep shadows.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346666324.png\n510071\t450002\t33\tClose-up of Leah's face on the massive cinematic city rooftop at night, rain streaking. Her eyes are wide with a mix of fear and defiance, her mouth visible for lip-sync as she repeats 'Are they coming to take you away?'. The dramatic spotlight strobes intensely, creating a sense of urgency. Rapid shifts between light and shadow, with strong highlights. No subtitles.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778347087043.png\n510072\t450002\t34\tLong shot of Leah on the massive cinematic city rooftop at night, rain and fog swirling. She turns slowly, looking over her shoulder, as if sensing a presence. The dramatic spotlight flickers, creating a sense of paranoia. Deep blues and grays, with stark whites, emphasizing the anxious, questioning mood.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346699295.png\n510073\t450002\t35\tMedium shot of Leah in the final cosmic location. She is silhouetted against the beginning sunrise, a distant glowing star visible. The vast landscape is slowly illuminated. Her expression is one of emotional finality and resilience, looking towards the light. The lighting shifts from deep blues to warm golds, symbolizing hope and transcendence.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346711211.png\n510074\t450002\t36\tExtreme wide shot of the final cosmic location. Leah's silhouette stands small against the vast landscape, as the sunrise fully breaks over the horizon, washing the scene in vibrant gold and orange. The distant glowing star is now a beacon of hope. The emotional final frame fades slowly to black, leaving a sense of transcendence.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778346727440.png\n540001\t510025\t0\tWide, atmospheric establishing shot of a rain-soaked city rooftop at night. Heavy rain streaks across the frame. Distant city lights blur into amber and gold. Aria stands small in the frame, a solitary silhouette against the dark, vast urban sprawl, her back to the camera, looking out. The mood is melancholic and confined. Cool, desaturated blues and charcoal greys dominate the palette. A sense of quiet despair.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625206994.png\n540002\t510025\t1\tMedium shot, slightly Dutch angle, of Aria from a three-quarter back angle on the rain-slicked rooftop. Her long coat billows slightly in a gentle wind, catching the faint, cool blue light. Rain glistens on her shoulders. She slowly turns her head, her expression obscured, as if feeling the 'walls leaning in'. The city lights below are out of focus, creating a bokeh effect. High contrast, low key lighting.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625222441.png\n540003\t510025\t2\tClose-up on Aria's hand, rain dripping down her fingers, reaching out as if 'searching for the fading light'. The hand is slightly out of focus in the foreground, with the blurred, glittering lights of the city in the background. The surface of the wet rooftop reflects the cold blue light. Emphasize texture of rain and wet fabric. The atmosphere is somber and searching.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625234037.png\n540004\t510025\t3\tDynamic medium shot of Aria, side profile, on the rooftop. Rain lashes around her. She begins to move with more intensity, her head tilted slightly upwards, as if feeling an internal 'tidal wave of grace' building. The lighting subtly shifts, introducing deeper blues and hints of amber from the city lights becoming more defined. Her coat swirls with her movement.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625245039.png\n540005\t510025\t4\tDramatic low-angle shot of Aria, her face partially obscured by rain and shadow, as she powerfully sings. Her head is thrown back slightly, capturing the raw emotion of 'edges start to break'. The camera is tight enough to capture her mouth for lip-sync, but still emphasizes the dramatic lighting and rain. A subtle shift to more intense, dynamic lighting.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625257337.png\n540006\t510025\t5\tSlow-motion shot of Aria, full body, spinning on the rooftop, her long coat dramatically flaring out, rain drops suspended around her. This visualizes 'letting go of every single ghost'. The city lights below are a vibrant, blurred backdrop. The lighting becomes more high-contrast, with strong backlighting creating a powerful silhouette effect as she moves.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625294048.png\n540007\t510025\t6\tHero close-up of Aria, eyes intense and defiant, as she passionately sings 'I am open now, I am standing tall'. Rain streaks down her face, blending with tears or sweat. Her expression is one of powerful release and triumph. Dramatic, high-contrast lighting illuminates her face, with hints of warm light breaking through the cool tones. Focus on her powerful vocal performance.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625306852.png\n540008\t510025\t7\tWide, sweeping crane shot moving upwards, revealing Aria standing tall and defiant on the rain-soaked rooftop, arms outstretched, embracing the 'wreckage of it all'. The city sprawls beneath her, a sea of amber and gold lights. The sky above is dark and dramatic, with a powerful, almost ethereal light breaking through the clouds, as if the 'sky comes down'.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625318883.png\n540009\t510025\t8\tMedium shot of Aria, her face now calm and resolute, looking directly into the camera with a knowing, powerful gaze, as if seeing 'the truth behind the lies'. Rain continues to fall gently around her. The lighting remains dramatic but softer, emphasizing her resolved expression. Her coat is still, reflecting a sense of peace and acceptance. Fade to black.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625331702.png\n",
+  "stderr": "",
+  "execution_time_ms": 609
+}

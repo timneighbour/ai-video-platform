@@ -23,6 +23,7 @@ import {
 import { deductCredits, getUserCredits, refundCredits } from "../credit-service";
 import { transcribeAudio } from "../_core/voiceTranscription";
 import { generateImage } from "../_core/imageGeneration";
+import { generateFaceConsistentImage } from "../_core/fluxPuLID";
 
 import { validateSceneFaceConsistency, validateFaceConsistency, ensureReferencePhotoBase64, type CharacterLockData } from "../character-lock";
 import { getUserSubscription, mapDbPlanToProductPlan, countVideosThisMonth } from "../db";
@@ -2445,12 +2446,50 @@ Rules:
           console.log(`[generateScenePreview] Scene ${input.sceneId}: selected variation with face score ${finalFaceScore?.toFixed(1) ?? "N/A"} after ${attemptCount} attempt(s)`);
           console.log(`[generateScenePreview] Forge success for scene ${input.sceneId}: ${url}`);
         } else {
-          // For scenes without character photos (AI-invented characters), use generic image generation
-          const { url: genericUrl } = await withQuotaGuard(() => generateImage({
-            prompt: finalImagePrompt,
-            originalImages: referenceImages.length > 0 ? referenceImages : undefined,
-          }));
-          url = genericUrl;
+          // ── AI-Described Character Path: Flux PuLID Face Lock ────────────────
+          // If the character has a masterPortraitUrl (AI-generated portrait), use Flux PuLID
+          // to generate every storyboard frame with the SAME face locked in.
+          // This eliminates character drift for AI-described characters (no uploaded photos).
+          // Falls back to generic generation if Flux PuLID fails or no portrait exists.
+          const aiPortraitUrl = masterPortraitUrl; // already resolved above (masterPortraitUrl ?? previewImageUrl)
+          if (aiPortraitUrl && process.env.FAL_AI_API_KEY) {
+            console.log(`[generateScenePreview] Scene ${input.sceneId}: AI character with portrait — using Flux PuLID face lock`);
+            console.log(`[generateScenePreview] Portrait reference: ${aiPortraitUrl.slice(0, 80)}...`);
+            try {
+              const pulidResult = await generateFaceConsistentImage({
+                prompt: finalImagePrompt,
+                referenceImageUrl: aiPortraitUrl,
+                idWeight: 1.2,           // Strong face preservation without ignoring scene prompt
+                guidanceScale: 5,        // Slightly above default for better scene adherence
+                imageSize: "landscape_16_9", // Widescreen for music video storyboards
+                numInferenceSteps: 25,   // Slightly above default for better quality
+                negativePrompt: [
+                  "different person", "different face", "different hair colour", "different eye colour",
+                  "inconsistent character", "face swap", "multiple people", "blurry face",
+                  "distorted face", "low quality", "watermark", "text", "logo",
+                ].join(", "),
+              });
+              url = pulidResult.url;
+              console.log(`[generateScenePreview] Flux PuLID success for scene ${input.sceneId}: ${url?.slice(0, 80)}...`);
+            } catch (pulidErr) {
+              const pulidMsg = pulidErr instanceof Error ? pulidErr.message : String(pulidErr);
+              console.warn(`[generateScenePreview] Flux PuLID failed for scene ${input.sceneId}, falling back to generic: ${pulidMsg}`);
+              const { url: genericUrl } = await withQuotaGuard(() => generateImage({
+                prompt: finalImagePrompt,
+                originalImages: referenceImages.length > 0 ? referenceImages : undefined,
+              }));
+              url = genericUrl;
+            }
+          } else {
+            // No portrait available or no FAL_AI_API_KEY — generic generation
+            if (!aiPortraitUrl) console.warn(`[generateScenePreview] Scene ${input.sceneId}: AI character has no portrait — face will not be locked`);
+            if (!process.env.FAL_AI_API_KEY) console.warn(`[generateScenePreview] Scene ${input.sceneId}: FAL_AI_API_KEY not set — cannot use Flux PuLID`);
+            const { url: genericUrl } = await withQuotaGuard(() => generateImage({
+              prompt: finalImagePrompt,
+              originalImages: referenceImages.length > 0 ? referenceImages : undefined,
+            }));
+            url = genericUrl;
+          }
         }
 
         // ── OUTFIT AUTO-RETRY ─────────────────────────────────────────────────────

@@ -80,13 +80,17 @@ describe("Face-Consistent Image Generation Pipeline", () => {
     expect(content).toContain("console.warn");
   });
 
-  it("should validate that AI-invented characters still use generic image generation", async () => {
+  it("should validate that AI-described characters use Flux PuLID face lock with generic fallback", async () => {
     const fs = await import("fs");
     const path = await import("path");
     const routerPath = path.join(process.cwd(), "server/routers/musicVideo.ts");
     const content = fs.readFileSync(routerPath, "utf-8");
 
-    expect(content).toContain("For scenes without character photos (AI-invented characters), use generic image generation");
+    // V3: AI-described characters now use Flux PuLID when masterPortraitUrl is available
+    // Falls back to generic generateImage if Flux PuLID fails or no portrait exists
+    expect(content).toContain("AI-Described Character Path: Flux PuLID Face Lock");
+    expect(content).toContain("generateFaceConsistentImage");
+    expect(content).toContain("Flux PuLID failed for scene");
     expect(content).toContain("generateImage");
   });
 

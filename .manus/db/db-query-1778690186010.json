@@ -1,0 +1,70 @@
+{
+  "query": "\nSELECT id, title, status, createdAt\nFROM musicVideoJobs\nORDER BY createdAt DESC\nLIMIT 10;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, title, status, createdAt\nFROM musicVideoJobs\nORDER BY createdAt DESC\nLIMIT 10;\n",
+  "rows": [
+    {
+      "id": "510025",
+      "title": "Aria Showcase",
+      "status": "rendering",
+      "createdAt": "2026-05-12 22:32:41"
+    },
+    {
+      "id": "450002",
+      "title": "Unstoppable",
+      "status": "completed",
+      "createdAt": "2026-05-09 17:03:23"
+    },
+    {
+      "id": "450001",
+      "title": "Unstoppable",
+      "status": "storyboard_ready",
+      "createdAt": "2026-05-09 15:55:08"
+    },
+    {
+      "id": "420003",
+      "title": "Unstoppable",
+      "status": "draft",
+      "createdAt": "2026-05-07 00:36:57"
+    },
+    {
+      "id": "420002",
+      "title": "Unstoppable",
+      "status": "draft",
+      "createdAt": "2026-05-07 00:35:52"
+    },
+    {
+      "id": "420001",
+      "title": "Unstoppable",
+      "status": "draft",
+      "createdAt": "2026-05-07 00:34:47"
+    },
+    {
+      "id": "390001",
+      "title": "Unstoppable",
+      "status": "completed",
+      "createdAt": "2026-05-01 13:06:55"
+    },
+    {
+      "id": "360001",
+      "title": "WIZ AI Music Video Test",
+      "status": "failed",
+      "createdAt": "2026-04-19 20:32:01"
+    },
+    {
+      "id": "330001",
+      "title": "Ordinary",
+      "status": "failed",
+      "createdAt": "2026-04-14 14:21:08"
+    },
+    {
+      "id": "300002",
+      "title": "Dreamer",
+      "status": "storyboard_ready",
+      "createdAt": "2026-04-14 09:34:15"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tstatus\tcreatedAt\n510025\tAria Showcase\trendering\t2026-05-12 22:32:41\n450002\tUnstoppable\tcompleted\t2026-05-09 17:03:23\n450001\tUnstoppable\tstoryboard_ready\t2026-05-09 15:55:08\n420003\tUnstoppable\tdraft\t2026-05-07 00:36:57\n420002\tUnstoppable\tdraft\t2026-05-07 00:35:52\n420001\tUnstoppable\tdraft\t2026-05-07 00:34:47\n390001\tUnstoppable\tcompleted\t2026-05-01 13:06:55\n360001\tWIZ AI Music Video Test\tfailed\t2026-04-19 20:32:01\n330001\tOrdinary\tfailed\t2026-04-14 14:21:08\n300002\tDreamer\tstoryboard_ready\t2026-04-14 09:34:15\n",
+  "stderr": "",
+  "execution_time_ms": 591
+}
