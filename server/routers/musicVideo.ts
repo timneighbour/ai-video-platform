@@ -3391,10 +3391,24 @@ Rules:
       }
 
       // Store preview URL in DB (reset approval status)
+      // CRITICAL FIX: For AI-described characters (no uploaded photos), the preview image IS the
+      // identity anchor. Write it to masterPortraitUrl so Character Lock™ has a face reference
+      // to inject into WaveSpeed. Without this, masterPortraitUrl stays NULL and WaveSpeed
+      // generates a different character in every scene.
+      const isAiDescribedCharacter = photos.length === 0;
       await db.update(videoCharacters)
-        .set({ previewImageUrl: imageUrl, previewApproved: false, updatedAt: new Date() })
+        .set({
+          previewImageUrl: imageUrl,
+          previewApproved: false,
+          // For AI characters: set masterPortraitUrl immediately so Character Lock™ works
+          ...(isAiDescribedCharacter ? { masterPortraitUrl: imageUrl } : {}),
+          updatedAt: new Date(),
+        })
         .where(eq(videoCharacters.id, input.characterId));
 
+      if (isAiDescribedCharacter) {
+        console.log(`[previewCharacter] AI character ${char.name}: masterPortraitUrl set to preview image for Character Lock™`);
+      }
       console.log(`[previewCharacter] Generated preview for ${char.name}: ${imageUrl}`);
       return { imageUrl, characterId: input.characterId, characterName: char.name };
     }),
@@ -3417,10 +3431,23 @@ Rules:
         ));
       if (!char) throw new TRPCError({ code: "NOT_FOUND" });
 
+      // CRITICAL FIX: On approval, if this is an AI-described character (no photos),
+      // ensure masterPortraitUrl is set to the approved previewImageUrl.
+      // This is the definitive identity anchor for Character Lock™ in WaveSpeed.
+      const photos = await db.select().from(videoCharacterPhotos)
+        .where(eq(videoCharacterPhotos.characterId, input.characterId));
+      const isAiDescribedCharacter = photos.length === 0;
+      const masterPortraitFix = isAiDescribedCharacter && char.previewImageUrl && !char.masterPortraitUrl
+        ? { masterPortraitUrl: char.previewImageUrl }
+        : {};
+
       await db.update(videoCharacters)
-        .set({ previewApproved: true, updatedAt: new Date() })
+        .set({ previewApproved: true, ...masterPortraitFix, updatedAt: new Date() })
         .where(eq(videoCharacters.id, input.characterId));
 
+      if (isAiDescribedCharacter && masterPortraitFix.masterPortraitUrl) {
+        console.log(`[approveCharacterPreview] AI character ${char.name}: masterPortraitUrl locked from approved preview for Character Lock™`);
+      }
       return { success: true };
     }),
 

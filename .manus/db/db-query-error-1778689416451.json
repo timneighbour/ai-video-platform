@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT \n  vc.id, vc.name, vc.role, vc.isLocked, \n  vc.masterPortraitUrl, vc.previewImageUrl, vc.faceVideoUrl,\n  vc.enableLipSync, vc.description\nFROM video_characters vc\nWHERE vc.jobId = 510025\nORDER BY vc.id;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT \n  vc.id, vc.name, vc.role, vc.isLocked, \n  vc.masterPortraitUrl, vc.previewImageUrl, vc.faceVideoUrl,\n  vc.enableLipSync, vc.description\nFROM video_characters vc\nWHERE vc.jobId = 510025\nORDER BY vc.id;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 2: Table 'aljhdnsuna7bexfuoqzusx.video_characters' doesn't exist"
+  ]
+}

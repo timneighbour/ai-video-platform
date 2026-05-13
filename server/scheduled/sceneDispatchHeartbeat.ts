@@ -129,10 +129,12 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               `[SceneDispatch] Dispatching scene ${scene.id} (index ${scene.sceneIndex}) for job ${job.id} — provider: ${job.fallbackProvider ?? "atlas_cloud"}`
             );
 
-            // ── CHARACTER LOCK™: Resolve per-scene portrait URL ─────────────────────────────
+            // ── CHARACTER LOCK™: Resolve per-scene portrait URL + description anchor ────────
             // Priority: masterPortraitUrl > previewImageUrl > job.characterImageUrl
-            // This is fetched per-scene to honour characterAssignments.
+            // Also resolves lockedDescription for text-based identity anchoring in the prompt.
             let resolvedCharacterUrl: string | undefined = job.characterImageUrl ?? undefined;
+            let resolvedCharacterDescription: string | undefined = undefined;
+            let resolvedCharacterName: string | undefined = undefined;
             try {
               const { videoCharacters } = await import("../../drizzle/schema");
               const { eq: eqChar } = await import("drizzle-orm");
@@ -146,10 +148,28 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 const bestChar = matchedChar ?? jobChars.find(c => c.masterPortraitUrl) ?? jobChars.find(c => c.previewImageUrl) ?? jobChars[0];
                 if (bestChar) {
                   resolvedCharacterUrl = bestChar.masterPortraitUrl ?? bestChar.previewImageUrl ?? resolvedCharacterUrl;
+                  resolvedCharacterDescription = bestChar.lockedDescription?.trim() ?? undefined;
+                  resolvedCharacterName = bestChar.name ?? undefined;
                 }
               }
             } catch (charErr) {
               console.warn(`[SceneDispatch] Character portrait resolution failed for scene ${scene.id}:`, charErr);
+            }
+
+            // ── TEXT ANCHOR: Prepend character identity to prompt for AI-described characters ──
+            // When masterPortraitUrl was previously NULL (AI character, no photos), the image
+            // reference alone was insufficient — WaveSpeed drifted to different faces each scene.
+            // Adding the character's locked description as a text prefix reinforces identity.
+            let scenePrompt = scene.prompt ?? "";
+            if (resolvedCharacterDescription && resolvedCharacterName) {
+              const charAnchor = `${resolvedCharacterName}: ${resolvedCharacterDescription.slice(0, 150)}. `;
+              const MAX_TOTAL = 480;
+              const remainingChars = MAX_TOTAL - charAnchor.length;
+              const trimmedScene = scenePrompt.length > remainingChars
+                ? scenePrompt.slice(0, remainingChars).replace(/[,;.\s]+$/, "") + "."
+                : scenePrompt;
+              scenePrompt = charAnchor + trimmedScene;
+              console.log(`[SceneDispatch] Scene ${scene.id} TEXT ANCHOR injected for ${resolvedCharacterName} (${charAnchor.length} chars)`);
             }
 
             if (resolvedCharacterUrl) {
@@ -160,7 +180,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
 
             const taskId = await startSceneRender(
               scene.id,
-              scene.prompt ?? "",
+              scenePrompt, // ── TEXT ANCHOR: character description prepended for AI characters
               scene.duration ?? 5,
               scene.lipSync ?? true,
               (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",

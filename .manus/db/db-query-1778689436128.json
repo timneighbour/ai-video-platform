@@ -1,0 +1,20 @@
+{
+  "query": "\nSELECT id, name, role, isLocked, masterPortraitUrl, previewImageUrl, faceVideoUrl, enableLipSync\nFROM videoCharacters\nWHERE jobId = 510025\nORDER BY id;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, name, role, isLocked, masterPortraitUrl, previewImageUrl, faceVideoUrl, enableLipSync\nFROM videoCharacters\nWHERE jobId = 510025\nORDER BY id;\n",
+  "rows": [
+    {
+      "id": "390001",
+      "name": "Aria",
+      "role": "Lead Vocalist",
+      "isLocked": "1",
+      "masterPortraitUrl": "NULL",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778624573673.png",
+      "faceVideoUrl": "NULL",
+      "enableLipSync": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\trole\tisLocked\tmasterPortraitUrl\tpreviewImageUrl\tfaceVideoUrl\tenableLipSync\n390001\tAria\tLead Vocalist\t1\tNULL\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778624573673.png\tNULL\t1\n",
+  "stderr": "",
+  "execution_time_ms": 645
+}

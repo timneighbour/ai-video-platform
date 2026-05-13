@@ -1,0 +1,100 @@
+{
+  "query": "\nSELECT id, sceneIndex, mvSceneStatus, previewImageUrl, lipSync, lipSyncStyle,\n       LEFT(prompt, 120) as prompt_preview, errorMessage\nFROM musicVideoScenes\nWHERE jobId = 510025\nORDER BY sceneIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, sceneIndex, mvSceneStatus, previewImageUrl, lipSync, lipSyncStyle,\n       LEFT(prompt, 120) as prompt_preview, errorMessage\nFROM musicVideoScenes\nWHERE jobId = 510025\nORDER BY sceneIndex;\n",
+  "rows": [
+    {
+      "id": "540001",
+      "sceneIndex": "0",
+      "mvSceneStatus": "completed",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625206994.png",
+      "lipSync": "1",
+      "lipSyncStyle": "natural",
+      "prompt_preview": "Wide, atmospheric establishing shot of a rain-soaked city rooftop at night. Heavy rain streaks across the frame. Distant",
+      "errorMessage": "NULL"
+    },
+    {
+      "id": "540002",
+      "sceneIndex": "1",
+      "mvSceneStatus": "completed",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625222441.png",
+      "lipSync": "1",
+      "lipSyncStyle": "natural",
+      "prompt_preview": "Medium shot, slightly Dutch angle, of Aria from a three-quarter back angle on the rain-slicked rooftop. Her long coat bi",
+      "errorMessage": "NULL"
+    },
+    {
+      "id": "540003",
+      "sceneIndex": "2",
+      "mvSceneStatus": "completed",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625234037.png",
+      "lipSync": "1",
+      "lipSyncStyle": "natural",
+      "prompt_preview": "Close-up on Aria's hand, rain dripping down her fingers, reaching out as if 'searching for the fading light'. The hand i",
+      "errorMessage": "NULL"
+    },
+    {
+      "id": "540004",
+      "sceneIndex": "3",
+      "mvSceneStatus": "completed",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625245039.png",
+      "lipSync": "1",
+      "lipSyncStyle": "natural",
+      "prompt_preview": "Dynamic medium shot of Aria, side profile, on the rooftop. Rain lashes around her. She begins to move with more intensit",
+      "errorMessage": "NULL"
+    },
+    {
+      "id": "540005",
+      "sceneIndex": "4",
+      "mvSceneStatus": "completed",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625257337.png",
+      "lipSync": "1",
+      "lipSyncStyle": "natural",
+      "prompt_preview": "Dramatic low-angle shot of Aria, her face partially obscured by rain and shadow, as she powerfully sings. Her head is th",
+      "errorMessage": "NULL"
+    },
+    {
+      "id": "540006",
+      "sceneIndex": "5",
+      "mvSceneStatus": "completed",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625294048.png",
+      "lipSync": "1",
+      "lipSyncStyle": "natural",
+      "prompt_preview": "Slow-motion shot of Aria, full body, spinning on the rooftop, her long coat dramatically flaring out, rain drops suspend",
+      "errorMessage": "NULL"
+    },
+    {
+      "id": "540007",
+      "sceneIndex": "6",
+      "mvSceneStatus": "completed",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625306852.png",
+      "lipSync": "1",
+      "lipSyncStyle": "natural",
+      "prompt_preview": "Hero close-up of Aria, eyes intense and defiant, as she passionately sings 'I am open now, I am standing tall'. Rain str",
+      "errorMessage": "NULL"
+    },
+    {
+      "id": "540008",
+      "sceneIndex": "7",
+      "mvSceneStatus": "completed",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625318883.png",
+      "lipSync": "1",
+      "lipSyncStyle": "natural",
+      "prompt_preview": "Wide, sweeping crane shot moving upwards, revealing Aria standing tall and defiant on the rain-soaked rooftop, arms outs",
+      "errorMessage": "NULL"
+    },
+    {
+      "id": "540009",
+      "sceneIndex": "8",
+      "mvSceneStatus": "completed",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625331702.png",
+      "lipSync": "1",
+      "lipSyncStyle": "natural",
+      "prompt_preview": "Medium shot of Aria, her face now calm and resolute, looking directly into the camera with a knowing, powerful gaze, as ",
+      "errorMessage": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsceneIndex\tmvSceneStatus\tpreviewImageUrl\tlipSync\tlipSyncStyle\tprompt_preview\terrorMessage\n540001\t0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625206994.png\t1\tnatural\tWide, atmospheric establishing shot of a rain-soaked city rooftop at night. Heavy rain streaks across the frame. Distant\tNULL\n540002\t1\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625222441.png\t1\tnatural\tMedium shot, slightly Dutch angle, of Aria from a three-quarter back angle on the rain-slicked rooftop. Her long coat bi\tNULL\n540003\t2\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625234037.png\t1\tnatural\tClose-up on Aria's hand, rain dripping down her fingers, reaching out as if 'searching for the fading light'. The hand i\tNULL\n540004\t3\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625245039.png\t1\tnatural\tDynamic medium shot of Aria, side profile, on the rooftop. Rain lashes around her. She begins to move with more intensit\tNULL\n540005\t4\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625257337.png\t1\tnatural\tDramatic low-angle shot of Aria, her face partially obscured by rain and shadow, as she powerfully sings. Her head is th\tNULL\n540006\t5\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625294048.png\t1\tnatural\tSlow-motion shot of Aria, full body, spinning on the rooftop, her long coat dramatically flaring out, rain drops suspend\tNULL\n540007\t6\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625306852.png\t1\tnatural\tHero close-up of Aria, eyes intense and defiant, as she passionately sings 'I am open now, I am standing tall'. Rain str\tNULL\n540008\t7\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625318883.png\t1\tnatural\tWide, sweeping crane shot moving upwards, revealing Aria standing tall and defiant on the rain-soaked rooftop, arms outs\tNULL\n540009\t8\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778625331702.png\t1\tnatural\tMedium shot of Aria, her face now calm and resolute, looking directly into the camera with a knowing, powerful gaze, as \tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 597
+}

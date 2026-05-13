@@ -1,0 +1,298 @@
+{
+  "query": "DESCRIBE musicVideoScenes;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute DESCRIBE musicVideoScenes;",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "jobId",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "sceneIndex",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "startTime",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "duration",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "prompt",
+      "Type": "text",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "visualStyle",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "mvSceneStatus",
+      "Type": "enum('pending','generating','completed','failed')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "pending",
+      "Extra": ""
+    },
+    {
+      "Field": "taskId",
+      "Type": "varchar(255)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "videoUrl",
+      "Type": "varchar(1024)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "videoKey",
+      "Type": "varchar(512)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "errorMessage",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "createdAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "updatedAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+    },
+    {
+      "Field": "lyrics",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "previewImageUrl",
+      "Type": "varchar(1024)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "previewImageKey",
+      "Type": "varchar(512)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "lipSync",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "lipSyncStyle",
+      "Type": "enum('natural','expressive','subtle','dramatic','anime')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "natural",
+      "Extra": ""
+    },
+    {
+      "Field": "characterAssignments",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "modelAssignment",
+      "Type": "enum('seedance-2.0','hailuo-minimax')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "seedance-2.0",
+      "Extra": ""
+    },
+    {
+      "Field": "faceValidationStatus",
+      "Type": "enum('pending','matched','warning','regenerated','skipped')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "pending",
+      "Extra": ""
+    },
+    {
+      "Field": "faceValidationScores",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "faceValidationAttempts",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "strictCharacterCount",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "3",
+      "Extra": ""
+    },
+    {
+      "Field": "userEditedPrompt",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "focusCharacter",
+      "Type": "varchar(128)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "camera",
+      "Type": "json",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "reRenderCount",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "freeReRenderUsed",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "lastReRenderAt",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "cameraDirection",
+      "Type": "varchar(64)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "sceneAudioUrl",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "providerSpendUsd",
+      "Type": "decimal(6,4)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "retryCount",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "providerUsed",
+      "Type": "varchar(64)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tint\tNO\tPRI\tNULL\tauto_increment\njobId\tint\tNO\t\tNULL\t\nsceneIndex\tint\tNO\t\tNULL\t\nstartTime\tint\tNO\t\tNULL\t\nduration\tint\tNO\t\tNULL\t\nprompt\ttext\tNO\t\tNULL\t\nvisualStyle\tvarchar(255)\tYES\t\tNULL\t\nmvSceneStatus\tenum('pending','generating','completed','failed')\tNO\t\tpending\t\ntaskId\tvarchar(255)\tYES\t\tNULL\t\nvideoUrl\tvarchar(1024)\tYES\t\tNULL\t\nvideoKey\tvarchar(512)\tYES\t\tNULL\t\nerrorMessage\ttext\tYES\t\tNULL\t\ncreatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\nupdatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\tDEFAULT_GENERATED on update CURRENT_TIMESTAMP\nlyrics\ttext\tYES\t\tNULL\t\npreviewImageUrl\tvarchar(1024)\tYES\t\tNULL\t\npreviewImageKey\tvarchar(512)\tYES\t\tNULL\t\nlipSync\ttinyint(1)\tNO\t\t0\t\nlipSyncStyle\tenum('natural','expressive','subtle','dramatic','anime')\tNO\t\tnatural\t\ncharacterAssignments\ttext\tYES\t\tNULL\t\nmodelAssignment\tenum('seedance-2.0','hailuo-minimax')\tNO\t\tseedance-2.0\t\nfaceValidationStatus\tenum('pending','matched','warning','regenerated','skipped')\tYES\t\tpending\t\nfaceValidationScores\ttext\tYES\t\tNULL\t\nfaceValidationAttempts\tint\tYES\t\t0\t\nstrictCharacterCount\tint\tYES\t\t3\t\nuserEditedPrompt\ttinyint(1)\tNO\t\t0\t\nfocusCharacter\tvarchar(128)\tYES\t\tNULL\t\ncamera\tjson\tYES\t\tNULL\t\nreRenderCount\tint\tNO\t\t0\t\nfreeReRenderUsed\ttinyint(1)\tNO\t\t0\t\nlastReRenderAt\ttimestamp\tYES\t\tNULL\t\ncameraDirection\tvarchar(64)\tYES\t\tNULL\t\nsceneAudioUrl\ttext\tYES\t\tNULL\t\nproviderSpendUsd\tdecimal(6,4)\tNO\t\t0\t\nretryCount\tint\tNO\t\t0\t\nproviderUsed\tvarchar(64)\tYES\t\tNULL\t\n",
+  "stderr": "",
+  "execution_time_ms": 597
+}

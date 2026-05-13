@@ -7720,3 +7720,11 @@
 - [ ] TEST-1: Update characterIdentity.test.ts — add test asserting render is blocked when no masterPortraitUrl exists
 - [ ] TEST-2: Add test asserting characterImageUrl is always in reference_images array for WaveSpeed calls
 - [ ] CHECKPOINT-1: Save checkpoint after all above complete
+
+## masterPortraitUrl NULL Bug Fix — May 13, 2026
+
+- [x] FIX-1: previewCharacter procedure — write masterPortraitUrl for AI-described characters (no photos) immediately on preview generation
+- [x] FIX-2: approveCharacterPreview procedure — write masterPortraitUrl from approved previewImageUrl for AI characters on approval
+- [x] FIX-3: sceneDispatchHeartbeat — inject character lockedDescription as text anchor prefix in WaveSpeed prompt (reinforces identity when image reference alone is insufficient)
+- [x] PATCH-510025: Aria masterPortraitUrl set from previewImageUrl in DB directly
+- [x] PATCH-510025: All 9 scenes reset to pending, job reset to rendering for retry

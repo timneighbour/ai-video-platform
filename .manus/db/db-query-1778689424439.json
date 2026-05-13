@@ -1,0 +1,22 @@
+{
+  "query": "SHOW TABLES LIKE '%character%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SHOW TABLES LIKE '%character%';",
+  "rows": [
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%character%)": "characterScenes"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%character%)": "savedCharacters"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%character%)": "videoCharacterPhotos"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%character%)": "videoCharacters"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%character%)\ncharacterScenes\nsavedCharacters\nvideoCharacterPhotos\nvideoCharacters\n",
+  "stderr": "",
+  "execution_time_ms": 578
+}

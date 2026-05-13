@@ -1,0 +1,9 @@
+{
+  "query": "\nSELECT id, characterId, jobId, photoUrl, isPrimary, createdAt\nFROM videoCharacterPhotos\nWHERE characterId = 390001;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, characterId, jobId, photoUrl, isPrimary, createdAt\nFROM videoCharacterPhotos\nWHERE characterId = 390001;\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 582
+}

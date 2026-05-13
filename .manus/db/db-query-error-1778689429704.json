@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT \n  id, name, role, isLocked, \n  masterPortraitUrl, previewImageUrl, faceVideoUrl,\n  enableLipSync,\n  LEFT(description, 200) as description_preview\nFROM videoCharacters\nWHERE jobId = 510025\nORDER BY id;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT \n  id, name, role, isLocked, \n  masterPortraitUrl, previewImageUrl, faceVideoUrl,\n  enableLipSync,\n  LEFT(description, 200) as description_preview\nFROM videoCharacters\nWHERE jobId = 510025\nORDER BY id;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'description' in 'field list'"
+  ]
+}
