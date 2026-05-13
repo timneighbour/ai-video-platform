@@ -1583,12 +1583,12 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
 
     const hasLipSyncCharacter = lipSyncChars.length > 0;
 
-    // sync-3 model hard limit: 15 seconds maximum audio duration.
-    // Skip lip sync entirely for tracks longer than 15 seconds.
-    const SYNC_LABS_MAX_AUDIO_SECONDS = 15;
+    // sync-3 model limit: 300 seconds (5 minutes) maximum audio duration.
+    // Skip lip sync only for tracks longer than 5 minutes.
+    const SYNC_LABS_MAX_AUDIO_SECONDS = 300;
     const audioTooLongForSyncLabs = job.audioDuration > SYNC_LABS_MAX_AUDIO_SECONDS;
     if (audioTooLongForSyncLabs && hasLipSyncCharacter) {
-      console.warn(`[WizSync] Job ${jobId}: audio is ${job.audioDuration}s — exceeds sync-3 max of ${SYNC_LABS_MAX_AUDIO_SECONDS}s. Skipping lip sync, delivering cinematic version.`);
+      console.warn(`[WizSync] Job ${jobId}: audio is ${job.audioDuration}s — exceeds sync-3 max of ${SYNC_LABS_MAX_AUDIO_SECONDS}s (5 min). Skipping lip sync, delivering cinematic version.`);
     }
 
     if (hasLipSyncCharacter && !audioTooLongForSyncLabs && isSyncLabsConfigured() && job.audioUrl) {
