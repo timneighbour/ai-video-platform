@@ -1,0 +1,20 @@
+{
+  "query": "SELECT id, name, jobId, masterPortraitUrl, previewImageUrl, lockedDescription, enableLipSync, createdAt FROM videoCharacters WHERE id = 390002;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT id, name, jobId, masterPortraitUrl, previewImageUrl, lockedDescription, enableLipSync, createdAt FROM videoCharacters WHERE id = 390002;",
+  "rows": [
+    {
+      "id": "390002",
+      "name": "Zara",
+      "jobId": "510098",
+      "masterPortraitUrl": "NULL",
+      "previewImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778695377509.png",
+      "lockedDescription": "A full-length standing figure of Zara, a mixed-race British woman in her late 20s, with a very slim, narrow frame, lean physique, and slender build. Her warm medium-brown skin is natural, complementing her sharp cheekbones, almond-shaped dark brown eyes, and full lips. Her natural textured hair, shoulder-length, is worn loose. She holds a confident, direct gaze. She wears a form-fitting black leather jacket, layered gold necklaces, and several gold rings. Her lower half is clad in distressed dark-wash skinny jeans that accentuate her slender legs, narrow knees, and lean calves. She completes the look with black ankle boots, covering her feet and ankles, featuring a subtle heel. Her strong presence is effortlessly cool.",
+      "enableLipSync": "1",
+      "createdAt": "2026-05-13 18:03:12"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tjobId\tmasterPortraitUrl\tpreviewImageUrl\tlockedDescription\tenableLipSync\tcreatedAt\n390002\tZara\t510098\tNULL\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778695377509.png\tA full-length standing figure of Zara, a mixed-race British woman in her late 20s, with a very slim, narrow frame, lean physique, and slender build. Her warm medium-brown skin is natural, complementing her sharp cheekbones, almond-shaped dark brown eyes, and full lips. Her natural textured hair, shoulder-length, is worn loose. She holds a confident, direct gaze. She wears a form-fitting black leather jacket, layered gold necklaces, and several gold rings. Her lower half is clad in distressed dark-wash skinny jeans that accentuate her slender legs, narrow knees, and lean calves. She completes the look with black ankle boots, covering her feet and ankles, featuring a subtle heel. Her strong presence is effortlessly cool.\t1\t2026-05-13 18:03:12\n",
+  "stderr": "",
+  "execution_time_ms": 615
+}

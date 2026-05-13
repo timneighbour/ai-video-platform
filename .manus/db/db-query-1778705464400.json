@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE videoCharacters SET masterPortraitUrl = previewImageUrl WHERE id = 390002 AND masterPortraitUrl IS NULL AND previewImageUrl IS NOT NULL;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute UPDATE videoCharacters SET masterPortraitUrl = previewImageUrl WHERE id = 390002 AND masterPortraitUrl IS NULL AND previewImageUrl IS NOT NULL;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 643
+}

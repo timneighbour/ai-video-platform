@@ -130,6 +130,9 @@ export const charactersRouter = router({
           enableLipSync: charInput.enableLipSync,
           slotIndex: charInput.slotIndex,
           previewImageUrl: charInput.aiGeneratedImageUrl ?? null,
+          // CRITICAL: masterPortraitUrl must be set for AI-generated characters so Character Lock™ works.
+          // Without this, WaveSpeed has no face reference and generates a random person instead.
+          masterPortraitUrl: isAiGenerated ? (charInput.aiGeneratedImageUrl ?? null) : null,
           previewApproved: isAiGenerated ? true : false, // AI chars are pre-approved
           lockedDescription: charInput.lockedDescription ?? charInput.aiGeneratedBrief ?? null,
           isLocked: charInput.isLocked ?? false,

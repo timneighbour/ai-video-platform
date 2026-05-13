@@ -7764,4 +7764,4 @@
 - [x] Add hard 8-minute timeout to Sync Labs polling with fallback to assembled video without lip sync
 - [x] Fix assembly worker updatedAt bump logic — removed updatedAt bump on pickup entirely (was causing infinite loop)
 - [x] Recover job 510098 (Zara) — assemblyStartedAt set to 20min ago, syncLabsJobId cleared, will skip lip sync on next assembly trigger
-- [ ] Fix Zara masterPortraitUrl = NULL — investigate why portrait was not saved
+- [x] Fix Zara masterPortraitUrl = NULL — ROOT CAUSE: saveCharacters never set masterPortraitUrl for AI-generated chars. Fixed: masterPortraitUrl = aiGeneratedImageUrl on insert in characters.ts saveCharacters procedure. Also patched Zara's DB record directly.
