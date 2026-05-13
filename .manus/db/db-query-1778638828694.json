@@ -1,0 +1,109 @@
+{
+  "query": "\nSELECT s.id, s.sceneIndex, s.mvSceneStatus, s.taskId, s.errorMessage,\n  TIMESTAMPDIFF(MINUTE, s.updatedAt, NOW()) as mins_since_update,\n  j.status as job_status, j.fallbackProvider, j.errorMessage as job_error\nFROM musicVideoScenes s\nJOIN musicVideoJobs j ON j.id = s.jobId\nWHERE s.jobId = 510025\nORDER BY s.sceneIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT s.id, s.sceneIndex, s.mvSceneStatus, s.taskId, s.errorMessage,\n  TIMESTAMPDIFF(MINUTE, s.updatedAt, NOW()) as mins_since_update,\n  j.status as job_status, j.fallbackProvider, j.errorMessage as job_error\nFROM musicVideoScenes s\nJOIN musicVideoJobs j ON j.id = s.jobId\nWHERE s.jobId = 510025\nORDER BY s.sceneIndex;\n",
+  "rows": [
+    {
+      "id": "540001",
+      "sceneIndex": "0",
+      "mvSceneStatus": "completed",
+      "taskId": "atlas:cee961b174a544faa62b1a4b794e1bf6",
+      "errorMessage": "NULL",
+      "mins_since_update": "112",
+      "job_status": "assembling",
+      "fallbackProvider": "wavespeed",
+      "job_error": "NULL"
+    },
+    {
+      "id": "540002",
+      "sceneIndex": "1",
+      "mvSceneStatus": "completed",
+      "taskId": "wavespeed:seedance:156f260b52314e1992826c22c2363a6b",
+      "errorMessage": "NULL",
+      "mins_since_update": "57",
+      "job_status": "assembling",
+      "fallbackProvider": "wavespeed",
+      "job_error": "NULL"
+    },
+    {
+      "id": "540003",
+      "sceneIndex": "2",
+      "mvSceneStatus": "completed",
+      "taskId": "wavespeed:seedance:577b0be5109149f3b066b7900d531943",
+      "errorMessage": "NULL",
+      "mins_since_update": "57",
+      "job_status": "assembling",
+      "fallbackProvider": "wavespeed",
+      "job_error": "NULL"
+    },
+    {
+      "id": "540004",
+      "sceneIndex": "3",
+      "mvSceneStatus": "completed",
+      "taskId": "wavespeed:seedance:8c709bc46afc4f80adefe595a327d676",
+      "errorMessage": "NULL",
+      "mins_since_update": "57",
+      "job_status": "assembling",
+      "fallbackProvider": "wavespeed",
+      "job_error": "NULL"
+    },
+    {
+      "id": "540005",
+      "sceneIndex": "4",
+      "mvSceneStatus": "completed",
+      "taskId": "wavespeed:seedance:f997abde1ad0423590d64e7235d3317e",
+      "errorMessage": "NULL",
+      "mins_since_update": "24",
+      "job_status": "assembling",
+      "fallbackProvider": "wavespeed",
+      "job_error": "NULL"
+    },
+    {
+      "id": "540006",
+      "sceneIndex": "5",
+      "mvSceneStatus": "completed",
+      "taskId": "wavespeed:seedance:d6cf0ebfe5b041cfb21fffd061228e00",
+      "errorMessage": "NULL",
+      "mins_since_update": "57",
+      "job_status": "assembling",
+      "fallbackProvider": "wavespeed",
+      "job_error": "NULL"
+    },
+    {
+      "id": "540007",
+      "sceneIndex": "6",
+      "mvSceneStatus": "completed",
+      "taskId": "wavespeed:seedance:42173a57df2846efa26df78f4b5d7678",
+      "errorMessage": "NULL",
+      "mins_since_update": "39",
+      "job_status": "assembling",
+      "fallbackProvider": "wavespeed",
+      "job_error": "NULL"
+    },
+    {
+      "id": "540008",
+      "sceneIndex": "7",
+      "mvSceneStatus": "completed",
+      "taskId": "wavespeed:seedance:d2521ee9fdb14ea696b00512aeba2b0d",
+      "errorMessage": "NULL",
+      "mins_since_update": "37",
+      "job_status": "assembling",
+      "fallbackProvider": "wavespeed",
+      "job_error": "NULL"
+    },
+    {
+      "id": "540009",
+      "sceneIndex": "8",
+      "mvSceneStatus": "completed",
+      "taskId": "wavespeed:seedance:507157dbfc31439d8ed6598641e836c8",
+      "errorMessage": "NULL",
+      "mins_since_update": "56",
+      "job_status": "assembling",
+      "fallbackProvider": "wavespeed",
+      "job_error": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsceneIndex\tmvSceneStatus\ttaskId\terrorMessage\tmins_since_update\tjob_status\tfallbackProvider\tjob_error\n540001\t0\tcompleted\tatlas:cee961b174a544faa62b1a4b794e1bf6\tNULL\t112\tassembling\twavespeed\tNULL\n540002\t1\tcompleted\twavespeed:seedance:156f260b52314e1992826c22c2363a6b\tNULL\t57\tassembling\twavespeed\tNULL\n540003\t2\tcompleted\twavespeed:seedance:577b0be5109149f3b066b7900d531943\tNULL\t57\tassembling\twavespeed\tNULL\n540004\t3\tcompleted\twavespeed:seedance:8c709bc46afc4f80adefe595a327d676\tNULL\t57\tassembling\twavespeed\tNULL\n540005\t4\tcompleted\twavespeed:seedance:f997abde1ad0423590d64e7235d3317e\tNULL\t24\tassembling\twavespeed\tNULL\n540006\t5\tcompleted\twavespeed:seedance:d6cf0ebfe5b041cfb21fffd061228e00\tNULL\t57\tassembling\twavespeed\tNULL\n540007\t6\tcompleted\twavespeed:seedance:42173a57df2846efa26df78f4b5d7678\tNULL\t39\tassembling\twavespeed\tNULL\n540008\t7\tcompleted\twavespeed:seedance:d2521ee9fdb14ea696b00512aeba2b0d\tNULL\t37\tassembling\twavespeed\tNULL\n540009\t8\tcompleted\twavespeed:seedance:507157dbfc31439d8ed6598641e836c8\tNULL\t56\tassembling\twavespeed\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 579
+}

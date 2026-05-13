@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT \n  s.id,\n  s.sceneIndex,\n  s.mvSceneStatus,\n  s.taskId,\n  s.errorMessage,\n  TIMESTAMPDIFF(MINUTE, s.updatedAt, NOW()) as minutes_since_update,\n  s.updatedAt,\n  j.status as job_status,\n  j.fallbackProvider,\n  j.atlasFailureCount,\n  j.errorMessage as job_error\nFROM music_video_scenes s\nJOIN music_video_jobs j ON j.id = s.jobId\nWHERE s.jobId = 510025\nORDER BY s.sceneIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT \n  s.id,\n  s.sceneIndex,\n  s.mvSceneStatus,\n  s.taskId,\n  s.errorMessage,\n  TIMESTAMPDIFF(MINUTE, s.updatedAt, NOW()) as minutes_since_update,\n  s.updatedAt,\n  j.status as job_status,\n  j.fallbackProvider,\n  j.atlasFailureCount,\n  j.errorMessage as job_error\nFROM music_video_scenes s\nJOIN music_video_jobs j ON j.id = s.jobId\nWHERE s.jobId = 510025\nORDER BY s.sceneIndex;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 2: Table 'aljhdnsuna7bexfuoqzusx.music_video_scenes' doesn't exist"
+  ]
+}

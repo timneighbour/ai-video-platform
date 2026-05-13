@@ -246,9 +246,34 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               .where(eq(musicVideoJobs.id, job.id));
 
             // Fire assembly asynchronously — don't block the heartbeat response
-            assembleMusicVideo(job.id, "standard" as AudioTier).catch((assemblyErr: any) => {
-              console.error(`[SceneDispatch] Assembly failed for job ${job.id}:`, assemblyErr);
-            });
+            assembleMusicVideo(job.id, "standard" as AudioTier)
+              .then(async (finalUrl: string) => {
+                // Safety net: if assembleMusicVideo returned a URL but somehow
+                // didn't update the DB status, ensure it's marked completed now.
+                if (finalUrl) {
+                  const [currentJob] = await db.select({ status: musicVideoJobs.status })
+                    .from(musicVideoJobs)
+                    .where(eq(musicVideoJobs.id, job.id));
+                  if (currentJob && currentJob.status !== "completed") {
+                    console.warn(`[SceneDispatch] Assembly returned URL but status was '${currentJob.status}' — force-setting to completed.`);
+                    await db.update(musicVideoJobs)
+                      .set({ status: "completed", updatedAt: new Date() })
+                      .where(eq(musicVideoJobs.id, job.id));
+                  }
+                }
+              })
+              .catch(async (assemblyErr: any) => {
+                console.error(`[SceneDispatch] Assembly failed for job ${job.id}:`, assemblyErr);
+                // Reset to rendering so the heartbeat re-triggers assembly on next tick
+                // Never leave a job stuck in 'assembling' indefinitely
+                try {
+                  await db.update(musicVideoJobs)
+                    .set({ status: "rendering", errorMessage: "Assembly error — retrying...", updatedAt: new Date() })
+                    .where(and(eq(musicVideoJobs.id, job.id), eq(musicVideoJobs.status, "assembling")));
+                } catch (resetErr) {
+                  console.error(`[SceneDispatch] Failed to reset job ${job.id} after assembly error:`, resetErr);
+                }
+              });
 
             totalAssembled++;
           } catch (assemblyTriggerErr: any) {

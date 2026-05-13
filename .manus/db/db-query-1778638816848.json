@@ -1,0 +1,22 @@
+{
+  "query": "SHOW TABLES LIKE '%scene%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SHOW TABLES LIKE '%scene%';",
+  "rows": [
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "characterScenes"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "musicVideoScenes"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "sceneActionLogs"
+    },
+    {
+      "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)": "wizShortsScenes"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_ALJHDNsuNA7bExFuoQZUsx (%scene%)\ncharacterScenes\nmusicVideoScenes\nsceneActionLogs\nwizShortsScenes\n",
+  "stderr": "",
+  "execution_time_ms": 563
+}

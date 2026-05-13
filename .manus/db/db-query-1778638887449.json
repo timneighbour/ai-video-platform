@@ -1,0 +1,18 @@
+{
+  "query": "\nSELECT id, status, errorMessage, finalVideoUrl,\n  TIMESTAMPDIFF(MINUTE, updatedAt, NOW()) as mins_since_update,\n  updatedAt\nFROM musicVideoJobs\nWHERE id = 510025;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, status, errorMessage, finalVideoUrl,\n  TIMESTAMPDIFF(MINUTE, updatedAt, NOW()) as mins_since_update,\n  updatedAt\nFROM musicVideoJobs\nWHERE id = 510025;\n",
+  "rows": [
+    {
+      "id": "510025",
+      "status": "assembling",
+      "errorMessage": "NULL",
+      "finalVideoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-videos/job-510025-final-1778630799981.mp4",
+      "mins_since_update": "0",
+      "updatedAt": "2026-05-13 02:21:02"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\terrorMessage\tfinalVideoUrl\tmins_since_update\tupdatedAt\n510025\tassembling\tNULL\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-videos/job-510025-final-1778630799981.mp4\t0\t2026-05-13 02:21:02\n",
+  "stderr": "",
+  "execution_time_ms": 595
+}
