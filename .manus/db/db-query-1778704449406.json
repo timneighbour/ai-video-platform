@@ -1,0 +1,16 @@
+{
+  "query": "SELECT id, status, errorMessage, updatedAt FROM musicVideoJobs WHERE id = 510098;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT id, status, errorMessage, updatedAt FROM musicVideoJobs WHERE id = 510098;",
+  "rows": [
+    {
+      "id": "510098",
+      "status": "assembling",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-13 20:34:03"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\terrorMessage\tupdatedAt\n510098\tassembling\tNULL\t2026-05-13 20:34:03\n",
+  "stderr": "",
+  "execution_time_ms": 582
+}

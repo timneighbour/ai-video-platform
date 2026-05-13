@@ -202,6 +202,9 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   // fallbackProvider: when set to 'wavespeed', all pending scenes skip Atlas entirely.
   atlasFailureCount: int("atlasFailureCount").notNull().default(0), // Atlas timeout/failure count for this job
   fallbackProvider: varchar("fallbackProvider", { length: 32 }), // null = normal routing | 'wavespeed' = skip Atlas
+  // --- Sync Labs Lip Sync Tracking -------------------------------------------
+  syncLabsJobId: varchar("syncLabsJobId", { length: 128 }), // Sync Labs job ID — used to resume polling after server restart
+  assemblyStartedAt: timestamp("assemblyStartedAt"),         // When assembly began — used to detect truly stuck jobs
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

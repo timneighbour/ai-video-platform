@@ -1585,46 +1585,89 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
 
     if (hasLipSyncCharacter && isSyncLabsConfigured() && job.audioUrl) {
       // Sync Labs sync-3: one pass on the final assembled video.
-      console.log(`[WizSync] sync-3 premium lip sync enabled for job ${jobId}. Submitting to Sync Labs...`);
-      await dbConn.update(musicVideoJobs)
-        .set({ errorMessage: "Applying WizSync™ premium lip sync (sync-3)...", updatedAt: new Date() })
-        .where(eq(musicVideoJobs.id, jobId));
+      // Hard timeout: 8 minutes. If Sync Labs takes longer, deliver without lip sync.
+      // syncLabsJobId is persisted to DB so polling can resume after server restart
+      // instead of re-submitting a new job.
+      const SYNC_LABS_HARD_TIMEOUT_MS = 8 * 60 * 1000; // 8 minutes
 
-      try {
-        // Upload assembled video to S3 first (Sync Labs needs a public URL)
-        const preSyncKey = `music-videos/job-${jobId}-pre-synclabs-${Date.now()}.mp4`;
-        const preSyncBuf = fs.readFileSync(finalVideo);
-        const { url: preSyncUrl } = await storagePut(preSyncKey, preSyncBuf, "video/mp4");
+      // Re-read the job to get any syncLabsJobId saved by a previous assembly attempt
+      const [freshJob] = await dbConn.select({
+        syncLabsJobId: musicVideoJobs.syncLabsJobId,
+        assemblyStartedAt: musicVideoJobs.assemblyStartedAt,
+      }).from(musicVideoJobs).where(eq(musicVideoJobs.id, jobId));
 
-        const { waitForSyncLabsLipSync } = await import("./ai-apis/synclabs-lipsync");
+      const existingSyncJobId = freshJob?.syncLabsJobId;
+      const assemblyStartedAt = freshJob?.assemblyStartedAt;
 
-        // Submit to sync-3 and wait up to 10 minutes
-        const syncResult = await waitForSyncLabsLipSync({
-          videoUrl: preSyncUrl,
-          audioUrl: job.audioUrl,
-          syncMode: "cut_off",
-          outputFileName: `wizsync-job-${jobId}`,
-        }, 10 * 60 * 1000);
-
-        // Download sync-3 output and save to disk
-        const syncResp = await fetch(syncResult.outputUrl);
-        const syncBuf = Buffer.from(await syncResp.arrayBuffer());
-        const syncFile = path.join(tmpDir, "final-synclabs-lipsync.mp4");
-        fs.writeFileSync(syncFile, syncBuf);
-        finalVideoPath = syncFile;
-        console.log(`[WizSync] sync-3 premium lip sync complete for job ${jobId}`);
-
+      // If assembly started more than 15 minutes ago, skip lip sync entirely
+      // (Sync Labs job is definitely dead — don't waste more time)
+      const assemblyAgeMs = assemblyStartedAt
+        ? Date.now() - new Date(assemblyStartedAt).getTime()
+        : 0;
+      if (assemblyAgeMs > 15 * 60 * 1000) {
+        console.warn(`[WizSync] Job ${jobId}: assembly started ${Math.round(assemblyAgeMs / 60000)}min ago — skipping lip sync, delivering cinematic version.`);
+      } else {
+        console.log(`[WizSync] sync-3 premium lip sync enabled for job ${jobId}. ${existingSyncJobId ? `Resuming job ${existingSyncJobId}` : 'Submitting new job'}...`);
         await dbConn.update(musicVideoJobs)
-          .set({ errorMessage: null, updatedAt: new Date() })
+          .set({
+            errorMessage: "Applying WizSync™ premium lip sync (sync-3)...",
+            assemblyStartedAt: assemblyStartedAt ?? new Date(),
+            updatedAt: new Date(),
+          })
           .where(eq(musicVideoJobs.id, jobId));
-      } catch (syncErr: any) {
-        // Sync Labs failed — deliver cinematic version without lip sync.
-        // A failed lip sync must NEVER block video delivery.
-        console.warn(`[WizSync] sync-3 lip sync failed for job ${jobId}: ${syncErr?.message ?? syncErr}. Delivering cinematic version.`);
-        await dbConn.update(musicVideoJobs)
-          .set({ errorMessage: null, updatedAt: new Date() })
-          .where(eq(musicVideoJobs.id, jobId));
-        // finalVideoPath remains = finalVideo (assembled video without lip sync)
+
+        try {
+          const { submitSyncLabsLipSync, pollSyncLabsLipSync } = await import("./ai-apis/synclabs-lipsync");
+
+          let syncJobId = existingSyncJobId;
+
+          if (!syncJobId) {
+            // Upload assembled video to S3 first (Sync Labs needs a public URL)
+            const preSyncKey = `music-videos/job-${jobId}-pre-synclabs-${Date.now()}.mp4`;
+            const preSyncBuf = fs.readFileSync(finalVideo);
+            const { url: preSyncUrl } = await storagePut(preSyncKey, preSyncBuf, "video/mp4");
+
+            // Submit to sync-3 and save the job ID immediately
+            syncJobId = await submitSyncLabsLipSync({
+              videoUrl: preSyncUrl,
+              audioUrl: job.audioUrl,
+              syncMode: "cut_off",
+              outputFileName: `wizsync-job-${jobId}`,
+            });
+
+            // Persist the Sync Labs job ID so we can resume polling after a server restart
+            await dbConn.update(musicVideoJobs)
+              .set({ syncLabsJobId: syncJobId, updatedAt: new Date() })
+              .where(eq(musicVideoJobs.id, jobId));
+            console.log(`[WizSync] Job ${jobId}: Sync Labs job ${syncJobId} submitted and saved to DB.`);
+          } else {
+            console.log(`[WizSync] Job ${jobId}: Resuming existing Sync Labs job ${syncJobId} (skipping re-submit).`);
+          }
+
+          // Poll with hard 8-minute timeout
+          const outputUrl = await pollSyncLabsLipSync(syncJobId, SYNC_LABS_HARD_TIMEOUT_MS);
+
+          // Download sync-3 output and save to disk
+          const syncResp = await fetch(outputUrl);
+          const syncBuf = Buffer.from(await syncResp.arrayBuffer());
+          const syncFile = path.join(tmpDir, "final-synclabs-lipsync.mp4");
+          fs.writeFileSync(syncFile, syncBuf);
+          finalVideoPath = syncFile;
+          console.log(`[WizSync] sync-3 premium lip sync complete for job ${jobId}`);
+
+          // Clear the syncLabsJobId now that it's done
+          await dbConn.update(musicVideoJobs)
+            .set({ errorMessage: null, syncLabsJobId: null, updatedAt: new Date() })
+            .where(eq(musicVideoJobs.id, jobId));
+        } catch (syncErr: any) {
+          // Sync Labs failed or timed out — deliver cinematic version without lip sync.
+          // A failed lip sync must NEVER block video delivery.
+          console.warn(`[WizSync] sync-3 lip sync failed for job ${jobId}: ${syncErr?.message ?? syncErr}. Delivering cinematic version.`);
+          await dbConn.update(musicVideoJobs)
+            .set({ errorMessage: null, syncLabsJobId: null, updatedAt: new Date() })
+            .where(eq(musicVideoJobs.id, jobId));
+          // finalVideoPath remains = finalVideo (assembled video without lip sync)
+        }
       }
     } else {
       if (hasLipSyncCharacter && !isSyncLabsConfigured()) {

@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE musicVideoJobs SET assemblyStartedAt = DATE_SUB(NOW(), INTERVAL 20 MINUTE), syncLabsJobId = NULL, errorMessage = NULL WHERE id = 510098;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute UPDATE musicVideoJobs SET assemblyStartedAt = DATE_SUB(NOW(), INTERVAL 20 MINUTE), syncLabsJobId = NULL, errorMessage = NULL WHERE id = 510098;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 589
+}

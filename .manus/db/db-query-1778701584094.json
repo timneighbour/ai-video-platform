@@ -1,0 +1,28 @@
+{
+  "query": "SELECT id, name, enableLipSync, masterPortraitUrl IS NOT NULL as hasPortrait FROM videoCharacters WHERE jobId = 510098;\nSELECT id, status, errorMessage, updatedAt FROM musicVideoJobs WHERE id = 510098;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT id, name, enableLipSync, masterPortraitUrl IS NOT NULL as hasPortrait FROM videoCharacters WHERE jobId = 510098;\nSELECT id, status, errorMessage, updatedAt FROM musicVideoJobs WHERE id = 510098;",
+  "rows": [
+    {
+      "id": "390002",
+      "name": "Zara",
+      "enableLipSync": "1",
+      "hasPortrait": "0"
+    },
+    {
+      "id": "id",
+      "name": "status",
+      "enableLipSync": "errorMessage",
+      "hasPortrait": "updatedAt"
+    },
+    {
+      "id": "510098",
+      "name": "assembling",
+      "enableLipSync": "NULL",
+      "hasPortrait": "2026-05-13 19:46:19"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tenableLipSync\thasPortrait\n390002\tZara\t1\t0\nid\tstatus\terrorMessage\tupdatedAt\n510098\tassembling\tNULL\t2026-05-13 19:46:19\n",
+  "stderr": "",
+  "execution_time_ms": 668
+}

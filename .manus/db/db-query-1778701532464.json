@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, status, finalVideoUrl, finalVideoProduced, updatedAt FROM musicVideoJobs ORDER BY updatedAt DESC LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT id, status, finalVideoUrl, finalVideoProduced, updatedAt FROM musicVideoJobs ORDER BY updatedAt DESC LIMIT 5;",
+  "rows": [
+    {
+      "id": "510098",
+      "status": "assembling",
+      "finalVideoUrl": "NULL",
+      "finalVideoProduced": "0",
+      "updatedAt": "2026-05-13 19:45:28"
+    },
+    {
+      "id": "510025",
+      "status": "rendering",
+      "finalVideoUrl": "NULL",
+      "finalVideoProduced": "0",
+      "updatedAt": "2026-05-13 19:45:28"
+    },
+    {
+      "id": "270001",
+      "status": "completed",
+      "finalVideoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-videos/job-270001-final-1778635306121.mp4",
+      "finalVideoProduced": "0",
+      "updatedAt": "2026-05-13 01:21:48"
+    },
+    {
+      "id": "450002",
+      "status": "completed",
+      "finalVideoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-videos/job-450002-final-1778614568990.mp4",
+      "finalVideoProduced": "0",
+      "updatedAt": "2026-05-12 21:16:48"
+    },
+    {
+      "id": "450001",
+      "status": "storyboard_ready",
+      "finalVideoUrl": "NULL",
+      "finalVideoProduced": "0",
+      "updatedAt": "2026-05-09 16:04:39"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tfinalVideoUrl\tfinalVideoProduced\tupdatedAt\n510098\tassembling\tNULL\t0\t2026-05-13 19:45:28\n510025\trendering\tNULL\t0\t2026-05-13 19:45:28\n270001\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-videos/job-270001-final-1778635306121.mp4\t0\t2026-05-13 01:21:48\n450002\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-videos/job-450002-final-1778614568990.mp4\t0\t2026-05-12 21:16:48\n450001\tstoryboard_ready\tNULL\t0\t2026-05-09 16:04:39\n",
+  "stderr": "",
+  "execution_time_ms": 712
+}

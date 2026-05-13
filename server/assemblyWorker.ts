@@ -6,18 +6,30 @@
  * via pollProgress (which requires the user to be on the page).
  *
  * Solution: This worker runs every 2 minutes and re-triggers assembly for any job
- * that has been in "assembling" status for more than 3 minutes without a finalVideoUrl.
- * On pickup it resets updatedAt to "now" so the job is not double-triggered.
+ * that has been in "assembling" status for more than 16 minutes without a finalVideoUrl.
+ *
+ * WHY 16 MINUTES:
+ * - Sync Labs sync-3 has an 8-minute hard timeout in assembleMusicVideo.
+ * - assembleMusicVideo also skips lip sync if assemblyStartedAt is >15 minutes ago.
+ * - So by the time this worker fires (16 min), the assembly will skip lip sync and
+ *   deliver the cinematic version immediately — no more infinite loops.
+ *
+ * CRITICAL: Do NOT bump updatedAt on pickup. The music-video-service uses assemblyStartedAt
+ * (not updatedAt) to determine if the job is too old to attempt lip sync. Bumping updatedAt
+ * was causing the old 3-minute threshold to never trigger — the worker kept the job "fresh"
+ * indefinitely, preventing any recovery.
  *
  * Start this worker once at server startup from server/_core/index.ts.
  */
 import { assembleMusicVideo } from "./music-video-service";
 import { getDb } from "./db";
 import { musicVideoJobs, renderJobs } from "../drizzle/schema";
-import { and, eq, isNull, lt, desc, sql } from "drizzle-orm";
+import { and, eq, isNull, lt, desc } from "drizzle-orm";
 
 const WORKER_INTERVAL_MS = 2 * 60 * 1000; // 2 minutes
-const STUCK_THRESHOLD_MINUTES = 3; // Jobs assembling for >3 min without finalVideoUrl
+const STUCK_THRESHOLD_MINUTES = 16; // Jobs assembling for >16 min without finalVideoUrl
+// 16 min > 15 min assembly age limit in music-video-service.ts, so by the time
+// the worker re-triggers, the assembly will skip lip sync and deliver immediately.
 
 // Track in-flight assemblies to avoid double-triggering
 const inFlightAssemblies = new Set<number>();
@@ -29,11 +41,14 @@ async function processOrphanedAssemblyJobs(): Promise<void> {
   const stuckThreshold = new Date(Date.now() - STUCK_THRESHOLD_MINUTES * 60 * 1000);
 
   try {
-    // Find jobs stuck in "assembling" with no finalVideoUrl
+    // Find jobs stuck in "assembling" with no finalVideoUrl for >16 minutes
+    // We check updatedAt — but we no longer bump it on pickup, so it reflects
+    // the last genuine update from the assembly process itself.
     const stuckJobs = await db
       .select({
         id: musicVideoJobs.id,
         updatedAt: musicVideoJobs.updatedAt,
+        assemblyStartedAt: musicVideoJobs.assemblyStartedAt,
       })
       .from(musicVideoJobs)
       .where(
@@ -55,13 +70,6 @@ async function processOrphanedAssemblyJobs(): Promise<void> {
         continue;
       }
 
-      // Mark the job as picked up by bumping updatedAt to now — prevents double-trigger
-      // on the next worker interval while assembly is running
-      await db
-        .update(musicVideoJobs)
-        .set({ updatedAt: sql`NOW()` })
-        .where(eq(musicVideoJobs.id, job.id));
-
       inFlightAssemblies.add(job.id);
 
       // Look up audioTier from the most recent renderJob for this musicVideoJob
@@ -78,7 +86,10 @@ async function processOrphanedAssemblyJobs(): Promise<void> {
         .limit(1);
       const audioTier = (latestRenderJob?.audioTier ?? "standard") as "standard" | "enhanced" | "cinematic";
 
-      console.log(`[AssemblyWorker] Re-triggering assembly for job ${job.id} (tier: ${audioTier})`);
+      const ageMin = job.assemblyStartedAt
+        ? Math.round((Date.now() - new Date(job.assemblyStartedAt).getTime()) / 60000)
+        : "unknown";
+      console.log(`[AssemblyWorker] Re-triggering assembly for job ${job.id} (tier: ${audioTier}, age: ${ageMin}min)`);
 
       // Fire-and-forget — don't await so we can process multiple jobs concurrently
       assembleMusicVideo(job.id, audioTier)
@@ -91,7 +102,7 @@ async function processOrphanedAssemblyJobs(): Promise<void> {
           getDb().then(db2 => {
             if (!db2) return;
             db2.update(musicVideoJobs)
-              .set({ updatedAt: new Date(Date.now() - 10 * 60 * 1000) }) // 10 min ago
+              .set({ updatedAt: new Date(Date.now() - STUCK_THRESHOLD_MINUTES * 60 * 1000) })
               .where(eq(musicVideoJobs.id, job.id))
               .catch(() => {});
           });

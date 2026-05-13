@@ -1,0 +1,597 @@
+{
+  "query": "SHOW COLUMNS FROM musicVideoJobs;\nSELECT id, status, errorMessage, updatedAt FROM musicVideoJobs WHERE id = 510098;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SHOW COLUMNS FROM musicVideoJobs;\nSELECT id, status, errorMessage, updatedAt FROM musicVideoJobs WHERE id = 510098;",
+  "rows": [
+    {
+      "Field": "id",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "PRI",
+      "Default": "NULL",
+      "Extra": "auto_increment"
+    },
+    {
+      "Field": "userId",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "title",
+      "Type": "varchar(255)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "audioUrl",
+      "Type": "varchar(1024)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "audioKey",
+      "Type": "varchar(512)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "audioDuration",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "themePrompt",
+      "Type": "text",
+      "Null": "NO",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "genre",
+      "Type": "varchar(128)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "mood",
+      "Type": "varchar(128)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "totalScenes",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "completedScenes",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "finalVideoUrl",
+      "Type": "varchar(1024)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "finalVideoKey",
+      "Type": "varchar(512)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "creditCost",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "errorMessage",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "createdAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": ""
+    },
+    {
+      "Field": "updatedAt",
+      "Type": "timestamp",
+      "Null": "NO",
+      "Key": "",
+      "Default": "CURRENT_TIMESTAMP",
+      "Extra": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+    },
+    {
+      "Field": "transcription",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "transcriptionStatus",
+      "Type": "varchar(32)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "pending",
+      "Extra": ""
+    },
+    {
+      "Field": "characterImageUrl",
+      "Type": "varchar(1024)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "characterImageKey",
+      "Type": "varchar(512)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "enableLipSync",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "characterRoster",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "isKidsVideo",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "kidsTargetAge",
+      "Type": "varchar(32)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "kidsEducationalTheme",
+      "Type": "varchar(128)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "kidsEnableSingalong",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "1",
+      "Extra": ""
+    },
+    {
+      "Field": "kidsFriendlyIntensity",
+      "Type": "enum('soft','moderate','vibrant')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "vibrant",
+      "Extra": ""
+    },
+    {
+      "Field": "lyrics",
+      "Type": "longtext",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "lyricsStatus",
+      "Type": "varchar(32)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "pending",
+      "Extra": ""
+    },
+    {
+      "Field": "captionsEnabled",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "1",
+      "Extra": ""
+    },
+    {
+      "Field": "captionStyle",
+      "Type": "varchar(32)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "bottom",
+      "Extra": ""
+    },
+    {
+      "Field": "captionBackground",
+      "Type": "varchar(32)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "soft_shadow",
+      "Extra": ""
+    },
+    {
+      "Field": "captionFontSize",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "24",
+      "Extra": ""
+    },
+    {
+      "Field": "captionFontStyle",
+      "Type": "varchar(32)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "sans-serif",
+      "Extra": ""
+    },
+    {
+      "Field": "captionTextColour",
+      "Type": "varchar(7)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "#FFFFFF",
+      "Extra": ""
+    },
+    {
+      "Field": "captionHighlightColour",
+      "Type": "varchar(7)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "#FFD700",
+      "Extra": ""
+    },
+    {
+      "Field": "captionKaraokeMode",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "captionSafeArea",
+      "Type": "varchar(32)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "bottom_center",
+      "Extra": ""
+    },
+    {
+      "Field": "lyricsApproved",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "status",
+      "Type": "enum('draft','storyboard_ready','rendering','assembling','completed','failed')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "draft",
+      "Extra": ""
+    },
+    {
+      "Field": "transcriptionSegments",
+      "Type": "longtext",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "sceneSetting",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "characterLockEnabled",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "1",
+      "Extra": ""
+    },
+    {
+      "Field": "lockedStyle",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "likedSceneId",
+      "Type": "int",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "likedSceneImageUrl",
+      "Type": "varchar(1024)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "enforceStrictMode",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "1",
+      "Extra": ""
+    },
+    {
+      "Field": "promptSnapshot",
+      "Type": "longtext",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "negativePromptSnapshot",
+      "Type": "longtext",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "instrumentAnalysis",
+      "Type": "longtext",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "isPublic",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "shareSlug",
+      "Type": "varchar(64)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "thumbnailUrl",
+      "Type": "varchar(1024)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "mvPreviewStatus",
+      "Type": "enum('none','generating','ready','failed')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "none",
+      "Extra": ""
+    },
+    {
+      "Field": "previewVideoUrl",
+      "Type": "varchar(1024)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "aspectRatio",
+      "Type": "varchar(8)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "16:9",
+      "Extra": ""
+    },
+    {
+      "Field": "contextAssetUrls",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "artistType",
+      "Type": "enum('band','solo_artist','animated_characters','solo_animated')",
+      "Null": "YES",
+      "Key": "",
+      "Default": "solo_artist",
+      "Extra": ""
+    },
+    {
+      "Field": "storyboardLockedAt",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "previewCreditsUsed",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "qualityStatus",
+      "Type": "enum('pending','previewing','approved','rerender_requested','rerendering')",
+      "Null": "NO",
+      "Key": "",
+      "Default": "pending",
+      "Extra": ""
+    },
+    {
+      "Field": "downloadedAt",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "reRenderCount",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "reRenderReason",
+      "Type": "text",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "reRenderRequestedAt",
+      "Type": "timestamp",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "providerSpendUsd",
+      "Type": "decimal(8,4)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "wastedSpendUsd",
+      "Type": "decimal(8,4)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "maxSpendLimitUsd",
+      "Type": "decimal(6,2)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "5.00",
+      "Extra": ""
+    },
+    {
+      "Field": "probePassed",
+      "Type": "tinyint(1)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    },
+    {
+      "Field": "finalVideoProduced",
+      "Type": "tinyint(1)",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "atlasFailureCount",
+      "Type": "int",
+      "Null": "NO",
+      "Key": "",
+      "Default": "0",
+      "Extra": ""
+    },
+    {
+      "Field": "fallbackProvider",
+      "Type": "varchar(32)",
+      "Null": "YES",
+      "Key": "",
+      "Default": "NULL",
+      "Extra": ""
+    }
+  ],
+  "messages": [
+    "id\tstatus\terrorMessage\tupdatedAt",
+    "510098\tassembling\tNULL\t2026-05-13 20:32:53"
+  ],
+  "stdout": "Field\tType\tNull\tKey\tDefault\tExtra\nid\tint\tNO\tPRI\tNULL\tauto_increment\nuserId\tint\tNO\t\tNULL\t\ntitle\tvarchar(255)\tNO\t\tNULL\t\naudioUrl\tvarchar(1024)\tNO\t\tNULL\t\naudioKey\tvarchar(512)\tNO\t\tNULL\t\naudioDuration\tint\tNO\t\tNULL\t\nthemePrompt\ttext\tNO\t\tNULL\t\ngenre\tvarchar(128)\tYES\t\tNULL\t\nmood\tvarchar(128)\tYES\t\tNULL\t\ntotalScenes\tint\tNO\t\t0\t\ncompletedScenes\tint\tNO\t\t0\t\nfinalVideoUrl\tvarchar(1024)\tYES\t\tNULL\t\nfinalVideoKey\tvarchar(512)\tYES\t\tNULL\t\ncreditCost\tint\tNO\t\t0\t\nerrorMessage\ttext\tYES\t\tNULL\t\ncreatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\t\nupdatedAt\ttimestamp\tNO\t\tCURRENT_TIMESTAMP\tDEFAULT_GENERATED on update CURRENT_TIMESTAMP\ntranscription\ttext\tYES\t\tNULL\t\ntranscriptionStatus\tvarchar(32)\tYES\t\tpending\t\ncharacterImageUrl\tvarchar(1024)\tYES\t\tNULL\t\ncharacterImageKey\tvarchar(512)\tYES\t\tNULL\t\nenableLipSync\ttinyint(1)\tYES\t\t0\t\ncharacterRoster\ttext\tYES\t\tNULL\t\nisKidsVideo\ttinyint(1)\tNO\t\t0\t\nkidsTargetAge\tvarchar(32)\tYES\t\tNULL\t\nkidsEducationalTheme\tvarchar(128)\tYES\t\tNULL\t\nkidsEnableSingalong\ttinyint(1)\tNO\t\t1\t\nkidsFriendlyIntensity\tenum('soft','moderate','vibrant')\tNO\t\tvibrant\t\nlyrics\tlongtext\tYES\t\tNULL\t\nlyricsStatus\tvarchar(32)\tYES\t\tpending\t\ncaptionsEnabled\ttinyint(1)\tNO\t\t1\t\ncaptionStyle\tvarchar(32)\tYES\t\tbottom\t\ncaptionBackground\tvarchar(32)\tYES\t\tsoft_shadow\t\ncaptionFontSize\tint\tNO\t\t24\t\ncaptionFontStyle\tvarchar(32)\tYES\t\tsans-serif\t\ncaptionTextColour\tvarchar(7)\tYES\t\t#FFFFFF\t\ncaptionHighlightColour\tvarchar(7)\tYES\t\t#FFD700\t\ncaptionKaraokeMode\ttinyint(1)\tNO\t\t0\t\ncaptionSafeArea\tvarchar(32)\tYES\t\tbottom_center\t\nlyricsApproved\ttinyint(1)\tNO\t\t0\t\nstatus\tenum('draft','storyboard_ready','rendering','assembling','completed','failed')\tNO\t\tdraft\t\ntranscriptionSegments\tlongtext\tYES\t\tNULL\t\nsceneSetting\ttext\tYES\t\tNULL\t\ncharacterLockEnabled\ttinyint(1)\tNO\t\t1\t\nlockedStyle\ttext\tYES\t\tNULL\t\nlikedSceneId\tint\tYES\t\tNULL\t\nlikedSceneImageUrl\tvarchar(1024)\tYES\t\tNULL\t\nenforceStrictMode\ttinyint(1)\tNO\t\t1\t\npromptSnapshot\tlongtext\tYES\t\tNULL\t\nnegativePromptSnapshot\tlongtext\tYES\t\tNULL\t\ninstrumentAnalysis\tlongtext\tYES\t\tNULL\t\nisPublic\ttinyint(1)\tNO\t\t0\t\nshareSlug\tvarchar(64)\tYES\t\tNULL\t\nthumbnailUrl\tvarchar(1024)\tYES\t\tNULL\t\nmvPreviewStatus\tenum('none','generating','ready','failed')\tNO\t\tnone\t\npreviewVideoUrl\tvarchar(1024)\tYES\t\tNULL\t\naspectRatio\tvarchar(8)\tNO\t\t16:9\t\ncontextAssetUrls\ttext\tYES\t\tNULL\t\nartistType\tenum('band','solo_artist','animated_characters','solo_animated')\tYES\t\tsolo_artist\t\nstoryboardLockedAt\ttimestamp\tYES\t\tNULL\t\npreviewCreditsUsed\tint\tNO\t\t0\t\nqualityStatus\tenum('pending','previewing','approved','rerender_requested','rerendering')\tNO\t\tpending\t\ndownloadedAt\ttimestamp\tYES\t\tNULL\t\nreRenderCount\tint\tNO\t\t0\t\nreRenderReason\ttext\tYES\t\tNULL\t\nreRenderRequestedAt\ttimestamp\tYES\t\tNULL\t\nproviderSpendUsd\tdecimal(8,4)\tNO\t\t0\t\nwastedSpendUsd\tdecimal(8,4)\tNO\t\t0\t\nmaxSpendLimitUsd\tdecimal(6,2)\tNO\t\t5.00\t\nprobePassed\ttinyint(1)\tYES\t\tNULL\t\nfinalVideoProduced\ttinyint(1)\tNO\t\t0\t\natlasFailureCount\tint\tNO\t\t0\t\nfallbackProvider\tvarchar(32)\tYES\t\tNULL\t\nid\tstatus\terrorMessage\tupdatedAt\n510098\tassembling\tNULL\t2026-05-13 20:32:53\n",
+  "stderr": "",
+  "execution_time_ms": 636
+}

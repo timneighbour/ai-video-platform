@@ -7757,3 +7757,11 @@
 - [ ] HEROSHOTPROMPT-1: Update hero shot scene prompts — include 'person is speaking naturally, mouth slightly open, lips moving' for sync-3 compatibility
 - [ ] HEROSHOTPROMPT-2: Add vocals isolation utility function (strip instrumentals from audio URL before passing to lip sync)
 
+
+## Assembly Pipeline Fixes (Session May 13)
+- [x] Fix assembly worker: increase stuck threshold from 3 min to 16 min to prevent re-triggering active Sync Labs jobs
+- [x] Add syncLabsJobId column to musicVideoJobs so polling can resume instead of re-submitting
+- [x] Add hard 8-minute timeout to Sync Labs polling with fallback to assembled video without lip sync
+- [x] Fix assembly worker updatedAt bump logic — removed updatedAt bump on pickup entirely (was causing infinite loop)
+- [x] Recover job 510098 (Zara) — assemblyStartedAt set to 20min ago, syncLabsJobId cleared, will skip lip sync on next assembly trigger
+- [ ] Fix Zara masterPortraitUrl = NULL — investigate why portrait was not saved

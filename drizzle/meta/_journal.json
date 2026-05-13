@@ -575,6 +575,13 @@
       "when": 1778632909824,
       "tag": "0081_hard_masked_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "5",
+      "when": 1778704504658,
+      "tag": "0082_sloppy_ultimatum",
+      "breakpoints": true
     }
   ]
 }
