@@ -31,7 +31,10 @@ import { sdk } from "../_core/sdk";
 import { startSceneRender, pollSceneStatus, assembleMusicVideo } from "../music-video-service";
 import type { AudioTier } from "../wizsound";
 
-const MAX_CONCURRENT_DISPATCHES = 4; // Max scenes to dispatch per heartbeat tick
+// No cap on concurrent dispatches — dispatch ALL pending scenes immediately.
+// WaveSpeed and Atlas Cloud handle their own queuing; we should submit everything
+// so all scenes render in parallel rather than in sequential batches.
+const MAX_CONCURRENT_DISPATCHES = 50; // effectively unlimited for any realistic job size
 const SCENE_STUCK_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes — reaper handles beyond this
 
 export async function sceneDispatchHeartbeatHandler(req: Request, res: Response) {
@@ -118,8 +121,8 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           pendingScenes.push(...refreshed.filter(s => failedScenes.some(f => f.id === s.id)));
         }
 
-        // ── 3. Dispatch pending scenes ─────────────────────────────────────────
-        const toDispatch = pendingScenes.slice(0, MAX_CONCURRENT_DISPATCHES);
+        // ── 3. Dispatch ALL pending scenes immediately (parallel submission) ────
+        const toDispatch = pendingScenes; // dispatch every pending scene, no cap
         for (const scene of toDispatch) {
           try {
             console.log(
