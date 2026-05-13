@@ -68,22 +68,55 @@ export class FalAIClient {
   /**
    * MuseTalk: animate a face video with an audio track.
    * Returns the URL of the lip-synced video.
-   * Typical turnaround: 30–90 seconds.
+   *
+   * Uses async queue polling (NOT fal.subscribe) to avoid indefinite blocking.
+   * - Polls every 8 seconds for up to 10 minutes per attempt
+   * - Retries up to 3 times on failure before throwing
+   * - Typical turnaround: 30–120 seconds
    */
   async museTalkLipSync(input: MuseTalkInput): Promise<string> {
-    const result = await fal.subscribe("fal-ai/musetalk", {
-      input: {
-        source_video_url: input.source_video_url,
-        audio_url: input.audio_url,
-      },
-      logs: false,
-    }) as { data: MuseTalkOutput };
+    const MAX_ATTEMPTS = 3;
+    const POLL_INTERVAL_MS = 8_000;      // poll every 8 seconds
+    const ATTEMPT_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes per attempt
 
-    const videoUrl = result.data?.video?.url;
-    if (!videoUrl) {
-      throw new Error("MuseTalk: no video URL in response");
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      let requestId: string | null = null;
+      try {
+        console.log(`[MuseTalk] Submitting lip-sync job (attempt ${attempt}/${MAX_ATTEMPTS})`);
+        requestId = await this.museTalkSubmit(input);
+        console.log(`[MuseTalk] Job submitted — requestId: ${requestId}`);
+
+        const deadline = Date.now() + ATTEMPT_TIMEOUT_MS;
+        while (Date.now() < deadline) {
+          await new Promise(r => setTimeout(r, POLL_INTERVAL_MS));
+          const statusResult = await this.museTalkStatus(requestId);
+          console.log(`[MuseTalk] Poll status: ${statusResult.status} (requestId: ${requestId})`);
+
+          if (statusResult.status === "completed") {
+            if (!statusResult.video_url) {
+              throw new Error("MuseTalk: completed but no video URL returned");
+            }
+            console.log(`[MuseTalk] Lip-sync complete — url: ${statusResult.video_url}`);
+            return statusResult.video_url;
+          }
+
+          if (statusResult.status === "failed") {
+            throw new Error(`MuseTalk: job failed (requestId: ${requestId})`);
+          }
+          // status is "pending" or "processing" — keep polling
+        }
+        throw new Error(`MuseTalk: timed out after ${ATTEMPT_TIMEOUT_MS / 60000} minutes (requestId: ${requestId})`);
+      } catch (err) {
+        console.warn(`[MuseTalk] Attempt ${attempt}/${MAX_ATTEMPTS} failed: ${err}`);
+        if (attempt === MAX_ATTEMPTS) {
+          throw new Error(`MuseTalk: all ${MAX_ATTEMPTS} attempts failed. Last error: ${err}`);
+        }
+        // Wait 5 seconds before retrying
+        await new Promise(r => setTimeout(r, 5_000));
+      }
     }
-    return videoUrl;
+    // TypeScript: unreachable but required
+    throw new Error("MuseTalk: unexpected exit from retry loop");
   }
 
   /**

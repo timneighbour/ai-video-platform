@@ -1622,8 +1622,11 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     // TIMEOUT: The entire MuseTalk block is capped at 90 seconds. If it hangs (fal.ai slow/unresponsive),
     // we skip it and continue with the original assembled video so the job completes.
     let finalVideoPath = finalVideo;
-    const MUSETALK_TIMEOUT_MS = 90_000; // 90 seconds hard cap
-    const SEEDANCE_I2V_TIMEOUT_MS = 60_000; // 60 seconds for portrait animation
+    // MuseTalk now uses async queue polling with 3 retries × 10 min each.
+    // The outer timeout here is a safety net only — set to 35 minutes to cover
+    // worst case (3 attempts × 10 min + overhead). In practice it completes in 1–3 min.
+    const MUSETALK_TIMEOUT_MS = 35 * 60 * 1000; // 35-minute outer safety net
+    const SEEDANCE_I2V_TIMEOUT_MS = 90_000; // 90 seconds for portrait animation
     const musetalkTimeoutPromise = new Promise<"timeout">((resolve) =>
       setTimeout(() => resolve("timeout"), MUSETALK_TIMEOUT_MS)
     );
@@ -1711,18 +1714,22 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     try {
       const raceResult = await Promise.race([musetalkWorkPromise, musetalkTimeoutPromise]);
       if (raceResult === "timeout") {
-        console.warn(`[MuseTalk] WizSync timed out after ${MUSETALK_TIMEOUT_MS / 1000}s for job ${jobId}. Skipping — using original assembled video.`);
-        // Clear the "Applying WizSync..." status message so the UI doesn't stay stuck
+        // This should almost never happen (35-min outer timeout).
+        // If it does, reset the job to 'rendering' so assembly is retried — never skip lip sync.
+        console.error(`[MuseTalk] WizSync outer timeout (${MUSETALK_TIMEOUT_MS / 60000}min) for job ${jobId}. Resetting job to retry assembly.`);
         await dbConn.update(musicVideoJobs)
-          .set({ errorMessage: null, updatedAt: new Date() })
+          .set({ status: "rendering", errorMessage: "WizSync timed out — retrying assembly...", updatedAt: new Date() })
           .where(eq(musicVideoJobs.id, jobId));
+        return ""; // Exit assembleMusicVideo — heartbeat will re-trigger assembly
       }
     } catch (mtErr) {
-      // MuseTalk failure is non-fatal — continue with original video
-      console.warn(`[MuseTalk] Post-processing failed for job ${jobId}: ${mtErr}. Using original video.`);
-      await dbConn.update(musicVideoJobs)
-        .set({ errorMessage: null, updatedAt: new Date() })
-        .where(eq(musicVideoJobs.id, jobId));
+      // MuseTalk threw after exhausting all 3 retries.
+      // Reset job to 'rendering' so assembly is retried — never deliver without lip sync.
+      console.error(`[MuseTalk] WizSync failed all retries for job ${jobId}: ${mtErr}. Resetting to retry assembly.`);
+        await dbConn.update(musicVideoJobs)
+          .set({ status: "rendering", errorMessage: "WizSync failed — retrying assembly...", updatedAt: new Date() })
+          .where(eq(musicVideoJobs.id, jobId));
+        return ""; // Exit assembleMusicVideo — heartbeat will re-trigger assembly
     }
 
     const finalBuffer = fs.readFileSync(finalVideoPath);
