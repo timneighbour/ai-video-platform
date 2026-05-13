@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT \n  j.id as jobId, j.status as jobStatus, j.completedScenes, j.totalScenes,\n  COUNT(s.id) as totalSceneRows,\n  SUM(CASE WHEN s.status = 'pending' THEN 1 ELSE 0 END) as pendingScenes,\n  SUM(CASE WHEN s.status = 'generating' THEN 1 ELSE 0 END) as generatingScenes,\n  SUM(CASE WHEN s.status = 'completed' THEN 1 ELSE 0 END) as completedSceneRows,\n  SUM(CASE WHEN s.status = 'failed' THEN 1 ELSE 0 END) as failedScenes,\n  MAX(s.updatedAt) as lastSceneUpdate\nFROM musicVideoJobs j\nLEFT JOIN musicVideoScenes s ON s.jobId = j.id\nWHERE j.id = 510099\nGROUP BY j.id;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT \n  j.id as jobId, j.status as jobStatus, j.completedScenes, j.totalScenes,\n  COUNT(s.id) as totalSceneRows,\n  SUM(CASE WHEN s.status = 'pending' THEN 1 ELSE 0 END) as pendingScenes,\n  SUM(CASE WHEN s.status = 'generating' THEN 1 ELSE 0 END) as generatingScenes,\n  SUM(CASE WHEN s.status = 'completed' THEN 1 ELSE 0 END) as completedSceneRows,\n  SUM(CASE WHEN s.status = 'failed' THEN 1 ELSE 0 END) as failedScenes,\n  MAX(s.updatedAt) as lastSceneUpdate\nFROM musicVideoJobs j\nLEFT JOIN musicVideoScenes s ON s.jobId = j.id\nWHERE j.id = 510099\nGROUP BY j.id;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 's.status' in 'where clause'"
+  ]
+}

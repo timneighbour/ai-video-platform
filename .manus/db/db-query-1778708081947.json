@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, status, completedScenes, totalScenes, finalVideoUrl IS NOT NULL as hasFinalVideo, updatedAt FROM musicVideoJobs WHERE id = 510099;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT id, status, completedScenes, totalScenes, finalVideoUrl IS NOT NULL as hasFinalVideo, updatedAt FROM musicVideoJobs WHERE id = 510099;",
+  "rows": [
+    {
+      "id": "510099",
+      "status": "completed",
+      "completedScenes": "9",
+      "totalScenes": "9",
+      "hasFinalVideo": "1",
+      "updatedAt": "2026-05-13 21:29:26"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tcompletedScenes\ttotalScenes\thasFinalVideo\tupdatedAt\n510099\tcompleted\t9\t9\t1\t2026-05-13 21:29:26\n",
+  "stderr": "",
+  "execution_time_ms": 732
+}

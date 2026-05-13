@@ -1583,7 +1583,15 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
 
     const hasLipSyncCharacter = lipSyncChars.length > 0;
 
-    if (hasLipSyncCharacter && isSyncLabsConfigured() && job.audioUrl) {
+    // sync-3 model hard limit: 15 seconds maximum audio duration.
+    // Skip lip sync entirely for tracks longer than 15 seconds.
+    const SYNC_LABS_MAX_AUDIO_SECONDS = 15;
+    const audioTooLongForSyncLabs = job.audioDuration > SYNC_LABS_MAX_AUDIO_SECONDS;
+    if (audioTooLongForSyncLabs && hasLipSyncCharacter) {
+      console.warn(`[WizSync] Job ${jobId}: audio is ${job.audioDuration}s — exceeds sync-3 max of ${SYNC_LABS_MAX_AUDIO_SECONDS}s. Skipping lip sync, delivering cinematic version.`);
+    }
+
+    if (hasLipSyncCharacter && !audioTooLongForSyncLabs && isSyncLabsConfigured() && job.audioUrl) {
       // Sync Labs sync-3: one pass on the final assembled video.
       // Hard timeout: 8 minutes. If Sync Labs takes longer, deliver without lip sync.
       // syncLabsJobId is persisted to DB so polling can resume after server restart

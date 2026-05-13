@@ -1,0 +1,21 @@
+{
+  "query": "\nSELECT \n  j.id as jobId, j.status as jobStatus, j.completedScenes, j.totalScenes, j.finalVideoUrl IS NOT NULL as hasFinalVideo,\n  SUM(CASE WHEN s.mvSceneStatus = 'pending' THEN 1 ELSE 0 END) as pendingScenes,\n  SUM(CASE WHEN s.mvSceneStatus = 'generating' THEN 1 ELSE 0 END) as generatingScenes,\n  SUM(CASE WHEN s.mvSceneStatus = 'completed' THEN 1 ELSE 0 END) as completedSceneRows,\n  SUM(CASE WHEN s.mvSceneStatus = 'failed' THEN 1 ELSE 0 END) as failedScenes\nFROM musicVideoJobs j\nLEFT JOIN musicVideoScenes s ON s.jobId = j.id\nWHERE j.id = 510099\nGROUP BY j.id;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT \n  j.id as jobId, j.status as jobStatus, j.completedScenes, j.totalScenes, j.finalVideoUrl IS NOT NULL as hasFinalVideo,\n  SUM(CASE WHEN s.mvSceneStatus = 'pending' THEN 1 ELSE 0 END) as pendingScenes,\n  SUM(CASE WHEN s.mvSceneStatus = 'generating' THEN 1 ELSE 0 END) as generatingScenes,\n  SUM(CASE WHEN s.mvSceneStatus = 'completed' THEN 1 ELSE 0 END) as completedSceneRows,\n  SUM(CASE WHEN s.mvSceneStatus = 'failed' THEN 1 ELSE 0 END) as failedScenes\nFROM musicVideoJobs j\nLEFT JOIN musicVideoScenes s ON s.jobId = j.id\nWHERE j.id = 510099\nGROUP BY j.id;\n",
+  "rows": [
+    {
+      "jobId": "510099",
+      "jobStatus": "rendering",
+      "completedScenes": "7",
+      "totalScenes": "9",
+      "hasFinalVideo": "0",
+      "pendingScenes": "0",
+      "generatingScenes": "2",
+      "completedSceneRows": "7",
+      "failedScenes": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "jobId\tjobStatus\tcompletedScenes\ttotalScenes\thasFinalVideo\tpendingScenes\tgeneratingScenes\tcompletedSceneRows\tfailedScenes\n510099\trendering\t7\t9\t0\t0\t2\t7\t0\n",
+  "stderr": "",
+  "execution_time_ms": 584
+}

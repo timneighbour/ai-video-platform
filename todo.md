@@ -7765,3 +7765,8 @@
 - [x] Fix assembly worker updatedAt bump logic — removed updatedAt bump on pickup entirely (was causing infinite loop)
 - [x] Recover job 510098 (Zara) — assemblyStartedAt set to 20min ago, syncLabsJobId cleared, will skip lip sync on next assembly trigger
 - [x] Fix Zara masterPortraitUrl = NULL — ROOT CAUSE: saveCharacters never set masterPortraitUrl for AI-generated chars. Fixed: masterPortraitUrl = aiGeneratedImageUrl on insert in characters.ts saveCharacters procedure. Also patched Zara's DB record directly.
+
+## Sync Labs sync-3 Duration Guard Fix — May 13, 2026
+
+- [x] Add SYNC_LABS_MAX_AUDIO_SECONDS = 15 guard in assembleMusicVideo — tracks > 15s skip lip sync cleanly and deliver cinematic version immediately (no stuck assembly loop)
+- [x] Fix misleading UnauthorizedError label for Sync Labs 422 duration error
