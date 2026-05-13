@@ -1396,78 +1396,51 @@ Rules:
         .set({ completedScenes: completedCount, updatedAt: new Date() })
         .where(eq(musicVideoJobs.id, input.jobId));
 
-      // ── PARTIAL ASSEMBLY SUPPORT (≥75% threshold) ──────────────────────────
-      // If all scenes are either completed or failed, trigger assembly.
-      // If ≥75% completed, proceed with partial assembly (skip failed scenes).
-      // If <75% completed, fail the job with a clear message.
-      // Note: With the new auto-retry system, most transient failures are recovered automatically.
-      // The threshold is lowered to 75% to handle edge cases where retries are exhausted.
-      const allScenesSettled = completedCount + failedCount >= scenes.length;
-      const completionRate = scenes.length > 0 ? completedCount / scenes.length : 0;
-      const PARTIAL_ASSEMBLY_THRESHOLD = 0.75; // 75% minimum (was 90%)
-
-      if (allScenesSettled && job.status === "rendering") {
-        if (completedCount === 0) {
-          await db.update(musicVideoJobs)
-            .set({ status: "failed", errorMessage: "All scenes failed to render. Please check your prompts and try again.", updatedAt: new Date() })
-            .where(eq(musicVideoJobs.id, input.jobId));
-        } else if (completionRate >= PARTIAL_ASSEMBLY_THRESHOLD) {
-          // ≥90% completed — proceed with assembly (partial or full)
-          const isPartial = failedCount > 0;
-          const partialNote = isPartial
-            ? `Partial assembly: ${completedCount}/${scenes.length} scenes completed (${failedCount} scene(s) skipped due to render failures).`
-            : null;
-          if (isPartial) {
-            console.warn(`[MusicVideo] Job ${input.jobId}: ${partialNote}`);
-          }
-          // Start assembly asynchronously
-          await db.update(musicVideoJobs)
-            .set({
-              status: "assembling",
-              errorMessage: isPartial ? partialNote : null,
-              updatedAt: new Date()
-            })
-            .where(eq(musicVideoJobs.id, input.jobId));
-
-          // Look up the most recent paid/free render job for this music video to get the audioTier
-          const [latestRenderJob] = await db.select()
-            .from(renderJobs)
-            .where(and(
-              eq(renderJobs.sourceJobId, input.jobId),
-              eq(renderJobs.sourceJobType, "music_video")
-            ))
-            .orderBy(desc(renderJobs.createdAt))
-            .limit(1);
-          const audioTier = (latestRenderJob?.audioTier ?? "standard") as "standard" | "enhanced" | "cinematic";
-
-          assembleMusicVideo(input.jobId, audioTier).catch(async (err) => {
-            console.error(`[MusicVideo] Assembly failed for job ${input.jobId}:`, err);
-            await db!.update(musicVideoJobs)
-              .set({ status: "failed", errorMessage: String(err), updatedAt: new Date() })
-              .where(eq(musicVideoJobs.id, input.jobId));
-          });
-        } else {
-          // <90% completed — too many failures, fail the job
-          const failedPct = Math.round((failedCount / scenes.length) * 100);
-          await db.update(musicVideoJobs)
-            .set({
-              status: "failed",
-              errorMessage: `Too many scenes failed to render (${failedCount}/${scenes.length}, ${failedPct}% failure rate). Your credits have been refunded. Please retry or edit the failed scenes.`,
-              updatedAt: new Date()
-            })
-            .where(eq(musicVideoJobs.id, input.jobId));
-          // Refund credits for all users (including admin) when too many scenes fail
-          if (job.creditCost > 0) { // Refund all users including admin
-            try {
-              await refundCredits(ctx.user.id, job.creditCost, `Refund: high scene failure rate (${failedCount}/${scenes.length}) — job #${job.id}`, job.id);
-            } catch (refundErr) {
-              console.error(`[MusicVideo] CRITICAL: Failed to refund credits for high-failure job ${job.id}:`, refundErr);
-            }
+    // ── ZERO-FAILURE POLICY ──────────────────────────────────────────────────────
+      // Failed scenes are NEVER accepted as permanent. Reset them to pending so
+      // the sceneDispatchHeartbeat picks them up and retries automatically.
+      // The job only proceeds to assembly when ALL scenes are completed.
+      if (failedCount > 0 && job.status === "rendering") {
+        const failedSceneIds = scenes
+          .filter((s) => s.status === "failed")
+          .map((s) => s.id);
+        if (failedSceneIds.length > 0) {
+          console.log(`[MusicVideo] Job ${input.jobId}: resetting ${failedSceneIds.length} failed scene(s) to pending for retry`);
+          for (const sid of failedSceneIds) {
+            await db.update(musicVideoScenes)
+              .set({ status: "pending", taskId: null, errorMessage: null, updatedAt: new Date() })
+              .where(eq(musicVideoScenes.id, sid));
           }
         }
       }
 
-      const [updatedJob] = await db.select().from(musicVideoJobs).where(eq(musicVideoJobs.id, input.jobId));
+      // Only trigger assembly when ALL scenes are completed
+      const allScenesSettled = completedCount >= scenes.length && failedCount === 0;
+
+      if (allScenesSettled && job.status === "rendering") {
+        await db.update(musicVideoJobs)
+          .set({ status: "assembling", errorMessage: null, updatedAt: new Date() })
+          .where(eq(musicVideoJobs.id, input.jobId));
+
+        const [latestRenderJob] = await db.select()
+          .from(renderJobs)
+          .where(and(
+            eq(renderJobs.sourceJobId, input.jobId),
+            eq(renderJobs.sourceJobType, "music_video")
+          ))
+          .orderBy(desc(renderJobs.createdAt))
+          .limit(1);
+        const audioTier = (latestRenderJob?.audioTier ?? "standard") as "standard" | "enhanced" | "cinematic";
+
+        assembleMusicVideo(input.jobId, audioTier).catch(async (err) => {
+          console.error(`[MusicVideo] Assembly failed for job ${input.jobId}:`, err);
+          await db!.update(musicVideoJobs)
+            .set({ status: "rendering", errorMessage: null, updatedAt: new Date() })
+            .where(eq(musicVideoJobs.id, input.jobId));
+        });
+      }
+
+            const [updatedJob] = await db.select().from(musicVideoJobs).where(eq(musicVideoJobs.id, input.jobId));
 
       // Re-fetch scenes to get latest statuses for per-scene progress display
       const updatedScenes = await db.select().from(musicVideoScenes)

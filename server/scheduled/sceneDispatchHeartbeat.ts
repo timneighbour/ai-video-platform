@@ -102,7 +102,23 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         );
         const completedScenes = scenes.filter((s) => s.status === "completed");
 
-        // ── 2. Dispatch pending scenes ─────────────────────────────────────────
+        // ── 2. Auto-recover failed scenes back to pending ──────────────────────
+        // Failed scenes are NEVER left as failed — reset them to pending so they
+        // get dispatched again on the next tick.
+        const failedScenes = scenes.filter((s) => s.status === "failed");
+        if (failedScenes.length > 0) {
+          console.log(`[SceneDispatch] Job ${job.id} — resetting ${failedScenes.length} failed scene(s) back to pending for retry`);
+          for (const fs of failedScenes) {
+            await db.update(musicVideoScenes)
+              .set({ status: "pending", taskId: null, errorMessage: null, updatedAt: new Date() })
+              .where(eq(musicVideoScenes.id, fs.id));
+          }
+          // Re-fetch scenes after reset so pending list is accurate
+          const refreshed = await db.select().from(musicVideoScenes).where(eq(musicVideoScenes.jobId, job.id));
+          pendingScenes.push(...refreshed.filter(s => failedScenes.some(f => f.id === s.id)));
+        }
+
+        // ── 3. Dispatch pending scenes ─────────────────────────────────────────
         const toDispatch = pendingScenes.slice(0, MAX_CONCURRENT_DISPATCHES);
         for (const scene of toDispatch) {
           try {
@@ -140,11 +156,12 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           } catch (dispatchErr: any) {
             const errMsg = String(dispatchErr?.message ?? dispatchErr).slice(0, 300);
             console.error(`[SceneDispatch] Failed to dispatch scene ${scene.id}: ${errMsg}`);
-            // Don't mark as failed yet — let the reaper handle persistent failures
+            // Keep scene as pending — it will be retried on the next heartbeat tick.
+            // Never mark as failed here.
           }
         }
 
-        // ── 3. Poll generating scenes for completion ───────────────────────────
+        // ── 4. Poll generating scenes for completion ───────────────────────────
         for (const scene of generatingScenes) {
           try {
             // Skip scenes that are too fresh (avoid hammering the API)
@@ -173,15 +190,17 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               console.log(`[SceneDispatch] Scene ${scene.id} completed ✓`);
               totalPolled++;
             } else if (pollResult?.status === "failed") {
+              // Reset to pending — never leave as failed. Will be re-dispatched next tick.
               await db
                 .update(musicVideoScenes)
                 .set({
-                  status: "failed",
-                  errorMessage: "Provider returned failed status — will be retried automatically",
+                  status: "pending",
+                  taskId: null,
+                  errorMessage: null,
                   updatedAt: new Date(),
                 })
                 .where(eq(musicVideoScenes.id, scene.id));
-              console.warn(`[SceneDispatch] Scene ${scene.id} failed`);
+              console.warn(`[SceneDispatch] Scene ${scene.id} provider returned failed — reset to pending for retry`);
             }
             // "processing" — do nothing, poll again next tick
           } catch (pollErr: any) {
@@ -190,7 +209,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           }
         }
 
-        // ── 4. Re-check completion after polling ───────────────────────────────
+        // ── 5. Re-check completion after polling ───────────────────────────────
         const freshScenes = await db
           .select()
           .from(musicVideoScenes)
@@ -209,7 +228,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             .where(eq(musicVideoJobs.id, job.id));
         }
 
-        // ── 5. Trigger assembly when all scenes are done ───────────────────────
+        // ── 6. Trigger assembly when all scenes are done ───────────────────────
         const allDone = nowPending.length === 0 && nowGenerating.length === 0;
         const hasCompletedScenes = nowCompleted.length > 0;
 
@@ -234,19 +253,17 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           }
         }
 
-        // ── 6. Handle all-failed case ──────────────────────────────────────────
+        // ── 7. Never mark job as failed — if all scenes are stuck, reset them ──
+        // The system will keep retrying indefinitely. No job ever enters 'failed' state
+        // due to provider downtime.
         if (allDone && nowCompleted.length === 0 && nowFailed.length > 0) {
-          console.error(
-            `[SceneDispatch] Job ${job.id} — ALL ${nowFailed.length} scenes failed. Marking job failed.`
+          console.warn(
+            `[SceneDispatch] Job ${job.id} — all scenes in failed state. Resetting all to pending for retry.`
           );
           await db
-            .update(musicVideoJobs)
-            .set({
-              status: "failed",
-              errorMessage: "All scenes failed to generate. Your credits have been refunded — please try again.",
-              updatedAt: new Date(),
-            })
-            .where(eq(musicVideoJobs.id, job.id));
+            .update(musicVideoScenes)
+            .set({ status: "pending", taskId: null, errorMessage: null, updatedAt: new Date() })
+            .where(eq(musicVideoScenes.jobId, job.id));
         }
       } catch (jobErr: any) {
         console.error(`[SceneDispatch] Error processing job ${job.id}:`, String(jobErr?.message ?? jobErr).slice(0, 300));

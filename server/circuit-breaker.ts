@@ -55,15 +55,18 @@ const DEFAULT_CONFIG: CircuitBreakerConfig = {
 };
 
 // Provider-specific overrides
+// Recovery windows are kept short (90s) so providers recover quickly after
+// brief outages. The sceneDispatchHeartbeat retries pending scenes every 60s,
+// so a 90s window means at most 2 missed ticks before a provider is re-tried.
 const PROVIDER_CONFIGS: Record<string, Partial<CircuitBreakerConfig>> = {
-  atlas_cloud: { failureThreshold: 3, recoveryWindowMs: 3 * 60 * 1000 },
-  atlas_cloud_fast: { failureThreshold: 3, recoveryWindowMs: 3 * 60 * 1000 },
-  wavespeed: { failureThreshold: 2, recoveryWindowMs: 5 * 60 * 1000 },
-  fal_seedance: { failureThreshold: 2, recoveryWindowMs: 5 * 60 * 1000 },
-  kling_standard: { failureThreshold: 3, recoveryWindowMs: 5 * 60 * 1000 },
-  kling_pro: { failureThreshold: 3, recoveryWindowMs: 5 * 60 * 1000 },
-  runway: { failureThreshold: 3, recoveryWindowMs: 5 * 60 * 1000 },
-  hypereal: { failureThreshold: 2, recoveryWindowMs: 10 * 60 * 1000 },
+  atlas_cloud: { failureThreshold: 3, recoveryWindowMs: 90 * 1000 },       // 90s
+  atlas_cloud_fast: { failureThreshold: 3, recoveryWindowMs: 90 * 1000 },  // 90s
+  wavespeed: { failureThreshold: 3, recoveryWindowMs: 90 * 1000 },          // 90s
+  fal_seedance: { failureThreshold: 3, recoveryWindowMs: 90 * 1000 },       // 90s
+  kling_standard: { failureThreshold: 3, recoveryWindowMs: 2 * 60 * 1000 }, // 2min
+  kling_pro: { failureThreshold: 3, recoveryWindowMs: 2 * 60 * 1000 },      // 2min
+  runway: { failureThreshold: 3, recoveryWindowMs: 2 * 60 * 1000 },         // 2min
+  hypereal: { failureThreshold: 3, recoveryWindowMs: 2 * 60 * 1000 },       // 2min
 };
 
 class CircuitBreaker {
