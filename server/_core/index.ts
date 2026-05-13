@@ -18,6 +18,7 @@ import { handleStripeWebhook } from "../webhooks";
 import { wizadoraRouter } from "../wizadora/router";
 import Stripe from "stripe";
 import { stuckSceneReaperHandler } from "../scheduled/stuckSceneReaper";
+import { sceneDispatchHeartbeatHandler } from "../scheduled/sceneDispatchHeartbeat";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -384,6 +385,11 @@ async function startServer() {
 
   // ── Scheduled: stuck-scene reaper (Manus Heartbeat cron) ───────────────────
   app.post("/api/scheduled/stuckSceneReaper", stuckSceneReaperHandler);
+
+  // ── Scheduled: server-side scene dispatch heartbeat ──────────────────────
+  // Dispatches pending scenes every 60s regardless of browser state.
+  // This ensures renders complete even when users close their browser tab.
+  app.post("/api/scheduled/sceneDispatchHeartbeat", sceneDispatchHeartbeatHandler);
 
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {

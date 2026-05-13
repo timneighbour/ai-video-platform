@@ -7661,3 +7661,20 @@
 - [ ] ORCH-4: Register stuckSceneReaper heartbeat cron in production via manus-heartbeat CLI
 - [ ] ORCH-5: Reduce stuckSceneReaper threshold from 15 min to 8 min for faster auto-recovery
 - [ ] ORCH-6: Surface queue health and circuit breaker status in admin dashboard
+
+## Render Pipeline Reliability (Phase 1 + Emergency Fixes) - COMPLETED ✅
+- [x] Add circuit breaker module (CLOSED/OPEN/HALF_OPEN per provider, Atlas 3-failure trip, WaveSpeed 2-failure trip)
+- [x] Wire circuit breakers into startSceneRender provider routing block
+- [x] Add queue health monitor with provider spiral detection (≥5 failures in 30min auto-opens circuit)
+- [x] Add getQueueHealth and resetCircuitBreaker admin tRPC endpoints
+- [x] Reduce stuckSceneReaper threshold from 15 → 8 minutes
+- [x] Fix assembly hang: add 90-second timeout to MuseTalk block via Promise.race (skips MuseTalk on timeout)
+- [x] Fix character inconsistency: per-scene character resolution from characterAssignments (not shared primary portrait)
+- [x] Add fallbackProvider and atlasFailureCount columns to musicVideoJobs schema
+- [x] Auto-escalate job to WaveSpeed after 2 Atlas failures on same job
+- [x] stuckSceneReaper never leaves scenes as manual-retry — force-escalates to WaveSpeed and auto-retries
+- [x] Build server-side scene dispatch heartbeat (sceneDispatchHeartbeat.ts) — dispatches pending scenes every 60s regardless of browser state
+- [x] Register sceneDispatchHeartbeat at POST /api/scheduled/sceneDispatchHeartbeat in index.ts
+- [x] Fix UI progress messaging: remove misleading "< 1 min left" estimates, show honest scene count remaining
+- [x] Update reassurance panel: "Rendering continues on our servers even if you close this tab"
+- [x] Reset job 510025 (Aria Showcase) to WaveSpeed fallback for immediate re-render

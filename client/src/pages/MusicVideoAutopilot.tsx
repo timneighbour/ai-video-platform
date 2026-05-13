@@ -4823,7 +4823,7 @@ export default function MusicVideoAutopilot() {
                           ? "WizSound™ is applying cinematic audio mastering to your final video..."
                           : renderStatus === "assembling"
                           ? "All scenes generated! Assembling your video and applying WizSync™ Portrait-to-LipSync™ for cinematic performance..."
-                          : `Generating ${totalScenes} cinematic scenes — this usually takes 5–15 minutes.`}
+                          : `Generating ${totalScenes} scenes — each scene takes 1–3 minutes. You can leave this page — rendering continues in the background.`}
                       </p>
                       {/* Quality & audio tier badges */}
                       <div className="flex items-center justify-center gap-2 flex-wrap">
@@ -4837,17 +4837,16 @@ export default function MusicVideoAutopilot() {
                             ? `${liveElapsed}s elapsed`
                             : `${Math.floor(liveElapsed / 60)}m ${liveElapsed % 60}s elapsed`}
                         </span>
-                        {completedScenes > 0 && totalScenes > 0 && renderStatus === "rendering" && (() => {
-                          const msPerScene = (liveElapsed * 1000) / completedScenes;
-                          const remaining = (totalScenes - completedScenes) * msPerScene;
-                          const remMin = Math.ceil(remaining / 60000);
-                          return (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-xs">
-                              <Info className="w-3 h-3" />
-                              {remMin <= 1 ? "< 1 min left" : `~${remMin} min left`}
-                            </span>
-                          );
-                        })()}
+                        {renderStatus === "rendering" && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-xs">
+                            <Info className="w-3 h-3" />
+                            {completedScenes === 0
+                              ? "Queuing scenes..."
+                              : completedScenes < totalScenes
+                              ? `${totalScenes - completedScenes} scene${totalScenes - completedScenes !== 1 ? "s" : ""} remaining`
+                              : "Finalising..."}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -4861,13 +4860,8 @@ export default function MusicVideoAutopilot() {
                           : totalScenes > 0 ? Math.min(90, Math.round((completedScenes / totalScenes) * 90)) : 0;
                         const elapsedMin = Math.floor(liveElapsed / 60);
                         const elapsedSec = liveElapsed % 60;
-                        const etaText = (() => {
-                          if (completedScenes === 0 || totalScenes === 0 || renderStatus !== "rendering") return null;
-                          const secPerScene = liveElapsed / completedScenes;
-                          const remaining = (totalScenes - completedScenes) * secPerScene;
-                          const remMin = Math.ceil(remaining / 60);
-                          return remMin <= 1 ? "< 1 min remaining" : `~${remMin} min remaining`;
-                        })();
+                          // No fake ETA — show honest scene count instead
+                          const etaText: string | null = null;
                         const barGradient = renderStatus === "wizsound"
                           ? "linear-gradient(90deg, #7c3aed, #a855f7, #ec4899)"
                           : renderStatus === "assembling"
@@ -4933,8 +4927,7 @@ export default function MusicVideoAutopilot() {
                         <div>
                           <p className="text-sm font-medium text-white mb-1">Your render is in progress</p>
                           <p className="text-xs text-white/50 leading-relaxed">
-                            You can safely leave this page or close the tab. We'll send you a browser notification and email when your video is ready.
-                            {" "}Your progress is saved automatically.
+                            Rendering continues on our servers even if you close this tab. We'll send you a browser notification and email when your video is ready — usually within 5–15 minutes for a 9-scene video.
                           </p>
                         </div>
                       </div>

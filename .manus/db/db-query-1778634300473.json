@@ -1,0 +1,82 @@
+{
+  "query": "\nSELECT \n  id, sceneIndex, mvSceneStatus, taskId, \n  LEFT(errorMessage, 80) AS err,\n  TIMESTAMPDIFF(SECOND, updatedAt, NOW()) AS secs_since_update\nFROM musicVideoScenes \nWHERE jobId = 510025 \nORDER BY sceneIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT \n  id, sceneIndex, mvSceneStatus, taskId, \n  LEFT(errorMessage, 80) AS err,\n  TIMESTAMPDIFF(SECOND, updatedAt, NOW()) AS secs_since_update\nFROM musicVideoScenes \nWHERE jobId = 510025 \nORDER BY sceneIndex;\n",
+  "rows": [
+    {
+      "id": "540001",
+      "sceneIndex": "0",
+      "mvSceneStatus": "completed",
+      "taskId": "atlas:cee961b174a544faa62b1a4b794e1bf6",
+      "err": "NULL",
+      "secs_since_update": "2226"
+    },
+    {
+      "id": "540002",
+      "sceneIndex": "1",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "err": "NULL",
+      "secs_since_update": "1675"
+    },
+    {
+      "id": "540003",
+      "sceneIndex": "2",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "err": "NULL",
+      "secs_since_update": "1675"
+    },
+    {
+      "id": "540004",
+      "sceneIndex": "3",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "err": "NULL",
+      "secs_since_update": "1675"
+    },
+    {
+      "id": "540005",
+      "sceneIndex": "4",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "err": "NULL",
+      "secs_since_update": "1675"
+    },
+    {
+      "id": "540006",
+      "sceneIndex": "5",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "err": "NULL",
+      "secs_since_update": "1675"
+    },
+    {
+      "id": "540007",
+      "sceneIndex": "6",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "err": "NULL",
+      "secs_since_update": "1675"
+    },
+    {
+      "id": "540008",
+      "sceneIndex": "7",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "err": "NULL",
+      "secs_since_update": "1675"
+    },
+    {
+      "id": "540009",
+      "sceneIndex": "8",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "err": "NULL",
+      "secs_since_update": "1675"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsceneIndex\tmvSceneStatus\ttaskId\terr\tsecs_since_update\n540001\t0\tcompleted\tatlas:cee961b174a544faa62b1a4b794e1bf6\tNULL\t2226\n540002\t1\tpending\tNULL\tNULL\t1675\n540003\t2\tpending\tNULL\tNULL\t1675\n540004\t3\tpending\tNULL\tNULL\t1675\n540005\t4\tpending\tNULL\tNULL\t1675\n540006\t5\tpending\tNULL\tNULL\t1675\n540007\t6\tpending\tNULL\tNULL\t1675\n540008\t7\tpending\tNULL\tNULL\t1675\n540009\t8\tpending\tNULL\tNULL\t1675\n",
+  "stderr": "",
+  "execution_time_ms": 258
+}
