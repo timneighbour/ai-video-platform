@@ -743,9 +743,26 @@ export async function startSceneRender(
   // Policy: Try Atlas Cloud first. If Atlas returns 402 (insufficient balance) or is unavailable,
   //         automatically fall back to WaveSpeed. Surface all other errors immediately.
   if (renderer === "wavespeed" || renderer === "fal_seedance" || renderer === "seedance" || renderer === "atlas_cloud" || renderer === "atlas_cloud_fast") {
-    // ── Circuit Breaker Check ────────────────────────────────────────────────
+    // ── Per-job fallback override check ────────────────────────────────────────────
+    // If this job has been escalated to WaveSpeed (fallbackProvider = 'wavespeed'),
+    // skip Atlas entirely and go straight to WaveSpeed.
+    let jobFallbackProvider: string | null = null;
+    if (jobId > 0) {
+      try {
+        const db = await getDb();
+        if (db) {
+          const [jobRow] = await db.select({ fallbackProvider: musicVideoJobs.fallbackProvider })
+            .from(musicVideoJobs)
+            .where(eq(musicVideoJobs.id, jobId));
+          jobFallbackProvider = jobRow?.fallbackProvider ?? null;
+        }
+      } catch { /* non-fatal */ }
+    }
+    const forceWaveSpeed = jobFallbackProvider === "wavespeed";
+
+    // ── Circuit Breaker Check ──────────────────────────────────────────────
     const atlasCircuit = getCircuitBreaker("atlas_cloud");
-    const atlasOpen = isProviderDegraded("atlas_cloud") || !atlasCircuit.canRequest();
+    const atlasOpen = forceWaveSpeed || isProviderDegraded("atlas_cloud") || !atlasCircuit.canRequest();
 
     if (!atlasOpen) {
       // Step 1: Try Atlas Cloud Fast (primary) — with reference-to-video for lip sync when character image is available
@@ -766,8 +783,32 @@ export async function startSceneRender(
         const atlasMsg = String(atlasErr?.message ?? atlasErr);
         const isExhausted = atlasMsg.includes("402") || atlasMsg.toLowerCase().includes("insufficient") || atlasMsg.toLowerCase().includes("balance") || atlasMsg.toLowerCase().includes("payment");
         if (!isExhausted) {
-          // Non-balance error (content policy, network, etc.) — record failure and surface immediately
+          // Non-balance error (content policy, network, etc.) — record failure, increment per-job counter, check auto-escalation
           atlasCircuit.recordFailure();
+          // Increment per-job Atlas failure count and auto-escalate to WaveSpeed after ATLAS_JOB_FAILURE_THRESHOLD
+          const ATLAS_JOB_FAILURE_THRESHOLD = 2;
+          if (jobId > 0) {
+            try {
+              const db = await getDb();
+              if (db) {
+                const [updated] = await db.select({ atlasFailureCount: musicVideoJobs.atlasFailureCount })
+                  .from(musicVideoJobs)
+                  .where(eq(musicVideoJobs.id, jobId));
+                const newCount = (updated?.atlasFailureCount ?? 0) + 1;
+                const shouldEscalate = newCount >= ATLAS_JOB_FAILURE_THRESHOLD;
+                await db.update(musicVideoJobs)
+                  .set({
+                    atlasFailureCount: newCount,
+                    ...(shouldEscalate ? { fallbackProvider: "wavespeed" } : {}),
+                    updatedAt: new Date(),
+                  })
+                  .where(eq(musicVideoJobs.id, jobId));
+                if (shouldEscalate) {
+                  console.warn(`[MusicVideo] Job ${jobId} auto-escalated to WaveSpeed after ${newCount} Atlas failures. All remaining scenes will use WaveSpeed.`);
+                }
+              }
+            } catch { /* non-fatal */ }
+          }
           console.error(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed (non-balance error). No fallback.`, atlasMsg.slice(0, 200));
           throw new Error(`Video generation failed for scene ${sceneId}. Please try again in a moment.`);
         }
@@ -777,7 +818,11 @@ export async function startSceneRender(
         import("./provider-health").then(({ notifyAtlasExhausted }) => notifyAtlasExhausted()).catch(() => {});
       }
     } else {
-      console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud circuit is OPEN — routing directly to WaveSpeed.`);
+      if (forceWaveSpeed) {
+        console.log(`[MusicVideo] Scene ${sceneId} job ${jobId} has fallbackProvider=wavespeed — routing directly to WaveSpeed.`);
+      } else {
+        console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud circuit is OPEN — routing directly to WaveSpeed.`);
+      }
     }
 
     // Step 2: WaveSpeed fallback (Atlas exhausted or circuit open)

@@ -1,0 +1,9 @@
+{
+  "query": "\nUPDATE musicVideoJobs\nSET \n  status = 'storyboard_ready',\n  errorMessage = NULL,\n  completedScenes = 0,\n  updatedAt = NOW()\nWHERE id = 510025;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nUPDATE musicVideoJobs\nSET \n  status = 'storyboard_ready',\n  errorMessage = NULL,\n  completedScenes = 0,\n  updatedAt = NOW()\nWHERE id = 510025;\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 293
+}

@@ -1,0 +1,42 @@
+{
+  "query": "\nSELECT sceneId, COUNT(*) as attempts\nFROM providerJobLogs\nWHERE sceneId IN (540002, 540003, 540004, 540005, 540006, 540007, 540008, 540009)\nGROUP BY sceneId\nORDER BY sceneId;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT sceneId, COUNT(*) as attempts\nFROM providerJobLogs\nWHERE sceneId IN (540002, 540003, 540004, 540005, 540006, 540007, 540008, 540009)\nGROUP BY sceneId\nORDER BY sceneId;\n",
+  "rows": [
+    {
+      "sceneId": "540002",
+      "attempts": "4"
+    },
+    {
+      "sceneId": "540003",
+      "attempts": "4"
+    },
+    {
+      "sceneId": "540004",
+      "attempts": "3"
+    },
+    {
+      "sceneId": "540005",
+      "attempts": "4"
+    },
+    {
+      "sceneId": "540006",
+      "attempts": "4"
+    },
+    {
+      "sceneId": "540007",
+      "attempts": "3"
+    },
+    {
+      "sceneId": "540008",
+      "attempts": "4"
+    },
+    {
+      "sceneId": "540009",
+      "attempts": "10"
+    }
+  ],
+  "messages": [],
+  "stdout": "sceneId\tattempts\n540002\t4\n540003\t4\n540004\t3\n540005\t4\n540006\t4\n540007\t3\n540008\t4\n540009\t10\n",
+  "stderr": "",
+  "execution_time_ms": 254
+}

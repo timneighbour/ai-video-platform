@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT sceneId, COUNT(*) as attempts, MAX(createdAt) as lastAttempt, \n       GROUP_CONCAT(DISTINCT status ORDER BY createdAt DESC SEPARATOR ', ') as statuses\nFROM providerJobLogs\nWHERE sceneId IN (540002, 540003, 540004, 540005, 540006, 540007, 540008, 540009)\nGROUP BY sceneId\nORDER BY sceneId;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT sceneId, COUNT(*) as attempts, MAX(createdAt) as lastAttempt, \n       GROUP_CONCAT(DISTINCT status ORDER BY createdAt DESC SEPARATOR ', ') as statuses\nFROM providerJobLogs\nWHERE sceneId IN (540002, 540003, 540004, 540005, 540006, 540007, 540008, 540009)\nGROUP BY sceneId\nORDER BY sceneId;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'status' in 'where clause'"
+  ]
+}

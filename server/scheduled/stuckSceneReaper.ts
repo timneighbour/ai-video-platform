@@ -126,15 +126,33 @@ export async function stuckSceneReaperHandler(req: Request, res: Response) {
     // ── 4. Reset attempt counters so auto-retry isn't blocked ─────────────────
     await Promise.all(sceneIds.map((id) => resetSceneAttempts(id)));
 
-    // ── 5. Fetch job titles for logging ───────────────────────────────────────
+    // ── 5. Fetch job metadata for logging and provider routing ───────────────────────────
     const uniqueJobIds = Array.from(new Set(stuckScenes.map((s) => s.jobId)));
     const jobs = await db
-      .select({ id: musicVideoJobs.id, title: musicVideoJobs.title, userId: musicVideoJobs.userId })
+      .select({
+        id: musicVideoJobs.id,
+        title: musicVideoJobs.title,
+        userId: musicVideoJobs.userId,
+        atlasFailureCount: musicVideoJobs.atlasFailureCount,
+        fallbackProvider: musicVideoJobs.fallbackProvider,
+        aspectRatio: musicVideoJobs.aspectRatio,
+      })
       .from(musicVideoJobs)
       .where(inArray(musicVideoJobs.id, uniqueJobIds));
     const jobMap = new Map(jobs.map((j) => [j.id, j]));
 
-    // ── 6. Log each reaped scene to sceneActionLogs ───────────────────────────
+    // Auto-escalate jobs that have hit the Atlas failure threshold
+    const ATLAS_JOB_FAILURE_THRESHOLD = 2;
+    for (const job of jobs) {
+      if ((job.atlasFailureCount ?? 0) >= ATLAS_JOB_FAILURE_THRESHOLD && job.fallbackProvider !== "wavespeed") {
+        await db
+          .update(musicVideoJobs)
+          .set({ fallbackProvider: "wavespeed", updatedAt: new Date() })
+          .where(eq(musicVideoJobs.id, job.id));
+        job.fallbackProvider = "wavespeed"; // update local reference
+        console.warn(`[StuckSceneReaper] Job ${job.id} auto-escalated to WaveSpeed (atlasFailureCount=${job.atlasFailureCount})`);
+      }
+    } // ── 6. Log each reaped scene to sceneActionLogs ───────────────────────────
     for (const scene of stuckScenes) {
       const job = jobMap.get(scene.jobId);
       await db
@@ -172,17 +190,27 @@ export async function stuckSceneReaperHandler(req: Request, res: Response) {
       (s) => (attemptMap.get(s.id) ?? 0) >= AUTO_RETRY_MAX_ATTEMPTS
     );
 
-    // Update manual-retry scenes with a clearer error message
+    // "Manual-retry" scenes have exceeded the normal auto-retry limit.
+    // Instead of leaving them as hard failures (which causes "Build Failed" for users),
+    // we force-escalate their job to WaveSpeed and add them back to the auto-retry pool.
+    // This ensures users NEVER see a permanent build failure from provider congestion.
     if (manualRetryScenes.length > 0) {
-      await db
-        .update(musicVideoScenes)
-        .set({
-          status: "failed",
-          errorMessage:
-            "Scene timed out after multiple attempts. Please retry manually from your dashboard.",
-          updatedAt: new Date(),
-        })
-        .where(inArray(musicVideoScenes.id, manualRetryScenes.map((s) => s.id)));
+      const manualJobIds = Array.from(new Set(manualRetryScenes.map((s) => s.jobId)));
+      for (const jid of manualJobIds) {
+        const job = jobMap.get(jid);
+        if (job && job.fallbackProvider !== "wavespeed") {
+          await db
+            .update(musicVideoJobs)
+            .set({ fallbackProvider: "wavespeed", updatedAt: new Date() })
+            .where(eq(musicVideoJobs.id, jid));
+          if (job) job.fallbackProvider = "wavespeed";
+          console.warn(`[StuckSceneReaper] Job ${jid} force-escalated to WaveSpeed (manual-retry threshold reached)`);
+        }
+      }
+      // Clear the attempt history so these scenes can be auto-retried via WaveSpeed
+      await Promise.all(manualRetryScenes.map((s) => resetSceneAttempts(s.id)));
+      // Move them into the auto-retry pool
+      autoRetryScenes.push(...manualRetryScenes);
     }
 
     // ── 8. Auto-retry eligible scenes ────────────────────────────────────────

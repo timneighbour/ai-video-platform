@@ -568,6 +568,13 @@
       "when": 1778616051937,
       "tag": "0080_slim_thunderbolt_ross",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "5",
+      "when": 1778632909824,
+      "tag": "0081_hard_masked_marvel",
+      "breakpoints": true
     }
   ]
 }

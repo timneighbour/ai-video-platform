@@ -1,0 +1,18 @@
+{
+  "query": "\nUPDATE musicVideoJobs\nSET fallbackProvider = 'wavespeed',\n    atlasFailureCount = 8,\n    updatedAt = NOW()\nWHERE id = 510025;\n\nSELECT id, status, completedScenes, totalScenes, fallbackProvider, atlasFailureCount FROM musicVideoJobs WHERE id = 510025;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nUPDATE musicVideoJobs\nSET fallbackProvider = 'wavespeed',\n    atlasFailureCount = 8,\n    updatedAt = NOW()\nWHERE id = 510025;\n\nSELECT id, status, completedScenes, totalScenes, fallbackProvider, atlasFailureCount FROM musicVideoJobs WHERE id = 510025;\n",
+  "rows": [
+    {
+      "id": "510025",
+      "status": "rendering",
+      "completedScenes": "1",
+      "totalScenes": "9",
+      "fallbackProvider": "wavespeed",
+      "atlasFailureCount": "8"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tcompletedScenes\ttotalScenes\tfallbackProvider\tatlasFailureCount\n510025\trendering\t1\t9\twavespeed\t8\n",
+  "stderr": "",
+  "execution_time_ms": 265
+}

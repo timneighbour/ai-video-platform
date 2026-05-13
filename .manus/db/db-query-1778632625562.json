@@ -1,0 +1,21 @@
+{
+  "query": "\n-- Clear the accumulated attempt history so reaper treats them as fresh\nDELETE FROM providerJobLogs\nWHERE sceneId IN (540002, 540003, 540004, 540005, 540006, 540007, 540008, 540009);\n\n-- Reset all 8 failed scenes to pending\nUPDATE musicVideoScenes\nSET mvSceneStatus = 'pending',\n    taskId = NULL,\n    videoUrl = NULL,\n    errorMessage = NULL,\n    updatedAt = NOW()\nWHERE id IN (540002, 540003, 540004, 540005, 540006, 540007, 540008, 540009);\n\n-- Reset the parent job back to rendering so the dispatch loop picks it up\nUPDATE musicVideoJobs\nSET status = 'rendering',\n    completedScenes = 1,\n    errorMessage = NULL,\n    updatedAt = NOW()\nWHERE id = 510025;\n\n-- Verify\nSELECT id, status, completedScenes, totalScenes, errorMessage FROM musicVideoJobs WHERE id = 510025;\nSELECT COUNT(*) as cnt, mvSceneStatus FROM musicVideoScenes WHERE jobId = 510025 GROUP BY mvSceneStatus;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \n-- Clear the accumulated attempt history so reaper treats them as fresh\nDELETE FROM providerJobLogs\nWHERE sceneId IN (540002, 540003, 540004, 540005, 540006, 540007, 540008, 540009);\n\n-- Reset all 8 failed scenes to pending\nUPDATE musicVideoScenes\nSET mvSceneStatus = 'pending',\n    taskId = NULL,\n    videoUrl = NULL,\n    errorMessage = NULL,\n    updatedAt = NOW()\nWHERE id IN (540002, 540003, 540004, 540005, 540006, 540007, 540008, 540009);\n\n-- Reset the parent job back to rendering so the dispatch loop picks it up\nUPDATE musicVideoJobs\nSET status = 'rendering',\n    completedScenes = 1,\n    errorMessage = NULL,\n    updatedAt = NOW()\nWHERE id = 510025;\n\n-- Verify\nSELECT id, status, completedScenes, totalScenes, errorMessage FROM musicVideoJobs WHERE id = 510025;\nSELECT COUNT(*) as cnt, mvSceneStatus FROM musicVideoScenes WHERE jobId = 510025 GROUP BY mvSceneStatus;\n",
+  "rows": [
+    {
+      "id": "510025",
+      "status": "rendering",
+      "completedScenes": "1",
+      "totalScenes": "9",
+      "errorMessage": "NULL"
+    }
+  ],
+  "messages": [
+    "cnt\tmvSceneStatus",
+    "8\tpending",
+    "1\tcompleted"
+  ],
+  "stdout": "id\tstatus\tcompletedScenes\ttotalScenes\terrorMessage\n510025\trendering\t1\t9\tNULL\ncnt\tmvSceneStatus\n8\tpending\n1\tcompleted\n",
+  "stderr": "",
+  "execution_time_ms": 294
+}

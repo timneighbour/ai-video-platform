@@ -1,0 +1,82 @@
+{
+  "query": "\nSELECT id, sceneIndex, mvSceneStatus, errorMessage, taskId, videoUrl\nFROM musicVideoScenes\nWHERE jobId = 510025\nORDER BY sceneIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, sceneIndex, mvSceneStatus, errorMessage, taskId, videoUrl\nFROM musicVideoScenes\nWHERE jobId = 510025\nORDER BY sceneIndex;\n",
+  "rows": [
+    {
+      "id": "540001",
+      "sceneIndex": "0",
+      "mvSceneStatus": "completed",
+      "errorMessage": "NULL",
+      "taskId": "atlas:cee961b174a544faa62b1a4b794e1bf6",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540001-1778632073864.mp4"
+    },
+    {
+      "id": "540002",
+      "sceneIndex": "1",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after multiple attempts. Please retry manually from your dashboard.",
+      "taskId": "atlas:4a523e2514354c5ba7176c7e2ce0fb00",
+      "videoUrl": "NULL"
+    },
+    {
+      "id": "540003",
+      "sceneIndex": "2",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after multiple attempts. Please retry manually from your dashboard.",
+      "taskId": "atlas:b83cd7f159f54f9e922f28ca37925493",
+      "videoUrl": "NULL"
+    },
+    {
+      "id": "540004",
+      "sceneIndex": "3",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after multiple attempts. Please retry manually from your dashboard.",
+      "taskId": "atlas:10ecb5d0d0414b929bc6e100c994adc8",
+      "videoUrl": "NULL"
+    },
+    {
+      "id": "540005",
+      "sceneIndex": "4",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after multiple attempts. Please retry manually from your dashboard.",
+      "taskId": "atlas:a77209420d17442ca1732536c0e163cf",
+      "videoUrl": "NULL"
+    },
+    {
+      "id": "540006",
+      "sceneIndex": "5",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after multiple attempts. Please retry manually from your dashboard.",
+      "taskId": "atlas:bb6cb5ffc9fc4b10965dc99d63939044",
+      "videoUrl": "NULL"
+    },
+    {
+      "id": "540007",
+      "sceneIndex": "6",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after multiple attempts. Please retry manually from your dashboard.",
+      "taskId": "atlas:73df5dbd8d084460a133c9a38817a7a4",
+      "videoUrl": "NULL"
+    },
+    {
+      "id": "540008",
+      "sceneIndex": "7",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after multiple attempts. Please retry manually from your dashboard.",
+      "taskId": "atlas:e4e64e00ff754fbf94681023f0bb5b00",
+      "videoUrl": "NULL"
+    },
+    {
+      "id": "540009",
+      "sceneIndex": "8",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Scene timed out after multiple attempts. Please retry manually from your dashboard.",
+      "taskId": "atlas:c79760b16fd84d1eba76784b7ac97664",
+      "videoUrl": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsceneIndex\tmvSceneStatus\terrorMessage\ttaskId\tvideoUrl\n540001\t0\tcompleted\tNULL\tatlas:cee961b174a544faa62b1a4b794e1bf6\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/540001-1778632073864.mp4\n540002\t1\tfailed\tScene timed out after multiple attempts. Please retry manually from your dashboard.\tatlas:4a523e2514354c5ba7176c7e2ce0fb00\tNULL\n540003\t2\tfailed\tScene timed out after multiple attempts. Please retry manually from your dashboard.\tatlas:b83cd7f159f54f9e922f28ca37925493\tNULL\n540004\t3\tfailed\tScene timed out after multiple attempts. Please retry manually from your dashboard.\tatlas:10ecb5d0d0414b929bc6e100c994adc8\tNULL\n540005\t4\tfailed\tScene timed out after multiple attempts. Please retry manually from your dashboard.\tatlas:a77209420d17442ca1732536c0e163cf\tNULL\n540006\t5\tfailed\tScene timed out after multiple attempts. Please retry manually from your dashboard.\tatlas:bb6cb5ffc9fc4b10965dc99d63939044\tNULL\n540007\t6\tfailed\tScene timed out after multiple attempts. Please retry manually from your dashboard.\tatlas:73df5dbd8d084460a133c9a38817a7a4\tNULL\n540008\t7\tfailed\tScene timed out after multiple attempts. Please retry manually from your dashboard.\tatlas:e4e64e00ff754fbf94681023f0bb5b00\tNULL\n540009\t8\tfailed\tScene timed out after multiple attempts. Please retry manually from your dashboard.\tatlas:c79760b16fd84d1eba76784b7ac97664\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 264
+}

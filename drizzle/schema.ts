@@ -196,6 +196,12 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   maxSpendLimitUsd: decimal("maxSpendLimitUsd", { precision: 6, scale: 2 }).notNull().default("5.00"), // Hard spend cap (default $5)
   probePassed: boolean("probePassed"),                          // null = not probed, true = probe ok, false = probe failed
   finalVideoProduced: boolean("finalVideoProduced").notNull().default(false), // true only when final video URL is set
+  // --- Provider Fallback System -------------------------------------------
+  // When Atlas Cloud fails repeatedly on a job, the system auto-escalates to WaveSpeed.
+  // atlasFailureCount: incremented each time an Atlas scene times out or fails on this job.
+  // fallbackProvider: when set to 'wavespeed', all pending scenes skip Atlas entirely.
+  atlasFailureCount: int("atlasFailureCount").notNull().default(0), // Atlas timeout/failure count for this job
+  fallbackProvider: varchar("fallbackProvider", { length: 32 }), // null = normal routing | 'wavespeed' = skip Atlas
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

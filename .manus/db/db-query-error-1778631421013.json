@@ -1,0 +1,8 @@
+{
+  "query": "\nUPDATE musicVideoScenes\nSET \n  status = 'pending',\n  taskId = NULL,\n  videoUrl = NULL,\n  errorMessage = NULL,\n  updatedAt = NOW()\nWHERE jobId = 510025;\n\n-- Verify the reset\nSELECT id, status, errorMessage FROM musicVideoJobs WHERE id = 510025;\nSELECT COUNT(*) as sceneCount, status FROM musicVideoScenes WHERE jobId = 510025 GROUP BY status;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nUPDATE musicVideoScenes\nSET \n  status = 'pending',\n  taskId = NULL,\n  videoUrl = NULL,\n  errorMessage = NULL,\n  updatedAt = NOW()\nWHERE jobId = 510025;\n\n-- Verify the reset\nSELECT id, status, errorMessage FROM musicVideoJobs WHERE id = 510025;\nSELECT COUNT(*) as sceneCount, status FROM musicVideoScenes WHERE jobId = 510025 GROUP BY status;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'status' in 'field list'"
+  ]
+}
