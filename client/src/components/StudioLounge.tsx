@@ -16,9 +16,9 @@ const LOUNGE_BG =
   "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/studio-lounge-bg-v5-TWosg8H6NEowcbBhUAEfNy.webp";
 
 // ── Real brand logos uploaded to CDN ─────────────────────────────────────────
-const LOGO_DELIVEROO = "https://d2xsxph8kpxj0f.cloudfront.net/manus-storage/deliveroologo_e78159b7.jpeg";
-const LOGO_UBEREATS  = "https://d2xsxph8kpxj0f.cloudfront.net/manus-storage/UberEatsImage2_4082987d.png";
-const LOGO_JUSTEAT   = "https://d2xsxph8kpxj0f.cloudfront.net/manus-storage/JustEatLogo_2ead5ce9.png";
+const LOGO_DELIVEROO = "/manus-storage/deliveroo-logo_ea119412.png";
+const LOGO_UBEREATS  = "/manus-storage/ubereats-logo_e9122131.png";
+const LOGO_JUSTEAT   = "/manus-storage/justeat-logo_2ba3362f.png";
 
 // ── UTM-ready provider definitions ───────────────────────────────────────────
 const PROVIDERS = [

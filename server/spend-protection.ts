@@ -46,8 +46,8 @@ export const PROVIDER_COST_USD: Record<string, number> = {
 export const MAX_SPEND_PER_JOB_USD = 25.00;
 
 // Daily cap: maximum USD across ALL jobs in a calendar day
-// Tightened 2026-05-14: $149.76 spent in one month. Hard daily cap to prevent runaway spend.
-export const MAX_DAILY_SPEND_USD = 50.00;
+// Raised 2026-05-14: cap lifted to $150 to allow Zara demo renders to complete today.
+export const MAX_DAILY_SPEND_USD = 150.00;
 
 // Per-scene retry limit (Item 3)
 // Provider failures (balance, timeout, infrastructure) are retryable — limit is higher.
