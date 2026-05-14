@@ -7846,3 +7846,35 @@
 - [ ] Fix demo script: use correct 71s audio duration (not hardcoded 180s)
 - [ ] Re-run Zara cinematic demo with all fixes applied
 - [x] Storyboard UI: change preview images to 16:9 aspect ratio (not square/box), centre the layout on desktop, fill screen width more impactfully
+
+## Screening Room & Lip Sync Fixes (Priority)
+- [ ] Enforce Seedance 2.0 + lipSync=true for ALL character-assigned scenes (not just 30-40%)
+- [ ] Add lipSyncVideoUrl column to musicVideoScenes schema for per-scene lip sync preview
+- [ ] Per-scene Sync Labs lip sync: after each scene video completes, auto-run Sync Labs on the scene's audio segment and save lipSyncVideoUrl
+- [ ] Screening Room: add Pause render button (stops new scenes from being dispatched)
+- [ ] Screening Room: add Cancel render button (resets all pending/generating scenes, returns to storyboard)
+- [ ] Screening Room: add per-scene Regenerate button visible during rendering
+- [ ] Full-screen lip sync preview modal: opens on Play click, shows large 16:9 video with synced audio, scene lyrics, prev/next navigation, Approve button
+
+## Screening Room & Lip Sync Fixes (Priority)
+- [ ] Enforce Seedance 2.0 + lipSync=true for ALL character-assigned scenes (not just 30-40%)
+- [ ] Add lipSyncVideoUrl column to musicVideoScenes schema for per-scene lip sync preview
+- [ ] Per-scene Sync Labs lip sync: after each scene video completes, auto-run Sync Labs on the scene's audio segment and save lipSyncVideoUrl
+- [ ] Screening Room: add Pause render button (stops new scenes from being dispatched)
+- [ ] Screening Room: add Cancel render button (resets all pending/generating scenes, returns to storyboard)
+- [ ] Full-screen lip sync preview modal: opens on Play click, shows large 16:9 video with synced audio, scene lyrics, prev/next navigation, Approve button
+
+## Session: Full-Screen Lip Sync Preview + Pause/Cancel/Resume Controls
+
+- [x] Add lipSyncVideoUrl, lipSyncStatus, sceneIndex to SceneReviewItem interface
+- [x] Add previewModalOpen and previewModalIdx state to ScenePreviewGrid
+- [x] Import SceneLipSyncPreviewModal into MusicVideoAutopilot.tsx
+- [x] Wire thumbnail click and Play button to open SceneLipSyncPreviewModal (full-screen preview)
+- [x] Render SceneLipSyncPreviewModal inside ScenePreviewGrid with correct scene data mapping
+- [x] Pass lipSyncVideoUrl and lipSyncStatus from pollProgress sceneStatuses through to perSceneStatuses state
+- [x] Add pauseRender, resumeRender, cancelRender tRPC mutations to MusicVideoAutopilot.tsx
+- [x] Add Pause/Resume/Cancel buttons to Screening Room header (visible during rendering or paused)
+- [x] Add paused/cancelled status handling in poll loop (stop dispatching when paused, stop polling when cancelled)
+- [x] Fix musicVideo.ts router: pauseRender/resumeRender/cancelRender were outside the router object (premature closing bracket)
+- [x] All 661 unit tests passing
+- [x] TypeScript clean (0 errors)

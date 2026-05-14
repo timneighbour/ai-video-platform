@@ -1900,6 +1900,13 @@ async function pollSceneStatusWaveSpeed(
           .where(eq(musicVideoScenes.id, sceneId));
       }
 
+
+      // Trigger per-scene lip sync asynchronously (non-blocking)
+      // Submits scene video to Sync Labs so user can verify lip sync in Screening Room
+      triggerPerSceneLipSync(sceneId, url).catch((e) =>
+        console.warn(`[WaveSpeed] Per-scene lip sync trigger failed for scene ${sceneId}:`, e)
+      );
+
       return { status: "completed", videoUrl: url };
     }
 
@@ -2087,4 +2094,157 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
 
   console.log(`[triggerMusicVideoRender] Job ${musicVideoJobId} render started for user ${userId}`);
   return { success: true };
+}
+
+/**
+ * Trigger per-scene Sync Labs lip sync after a scene video is generated.
+ * Called immediately after a scene's videoUrl is saved to the DB.
+ * Runs asynchronously — never blocks scene completion.
+ */
+export async function triggerPerSceneLipSync(sceneId: number, videoUrl: string): Promise<void> {
+  try {
+    const { isSyncLabsConfigured, submitSyncLabsLipSync } = await import("./ai-apis/synclabs-lipsync");
+    if (!isSyncLabsConfigured()) {
+      console.log(`[PerSceneLipSync] Scene ${sceneId}: Sync Labs not configured, skipping.`);
+      return;
+    }
+    const db = await getDb();
+    if (!db) return;
+
+    // Look up scene to get jobId, startTime, duration, lipSync flag
+    const [scene] = await db.select({
+      id: musicVideoScenes.id,
+      jobId: musicVideoScenes.jobId,
+      startTime: musicVideoScenes.startTime,
+      duration: musicVideoScenes.duration,
+      lipSync: musicVideoScenes.lipSync,
+    }).from(musicVideoScenes).where(eq(musicVideoScenes.id, sceneId));
+
+    if (!scene) {
+      console.warn(`[PerSceneLipSync] Scene ${sceneId} not found in DB.`);
+      return;
+    }
+
+    if (!scene.lipSync) {
+      console.log(`[PerSceneLipSync] Scene ${sceneId}: lipSync=false, skipping per-scene lip sync.`);
+      return;
+    }
+
+    // Look up job to get audioUrl
+    const [job] = await db.select({
+      id: musicVideoJobs.id,
+      audioUrl: musicVideoJobs.audioUrl,
+    }).from(musicVideoJobs).where(eq(musicVideoJobs.id, scene.jobId));
+
+    if (!job?.audioUrl) {
+      console.warn(`[PerSceneLipSync] Scene ${sceneId}: job ${scene.jobId} has no audioUrl.`);
+      return;
+    }
+
+    console.log(`[PerSceneLipSync] Scene ${sceneId}: extracting audio clip (${scene.startTime}s–${scene.startTime + scene.duration}s)...`);
+
+    // Extract the audio segment for this scene's time window
+    const audioClipUrl = await extractSceneAudioClip(
+      job.audioUrl,
+      scene.startTime,
+      scene.duration,
+      sceneId
+    );
+
+    console.log(`[PerSceneLipSync] Scene ${sceneId}: submitting to Sync Labs sync-3...`);
+
+    // Mark as processing before submitting
+    await db.update(musicVideoScenes)
+      .set({ lipSyncStatus: "processing", updatedAt: new Date() })
+      .where(eq(musicVideoScenes.id, sceneId));
+
+    // Submit to Sync Labs
+    const syncJobId = await submitSyncLabsLipSync({
+      videoUrl,
+      audioUrl: audioClipUrl,
+      syncMode: "cut_off",
+      outputFileName: `wizsync-scene-${sceneId}-${Date.now()}`,
+    });
+
+    // Save the Sync Labs job ID for polling
+    await db.update(musicVideoScenes)
+      .set({ lipSyncTaskId: syncJobId, lipSyncStatus: "processing", updatedAt: new Date() })
+      .where(eq(musicVideoScenes.id, sceneId));
+
+    console.log(`[PerSceneLipSync] Scene ${sceneId}: Sync Labs job ${syncJobId} submitted.`);
+  } catch (err: any) {
+    console.warn(`[PerSceneLipSync] Scene ${sceneId}: failed to trigger lip sync — ${err?.message ?? err}. Scene video still available.`);
+    const db = await getDb();
+    if (db) {
+      await db.update(musicVideoScenes)
+        .set({ lipSyncStatus: "error", updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, sceneId));
+    }
+  }
+}
+
+/**
+ * Heartbeat: poll all in-progress per-scene Sync Labs lip sync jobs.
+ * Called by the periodic heartbeat every 30 seconds.
+ * Saves lipSyncVideoUrl when a job completes.
+ */
+export async function pollPerSceneLipSyncJobs(): Promise<void> {
+  try {
+    const { isSyncLabsConfigured, pollSyncLabsLipSync } = await import("./ai-apis/synclabs-lipsync");
+    if (!isSyncLabsConfigured()) return;
+
+    const db = await getDb();
+    if (!db) return;
+
+    // Find all scenes with a pending Sync Labs lip sync job
+    const processingScenes = await db.select({
+      id: musicVideoScenes.id,
+      lipSyncTaskId: musicVideoScenes.lipSyncTaskId,
+    }).from(musicVideoScenes)
+      .where(eq(musicVideoScenes.lipSyncStatus, "processing"));
+
+    if (processingScenes.length === 0) return;
+
+    console.log(`[PerSceneLipSync] Polling ${processingScenes.length} in-progress Sync Labs scene jobs...`);
+
+    for (const scene of processingScenes) {
+      if (!scene.lipSyncTaskId) continue;
+      try {
+        // Use a short timeout — just check status, don't wait
+        const outputUrl = await pollSyncLabsLipSync(scene.lipSyncTaskId, 10_000);
+        // Completed — download and save to S3
+        const resp = await fetch(outputUrl);
+        if (!resp.ok) throw new Error(`Failed to download lip sync output: HTTP ${resp.status}`);
+        const buffer = Buffer.from(await resp.arrayBuffer());
+        const key = `music-video-scenes/lipsync-${scene.id}-${Date.now()}.mp4`;
+        const { url } = await storagePut(key, buffer, "video/mp4");
+
+        await db.update(musicVideoScenes)
+          .set({
+            lipSyncVideoUrl: url,
+            lipSyncVideoKey: key,
+            lipSyncStatus: "done",
+            lipSyncTaskId: null,
+            updatedAt: new Date(),
+          })
+          .where(eq(musicVideoScenes.id, scene.id));
+
+        console.log(`[PerSceneLipSync] Scene ${scene.id}: lip sync DONE → ${url.slice(0, 80)}...`);
+      } catch (pollErr: any) {
+        const msg = pollErr?.message ?? String(pollErr);
+        if (msg.includes("timed out")) {
+          console.log(`[PerSceneLipSync] Scene ${scene.id}: still processing (${scene.lipSyncTaskId})`);
+        } else if (msg.includes("FAILED") || msg.includes("REJECTED")) {
+          console.warn(`[PerSceneLipSync] Scene ${scene.id}: Sync Labs job failed — ${msg}`);
+          await db.update(musicVideoScenes)
+            .set({ lipSyncStatus: "error", lipSyncTaskId: null, updatedAt: new Date() })
+            .where(eq(musicVideoScenes.id, scene.id));
+        } else {
+          console.warn(`[PerSceneLipSync] Scene ${scene.id}: poll error — ${msg}`);
+        }
+      }
+    }
+  } catch (err: any) {
+    console.warn(`[PerSceneLipSync] pollPerSceneLipSyncJobs error: ${err?.message ?? err}`);
+  }
 }

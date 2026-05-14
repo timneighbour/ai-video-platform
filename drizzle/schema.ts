@@ -151,7 +151,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   captionHighlightColour: varchar("captionHighlightColour", { length: 7 }).default("#FFD700"), // Hex colour for karaoke highlight
   captionKaraokeMode: boolean("captionKaraokeMode").default(false).notNull(), // Word-by-word highlight mode
   captionSafeArea: varchar("captionSafeArea", { length: 32 }).default("bottom_center"), // bottom_center | top_center | custom
-  status: mysqlEnum("status", ["draft", "storyboard_ready", "rendering", "assembling", "completed", "failed"]).default("draft").notNull(),
+  status: mysqlEnum("status", ["draft", "storyboard_ready", "rendering", "assembling", "completed", "failed", "paused", "cancelled"]).default("draft").notNull(),
   totalScenes: int("totalScenes").default(0).notNull(),
   completedScenes: int("completedScenes").default(0).notNull(),
   finalVideoUrl: varchar("finalVideoUrl", { length: 1024 }),
@@ -275,6 +275,11 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   providerSpendUsd: decimal("providerSpendUsd", { precision: 6, scale: 4 }).notNull().default("0"), // Provider cost for this scene
   retryCount: int("retryCount").notNull().default(0), // Number of times this scene has been retried
   providerUsed: varchar("providerUsed", { length: 64 }), // Which provider generated this scene
+  // --- Per-scene Lip Sync (Sync Labs applied to each scene individually for preview) ---
+  lipSyncVideoUrl: varchar("lipSyncVideoUrl", { length: 1024 }), // Sync Labs output URL for this scene's lip-synced preview
+  lipSyncVideoKey: varchar("lipSyncVideoKey", { length: 512 }), // S3 key for the lip-synced preview video
+  lipSyncTaskId: varchar("lipSyncTaskId", { length: 255 }), // Sync Labs job ID for polling
+  lipSyncStatus: mysqlEnum("sceneLipSyncStatus", ["pending", "processing", "done", "error"]).default("pending").notNull(), // Per-scene lip sync status
   // --- Scene Approval (user explicitly locks in a scene before full render) ---
   isApproved: boolean("isApproved").default(false).notNull(), // true when user has approved this scene for final render
   approvedAt: timestamp("approvedAt"),                        // When the user approved this scene

@@ -100,6 +100,7 @@ import { VoicePromptButton } from "@/components/VoicePromptButton";
 import { StarterTemplates } from "@/components/StarterTemplates";
 import { LyricTimelineBar } from "@/components/LyricTimelineBar";
 import { InstrumentAccuracyPanel } from "@/components/InstrumentAccuracyPanel";
+import { SceneLipSyncPreviewModal } from "@/components/SceneLipSyncPreviewModal";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
 
@@ -181,8 +182,11 @@ function PostRenderUpgradeConnector({ jobId }: { jobId: number }) {
 interface SceneReviewItem {
   id: number;
   index: number;
+  sceneIndex?: number;
   status: string;
   videoUrl?: string | null;
+  lipSyncVideoUrl?: string | null;
+  lipSyncStatus?: string | null;
   prompt?: string;
   lyrics?: string | null;
   errorMessage?: string | null;
@@ -215,6 +219,8 @@ function ScenePreviewGrid({
   approvingScenes = new Set(),
 }: ScenePreviewGridProps) {
   const [playingId, setPlayingId] = React.useState<number | null>(null);
+  const [previewModalOpen, setPreviewModalOpen] = React.useState(false);
+  const [previewModalIdx, setPreviewModalIdx] = React.useState(0);
   const [editingSceneId, setEditingSceneId] = React.useState<number | null>(null);
   const [editPrompt, setEditPrompt] = React.useState("");
   const [editLyrics, setEditLyrics] = React.useState("");
@@ -313,7 +319,13 @@ function ScenePreviewGrid({
                 <div
                   className="relative flex-shrink-0 cursor-pointer"
                   style={{ width: 160, aspectRatio: "16/9" }}
-                  onClick={() => scene.status === "completed" && scene.videoUrl && handlePlay(scene.id)}
+                  onClick={() => {
+                    if (scene.status === "completed" && (scene.videoUrl || scene.lipSyncVideoUrl)) {
+                      const idx = scenes.findIndex(s => s.id === scene.id);
+                      setPreviewModalIdx(idx >= 0 ? idx : 0);
+                      setPreviewModalOpen(true);
+                    }
+                  }}
                 >
                   {scene.status === "completed" && scene.videoUrl ? (
                     isPlaying ? (
@@ -409,11 +421,15 @@ function ScenePreviewGrid({
                     {scene.status === "completed" && !isEditing && !isRegenerating && (
                       <>
                         <button
-                          onClick={() => handlePlay(scene.id)}
+                          onClick={() => {
+                            const idx = scenes.findIndex(s => s.id === scene.id);
+                            setPreviewModalIdx(idx >= 0 ? idx : 0);
+                            setPreviewModalOpen(true);
+                          }}
                           className="flex items-center gap-1 px-2 py-1 rounded-md bg-[--color-gold]/15 text-[--color-gold] text-[11px] font-medium hover:bg-[--color-gold]/25 transition-colors border border-[--color-gold]/20"
                         >
-                          {isPlaying
-                            ? <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg> Stop</>
+                          {scene.lipSyncVideoUrl
+                            ? <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Preview Lip Sync</>
                             : <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Play</>}
                         </button>
                         <button
@@ -484,6 +500,30 @@ function ScenePreviewGrid({
           );
         })}
       </div>
+
+      {/* Full-screen lip sync preview modal */}
+      <SceneLipSyncPreviewModal
+        open={previewModalOpen}
+        onClose={() => setPreviewModalOpen(false)}
+        scenes={scenes.map((s, i) => ({
+          id: s.id,
+          index: i,
+          sceneIndex: s.sceneIndex,
+          videoUrl: s.videoUrl ?? null,
+          lipSyncVideoUrl: s.lipSyncVideoUrl ?? null,
+          lipSyncStatus: s.lipSyncStatus ?? null,
+          audioUrl: audioUrl ?? null,
+          audioStartTime: startTimeMap?.get(s.id) ?? 0,
+          audioDuration: durationMap?.get(s.id) ?? 6,
+          lyrics: s.lyrics ?? null,
+          prompt: s.prompt ?? "",
+          isApproved: s.isApproved ?? false,
+        }))}
+        initialSceneIndex={previewModalIdx}
+        onApprove={onApproveScene ? (id) => onApproveScene(id) : undefined}
+        onRerender={onRegenerateScene ? (id) => onRegenerateScene(id) : undefined}
+        jobAudioUrl={audioUrl ?? undefined}
+      />
     </div>
   );
 }
@@ -828,7 +868,7 @@ export default function MusicVideoAutopilot() {
   const [sceneStatuses, setSceneStatuses] = useState<Record<number, string>>({});
   const [failedScenes, setFailedScenes] = useState(0);
   // Per-scene statuses from pollProgress for the real-time progress grid
-  const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; status: string; errorMessage?: string | null; prompt?: string; lyrics?: string | null; videoUrl?: string | null; isApproved?: boolean }>>([]); 
+  const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; sceneIndex?: number; status: string; errorMessage?: string | null; prompt?: string; lyrics?: string | null; videoUrl?: string | null; lipSyncVideoUrl?: string | null; lipSyncStatus?: string | null; isApproved?: boolean }>>([]); 
   // Track which scenes are currently being retried
   const [retryingScenes, setRetryingScenes] = useState<Set<number>>(new Set());
   const [approvingScenes, setApprovingScenes] = useState<Set<number>>(new Set());
@@ -966,6 +1006,9 @@ export default function MusicVideoAutopilot() {
   const cancelSceneMutation = trpc.musicVideo.cancelScene.useMutation();
   const retryAllFailedScenesMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
   const updateScenePromptMutation = trpc.musicVideo.updateScenePrompt.useMutation();
+  const pauseRenderMutation = trpc.musicVideo.pauseRender.useMutation();
+  const resumeRenderMutation = trpc.musicVideo.resumeRender.useMutation();
+  const cancelRenderMutation = trpc.musicVideo.cancelRender.useMutation();
   const deleteSceneMutation = trpc.musicVideo.deleteScene.useMutation();
   const addSceneMutation = trpc.musicVideo.addScene.useMutation();
   const reorderSceneMutation = trpc.musicVideo.reorderScene.useMutation();
@@ -1969,13 +2012,16 @@ export default function MusicVideoAutopilot() {
               setPerSceneStatuses((prev) => {
                 // Merge: keep existing prompt/lyrics from storyboard scenes or previous poll
                 const prevMap = new Map(prev.map((s) => [s.id, s]));
-                return (progress.sceneStatuses as Array<{ id: number; index: number; status: string; errorMessage?: string | null; videoUrl?: string | null; prompt?: string | null; lyrics?: string | null; isApproved?: boolean }>).map((s) => ({
+                return (progress.sceneStatuses as Array<{ id: number; index: number; sceneIndex?: number; status: string; errorMessage?: string | null; videoUrl?: string | null; lipSyncVideoUrl?: string | null; lipSyncStatus?: string | null; prompt?: string | null; lyrics?: string | null; isApproved?: boolean }>).map((s) => ({
                   ...s,
                   // Preserve prompt/lyrics from the storyboard scenes array if available
                   prompt: s.prompt ?? prevMap.get(s.id)?.prompt ?? scenes.find((sc) => sc.id === s.id)?.prompt ?? undefined,
                   lyrics: s.lyrics ?? prevMap.get(s.id)?.lyrics ?? scenes.find((sc) => sc.id === s.id)?.lyrics ?? undefined,
                   // Preserve videoUrl — once set, keep it even if a later poll omits it
                   videoUrl: s.videoUrl ?? prevMap.get(s.id)?.videoUrl ?? null,
+                  // Preserve lipSyncVideoUrl — once set, keep it
+                  lipSyncVideoUrl: s.lipSyncVideoUrl ?? prevMap.get(s.id)?.lipSyncVideoUrl ?? null,
+                  lipSyncStatus: s.lipSyncStatus ?? prevMap.get(s.id)?.lipSyncStatus ?? null,
                   // isApproved comes from server; preserve local optimistic state if server hasn't caught up
                   isApproved: s.isApproved ?? prevMap.get(s.id)?.isApproved ?? false,
                 }));
@@ -2036,6 +2082,19 @@ export default function MusicVideoAutopilot() {
               mp.buildFailed("WizVideo");
               toast.error("Render failed", { description: "Some scenes could not be generated. Please try regenerating failed scenes." });
               return; // stop polling
+            }
+
+            if (progress.status === "paused") {
+              isRenderingRef.current = false;
+              // Don't stop polling — keep checking so we can resume
+              schedulePoll();
+              return;
+            }
+
+            if (progress.status === "cancelled") {
+              isRenderingRef.current = false;
+              // Stop polling — job is done
+              return;
             }
 
             // Good response — reset backoff and schedule next poll
@@ -5192,7 +5251,83 @@ export default function MusicVideoAutopilot() {
                               : "Finalising..."}
                           </span>
                         )}
+                        {renderStatus === "paused" && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs">
+                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>
+                            Paused
+                          </span>
+                        )}
+                        {renderStatus === "cancelled" && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-500/15 border border-red-500/30 text-red-400 text-xs">
+                            <X className="w-3 h-3" />
+                            Cancelled
+                          </span>
+                        )}
                       </div>
+
+                      {/* Pause / Resume / Cancel controls — only show during active rendering or paused */}
+                      {jobId && (renderStatus === "rendering" || renderStatus === "paused") && (
+                        <div className="flex items-center justify-center gap-2 mt-3">
+                          {renderStatus === "rendering" ? (
+                            <button
+                              onClick={async () => {
+                                try {
+                                  await pauseRenderMutation.mutateAsync({ jobId });
+                                  setRenderStatus("paused");
+                                  isRenderingRef.current = false;
+                                  toast.success("Render paused", { description: "No new scenes will be dispatched. Resume anytime." });
+                                } catch (err: any) {
+                                  toast.error("Could not pause render", { description: err?.message });
+                                }
+                              }}
+                              disabled={pauseRenderMutation.isPending}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-400 text-xs font-semibold hover:bg-amber-500/25 transition-colors border border-amber-500/30 disabled:opacity-50"
+                            >
+                              {pauseRenderMutation.isPending
+                                ? <><Loader2 className="w-3 h-3 animate-spin" /> Pausing…</>
+                                : <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg> Pause</>}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={async () => {
+                                try {
+                                  await resumeRenderMutation.mutateAsync({ jobId });
+                                  setRenderStatus("rendering");
+                                  isRenderingRef.current = true;
+                                  toast.success("Render resumed", { description: "Scenes are being dispatched again." });
+                                } catch (err: any) {
+                                  toast.error("Could not resume render", { description: err?.message });
+                                }
+                              }}
+                              disabled={resumeRenderMutation.isPending}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[--color-gold]/15 text-[--color-gold] text-xs font-semibold hover:bg-[--color-gold]/25 transition-colors border border-[--color-gold]/30 disabled:opacity-50"
+                            >
+                              {resumeRenderMutation.isPending
+                                ? <><Loader2 className="w-3 h-3 animate-spin" /> Resuming…</>
+                                : <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Resume</>}
+                            </button>
+                          )}
+                          <button
+                            onClick={async () => {
+                              if (!confirm("Cancel this render? Credits for unrendered scenes will be refunded.")) return;
+                              try {
+                                const result = await cancelRenderMutation.mutateAsync({ jobId });
+                                setRenderStatus("cancelled");
+                                isRenderingRef.current = false;
+                                toast.success("Render cancelled", { description: (result as any)?.message ?? "Credits for unrendered scenes have been refunded." });
+                              } catch (err: any) {
+                                toast.error("Could not cancel render", { description: err?.message });
+                              }
+                            }}
+                            disabled={cancelRenderMutation.isPending}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-xs font-semibold hover:bg-red-500/20 transition-colors border border-red-500/20 disabled:opacity-50"
+                          >
+                            {cancelRenderMutation.isPending
+                              ? <><Loader2 className="w-3 h-3 animate-spin" /> Cancelling…</>
+                              : <><X className="w-3 h-3" /> Cancel Render</>}
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     {/* Progress bar */}

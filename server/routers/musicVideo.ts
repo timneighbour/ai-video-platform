@@ -19,6 +19,7 @@ import {
   assembleMusicVideo,
   transcribeJobAudio,
   mapModelAssignmentToWaveSpeed,
+  pollPerSceneLipSyncJobs,
 } from "../music-video-service";
 import { deductCredits, getUserCredits, refundCredits } from "../credit-service";
 import { transcribeAudio } from "../_core/voiceTranscription";
@@ -1367,7 +1368,14 @@ Rules:
         // ── AUTO-SUBMIT PENDING SCENES ────────────────────────────────────────
         // Scenes reset to 'pending' (e.g. after retry counter reset or manual unblock)
         // are automatically re-submitted here so the job can resume without user action.
+        // Skip dispatch if the job is paused or cancelled.
         if (scene.status === "pending" && !scene.taskId) {
+          // Reload job status to check for pause/cancel
+          const [currentJob] = await db.select({ status: musicVideoJobs.status }).from(musicVideoJobs).where(eq(musicVideoJobs.id, input.jobId));
+          if (currentJob?.status === "paused" || currentJob?.status === "cancelled") {
+            console.log(`[MusicVideo] Job ${input.jobId} is ${currentJob.status} — skipping scene ${scene.id} dispatch`);
+            continue;
+          }
           try {
             console.log(`[MusicVideo] ${new Date().toISOString()} Auto-submitting pending scene ${scene.id} (index ${scene.sceneIndex}) for job ${input.jobId}`);
             const taskId = await startSceneRender(
@@ -1488,6 +1496,11 @@ Rules:
       const updatedScenes = await db.select().from(musicVideoScenes)
         .where(eq(musicVideoScenes.jobId, input.jobId));
 
+      // Poll any in-progress per-scene Sync Labs lip sync jobs (non-blocking)
+      pollPerSceneLipSyncJobs().catch((e) =>
+        console.warn("[pollProgress] pollPerSceneLipSyncJobs error:", e)
+      );
+
       return {
         status: updatedJob?.status ?? job.status,
         totalScenes: scenes.length,
@@ -1504,6 +1517,8 @@ Rules:
           status: s.status, // "pending" | "generating" | "completed" | "failed"
           errorMessage: s.errorMessage ?? null,
           videoUrl: s.videoUrl ?? null,
+          lipSyncVideoUrl: s.lipSyncVideoUrl ?? null, // Sync Labs per-scene lip sync output
+          lipSyncStatus: s.lipSyncStatus ?? "pending", // "pending" | "processing" | "done" | "error"
           prompt: s.prompt ?? null,
           lyrics: s.lyrics ?? null,
           isApproved: s.isApproved ?? false,
@@ -4752,5 +4767,121 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
         .orderBy(desc(sceneActionLogs.createdAt))
         .limit(30);
       return rows;
+    }),
+
+  // ── Pause render — stops new scenes from being dispatched ──────────────
+  pauseRender: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      if (job.status !== "rendering") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: `Cannot pause a job in '${job.status}' state.` });
+      }
+
+      // Mark job as paused — pollProgress will stop dispatching new scenes
+      await db.update(musicVideoJobs)
+        .set({ status: "paused", updatedAt: new Date() })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      // Mark all pending scenes as paused (set back to pending so they can resume)
+      // Scenes currently generating will finish naturally — we just stop new dispatches
+      console.log(`[MusicVideo] Job ${input.jobId} paused by user ${ctx.user.id}`);
+      return { success: true, message: "Render paused. Scenes currently generating will finish. New scenes will not start until you resume." };
+    }),
+
+  // ── Resume render — resumes a paused job ───────────────────────────────────
+  resumeRender: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      if (job.status !== "paused") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: `Cannot resume a job in '${job.status}' state.` });
+      }
+
+      await db.update(musicVideoJobs)
+        .set({ status: "rendering", updatedAt: new Date() })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      console.log(`[MusicVideo] Job ${input.jobId} resumed by user ${ctx.user.id}`);
+      return { success: true, message: "Render resumed." };
+    }),
+
+  // ── Cancel render — stops all rendering and refunds credits for unrendered scenes ──
+  cancelRender: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      if (!["rendering", "paused", "assembling"].includes(job.status)) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: `Cannot cancel a job in '${job.status}' state.` });
+      }
+
+      // Count pending/generating scenes to calculate refund
+      const allScenes = await db.select({
+        id: musicVideoScenes.id,
+        status: musicVideoScenes.status,
+      }).from(musicVideoScenes).where(eq(musicVideoScenes.jobId, input.jobId));
+
+      const unrenderedCount = allScenes.filter(s => s.status === "pending" || s.status === "generating").length;
+      const completedCount = allScenes.filter(s => s.status === "completed").length;
+
+      // Mark all pending/generating scenes as failed (cancelled)
+      if (unrenderedCount > 0) {
+        await db.update(musicVideoScenes)
+          .set({ status: "failed", errorMessage: "Cancelled by user", updatedAt: new Date() })
+          .where(and(
+            eq(musicVideoScenes.jobId, input.jobId),
+            inArray(musicVideoScenes.status, ["pending", "generating"])
+          ));
+      }
+
+      // Mark job as cancelled
+      await db.update(musicVideoJobs)
+        .set({ status: "cancelled", updatedAt: new Date() })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      // Refund credits for unrendered scenes
+      // Cost per scene = total creditCost / totalScenes
+      let refundedCredits = 0;
+      if (unrenderedCount > 0 && job.creditCost > 0 && job.totalScenes > 0) {
+        const creditsPerScene = Math.floor(job.creditCost / job.totalScenes);
+        refundedCredits = creditsPerScene * unrenderedCount;
+        if (refundedCredits > 0) {
+          try {
+            await refundCredits(ctx.user.id, refundedCredits, `Refund: render cancelled — ${unrenderedCount} unrendered scenes in job #${job.id}`, job.id);
+            console.log(`[MusicVideo] Refunded ${refundedCredits} credits to user ${ctx.user.id} for cancelled job ${job.id} (${unrenderedCount} unrendered scenes)`);
+          } catch (refundErr) {
+            console.error(`[MusicVideo] Failed to refund credits for cancelled job ${job.id}:`, refundErr);
+          }
+        }
+      }
+
+      console.log(`[MusicVideo] Job ${input.jobId} cancelled by user ${ctx.user.id}. Completed: ${completedCount}, Cancelled: ${unrenderedCount}, Refunded: ${refundedCredits} credits`);
+      return {
+        success: true,
+        completedScenes: completedCount,
+        cancelledScenes: unrenderedCount,
+        refundedCredits,
+        message: refundedCredits > 0
+          ? `Render cancelled. ${refundedCredits} credits refunded for ${unrenderedCount} unrendered scenes.`
+          : `Render cancelled. ${completedCount} scenes were already completed.`,
+      };
     }),
 });
