@@ -312,25 +312,49 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     payload.response_format = normalizedResponseFormat;
   }
 
-  const response = await fetch(resolveApiUrl(), {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      authorization: `Bearer ${ENV.forgeApiKey}`,
-    },
-    body: JSON.stringify(payload),
-  });
+  // Retry on transient errors (503 Service Unavailable, 502 Bad Gateway, 429 Too Many Requests)
+  // with exponential backoff. Max 3 attempts total.
+  const MAX_ATTEMPTS = 3;
+  let lastError: Error | null = null;
+  let response!: Response;
+  let rawText!: string;
+  let trimmed!: string;
 
-  // Read body as text first so we can inspect it before JSON.parse.
-  // The API sometimes returns plain-text rate-limit messages (e.g. "Rate exceeded.")
-  // with a 200 status, which would cause a JSON parse error.
-  const rawText = await response.text();
-  const trimmed = rawText.trim();
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    response = await fetch(resolveApiUrl(), {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${ENV.forgeApiKey}`,
+      },
+      body: JSON.stringify(payload),
+    });
 
-  if (!response.ok) {
-    throw new Error(
-      `LLM invoke failed: ${response.status} ${response.statusText} – ${trimmed}`
-    );
+    // Read body as text first so we can inspect it before JSON.parse.
+    // The API sometimes returns plain-text rate-limit messages (e.g. "Rate exceeded.")
+    // with a 200 status, which would cause a JSON parse error.
+    rawText = await response.text();
+    trimmed = rawText.trim();
+
+    // Retry on transient server errors
+    if (response.status === 503 || response.status === 502) {
+      lastError = new Error(`LLM invoke failed: ${response.status} ${response.statusText} – ${trimmed.slice(0, 200)}`);
+      if (attempt < MAX_ATTEMPTS) {
+        const delay = attempt * 3000; // 3s, 6s
+        console.warn(`[LLM] ${response.status} on attempt ${attempt}/${MAX_ATTEMPTS}, retrying in ${delay}ms...`);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+      throw lastError;
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        `LLM invoke failed: ${response.status} ${response.statusText} – ${trimmed}`
+      );
+    }
+
+    break; // success
   }
 
   // Detect plain-text rate-limit / quota responses (HTTP 200 but non-JSON body)

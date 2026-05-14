@@ -7884,3 +7884,6 @@
 
 ## Bug: Lyrics Missing on Storyboard Scene Cards
 - [x] Fix lyrics not showing on storyboard scene cards after storyboard generation
+
+## Bug: Storyboard 503 Service Unavailable JSON Parse Error
+- [x] Fix "Unexpected token S, Service Unavailable is not valid JSON" crash in storyboard generation — add retry logic for 503 responses from LLM/AI APIs
