@@ -1502,6 +1502,9 @@ Rules:
           status: s.status, // "pending" | "generating" | "completed" | "failed"
           errorMessage: s.errorMessage ?? null,
           videoUrl: s.videoUrl ?? null,
+          prompt: s.prompt ?? null,
+          lyrics: s.lyrics ?? null,
+          isApproved: s.isApproved ?? false,
         })),
       };
     }),
@@ -3042,6 +3045,50 @@ Rules:
 
       console.log(`[MusicVideo] ${new Date().toISOString()} Scene ${input.sceneId} prompt updated by user ${ctx.user.id} — attempt counter reset`);
       return { success: true, sceneId: input.sceneId, prompt: input.prompt.trim() };
+    }),
+
+  // ── Scene Approval ────────────────────────────────────────────────────────
+  // Users explicitly approve scenes they are satisfied with before the final
+  // render. Approving a scene "locks it in"; editing or re-rendering auto-
+  // revokes approval so the user must re-confirm after any changes.
+  approveScene: protectedProcedure
+    .input(z.object({
+      sceneId: z.number().int(),
+      jobId: z.number().int(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      const [scene] = await db.select().from(musicVideoScenes)
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+      if (!scene) throw new TRPCError({ code: "NOT_FOUND" });
+      if (scene.status !== "completed") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Only completed scenes can be approved" });
+      }
+      await db.update(musicVideoScenes)
+        .set({ isApproved: true, approvedAt: new Date(), updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, input.sceneId));
+      return { success: true, sceneId: input.sceneId, isApproved: true };
+    }),
+
+  unapproveScene: protectedProcedure
+    .input(z.object({
+      sceneId: z.number().int(),
+      jobId: z.number().int(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      await db.update(musicVideoScenes)
+        .set({ isApproved: false, approvedAt: null, updatedAt: new Date() })
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+      return { success: true, sceneId: input.sceneId, isApproved: false };
     }),
 
   // Cinematic Upgrade: re-render selected completed scenes with premium (Kling) quality

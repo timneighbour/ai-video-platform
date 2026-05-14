@@ -275,6 +275,9 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   providerSpendUsd: decimal("providerSpendUsd", { precision: 6, scale: 4 }).notNull().default("0"), // Provider cost for this scene
   retryCount: int("retryCount").notNull().default(0), // Number of times this scene has been retried
   providerUsed: varchar("providerUsed", { length: 64 }), // Which provider generated this scene
+  // --- Scene Approval (user explicitly locks in a scene before full render) ---
+  isApproved: boolean("isApproved").default(false).notNull(), // true when user has approved this scene for final render
+  approvedAt: timestamp("approvedAt"),                        // When the user approved this scene
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

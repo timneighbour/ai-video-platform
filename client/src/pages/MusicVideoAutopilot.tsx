@@ -185,6 +185,7 @@ interface SceneReviewItem {
   prompt?: string;
   lyrics?: string | null;
   errorMessage?: string | null;
+  isApproved?: boolean;
 }
 interface ScenePreviewGridProps {
   scenes: SceneReviewItem[];
@@ -194,7 +195,10 @@ interface ScenePreviewGridProps {
   jobId?: number | null;
   jobCharacters?: Array<{ id: number; name: string; primaryPhotoUrl?: string | null; aiGeneratedImageUrl?: string | null; isLocked?: boolean | null }>;
   onRegenerateScene?: (sceneId: number, newPrompt?: string, newLyrics?: string) => Promise<void>;
+  onApproveScene?: (sceneId: number) => Promise<void>;
+  onUnapproveScene?: (sceneId: number) => Promise<void>;
   regeneratingScenes?: Set<number>;
+  approvingScenes?: Set<number>;
 }
 function ScenePreviewGrid({
   scenes,
@@ -204,7 +208,10 @@ function ScenePreviewGrid({
   jobId,
   jobCharacters = [],
   onRegenerateScene,
+  onApproveScene,
+  onUnapproveScene,
   regeneratingScenes = new Set(),
+  approvingScenes = new Set(),
 }: ScenePreviewGridProps) {
   const [playingId, setPlayingId] = React.useState<number | null>(null);
   const [editingSceneId, setEditingSceneId] = React.useState<number | null>(null);
@@ -246,6 +253,8 @@ function ScenePreviewGrid({
   if (!hasAny) return null;
 
   const completedCount = scenes.filter((s) => s.status === "completed" && s.videoUrl).length;
+  const approvedCount = scenes.filter((s) => s.status === "completed" && s.videoUrl && s.isApproved).length;
+  const allApproved = completedCount > 0 && approvedCount === completedCount;
   const totalCount = scenes.length;
 
   return (
@@ -255,8 +264,18 @@ function ScenePreviewGrid({
         <div className="flex items-center gap-2">
           <p className="text-xs text-white/50 font-semibold uppercase tracking-widest">Scene Review</p>
           <span className="text-[10px] text-white/30 bg-white/5 px-1.5 py-0.5 rounded-full">{completedCount}/{totalCount} ready</span>
+          {completedCount > 0 && (
+            <span className={[
+              "text-[10px] px-1.5 py-0.5 rounded-full font-semibold transition-colors",
+              allApproved
+                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                : "bg-white/5 text-white/30",
+            ].join(" ")}>
+              {approvedCount}/{completedCount} approved
+            </span>
+          )}
         </div>
-        <p className="text-[10px] text-white/30">Play to verify lip sync · Edit to tweak · Regenerate to re-render</p>
+        <p className="text-[10px] text-white/30">Play to verify lip sync · Edit to tweak · Approve to lock in</p>
       </div>
 
       {/* Hidden shared audio element — seeked to scene startTime on play */}
@@ -385,7 +404,7 @@ function ScenePreviewGrid({
                   )}
 
                   {/* Action buttons */}
-                  <div className="flex items-center gap-1.5 mt-auto">
+                  <div className="flex items-center gap-1.5 mt-auto flex-wrap">
                     {scene.status === "completed" && !isEditing && !isRegenerating && (
                       <>
                         <button
@@ -410,6 +429,27 @@ function ScenePreviewGrid({
                         >
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                           Re-render
+                        </button>
+                        {/* Approve toggle */}
+                        <button
+                          onClick={() => scene.isApproved ? onUnapproveScene?.(scene.id) : onApproveScene?.(scene.id)}
+                          disabled={approvingScenes.has(scene.id)}
+                          title={scene.isApproved ? "Click to unapprove this scene" : "Approve this scene — lock it in for the final render"}
+                          className={[
+                            "flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all border",
+                            scene.isApproved
+                              ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40 hover:bg-emerald-500/10 hover:text-emerald-300"
+                              : "bg-white/5 text-white/40 border-white/10 hover:bg-emerald-500/15 hover:text-emerald-400 hover:border-emerald-500/30",
+                            approvingScenes.has(scene.id) ? "opacity-50 cursor-not-allowed" : "",
+                          ].join(" ")}
+                        >
+                          {approvingScenes.has(scene.id) ? (
+                            <><svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> …</>
+                          ) : scene.isApproved ? (
+                            <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Approved</>
+                          ) : (
+                            <><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Approve</>
+                          )}
                         </button>
                       </>
                     )}
@@ -785,9 +825,10 @@ export default function MusicVideoAutopilot() {
   const [sceneStatuses, setSceneStatuses] = useState<Record<number, string>>({});
   const [failedScenes, setFailedScenes] = useState(0);
   // Per-scene statuses from pollProgress for the real-time progress grid
-  const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; status: string; errorMessage?: string | null; prompt?: string; lyrics?: string | null; videoUrl?: string | null }>>([]); 
+  const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; status: string; errorMessage?: string | null; prompt?: string; lyrics?: string | null; videoUrl?: string | null; isApproved?: boolean }>>([]); 
   // Track which scenes are currently being retried
   const [retryingScenes, setRetryingScenes] = useState<Set<number>>(new Set());
+  const [approvingScenes, setApprovingScenes] = useState<Set<number>>(new Set());
 
   // ── Quality Guarantee State ──────────────────────────────────────────────
   const [showDownloadConfirmModal, setShowDownloadConfirmModal] = useState(false);
@@ -917,6 +958,8 @@ export default function MusicVideoAutopilot() {
   const updateSceneLipSyncStyleMutation = trpc.musicVideo.updateSceneLipSyncStyle.useMutation();
   const regenerateSceneMutation = trpc.musicVideo.regenerateScene.useMutation();
   const retryFailedSceneMutation = trpc.musicVideo.retryFailedScene.useMutation();
+  const approveSceneMutation = trpc.musicVideo.approveScene.useMutation();
+  const unapproveSceneMutation = trpc.musicVideo.unapproveScene.useMutation();
   const cancelSceneMutation = trpc.musicVideo.cancelScene.useMutation();
   const retryAllFailedScenesMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
   const updateScenePromptMutation = trpc.musicVideo.updateScenePrompt.useMutation();
@@ -1860,6 +1903,16 @@ export default function MusicVideoAutopilot() {
       console.warn("[MusicVideo] Render already in progress, ignoring duplicate click");
       return;
     }
+    // Approval gate — all completed scenes must be approved before full render
+    const completedScenes = perSceneStatuses.filter((s) => s.status === "completed" && s.videoUrl);
+    const unapprovedCount = completedScenes.filter((s) => !s.isApproved).length;
+    if (completedScenes.length > 0 && unapprovedCount > 0) {
+      toast.error(
+        `${unapprovedCount} scene${unapprovedCount > 1 ? "s" : ""} not yet approved`,
+        { description: "Please review and approve all scenes before starting the final render. Click \u2705 Approve on each scene card to lock it in." }
+      );
+      return;
+    }
     // Show render paywall modal — user chooses quality/audio and pays (or uses free render)
     setShowRenderPaywall(true);
   };
@@ -1913,13 +1966,15 @@ export default function MusicVideoAutopilot() {
               setPerSceneStatuses((prev) => {
                 // Merge: keep existing prompt/lyrics from storyboard scenes or previous poll
                 const prevMap = new Map(prev.map((s) => [s.id, s]));
-                return (progress.sceneStatuses as Array<{ id: number; index: number; status: string; errorMessage?: string | null; videoUrl?: string | null }>).map((s) => ({
+                return (progress.sceneStatuses as Array<{ id: number; index: number; status: string; errorMessage?: string | null; videoUrl?: string | null; prompt?: string | null; lyrics?: string | null; isApproved?: boolean }>).map((s) => ({
                   ...s,
                   // Preserve prompt/lyrics from the storyboard scenes array if available
-                  prompt: prevMap.get(s.id)?.prompt ?? scenes.find((sc) => sc.id === s.id)?.prompt ?? undefined,
-                  lyrics: prevMap.get(s.id)?.lyrics ?? scenes.find((sc) => sc.id === s.id)?.lyrics ?? undefined,
+                  prompt: s.prompt ?? prevMap.get(s.id)?.prompt ?? scenes.find((sc) => sc.id === s.id)?.prompt ?? undefined,
+                  lyrics: s.lyrics ?? prevMap.get(s.id)?.lyrics ?? scenes.find((sc) => sc.id === s.id)?.lyrics ?? undefined,
                   // Preserve videoUrl — once set, keep it even if a later poll omits it
                   videoUrl: s.videoUrl ?? prevMap.get(s.id)?.videoUrl ?? null,
+                  // isApproved comes from server; preserve local optimistic state if server hasn't caught up
+                  isApproved: s.isApproved ?? prevMap.get(s.id)?.isApproved ?? false,
                 }));
               });
               // Clear retrying state for scenes that are no longer failed
@@ -4487,30 +4542,46 @@ export default function MusicVideoAutopilot() {
             )}
 
             {/* ── Sticky bottom approval bar ── */}
-            <div style={{position:'sticky',bottom:0,left:0,right:0,background:'rgba(8,6,4,0.97)',borderTop:'1px solid rgba(184,137,42,0.15)',backdropFilter:'blur(12px)',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,marginTop:24,zIndex:30}}>
-              {/* Approval status dots */}
-              <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap',flex:1,minWidth:0}}>
-                <span style={{fontSize:10,fontWeight:600,letterSpacing:1.5,color:'#555',textTransform:'uppercase',marginRight:4,whiteSpace:'nowrap'}}>SCENES</span>
-                {scenes.slice(0,8).map((sc,i) => (
-                  <div key={sc.id} title={`Scene ${i+1}: ${sc.status}`} style={{width:8,height:8,borderRadius:'50%',background: sc.previewImageUrl ? (sc.status === 'approved' ? '#6db86d' : 'rgba(212,168,67,0.9)') : '#2a2a2a',boxShadow: sc.previewImageUrl ? '0 0 6px rgba(212,168,67,0.4)' : 'none',transition:'background 0.2s',flexShrink:0}} />
-                ))}
-                {scenes.length > 8 && <span style={{fontSize:9,color:'#555',marginLeft:2}}>+{scenes.length-8}</span>}
-                <span style={{fontSize:10,color:'#555',marginLeft:8,whiteSpace:'nowrap'}}>{scenes.filter(s=>!!s.previewImageUrl).length}/{scenes.length} ready</span>
-              </div>
-              {/* PROCEED TO RENDER gold CTA */}
-              <button
-                type="button"
-                onClick={handleStartRender}
-                disabled={startRender.isPending || scenes.length === 0}
-                style={{background: scenes.length > 0 && !startRender.isPending ? 'linear-gradient(135deg,#d4a843,#b8892a)' : '#1a1a1a',border: scenes.length > 0 && !startRender.isPending ? 'none' : '1px solid #333',color: scenes.length > 0 && !startRender.isPending ? '#000' : '#555',padding:'12px 24px',fontSize:12,fontWeight:700,letterSpacing:2,borderRadius:3,cursor: scenes.length > 0 && !startRender.isPending ? 'pointer' : 'not-allowed',display:'flex',alignItems:'center',gap:10,transition:'all 0.2s',whiteSpace:'nowrap',flexShrink:0}}
-              >
-                {startRender.isPending ? (
-                  <><Loader2 style={{width:14,height:14,animation:'spin 1s linear infinite'}} /> STARTING RENDER...</>
-                ) : (
-                  <><Clapperboard style={{width:14,height:14}} /> PROCEED TO RENDER</>
-                )}
-              </button>
-            </div>
+            {(() => {
+              const completedForBar = perSceneStatuses.filter((s) => s.status === "completed" && s.videoUrl);
+              const approvedForBar = completedForBar.filter((s) => s.isApproved).length;
+              const allApprovedForBar = completedForBar.length > 0 && approvedForBar === completedForBar.length;
+              const canRender = scenes.length > 0 && !startRender.isPending && (completedForBar.length === 0 || allApprovedForBar);
+              return (
+                <div style={{position:'sticky',bottom:0,left:0,right:0,background:'rgba(8,6,4,0.97)',borderTop:'1px solid rgba(184,137,42,0.15)',backdropFilter:'blur(12px)',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,marginTop:24,zIndex:30}}>
+                  {/* Approval status dots — green if approved, gold if ready but not approved, dark if pending */}
+                  <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap',flex:1,minWidth:0}}>
+                    <span style={{fontSize:10,fontWeight:600,letterSpacing:1.5,color:'#555',textTransform:'uppercase',marginRight:4,whiteSpace:'nowrap'}}>SCENES</span>
+                    {perSceneStatuses.slice(0,8).map((sc,i) => (
+                      <div key={sc.id} title={`Scene ${i+1}: ${sc.status}${sc.isApproved ? ' ✓ approved' : ''}`} style={{width:8,height:8,borderRadius:'50%',background: sc.status === 'completed' && sc.videoUrl ? (sc.isApproved ? '#4ade80' : 'rgba(212,168,67,0.9)') : sc.status === 'generating' ? 'rgba(212,168,67,0.4)' : '#2a2a2a',boxShadow: sc.status === 'completed' && sc.isApproved ? '0 0 6px rgba(74,222,128,0.5)' : sc.status === 'completed' ? '0 0 6px rgba(212,168,67,0.4)' : 'none',transition:'background 0.2s',flexShrink:0}} />
+                    ))}
+                    {perSceneStatuses.length > 8 && <span style={{fontSize:9,color:'#555',marginLeft:2}}>+{perSceneStatuses.length-8}</span>}
+                    {completedForBar.length > 0 && (
+                      <span style={{fontSize:10,marginLeft:8,whiteSpace:'nowrap',color: allApprovedForBar ? '#4ade80' : '#555'}}>
+                        {approvedForBar}/{completedForBar.length} approved
+                      </span>
+                    )}
+                  </div>
+                  {/* PROCEED TO RENDER gold CTA — disabled until all scenes approved */}
+                  <button
+                    type="button"
+                    onClick={handleStartRender}
+                    disabled={startRender.isPending || scenes.length === 0}
+                    title={!allApprovedForBar && completedForBar.length > 0 ? `Approve all ${completedForBar.length - approvedForBar} remaining scene${completedForBar.length - approvedForBar > 1 ? 's' : ''} to unlock` : undefined}
+                    style={{background: canRender ? 'linear-gradient(135deg,#d4a843,#b8892a)' : '#1a1a1a',border: canRender ? 'none' : '1px solid #333',color: canRender ? '#000' : '#555',padding:'12px 24px',fontSize:12,fontWeight:700,letterSpacing:2,borderRadius:3,cursor: canRender ? 'pointer' : 'not-allowed',display:'flex',alignItems:'center',gap:10,transition:'all 0.2s',whiteSpace:'nowrap',flexShrink:0}}
+                  >
+                    {startRender.isPending ? (
+                      <><Loader2 style={{width:14,height:14,animation:'spin 1s linear infinite'}} /> STARTING RENDER...</>
+                    ) : !allApprovedForBar && completedForBar.length > 0 ? (
+                      <><svg style={{width:14,height:14}} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> APPROVE ALL SCENES FIRST</>
+                    ) : (
+                      <><Clapperboard style={{width:14,height:14}} /> PROCEED TO RENDER</>
+                    )}
+                  </button>
+                </div>
+              );
+            })()}
+
           </div>
         )}
         {/* ===== STEP 3: RENDER ===== */}
@@ -5296,8 +5367,43 @@ export default function MusicVideoAutopilot() {
                           jobId={jobId}
                           jobCharacters={jobCharacters}
                           regeneratingScenes={retryingScenes}
+                          approvingScenes={approvingScenes}
+                          onApproveScene={async (sceneId) => {
+                            if (!jobId) return;
+                            setApprovingScenes((prev) => new Set(prev).add(sceneId));
+                            // Optimistic update
+                            setPerSceneStatuses((prev) => prev.map((s) => s.id === sceneId ? { ...s, isApproved: true } : s));
+                            try {
+                              await approveSceneMutation.mutateAsync({ sceneId, jobId });
+                              const sceneIdx = (perSceneStatuses.find((s) => s.id === sceneId)?.index ?? 0) + 1;
+                              toast.success(`Scene ${sceneIdx} approved ✅`, { description: "Locked in for the final render." });
+                            } catch (err: any) {
+                              // Rollback optimistic update
+                              setPerSceneStatuses((prev) => prev.map((s) => s.id === sceneId ? { ...s, isApproved: false } : s));
+                              toast.error("Could not approve scene", { description: err?.message });
+                            } finally {
+                              setApprovingScenes((prev) => { const n = new Set(prev); n.delete(sceneId); return n; });
+                            }
+                          }}
+                          onUnapproveScene={async (sceneId) => {
+                            if (!jobId) return;
+                            setApprovingScenes((prev) => new Set(prev).add(sceneId));
+                            // Optimistic update
+                            setPerSceneStatuses((prev) => prev.map((s) => s.id === sceneId ? { ...s, isApproved: false } : s));
+                            try {
+                              await unapproveSceneMutation.mutateAsync({ sceneId, jobId });
+                            } catch (err: any) {
+                              // Rollback
+                              setPerSceneStatuses((prev) => prev.map((s) => s.id === sceneId ? { ...s, isApproved: true } : s));
+                              toast.error("Could not unapprove scene", { description: err?.message });
+                            } finally {
+                              setApprovingScenes((prev) => { const n = new Set(prev); n.delete(sceneId); return n; });
+                            }
+                          }}
                           onRegenerateScene={async (sceneId, newPrompt, newLyrics) => {
                             if (!jobId) return;
+                            // Auto-unapprove: re-rendering invalidates previous approval
+                            setPerSceneStatuses((prev) => prev.map((s) => s.id === sceneId ? { ...s, isApproved: false } : s));
                             // If the user edited the prompt/lyrics, persist them first
                             if (newPrompt) {
                               try {
@@ -5322,7 +5428,7 @@ export default function MusicVideoAutopilot() {
                             // Re-render the scene via regenerateScene mutation
                             setRetryingScenes((prev) => new Set(prev).add(sceneId));
                             setPerSceneStatuses((prev) =>
-                              prev.map((s) => s.id === sceneId ? { ...s, status: "pending", videoUrl: null, errorMessage: null } : s)
+                              prev.map((s) => s.id === sceneId ? { ...s, status: "pending", videoUrl: null, errorMessage: null, isApproved: false } : s)
                             );
                             try {
                               await regenerateSceneMutation.mutateAsync({ sceneId, jobId });

@@ -7816,3 +7816,14 @@
 - [x] regenerateScene procedure updated to reset job status to rendering when job is completed
 - [ ] Visual indicator showing scene approval status (approved / needs review / regenerating)
 - [ ] "Approve All & Proceed to Full Render" CTA only enabled when user has reviewed scenes
+
+## Approve Scene Toggle (WizPilot Render Step)
+- [x] Add `isApproved` boolean column to `musicVideoScenes` table (default false)
+- [x] Add `approveScene` tRPC mutation (sets isApproved = true)
+- [x] Add `unapproveScene` tRPC mutation (sets isApproved = false)
+- [x] Expose `isApproved` in `pollRenderStatus` scene data so frontend gets live state
+- [x] Add Approve toggle button to each completed scene card in ScenePreviewGrid
+- [x] Visual: approved = emerald green checkmark + green border; unapproved = grey outline
+- [x] Auto-unapprove a scene when user clicks Re-render (scene is no longer locked in)
+- [x] Gate the "Proceed to Full Render" CTA: only enabled when all completed scenes are approved
+- [x] Show approval progress counter: "X/Y approved" in scene review header and sticky bar
