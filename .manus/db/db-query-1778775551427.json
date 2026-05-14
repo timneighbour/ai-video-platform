@@ -1,0 +1,28 @@
+{
+  "query": "\nSELECT id, email, name, role FROM users WHERE role = 'admin' ORDER BY id LIMIT 3;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, email, name, role FROM users WHERE role = 'admin' ORDER BY id LIMIT 3;\n",
+  "rows": [
+    {
+      "id": "1",
+      "email": "timneighbour@mac.com",
+      "name": "Tim Neighbour",
+      "role": "admin"
+    },
+    {
+      "id": "1770048",
+      "email": "timneighbour@icloud.com",
+      "name": "timneighbour",
+      "role": "admin"
+    },
+    {
+      "id": "1980149",
+      "email": "timneighbour@me.com",
+      "name": "timneighbour",
+      "role": "admin"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\tname\trole\n1\ttimneighbour@mac.com\tTim Neighbour\tadmin\n1770048\ttimneighbour@icloud.com\ttimneighbour\tadmin\n1980149\ttimneighbour@me.com\ttimneighbour\tadmin\n",
+  "stderr": "",
+  "execution_time_ms": 620
+}

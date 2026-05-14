@@ -1,0 +1,17 @@
+{
+  "query": "\n-- Get the new character ID for job 540002\nSELECT id, name, isLocked, masterPortraitUrl, lockedDescription FROM videoCharacters WHERE jobId = 540002;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \n-- Get the new character ID for job 540002\nSELECT id, name, isLocked, masterPortraitUrl, lockedDescription FROM videoCharacters WHERE jobId = 540002;\n",
+  "rows": [
+    {
+      "id": "420002",
+      "name": "Zara",
+      "isLocked": "1",
+      "masterPortraitUrl": "NULL",
+      "lockedDescription": "Woman in her late 20s, mixed-race (Black and White), warm medium skin tone. Her hair is long, dark brown, styled in loose, voluminous waves, falling past her shoulders. She has striking dark brown eyes with an almond shape. She has a lean, athletic build, appearing around 5'7\" tall. She consistently wears a signature black leather jacket, layered over a dark top, paired with distressed dark skinny jeans and black ankle boots. She accessorizes with prominent gold hoop earrings and several gold necklaces."
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tisLocked\tmasterPortraitUrl\tlockedDescription\n420002\tZara\t1\tNULL\tWoman in her late 20s, mixed-race (Black and White), warm medium skin tone. Her hair is long, dark brown, styled in loose, voluminous waves, falling past her shoulders. She has striking dark brown eyes with an almond shape. She has a lean, athletic build, appearing around 5'7\" tall. She consistently wears a signature black leather jacket, layered over a dark top, paired with distressed dark skinny jeans and black ankle boots. She accessorizes with prominent gold hoop earrings and several gold necklaces.\n",
+  "stderr": "",
+  "execution_time_ms": 555
+}

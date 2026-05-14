@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import InsufficientCreditsModal from "@/components/InsufficientCreditsModal";
 import { LandscapeHint } from "@/components/LandscapeHint";
-import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
+import { WIZSOUND_TIERS, VIDEO_QUALITY_2TIER, WIZLUMINA_CINEMATIC } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
 import { trpc } from "@/lib/trpc";
 import { StarterTemplates } from "@/components/StarterTemplates";
@@ -72,7 +72,7 @@ const PRODUCTION_STATUS = [
   { label: "Script & Hook",     status: "progress" },
   { label: "Scene Generation",  status: "pending" },
   { label: "WizSound Processing", status: "pending" },
-  { label: "WizLuminar Grade",  status: "pending" },
+  { label: "WizLumina Grade",  status: "pending" },
   { label: "Render & Publish",  status: "pending" },
 ];
 
@@ -1351,11 +1351,11 @@ export default function WizShorts() {
                 </div>
                 <div className="text-[9px] text-white/30 mt-2"> Preview only</div>
               </div>
-              {/* WizLuminar */}
+              {/* WizLumina */}
               <div className="mb-4">
-                <div className="text-[10px] font-bold text-white/60 tracking-widest uppercase mb-2">WizLuminar™ — Visual Quality</div>
+                <div className="text-[10px] font-bold text-white/60 tracking-widest uppercase mb-2">WizLumina™ — Visual Quality</div>
                 <div className="grid grid-cols-3 gap-1.5">
-                  {["Original", "Enhanced", "WizLuminar™"].map((t, i) => (
+                  {["Original", "Enhanced", "WizLumina™"].map((t, i) => (
                     <div
                       key={t}
                       className="rounded-lg border p-2 text-center text-[9px]"
@@ -1381,9 +1381,9 @@ export default function WizShorts() {
                   <div className="text-[10px] font-bold mt-1" style={{ color: FX }}>{WIZSOUND_TIERS.CINEMATIC.price}</div>
                 </button>
                 <button className="w-full rounded-xl bg-gradient-to-r from-purple-500/20 to-purple-500/10 border border-purple-500/30 p-2.5 text-left hover:from-purple-500/30 transition-all">
-                  <div className="text-xs font-bold text-purple-400">WizLuminar™ Cinematic</div>
+                  <div className="text-xs font-bold text-purple-400">WizLumina™ Cinematic</div>
                   <div className="text-[9px] text-white/40">Colour grade · Film grain · Deep blacks</div>
-                  <div className="text-[10px] text-purple-400 font-bold mt-1">{WIZLUMINAR_CINEMATIC.price}</div>
+                  <div className="text-[10px] text-purple-400 font-bold mt-1">{WIZLUMINA_CINEMATIC.price}</div>
                 </button>
               </div>
             </div>

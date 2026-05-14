@@ -1,0 +1,42 @@
+{
+  "query": "\nSELECT id, title, status, audioUrl, aspectRatio, createdAt\nFROM musicVideoJobs \nWHERE LOWER(title) LIKE '%zara%' OR LOWER(title) LIKE '%demo%'\nORDER BY createdAt DESC \nLIMIT 10;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, title, status, audioUrl, aspectRatio, createdAt\nFROM musicVideoJobs \nWHERE LOWER(title) LIKE '%zara%' OR LOWER(title) LIKE '%demo%'\nORDER BY createdAt DESC \nLIMIT 10;\n",
+  "rows": [
+    {
+      "id": "540001",
+      "title": "Zara — WizSync Verify (Fresh)",
+      "status": "failed",
+      "audioUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3",
+      "aspectRatio": "16:9",
+      "createdAt": "2026-05-14 15:14:40"
+    },
+    {
+      "id": "510100",
+      "title": "Zara — WizSync Verify (Fresh)",
+      "status": "assembling",
+      "audioUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3",
+      "aspectRatio": "16:9",
+      "createdAt": "2026-05-13 23:47:59"
+    },
+    {
+      "id": "510099",
+      "title": "Zara CharLock™ Verify — 2026-05-13T21:10",
+      "status": "completed",
+      "audioUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3",
+      "aspectRatio": "16:9",
+      "createdAt": "2026-05-13 21:10:25"
+    },
+    {
+      "id": "510098",
+      "title": "Showcase Demo",
+      "status": "completed",
+      "audioUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3",
+      "aspectRatio": "16:9",
+      "createdAt": "2026-05-13 18:03:12"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tstatus\taudioUrl\taspectRatio\tcreatedAt\n540001\tZara — WizSync Verify (Fresh)\tfailed\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3\t16:9\t2026-05-14 15:14:40\n510100\tZara — WizSync Verify (Fresh)\tassembling\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3\t16:9\t2026-05-13 23:47:59\n510099\tZara CharLock™ Verify — 2026-05-13T21:10\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3\t16:9\t2026-05-13 21:10:25\n510098\tShowcase Demo\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3\t16:9\t2026-05-13 18:03:12\n",
+  "stderr": "",
+  "execution_time_ms": 565
+}

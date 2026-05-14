@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { LandscapeHint } from "@/components/LandscapeHint";
-import { IMAGE_RENDER_QUALITY, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
+import { IMAGE_RENDER_QUALITY, WIZLUMINA_CINEMATIC } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -34,13 +34,21 @@ const IMAGE_TYPES = [
   { id: "social_media",     label: "Social Media",      icon: "MO", sub: "Multi-format pack" },
   { id: "merch_design",     label: "Merch Design",      icon: "", sub: "T-shirt · Hoodie" },
   { id: "video_thumbnail",  label: "Video Thumbnail",   icon: "VI", sub: "16:9 · YouTube" },
+  { id: "character",        label: "Character",         icon: "CH", sub: "Save to library" },
 ];
 
 const VISUAL_STYLE_TAGS = [
+  // Photographic / Cinematic
   "Cinematic", "Dark & Moody", "Photorealistic", "Painterly",
   "Neon / Cyberpunk", "Vintage / Retro", "Gothic", "Minimalist",
   "Abstract", "Surrealist", "Watercolour", "Comic / Graphic",
+  // Animation & Cartoon
+  "Pixar 3D", "Disney Animation", "Anime", "Studio Ghibli",
+  "Comic Book", "Claymation", "Cartoon", "Manga",
+  "Stop Motion", "Dreamworks 3D",
 ];
+
+const ANIMATION_STYLES = ["Pixar 3D", "Disney Animation", "Anime", "Studio Ghibli", "Comic Book", "Claymation", "Cartoon", "Manga", "Stop Motion", "Dreamworks 3D"];
 
 const ASPECT_RATIOS: Array<"1:1" | "16:9" | "9:16" | "4:3" | "3:4"> = ["1:1", "16:9", "9:16", "4:3", "3:4"];
 
@@ -49,14 +57,14 @@ const COLOUR_SWATCHES = [
   "#1a1a2e", "#0d0d0d", "#6db86d",
 ];
 
-const VARIATIONS_OPTIONS = [1, 4, 8, 16];
+const VARIATIONS_OPTIONS = [1, 2, 4, 6, 8, 16];
 
 const PRODUCTION_STATUS = [
   { label: "Reference analysed",        status: "done" },
   { label: "Style locked",              status: "done" },
   { label: "Prompt optimised",          status: "done" },
   { label: "AI generation — 4 variations", status: "active" },
-  { label: "WizLuminar™ grade",         status: "pending" },
+  { label: "WizLumina™ grade",         status: "pending" },
   { label: "4K upscale & export",       status: "pending" },
 ];
 
@@ -85,7 +93,8 @@ export default function WizImage() {
   const [aspectRatio, setAspectRatio] = useState<"1:1" | "16:9" | "9:16" | "4:3" | "3:4">("1:1");
   const [activeSwatches, setActiveSwatches] = useState<string[]>(["#2d1060", "#d4a843", "#0d0d0d"]);
   const [variations, setVariations] = useState(4);
-  const [renderQuality, setRenderQuality] = useState("hd");
+  const [renderQuality, setRenderQuality] = useState("standard");
+  const [imageSource, setImageSource] = useState<"upload" | "ai_generated" | "photo">("upload");
   const [exportFormat, setExportFormat] = useState("PNG");
   const [upgradeTier, setUpgradeTier] = useState<"original" | "enhanced" | "luminar">("original");
   const [ambience, setAmbience] = useState(72);
@@ -142,7 +151,17 @@ export default function WizImage() {
     mp.projectCreated("WizImage");
     mp.buildStarted("WizImage");
     const stylePrefix = styleTags.length > 0 ? `${styleTags.join(", ")} style. ` : "";
-    generateMutation.mutate({ prompt: stylePrefix + prompt.trim(), style: imageType, aspectRatio });
+    generateMutation.mutate(
+      { prompt: stylePrefix + prompt.trim(), style: imageType, aspectRatio },
+      {
+        onSuccess: () => {
+          // Auto-prompt save to library when Character type is selected
+          if (imageType === "character") {
+            setTimeout(() => setShowSaveLibModal(true), 600);
+          }
+        },
+      }
+    );
   };
 
   const handleDownload = (url: string) => {
@@ -386,10 +405,35 @@ export default function WizImage() {
         {/* ── LEFT PANEL ── */}
         <aside className="overflow-y-auto p-4 flex flex-col gap-4" style={{ maxHeight: "calc(100vh - 64px)", position: "sticky", top: 64, background: "rgba(4,4,14,0.75)", backdropFilter: "blur(12px)", borderRight: `1px solid ${A_BORDER}` }}>
 
-          {/* ① Reference Upload */}
+          {/* ① Image Source */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">① Reference Upload</span>
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">① Image Source</span>
+              <div className="flex-1 h-px" style={{ background: A_BORDER }} />
+            </div>
+            <div className="flex gap-1.5 mb-3">
+              {(["upload", "ai_generated", "photo"] as const).map((src) => (
+                <button
+                  key={src}
+                  onClick={() => setImageSource(src)}
+                  className="flex-1 text-[9px] py-1.5 rounded-md border transition-all font-semibold tracking-wide uppercase"
+                  style={{
+                    borderColor: imageSource === src ? A : A_BORDER,
+                    background: imageSource === src ? A_DIM : "rgba(255,255,255,0.03)",
+                    color: imageSource === src ? A : "rgba(255,255,255,0.35)",
+                    boxShadow: imageSource === src ? `0 0 8px ${A_GLOW}` : "none",
+                  }}
+                >
+                  {src === "upload" ? "📁 Upload" : src === "ai_generated" ? "✦ AI Gen" : "📷 Photo"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ② Reference Upload */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">② Reference</span>
               <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             {!hasRef ? (
@@ -447,10 +491,10 @@ export default function WizImage() {
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={() => setHasRef(true)} />
           </div>
 
-          {/* ② Image Type */}
+          {/* ③ Image Type */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">② Image Type</span>
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">③ Image Type</span>
               <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <div className="grid grid-cols-2 gap-1.5">
@@ -473,10 +517,10 @@ export default function WizImage() {
             </div>
           </div>
 
-          {/* ③ Style & Prompt */}
+          {/* ④ Style & Prompt */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">③ Style & Prompt</span>
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">④ Style & Prompt</span>
               <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <textarea
@@ -511,14 +555,15 @@ export default function WizImage() {
             </div>
           </div>
 
-          {/* ④ Visual Style Tags */}
+          {/* ⑤ Visual Style Tags */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">④ Visual Style</span>
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">⑤ Visual Style</span>
               <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {VISUAL_STYLE_TAGS.map((tag) => (
+              <div className="w-full text-[8px] text-white/25 tracking-[2px] uppercase mb-0.5">Photographic</div>
+              {VISUAL_STYLE_TAGS.filter(t => !ANIMATION_STYLES.includes(t)).map((tag) => (
                 <button
                   key={tag}
                   onClick={() => toggleStyleTag(tag)}
@@ -533,13 +578,29 @@ export default function WizImage() {
                   {tag}
                 </button>
               ))}
+              <div className="w-full text-[8px] text-white/25 tracking-[2px] uppercase mt-2 mb-0.5">Animation &amp; Cartoon</div>
+              {ANIMATION_STYLES.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => toggleStyleTag(tag)}
+                  className="text-[10px] px-2.5 py-1 rounded-full border transition-all"
+                  style={{
+                    borderColor: styleTags.includes(tag) ? "#f59e0b" : A_BORDER,
+                    background: styleTags.includes(tag) ? "rgba(245,158,11,0.15)" : "rgba(255,255,255,0.04)",
+                    color: styleTags.includes(tag) ? "#f59e0b" : "rgba(255,255,255,0.4)",
+                    boxShadow: styleTags.includes(tag) ? "0 0 8px rgba(245,158,11,0.3)" : "none",
+                  }}
+                >
+                  {tag}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* ⑤ Aspect Ratio */}
+          {/* ⑥ Aspect Ratio */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">⑤ Aspect Ratio</span>
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">⑥ Aspect Ratio</span>
               <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -560,10 +621,10 @@ export default function WizImage() {
             </div>
           </div>
 
-          {/* ⑥ Colour Palette */}
+          {/* ⑦ Colour Palette */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">⑥ Colour Palette</span>
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">⑦ Colour Palette</span>
               <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -591,10 +652,10 @@ export default function WizImage() {
             </div>
           </div>
 
-          {/* ⑦ Variations */}
+          {/* ⑧ Variations */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">⑦ Variations</span>
+              <span className="text-[9px] text-white/30 tracking-[2px] uppercase">⑧ Variations</span>
               <div className="flex-1 h-px" style={{ background: A_BORDER }} />
             </div>
             <div className="flex items-center gap-2">
@@ -780,17 +841,23 @@ export default function WizImage() {
             }
             </div>
 
-            {/* Save to Character Library */}
-            {generatedImages.length > 0 && (
-              <div className="mt-3 pt-3 border-t" style={{ borderColor: A_BORDER }}>
-                <button
-                  onClick={() => setShowSaveLibModal(true)}
-                  className="w-full text-[10px] px-3 py-2 rounded-md border transition-all flex items-center justify-center gap-1.5"
-                  style={{ background: "rgba(184,137,42,0.08)", borderColor: "rgba(184,137,42,0.35)", color: "#d4a843" }}
-                >
-                  💾 Save to Character Library
-                </button>
-              </div>
+            {/* Save to Character Library — always visible when character type or after generation */}
+            {(imageType === "character" || generatedImages.length > 0) && (
+              <button
+                onClick={() => {
+                  if (!generatedImages.length) { toast.info("Generate a character image first"); return; }
+                  setShowSaveLibModal(true);
+                }}
+                className="text-[10px] px-3 py-1.5 rounded-md border transition-all flex items-center gap-1.5"
+                style={{
+                  background: imageType === "character" ? "rgba(212,168,67,0.12)" : "rgba(255,255,255,0.04)",
+                  borderColor: imageType === "character" ? "rgba(212,168,67,0.5)" : A_BORDER,
+                  color: imageType === "character" ? "#d4a843" : "rgba(255,255,255,0.4)",
+                  fontWeight: imageType === "character" ? 700 : 400,
+                }}
+              >
+                ★ Save to Library
+              </button>
             )}
           </div>
         </div>
@@ -845,20 +912,20 @@ export default function WizImage() {
                     borderColor: upgradeTier === tier ? A : "transparent",
                   }}
                 >
-                  {tier === "original" ? "ORIGINAL" : tier === "enhanced" ? <><span>ENHANCED</span><br /><span className="text-[8px] text-green-400">{IMAGE_RENDER_QUALITY.HD.price}</span></> : <><span>WIZLUMINAR™</span><br /><span className="text-[8px]" style={{ color: A }}>{WIZLUMINAR_CINEMATIC.price}</span></>}
+                  {tier === "original" ? "ORIGINAL" : tier === "enhanced" ? <><span>ENHANCED</span><br /><span className="text-[8px] text-green-400">{IMAGE_RENDER_QUALITY.HD.price}</span></> : <><span>WIZLUMINA™</span><br /><span className="text-[8px]" style={{ color: A }}>{WIZLUMINA_CINEMATIC.price}</span></>}
                 </button>
               ))}
             </div>
             <div className="p-2.5">
               <div className="text-[11px] text-green-400 mb-1.5">
-                {upgradeTier === "original" ? "Included — no extra cost" : upgradeTier === "enhanced" ? `${IMAGE_RENDER_QUALITY.HD.price} — Enhanced quality` : `${WIZLUMINAR_CINEMATIC.price} — WizLuminar™ grade`}
+                {upgradeTier === "original" ? "Included — no extra cost" : upgradeTier === "enhanced" ? `${IMAGE_RENDER_QUALITY.HD.price} — Enhanced quality` : `${WIZLUMINA_CINEMATIC.price} — WizLumina™ grade`}
               </div>
               <div className="flex flex-col gap-1 mb-2">
                 {(upgradeTier === "original"
                   ? ["Standard AI generation", "1024×1024px base output", "Basic colour grading", "JPEG / PNG export"]
                   : upgradeTier === "enhanced"
                   ? ["Enhanced AI generation", "2048×2048px output", "Professional colour grading", "All export formats"]
-                  : ["WizLuminar™ processing", "4K upscale output", "Cinematic LUT + HDR", "RAW / TIFF / PSD export"]
+                  : ["WizLumina™ processing", "4K upscale output", "Cinematic LUT + HDR", "RAW / TIFF / PSD export"]
                 ).map((f) => (
                   <div key={f} className="flex items-center gap-1.5 text-[10px] text-white/40">
                     <span className="text-[9px]" style={{ color: A }}>→</span>{f}
@@ -867,7 +934,7 @@ export default function WizImage() {
               </div>
               <div className="text-[9px] text-white/30 mb-1.5 tracking-widest uppercase">Visual Quality Comparison</div>
               <div className="grid grid-cols-3 gap-1">
-                {["Original", "Enhanced", "WizLuminar™"].map((label, i) => (
+                {["Original", "Enhanced", "WizLumina™"].map((label, i) => (
                   <div key={label} className={`rounded-md overflow-hidden relative aspect-square ${i === 2 ? "opacity-60" : ""}`}
                     style={{ background: `linear-gradient(135deg, #0a0a20 ${i * 20}%, #1a1a40, #050518)` }}>
                     {i === 2 && <div className="absolute inset-0 flex items-center justify-center text-lg" style={{ background: "rgba(0,0,0,0.6)" }}></div>}
@@ -881,13 +948,13 @@ export default function WizImage() {
             </div>
           </div>
 
-          {/* WizLuminar CTA */}
+          {/* WizLumina CTA */}
           <div className="rounded-xl p-2.5 cursor-pointer transition-all border" style={{ background: `linear-gradient(135deg, ${A_DIM}, rgba(99,102,241,0.05))`, borderColor: A_BORDER }}
             onMouseEnter={(e) => (e.currentTarget.style.background = `linear-gradient(135deg, ${A_GLOW}, ${A_DIM})`)}
             onMouseLeave={(e) => (e.currentTarget.style.background = `linear-gradient(135deg, ${A_DIM}, rgba(99,102,241,0.05))`)}>
-            <div className="text-[11px] font-bold mb-1" style={{ color: A }}>✦ WizLuminar™ Cinematic Grade</div>
+            <div className="text-[11px] font-bold mb-1" style={{ color: A }}>✦ WizLumina™ Cinematic Grade</div>
             <div className="text-[10px] text-white/40">Professional colour science, HDR tone mapping, cinematic LUT, 4K upscale, noise reduction, detail enhancement</div>
-            <div className="text-[13px] font-bold mt-1.5" style={{ color: A }}>Add WizLuminar™ — {WIZLUMINAR_CINEMATIC.price}</div>
+            <div className="text-[13px] font-bold mt-1.5" style={{ color: A }}>Add WizLumina™ — {WIZLUMINA_CINEMATIC.price}</div>
           </div>
 
           {/* Render Quality */}

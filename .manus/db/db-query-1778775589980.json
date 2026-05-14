@@ -1,0 +1,19 @@
+{
+  "query": "\nSELECT id, title, status, finalVideoUrl, thumbnailUrl, aspectRatio, errorMessage\nFROM musicVideoJobs\nWHERE id = 510100;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, title, status, finalVideoUrl, thumbnailUrl, aspectRatio, errorMessage\nFROM musicVideoJobs\nWHERE id = 510100;\n",
+  "rows": [
+    {
+      "id": "510100",
+      "title": "Zara — WizSync Verify (Fresh)",
+      "status": "completed",
+      "finalVideoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-videos/job-510100-final-1778775505424.mp4",
+      "thumbnailUrl": "NULL",
+      "aspectRatio": "16:9",
+      "errorMessage": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tstatus\tfinalVideoUrl\tthumbnailUrl\taspectRatio\terrorMessage\n510100\tZara — WizSync Verify (Fresh)\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-videos/job-510100-final-1778775505424.mp4\tNULL\t16:9\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 621
+}

@@ -32,7 +32,7 @@ export const IMAGE_RENDER_QUALITY = {
   STANDARD: { label: "Standard",       desc: "1024×1024px · Fast",          price: "Included", priceAddon: null } as const,
   HD:        { label: "HD",             desc: "2048×2048px · Print ready",   price: "+£1.99",   priceAddon: 1.99 } as const,
   UHD:       { label: "4K Ultra",       desc: "3840×3840px · Billboard",     price: "+£3.99",   priceAddon: 3.99 } as const,
-  UHD8:      { label: "8K WizLuminar™", desc: "7680×7680px · Museum print",  price: "+£7.99",   priceAddon: 7.99 } as const,
+  UHD8:      { label: "8K WizLumina™", desc: "7680×7680px · Museum print",  price: "+£7.99",   priceAddon: 7.99 } as const,
 } as const;
 
 // ── WizSound™ Audio Enhancement Tiers ────────────────────────────────────────
@@ -89,10 +89,10 @@ export const CREDIT_BUNDLES = [
   { label: "Studio Bundle",   builds: 40, price: "£50", perRender: "£1.25", saving: "Save 38%", highlight: false, badge: null         },
 ] as const;
 
-// ── WizLuminar™ Cinematic Add-on ────────────────────────────────────────────
+// ── WizLumina™ Cinematic Add-on ────────────────────────────────────────────
 // Used by: KidsVideo, TextToVideoCreator, WizScore, WizShorts
 // Colour grade + film grain visual enhancement add-on
-export const WIZLUMINAR_CINEMATIC = { label: "WizLuminar™ Cinematic", price: "+£3.99", priceAddon: 3.99 } as const;
+export const WIZLUMINA_CINEMATIC = { label: "WizLumina™ Cinematic", price: "+£3.99", priceAddon: 3.99 } as const;
 
 // ── WizShorts / KidsVideo quality selector (2-tier: 1080p / 4K) ──────────────
 // Some studios only offer 2 tiers (no 8K)

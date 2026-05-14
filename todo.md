@@ -7827,3 +7827,14 @@
 - [x] Auto-unapprove a scene when user clicks Re-render (scene is no longer locked in)
 - [x] Gate the "Proceed to Full Render" CTA: only enabled when all completed scenes are approved
 - [x] Show approval progress counter: "X/Y approved" in scene review header and sticky bar
+
+## WizImage Updates
+- [x] Fix spelling: WizLuminar → WizLumina (remove the R) everywhere in codebase (6 files fixed)
+- [x] Add "Character" image type — create individual characters and save to character library
+- [x] Add animation/cartoon visual styles: Pixar 3D, Disney Animation, Anime, Studio Ghibli, Comic Book, Claymation, Cartoon, Manga, Stop Motion, Dreamworks 3D
+- [x] Add variation count selector: 1, 2, 4, 6, 8, 16 options (user selectable before generate)
+- [x] Default render quality to Standard (was HD, now Standard)
+- [x] Add AI Generated image source option
+- [x] Add Uploaded Photo image source option
+- [x] Group visual styles into Photographic and Animation & Cartoon sections with amber highlight for animation tags
+- [x] Character type: auto-prompts save-to-library modal after generation, Save to Library button highlighted in gold

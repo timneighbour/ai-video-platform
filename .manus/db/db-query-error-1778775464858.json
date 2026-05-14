@@ -1,0 +1,8 @@
+{
+  "query": "\n-- Find recent music video jobs that mention Zara\nSELECT id, title, status, audioUrl, sunoAudioUrl, aspectRatio, createdAt\nFROM musicVideoJobs \nWHERE LOWER(title) LIKE '%zara%' OR LOWER(title) LIKE '%demo%'\nORDER BY createdAt DESC \nLIMIT 10;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \n-- Find recent music video jobs that mention Zara\nSELECT id, title, status, audioUrl, sunoAudioUrl, aspectRatio, createdAt\nFROM musicVideoJobs \nWHERE LOWER(title) LIKE '%zara%' OR LOWER(title) LIKE '%demo%'\nORDER BY createdAt DESC \nLIMIT 10;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 3: Unknown column 'sunoaudiourl' in 'field list'"
+  ]
+}

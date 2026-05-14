@@ -1,0 +1,18 @@
+{
+  "query": "\nSELECT j.id, j.title, j.status, j.totalScenes, j.completedScenes, j.aspectRatio\nFROM musicVideoJobs j\nWHERE j.id = 540002;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT j.id, j.title, j.status, j.totalScenes, j.completedScenes, j.aspectRatio\nFROM musicVideoJobs j\nWHERE j.id = 540002;\n",
+  "rows": [
+    {
+      "id": "540002",
+      "title": "Zara — Cinematic Demo",
+      "status": "storyboard_ready",
+      "totalScenes": "23",
+      "completedScenes": "0",
+      "aspectRatio": "16:9"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tstatus\ttotalScenes\tcompletedScenes\taspectRatio\n540002\tZara — Cinematic Demo\tstoryboard_ready\t23\t0\t16:9\n",
+  "stderr": "",
+  "execution_time_ms": 583
+}

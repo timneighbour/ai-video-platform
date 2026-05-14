@@ -1,0 +1,8 @@
+{
+  "query": "\n-- Find Zara in savedCharacters\nSELECT id, name, description, photo_url, user_id, created_at \nFROM savedCharacters \nWHERE LOWER(name) LIKE '%zara%' \nORDER BY created_at DESC \nLIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \n-- Find Zara in savedCharacters\nSELECT id, name, description, photo_url, user_id, created_at \nFROM savedCharacters \nWHERE LOWER(name) LIKE '%zara%' \nORDER BY created_at DESC \nLIMIT 5;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 3: Unknown column 'photo_url' in 'field list'"
+  ]
+}

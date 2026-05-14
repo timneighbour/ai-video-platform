@@ -7,7 +7,7 @@
  */
 import { useAuth } from "@/_core/hooks/useAuth";
 import { LandscapeHint } from "@/components/LandscapeHint";
-import { RENDER_QUALITY_TIERS, WIZSOUND_TIERS, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
+import { RENDER_QUALITY_TIERS, WIZSOUND_TIERS, WIZLUMINA_CINEMATIC } from "@/lib/pricing";
 import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 import { analytics } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
@@ -1004,9 +1004,9 @@ export default function TextToVideoCreator() {
               </div>
             </div>
 
-            {/* WizLuminar Visual Quality */}
+            {/* WizLumina Visual Quality */}
             <div className="rounded-2xl p-4 border" style={{ background: BG_CARD, borderColor: V_BORDER, backdropFilter: "blur(12px)" }}>
-              <h3 className="text-white/60 text-xs font-bold tracking-wider mb-3">WIZLUMINAR™ — VISUAL QUALITY</h3>
+              <h3 className="text-white/60 text-xs font-bold tracking-wider mb-3">WIZLUMINA™ — VISUAL QUALITY</h3>
               <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: V_BORDER }}>
                 {["ORIGINAL", "ENHANCED", "CINEMATIC"].map((t, i) => (
                   <button key={t} className="flex-1 py-2 text-[10px] font-bold tracking-wider transition-all"
@@ -1034,8 +1034,8 @@ export default function TextToVideoCreator() {
               style={{ borderColor: V_BORDER, background: V_DIM, color: V_LIGHT }}
               onMouseEnter={(e) => (e.currentTarget.style.background = `rgba(124,58,237,0.20)`)}
               onMouseLeave={(e) => (e.currentTarget.style.background = V_DIM)}>
-              <span className="flex items-center gap-2"><Sparkles className="w-3.5 h-3.5" /> WizLuminar™ Cinematic</span>
-              <span>{WIZLUMINAR_CINEMATIC.price}</span>
+              <span className="flex items-center gap-2"><Sparkles className="w-3.5 h-3.5" /> WizLumina™ Cinematic</span>
+              <span>{WIZLUMINA_CINEMATIC.price}</span>
             </button>
 
             {/* Render Quality */}

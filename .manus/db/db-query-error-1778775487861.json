@@ -1,0 +1,8 @@
+{
+  "query": "\n-- Get videoCharacters for job 510099\nSELECT vc.id, vc.name, vc.description, vc.photoUrl, vc.lipSyncEnabled, vc.gender, vc.animStyle\nFROM videoCharacters vc\nWHERE vc.jobId = 510099\nORDER BY vc.id;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \n-- Get videoCharacters for job 510099\nSELECT vc.id, vc.name, vc.description, vc.photoUrl, vc.lipSyncEnabled, vc.gender, vc.animStyle\nFROM videoCharacters vc\nWHERE vc.jobId = 510099\nORDER BY vc.id;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 3: Unknown column 'vc.description' in 'field list'"
+  ]
+}

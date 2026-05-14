@@ -3,7 +3,7 @@
  * HTML reference pass: mockup-wizscore.html
  */
 import { useState, useEffect, useRef } from "react";
-import { WIZSOUND_TIERS, RENDER_QUALITY_TIERS, WIZLUMINAR_CINEMATIC } from "@/lib/pricing";
+import { WIZSOUND_TIERS, RENDER_QUALITY_TIERS, WIZLUMINA_CINEMATIC } from "@/lib/pricing";
 import { Link } from "wouter";
 import { mp } from "@/lib/mixpanel";
 import { useSEO } from "@/hooks/useSEO";
@@ -968,9 +968,9 @@ export default function WizScore() {
               <div style={{fontSize:"8px",color:"#333",marginTop:"4px"}}> Preview only — no download until render complete &amp; payment confirmed</div>
             </div>
 
-            {/* WizLuminar visual quality */}
+            {/* WizLumina visual quality */}
             <div style={{marginBottom:"10px"}}>
-              <div style={{fontSize:"8px",color:"#d4a843",fontWeight:700,letterSpacing:"1px",marginBottom:"6px"}}>WIZLUMINAR™ — VISUAL QUALITY</div>
+              <div style={{fontSize:"8px",color:"#d4a843",fontWeight:700,letterSpacing:"1px",marginBottom:"6px"}}>WIZLUMINA™ — VISUAL QUALITY</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"4px"}}>
                 {(["ORIGINAL","ENHANCED","CINEMATIC"] as const).map((lbl,li) => (
                   <button key={lbl} onClick={() => setLuminarTier(lbl.toLowerCase())} style={{
@@ -999,9 +999,9 @@ export default function WizScore() {
               <span style={{fontSize:"10px",fontWeight:700,color:"#9b59f5",letterSpacing:"1px"}}> WizSound™ Cinematic</span>
               <span style={{fontSize:"12px",fontWeight:900,color:"#9b59f5"}}>{WIZSOUND_TIERS.CINEMATIC.price}</span>
             </button>
-            <button onClick={() => mp.upgradeCTAClicked("WizScore", "WizLuminar Cinematic")} style={{width:"100%",padding:"10px 12px",background:"linear-gradient(135deg,rgba(212,168,67,0.12),rgba(212,168,67,0.06))",border:"1px solid rgba(212,168,67,0.25)",borderRadius:"4px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <span style={{fontSize:"10px",fontWeight:700,color:"#d4a843",letterSpacing:"1px"}}>✨ WizLuminar™ Cinematic</span>
-              <span style={{fontSize:"12px",fontWeight:900,color:"#d4a843"}}>{WIZLUMINAR_CINEMATIC.price}</span>
+            <button onClick={() => mp.upgradeCTAClicked("WizScore", "WizLumina Cinematic")} style={{width:"100%",padding:"10px 12px",background:"linear-gradient(135deg,rgba(212,168,67,0.12),rgba(212,168,67,0.06))",border:"1px solid rgba(212,168,67,0.25)",borderRadius:"4px",cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <span style={{fontSize:"10px",fontWeight:700,color:"#d4a843",letterSpacing:"1px"}}>✨ WizLumina™ Cinematic</span>
+              <span style={{fontSize:"12px",fontWeight:900,color:"#d4a843"}}>{WIZLUMINA_CINEMATIC.price}</span>
             </button>
           </div>
 
@@ -1037,7 +1037,7 @@ export default function WizScore() {
               {label:"Ensemble Configured",       val:"8 groups",    done:true,  active:false},
               {label:"AI Composition",            val:"In progress", done:false, active:true},
               {label:"WizSound™ Processing",      val:"Pending",     done:false, active:false},
-              {label:"WizLuminar™ Grade",         val:"Pending",     done:false, active:false},
+              {label:"WizLumina™ Grade",         val:"Pending",     done:false, active:false},
               {label:"Final Render & Export",     val:"Pending",     done:false, active:false},
             ].map(step => (
               <div key={step.label} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"5px 0",borderBottom:"1px solid #111"}}>

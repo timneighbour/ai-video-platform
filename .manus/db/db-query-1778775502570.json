@@ -1,0 +1,26 @@
+{
+  "query": "\nSELECT vc.id, vc.name, vc.role, vc.enableLipSync, vc.isLocked, vc.lockedDescription, \n       vc.masterPortraitUrl, vc.characterPrompt, vc.lockedOutfit, vc.lockedRole,\n       vc.isRealPerson, vc.characterMode, vc.slotIndex,\n       (SELECT vcp.photoUrl FROM videoCharacterPhotos vcp WHERE vcp.characterId = vc.id LIMIT 1) as primaryPhotoUrl\nFROM videoCharacters vc\nWHERE vc.jobId = 510099\nORDER BY vc.slotIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT vc.id, vc.name, vc.role, vc.enableLipSync, vc.isLocked, vc.lockedDescription, \n       vc.masterPortraitUrl, vc.characterPrompt, vc.lockedOutfit, vc.lockedRole,\n       vc.isRealPerson, vc.characterMode, vc.slotIndex,\n       (SELECT vcp.photoUrl FROM videoCharacterPhotos vcp WHERE vcp.characterId = vc.id LIMIT 1) as primaryPhotoUrl\nFROM videoCharacters vc\nWHERE vc.jobId = 510099\nORDER BY vc.slotIndex;\n",
+  "rows": [
+    {
+      "id": "390003",
+      "name": "Zara",
+      "role": "Lead Vocalist",
+      "enableLipSync": "1",
+      "isLocked": "1",
+      "lockedDescription": "A full-length standing figure of Zara, a mixed-race British woman in her late 20s, with a very slim, narrow frame, lean physique, and slender build. Her warm medium-brown skin is natural, complementing her sharp cheekbones, almond-shaped dark brown eyes, and full lips. Her natural textured hair, shoulder-length, is worn loose. She holds a confident, direct gaze. She wears a form-fitting black leather jacket, layered gold necklaces, and several gold rings. Her lower half is clad in distressed dark-wash skinny jeans that accentuate her slender legs, narrow knees, and lean calves. She completes the look with black ankle boots, covering her feet and ankles, featuring a subtle heel. Her strong presence is effortlessly cool.",
+      "masterPortraitUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778695377509.png",
+      "characterPrompt": "NULL",
+      "lockedOutfit": "{\"jacket\":\"form-fitting black leather jacket\",\"shirt\":\"unspecified shirt under jacket\",\"trousers\":\"distressed dark-wash skinny jeans\",\"shoes\":\"black ankle boots with subtle heel\",\"accessories\":\"layered gold necklaces, several gold rings\"}",
+      "lockedRole": "Lead Vocalist",
+      "isRealPerson": "0",
+      "characterMode": "ai_generated",
+      "slotIndex": "0",
+      "primaryPhotoUrl": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\trole\tenableLipSync\tisLocked\tlockedDescription\tmasterPortraitUrl\tcharacterPrompt\tlockedOutfit\tlockedRole\tisRealPerson\tcharacterMode\tslotIndex\tprimaryPhotoUrl\n390003\tZara\tLead Vocalist\t1\t1\tA full-length standing figure of Zara, a mixed-race British woman in her late 20s, with a very slim, narrow frame, lean physique, and slender build. Her warm medium-brown skin is natural, complementing her sharp cheekbones, almond-shaped dark brown eyes, and full lips. Her natural textured hair, shoulder-length, is worn loose. She holds a confident, direct gaze. She wears a form-fitting black leather jacket, layered gold necklaces, and several gold rings. Her lower half is clad in distressed dark-wash skinny jeans that accentuate her slender legs, narrow knees, and lean calves. She completes the look with black ankle boots, covering her feet and ankles, featuring a subtle heel. Her strong presence is effortlessly cool.\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/generated/1778695377509.png\tNULL\t{\"jacket\":\"form-fitting black leather jacket\",\"shirt\":\"unspecified shirt under jacket\",\"trousers\":\"distressed dark-wash skinny jeans\",\"shoes\":\"black ankle boots with subtle heel\",\"accessories\":\"layered gold necklaces, several gold rings\"}\tLead Vocalist\t0\tai_generated\t0\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 608
+}
