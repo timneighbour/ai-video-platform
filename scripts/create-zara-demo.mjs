@@ -86,9 +86,9 @@ async function trpcCall(procedure, input, sessionToken) {
 }
 
 async function getAudioDuration(url) {
-  // Fetch audio and check Content-Length for rough duration estimate
-  // We know the demo track is approximately 3 minutes (180s) from previous jobs
-  return 180;
+  // The Zara demo track is 71 seconds (measured from actual audio file)
+  // Previously this was incorrectly set to 180s which caused too many scenes to be generated
+  return 71;
 }
 
 async function main() {
@@ -141,7 +141,7 @@ async function main() {
   console.log("═══════════════════════════════════════════════════");
   console.log(`🚀 Zara Cinematic Demo Job is now rendering!`);
   console.log(`   Job ID: ${jobId}`);
-  console.log(`   Track: Zara Demo Track (~3 min)`);
+   console.log(`   Track: Zara Demo Track (~71s)`);
   console.log(`   Environments: Rooftop → Neon Alley → Jazz Club → Rain Street → Pool`);
   console.log(`   Monitor at: https://wiz-ai.io/wizpilot (or dev server)`);
   console.log("═══════════════════════════════════════════════════");

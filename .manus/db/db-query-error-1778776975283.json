@@ -1,0 +1,8 @@
+{
+  "query": "UPDATE music_video_jobs SET status = 'failed', updated_at = NOW() WHERE id = 540002;\nUPDATE music_video_scenes SET status = 'failed', updated_at = NOW() WHERE job_id = 540002 AND status IN ('pending', 'generating');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute UPDATE music_video_jobs SET status = 'failed', updated_at = NOW() WHERE id = 540002;\nUPDATE music_video_scenes SET status = 'failed', updated_at = NOW() WHERE job_id = 540002 AND status IN ('pending', 'generating');",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table 'aljhdnsuna7bexfuoqzusx.music_video_jobs' doesn't exist"
+  ]
+}

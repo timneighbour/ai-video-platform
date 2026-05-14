@@ -1,0 +1,17 @@
+{
+  "query": "SELECT id, title, audioDuration, totalScenes, status FROM musicVideoJobs WHERE id = 540002;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute SELECT id, title, audioDuration, totalScenes, status FROM musicVideoJobs WHERE id = 540002;",
+  "rows": [
+    {
+      "id": "540002",
+      "title": "Zara — Cinematic Demo",
+      "audioDuration": "180",
+      "totalScenes": "23",
+      "status": "failed"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\taudioDuration\ttotalScenes\tstatus\n540002\tZara — Cinematic Demo\t180\t23\tfailed\n",
+  "stderr": "",
+  "execution_time_ms": 572
+}

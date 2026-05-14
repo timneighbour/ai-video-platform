@@ -319,7 +319,7 @@ function ScenePreviewGrid({
                     isPlaying ? (
                       <SceneVideoPlayer
                         videoUrl={scene.videoUrl!}
-                        audioEl={audioRef.current}
+                        audioRef={audioRef}
                         startTime={startTime}
                         duration={duration}
                         videoRef={videoRef}
@@ -491,13 +491,13 @@ function ScenePreviewGrid({
 // ── Scene Video Player — muted video + seeked job audio in sync ──────────────
 interface SceneVideoPlayerProps {
   videoUrl: string;
-  audioEl: HTMLAudioElement | null;
+  audioRef: React.MutableRefObject<HTMLAudioElement | null>; // ref so we always get the live element
   startTime: number;   // seconds into the job's audio track
   duration: number;    // clip duration in seconds
   videoRef: React.MutableRefObject<HTMLVideoElement | null>;
   onStop: () => void;
 }
-function SceneVideoPlayer({ videoUrl, audioEl, startTime, duration, videoRef, onStop }: SceneVideoPlayerProps) {
+function SceneVideoPlayer({ videoUrl, audioRef, startTime, duration, videoRef, onStop }: SceneVideoPlayerProps) {
   const localVideoRef = React.useRef<HTMLVideoElement | null>(null);
   const [isReady, setIsReady] = React.useState(false);
 
@@ -512,19 +512,21 @@ function SceneVideoPlayer({ videoUrl, audioEl, startTime, duration, videoRef, on
     if (!vid) return;
     vid.currentTime = 0;
     // Seek audio to the correct position in the track
+    const audioEl = audioRef.current;
     if (audioEl) {
       audioEl.currentTime = startTime;
       audioEl.play().catch(() => {/* autoplay policy — user already interacted */});
     }
     vid.play().catch(() => {});
-  }, [audioEl, startTime]);
+  }, [audioRef, startTime]);
 
   // On video loop: re-seek audio back to startTime so it stays in sync
   const handleLoop = React.useCallback(() => {
+    const audioEl = audioRef.current;
     if (audioEl) {
       audioEl.currentTime = startTime;
     }
-  }, [audioEl, startTime]);
+  }, [audioRef, startTime]);
 
   return (
     <div className="relative w-full h-full">
@@ -2317,7 +2319,7 @@ export default function MusicVideoAutopilot() {
       {/* Header — Production Set Hero (matches mockup-wizvideo-stages.html) */}
       {/* Top sticky nav */}
       <div className="sticky top-0 z-40" style={{background:'rgba(10,10,10,0.95)',backdropFilter:'blur(12px)',borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
-        <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between" style={{ position: 'relative', zIndex: 1 }}>
+        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between" style={{ position: 'relative', zIndex: 1 }}>
           <NavLink href="/" className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors text-xs font-medium tracking-wider uppercase">
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Back to Studio</span>
@@ -2337,7 +2339,7 @@ export default function MusicVideoAutopilot() {
           </div>
         </div>
         {/* Stage pills — clapperboard slate treatment */}
-        <div className="max-w-5xl mx-auto px-4 pb-2">
+        <div className="max-w-7xl mx-auto px-4 pb-2">
           {(() => {
             const STEPS: Step[] = ["upload", "character_confirmation", "storyboard", "render"];
             const STEP_LABELS: Record<Step, string> = {
@@ -2501,7 +2503,7 @@ export default function MusicVideoAutopilot() {
       </div>
 
        <div style={{background:'#080808'}}>
-      <div className="max-w-5xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-6">
         {/* ===== STEP 1: UPLOAD ===== */}
               {/* ── AUDIO UPLOAD BANNER — always visible on upload step ── */}
       {step === "upload" && !audioFile && !sunoGeneratedAudioUrl && !restoredAudioUrl && (
@@ -4037,12 +4039,13 @@ export default function MusicVideoAutopilot() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 scene-grid-mobile">
+            <div className="grid grid-cols-1 gap-5 scene-grid-mobile">
               {scenes.map((scene) => (
                 <React.Fragment key={scene.id}>
                   <Card className="bg-[rgba(10,8,6,0.95)] border-[rgba(184,137,42,0.10)] hover:border-zinc-600 transition-colors overflow-hidden">
-                  {/* Scene preview image */}
-                  <div className="relative w-full aspect-video bg-[rgba(24,20,16,0.9)]" style={{fontFamily:"'Courier Prime',monospace"}}>
+                  <div className="flex flex-col lg:flex-row">
+                  {/* Scene preview image — 16:9 widescreen, takes ~55% on desktop */}
+                  <div className="relative w-full lg:w-[55%] aspect-video flex-shrink-0 bg-[rgba(24,20,16,0.9)]" style={{fontFamily:"'Courier Prime',monospace"}}>
                     {scene.previewImageUrl ? (
                       <img
                         src={scene.previewImageUrl}
@@ -4184,6 +4187,8 @@ export default function MusicVideoAutopilot() {
                       </button>
                     )}
                   </div>
+                  {/* Right side: details and controls */}
+                  <div className="flex-1 min-w-0 overflow-y-auto">
                   <CardContent className="pt-3 pb-4">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
@@ -4487,6 +4492,8 @@ export default function MusicVideoAutopilot() {
                       )}
                     </div>
                   </CardContent>
+                  </div>{/* end flex right side */}
+                  </div>{/* end flex row */}
                 </Card>
 
                 {/* ── Add Scene button between cards ── */}

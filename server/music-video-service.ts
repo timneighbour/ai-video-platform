@@ -53,12 +53,15 @@ const execAsync = promisify(exec);
 
 // IMPORTANT: Import from products.ts — do NOT redefine locally. Single source of truth.
 import { getCreditsPerScene } from "./products";
-const SCENE_DURATION_SECONDS = 8; // each scene is 8 seconds
+const SCENE_DURATION_SECONDS = 6; // target 6 seconds per scene for good pacing
 
 export function calculateSceneCount(audioDurationSeconds: number): number {
-  // One scene every 8 seconds, minimum 3 scenes, maximum 45 scenes (~6 min)
-  const count = Math.ceil(audioDurationSeconds / SCENE_DURATION_SECONDS);
-  return Math.max(3, Math.min(45, count));
+  // Target 6 seconds per scene for natural music video pacing.
+  // Short tracks (<= 90s): cap at 15 scenes so it doesn't feel choppy.
+  // Long tracks (> 90s): cap at 40 scenes (~4 min).
+  const raw = Math.ceil(audioDurationSeconds / SCENE_DURATION_SECONDS);
+  const maxScenes = audioDurationSeconds <= 90 ? 15 : 40;
+  return Math.max(3, Math.min(maxScenes, raw));
 }
 
 /**
@@ -175,7 +178,8 @@ export async function generateStoryboard(
   lyricsSegments?: Array<{ start: number; end: number; text: string }>,
   lockedCharacters?: Array<{ name: string; role: string | null; lockedDescription: string }>,
   sceneSetting?: string | null,
-  existingContentAnalysis?: ContentAnalysis | null
+  existingContentAnalysis?: ContentAnalysis | null,
+  enableLipSync?: boolean
 ): Promise<StoryboardResult> {
   const sceneCount = calculateSceneCount(audioDurationSeconds);
 
@@ -557,10 +561,15 @@ ${sceneList}
 - visualStyle: string (e.g. "cinematic", "dark neon", "ethereal", "gritty realism", "anime")
 - characterAssignments: array of character names from [${allCharacterNames}] who appear in this scene
 - modelAssignment: string, either "seedance-2.0" or "hailuo-minimax"
-  • Use "seedance-2.0" ONLY for hero close-up performance shots where character likeness and facial expression are critical (e.g. the most powerful lyric moment, a direct-to-camera performance shot)
+${enableLipSync ? `  ⚠️ LIP SYNC IS ACTIVE — CRITICAL FACE SHOT RULES:
+  • EVERY scene where a character appears MUST use "seedance-2.0" and MUST be a close-up or medium shot with the character's face clearly visible and forward-facing
+  • Wide shots, silhouettes, atmospheric cutaways, and scenes where no character face is visible MUST use "hailuo-minimax" — and these scenes should NOT have character assignments
+  • The character's face must be the primary focus in every scene where they appear — this is essential for lip sync verification
+  • Do NOT assign characters to wide/atmospheric scenes — reserve those for pure environmental shots
+  • Aim for 70-80% of scenes to be character close-up/medium shots ("seedance-2.0"), with 20-30% as atmospheric/environmental cutaways ("hailuo-minimax", no character assignments)` : `  • Use "seedance-2.0" ONLY for hero close-up performance shots where character likeness and facial expression are critical (e.g. the most powerful lyric moment, a direct-to-camera performance shot)
   • Use "hailuo-minimax" for: wide shots, atmospheric scenes, crowd shots, instrument cutaways, silhouette shots, environmental scenes, any scene where the character's face is not the primary focus
   • Default to "hailuo-minimax" unless the scene specifically requires a close-up character face — this produces better cinematic results
-  • Aim for no more than 30–40% of scenes using "seedance-2.0"
+  • Aim for no more than 30–40% of scenes using "seedance-2.0"` }
 
 Distribute characters thoughtfully — each must appear in at least 2 scenes. Solo scenes are encouraged.`
 

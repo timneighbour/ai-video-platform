@@ -7838,3 +7838,11 @@
 - [x] Add Uploaded Photo image source option
 - [x] Group visual styles into Photographic and Animation & Cartoon sections with amber highlight for animation tags
 - [x] Character type: auto-prompts save-to-library modal after generation, Save to Library button highlighted in gold
+
+## Scene Player & Lip Sync Fixes
+- [x] Fix audio ref bug in SceneVideoPlayer (was passing audioRef.current at render time = null)
+- [x] Fix scene count formula: 6s/scene, cap at 15 for tracks ≤90s
+- [ ] Fix storyboard prompt: enforce close-up/medium face shots for all lip sync scenes
+- [ ] Fix demo script: use correct 71s audio duration (not hardcoded 180s)
+- [ ] Re-run Zara cinematic demo with all fixes applied
+- [x] Storyboard UI: change preview images to 16:9 aspect ratio (not square/box), centre the layout on desktop, fill screen width more impactfully
