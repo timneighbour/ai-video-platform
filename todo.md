@@ -7881,3 +7881,6 @@
 
 ## Bug: Storyboard Generation Revert
 - [x] Fix storyboard generation revert bug — UI bounces back to Character confirmation step instead of proceeding to storyboard review
+
+## Bug: Lyrics Missing on Storyboard Scene Cards
+- [x] Fix lyrics not showing on storyboard scene cards after storyboard generation

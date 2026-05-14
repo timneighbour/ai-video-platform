@@ -251,10 +251,18 @@ export const musicVideoRouter = router({
 
       const waitForTranscription = async (): Promise<typeof job | null> => {
         if (job.transcriptionStatus === "done") return job;
-        // Wait up to 90s for transcription — songs can take 30-90s via Whisper.
-        // Also handle "pending" status (transcription not yet started) by waiting.
+        // If still pending (transcription not yet started), kick it off now.
+        // This handles the race condition where the user reaches storyboard generation
+        // before the background transcription job has started.
+        if (job.transcriptionStatus === "pending") {
+          console.log(`[MusicVideo] Transcription still pending for job ${input.jobId} — triggering now`);
+          transcribeJobAudio(job.id, job.audioUrl).catch((err) => {
+            console.error(`[MusicVideo] Re-triggered transcription failed for job ${job.id}:`, err);
+          });
+        }
+        // Wait up to 150s for transcription — songs can take 30-120s via Whisper.
         if (job.transcriptionStatus === "processing" || job.transcriptionStatus === "pending") {
-          for (let attempt = 0; attempt < 18; attempt++) {
+          for (let attempt = 0; attempt < 30; attempt++) {
             await new Promise((r) => setTimeout(r, 5000));
             const [refreshed] = await db.select().from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
             if (refreshed?.transcriptionStatus === "done") return refreshed;
@@ -263,6 +271,7 @@ export const musicVideoRouter = router({
               return null;
             }
           }
+          console.warn(`[MusicVideo] Transcription timed out after 150s for job ${input.jobId} — proceeding without lyrics`);
         }
         return null;
       };
