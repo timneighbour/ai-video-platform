@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT j.id, j.userId, j.songTitle, j.artistName, j.genre, j.theme, j.mood, j.audioUrl, j.audioTier, j.audioDuration, j.sceneCount, j.status, j.creditCost\nFROM musicVideoJobs j\nWHERE j.id = 510098;\n\nSELECT c.id, c.name, c.role, c.description, c.masterPortraitUrl, c.previewImageUrl, c.enableLipSync, c.gender, c.style\nFROM videoCharacters c\nWHERE c.jobId = 510098;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT j.id, j.userId, j.songTitle, j.artistName, j.genre, j.theme, j.mood, j.audioUrl, j.audioTier, j.audioDuration, j.sceneCount, j.status, j.creditCost\nFROM musicVideoJobs j\nWHERE j.id = 510098;\n\nSELECT c.id, c.name, c.role, c.description, c.masterPortraitUrl, c.previewImageUrl, c.enableLipSync, c.gender, c.style\nFROM videoCharacters c\nWHERE c.jobId = 510098;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'j.songtitle' in 'field list'"
+  ]
+}

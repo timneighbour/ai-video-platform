@@ -1,0 +1,27 @@
+{
+  "query": "\n-- All provider submissions this month\nSELECT \n  provider,\n  COUNT(*) as submissions,\n  SUM(estimatedCostUsd) as totalEstimatedCost,\n  MIN(createdAt) as firstSubmission,\n  MAX(createdAt) as lastSubmission\nFROM providerJobLogs\nWHERE createdAt >= '2026-05-01'\nGROUP BY provider\nORDER BY totalEstimatedCost DESC;\n\n-- Total this month\nSELECT SUM(estimatedCostUsd) as totalCostMay FROM providerJobLogs WHERE createdAt >= '2026-05-01';\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \n-- All provider submissions this month\nSELECT \n  provider,\n  COUNT(*) as submissions,\n  SUM(estimatedCostUsd) as totalEstimatedCost,\n  MIN(createdAt) as firstSubmission,\n  MAX(createdAt) as lastSubmission\nFROM providerJobLogs\nWHERE createdAt >= '2026-05-01'\nGROUP BY provider\nORDER BY totalEstimatedCost DESC;\n\n-- Total this month\nSELECT SUM(estimatedCostUsd) as totalCostMay FROM providerJobLogs WHERE createdAt >= '2026-05-01';\n",
+  "rows": [
+    {
+      "provider": "atlas_cloud",
+      "submissions": "351",
+      "totalEstimatedCost": "280.8000",
+      "firstSubmission": "2026-05-01 13:27:07",
+      "lastSubmission": "2026-05-13 00:22:51"
+    },
+    {
+      "provider": "wavespeed",
+      "submissions": "71",
+      "totalEstimatedCost": "56.8000",
+      "firstSubmission": "2026-05-09 17:31:14",
+      "lastSubmission": "2026-05-13 23:49:04"
+    }
+  ],
+  "messages": [
+    "totalCostMay",
+    "337.6000"
+  ],
+  "stdout": "provider\tsubmissions\ttotalEstimatedCost\tfirstSubmission\tlastSubmission\natlas_cloud\t351\t280.8000\t2026-05-01 13:27:07\t2026-05-13 00:22:51\nwavespeed\t71\t56.8000\t2026-05-09 17:31:14\t2026-05-13 23:49:04\ntotalCostMay\n337.6000\n",
+  "stderr": "",
+  "execution_time_ms": 620
+}

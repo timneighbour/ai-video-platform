@@ -1,0 +1,67 @@
+{
+  "query": "\nSELECT sceneIndex, mvSceneStatus, taskId, videoUrl IS NOT NULL as hasVideo\nFROM musicVideoScenes\nWHERE jobId = 510100\nORDER BY sceneIndex;\n\nSELECT status, completedScenes, totalScenes FROM musicVideoJobs WHERE id = 510100;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT sceneIndex, mvSceneStatus, taskId, videoUrl IS NOT NULL as hasVideo\nFROM musicVideoScenes\nWHERE jobId = 510100\nORDER BY sceneIndex;\n\nSELECT status, completedScenes, totalScenes FROM musicVideoJobs WHERE id = 510100;\n",
+  "rows": [
+    {
+      "sceneIndex": "0",
+      "mvSceneStatus": "generating",
+      "taskId": "wavespeed:hailuo:307f5b4302d44ba9a355bc454690b628",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "1",
+      "mvSceneStatus": "generating",
+      "taskId": "wavespeed:hailuo:496266ddf8234f13a0a50083d4448ce9",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "2",
+      "mvSceneStatus": "generating",
+      "taskId": "wavespeed:hailuo:653fe79bf73d49ed952cf115d2c304f3",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "3",
+      "mvSceneStatus": "generating",
+      "taskId": "wavespeed:hailuo:b754a4fdcdc24afb9e2cbd628849d722",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "4",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "5",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "6",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "7",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "8",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "hasVideo": "0"
+    }
+  ],
+  "messages": [
+    "status\tcompletedScenes\ttotalScenes",
+    "rendering\t0\t9"
+  ],
+  "stdout": "sceneIndex\tmvSceneStatus\ttaskId\thasVideo\n0\tgenerating\twavespeed:hailuo:307f5b4302d44ba9a355bc454690b628\t0\n1\tgenerating\twavespeed:hailuo:496266ddf8234f13a0a50083d4448ce9\t0\n2\tgenerating\twavespeed:hailuo:653fe79bf73d49ed952cf115d2c304f3\t0\n3\tgenerating\twavespeed:hailuo:b754a4fdcdc24afb9e2cbd628849d722\t0\n4\tpending\tNULL\t0\n5\tpending\tNULL\t0\n6\tpending\tNULL\t0\n7\tpending\tNULL\t0\n8\tpending\tNULL\t0\nstatus\tcompletedScenes\ttotalScenes\nrendering\t0\t9\n",
+  "stderr": "",
+  "execution_time_ms": 627
+}

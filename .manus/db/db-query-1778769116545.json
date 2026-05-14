@@ -1,0 +1,190 @@
+{
+  "query": "\n-- Count all scenes that were ever dispatched to WaveSpeed (have a wavespeed taskId)\nSELECT \n  jobId,\n  COUNT(*) as totalScenes,\n  SUM(CASE WHEN taskId LIKE 'wavespeed:%' THEN 1 ELSE 0 END) as wavespeedDispatches,\n  SUM(CASE WHEN mvSceneStatus = 'completed' THEN 1 ELSE 0 END) as completed,\n  SUM(CASE WHEN mvSceneStatus = 'failed' THEN 1 ELSE 0 END) as failed,\n  SUM(CASE WHEN mvSceneStatus = 'generating' THEN 1 ELSE 0 END) as generating,\n  SUM(CASE WHEN mvSceneStatus = 'pending' THEN 1 ELSE 0 END) as pending\nFROM musicVideoScenes\nGROUP BY jobId\nORDER BY jobId DESC\nLIMIT 20;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \n-- Count all scenes that were ever dispatched to WaveSpeed (have a wavespeed taskId)\nSELECT \n  jobId,\n  COUNT(*) as totalScenes,\n  SUM(CASE WHEN taskId LIKE 'wavespeed:%' THEN 1 ELSE 0 END) as wavespeedDispatches,\n  SUM(CASE WHEN mvSceneStatus = 'completed' THEN 1 ELSE 0 END) as completed,\n  SUM(CASE WHEN mvSceneStatus = 'failed' THEN 1 ELSE 0 END) as failed,\n  SUM(CASE WHEN mvSceneStatus = 'generating' THEN 1 ELSE 0 END) as generating,\n  SUM(CASE WHEN mvSceneStatus = 'pending' THEN 1 ELSE 0 END) as pending\nFROM musicVideoScenes\nGROUP BY jobId\nORDER BY jobId DESC\nLIMIT 20;\n",
+  "rows": [
+    {
+      "jobId": "510100",
+      "totalScenes": "9",
+      "wavespeedDispatches": "4",
+      "completed": "4",
+      "failed": "0",
+      "generating": "0",
+      "pending": "5"
+    },
+    {
+      "jobId": "510099",
+      "totalScenes": "9",
+      "wavespeedDispatches": "9",
+      "completed": "9",
+      "failed": "0",
+      "generating": "0",
+      "pending": "0"
+    },
+    {
+      "jobId": "510098",
+      "totalScenes": "9",
+      "wavespeedDispatches": "9",
+      "completed": "9",
+      "failed": "0",
+      "generating": "0",
+      "pending": "0"
+    },
+    {
+      "jobId": "510025",
+      "totalScenes": "9",
+      "wavespeedDispatches": "9",
+      "completed": "9",
+      "failed": "0",
+      "generating": "0",
+      "pending": "0"
+    },
+    {
+      "jobId": "450002",
+      "totalScenes": "37",
+      "wavespeedDispatches": "24",
+      "completed": "37",
+      "failed": "0",
+      "generating": "0",
+      "pending": "0"
+    },
+    {
+      "jobId": "450001",
+      "totalScenes": "37",
+      "wavespeedDispatches": "0",
+      "completed": "0",
+      "failed": "0",
+      "generating": "0",
+      "pending": "37"
+    },
+    {
+      "jobId": "390001",
+      "totalScenes": "37",
+      "wavespeedDispatches": "0",
+      "completed": "37",
+      "failed": "0",
+      "generating": "0",
+      "pending": "0"
+    },
+    {
+      "jobId": "360001",
+      "totalScenes": "28",
+      "wavespeedDispatches": "0",
+      "completed": "19",
+      "failed": "9",
+      "generating": "0",
+      "pending": "0"
+    },
+    {
+      "jobId": "330001",
+      "totalScenes": "25",
+      "wavespeedDispatches": "0",
+      "completed": "5",
+      "failed": "20",
+      "generating": "0",
+      "pending": "0"
+    },
+    {
+      "jobId": "300002",
+      "totalScenes": "4",
+      "wavespeedDispatches": "0",
+      "completed": "0",
+      "failed": "0",
+      "generating": "0",
+      "pending": "4"
+    },
+    {
+      "jobId": "270001",
+      "totalScenes": "25",
+      "wavespeedDispatches": "0",
+      "completed": "7",
+      "failed": "18",
+      "generating": "0",
+      "pending": "0"
+    },
+    {
+      "jobId": "240001",
+      "totalScenes": "25",
+      "wavespeedDispatches": "0",
+      "completed": "0",
+      "failed": "0",
+      "generating": "0",
+      "pending": "25"
+    },
+    {
+      "jobId": "210002",
+      "totalScenes": "25",
+      "wavespeedDispatches": "0",
+      "completed": "0",
+      "failed": "0",
+      "generating": "0",
+      "pending": "25"
+    },
+    {
+      "jobId": "210001",
+      "totalScenes": "25",
+      "wavespeedDispatches": "0",
+      "completed": "0",
+      "failed": "0",
+      "generating": "0",
+      "pending": "25"
+    },
+    {
+      "jobId": "180012",
+      "totalScenes": "25",
+      "wavespeedDispatches": "0",
+      "completed": "0",
+      "failed": "0",
+      "generating": "0",
+      "pending": "25"
+    },
+    {
+      "jobId": "180011",
+      "totalScenes": "25",
+      "wavespeedDispatches": "0",
+      "completed": "0",
+      "failed": "0",
+      "generating": "0",
+      "pending": "25"
+    },
+    {
+      "jobId": "180010",
+      "totalScenes": "25",
+      "wavespeedDispatches": "0",
+      "completed": "0",
+      "failed": "3",
+      "generating": "0",
+      "pending": "22"
+    },
+    {
+      "jobId": "180009",
+      "totalScenes": "25",
+      "wavespeedDispatches": "0",
+      "completed": "0",
+      "failed": "2",
+      "generating": "0",
+      "pending": "23"
+    },
+    {
+      "jobId": "180008",
+      "totalScenes": "25",
+      "wavespeedDispatches": "0",
+      "completed": "0",
+      "failed": "2",
+      "generating": "0",
+      "pending": "23"
+    },
+    {
+      "jobId": "150004",
+      "totalScenes": "25",
+      "wavespeedDispatches": "0",
+      "completed": "0",
+      "failed": "0",
+      "generating": "0",
+      "pending": "25"
+    }
+  ],
+  "messages": [],
+  "stdout": "jobId\ttotalScenes\twavespeedDispatches\tcompleted\tfailed\tgenerating\tpending\n510100\t9\t4\t4\t0\t0\t5\n510099\t9\t9\t9\t0\t0\t0\n510098\t9\t9\t9\t0\t0\t0\n510025\t9\t9\t9\t0\t0\t0\n450002\t37\t24\t37\t0\t0\t0\n450001\t37\t0\t0\t0\t0\t37\n390001\t37\t0\t37\t0\t0\t0\n360001\t28\t0\t19\t9\t0\t0\n330001\t25\t0\t5\t20\t0\t0\n300002\t4\t0\t0\t0\t0\t4\n270001\t25\t0\t7\t18\t0\t0\n240001\t25\t0\t0\t0\t0\t25\n210002\t25\t0\t0\t0\t0\t25\n210001\t25\t0\t0\t0\t0\t25\n180012\t25\t0\t0\t0\t0\t25\n180011\t25\t0\t0\t0\t0\t25\n180010\t25\t0\t0\t3\t0\t22\n180009\t25\t0\t0\t2\t0\t23\n180008\t25\t0\t0\t2\t0\t23\n150004\t25\t0\t0\t0\t0\t25\n",
+  "stderr": "",
+  "execution_time_ms": 623
+}

@@ -7770,3 +7770,9 @@
 
 - [x] Add SYNC_LABS_MAX_AUDIO_SECONDS = 15 guard in assembleMusicVideo — tracks > 15s skip lip sync cleanly and deliver cinematic version immediately (no stuck assembly loop)
 - [x] Fix misleading UnauthorizedError label for Sync Labs 422 duration error
+
+## WaveSpeed Cost Emergency Fix (2026-05-14)
+- [x] Switch all WaveSpeed scene renders to seedance-2.0-fast only (standard model costs $2.16/clip vs $1.80/clip for fast)
+- [x] Update PROVIDER_COST_USD.wavespeed from $0.80 to $1.80 (fast model actual measured cost)
+- [x] Lower MAX_SPEND_PER_JOB_USD from $200 to $25 (9 scenes × $1.80 = $16.20 max per job)
+- [x] Lower MAX_DAILY_SPEND_USD from $300 to $50 (hard daily cap to prevent runaway spend)

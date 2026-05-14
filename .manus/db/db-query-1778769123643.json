@@ -1,0 +1,25 @@
+{
+  "query": "\n-- Total WaveSpeed dispatches across all jobs\nSELECT \n  COUNT(*) as totalScenesEver,\n  SUM(CASE WHEN taskId LIKE 'wavespeed:%' THEN 1 ELSE 0 END) as totalWavespeedDispatches\nFROM musicVideoScenes;\n\n-- Check job 510099 scenes for any signs of multiple taskIds (retries that cost credits)\nSELECT sceneIndex, mvSceneStatus, taskId, errorMessage, updatedAt\nFROM musicVideoScenes\nWHERE jobId = 510099\nORDER BY sceneIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \n-- Total WaveSpeed dispatches across all jobs\nSELECT \n  COUNT(*) as totalScenesEver,\n  SUM(CASE WHEN taskId LIKE 'wavespeed:%' THEN 1 ELSE 0 END) as totalWavespeedDispatches\nFROM musicVideoScenes;\n\n-- Check job 510099 scenes for any signs of multiple taskIds (retries that cost credits)\nSELECT sceneIndex, mvSceneStatus, taskId, errorMessage, updatedAt\nFROM musicVideoScenes\nWHERE jobId = 510099\nORDER BY sceneIndex;\n",
+  "rows": [
+    {
+      "totalScenesEver": "961",
+      "totalWavespeedDispatches": "55"
+    }
+  ],
+  "messages": [
+    "sceneIndex\tmvSceneStatus\ttaskId\terrorMessage\tupdatedAt",
+    "0\tcompleted\twavespeed:seedance:69aa6881bd68403c88c22c5554088853\tNULL\t2026-05-13 21:17:06",
+    "1\tcompleted\twavespeed:seedance:b6e684eb560a4f4cb4dcc952b3a95ad1\tNULL\t2026-05-13 21:15:16",
+    "2\tcompleted\twavespeed:seedance:e52bbcea3a304635ab4c3f64ec40b606\tNULL\t2026-05-13 21:16:08",
+    "3\tcompleted\twavespeed:seedance:6d5c903d6111478b9528e903c709e742\tNULL\t2026-05-13 21:16:08",
+    "4\tcompleted\twavespeed:seedance:01de505188dc48db9ae162ea9edccd5a\tNULL\t2026-05-13 21:15:18",
+    "5\tcompleted\twavespeed:seedance:a6b00c0918a24a76a5412f8c9c20e857\tNULL\t2026-05-13 21:15:20",
+    "6\tcompleted\twavespeed:seedance:ca6bedd37a1449e480046874b4ab9221\tNULL\t2026-05-13 21:16:10",
+    "7\tcompleted\twavespeed:seedance:871fab819214447cbee5077f258b187a\tNULL\t2026-05-13 21:15:22",
+    "8\tcompleted\twavespeed:seedance:222a9eb28189406b802bff43b7dd561c\tNULL\t2026-05-13 21:17:07"
+  ],
+  "stdout": "totalScenesEver\ttotalWavespeedDispatches\n961\t55\nsceneIndex\tmvSceneStatus\ttaskId\terrorMessage\tupdatedAt\n0\tcompleted\twavespeed:seedance:69aa6881bd68403c88c22c5554088853\tNULL\t2026-05-13 21:17:06\n1\tcompleted\twavespeed:seedance:b6e684eb560a4f4cb4dcc952b3a95ad1\tNULL\t2026-05-13 21:15:16\n2\tcompleted\twavespeed:seedance:e52bbcea3a304635ab4c3f64ec40b606\tNULL\t2026-05-13 21:16:08\n3\tcompleted\twavespeed:seedance:6d5c903d6111478b9528e903c709e742\tNULL\t2026-05-13 21:16:08\n4\tcompleted\twavespeed:seedance:01de505188dc48db9ae162ea9edccd5a\tNULL\t2026-05-13 21:15:18\n5\tcompleted\twavespeed:seedance:a6b00c0918a24a76a5412f8c9c20e857\tNULL\t2026-05-13 21:15:20\n6\tcompleted\twavespeed:seedance:ca6bedd37a1449e480046874b4ab9221\tNULL\t2026-05-13 21:16:10\n7\tcompleted\twavespeed:seedance:871fab819214447cbee5077f258b187a\tNULL\t2026-05-13 21:15:22\n8\tcompleted\twavespeed:seedance:222a9eb28189406b802bff43b7dd561c\tNULL\t2026-05-13 21:17:07\n",
+  "stderr": "",
+  "execution_time_ms": 682
+}

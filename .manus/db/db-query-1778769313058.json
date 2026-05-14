@@ -1,0 +1,45 @@
+{
+  "query": "\nSELECT \n  jobId,\n  COUNT(*) as submissions,\n  SUM(estimatedCostUsd) as cost,\n  MIN(createdAt) as first,\n  MAX(createdAt) as last\nFROM providerJobLogs\nWHERE provider = 'wavespeed' AND createdAt >= '2026-05-01'\nGROUP BY jobId\nORDER BY submissions DESC;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT \n  jobId,\n  COUNT(*) as submissions,\n  SUM(estimatedCostUsd) as cost,\n  MIN(createdAt) as first,\n  MAX(createdAt) as last\nFROM providerJobLogs\nWHERE provider = 'wavespeed' AND createdAt >= '2026-05-01'\nGROUP BY jobId\nORDER BY submissions DESC;\n",
+  "rows": [
+    {
+      "jobId": "450002",
+      "submissions": "27",
+      "cost": "21.6000",
+      "first": "2026-05-09 17:31:14",
+      "last": "2026-05-09 17:34:07"
+    },
+    {
+      "jobId": "510025",
+      "submissions": "22",
+      "cost": "17.6000",
+      "first": "2026-05-13 01:17:02",
+      "last": "2026-05-13 17:54:04"
+    },
+    {
+      "jobId": "510098",
+      "submissions": "9",
+      "cost": "7.2000",
+      "first": "2026-05-13 18:07:28",
+      "last": "2026-05-13 18:32:05"
+    },
+    {
+      "jobId": "510099",
+      "submissions": "9",
+      "cost": "7.2000",
+      "first": "2026-05-13 21:11:03",
+      "last": "2026-05-13 21:11:05"
+    },
+    {
+      "jobId": "510100",
+      "submissions": "4",
+      "cost": "3.2000",
+      "first": "2026-05-13 23:49:03",
+      "last": "2026-05-13 23:49:04"
+    }
+  ],
+  "messages": [],
+  "stdout": "jobId\tsubmissions\tcost\tfirst\tlast\n450002\t27\t21.6000\t2026-05-09 17:31:14\t2026-05-09 17:34:07\n510025\t22\t17.6000\t2026-05-13 01:17:02\t2026-05-13 17:54:04\n510098\t9\t7.2000\t2026-05-13 18:07:28\t2026-05-13 18:32:05\n510099\t9\t7.2000\t2026-05-13 21:11:03\t2026-05-13 21:11:05\n510100\t4\t3.2000\t2026-05-13 23:49:03\t2026-05-13 23:49:04\n",
+  "stderr": "",
+  "execution_time_ms": 583
+}

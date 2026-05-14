@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT id, userId, title, audioUrl, audioKey, audioDuration, themePrompt, genre, mood, sceneCount, creditCost, sceneSetting, characterLockEnabled, lockedStyle, captionsEnabled, audioTier\nFROM musicVideoJobs\nWHERE id = 510098;\n\nSELECT id, name, role, description, masterPortraitUrl, previewImageUrl, enableLipSync, gender, style\nFROM videoCharacters\nWHERE jobId = 510098;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, userId, title, audioUrl, audioKey, audioDuration, themePrompt, genre, mood, sceneCount, creditCost, sceneSetting, characterLockEnabled, lockedStyle, captionsEnabled, audioTier\nFROM musicVideoJobs\nWHERE id = 510098;\n\nSELECT id, name, role, description, masterPortraitUrl, previewImageUrl, enableLipSync, gender, style\nFROM videoCharacters\nWHERE jobId = 510098;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'scenecount' in 'field list'"
+  ]
+}

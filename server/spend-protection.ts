@@ -30,7 +30,7 @@ export const PROVIDER_COST_USD: Record<string, number> = {
   atlas_cloud_fast: 0.64,  // PRIMARY — Atlas Cloud Fast (~$0.101/sec × 5s + overhead)
   atlas_cloud:      0.80,  // Atlas Cloud Standard (higher quality, slower)
   hypereal:         0.50,  // Disabled — no silent fallback during launch
-  wavespeed:        0.80,  // FAILOVER — WaveSpeed Seedance 2.0 Fast 720p ($0.10/sec × 8s)
+  wavespeed:        1.80,  // WaveSpeed Seedance 2.0 Fast 720p — MEASURED $1.80/clip (was wrong at $0.80)
   kling_standard:   0.60,
   kling_pro:        1.20,
   runway:           0.80,
@@ -42,10 +42,12 @@ export const PROVIDER_COST_USD: Record<string, number> = {
 // ── SPEND CAPS (Item 1 & 2) ───────────────────────────────────────────────────
 // Per-job cap: maximum USD we will spend on a single render job
 // At Atlas Cloud pricing ($0.64-0.80/scene): cap allows ~250 scenes per job
-export const MAX_SPEND_PER_JOB_USD = 200.00;
+// Tightened 2026-05-14: 9 scenes × $1.80 = $16.20 max realistic cost. Cap at $25 for safety.
+export const MAX_SPEND_PER_JOB_USD = 25.00;
 
 // Daily cap: maximum USD across ALL jobs in a calendar day
-export const MAX_DAILY_SPEND_USD = 300.00;
+// Tightened 2026-05-14: $149.76 spent in one month. Hard daily cap to prevent runaway spend.
+export const MAX_DAILY_SPEND_USD = 50.00;
 
 // Per-scene retry limit (Item 3)
 // Provider failures (balance, timeout, infrastructure) are retryable — limit is higher.

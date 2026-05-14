@@ -1,0 +1,65 @@
+{
+  "query": "\nSELECT sceneIndex, mvSceneStatus, videoUrl IS NOT NULL as hasVideo\nFROM musicVideoScenes WHERE jobId = 510100 ORDER BY sceneIndex;\n\nSELECT status, completedScenes, totalScenes FROM musicVideoJobs WHERE id = 510100;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT sceneIndex, mvSceneStatus, videoUrl IS NOT NULL as hasVideo\nFROM musicVideoScenes WHERE jobId = 510100 ORDER BY sceneIndex;\n\nSELECT status, completedScenes, totalScenes FROM musicVideoJobs WHERE id = 510100;\n",
+  "rows": [
+    {
+      "sceneIndex": "0",
+      "mvSceneStatus": "generating",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "1",
+      "mvSceneStatus": "completed",
+      "hasVideo": "1"
+    },
+    {
+      "sceneIndex": "2",
+      "mvSceneStatus": "generating",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "3",
+      "mvSceneStatus": "generating",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "4",
+      "mvSceneStatus": "pending",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "5",
+      "mvSceneStatus": "pending",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "6",
+      "mvSceneStatus": "pending",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "7",
+      "mvSceneStatus": "pending",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "8",
+      "mvSceneStatus": "pending",
+      "hasVideo": "0"
+    },
+    {
+      "sceneIndex": "status",
+      "mvSceneStatus": "completedScenes",
+      "hasVideo": "totalScenes"
+    },
+    {
+      "sceneIndex": "rendering",
+      "mvSceneStatus": "1",
+      "hasVideo": "9"
+    }
+  ],
+  "messages": [],
+  "stdout": "sceneIndex\tmvSceneStatus\thasVideo\n0\tgenerating\t0\n1\tcompleted\t1\n2\tgenerating\t0\n3\tgenerating\t0\n4\tpending\t0\n5\tpending\t0\n6\tpending\t0\n7\tpending\t0\n8\tpending\t0\nstatus\tcompletedScenes\ttotalScenes\nrendering\t1\t9\n",
+  "stderr": "",
+  "execution_time_ms": 634
+}
