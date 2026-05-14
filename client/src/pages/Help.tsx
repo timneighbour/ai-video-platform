@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import PublicNavBar from "@/components/PublicNavBar";
+import BackButton from "@/components/BackButton";
 import { useSEO } from "@/hooks/useSEO";
 import { ChevronDown, Search, MessageCircle, Mail, FileText, Zap, Music, Image, Film, Sparkles, Video, BookOpen, CreditCard, Settings, Star, Play } from "lucide-react";
 
@@ -285,6 +286,9 @@ export default function Help() {
   return (
     <div className="min-h-screen bg-[#080810] text-white">
       <PublicNavBar />
+      <div className="max-w-7xl mx-auto px-4 pt-20 pb-0">
+        <BackButton />
+      </div>
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative pt-24 pb-16 overflow-hidden">

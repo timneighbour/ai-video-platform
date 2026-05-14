@@ -97,8 +97,16 @@ async function main() {
   const sessionToken = await createSessionToken();
   console.log("✅ Session token created\n");
 
-  // Step 1: Create the job
-  console.log("📋 Step 1: Creating job...");
+  // Step 1: Fetch Zara portrait for Character Lock™
+  console.log("📋 Step 1: Fetching Zara portrait for Character Lock™...");
+  const portraitRes = await fetch(ZARA_MASTER_PORTRAIT);
+  if (!portraitRes.ok) throw new Error(`Failed to fetch portrait: ${portraitRes.status}`);
+  const portraitBuf = await portraitRes.arrayBuffer();
+  const portraitBase64 = Buffer.from(portraitBuf).toString("base64");
+  console.log(`✅ Portrait fetched (${Math.round(portraitBase64.length / 1024)}KB base64)\n`);
+
+  // Step 1b: Create the job (with portrait for Character Lock™)
+  console.log("📋 Step 1b: Creating job...");
   const audioDuration = await getAudioDuration(DEMO_AUDIO_URL);
 
   const job = await trpcCall(
@@ -114,6 +122,8 @@ async function main() {
       enableLipSync: true,
       sceneSetting:
         "Rooftop at golden hour, neon-lit urban alley, smoky jazz club, rain-soaked city street, rooftop pool at night",
+      characterImageBase64: portraitBase64,
+      characterImageMimeType: "image/png",
     },
     sessionToken
   );

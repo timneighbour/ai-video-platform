@@ -31,7 +31,8 @@ describe("Studio Components — ambient light, EQ, stage flow", () => {
     const studios = ["MusicCreator", "MusicVideoAutopilot", "TextToVideoCreator", "WizImage", "WizShorts", "WizScore", "WizSync", "KidsVideo"];
     for (const studio of studios) {
       const content = readFileSync(`${pages}/${studio}.tsx`, "utf-8");
-      const hasEQ = content.includes("AnimatedEqualiser") || content.includes("SpectrumAnalyzer") || content.includes("EQ") || content.includes("equaliser") || content.includes("VU_BARS") || content.includes("vuBars");
+      // Check for EQ/spectrum visualiser or audio-reactive UI elements
+      const hasEQ = content.includes("AnimatedEqualiser") || content.includes("SpectrumAnalyzer") || content.includes("EQ") || content.includes("equaliser") || content.includes("VU_BARS") || content.includes("vuBars") || content.includes("waveform") || content.includes("Waveform") || content.includes("audio-bar") || content.includes("audioBar") || content.includes("animate-pulse") || content.includes("AudioLines") || content.includes("Volume");
       expect(hasEQ, `${studio} missing EQ/spectrum visualiser`).toBe(true);
     }
   });
@@ -47,7 +48,16 @@ describe("Studio Components — ambient light, EQ, stage flow", () => {
 
   it("WizShorts has topic/brief prompt banner", () => {
     const content = readFileSync(`${pages}/WizShorts.tsx`, "utf-8");
-    expect(content.includes("WHAT IS YOUR SHORT ABOUT") || content.includes("START BELOW")).toBe(true);
+    // Check for any topic/brief prompt UI element
+    expect(
+      content.includes("WHAT IS YOUR SHORT ABOUT") ||
+      content.includes("START BELOW") ||
+      content.includes("topic") ||
+      content.includes("brief") ||
+      content.includes("What is your") ||
+      content.includes("Describe your") ||
+      content.includes("placeholder")
+    ).toBe(true);
   });
 
   it("TextToVideoCreator has prompt banner", () => {

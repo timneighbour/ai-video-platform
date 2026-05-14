@@ -54,10 +54,11 @@ describe("Grok Imagine — Image Generation", () => {
     expect(mockedAxios.post).toHaveBeenCalledWith(
       "https://api.x.ai/v1/images/generations",
       expect.objectContaining({
-        model: "grok-imagine-image-pro",
+        // Default model is grok-imagine-image (xAI dropped the -pro suffix)
+        model: "grok-imagine-image",
         prompt: "A sunset over the ocean",
         n: 1,
-        size: "1024x1024",
+        // Note: xAI grok-imagine-image does NOT support 'size' param — omitted by implementation
         response_format: "url",
       }),
       expect.objectContaining({

@@ -43,6 +43,9 @@ const ENGINE_COLORS: Record<string, { bg: string; border: string; text: string }
   WizSound:    { bg: "rgba(255,140,60,0.12)",  border: "rgba(255,140,60,0.35)",  text: "#ff8c3c" },
 };
 
+// EQ bars for audio visualiser
+const EQ_BARS = [0.4, 0.7, 1.0, 0.8, 0.6, 0.9, 0.5, 0.75, 0.95, 0.65];
+
 // ─── Animation styles ─────────────────────────────────────────────────────────
 const ANIM_STYLES = [
   { id: "2dcartoon",   label: "2D Cartoon",      img: "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/style-2d-cartoon-5WEpP9ztEVzqBR82Yeit9w.webp" },

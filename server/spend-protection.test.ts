@@ -108,7 +108,7 @@ describe("Item 8: Pre-render cost estimate", () => {
   it("calculates correct cost for wavespeed", () => {
     const cost = estimateRenderCostUsd(5, "wavespeed");
     expect(cost).toBe(5 * PROVIDER_COST_USD.wavespeed);
-    expect(cost).toBe(4.00); // 5 scenes × $0.80
+    expect(cost).toBe(9.00); // 5 scenes × $1.80 (WaveSpeed Seedance 2.0 Fast 720p measured rate)
   });
 
   it("defaults to fal_seedance pricing for unknown providers", () => {
