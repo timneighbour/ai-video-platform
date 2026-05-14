@@ -7781,3 +7781,38 @@
 - [x] Re-enable Atlas Cloud as primary renderer in sceneDispatchHeartbeat — text-to-video is watermark-free; r2v model was the issue. WaveSpeed kept as fallback.
 - [x] Investigate and fix WizSync lip sync UnauthorizedError — ROOT CAUSE: SYNC_LABS_API_KEY was missing. Key added and validated. NOTE: sync-3 requires paid Sync Labs plan (Creator $19/mo+). Tim needs to upgrade at sync.so to activate lip sync.
 - [ ] Verify lip sync fires on a real render end-to-end — BLOCKED: Tim needs to upgrade Sync Labs to Creator plan first
+
+## Demo Render + Pre-Render Cost Estimate (2026-05-14)
+- [ ] Start fresh Zara demo render (job 510101) to verify Atlas Cloud + WizSync lip sync end-to-end
+- [ ] Confirm all 9 scenes render via Atlas Cloud (not WaveSpeed fallback)
+- [ ] Confirm WizSync lip sync fires and completes on assembled video
+- [ ] Implement pre-render cost estimate UI — show credit cost breakdown before user confirms render
+- [ ] Cost estimate: show per-scene cost, total scenes, total credits, and whether user has enough balance
+- [ ] Cost estimate: show upgrade prompt if user lacks sufficient credits
+
+## WizAnimate — Character Lock™ + WizSync™ Lip Sync (2026-05-14)
+- [ ] ANIMATE-1: Audit WizAnimate workflow — identify where animated character portraits are stored and how scenes are generated
+- [ ] ANIMATE-2: Ensure masterPortraitUrl is saved for animated characters (same fix as music video AI characters)
+- [ ] ANIMATE-3: Inject masterPortraitUrl as reference_images in animated scene generation calls (Character Lock™)
+- [ ] ANIMATE-4: Apply WizSync™ lip sync (Sync Labs sync-3) to assembled animated videos — same assembly pipeline as music video
+- [ ] ANIMATE-5: Ensure animated character style prompt includes lip-sync-compatible mouth/face guidance ("lips moving naturally, mouth slightly open when speaking")
+- [ ] ANIMATE-6: Test end-to-end animated render with Character Lock™ and WizSync™ active
+
+## Bug: Wrong Audio in Generated Scenes
+- [ ] BUG: Scene videos play wrong audio — scenes lip-sync to incorrect audio (not the job's music track). Root cause TBD: Atlas Cloud image-to-video uses `generate_audio: false` but scene player may be using wrong audio source, OR Atlas Cloud is embedding audio from the reference audio extraction step. Investigate and fix.
+
+## Scene Player Audio Sync Fix
+- [ ] Fix ScenePreviewGrid: mute video element, play job audioUrl seeked to scene.startTime so user hears correct lyrics in sync with lip sync video
+- [ ] Pass audioUrl and startTime map into ScenePreviewGrid from render step (restoredAudioUrl + scenes state)
+- [ ] On loop: re-seek audio back to startTime so it stays in sync
+- [ ] Stop audio when user clicks another scene or pauses
+- [ ] After fix: re-run fresh render of job 540001 to verify end-to-end
+
+## Scene Review Panel (WizPilot Render Step)
+- [x] Each completed scene card shows: thumbnail/video preview, scene number, startTime, lyrics for that segment, character name(s), visual style
+- [x] Play button: muted video + job audio seeked to scene.startTime (audio sync fix)
+- [x] Edit button per scene: opens inline edit panel with prompt and lyrics fields
+- [x] Regenerate button per scene: re-renders just that scene with updated settings
+- [x] regenerateScene procedure updated to reset job status to rendering when job is completed
+- [ ] Visual indicator showing scene approval status (approved / needs review / regenerating)
+- [ ] "Approve All & Proceed to Full Render" CTA only enabled when user has reviewed scenes

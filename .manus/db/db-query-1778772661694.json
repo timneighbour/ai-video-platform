@@ -1,0 +1,82 @@
+{
+  "query": "\nSELECT \n  id, sceneIndex, mvSceneStatus, errorMessage, videoUrl, updatedAt\nFROM musicVideoScenes\nWHERE jobId = 540001\nORDER BY sceneIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT \n  id, sceneIndex, mvSceneStatus, errorMessage, videoUrl, updatedAt\nFROM musicVideoScenes\nWHERE jobId = 540001\nORDER BY sceneIndex;\n",
+  "rows": [
+    {
+      "id": "570001",
+      "sceneIndex": "0",
+      "mvSceneStatus": "generating",
+      "errorMessage": "NULL",
+      "videoUrl": "NULL",
+      "updatedAt": "2026-05-14 15:30:12"
+    },
+    {
+      "id": "570002",
+      "sceneIndex": "1",
+      "mvSceneStatus": "generating",
+      "errorMessage": "NULL",
+      "videoUrl": "NULL",
+      "updatedAt": "2026-05-14 15:30:12"
+    },
+    {
+      "id": "570003",
+      "sceneIndex": "2",
+      "mvSceneStatus": "generating",
+      "errorMessage": "NULL",
+      "videoUrl": "NULL",
+      "updatedAt": "2026-05-14 15:30:12"
+    },
+    {
+      "id": "570004",
+      "sceneIndex": "3",
+      "mvSceneStatus": "generating",
+      "errorMessage": "NULL",
+      "videoUrl": "NULL",
+      "updatedAt": "2026-05-14 15:30:14"
+    },
+    {
+      "id": "570005",
+      "sceneIndex": "4",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Error: Video generation failed for scene 570005. Both Atlas Cloud and WaveSpeed are currently unavailable. Please try again shortly.",
+      "videoUrl": "NULL",
+      "updatedAt": "2026-05-14 15:30:17"
+    },
+    {
+      "id": "570006",
+      "sceneIndex": "5",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Error: Video generation failed for scene 570006. Both Atlas Cloud and WaveSpeed are currently unavailable. Please try again shortly.",
+      "videoUrl": "NULL",
+      "updatedAt": "2026-05-14 15:30:17"
+    },
+    {
+      "id": "570007",
+      "sceneIndex": "6",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Error: Video generation failed for scene 570007. Both Atlas Cloud and WaveSpeed are currently unavailable. Please try again shortly.",
+      "videoUrl": "NULL",
+      "updatedAt": "2026-05-14 15:30:29"
+    },
+    {
+      "id": "570008",
+      "sceneIndex": "7",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Error: Video generation failed for scene 570008. Both Atlas Cloud and WaveSpeed are currently unavailable. Please try again shortly.",
+      "videoUrl": "NULL",
+      "updatedAt": "2026-05-14 15:30:29"
+    },
+    {
+      "id": "570009",
+      "sceneIndex": "8",
+      "mvSceneStatus": "failed",
+      "errorMessage": "Error: Video generation failed for scene 570009. Both Atlas Cloud and WaveSpeed are currently unavailable. Please try again shortly.",
+      "videoUrl": "NULL",
+      "updatedAt": "2026-05-14 15:30:30"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsceneIndex\tmvSceneStatus\terrorMessage\tvideoUrl\tupdatedAt\n570001\t0\tgenerating\tNULL\tNULL\t2026-05-14 15:30:12\n570002\t1\tgenerating\tNULL\tNULL\t2026-05-14 15:30:12\n570003\t2\tgenerating\tNULL\tNULL\t2026-05-14 15:30:12\n570004\t3\tgenerating\tNULL\tNULL\t2026-05-14 15:30:14\n570005\t4\tfailed\tError: Video generation failed for scene 570005. Both Atlas Cloud and WaveSpeed are currently unavailable. Please try again shortly.\tNULL\t2026-05-14 15:30:17\n570006\t5\tfailed\tError: Video generation failed for scene 570006. Both Atlas Cloud and WaveSpeed are currently unavailable. Please try again shortly.\tNULL\t2026-05-14 15:30:17\n570007\t6\tfailed\tError: Video generation failed for scene 570007. Both Atlas Cloud and WaveSpeed are currently unavailable. Please try again shortly.\tNULL\t2026-05-14 15:30:29\n570008\t7\tfailed\tError: Video generation failed for scene 570008. Both Atlas Cloud and WaveSpeed are currently unavailable. Please try again shortly.\tNULL\t2026-05-14 15:30:29\n570009\t8\tfailed\tError: Video generation failed for scene 570009. Both Atlas Cloud and WaveSpeed are currently unavailable. Please try again shortly.\tNULL\t2026-05-14 15:30:30\n",
+  "stderr": "",
+  "execution_time_ms": 558
+}

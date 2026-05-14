@@ -1,0 +1,18 @@
+{
+  "query": "\nSELECT id, status, updatedAt, errorMessage, totalScenes, completedScenes\nFROM musicVideoJobs\nWHERE id = 540001;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, status, updatedAt, errorMessage, totalScenes, completedScenes\nFROM musicVideoJobs\nWHERE id = 540001;\n",
+  "rows": [
+    {
+      "id": "540001",
+      "status": "rendering",
+      "updatedAt": "2026-05-14 15:15:06",
+      "errorMessage": "NULL",
+      "totalScenes": "9",
+      "completedScenes": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstatus\tupdatedAt\terrorMessage\ttotalScenes\tcompletedScenes\n540001\trendering\t2026-05-14 15:15:06\tNULL\t9\t0\n",
+  "stderr": "",
+  "execution_time_ms": 553
+}

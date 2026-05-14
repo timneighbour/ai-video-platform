@@ -171,74 +171,345 @@ function PostRenderUpgradeConnector({ jobId }: { jobId: number }) {
   );
 }
 
-// ── Live Scene Preview Grid ─────────────────────────────────────────────────
-interface ScenePreviewGridProps {
-  scenes: Array<{ id: number; index: number; status: string; videoUrl?: string | null }>;
+// ── Scene Review Panel ──────────────────────────────────────────────────────
+// Each completed scene shows:
+//  • Video preview (muted) + play button that syncs job audio at scene.startTime
+//  • Lyrics for that segment so user can verify lip sync timing
+//  • Character tags assigned to the scene
+//  • Inline prompt editor + Regenerate button to tweak and re-render
+interface SceneReviewItem {
+  id: number;
+  index: number;
+  status: string;
+  videoUrl?: string | null;
+  prompt?: string;
+  lyrics?: string | null;
+  errorMessage?: string | null;
 }
-function ScenePreviewGrid({ scenes }: ScenePreviewGridProps) {
+interface ScenePreviewGridProps {
+  scenes: SceneReviewItem[];
+  audioUrl?: string | null;
+  startTimeMap?: Map<number, number>;
+  durationMap?: Map<number, number>;
+  jobId?: number | null;
+  jobCharacters?: Array<{ id: number; name: string; primaryPhotoUrl?: string | null; aiGeneratedImageUrl?: string | null; isLocked?: boolean | null }>;
+  onRegenerateScene?: (sceneId: number, newPrompt?: string, newLyrics?: string) => Promise<void>;
+  regeneratingScenes?: Set<number>;
+}
+function ScenePreviewGrid({
+  scenes,
+  audioUrl,
+  startTimeMap,
+  durationMap,
+  jobId,
+  jobCharacters = [],
+  onRegenerateScene,
+  regeneratingScenes = new Set(),
+}: ScenePreviewGridProps) {
   const [playingId, setPlayingId] = React.useState<number | null>(null);
-  const hasAny = scenes.some((s) => (s.status === "completed" && s.videoUrl) || s.status === "generating");
+  const [editingSceneId, setEditingSceneId] = React.useState<number | null>(null);
+  const [editPrompt, setEditPrompt] = React.useState("");
+  const [editLyrics, setEditLyrics] = React.useState("");
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+
+  const stopAll = React.useCallback(() => {
+    if (videoRef.current) { videoRef.current.pause(); videoRef.current.currentTime = 0; }
+    if (audioRef.current) { audioRef.current.pause(); }
+  }, []);
+
+  React.useEffect(() => { return () => stopAll(); }, [stopAll]);
+
+  const handlePlay = React.useCallback((sceneId: number) => {
+    setPlayingId((prev) => {
+      stopAll();
+      return prev === sceneId ? null : sceneId;
+    });
+  }, [stopAll]);
+
+  const handleOpenEdit = React.useCallback((scene: SceneReviewItem) => {
+    setEditingSceneId(scene.id);
+    setEditPrompt(scene.prompt ?? "");
+    setEditLyrics(scene.lyrics ?? "");
+    // Stop playback when editing
+    setPlayingId(null);
+    stopAll();
+  }, [stopAll]);
+
+  const handleSaveAndRegenerate = React.useCallback(async (scene: SceneReviewItem) => {
+    if (!onRegenerateScene) return;
+    await onRegenerateScene(scene.id, editPrompt.trim() || undefined, editLyrics.trim() || undefined);
+    setEditingSceneId(null);
+  }, [onRegenerateScene, editPrompt, editLyrics]);
+
+  const hasAny = scenes.some((s) => s.status === "completed" || s.status === "generating" || s.status === "pending" || s.status === "failed");
   if (!hasAny) return null;
+
+  const completedCount = scenes.filter((s) => s.status === "completed" && s.videoUrl).length;
+  const totalCount = scenes.length;
+
   return (
-    <div className="mb-4">
-      <p className="text-xs text-white/40 font-medium uppercase tracking-wide mb-2">Completed Scenes — Click to Play</p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+    <div className="mb-6">
+      {/* Section header */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <p className="text-xs text-white/50 font-semibold uppercase tracking-widest">Scene Review</p>
+          <span className="text-[10px] text-white/30 bg-white/5 px-1.5 py-0.5 rounded-full">{completedCount}/{totalCount} ready</span>
+        </div>
+        <p className="text-[10px] text-white/30">Play to verify lip sync · Edit to tweak · Regenerate to re-render</p>
+      </div>
+
+      {/* Hidden shared audio element — seeked to scene startTime on play */}
+      {audioUrl && (
+        <audio ref={audioRef} src={audioUrl} preload="auto" style={{ display: "none" }} />
+      )}
+
+      <div className="space-y-3">
         {scenes.map((scene) => {
           const isPlaying = playingId === scene.id;
-          if (scene.status === "completed" && scene.videoUrl) {
-            return (
-              <div
-                key={scene.id}
-                className="relative rounded-lg overflow-hidden border border-[rgba(184,137,42,0.25)] bg-black cursor-pointer group"
-                style={{ aspectRatio: "16/9" }}
-                onClick={() => setPlayingId(isPlaying ? null : scene.id)}
-              >
-                {isPlaying ? (
-                  <video
-                    src={scene.videoUrl!}
-                    autoPlay
-                    loop
-                    controls
-                    className="w-full h-full object-cover"
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                ) : (
-                  <>
-                    <video
-                      src={scene.videoUrl!}
-                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                      muted
-                      preload="metadata"
-                    />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">
-                      <div className="w-8 h-8 rounded-full bg-[--color-gold]/90 flex items-center justify-center mb-1">
-                        <svg className="w-4 h-4 text-black ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          const isEditing = editingSceneId === scene.id;
+          const isRegenerating = regeneratingScenes.has(scene.id);
+          const startTime = startTimeMap?.get(scene.id) ?? 0;
+          const duration = durationMap?.get(scene.id) ?? 8;
+
+          // Format startTime as mm:ss
+          const mins = Math.floor(startTime / 60);
+          const secs = Math.floor(startTime % 60);
+          const timeLabel = `${mins}:${secs.toString().padStart(2, "0")}`;
+
+          return (
+            <div
+              key={scene.id}
+              className={`rounded-xl overflow-hidden border transition-colors ${
+                scene.status === "completed"
+                  ? "border-[rgba(184,137,42,0.25)] bg-[rgba(14,11,7,0.95)]"
+                  : scene.status === "generating" || scene.status === "pending"
+                  ? "border-[rgba(184,137,42,0.12)] bg-[rgba(14,11,7,0.7)]"
+                  : "border-red-500/20 bg-red-950/10"
+              }`}
+            >
+              <div className="flex gap-0">
+                {/* ── Left: Video thumbnail ── */}
+                <div
+                  className="relative flex-shrink-0 cursor-pointer"
+                  style={{ width: 160, aspectRatio: "16/9" }}
+                  onClick={() => scene.status === "completed" && scene.videoUrl && handlePlay(scene.id)}
+                >
+                  {scene.status === "completed" && scene.videoUrl ? (
+                    isPlaying ? (
+                      <SceneVideoPlayer
+                        videoUrl={scene.videoUrl!}
+                        audioEl={audioRef.current}
+                        startTime={startTime}
+                        duration={duration}
+                        videoRef={videoRef}
+                        onStop={() => { setPlayingId(null); stopAll(); }}
+                      />
+                    ) : (
+                      <div className="relative w-full h-full group">
+                        <video
+                          src={scene.videoUrl!}
+                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                          muted
+                          preload="metadata"
+                        />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">
+                          <div className="w-9 h-9 rounded-full bg-[--color-gold]/90 flex items-center justify-center">
+                            <svg className="w-4 h-4 text-black ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                          </div>
+                        </div>
+                        {/* Time badge */}
+                        <div className="absolute bottom-1 right-1 bg-black/70 text-white/70 text-[9px] font-mono px-1 py-0.5 rounded">
+                          {timeLabel}
+                        </div>
                       </div>
-                      <span className="text-[10px] text-white/70 font-medium">Scene {scene.index + 1}</span>
+                    )
+                  ) : scene.status === "generating" || scene.status === "pending" ? (
+                    <div className="w-full h-full bg-[rgba(24,20,16,0.9)] flex flex-col items-center justify-center animate-pulse">
+                      <Loader2 className="w-5 h-5 text-[--color-gold] animate-spin mb-1" />
+                      <span className="text-[9px] text-white/30">Rendering…</span>
                     </div>
-                  </>
-                )}
-                <div className="absolute top-1 left-1 bg-[--color-gold] text-black text-[9px] font-bold px-1.5 py-0.5 rounded">
-                  {scene.index + 1}
+                  ) : (
+                    <div className="w-full h-full bg-red-950/20 flex flex-col items-center justify-center">
+                      <svg className="w-5 h-5 text-red-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <span className="text-[9px] text-red-400">Failed</span>
+                    </div>
+                  )}
+                  {/* Scene number badge */}
+                  <div className="absolute top-1 left-1 bg-[--color-gold] text-black text-[9px] font-bold px-1.5 py-0.5 rounded z-10">
+                    {scene.index + 1}
+                  </div>
+                </div>
+
+                {/* ── Right: Details + edit ── */}
+                <div className="flex-1 min-w-0 p-3 flex flex-col gap-2">
+                  {/* Lyrics strip */}
+                  {scene.lyrics && !isEditing && (
+                    <div className="flex items-start gap-1.5">
+                      <svg className="w-3 h-3 text-[--color-gold]/50 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                      <p className="text-[11px] text-white/60 leading-relaxed line-clamp-2 font-mono whitespace-pre-wrap">{scene.lyrics.trim()}</p>
+                    </div>
+                  )}
+
+                  {/* Prompt (collapsed unless editing) */}
+                  {!isEditing && scene.prompt && (
+                    <p className="text-[11px] text-white/40 leading-relaxed line-clamp-2">{scene.prompt}</p>
+                  )}
+
+                  {/* Inline edit form */}
+                  {isEditing && (
+                    <div className="space-y-2">
+                      <div>
+                        <label className="text-[10px] text-white/40 font-medium uppercase tracking-wide block mb-1">Visual Prompt</label>
+                        <textarea
+                          value={editPrompt}
+                          onChange={(e) => setEditPrompt(e.target.value)}
+                          rows={3}
+                          maxLength={2000}
+                          className="w-full text-xs bg-[rgba(24,20,16,0.9)] border border-[rgba(184,137,42,0.2)] text-zinc-200 rounded-lg px-2.5 py-2 resize-none focus:outline-none focus:border-[--color-gold] placeholder:text-white/20"
+                          placeholder="Describe the visual scene…"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-white/40 font-medium uppercase tracking-wide block mb-1">Lyrics <span className="text-white/25 normal-case">(optional)</span></label>
+                        <textarea
+                          value={editLyrics}
+                          onChange={(e) => setEditLyrics(e.target.value)}
+                          rows={2}
+                          maxLength={1000}
+                          className="w-full text-xs bg-[rgba(24,20,16,0.9)] border border-[rgba(184,137,42,0.2)] text-zinc-200 rounded-lg px-2.5 py-2 resize-none focus:outline-none focus:border-[--color-gold] placeholder:text-white/20 font-mono"
+                          placeholder="Lyrics for this scene window…"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action buttons */}
+                  <div className="flex items-center gap-1.5 mt-auto">
+                    {scene.status === "completed" && !isEditing && !isRegenerating && (
+                      <>
+                        <button
+                          onClick={() => handlePlay(scene.id)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-md bg-[--color-gold]/15 text-[--color-gold] text-[11px] font-medium hover:bg-[--color-gold]/25 transition-colors border border-[--color-gold]/20"
+                        >
+                          {isPlaying
+                            ? <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg> Stop</>
+                            : <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Play</>}
+                        </button>
+                        <button
+                          onClick={() => handleOpenEdit(scene)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 text-white/50 text-[11px] font-medium hover:bg-white/10 hover:text-white/80 transition-colors border border-white/10"
+                        >
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => onRegenerateScene?.(scene.id)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 text-white/40 text-[11px] font-medium hover:bg-white/10 hover:text-white/70 transition-colors border border-white/10"
+                          title="Re-render this scene with current settings"
+                        >
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                          Re-render
+                        </button>
+                      </>
+                    )}
+                    {isRegenerating && (
+                      <span className="flex items-center gap-1 text-[11px] text-[--color-gold]/70">
+                        <Loader2 className="w-3 h-3 animate-spin" /> Regenerating…
+                      </span>
+                    )}
+                    {isEditing && (
+                      <>
+                        <button
+                          onClick={() => handleSaveAndRegenerate(scene)}
+                          disabled={!editPrompt.trim() || isRegenerating}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-[--color-gold] text-black text-[11px] font-semibold hover:bg-[--color-gold]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                          Save & Re-render
+                        </button>
+                        <button
+                          onClick={() => setEditingSceneId(null)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 text-white/40 text-[11px] font-medium hover:bg-white/10 transition-colors border border-white/10"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-            );
-          } else if (scene.status === "generating") {
-            return (
-              <div
-                key={scene.id}
-                className="relative rounded-lg overflow-hidden border border-[rgba(184,137,42,0.12)] bg-[rgba(24,20,16,0.9)] animate-pulse"
-                style={{ aspectRatio: "16/9" }}
-              >
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <Loader2 className="w-5 h-5 text-[--color-gold] animate-spin mb-1" />
-                  <span className="text-[10px] text-white/40">Scene {scene.index + 1}</span>
-                </div>
-              </div>
-            );
-          }
-          return null;
+            </div>
+          );
         })}
+      </div>
+    </div>
+  );
+}
+
+// ── Scene Video Player — muted video + seeked job audio in sync ──────────────
+interface SceneVideoPlayerProps {
+  videoUrl: string;
+  audioEl: HTMLAudioElement | null;
+  startTime: number;   // seconds into the job's audio track
+  duration: number;    // clip duration in seconds
+  videoRef: React.MutableRefObject<HTMLVideoElement | null>;
+  onStop: () => void;
+}
+function SceneVideoPlayer({ videoUrl, audioEl, startTime, duration, videoRef, onStop }: SceneVideoPlayerProps) {
+  const localVideoRef = React.useRef<HTMLVideoElement | null>(null);
+  const [isReady, setIsReady] = React.useState(false);
+
+  // Assign to shared ref so parent can stop it
+  React.useEffect(() => {
+    videoRef.current = localVideoRef.current;
+  });
+
+  // Start playback once video is ready
+  const startSync = React.useCallback(() => {
+    const vid = localVideoRef.current;
+    if (!vid) return;
+    vid.currentTime = 0;
+    // Seek audio to the correct position in the track
+    if (audioEl) {
+      audioEl.currentTime = startTime;
+      audioEl.play().catch(() => {/* autoplay policy — user already interacted */});
+    }
+    vid.play().catch(() => {});
+  }, [audioEl, startTime]);
+
+  // On video loop: re-seek audio back to startTime so it stays in sync
+  const handleLoop = React.useCallback(() => {
+    if (audioEl) {
+      audioEl.currentTime = startTime;
+    }
+  }, [audioEl, startTime]);
+
+  return (
+    <div className="relative w-full h-full">
+      <video
+        ref={localVideoRef}
+        src={videoUrl}
+        muted  // ← always muted — audio comes from the job track via audioEl
+        loop
+        playsInline
+        className="w-full h-full object-cover"
+        onCanPlay={() => { if (!isReady) { setIsReady(true); startSync(); } }}
+        onSeeked={() => { if (isReady) startSync(); }}
+        onEnded={handleLoop}
+      />
+      {/* Stop button */}
+      <button
+        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 flex items-center justify-center hover:bg-black/90 transition-colors"
+        onClick={(e) => { e.stopPropagation(); onStop(); }}
+        title="Stop"
+      >
+        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg>
+      </button>
+      {/* Audio indicator */}
+      <div className="absolute bottom-1 left-1 flex items-center gap-0.5 bg-black/60 rounded px-1 py-0.5">
+        <svg className="w-2.5 h-2.5 text-[--color-gold]" fill="currentColor" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+        <span className="text-[8px] text-white/70 font-medium">Track audio</span>
       </div>
     </div>
   );
@@ -5017,7 +5288,58 @@ export default function MusicVideoAutopilot() {
                         </div>
 
                         {/* ===== LIVE SCENE PREVIEW GRID ===== */}
-                        <ScenePreviewGrid scenes={perSceneStatuses} />
+                        <ScenePreviewGrid
+                          scenes={perSceneStatuses}
+                          audioUrl={restoredAudioUrl ?? sunoGeneratedAudioUrl ?? null}
+                          startTimeMap={new Map(scenes.map((s) => [s.id, s.startTime]))}
+                          durationMap={new Map(scenes.map((s) => [s.id, s.duration]))}
+                          jobId={jobId}
+                          jobCharacters={jobCharacters}
+                          regeneratingScenes={retryingScenes}
+                          onRegenerateScene={async (sceneId, newPrompt, newLyrics) => {
+                            if (!jobId) return;
+                            // If the user edited the prompt/lyrics, persist them first
+                            if (newPrompt) {
+                              try {
+                                await updateScenePromptMutation.mutateAsync({
+                                  sceneId,
+                                  jobId,
+                                  prompt: newPrompt,
+                                  lyrics: newLyrics,
+                                });
+                                // Update local perSceneStatuses with new prompt/lyrics
+                                setPerSceneStatuses((prev) =>
+                                  prev.map((s) => s.id === sceneId
+                                    ? { ...s, prompt: newPrompt, lyrics: newLyrics ?? s.lyrics }
+                                    : s
+                                  )
+                                );
+                              } catch (err: any) {
+                                toast.error("Could not save edits", { description: err?.message });
+                                return;
+                              }
+                            }
+                            // Re-render the scene via regenerateScene mutation
+                            setRetryingScenes((prev) => new Set(prev).add(sceneId));
+                            setPerSceneStatuses((prev) =>
+                              prev.map((s) => s.id === sceneId ? { ...s, status: "pending", videoUrl: null, errorMessage: null } : s)
+                            );
+                            try {
+                              await regenerateSceneMutation.mutateAsync({ sceneId, jobId });
+                              isRenderingRef.current = true;
+                              setRenderStatus("rendering");
+                              toast.success(`Scene ${(perSceneStatuses.find((s) => s.id === sceneId)?.index ?? 0) + 1} queued for re-render`, {
+                                description: newPrompt ? "Updated prompt saved — re-rendering now." : "Scene will be re-rendered with current settings.",
+                              });
+                            } catch (err: any) {
+                              setRetryingScenes((prev) => { const n = new Set(prev); n.delete(sceneId); return n; });
+                              setPerSceneStatuses((prev) =>
+                                prev.map((s) => s.id === sceneId ? { ...s, status: "failed", errorMessage: err?.message ?? "Regeneration failed" } : s)
+                              );
+                              toast.error("Re-render failed", { description: err?.message });
+                            }
+                          }}
+                        />
                         {/* ===== END LIVE SCENE PREVIEW GRID ===== */}
 
                         {/* Failed scene detail cards with edit-before-retry */}

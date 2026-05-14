@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT sceneIndex, renderStatus, provider, taskId, videoUrl IS NOT NULL as hasVideo, updatedAt\nFROM musicVideoScenes\nWHERE jobId = 540001\nORDER BY sceneIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT sceneIndex, renderStatus, provider, taskId, videoUrl IS NOT NULL as hasVideo, updatedAt\nFROM musicVideoScenes\nWHERE jobId = 540001\nORDER BY sceneIndex;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 'renderstatus' in 'field list'"
+  ]
+}

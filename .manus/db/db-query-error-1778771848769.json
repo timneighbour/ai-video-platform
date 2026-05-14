@@ -1,0 +1,8 @@
+{
+  "query": "\nSELECT s.sceneIndex, s.status, s.provider, s.taskId, s.videoUrl IS NOT NULL as hasVideo,\n       s.updatedAt\nFROM musicVideoScenes s\nWHERE s.jobId = 540001\nORDER BY s.sceneIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT s.sceneIndex, s.status, s.provider, s.taskId, s.videoUrl IS NOT NULL as hasVideo,\n       s.updatedAt\nFROM musicVideoScenes s\nWHERE s.jobId = 540001\nORDER BY s.sceneIndex;\n",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 2: Unknown column 's.status' in 'field list'"
+  ]
+}

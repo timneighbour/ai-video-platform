@@ -1,0 +1,82 @@
+{
+  "query": "\nSELECT sceneIndex, mvSceneStatus, providerUsed, taskId, videoUrl IS NOT NULL as hasVideo, updatedAt\nFROM musicVideoScenes\nWHERE jobId = 540001\nORDER BY sceneIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT sceneIndex, mvSceneStatus, providerUsed, taskId, videoUrl IS NOT NULL as hasVideo, updatedAt\nFROM musicVideoScenes\nWHERE jobId = 540001\nORDER BY sceneIndex;\n",
+  "rows": [
+    {
+      "sceneIndex": "0",
+      "mvSceneStatus": "pending",
+      "providerUsed": "NULL",
+      "taskId": "NULL",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:15:05"
+    },
+    {
+      "sceneIndex": "1",
+      "mvSceneStatus": "pending",
+      "providerUsed": "NULL",
+      "taskId": "NULL",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:15:05"
+    },
+    {
+      "sceneIndex": "2",
+      "mvSceneStatus": "pending",
+      "providerUsed": "NULL",
+      "taskId": "NULL",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:15:05"
+    },
+    {
+      "sceneIndex": "3",
+      "mvSceneStatus": "pending",
+      "providerUsed": "NULL",
+      "taskId": "NULL",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:15:05"
+    },
+    {
+      "sceneIndex": "4",
+      "mvSceneStatus": "pending",
+      "providerUsed": "NULL",
+      "taskId": "NULL",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:15:06"
+    },
+    {
+      "sceneIndex": "5",
+      "mvSceneStatus": "pending",
+      "providerUsed": "NULL",
+      "taskId": "NULL",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:15:06"
+    },
+    {
+      "sceneIndex": "6",
+      "mvSceneStatus": "pending",
+      "providerUsed": "NULL",
+      "taskId": "NULL",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:15:06"
+    },
+    {
+      "sceneIndex": "7",
+      "mvSceneStatus": "pending",
+      "providerUsed": "NULL",
+      "taskId": "NULL",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:15:06"
+    },
+    {
+      "sceneIndex": "8",
+      "mvSceneStatus": "pending",
+      "providerUsed": "NULL",
+      "taskId": "NULL",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:15:06"
+    }
+  ],
+  "messages": [],
+  "stdout": "sceneIndex\tmvSceneStatus\tproviderUsed\ttaskId\thasVideo\tupdatedAt\n0\tpending\tNULL\tNULL\t0\t2026-05-14 15:15:05\n1\tpending\tNULL\tNULL\t0\t2026-05-14 15:15:05\n2\tpending\tNULL\tNULL\t0\t2026-05-14 15:15:05\n3\tpending\tNULL\tNULL\t0\t2026-05-14 15:15:05\n4\tpending\tNULL\tNULL\t0\t2026-05-14 15:15:06\n5\tpending\tNULL\tNULL\t0\t2026-05-14 15:15:06\n6\tpending\tNULL\tNULL\t0\t2026-05-14 15:15:06\n7\tpending\tNULL\tNULL\t0\t2026-05-14 15:15:06\n8\tpending\tNULL\tNULL\t0\t2026-05-14 15:15:06\n",
+  "stderr": "",
+  "execution_time_ms": 568
+}

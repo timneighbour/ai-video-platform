@@ -1,0 +1,91 @@
+{
+  "query": "\nSELECT \n  s.id, s.sceneIndex, s.mvSceneStatus, s.taskId, s.errorMessage, s.updatedAt,\n  j.status as jobStatus\nFROM musicVideoScenes s\nJOIN musicVideoJobs j ON j.id = s.jobId\nWHERE s.jobId = 540001\nORDER BY s.sceneIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT \n  s.id, s.sceneIndex, s.mvSceneStatus, s.taskId, s.errorMessage, s.updatedAt,\n  j.status as jobStatus\nFROM musicVideoScenes s\nJOIN musicVideoJobs j ON j.id = s.jobId\nWHERE s.jobId = 540001\nORDER BY s.sceneIndex;\n",
+  "rows": [
+    {
+      "id": "570001",
+      "sceneIndex": "0",
+      "mvSceneStatus": "generating",
+      "taskId": "atlas:d6c88addf5df431d96f86a53c5a70b7e",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-14 15:30:12",
+      "jobStatus": "rendering"
+    },
+    {
+      "id": "570002",
+      "sceneIndex": "1",
+      "mvSceneStatus": "generating",
+      "taskId": "atlas:a71cf310c90e491a8e507a65abbad0be",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-14 15:30:12",
+      "jobStatus": "rendering"
+    },
+    {
+      "id": "570003",
+      "sceneIndex": "2",
+      "mvSceneStatus": "generating",
+      "taskId": "atlas:768aaa8ca7b844b88f76afedd17175f0",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-14 15:32:09",
+      "jobStatus": "rendering"
+    },
+    {
+      "id": "570004",
+      "sceneIndex": "3",
+      "mvSceneStatus": "generating",
+      "taskId": "atlas:4b53b10b1bac4cd0aca93ae05915b889",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-14 15:30:14",
+      "jobStatus": "rendering"
+    },
+    {
+      "id": "570005",
+      "sceneIndex": "4",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-14 15:31:06",
+      "jobStatus": "rendering"
+    },
+    {
+      "id": "570006",
+      "sceneIndex": "5",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-14 15:31:06",
+      "jobStatus": "rendering"
+    },
+    {
+      "id": "570007",
+      "sceneIndex": "6",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-14 15:31:06",
+      "jobStatus": "rendering"
+    },
+    {
+      "id": "570008",
+      "sceneIndex": "7",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-14 15:31:06",
+      "jobStatus": "rendering"
+    },
+    {
+      "id": "570009",
+      "sceneIndex": "8",
+      "mvSceneStatus": "pending",
+      "taskId": "NULL",
+      "errorMessage": "NULL",
+      "updatedAt": "2026-05-14 15:31:06",
+      "jobStatus": "rendering"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsceneIndex\tmvSceneStatus\ttaskId\terrorMessage\tupdatedAt\tjobStatus\n570001\t0\tgenerating\tatlas:d6c88addf5df431d96f86a53c5a70b7e\tNULL\t2026-05-14 15:30:12\trendering\n570002\t1\tgenerating\tatlas:a71cf310c90e491a8e507a65abbad0be\tNULL\t2026-05-14 15:30:12\trendering\n570003\t2\tgenerating\tatlas:768aaa8ca7b844b88f76afedd17175f0\tNULL\t2026-05-14 15:32:09\trendering\n570004\t3\tgenerating\tatlas:4b53b10b1bac4cd0aca93ae05915b889\tNULL\t2026-05-14 15:30:14\trendering\n570005\t4\tpending\tNULL\tNULL\t2026-05-14 15:31:06\trendering\n570006\t5\tpending\tNULL\tNULL\t2026-05-14 15:31:06\trendering\n570007\t6\tpending\tNULL\tNULL\t2026-05-14 15:31:06\trendering\n570008\t7\tpending\tNULL\tNULL\t2026-05-14 15:31:06\trendering\n570009\t8\tpending\tNULL\tNULL\t2026-05-14 15:31:06\trendering\n",
+  "stderr": "",
+  "execution_time_ms": 569
+}

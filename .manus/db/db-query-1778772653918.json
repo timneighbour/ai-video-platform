@@ -1,0 +1,17 @@
+{
+  "query": "\nSELECT \n  SUM(CASE WHEN mvSceneStatus = 'completed' THEN 1 ELSE 0 END) as completed,\n  SUM(CASE WHEN mvSceneStatus = 'generating' THEN 1 ELSE 0 END) as generating,\n  SUM(CASE WHEN mvSceneStatus = 'failed' THEN 1 ELSE 0 END) as failed,\n  SUM(CASE WHEN mvSceneStatus = 'pending' THEN 1 ELSE 0 END) as pending,\n  MAX(updatedAt) as lastUpdate\nFROM musicVideoScenes\nWHERE jobId = 540001;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT \n  SUM(CASE WHEN mvSceneStatus = 'completed' THEN 1 ELSE 0 END) as completed,\n  SUM(CASE WHEN mvSceneStatus = 'generating' THEN 1 ELSE 0 END) as generating,\n  SUM(CASE WHEN mvSceneStatus = 'failed' THEN 1 ELSE 0 END) as failed,\n  SUM(CASE WHEN mvSceneStatus = 'pending' THEN 1 ELSE 0 END) as pending,\n  MAX(updatedAt) as lastUpdate\nFROM musicVideoScenes\nWHERE jobId = 540001;\n",
+  "rows": [
+    {
+      "completed": "0",
+      "generating": "4",
+      "failed": "5",
+      "pending": "0",
+      "lastUpdate": "2026-05-14 15:30:30"
+    }
+  ],
+  "messages": [],
+  "stdout": "completed\tgenerating\tfailed\tpending\tlastUpdate\n0\t4\t5\t0\t2026-05-14 15:30:30\n",
+  "stderr": "",
+  "execution_time_ms": 559
+}

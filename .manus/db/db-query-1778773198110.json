@@ -1,0 +1,46 @@
+{
+  "query": "\nSELECT \n  s.id, s.sceneIndex, s.mvSceneStatus, s.videoUrl, s.taskId, s.updatedAt,\n  j.audioUrl as jobAudioUrl\nFROM musicVideoScenes s\nJOIN musicVideoJobs j ON j.id = s.jobId\nWHERE s.jobId = 540001 AND s.mvSceneStatus = 'completed'\nORDER BY s.sceneIndex\nLIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT \n  s.id, s.sceneIndex, s.mvSceneStatus, s.videoUrl, s.taskId, s.updatedAt,\n  j.audioUrl as jobAudioUrl\nFROM musicVideoScenes s\nJOIN musicVideoJobs j ON j.id = s.jobId\nWHERE s.jobId = 540001 AND s.mvSceneStatus = 'completed'\nORDER BY s.sceneIndex\nLIMIT 5;\n",
+  "rows": [
+    {
+      "id": "570001",
+      "sceneIndex": "0",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/570001-1778772975029.mp4",
+      "taskId": "atlas:d6c88addf5df431d96f86a53c5a70b7e",
+      "updatedAt": "2026-05-14 15:36:19",
+      "jobAudioUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3"
+    },
+    {
+      "id": "570002",
+      "sceneIndex": "1",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/570002-1778772993953.mp4",
+      "taskId": "atlas:a71cf310c90e491a8e507a65abbad0be",
+      "updatedAt": "2026-05-14 15:36:39",
+      "jobAudioUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3"
+    },
+    {
+      "id": "570004",
+      "sceneIndex": "3",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/570004-1778772900125.mp4",
+      "taskId": "atlas:4b53b10b1bac4cd0aca93ae05915b889",
+      "updatedAt": "2026-05-14 15:35:03",
+      "jobAudioUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3"
+    },
+    {
+      "id": "570008",
+      "sceneIndex": "7",
+      "mvSceneStatus": "completed",
+      "videoUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/570008-1778773162322.mp4",
+      "taskId": "atlas:72ba0e83f55040a08d48fa70ea4c466d",
+      "updatedAt": "2026-05-14 15:39:25",
+      "jobAudioUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsceneIndex\tmvSceneStatus\tvideoUrl\ttaskId\tupdatedAt\tjobAudioUrl\n570001\t0\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/570001-1778772975029.mp4\tatlas:d6c88addf5df431d96f86a53c5a70b7e\t2026-05-14 15:36:19\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3\n570002\t1\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/570002-1778772993953.mp4\tatlas:a71cf310c90e491a8e507a65abbad0be\t2026-05-14 15:36:39\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3\n570004\t3\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/570004-1778772900125.mp4\tatlas:4b53b10b1bac4cd0aca93ae05915b889\t2026-05-14 15:35:03\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3\n570008\t7\tcompleted\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-scenes/570008-1778773162322.mp4\tatlas:72ba0e83f55040a08d48fa70ea4c466d\t2026-05-14 15:39:25\thttps://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-audio/1-1778695391908.mp3\n",
+  "stderr": "",
+  "execution_time_ms": 563
+}

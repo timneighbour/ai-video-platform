@@ -2720,8 +2720,18 @@ Rules:
 
       // Reset scene to pending so the render loop picks it up
       await db.update(musicVideoScenes)
-        .set({ status: "pending", taskId: null, videoUrl: null, videoKey: null, errorMessage: null })
+        .set({ status: "pending", taskId: null, videoUrl: null, videoKey: null, errorMessage: null, updatedAt: new Date() })
         .where(eq(musicVideoScenes.id, input.sceneId));
+
+      // If the job is completed/failed, reset it to rendering so the heartbeat picks up the scene
+      if (job.status === "completed" || job.status === "failed") {
+        await db.update(musicVideoJobs)
+          .set({ status: "rendering", updatedAt: new Date() })
+          .where(eq(musicVideoJobs.id, input.jobId));
+      }
+
+      // Reset spend-protection attempt counter so the re-render is not blocked
+      await resetSceneAttempts(input.sceneId);
 
       // Fetch locked character briefs for this job
       const allJobCharacters = await db.select().from(videoCharacters)

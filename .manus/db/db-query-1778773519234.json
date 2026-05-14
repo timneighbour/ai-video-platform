@@ -1,0 +1,27 @@
+{
+  "query": "\nSELECT id, status, errorMessage, updatedAt FROM musicVideoJobs WHERE id = 540001;\nSELECT id, sceneIndex, mvSceneStatus FROM musicVideoScenes WHERE jobId = 540001 ORDER BY sceneIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT id, status, errorMessage, updatedAt FROM musicVideoJobs WHERE id = 540001;\nSELECT id, sceneIndex, mvSceneStatus FROM musicVideoScenes WHERE jobId = 540001 ORDER BY sceneIndex;\n",
+  "rows": [
+    {
+      "id": "540001",
+      "status": "failed",
+      "errorMessage": "Stopped by owner — scene player audio fix in progress",
+      "updatedAt": "2026-05-14 15:45:14"
+    }
+  ],
+  "messages": [
+    "id\tsceneIndex\tmvSceneStatus",
+    "570001\t0\tcompleted",
+    "570002\t1\tcompleted",
+    "570003\t2\tfailed",
+    "570004\t3\tcompleted",
+    "570005\t4\tfailed",
+    "570006\t5\tfailed",
+    "570007\t6\tcompleted",
+    "570008\t7\tcompleted",
+    "570009\t8\tfailed"
+  ],
+  "stdout": "id\tstatus\terrorMessage\tupdatedAt\n540001\tfailed\tStopped by owner — scene player audio fix in progress\t2026-05-14 15:45:14\nid\tsceneIndex\tmvSceneStatus\n570001\t0\tcompleted\n570002\t1\tcompleted\n570003\t2\tfailed\n570004\t3\tcompleted\n570005\t4\tfailed\n570006\t5\tfailed\n570007\t6\tcompleted\n570008\t7\tcompleted\n570009\t8\tfailed\n",
+  "stderr": "",
+  "execution_time_ms": 641
+}

@@ -1,0 +1,82 @@
+{
+  "query": "\nSELECT sceneIndex, mvSceneStatus, providerUsed, taskId IS NOT NULL as hasTaskId, videoUrl IS NOT NULL as hasVideo, updatedAt\nFROM musicVideoScenes\nWHERE jobId = 540001\nORDER BY sceneIndex;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \nSELECT sceneIndex, mvSceneStatus, providerUsed, taskId IS NOT NULL as hasTaskId, videoUrl IS NOT NULL as hasVideo, updatedAt\nFROM musicVideoScenes\nWHERE jobId = 540001\nORDER BY sceneIndex;\n",
+  "rows": [
+    {
+      "sceneIndex": "0",
+      "mvSceneStatus": "generating",
+      "providerUsed": "NULL",
+      "hasTaskId": "1",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:21:05"
+    },
+    {
+      "sceneIndex": "1",
+      "mvSceneStatus": "generating",
+      "providerUsed": "NULL",
+      "hasTaskId": "1",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:21:05"
+    },
+    {
+      "sceneIndex": "2",
+      "mvSceneStatus": "generating",
+      "providerUsed": "NULL",
+      "hasTaskId": "1",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:21:06"
+    },
+    {
+      "sceneIndex": "3",
+      "mvSceneStatus": "generating",
+      "providerUsed": "NULL",
+      "hasTaskId": "1",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:21:06"
+    },
+    {
+      "sceneIndex": "4",
+      "mvSceneStatus": "generating",
+      "providerUsed": "NULL",
+      "hasTaskId": "1",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:22:07"
+    },
+    {
+      "sceneIndex": "5",
+      "mvSceneStatus": "generating",
+      "providerUsed": "NULL",
+      "hasTaskId": "1",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:22:07"
+    },
+    {
+      "sceneIndex": "6",
+      "mvSceneStatus": "generating",
+      "providerUsed": "NULL",
+      "hasTaskId": "1",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:22:08"
+    },
+    {
+      "sceneIndex": "7",
+      "mvSceneStatus": "generating",
+      "providerUsed": "NULL",
+      "hasTaskId": "1",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:22:08"
+    },
+    {
+      "sceneIndex": "8",
+      "mvSceneStatus": "generating",
+      "providerUsed": "NULL",
+      "hasTaskId": "1",
+      "hasVideo": "0",
+      "updatedAt": "2026-05-14 15:22:08"
+    }
+  ],
+  "messages": [],
+  "stdout": "sceneIndex\tmvSceneStatus\tproviderUsed\thasTaskId\thasVideo\tupdatedAt\n0\tgenerating\tNULL\t1\t0\t2026-05-14 15:21:05\n1\tgenerating\tNULL\t1\t0\t2026-05-14 15:21:05\n2\tgenerating\tNULL\t1\t0\t2026-05-14 15:21:06\n3\tgenerating\tNULL\t1\t0\t2026-05-14 15:21:06\n4\tgenerating\tNULL\t1\t0\t2026-05-14 15:22:07\n5\tgenerating\tNULL\t1\t0\t2026-05-14 15:22:07\n6\tgenerating\tNULL\t1\t0\t2026-05-14 15:22:08\n7\tgenerating\tNULL\t1\t0\t2026-05-14 15:22:08\n8\tgenerating\tNULL\t1\t0\t2026-05-14 15:22:08\n",
+  "stderr": "",
+  "execution_time_ms": 554
+}
