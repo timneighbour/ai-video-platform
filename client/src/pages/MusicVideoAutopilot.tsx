@@ -1339,11 +1339,18 @@ export default function MusicVideoAutopilot() {
 
   // Auto-resume polling when user returns to the render step (e.g. after page refresh or redirect from RenderSuccess)
   useEffect(() => {
-    // Only auto-resume polling on page-reload / redirect recovery.
+    // Auto-resume polling on page-reload / redirect recovery.
+    // Fires when:
+    //   1. step is "render" and renderStatus is NOT yet set (initial load) — standard resume
+    //   2. step is "render", renderStatus is already "rendering" or "assembling", but the
+    //      poll interval is NOT running (e.g. page reload while job was mid-render)
     // Do NOT fire when handleStartRenderInternal has just set step="render" itself
-    // (isRenderingRef.current is already true in that case, so the guard below
-    // prevents the double-fire that caused the spurious "Job must have a storyboard" error).
-    if (step === "render" && jobId && !isRenderingRef.current && !finalVideoUrl && renderStatus !== "rendering" && renderStatus !== "assembling" && renderStatus !== "wizsound") {
+    // (isRenderingRef.current is already true in that case).
+    const pollIsRunning = !!pollIntervalRef.current;
+    const jobIsActiveOnServer = renderStatus === "rendering" || renderStatus === "assembling" || renderStatus === "wizsound";
+    const needsResume = step === "render" && jobId && !isRenderingRef.current && !finalVideoUrl &&
+      (!jobIsActiveOnServer || !pollIsRunning);
+    if (needsResume) {
       // Small delay to let state settle
       const timer = setTimeout(() => {
         handleStartRenderInternal();
@@ -1351,7 +1358,7 @@ export default function MusicVideoAutopilot() {
       return () => clearTimeout(timer);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, jobId]);
+  }, [step, jobId, renderStatus]);
 
   const handleFileDrop = useCallback((file: File) => {
     const validTypes = ["audio/mpeg", "audio/wav", "audio/mp4", "audio/ogg", "audio/m4a", "audio/x-m4a"];

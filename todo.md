@@ -7894,3 +7894,9 @@
 - [x] Add retry logic to voiceTranscription fetch calls
 - [x] Add retry logic to imageGeneration fetch calls
 - [x] Wrap generateStoryboard tRPC procedure in a top-level try/catch with clean user-facing error
+
+## Bug: Dropped Scenes in Screening Room
+- [ ] Diagnose and fix "Drop" scenes in Screening Room — scenes 7 and 8 marked as dropped/failed during rendering
+
+## Bug: Render Poll Not Resuming After Page Reload
+- [x] Fix auto-resume useEffect blocking poll when renderStatus is already "rendering" but poll interval is not running (page reload catch-22)
