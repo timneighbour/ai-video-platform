@@ -603,6 +603,13 @@
       "when": 1778784951478,
       "tag": "0085_crazy_master_chief",
       "breakpoints": true
+    },
+    {
+      "idx": 86,
+      "version": "5",
+      "when": 1778789506033,
+      "tag": "0086_demonic_taskmaster",
+      "breakpoints": true
     }
   ]
 }

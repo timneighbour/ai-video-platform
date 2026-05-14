@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoScenes` RENAME COLUMN `sceneLipSyncStatus` TO `lipSyncStatus`;

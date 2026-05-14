@@ -7878,3 +7878,6 @@
 - [x] Fix musicVideo.ts router: pauseRender/resumeRender/cancelRender were outside the router object (premature closing bracket)
 - [x] All 661 unit tests passing
 - [x] TypeScript clean (0 errors)
+
+## Bug: Storyboard Generation Revert
+- [x] Fix storyboard generation revert bug — UI bounces back to Character confirmation step instead of proceeding to storyboard review

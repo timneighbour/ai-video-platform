@@ -279,7 +279,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   lipSyncVideoUrl: varchar("lipSyncVideoUrl", { length: 1024 }), // Sync Labs output URL for this scene's lip-synced preview
   lipSyncVideoKey: varchar("lipSyncVideoKey", { length: 512 }), // S3 key for the lip-synced preview video
   lipSyncTaskId: varchar("lipSyncTaskId", { length: 255 }), // Sync Labs job ID for polling
-  lipSyncStatus: mysqlEnum("sceneLipSyncStatus", ["pending", "processing", "done", "error"]).default("pending").notNull(), // Per-scene lip sync status
+  lipSyncStatus: mysqlEnum("lipSyncStatus", ["pending", "processing", "done", "error"]).default("pending").notNull(), // Per-scene lip sync status
   // --- Scene Approval (user explicitly locks in a scene before full render) ---
   isApproved: boolean("isApproved").default(false).notNull(), // true when user has approved this scene for final render
   approvedAt: timestamp("approvedAt"),                        // When the user approved this scene
