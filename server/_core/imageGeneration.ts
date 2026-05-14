@@ -50,28 +50,50 @@ export async function generateImage(
     baseUrl
   ).toString();
 
-  const response = await fetch(fullUrl, {
-    method: "POST",
-    headers: {
-      accept: "application/json",
-      "content-type": "application/json",
-      "connect-protocol-version": "1",
-      authorization: `Bearer ${ENV.forgeApiKey}`,
-    },
-    body: JSON.stringify({
-      prompt: options.prompt,
-      original_images: options.originalImages || [],
-    }),
-  });
+  // Retry on transient errors (503/502) with exponential backoff. Max 5 attempts.
+  const MAX_IMG_ATTEMPTS = 5;
+  let imgLastError: Error | null = null;
+  let response!: Response;
+  let rawText!: string;
+  let trimmed!: string;
 
-  // Read body as text first to guard against plain-text rate-limit responses
-  const rawText = await response.text().catch(() => "");
-  const trimmed = rawText.trim();
+  for (let attempt = 1; attempt <= MAX_IMG_ATTEMPTS; attempt++) {
+    response = await fetch(fullUrl, {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+        "connect-protocol-version": "1",
+        authorization: `Bearer ${ENV.forgeApiKey}`,
+      },
+      body: JSON.stringify({
+        prompt: options.prompt,
+        original_images: options.originalImages || [],
+      }),
+    });
 
-  if (!response.ok) {
-    throw new Error(
-      `Image generation request failed (${response.status} ${response.statusText})${trimmed ? `: ${trimmed}` : ""}`
-    );
+    // Read body as text first to guard against plain-text rate-limit responses
+    rawText = await response.text().catch(() => "");
+    trimmed = rawText.trim();
+
+    if (response.status === 503 || response.status === 502) {
+      imgLastError = new Error(`Image generation request failed (${response.status} ${response.statusText})${trimmed ? `: ${trimmed.slice(0, 200)}` : ""}`);
+      if (attempt < MAX_IMG_ATTEMPTS) {
+        const delay = Math.min(attempt * 5000, 20000);
+        console.warn(`[ImageGen] ${response.status} on attempt ${attempt}/${MAX_IMG_ATTEMPTS}, retrying in ${delay}ms...`);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+      throw imgLastError;
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        `Image generation request failed (${response.status} ${response.statusText})${trimmed ? `: ${trimmed}` : ""}`
+      );
+    }
+
+    break; // success
   }
 
   // Detect plain-text rate-limit / quota responses (HTTP 200 but non-JSON body)

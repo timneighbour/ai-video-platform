@@ -1770,10 +1770,11 @@ export default function MusicVideoAutopilot() {
       toast.dismiss("storyboard-generating");
       setStoryboardGenerating(false);
       const isQuota = err?.data?.code === "TOO_MANY_REQUESTS" || /usage exhausted|quota|rate limit|TOO_MANY/i.test(err?.message ?? "");
-      if (isQuota) {
-        setQuotaError("The AI service is temporarily unavailable due to high demand. Please wait a few minutes and try again. Your progress has been saved.");
+      const isTransient = /503|502|service unavailable|bad gateway|temporarily unavailable/i.test(err?.message ?? "");
+      if (isQuota || isTransient) {
+        setQuotaError("The AI service is temporarily unavailable. Please click \"Generate Storyboard\" again to retry — it usually resolves within seconds.");
       } else {
-        toast.error("Error", { description: err.message || "Failed to create job" });
+        toast.error("Storyboard generation failed", { description: err?.message || "Please try again." });
       }
     }
   };
@@ -1934,7 +1935,10 @@ export default function MusicVideoAutopilot() {
     } catch (err: any) {
       toast.dismiss(REGEN_TOAST_ID);
       setStoryboardGenerating(false);
-      toast.error("Error", { description: err.message });
+      const isTransient = /503|502|service unavailable|bad gateway|temporarily unavailable/i.test(err?.message ?? "");
+      toast.error(isTransient ? "AI service temporarily unavailable" : "Storyboard regeneration failed", {
+        description: isTransient ? "Please click Regenerate again — it usually resolves within seconds." : (err?.message || "Please try again.")
+      });
     }
   };
 

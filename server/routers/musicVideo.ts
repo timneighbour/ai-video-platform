@@ -236,7 +236,7 @@ export const musicVideoRouter = router({
   // Generate storyboard for a job (free, unlimited)
   generateStoryboard: protectedProcedure
     .input(z.object({ jobId: z.number().int() }))
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => { try {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
@@ -598,6 +598,20 @@ Rules:
         .where(eq(musicVideoJobs.id, input.jobId));
 
       return { scenes };
+    } catch (err: any) {
+      // Convert any unhandled error (including 503 JSON parse crashes) into a clean user-facing message
+      if (err instanceof TRPCError) throw err;
+      const msg = err?.message ?? String(err);
+      // Detect transient service errors
+      const isTransient = /503|502|service unavailable|bad gateway/i.test(msg);
+      console.error(`[generateStoryboard] Unhandled error for job ${input.jobId}:`, msg);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: isTransient
+          ? "The AI service is temporarily unavailable. Please try again in a few seconds."
+          : `Storyboard generation failed: ${msg.slice(0, 200)}`,
+      });
+    }
     }),
 
   // Update a single scene prompt (user editing storyboard)

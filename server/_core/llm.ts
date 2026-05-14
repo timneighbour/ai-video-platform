@@ -313,8 +313,8 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
   }
 
   // Retry on transient errors (503 Service Unavailable, 502 Bad Gateway, 429 Too Many Requests)
-  // with exponential backoff. Max 3 attempts total.
-  const MAX_ATTEMPTS = 3;
+  // with exponential backoff. Max 5 attempts total.
+  const MAX_ATTEMPTS = 5;
   let lastError: Error | null = null;
   let response!: Response;
   let rawText!: string;
@@ -340,7 +340,7 @@ export async function invokeLLM(params: InvokeParams): Promise<InvokeResult> {
     if (response.status === 503 || response.status === 502) {
       lastError = new Error(`LLM invoke failed: ${response.status} ${response.statusText} – ${trimmed.slice(0, 200)}`);
       if (attempt < MAX_ATTEMPTS) {
-        const delay = attempt * 3000; // 3s, 6s
+        const delay = Math.min(attempt * 5000, 20000); // 5s, 10s, 15s, 20s
         console.warn(`[LLM] ${response.status} on attempt ${attempt}/${MAX_ATTEMPTS}, retrying in ${delay}ms...`);
         await new Promise((r) => setTimeout(r, delay));
         continue;

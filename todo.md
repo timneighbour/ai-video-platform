@@ -7887,3 +7887,10 @@
 
 ## Bug: Storyboard 503 Service Unavailable JSON Parse Error
 - [x] Fix "Unexpected token S, Service Unavailable is not valid JSON" crash in storyboard generation — add retry logic for 503 responses from LLM/AI APIs
+
+## Bug: Storyboard Generation Must Be Foolproof
+- [x] Audit every fetch/JSON call in storyboard pipeline and add retries + fallbacks at every failure point
+- [x] Add user-friendly error message on frontend instead of raw JSON crash errors
+- [x] Add retry logic to voiceTranscription fetch calls
+- [x] Add retry logic to imageGeneration fetch calls
+- [x] Wrap generateStoryboard tRPC procedure in a top-level try/catch with clean user-facing error

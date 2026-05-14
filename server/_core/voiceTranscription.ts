@@ -171,7 +171,17 @@ export async function transcribeAudio(
     }
 
     // Step 5: Parse and return the transcription result
-    const whisperResponse = await response.json() as WhisperResponse;
+    const rawBody = await response.text().catch(() => "");
+    let whisperResponse: WhisperResponse;
+    try {
+      whisperResponse = JSON.parse(rawBody) as WhisperResponse;
+    } catch {
+      return {
+        error: "Transcription service returned invalid response",
+        code: "SERVICE_ERROR" as const,
+        details: `Could not parse response: ${rawBody.slice(0, 200)}`
+      };
+    }
     
     // Validate response structure
     if (!whisperResponse.text || typeof whisperResponse.text !== 'string') {
