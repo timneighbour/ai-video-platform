@@ -5751,7 +5751,7 @@ export default function MusicVideoAutopilot() {
                           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.border = '1px solid rgba(0,204,136,0.45)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(0,204,136,0.15)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
                           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.border = '1px solid rgba(0,204,136,0.15)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
                         >
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl" style={{background: 'rgba(0,204,136,0.12)', border: '1px solid rgba(0,204,136,0.25)'}}>🐿️</div>
+                          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center" style={{background: '#00CCBC', border: '1px solid rgba(0,204,136,0.25)'}}><img src="/manus-storage/deliveroo-logo_ea119412.png" alt="Deliveroo" className="w-full h-full object-cover" /></div>
                           <div className="text-center">
                             <p className="text-xs font-bold text-white tracking-wide">Deliveroo</p>
                             <p className="text-[9px] mt-0.5" style={{color: 'rgba(0,204,136,0.7)'}}>Fast delivery</p>
@@ -5772,7 +5772,7 @@ export default function MusicVideoAutopilot() {
                           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.border = '1px solid rgba(255,103,0,0.45)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(255,103,0,0.15)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
                           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.border = '1px solid rgba(255,103,0,0.15)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
                         >
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl" style={{background: 'rgba(255,103,0,0.12)', border: '1px solid rgba(255,103,0,0.25)'}}>🍕</div>
+                          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center" style={{background: '#ffffff', border: '1px solid rgba(255,103,0,0.25)'}}><img src="/manus-storage/justeat-logo_2ba3362f.png" alt="Just Eat" className="w-full h-full object-contain" style={{padding:'2px'}} /></div>
                           <div className="text-center">
                             <p className="text-xs font-bold text-white tracking-wide">Just Eat</p>
                             <p className="text-[9px] mt-0.5" style={{color: 'rgba(255,103,0,0.7)'}}>1000s of restaurants</p>
@@ -5793,7 +5793,7 @@ export default function MusicVideoAutopilot() {
                           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.border = '1px solid rgba(6,211,40,0.45)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(6,211,40,0.15)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
                           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.border = '1px solid rgba(6,211,40,0.15)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
                         >
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl" style={{background: 'rgba(6,211,40,0.12)', border: '1px solid rgba(6,211,40,0.25)'}}>🛵</div>
+                          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center" style={{background: '#ffffff', border: '1px solid rgba(6,211,40,0.25)'}}><img src="/manus-storage/ubereats-logo_e9122131.png" alt="Uber Eats" className="w-full h-full object-contain" style={{padding:'2px'}} /></div>
                           <div className="text-center">
                             <p className="text-xs font-bold text-white tracking-wide">Uber Eats</p>
                             <p className="text-[9px] mt-0.5" style={{color: 'rgba(6,211,40,0.7)'}}>Track in real time</p>
