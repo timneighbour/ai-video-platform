@@ -7900,3 +7900,13 @@
 
 ## Bug: Render Poll Not Resuming After Page Reload
 - [x] Fix auto-resume useEffect blocking poll when renderStatus is already "rendering" but poll interval is not running (page reload catch-22)
+
+## Feature: Screening Room Progress Bar
+- [x] Add animated progress bar to Screening Room showing overall render completion percentage (completed/total scenes)
+
+## Feature: Enhanced Screening Room Progress Display
+- [x] Make progress bar larger and more prominent (taller bar, bigger percentage)
+- [x] Add scene-by-scene status breakdown (queued / generating / done counts)
+- [x] Show estimated time remaining based on average scene render time
+- [x] Add current stage label (Rendering Scenes / Assembling / Applying WizSound)
+- [x] Show per-scene render time when hovering scene cards

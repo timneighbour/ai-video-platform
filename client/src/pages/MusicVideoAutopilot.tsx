@@ -5341,7 +5341,7 @@ export default function MusicVideoAutopilot() {
                       )}
                     </div>
 
-                    {/* Progress bar */}
+                    {/* Progress Dashboard */}
                     <div className="mb-5">
                       {(() => {
                         const pct = renderStatus === "wizsound" || renderStatus === "completed"
@@ -5351,60 +5351,120 @@ export default function MusicVideoAutopilot() {
                           : totalScenes > 0 ? Math.min(90, Math.round((completedScenes / totalScenes) * 90)) : 0;
                         const elapsedMin = Math.floor(liveElapsed / 60);
                         const elapsedSec = liveElapsed % 60;
-                          // No fake ETA — show honest scene count instead
-                          const etaText: string | null = null;
-                        const barGradient = renderStatus === "wizsound"
-                          ? "linear-gradient(90deg, #7c3aed, #a855f7, #ec4899)"
+
+                        // Estimate time remaining based on average scene time so far
+                        const avgSecsPerScene = completedScenes > 0 ? liveElapsed / completedScenes : 90;
+                        const remainingScenes = totalScenes - completedScenes;
+                        const etaSecs = renderStatus === "rendering" && remainingScenes > 0
+                          ? Math.round(avgSecsPerScene * remainingScenes)
+                          : null;
+                        const etaMin = etaSecs !== null ? Math.floor(etaSecs / 60) : null;
+                        const etaSec = etaSecs !== null ? etaSecs % 60 : null;
+
+                        // Stage label and icon
+                        const stageLabel = renderStatus === "wizsound"
+                          ? "🎵 Applying WizSound™ mastering"
+                          : renderStatus === "assembling"
+                          ? "🎬 Assembling your video"
+                          : renderStatus === "completed"
+                          ? "✅ Your video is ready!"
+                          : renderStatus === "paused"
+                          ? "⏸ Render paused"
+                          : renderStatus === "cancelled"
+                          ? "❌ Render cancelled"
+                          : completedScenes === 0
+                          ? "⏳ Starting render…"
+                          : `🎥 Rendering scene ${completedScenes + 1} of ${totalScenes}`;
+
+                        const barGradient = renderStatus === "wizsound" || renderStatus === "completed"
+                          ? "linear-gradient(90deg, #b8892a, #e8c96a, #b8892a)"
                           : renderStatus === "assembling"
                           ? "linear-gradient(90deg, #7c3aed, #ec4899)"
                           : "linear-gradient(90deg, #6d28d9, #7c3aed, #a855f7)";
+
+                        const generatingCount = perSceneStatuses.filter(s => s.status === "generating").length;
+                        const queuedCount = perSceneStatuses.filter(s => s.status === "pending").length;
+
                         return (
-                          <>
-                            <div className="flex justify-between items-center text-sm mb-2">
-                              <span className="text-white/70 font-medium">
-                                {renderStatus === "wizsound" ? "Applying WizSound™ mastering"
-                                  : renderStatus === "assembling" ? "WizSync™ Portrait-to-LipSync™ in progress"
-                                  : `${completedScenes} / ${totalScenes} scenes`}
-                                {failedScenes > 0 && (
-                                  <span className="ml-2 text-amber-400 text-xs">({failedScenes} retrying…)</span>
-                                )}
-                              </span>
-                              <div className="flex items-center gap-3 text-white/40 text-xs">
-                                {etaText && <span className="text-[--color-gold]">{etaText}</span>}
-                                <span>{elapsedMin}:{String(elapsedSec).padStart(2, "0")} elapsed</span>
-                                <span className="text-white/70 font-semibold">{pct}%</span>
+                          <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-[rgba(20,16,12,0.95)] to-[rgba(30,24,16,0.95)] p-5 shadow-xl">
+                            {/* Stage label */}
+                            <p className="text-sm font-semibold text-white mb-4 tracking-wide">{stageLabel}</p>
+
+                            {/* Big percentage + bar */}
+                            <div className="flex items-end gap-4 mb-3">
+                              <span className="text-5xl font-black text-white leading-none" style={{fontFamily:"'Bebas Neue',sans-serif",letterSpacing:1}}>{pct}%</span>
+                              <div className="flex-1 pb-2">
+                                <div className="relative h-5 bg-[rgba(255,255,255,0.06)] rounded-full overflow-hidden">
+                                  <div
+                                    className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
+                                    style={{
+                                      width: `${pct}%`,
+                                      background: barGradient,
+                                      backgroundSize: "200% 100%",
+                                      animation: pct > 0 && pct < 100 ? "shimmer 2s linear infinite" : "none",
+                                    }}
+                                  />
+                                  {pct > 0 && pct < 100 && (
+                                    <div
+                                      className="absolute inset-y-0 left-0 rounded-full pointer-events-none"
+                                      style={{
+                                        width: `${pct}%`,
+                                        background: "linear-gradient(90deg, transparent 40%, rgba(255,255,255,0.18) 70%, transparent 100%)",
+                                        backgroundSize: "200% 100%",
+                                        animation: "shimmer 1.5s linear infinite",
+                                      }}
+                                    />
+                                  )}
+                                </div>
                               </div>
                             </div>
-                            <div className="relative h-3 bg-[rgba(24,20,16,0.9)] rounded-full overflow-hidden">
-                              <div
-                                className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
-                                style={{
-                                  width: `${pct}%`,
-                                  background: barGradient,
-                                  backgroundSize: "200% 100%",
-                                  animation: pct < 100 ? "shimmer 2s linear infinite" : "none",
-                                }}
-                              />
-                              {/* Shimmer highlight overlay */}
-                              {pct > 0 && pct < 100 && (
-                                <div
-                                  className="absolute inset-y-0 left-0 rounded-full pointer-events-none"
-                                  style={{
-                                    width: `${pct}%`,
-                                    background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)",
-                                    backgroundSize: "200% 100%",
-                                    animation: "shimmer 1.5s linear infinite",
-                                  }}
-                                />
-                              )}
+
+                            {/* Stats row */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                              {/* Completed */}
+                              <div className="rounded-xl bg-white/5 border border-white/8 px-3 py-2.5 text-center">
+                                <p className="text-2xl font-black text-[--color-gold]" style={{fontFamily:"'Bebas Neue',sans-serif"}}>{completedScenes}</p>
+                                <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">Done</p>
+                              </div>
+                              {/* In progress */}
+                              <div className="rounded-xl bg-white/5 border border-white/8 px-3 py-2.5 text-center">
+                                <p className="text-2xl font-black text-purple-400" style={{fontFamily:"'Bebas Neue',sans-serif"}}>{generatingCount}</p>
+                                <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">Rendering</p>
+                              </div>
+                              {/* Queued */}
+                              <div className="rounded-xl bg-white/5 border border-white/8 px-3 py-2.5 text-center">
+                                <p className="text-2xl font-black text-white/50" style={{fontFamily:"'Bebas Neue',sans-serif"}}>{queuedCount}</p>
+                                <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">Queued</p>
+                              </div>
+                              {/* Time remaining or elapsed */}
+                              <div className="rounded-xl bg-white/5 border border-white/8 px-3 py-2.5 text-center">
+                                {etaMin !== null && etaSec !== null ? (
+                                  <>
+                                    <p className="text-2xl font-black text-emerald-400" style={{fontFamily:"'Bebas Neue',sans-serif"}}>{etaMin}:{String(etaSec).padStart(2,"0")}</p>
+                                    <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">Est. Left</p>
+                                  </>
+                                ) : (
+                                  <>
+                                    <p className="text-2xl font-black text-white/50" style={{fontFamily:"'Bebas Neue',sans-serif"}}>{elapsedMin}:{String(elapsedSec).padStart(2,"0")}</p>
+                                    <p className="text-[10px] text-white/40 uppercase tracking-widest mt-0.5">Elapsed</p>
+                                  </>
+                                )}
+                              </div>
                             </div>
-                            {/* Estimated file size */}
-                            {totalScenes > 0 && (
-                              <p className="text-white/70 text-xs mt-1.5 text-right">
-                                Est. file size: ~{Math.round(totalScenes * 4.5)}MB
-                              </p>
+
+                            {/* Failed / retrying notice */}
+                            {failedScenes > 0 && renderStatus === "rendering" && (
+                              <div className="flex items-center gap-2 mt-3 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                                <RefreshCw className="w-3.5 h-3.5 text-amber-400 animate-spin flex-shrink-0" />
+                                <p className="text-xs text-amber-300">{failedScenes} scene{failedScenes !== 1 ? "s" : ""} hit a provider limit and {failedScenes !== 1 ? "are" : "is"} being automatically re-queued.</p>
+                              </div>
                             )}
-                          </>
+
+                            {/* Est. file size */}
+                            {totalScenes > 0 && (
+                              <p className="text-white/30 text-xs mt-3 text-right">Est. file size: ~{Math.round(totalScenes * 4.5)}MB</p>
+                            )}
+                          </div>
                         );
                       })()}
                     </div>
