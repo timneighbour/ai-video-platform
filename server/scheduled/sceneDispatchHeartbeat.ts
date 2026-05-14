@@ -184,11 +184,8 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               scene.duration ?? 5,
               scene.lipSync ?? true,
               (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
-              "wavespeed" as any, // ── WATERMARK-FREE: WaveSpeed only, Atlas Cloud DISABLED
-              // COST FIX 2026-05-14: Always use seedance-2.0-fast ($1.80/clip vs $2.16 for standard).
-              // Standard model was causing $149.76 spend for 70 clips. Fast model produces
-              // equivalent quality for music video scenes at 17% lower cost.
-              "bytedance/seedance-2.0-fast/text-to-video" as any,
+              "atlas_cloud_fast" as any, // ── PRIMARY: Atlas Cloud Fast ($0.64/scene, watermark-free text-to-video)
+              undefined as any, // model arg not used by Atlas Cloud
               scene.previewImageUrl ?? undefined,
               (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1",
               job.id,

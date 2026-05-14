@@ -1,0 +1,49 @@
+{
+  "query": "\n-- All subscriptions with dates\nSELECT \n  plan, status, \n  DATE(createdAt) as created,\n  DATE(canceledAt) as canceled\nFROM subscriptions\nORDER BY createdAt;\n\n-- Users with active subscriptions\nSELECT COUNT(DISTINCT userId) as active_subscribers FROM subscriptions WHERE status = 'active';\n\n-- Credit transactions summary\nSELECT type, COUNT(*) as count, SUM(amount) as net_credits FROM creditTransactions GROUP BY type;\n\n-- Total credits currently held by users\nSELECT SUM(balance) as total_credit_balance, SUM(topupCredits) as topup_credits, SUM(monthlyCredits) as monthly_credits FROM credits;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \n-- All subscriptions with dates\nSELECT \n  plan, status, \n  DATE(createdAt) as created,\n  DATE(canceledAt) as canceled\nFROM subscriptions\nORDER BY createdAt;\n\n-- Users with active subscriptions\nSELECT COUNT(DISTINCT userId) as active_subscribers FROM subscriptions WHERE status = 'active';\n\n-- Credit transactions summary\nSELECT type, COUNT(*) as count, SUM(amount) as net_credits FROM creditTransactions GROUP BY type;\n\n-- Total credits currently held by users\nSELECT SUM(balance) as total_credit_balance, SUM(topupCredits) as topup_credits, SUM(monthlyCredits) as monthly_credits FROM credits;\n",
+  "rows": [
+    {
+      "plan": "starter",
+      "status": "canceled",
+      "created": "2026-04-15",
+      "canceled": "NULL"
+    },
+    {
+      "plan": "studio",
+      "status": "canceled",
+      "created": "2026-04-15",
+      "canceled": "NULL"
+    },
+    {
+      "plan": "studio",
+      "status": "active",
+      "created": "2026-04-15",
+      "canceled": "NULL"
+    },
+    {
+      "plan": "studio",
+      "status": "active",
+      "created": "2026-04-15",
+      "canceled": "NULL"
+    },
+    {
+      "plan": "studio",
+      "status": "active",
+      "created": "2026-04-15",
+      "canceled": "NULL"
+    }
+  ],
+  "messages": [
+    "active_subscribers",
+    "3",
+    "type\tcount\tnet_credits",
+    "subscription_grant\t52\t23180",
+    "refund\t4\t1602",
+    "usage\t46\t-224",
+    "total_credit_balance\ttopup_credits\tmonthly_credits",
+    "34458\t0\t0"
+  ],
+  "stdout": "plan\tstatus\tcreated\tcanceled\nstarter\tcanceled\t2026-04-15\tNULL\nstudio\tcanceled\t2026-04-15\tNULL\nstudio\tactive\t2026-04-15\tNULL\nstudio\tactive\t2026-04-15\tNULL\nstudio\tactive\t2026-04-15\tNULL\nactive_subscribers\n3\ntype\tcount\tnet_credits\nsubscription_grant\t52\t23180\nrefund\t4\t1602\nusage\t46\t-224\ntotal_credit_balance\ttopup_credits\tmonthly_credits\n34458\t0\t0\n",
+  "stderr": "",
+  "execution_time_ms": 743
+}

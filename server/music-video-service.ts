@@ -741,17 +741,39 @@ export async function startSceneRender(
     : `${prompt} Cinematic movement only, no singing, no mouth animation.`;
 
   // ── PROVIDER CHAIN (May 2026) ─────────────────────────────────────────────
-  // PRIMARY:  WaveSpeed (~$0.10/sec, 720p, Seedance 2.0 Fast) — no watermarks, reliable
-  // DISABLED as primary: Atlas Cloud — Seedance reference-to-video embeds watermarks
-  // DISABLED: fal.ai — unreliable, watermarks on free tier
-  // DISABLED: Hypereal — not vetted for production
-  // Policy: Use WaveSpeed for ALL scenes. Atlas Cloud is completely disabled to prevent watermarks.
+  // PRIMARY:   Atlas Cloud Fast ($0.64/scene, text-to-video) — RE-ENABLED 2026-05-14
+  //            NOTE: Only the r2v (reference-to-video) model had watermarks.
+  //            Text-to-video is clean and watermark-free.
+  //            WizSync™ lip sync is applied to the ASSEMBLED video, not per-scene.
+  // FALLBACK:  WaveSpeed Seedance 2.0 Fast ($1.80/scene) — if Atlas circuit opens
+  // DISABLED:  fal.ai — unreliable, watermarks on free tier
+  // DISABLED:  Hypereal — not vetted for production
   if (renderer === "wavespeed" || renderer === "fal_seedance" || renderer === "seedance" || renderer === "atlas_cloud" || renderer === "atlas_cloud_fast") {
-    // ── Atlas Cloud DISABLED as primary (watermark issues in Seedance r2v model) ──────────
-    // All scenes route directly to WaveSpeed. Atlas Cloud is not used.
-    console.log(`[MusicVideo] Scene ${sceneId} routing to WaveSpeed (Atlas Cloud disabled as primary).`);
-
-    // Step 2: WaveSpeed fallback (Atlas exhausted or circuit open)
+    // ── Step 1: Atlas Cloud Fast (PRIMARY — $0.64/scene) ─────────────────────────────
+    const atlasCircuit = getCircuitBreaker("atlas_cloud");
+    if (atlasCircuit.canRequest()) {
+      try {
+        const atlasResult = await startSceneRenderAtlasCloud(
+          sceneId,
+          finalPrompt,
+          duration,
+          jobId,
+          characterImageUrl ?? undefined,
+          undefined, // audioUrl — WizSync™ applies lip sync to the assembled video, not per-scene
+          undefined, // sceneStartTime — not needed for text-to-video
+          false      // enableLipSync=false at scene level
+        );
+        atlasCircuit.recordSuccess();
+        return atlasResult;
+      } catch (atlasErr: any) {
+        atlasCircuit.recordFailure();
+        const atlasMsg = String(atlasErr?.message ?? atlasErr);
+        console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud failed (${atlasMsg.slice(0, 150)}). Falling back to WaveSpeed.`);
+      }
+    } else {
+      console.warn(`[MusicVideo] Scene ${sceneId}: Atlas Cloud circuit OPEN — routing to WaveSpeed fallback.`);
+    }
+    // ── Step 2: WaveSpeed fallback ($1.80/scene) ───────────────────────────────────
     const wsCircuit = getCircuitBreaker("wavespeed");
     if (!wsCircuit.canRequest()) {
       throw new Error(`Video generation failed for scene ${sceneId}. Both Atlas Cloud and WaveSpeed circuits are OPEN. Please try again shortly.`);

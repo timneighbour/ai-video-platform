@@ -1,0 +1,65 @@
+{
+  "query": "\n-- Active subscriptions by plan\nSELECT plan, COUNT(*) as count, status FROM subscriptions GROUP BY plan, status ORDER BY plan;\n\n-- Credit top-up revenue (amountPaid is in pence)\nSELECT \n  packName,\n  COUNT(*) as purchases,\n  SUM(creditsAdded) as total_credits_sold,\n  SUM(amountPaid) / 100.0 as revenue_gbp\nFROM topupPurchases\nGROUP BY packName\nORDER BY revenue_gbp DESC;\n\n-- Total top-up revenue\nSELECT COUNT(*) as total_topups, SUM(amountPaid)/100.0 as total_topup_revenue_gbp FROM topupPurchases;\n\n-- Credit usage breakdown\nSELECT type, COUNT(*) as count, SUM(ABS(amount)) as total_credits FROM creditTransactions GROUP BY type;\n\n-- Completed jobs all time\nSELECT COUNT(*) as completed_jobs, SUM(totalScenes) as total_scenes FROM musicVideoJobs WHERE status = 'completed';\n\n-- Provider spend (all time)\nSELECT provider, COUNT(*) as calls, SUM(estimatedCostUsd) as estimated_cost_usd FROM providerJobLogs GROUP BY provider;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway05.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3XWfTC2fh8LVhku.root --database ALJHDNsuNA7bExFuoQZUsx --execute \n-- Active subscriptions by plan\nSELECT plan, COUNT(*) as count, status FROM subscriptions GROUP BY plan, status ORDER BY plan;\n\n-- Credit top-up revenue (amountPaid is in pence)\nSELECT \n  packName,\n  COUNT(*) as purchases,\n  SUM(creditsAdded) as total_credits_sold,\n  SUM(amountPaid) / 100.0 as revenue_gbp\nFROM topupPurchases\nGROUP BY packName\nORDER BY revenue_gbp DESC;\n\n-- Total top-up revenue\nSELECT COUNT(*) as total_topups, SUM(amountPaid)/100.0 as total_topup_revenue_gbp FROM topupPurchases;\n\n-- Credit usage breakdown\nSELECT type, COUNT(*) as count, SUM(ABS(amount)) as total_credits FROM creditTransactions GROUP BY type;\n\n-- Completed jobs all time\nSELECT COUNT(*) as completed_jobs, SUM(totalScenes) as total_scenes FROM musicVideoJobs WHERE status = 'completed';\n\n-- Provider spend (all time)\nSELECT provider, COUNT(*) as calls, SUM(estimatedCostUsd) as estimated_cost_usd FROM providerJobLogs GROUP BY provider;\n",
+  "rows": [
+    {
+      "plan": "starter",
+      "count": "1",
+      "status": "canceled"
+    },
+    {
+      "plan": "studio",
+      "count": "1",
+      "status": "canceled"
+    },
+    {
+      "plan": "studio",
+      "count": "3",
+      "status": "active"
+    },
+    {
+      "plan": "type",
+      "count": "count",
+      "status": "total_credits"
+    },
+    {
+      "plan": "usage",
+      "count": "46",
+      "status": "224"
+    },
+    {
+      "plan": "subscription_grant",
+      "count": "52",
+      "status": "23180"
+    },
+    {
+      "plan": "refund",
+      "count": "4",
+      "status": "1602"
+    },
+    {
+      "plan": "provider",
+      "count": "calls",
+      "status": "estimated_cost_usd"
+    },
+    {
+      "plan": "wavespeed",
+      "count": "71",
+      "status": "56.8000"
+    },
+    {
+      "plan": "atlas_cloud",
+      "count": "351",
+      "status": "280.8000"
+    }
+  ],
+  "messages": [
+    "total_topups\ttotal_topup_revenue_gbp",
+    "0\tNULL",
+    "completed_jobs\ttotal_scenes",
+    "6\t126"
+  ],
+  "stdout": "plan\tcount\tstatus\nstarter\t1\tcanceled\nstudio\t1\tcanceled\nstudio\t3\tactive\ntotal_topups\ttotal_topup_revenue_gbp\n0\tNULL\ntype\tcount\ttotal_credits\nusage\t46\t224\nsubscription_grant\t52\t23180\nrefund\t4\t1602\ncompleted_jobs\ttotal_scenes\n6\t126\nprovider\tcalls\testimated_cost_usd\nwavespeed\t71\t56.8000\natlas_cloud\t351\t280.8000\n",
+  "stderr": "",
+  "execution_time_ms": 860
+}

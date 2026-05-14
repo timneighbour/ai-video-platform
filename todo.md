@@ -7747,7 +7747,7 @@
 - [ ] SYNCLABS-1: Implement server/ai-apis/synclabs-lipsync.ts — sync-3 API (submitSyncLabsLipSync, pollSyncLabsLipSync, waitForSyncLabsLipSync)
 - [ ] SYNCLABS-2: Add vocals isolation step before lip sync — pass vocals-only track to sync-3 for best results
 - [ ] SYNCLABS-3: Replace HeyGen lipsync calls in assembleMusicVideo with Sync Labs sync-3
-- [ ] SYNCLABS-4: Add SYNC_LABS_API_KEY to secrets
+- [x] SYNCLABS-4: Add SYNC_LABS_API_KEY to secrets — added and validated
 
 ### Kling 3.0 Subject Binding (character-consistent scene generation)
 - [ ] KLING3-1: Implement Kling 3.0 Subject Binding in scene generation — pass up to 4 reference images via image_reference parameter
@@ -7776,3 +7776,8 @@
 - [x] Update PROVIDER_COST_USD.wavespeed from $0.80 to $1.80 (fast model actual measured cost)
 - [x] Lower MAX_SPEND_PER_JOB_USD from $200 to $25 (9 scenes × $1.80 = $16.20 max per job)
 - [x] Lower MAX_DAILY_SPEND_USD from $300 to $50 (hard daily cap to prevent runaway spend)
+
+## Atlas Cloud + Lip Sync Fixes (2026-05-14)
+- [x] Re-enable Atlas Cloud as primary renderer in sceneDispatchHeartbeat — text-to-video is watermark-free; r2v model was the issue. WaveSpeed kept as fallback.
+- [x] Investigate and fix WizSync lip sync UnauthorizedError — ROOT CAUSE: SYNC_LABS_API_KEY was missing. Key added and validated. NOTE: sync-3 requires paid Sync Labs plan (Creator $19/mo+). Tim needs to upgrade at sync.so to activate lip sync.
+- [ ] Verify lip sync fires on a real render end-to-end — BLOCKED: Tim needs to upgrade Sync Labs to Creator plan first
