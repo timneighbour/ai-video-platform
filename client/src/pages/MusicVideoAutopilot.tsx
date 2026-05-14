@@ -4043,9 +4043,8 @@ export default function MusicVideoAutopilot() {
               {scenes.map((scene) => (
                 <React.Fragment key={scene.id}>
                   <Card className="bg-[rgba(10,8,6,0.95)] border-[rgba(184,137,42,0.10)] hover:border-zinc-600 transition-colors overflow-hidden">
-                  <div className="flex flex-col lg:flex-row">
-                  {/* Scene preview image — 16:9 widescreen, takes ~55% on desktop */}
-                  <div className="relative w-full lg:w-[55%] aspect-video flex-shrink-0 bg-[rgba(24,20,16,0.9)]" style={{fontFamily:"'Courier Prime',monospace"}}>
+                  {/* Scene preview image — 16:9 widescreen */}
+                  <div className="relative w-full aspect-video bg-[rgba(24,20,16,0.9)]" style={{fontFamily:"'Courier Prime',monospace"}}>
                     {scene.previewImageUrl ? (
                       <img
                         src={scene.previewImageUrl}
@@ -4187,8 +4186,6 @@ export default function MusicVideoAutopilot() {
                       </button>
                     )}
                   </div>
-                  {/* Right side: details and controls */}
-                  <div className="flex-1 min-w-0 overflow-y-auto">
                   <CardContent className="pt-3 pb-4">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
@@ -4492,8 +4489,6 @@ export default function MusicVideoAutopilot() {
                       )}
                     </div>
                   </CardContent>
-                  </div>{/* end flex right side */}
-                  </div>{/* end flex row */}
                 </Card>
 
                 {/* ── Add Scene button between cards ── */}
