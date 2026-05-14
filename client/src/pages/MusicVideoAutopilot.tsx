@@ -46,6 +46,7 @@ import CreditBalance from "@/components/CreditBalance";
 import EnhancePromptButton from "@/components/EnhancePromptButton";
 import { Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
+import { StudioLoungePrompt } from "@/components/StudioLounge";
 import { QuickTopUpModal } from "@/components/QuickTopUpModal";
 import { useSEO } from "@/hooks/useSEO";
 import {
@@ -5447,6 +5448,13 @@ export default function MusicVideoAutopilot() {
                           }}
                         />
                         {/* ===== END LIVE SCENE PREVIEW GRID ===== */}
+
+                        {/* Studio Lounge nudge — shown while scenes are still generating */}
+                        {perSceneStatuses.some((s) => s.status === "generating" || s.status === "pending") && (
+                          <div className="mt-4 mb-2">
+                            <StudioLoungePrompt />
+                          </div>
+                        )}
 
                         {/* Failed scene detail cards with edit-before-retry */}
                         {perSceneStatuses.filter((s) => s.status === "failed").length > 0 && (
