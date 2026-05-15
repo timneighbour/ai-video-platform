@@ -202,14 +202,38 @@ export async function getProbeDecision(jobId: number): Promise<ProbeDecision> {
     return { mode: "full_render", validationResult };
   }
 
-  // probePassed=false → probe is in progress → block all other scenes
+  // probePassed=false → probe is in progress OR dispatch failed — check if scene actually has a taskId
   if (job.probePassed === false) {
-    return {
-      mode: "blocked",
-      reason: "Probe scene is rendering — waiting for owner approval before releasing full render",
-      probeSceneId: job.probeSceneId ?? undefined,
-      validationResult,
-    };
+    // If probeSceneId is set, check if the scene actually has a taskId (was actually dispatched)
+    if (job.probeSceneId) {
+      const [probeScene] = await db
+        .select({ id: musicVideoScenes.id, taskId: musicVideoScenes.taskId, status: musicVideoScenes.status })
+        .from(musicVideoScenes)
+        .where(eq(musicVideoScenes.id, job.probeSceneId));
+
+      if (probeScene && !probeScene.taskId && probeScene.status === "pending") {
+        // Dispatch failed silently — reset probePassed to null so the heartbeat retries
+        console.warn(`[ProbeGate] Probe scene ${job.probeSceneId} has no taskId (dispatch failed) — resetting probePassed to null for retry`);
+        await db.update(musicVideoJobs)
+          .set({ probePassed: null, probeSceneId: null, updatedAt: new Date() })
+          .where(eq(musicVideoJobs.id, jobId));
+        // Fall through to probe_only selection below
+      } else {
+        // Scene is genuinely rendering (has taskId) or completed
+        return {
+          mode: "blocked",
+          reason: "Probe scene is rendering — waiting for owner approval before releasing full render",
+          probeSceneId: job.probeSceneId ?? undefined,
+          validationResult,
+        };
+      }
+    } else {
+      return {
+        mode: "blocked",
+        reason: "Probe scene is rendering — waiting for owner approval before releasing full render",
+        validationResult,
+      };
+    }
   }
 
   // probePassed=null → no probe yet → select the best vocal scene for the probe

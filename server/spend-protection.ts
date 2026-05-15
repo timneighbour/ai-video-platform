@@ -64,10 +64,17 @@ export function makeIdempotencyKey(jobId: number, sceneId: number, provider: str
 export async function isAlreadySubmitted(idempotencyKey: string): Promise<boolean> {
   const db = await getDb();
   if (!db) return false;
+  // Exclude 'cancelled' entries — cancelled attempts (e.g. from a paused job) should not
+  // permanently block retries. Only active (submitted) or terminal (completed/failed) entries count.
   const [existing] = await db
     .select({ id: providerJobLogs.id })
     .from(providerJobLogs)
-    .where(eq(providerJobLogs.idempotencyKey, idempotencyKey))
+    .where(
+      and(
+        eq(providerJobLogs.idempotencyKey, idempotencyKey),
+        sql`${providerJobLogs.status} != 'cancelled'`
+      )
+    )
     .limit(1);
   return !!existing;
 }
