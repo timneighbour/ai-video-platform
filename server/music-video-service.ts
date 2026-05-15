@@ -735,8 +735,11 @@ export async function startSceneRender(
 ): Promise<string> {
   // ── SPEND PROTECTION: Pre-submission guard (Items 1–4, 9) ─────────────────────────
   // Determine provider for idempotency check (use primary provider in fallback chain)
-  const primaryProvider = (renderer === "wavespeed" || renderer === "fal_seedance" || renderer === "seedance")
-    ? "fal_seedance" : renderer;
+  // Map renderer aliases to canonical provider names for idempotency/spend-protection checks
+  const primaryProvider =
+    (renderer === "fal_seedance" || renderer === "seedance") ? "fal_seedance" :
+    (renderer === "atlas_cloud" || renderer === "atlas_cloud_fast") ? "atlas_cloud" :
+    renderer;
   if (jobId > 0) {
     const blockReason = await checkSubmissionAllowed({ jobId, sceneId, provider: primaryProvider, attempt: 1 });
     if (blockReason) {
@@ -1546,7 +1549,9 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
 
     // Download original audio
     const audioFileRaw = path.join(tmpDir, "audio-raw.mp3");
+    if (!job.audioUrl) throw new Error(`Job ${jobId} has no audioUrl — cannot assemble video without audio track`);
     const audioResp = await fetch(job.audioUrl);
+    if (!audioResp.ok) throw new Error(`Failed to download audio for job ${jobId}: HTTP ${audioResp.status} from ${job.audioUrl}`);
     const audioBuf = Buffer.from(await audioResp.arrayBuffer());
     fs.writeFileSync(audioFileRaw, audioBuf);
 
@@ -1740,7 +1745,7 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
           quality: "Standard",
           duration: job.audioDuration ?? undefined,
           videoUrl: url,
-          origin: "https://www.wizvid.ai",
+          origin: process.env.VITE_APP_URL || "https://wiz-ai.io",
         });
       }
     } catch (emailErr) {

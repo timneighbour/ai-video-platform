@@ -206,12 +206,29 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           } catch (dispatchErr: any) {
             const errMsg = String(dispatchErr?.message ?? dispatchErr).slice(0, 300);
             console.error(`[SceneDispatch] Failed to dispatch scene ${scene.id}: ${errMsg}`);
+
+            // ── BALANCE EXHAUSTION DETECTION ───────────────────────────────────
+            // If both providers are out of credits, alert the owner immediately.
+            // This prevents silent infinite retry loops with no user feedback.
+            const isBalanceError = errMsg.toLowerCase().includes('insufficient') ||
+              errMsg.toLowerCase().includes('balance') ||
+              errMsg.toLowerCase().includes('402') ||
+              errMsg.includes('Both Atlas Cloud and WaveSpeed are currently unavailable');
+            if (isBalanceError) {
+              console.error(`[SceneDispatch] ⚠️ PROVIDER BALANCE EXHAUSTED — all providers out of credits. Job ${job.id} scenes will retry when credits are topped up.`);
+              // Notify owner (debounced — once per hour max)
+              try {
+                const { notifyAtlasExhausted } = await import('../provider-health');
+                await notifyAtlasExhausted();
+              } catch { /* non-fatal */ }
+            }
+
             // Log the error to the database so it's visible for debugging
             try {
               const { sql } = await import('drizzle-orm');
               const safeMsg = `Dispatch failed for scene ${scene.id} (index ${scene.sceneIndex}): ${errMsg}`;
               await db.execute(
-                sql`INSERT INTO debugLogs (userId, jobId, sceneId, debugCategory, debugSeverity, debugJobType, message, createdAt) VALUES (${job.userId}, ${job.id}, ${scene.id}, 'dispatch_error', 'error', 'music_video', ${safeMsg}, NOW())`
+                sql`INSERT INTO debugLogs (userId, jobId, sceneId, debugCategory, debugSeverity, debugJobType, message, createdAt) VALUES (${job.userId}, ${job.id}, ${scene.id}, 'api_error', 'error', 'music_video', ${safeMsg}, NOW())`
               );
             } catch { /* ignore logging errors */ }
             // Keep scene as pending — it will be retried on the next heartbeat tick.

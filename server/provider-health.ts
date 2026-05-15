@@ -245,8 +245,8 @@ export async function notifyAtlasExhausted(): Promise<void> {
   try {
     const { notifyOwner } = await import("./_core/notification");
     await notifyOwner({
-      title: "⚠️ Atlas Cloud balance exhausted — WaveSpeed failover active",
-      content: `Atlas Cloud has run out of credits. WIZ AI has automatically switched to WaveSpeed as the failover provider.\n\nAction required: Top up Atlas Cloud at https://www.atlascloud.ai to restore primary rendering.\n\nWaveSpeed balance: $100 (topped up). Renders will continue uninterrupted.`,
+      title: "🚨 Video provider credits exhausted — renders are PAUSED",
+      content: `Both Atlas Cloud AND WaveSpeed have run out of credits. Music video renders are currently paused and will resume automatically once credits are topped up.\n\n**Action required:**\n- Top up Atlas Cloud at https://www.atlascloud.ai (primary, $0.64/scene)\n- OR top up WaveSpeed at https://wavespeed.ai (fallback, $1.80/scene)\n\nScenes will retry automatically within 2 minutes of top-up — no manual intervention needed.`,
     });
     console.warn("[ProviderHealth] Owner notified: Atlas Cloud exhausted, WaveSpeed failover active.");
   } catch (e) {
