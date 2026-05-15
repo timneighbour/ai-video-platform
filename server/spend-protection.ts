@@ -114,10 +114,12 @@ export async function resetSceneAttempts(sceneId: number): Promise<void> {
 export async function isJobSpendCapReached(jobId: number): Promise<{ reached: boolean; totalUsd: number }> {
   const db = await getDb();
   if (!db) return { reached: false, totalUsd: 0 };
+  // Exclude 'cancelled' entries — cancelled submissions (e.g. from paused jobs) were never
+  // actually charged by the provider and should not count toward the spend cap.
   const [row] = await db
     .select({ total: sql<number>`COALESCE(SUM(estimatedCostUsd), 0)` })
     .from(providerJobLogs)
-    .where(eq(providerJobLogs.jobId, jobId));
+    .where(and(eq(providerJobLogs.jobId, jobId), sql`${providerJobLogs.status} != 'cancelled'`));
   const totalUsd = Number(row?.total ?? 0);
   return { reached: totalUsd >= MAX_SPEND_PER_JOB_USD, totalUsd };
 }
@@ -129,10 +131,11 @@ export async function isDailySpendCapReached(): Promise<{ reached: boolean; tota
   // Start of today UTC
   const todayStart = new Date();
   todayStart.setUTCHours(0, 0, 0, 0);
+  // Exclude 'cancelled' entries — cancelled submissions were never charged by the provider.
   const [row] = await db
     .select({ total: sql<number>`COALESCE(SUM(estimatedCostUsd), 0)` })
     .from(providerJobLogs)
-    .where(gte(providerJobLogs.createdAt, todayStart));
+    .where(and(gte(providerJobLogs.createdAt, todayStart), sql`${providerJobLogs.status} != 'cancelled'`));
   const totalUsd = Number(row?.total ?? 0);
   return { reached: totalUsd >= MAX_DAILY_SPEND_USD, totalUsd };
 }
