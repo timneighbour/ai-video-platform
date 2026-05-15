@@ -391,6 +391,23 @@ async function startServer() {
   // This ensures renders complete even when users close their browser tab.
   app.post("/api/scheduled/sceneDispatchHeartbeat", sceneDispatchHeartbeatHandler);
 
+  // ── Debug: pre-render validation check (owner-only, temporary) ─────────────
+  app.get("/api/debug/validate/:jobId", async (req, res) => {
+    try {
+      const user = await sdk.authenticateRequest(req);
+      if (user.openId !== process.env.OWNER_OPEN_ID) {
+        return res.status(403).json({ error: "owner only" });
+      }
+      const { runPreRenderValidation, getProbeDecision } = await import("../pre-render-validator");
+      const jobId = parseInt(req.params.jobId, 10);
+      const validation = await runPreRenderValidation(jobId);
+      const probe = await getProbeDecision(jobId);
+      return res.json({ validation, probe });
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
+    }
+  });
+
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
