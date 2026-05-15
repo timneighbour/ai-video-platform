@@ -7,16 +7,25 @@
  * independent of whether any browser tab is open. This is the server-side
  * backbone of the render pipeline.
  *
- * PIPELINE (per scene with lip sync enabled):
- *   1. Atlas Cloud image-to-video  → silent scene clip (consistent character)
- *   2. Sync Labs sync-3             → per-scene lip sync using exact vocal segment
- *   3. Assembly                     → stitch lip-synced clips + original music track
+ * PIPELINE — Strategy 1 (reference-to-video, primary for locked-character music videos):
+ *   1. Atlas Cloud reference-to-video → character-consistent clip with audio-driven lip sync
+ *      - reference_images: Zara's masterPortraitUrl (Character Lock™)
+ *      - reference_audios: exact 6s vocal segment for this scene
+ *      - Seedance 2.0 drives mouth movement from audio phonemes
+ *   2. Assembly → stitch all clips + original full music track
  *
- * WHY THIS APPROACH:
- *   - Seedance 2.0 reference-to-video generates its own random audio/characters.
- *   - Sync Labs sync-3 is purpose-built for lip sync and produces frame-accurate
- *     mouth movement from audio phonemes.
- *   - Image-to-video gives consistent character appearance without audio interference.
+ * PIPELINE — Strategy 2 (image-to-video, for non-lip-sync scenes):
+ *   1. Atlas Cloud image-to-video → silent scene clip with character portrait
+ *   2. Assembly → stitch all clips + original full music track
+ *
+ * PIPELINE — Sync Labs (optional post-processing enhancement):
+ *   - Available as fallback or premium enhancement layer
+ *   - Applied after reference-to-video if additional lip sync quality is needed
+ *
+ * STRATEGY ROUTING (per scene):
+ *   scene.lipSync=true + job.audioUrl + scene.startTime → Strategy 1 (reference-to-video)
+ *   scene.lipSync=false OR no audio                    → Strategy 2 (image-to-video)
+ *   no character portrait                              → Strategy 3 (text-to-video fallback)
  *
  * Route: POST /api/scheduled/sceneDispatchHeartbeat
  * Auth:  Manus platform cron header (x-manus-cron-task-uid)
@@ -131,14 +140,20 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           pendingScenes.push(...refreshed.filter(s => failedScenes.some(f => f.id === s.id)));
         }
 
-        // ── 3. Dispatch ALL pending scenes (image-to-video, NO audio) ──────────
-        // IMPORTANT: We use image-to-video only. Audio/lip sync is handled
-        // separately by Sync Labs AFTER the scene clip is generated.
-        // This avoids Seedance 2.0 generating random audio/characters.
+        // ── 3. Dispatch ALL pending scenes ─────────────────────────────────────
+        // STRATEGY ROUTING:
+        //   Strategy 1 (reference-to-video): scene.lipSync=true + job.audioUrl + scene.startTime
+        //     → Atlas Cloud Seedance 2.0 reference-to-video with character portrait + audio
+        //     → Produces character-consistent clip with audio-driven lip sync
+        //   Strategy 2 (image-to-video): character portrait available, no lip sync
+        //     → Atlas Cloud image-to-video with character portrait only
+        //   Strategy 3 (text-to-video): no character portrait
+        //     → Atlas Cloud text-to-video (fallback only)
         for (const scene of pendingScenes) {
           try {
+            const willUseLipSync = (scene.lipSync ?? false) && !!job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
             console.log(
-              `[SceneDispatch] Dispatching scene ${scene.id} (index ${scene.sceneIndex}) for job ${job.id} — image-to-video (no audio)`
+              `[SceneDispatch] Dispatching scene ${scene.id} (index ${scene.sceneIndex}) for job ${job.id} — strategy: ${willUseLipSync ? 'REFERENCE-TO-VIDEO (lip sync)' : 'IMAGE-TO-VIDEO'}`
             );
 
             // ── CHARACTER LOCK™: Resolve per-scene portrait URL ────────────────
@@ -185,23 +200,26 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               console.warn(`[SceneDispatch] Scene ${scene.id} WARNING: no character portrait — rendering text-only`);
             }
 
-            // Dispatch image-to-video ONLY — pass null for audioUrl and sceneStartTime
-            // so startSceneRender uses Strategy 2 (image-to-video, no audio).
-            // Lip sync is applied separately by Sync Labs after the clip is ready.
+            // ── STRATEGY DISPATCH ─────────────────────────────────────────────
+            // Pass scene.lipSync, job.audioUrl, and scene.startTime so startSceneRender
+            // can select the correct strategy:
+            //   Strategy 1: lipSync=true + audioUrl + startTime → reference-to-video
+            //   Strategy 2: lipSync=false or no audio → image-to-video
+            //   Strategy 3: no character image → text-to-video
             const taskId = await startSceneRender(
               scene.id,
               scenePrompt,
               scene.duration ?? 5,
-              false,                          // lipSync=false — no audio in this step
-              "natural",
+              scene.lipSync ?? false,         // ✅ per-scene lip sync flag (Strategy 1 trigger)
+              scene.lipSyncStyle ?? "natural",
               "atlas_cloud_fast" as any,
               undefined as any,
               scene.previewImageUrl ?? undefined,
               (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1",
               job.id,
               resolvedCharacterUrl,
-              undefined,                      // audioUrl=undefined — image-to-video only
-              undefined                       // sceneStartTime=undefined
+              job.audioUrl ?? undefined,      // ✅ full music track URL (no /1000 division needed)
+              scene.startTime ?? undefined    // ✅ scene start time in seconds (already correct unit)
             );
 
             await db
