@@ -155,7 +155,9 @@ export async function runPreRenderValidation(jobId: number): Promise<ValidationR
 
   // ── Determine overall pass ────────────────────────────────────────────────
   // Critical checks that MUST pass before any render
-  const criticalChecks = ["Audio URL", "Scenes exist", "Storyboard images", "ffmpeg", "Spend cap"];
+  // Note: ffmpeg is NOT a critical check — it is only needed for final assembly, not for scene dispatch.
+  // Removing it from critical checks prevents it from blocking probe dispatch in production (Cloud Run has no ffmpeg).
+  const criticalChecks = ["Audio URL", "Scenes exist", "Storyboard images", "Spend cap"];
   const criticalFailed = checks.filter(
     (c) => criticalChecks.includes(c.name) && !c.passed
   );
