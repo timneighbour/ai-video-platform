@@ -779,7 +779,34 @@ export async function startSceneRender(
   // DISABLED:  fal.ai — unreliable, watermarks on free tier
   // DISABLED:  Hypereal — not vetted for production
   if (renderer === "wavespeed" || renderer === "fal_seedance" || renderer === "seedance" || renderer === "atlas_cloud" || renderer === "atlas_cloud_fast") {
-    // ── Step 1: Atlas Cloud Fast (PRIMARY — $0.64/scene) ─────────────────────────────
+    // ── WAVESPEED DIRECT: skip Atlas entirely when renderer is explicitly 'wavespeed' ──────
+    // Used when job.fallbackProvider='wavespeed' is set (Atlas known-bad).
+    // The in-memory circuit breaker resets on Cloud Run cold starts, so we need this DB-level override.
+    if (renderer === "wavespeed") {
+      console.log(`[MusicVideo] Scene ${sceneId}: WAVESPEED DIRECT (renderer override — skipping Atlas entirely)`);
+      const wsCircuitDirect = getCircuitBreaker("wavespeed");
+      if (!wsCircuitDirect.canRequest()) {
+        throw new Error(`WaveSpeed circuit is OPEN for scene ${sceneId}. Please try again shortly.`);
+      }
+      try {
+        const wsDirectResult = await startSceneRenderWaveSpeed(
+          sceneId,
+          finalPrompt,
+          duration,
+          modelAssignment ?? "bytedance/seedance-2.0-fast/text-to-video",
+          storyboardImageUrl ?? undefined,
+          aspectRatio,
+          jobId,
+          characterImageUrl ?? undefined
+        );
+        wsCircuitDirect.recordSuccess();
+        return wsDirectResult;
+      } catch (wsDirectErr: any) {
+        wsCircuitDirect.recordFailure();
+        throw new Error(`WaveSpeed render failed for scene ${sceneId}: ${String(wsDirectErr?.message ?? wsDirectErr).slice(0, 200)}`);
+      }
+    }
+    // ── Step 1: Atlas Cloud Fast (PRIMARY — $0.64/scene) ─────────────────────────────────────────────
     const atlasCircuit = getCircuitBreaker("atlas_cloud");
     if (atlasCircuit.canRequest()) {
       try {
