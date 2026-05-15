@@ -191,7 +191,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               job.id,
               resolvedCharacterUrl, // ── CHARACTER LOCK™: per-scene portrait
               job.audioUrl ?? undefined,
-              scene.startTime ? scene.startTime / 1000 : undefined // convert ms to seconds
+              scene.startTime ?? undefined // startTime stored in seconds in DB — no conversion needed
             );
 
             await db

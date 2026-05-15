@@ -151,12 +151,17 @@ export async function submitAtlasReferenceToVideo(
     reference_images: referenceImages,
     duration: durationSeconds,
     resolution: "720p",
-    generate_audio: false, // music video — audio comes from the track, not generated
+    // NOTE: Do NOT set generate_audio: false when passing reference_audios.
+    // The model needs audio processing enabled to drive lip sync from the audio waveform.
+    // We only suppress audio generation when there is NO reference audio (image-only mode).
   };
 
-  // Only include reference_audios if provided (lip sync)
   if (referenceAudios.length > 0) {
+    // Lip sync mode: pass audio clips and let the model process them for mouth movement
     body.reference_audios = referenceAudios;
+  } else {
+    // No audio: suppress AI-generated audio so the music track isn\'t replaced
+    body.generate_audio = false;
   }
 
   const response = await axios.post(
