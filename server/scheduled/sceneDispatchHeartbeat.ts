@@ -206,6 +206,14 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           } catch (dispatchErr: any) {
             const errMsg = String(dispatchErr?.message ?? dispatchErr).slice(0, 300);
             console.error(`[SceneDispatch] Failed to dispatch scene ${scene.id}: ${errMsg}`);
+            // Log the error to the database so it's visible for debugging
+            try {
+              const { sql } = await import('drizzle-orm');
+              const safeMsg = `Dispatch failed for scene ${scene.id} (index ${scene.sceneIndex}): ${errMsg}`;
+              await db.execute(
+                sql`INSERT INTO debugLogs (userId, jobId, sceneId, debugCategory, debugSeverity, debugJobType, message, createdAt) VALUES (${job.userId}, ${job.id}, ${scene.id}, 'dispatch_error', 'error', 'music_video', ${safeMsg}, NOW())`
+              );
+            } catch { /* ignore logging errors */ }
             // Keep scene as pending — it will be retried on the next heartbeat tick.
             // Never mark as failed here.
           }

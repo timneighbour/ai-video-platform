@@ -7910,3 +7910,8 @@
 - [x] Show estimated time remaining based on average scene render time
 - [x] Add current stage label (Rendering Scenes / Assembling / Applying WizSound)
 - [x] Show per-scene render time when hovering scene cards
+
+## Feature: Server-Side Render Dispatch Heartbeat
+- [ ] Add /api/scheduled/render-dispatch handler that picks up stalled rendering jobs and dispatches pending scenes
+- [ ] Register heartbeat cron (every 60s) via manus-heartbeat CLI after deployment
+- [ ] Mount handler in server/_core/index.ts before Vite fallthrough
