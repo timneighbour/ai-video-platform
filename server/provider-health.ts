@@ -320,7 +320,7 @@ export async function recordProviderOutcome(params: {
       wastedSpendUsd: isFailure ? costUsd.toFixed(4) : "0",
       avgRenderTimeMs: params.renderTimeMs ?? 0,
       isHealthy: true,
-      mode: params.provider === "atlas-cloud" ? "probe-only" : "full",
+      mode: "full",
       lastFailureAt: isFailure ? new Date() : null,
       lastSuccessAt: isFailure ? null : new Date(),
     });
@@ -399,10 +399,9 @@ export async function getBestProvider(
   const preferred = healthMap[preferredProvider];
 
   if (preferred) {
-    const isProbeOnly = preferred.mode === "probe-only" && sceneCount > 3;
     const isDisabled = preferred.mode === "disabled";
     const isUnhealthy = !preferred.isHealthy;
-    if (!isProbeOnly && !isDisabled && !isUnhealthy) {
+    if (!isDisabled && !isUnhealthy) {
       return { provider: preferredProvider, blocked: false };
     }
     console.log(`[ProviderHealth] ${preferredProvider} unavailable (mode=${preferred.mode}, healthy=${preferred.isHealthy})`);
@@ -423,14 +422,14 @@ export async function checkJobSpendLimit(jobId: number): Promise<{
   exceeded: boolean; currentSpend: number; limit: number;
 }> {
   const db = await getDb();
-  if (!db) return { exceeded: false, currentSpend: 0, limit: 5 };
+  if (!db) return { exceeded: false, currentSpend: 0, limit: 25 };
   const job = await db.select({
     providerSpendUsd: musicVideoJobs.providerSpendUsd,
     maxSpendLimitUsd: musicVideoJobs.maxSpendLimitUsd,
   }).from(musicVideoJobs).where(eq(musicVideoJobs.id, jobId)).limit(1);
-  if (!job.length) return { exceeded: false, currentSpend: 0, limit: 5 };
+  if (!job.length) return { exceeded: false, currentSpend: 0, limit: 25 };
   const currentSpend = parseFloat((job[0].providerSpendUsd ?? "0") as string);
-  const limit = parseFloat((job[0].maxSpendLimitUsd ?? "5.00") as string);
+  const limit = parseFloat((job[0].maxSpendLimitUsd ?? "25.00") as string);
   return { exceeded: currentSpend >= limit, currentSpend, limit };
 }
 export async function updateJobSpend(jobId: number, provider: string, isFailure: boolean): Promise<void> {

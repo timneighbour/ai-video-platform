@@ -2,12 +2,14 @@
  * provider-health.test.ts
  *
  * Verifies the Render Cost Protection Sprint:
- *  1. getBestProvider routes away from atlas-cloud (probe-only) for large jobs
- *  2. getBestProvider returns atlas-cloud for small probe jobs (≤3 scenes)
+ *  1. getBestProvider dispatches to atlas-cloud (full mode) for any job size
+ *  2. getBestProvider dispatches to atlas-cloud (full mode) for small jobs too
  *  3. getBestProvider blocks when all providers are unhealthy
  *  4. checkJobSpendLimit returns exceeded=true when spend >= limit
  *  5. recordProviderOutcome increments success/failure counts in the DB
  *  6. recordProviderOutcome marks provider unhealthy after 5 consecutive failures
+ *
+ * Note: probe-only mode was removed. Atlas Cloud now always dispatches when healthy.
  */
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
@@ -74,22 +76,20 @@ describe("Provider Health — Render Cost Protection", () => {
 
   beforeAll(async () => {
     // Seed clean provider health rows for the test providers
-    await resetProviderHealth("atlas-cloud", { mode: "probe-only" });
+    await resetProviderHealth("atlas-cloud", { mode: "full", isHealthy: true });
     await resetProviderHealth("wavespeed", { mode: "full", isHealthy: true });
     await resetProviderHealth("kling",     { mode: "full", isHealthy: true });
   });
 
-  // ── 1. Routing: atlas-cloud probe-only → routed to wavespeed for large job ──
-  it("routes away from atlas-cloud (probe-only) for jobs with >3 scenes", async () => {
+  // ── 1. Routing: atlas-cloud full mode → dispatches for large jobs ──
+  it("dispatches to atlas-cloud (full mode) for large jobs with >3 scenes", async () => {
     const result = await getBestProvider("atlas-cloud", 10);
     expect(result.blocked).toBe(false);
-    expect(result.provider).not.toBe("atlas-cloud");
-    // Should land on wavespeed (first in fallback chain)
-    expect(["wavespeed", "kling"]).toContain(result.provider);
+    expect(result.provider).toBe("atlas-cloud");
   });
 
-  // ── 2. Routing: atlas-cloud probe-only → allowed for small probe (≤3 scenes) ──
-  it("allows atlas-cloud (probe-only) for small probe jobs with ≤3 scenes", async () => {
+  // ── 2. Routing: atlas-cloud full mode → dispatches for small jobs too ──
+  it("dispatches to atlas-cloud (full mode) for small jobs with ≤3 scenes", async () => {
     const result = await getBestProvider("atlas-cloud", 2);
     expect(result.blocked).toBe(false);
     expect(result.provider).toBe("atlas-cloud");
@@ -97,9 +97,10 @@ describe("Provider Health — Render Cost Protection", () => {
 
   // ── 3. Routing: all unhealthy → blocked ──
   it("blocks when all providers are unhealthy", async () => {
-    // Temporarily mark wavespeed and kling unhealthy
+    // Temporarily mark ALL providers unhealthy (including atlas-cloud)
     const db = await getDb();
     if (!db) throw new Error("No DB");
+    await db.update(providerHealth).set({ isHealthy: false }).where(eq(providerHealth.provider, "atlas-cloud"));
     await db.update(providerHealth).set({ isHealthy: false }).where(eq(providerHealth.provider, "wavespeed"));
     await db.update(providerHealth).set({ isHealthy: false }).where(eq(providerHealth.provider, "kling"));
 
@@ -107,6 +108,7 @@ describe("Provider Health — Render Cost Protection", () => {
     expect(result.blocked).toBe(true);
 
     // Restore
+    await db.update(providerHealth).set({ isHealthy: true }).where(eq(providerHealth.provider, "atlas-cloud"));
     await db.update(providerHealth).set({ isHealthy: true }).where(eq(providerHealth.provider, "wavespeed"));
     await db.update(providerHealth).set({ isHealthy: true }).where(eq(providerHealth.provider, "kling"));
   });
@@ -195,8 +197,8 @@ describe("Provider Health — Render Cost Protection", () => {
 
   afterAll(async () => {
     // Restore all test providers to clean healthy state
-    await resetProviderHealth("atlas-cloud", { mode: "probe-only", isHealthy: true });
-    await resetProviderHealth("wavespeed",   { mode: "full",       isHealthy: true });
-    await resetProviderHealth("kling",       { mode: "full",       isHealthy: true });
+    await resetProviderHealth("atlas-cloud", { mode: "full", isHealthy: true });
+    await resetProviderHealth("wavespeed",   { mode: "full", isHealthy: true });
+    await resetProviderHealth("kling",       { mode: "full", isHealthy: true });
   });
 });

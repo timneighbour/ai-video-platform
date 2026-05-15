@@ -610,6 +610,13 @@
       "when": 1778789506033,
       "tag": "0086_demonic_taskmaster",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "5",
+      "when": 1778861315057,
+      "tag": "0087_workable_jackpot",
+      "breakpoints": true
     }
   ]
 }

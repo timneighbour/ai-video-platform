@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoJobs` MODIFY COLUMN `maxSpendLimitUsd` decimal(6,2) NOT NULL DEFAULT '25.00';
