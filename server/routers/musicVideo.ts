@@ -1538,6 +1538,7 @@ Rules:
         // probePassed: null = not started, false = probe in progress/awaiting approval, true = approved
         probePassed: finalJob.probePassed,
         probeVideoUrl: finalJob.probeVideoUrl ?? null,
+        probeSceneId: finalJob.probeSceneId ?? null,
         probeState: finalJob.probePassed === null ? "not_started"
           : finalJob.probePassed === false ? (finalJob.probeVideoUrl ? "awaiting_approval" : "rendering")
           : "approved",

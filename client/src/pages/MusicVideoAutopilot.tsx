@@ -870,6 +870,7 @@ export default function MusicVideoAutopilot() {
   // Probe gate state — controlled single-scene validation before full render
   const [probeState, setProbeState] = useState<"not_started" | "rendering" | "awaiting_approval" | "approved">("not_started");
   const [probeVideoUrl, setProbeVideoUrl] = useState<string | null>(null);
+  const [probeSceneId, setProbeSceneId] = useState<number | null>(null);
   // Per-scene statuses from pollProgress for the real-time progress grid
   const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; sceneIndex?: number; status: string; errorMessage?: string | null; prompt?: string; lyrics?: string | null; videoUrl?: string | null; lipSyncVideoUrl?: string | null; lipSyncStatus?: string | null; isApproved?: boolean }>>([]); 
   // Track which scenes are currently being retried
@@ -2028,6 +2029,7 @@ export default function MusicVideoAutopilot() {
             // Update probe gate state from server
             if ((progress as any).probeState) setProbeState((progress as any).probeState as "not_started" | "rendering" | "awaiting_approval" | "approved");
             if ((progress as any).probeVideoUrl) setProbeVideoUrl((progress as any).probeVideoUrl as string);
+            if ((progress as any).probeSceneId != null) setProbeSceneId((progress as any).probeSceneId as number);
             // Seed the elapsed timer from the server timestamp if we don't have a local start time
             // (e.g. after a page refresh mid-render). Use jobStartedAt from the server as the anchor.
             if (!renderStartTime && progress.jobStartedAt) {
@@ -5620,42 +5622,104 @@ export default function MusicVideoAutopilot() {
                               </div>
                             )}
 
-                            {/* Awaiting approval state — show video + approve/reject */}
-                            {probeState === "awaiting_approval" && probeVideoUrl && (
-                              <div className="space-y-4">
-                                <div className="rounded-xl overflow-hidden border border-amber-500/20" style={{maxWidth: 480}}>
-                                  <video
-                                    src={probeVideoUrl}
-                                    controls
-                                    className="w-full"
-                                    style={{maxHeight: 270}}
-                                  />
+                            {/* Awaiting approval state — side-by-side storyboard image vs rendered video */}
+                            {probeState === "awaiting_approval" && probeVideoUrl && (() => {
+                              // Find the storyboard image for the probe scene
+                              const probeScene = probeSceneId != null
+                                ? scenes.find((s) => s.id === probeSceneId)
+                                : null;
+                              const storyboardImageUrl = probeScene?.previewImageUrl ?? null;
+                              const sceneLabel = probeScene
+                                ? `Scene ${(probeScene.sceneIndex ?? 0) + 1}`
+                                : "Probe Scene";
+
+                              return (
+                                <div className="space-y-4">
+                                  {/* Side-by-side comparison */}
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {/* Left: storyboard reference image */}
+                                    <div className="space-y-1.5">
+                                      <div className="flex items-center gap-1.5">
+                                        <ImageIcon className="w-3 h-3 text-white/40" />
+                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-white/40">Storyboard Reference — {sceneLabel}</p>
+                                      </div>
+                                      <div className="rounded-xl overflow-hidden border border-white/10 bg-black/40" style={{aspectRatio: "16/9"}}>
+                                        {storyboardImageUrl ? (
+                                          <img
+                                            src={storyboardImageUrl}
+                                            alt={`Storyboard for ${sceneLabel}`}
+                                            className="w-full h-full object-cover"
+                                          />
+                                        ) : (
+                                          <div className="w-full h-full flex items-center justify-center">
+                                            <p className="text-xs text-white/30">No storyboard image</p>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <p className="text-[10px] text-white/30">This is the first frame the AI was given as a visual anchor.</p>
+                                    </div>
+
+                                    {/* Right: rendered probe video */}
+                                    <div className="space-y-1.5">
+                                      <div className="flex items-center gap-1.5">
+                                        <Film className="w-3 h-3 text-amber-400" />
+                                        <p className="text-[10px] font-semibold uppercase tracking-widest text-amber-400">Rendered Output — {sceneLabel}</p>
+                                      </div>
+                                      <div className="rounded-xl overflow-hidden border border-amber-500/25" style={{aspectRatio: "16/9"}}>
+                                        <video
+                                          src={probeVideoUrl}
+                                          controls
+                                          className="w-full h-full object-cover"
+                                        />
+                                      </div>
+                                      <p className="text-[10px] text-white/30">Check: character consistency, lip sync accuracy, motion quality.</p>
+                                    </div>
+                                  </div>
+
+                                  {/* Checklist hint */}
+                                  <div className="grid grid-cols-3 gap-2 text-[10px] text-white/40">
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/8">
+                                      <User className="w-3 h-3 flex-shrink-0" />
+                                      <span>Character matches storyboard?</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/8">
+                                      <Mic className="w-3 h-3 flex-shrink-0" />
+                                      <span>Lip sync accurate?</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/8">
+                                      <Film className="w-3 h-3 flex-shrink-0" />
+                                      <span>Motion looks cinematic?</span>
+                                    </div>
+                                  </div>
+
+                                  <p className="text-xs text-white/50 leading-relaxed">
+                                    Compare the storyboard image (left) with the rendered clip (right). If character, lip sync, and motion all look correct — click <strong className="text-emerald-400">Approve</strong> to release all remaining scenes. If anything is wrong, click <strong className="text-red-400">Reject</strong> to pause and investigate.
+                                  </p>
+
+                                  {/* Action buttons */}
+                                  <div className="flex items-center gap-3">
+                                    <button
+                                      onClick={() => jobId && approveProbe.mutate({ jobId })}
+                                      disabled={approveProbe.isPending || rejectProbe.isPending}
+                                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 text-sm font-semibold hover:bg-emerald-500/30 transition-colors border border-emerald-500/40 disabled:opacity-50"
+                                    >
+                                      {approveProbe.isPending
+                                        ? <><Loader2 className="w-4 h-4 animate-spin" /> Approving…</>
+                                        : <><CheckCircle2 className="w-4 h-4" /> Approve &amp; Release Full Render</>}
+                                    </button>
+                                    <button
+                                      onClick={() => jobId && rejectProbe.mutate({ jobId })}
+                                      disabled={approveProbe.isPending || rejectProbe.isPending}
+                                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500/10 text-red-400 text-sm font-semibold hover:bg-red-500/20 transition-colors border border-red-500/20 disabled:opacity-50"
+                                    >
+                                      {rejectProbe.isPending
+                                        ? <><Loader2 className="w-4 h-4 animate-spin" /> Rejecting…</>
+                                        : <><X className="w-4 h-4" /> Reject — Pause &amp; Investigate</>}
+                                    </button>
+                                  </div>
                                 </div>
-                                <p className="text-xs text-white/50 leading-relaxed">
-                                  Watch the clip above. If Zara looks correct, the lip sync is accurate, and the storyboard image is used as the first frame — click <strong className="text-emerald-400">Approve</strong> to release all remaining scenes. If something is wrong, click <strong className="text-red-400">Reject</strong> to pause the job and investigate.
-                                </p>
-                                <div className="flex items-center gap-3">
-                                  <button
-                                    onClick={() => jobId && approveProbe.mutate({ jobId })}
-                                    disabled={approveProbe.isPending || rejectProbe.isPending}
-                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 text-sm font-semibold hover:bg-emerald-500/30 transition-colors border border-emerald-500/40 disabled:opacity-50"
-                                  >
-                                    {approveProbe.isPending
-                                      ? <><Loader2 className="w-4 h-4 animate-spin" /> Approving…</>
-                                      : <><CheckCircle2 className="w-4 h-4" /> Approve &amp; Release Full Render</>}
-                                  </button>
-                                  <button
-                                    onClick={() => jobId && rejectProbe.mutate({ jobId })}
-                                    disabled={approveProbe.isPending || rejectProbe.isPending}
-                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500/10 text-red-400 text-sm font-semibold hover:bg-red-500/20 transition-colors border border-red-500/20 disabled:opacity-50"
-                                  >
-                                    {rejectProbe.isPending
-                                      ? <><Loader2 className="w-4 h-4 animate-spin" /> Rejecting…</>
-                                      : <><X className="w-4 h-4" /> Reject — Pause &amp; Investigate</>}
-                                  </button>
-                                </div>
-                              </div>
-                            )}
+                              );
+                            })()}
 
                             {/* Awaiting approval but video not yet available */}
                             {probeState === "awaiting_approval" && !probeVideoUrl && (
