@@ -6909,11 +6909,11 @@
 - [ ] Test full render with character lock enabled and confirm consistent character appearance across all scenes
 
 ## Critical: Lip Sync & Character Consistency (May 2026)
-- [ ] Add Atlas Cloud reference-to-video API function (submitAtlasReferenceToVideo) with reference_images + reference_audios fields
-- [ ] Add audio segment extraction helper: extract 8s clip from song at scene start time using ffmpeg
+- [x] Add Atlas Cloud reference-to-video API function (submitAtlasReferenceToVideo) with reference_images + reference_audios fields
+- [x] Add audio segment extraction helper: extract 8s clip from song at scene start time using ffmpeg
 - [ ] Store per-scene audio clip URL in musicVideoScenes (sceneAudioUrl column)
-- [ ] Update startSceneRenderAtlasCloud to use reference-to-video model when character image is available
-- [ ] Pass actual audio segment as reference_audios for phoneme-accurate lip sync
+- [x] Update startSceneRenderAtlasCloud to use reference-to-video model when character image is available
+- [x] Pass actual audio segment as reference_audios for phoneme-accurate lip sync
 - [ ] Generate canonical character portrait (FLUX) before render starts and store as masterPortraitUrl
 - [ ] Fix storyboard scene prompts to describe music video performance (stage, mic, singing) not random landscapes
 - [ ] Ensure every scene uses the same character reference image (no random faces)

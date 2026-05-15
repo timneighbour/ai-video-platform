@@ -770,10 +770,11 @@ export async function startSceneRender(
     : `${prompt} Cinematic movement only, no singing, no mouth animation.`;
 
   // ── PROVIDER CHAIN (May 2026) ─────────────────────────────────────────────
-  // PRIMARY:   Atlas Cloud Fast ($0.64/scene, text-to-video) — RE-ENABLED 2026-05-14
-  //            NOTE: Only the r2v (reference-to-video) model had watermarks.
-  //            Text-to-video is clean and watermark-free.
-  //            WizSync™ lip sync is applied to the ASSEMBLED video, not per-scene.
+  // PRIMARY:   Atlas Cloud Fast ($0.64/scene) — RE-ENABLED 2026-05-14
+  //            STRATEGY 1 (reference-to-video): character + audio → best consistency + per-scene lip sync
+  //            STRATEGY 2 (image-to-video): character only → good consistency, no per-scene lip sync
+  //            STRATEGY 3 (text-to-video): no character → fallback only
+  //            WizSync™ Sync Labs lip sync is ALSO applied to the assembled video for final polish.
   // FALLBACK:  WaveSpeed Seedance 2.0 Fast ($1.80/scene) — if Atlas circuit opens
   // DISABLED:  fal.ai — unreliable, watermarks on free tier
   // DISABLED:  Hypereal — not vetted for production
@@ -788,9 +789,9 @@ export async function startSceneRender(
           duration,
           jobId,
           characterImageUrl ?? undefined,
-          undefined, // audioUrl — WizSync™ applies lip sync to the assembled video, not per-scene
-          undefined, // sceneStartTime — not needed for text-to-video
-          false      // enableLipSync=false at scene level
+          audioUrl ?? undefined,       // ── WizSync™: pass audio for reference-to-video lip sync
+          sceneStartTime ?? undefined, // ── WizSync™: scene start time for audio segment extraction
+          lipSync                      // ── WizSync™: use per-scene lip sync flag (Strategy 1 when true)
         );
         atlasCircuit.recordSuccess();
         return atlasResult;
