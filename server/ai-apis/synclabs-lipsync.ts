@@ -11,6 +11,11 @@
  *   - Emotion and style preservation
  *   - Recommended for music video use cases
  *
+ * Quality settings used:
+ *   - temperature: 1.0 — maximum expressiveness (full mouth movement range for singing)
+ *   - occlusion_detection_enabled: true — handles mics, hands, hair over mouth
+ *   - sync_mode: "cut_off" — trims to the shorter of video/audio (correct for music videos)
+ *
  * Pricing: $0.133/sec at 25fps
  * For a 72-second music video: ~$9.60 per render
  *
@@ -18,7 +23,7 @@
  * SDK: @sync.so/sdk
  */
 
-import { SyncClient, SyncError } from "@sync.so/sdk";
+import { SyncClient } from "@sync.so/sdk";
 
 const SYNC_LABS_API_KEY = process.env.SYNC_LABS_API_KEY;
 const POLL_INTERVAL_MS = 5000; // 5 seconds between polls
@@ -30,6 +35,16 @@ export interface SyncLabsLipSyncOptions {
   /** sync_mode: "cut_off" trims to shorter, "loop" repeats shorter, "bounce" bounces */
   syncMode?: "cut_off" | "loop" | "bounce";
   outputFileName?: string;
+  /**
+   * Expressiveness of lip movement: 0 = least expressive, 1 = most expressive.
+   * Default 1.0 for music videos — singers need maximum mouth movement range.
+   */
+  temperature?: number;
+  /**
+   * Whether to detect occlusions (microphones, hands, hair over mouth).
+   * Slightly slower but significantly more accurate when the singer holds a mic.
+   */
+  occlusionDetection?: boolean;
 }
 
 export interface SyncLabsResult {
@@ -59,11 +74,15 @@ export async function submitSyncLabsLipSync(
     model: "sync-3",
     options: {
       sync_mode: options.syncMode ?? "cut_off",
+      // Maximum expressiveness for music video singing (0=subtle, 1=full range)
+      temperature: options.temperature ?? 1.0,
+      // Detect microphones, hands, or hair obscuring the mouth for better accuracy
+      occlusion_detection_enabled: options.occlusionDetection ?? true,
     },
     outputFileName: options.outputFileName ?? `wizsync-${Date.now()}`,
   });
 
-  console.log(`[SyncLabsLipSync] Job submitted: ${response.id}`);
+  console.log(`[SyncLabsLipSync] Job submitted: ${response.id} (temp=${options.temperature ?? 1.0}, occlusion=true)`);
   return response.id;
 }
 

@@ -1655,10 +1655,10 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
 
     if (hasLipSyncCharacter && !audioTooLongForSyncLabs && isSyncLabsConfigured() && job.audioUrl) {
       // Sync Labs sync-3: one pass on the final assembled video.
-      // Hard timeout: 8 minutes. If Sync Labs takes longer, deliver without lip sync.
+      // Hard timeout: 12 minutes. Occlusion detection adds ~2-3 min processing time.
       // syncLabsJobId is persisted to DB so polling can resume after server restart
       // instead of re-submitting a new job.
-      const SYNC_LABS_HARD_TIMEOUT_MS = 8 * 60 * 1000; // 8 minutes
+      const SYNC_LABS_HARD_TIMEOUT_MS = 12 * 60 * 1000; // 12 minutes (occlusion detection enabled)
 
       // Re-read the job to get any syncLabsJobId saved by a previous assembly attempt
       const [freshJob] = await dbConn.select({
