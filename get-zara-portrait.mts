@@ -1,0 +1,13 @@
+import { drizzle } from 'drizzle-orm/mysql2';
+import mysql from 'mysql2/promise';
+import { videoCharacters } from './drizzle/schema.js';
+import { eq } from 'drizzle-orm';
+import * as dotenv from 'dotenv';
+dotenv.config();
+const conn = await mysql.createConnection(process.env.DATABASE_URL!);
+const db = drizzle(conn);
+const [z] = await db.select().from(videoCharacters).where(eq(videoCharacters.jobId, 540026));
+console.log('masterPortraitUrl:', z?.masterPortraitUrl);
+console.log('previewImageUrl:', z?.previewImageUrl);
+console.log('referencePhotoBase64 length:', z?.referencePhotoBase64?.length ?? 0);
+await conn.end();

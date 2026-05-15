@@ -789,9 +789,10 @@ export async function startSceneRender(
           duration,
           jobId,
           characterImageUrl ?? undefined,
-          audioUrl ?? undefined,       // ── WizSync™: pass audio for reference-to-video lip sync
-          sceneStartTime ?? undefined, // ── WizSync™: scene start time for audio segment extraction
-          lipSync                      // ── WizSync™: use per-scene lip sync flag (Strategy 1 when true)
+          audioUrl ?? undefined,          // ── WizSync™: pass audio for reference-to-video lip sync
+          sceneStartTime ?? undefined,    // ── WizSync™: scene start time for audio segment extraction
+          lipSync,                        // ── WizSync™: use per-scene lip sync flag (Strategy 1 when true)
+          storyboardImageUrl ?? undefined // ── CHARACTER LOCK™: storyboard image as starting frame for i2v
         );
         atlasCircuit.recordSuccess();
         return atlasResult;
@@ -1088,6 +1089,8 @@ async function pollSceneStatusGrokImagine(
  * @param audioUrl           Full song S3 URL for extracting the scene audio clip (optional)
  * @param sceneStartTime     Start time of this scene in the song (seconds)
  * @param enableLipSync      Whether to pass audio to the model for lip sync
+ * @param storyboardImageUrl Approved storyboard image — used as the STARTING FRAME for image-to-video
+ *                           This guarantees character consistency: the first frame IS the storyboard image.
  */
 async function startSceneRenderAtlasCloud(
   sceneId: number,
@@ -1097,16 +1100,26 @@ async function startSceneRenderAtlasCloud(
   characterImageUrl?: string | null,
   audioUrl?: string | null,
   sceneStartTime?: number,
-  enableLipSync: boolean = true
+  enableLipSync: boolean = true,
+  storyboardImageUrl?: string | null
 ): Promise<string> {
   const MAX_PROMPT_CHARS = 480;
+
+  // ── IMAGE SELECTION ───────────────────────────────────────────────────────────
+  // Priority order for image-to-video starting frame:
+  //   1. storyboardImageUrl — the approved storyboard image for this scene (BEST: locks character + setting)
+  //   2. characterImageUrl  — master portrait (fallback: locks character face only)
+  //   3. none               — text-to-video only
+  // For reference-to-video (Strategy 1), we still use characterImageUrl as the reference_images
+  // because the model needs a face reference, not a full scene composition.
+  const imageForI2V = storyboardImageUrl ?? characterImageUrl;
 
   // CRITICAL: Seedance 2.0 reference-to-video requires "@Image1" in the prompt
   // to anchor the character reference image. Without this token the model treats
   // the reference image as a style hint only, producing inconsistent character
   // appearance across scenes. Prepend it when a character portrait is provided.
   // See: https://fal.ai/docs/model-api-reference/video-generation-api/bytedance-seedance-2.0-reference-to-video
-  const anchoredPrompt = characterImageUrl
+  const anchoredPrompt = imageForI2V
     ? (prompt.startsWith("@Image1") ? prompt : `@Image1 ${prompt}`)
     : prompt;
 
@@ -1133,27 +1146,34 @@ async function startSceneRenderAtlasCloud(
     } catch (r2vErr: any) {
       const errMsg = String(r2vErr?.message ?? r2vErr);
       console.warn(`[MusicVideo] Scene ${sceneId} reference-to-video failed (${errMsg.slice(0, 150)}). Falling back to image-to-video.`);
-      // Fall through to strategy 2
-      characterImageUrl = characterImageUrl; // keep for strategy 2
-      try {
-        const { predictionId: pid } = await submitAtlasImageToVideo(safePrompt, characterImageUrl!, clipDuration);
-        predictionId = pid;
-        console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud IMAGE-TO-VIDEO (fallback) predictionId=${predictionId}`);
-      } catch (i2vErr: any) {
-        const i2vMsg = String(i2vErr?.message ?? i2vErr);
-        console.warn(`[MusicVideo] Scene ${sceneId} image-to-video also failed (${i2vMsg.slice(0, 150)}). Falling back to text-to-video.`);
+      // Fall through to strategy 2 — use storyboard image as starting frame if available
+      if (imageForI2V) {
+        try {
+          const { predictionId: pid } = await submitAtlasImageToVideo(safePrompt, imageForI2V, clipDuration);
+          predictionId = pid;
+          console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud IMAGE-TO-VIDEO (fallback, ${storyboardImageUrl ? 'storyboard' : 'portrait'}) predictionId=${predictionId}`);
+        } catch (i2vErr: any) {
+          const i2vMsg = String(i2vErr?.message ?? i2vErr);
+          console.warn(`[MusicVideo] Scene ${sceneId} image-to-video also failed (${i2vMsg.slice(0, 150)}). Falling back to text-to-video.`);
+          const { predictionId: pid } = await submitAtlasVideo(safePrompt, clipDuration);
+          predictionId = pid;
+          console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud TEXT-TO-VIDEO (fallback) predictionId=${predictionId}`);
+        }
+      } else {
         const { predictionId: pid } = await submitAtlasVideo(safePrompt, clipDuration);
         predictionId = pid;
-        console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud TEXT-TO-VIDEO (fallback) predictionId=${predictionId}`);
+        console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud TEXT-TO-VIDEO (fallback, no image) predictionId=${predictionId}`);
       }
     }
   }
-  // ── STRATEGY 2: image-to-video (character image, no audio) ───────────────────
-  else if (characterImageUrl) {
+  // ── STRATEGY 2: image-to-video using storyboard image as starting frame ──────
+  // The storyboard image IS the character in the right pose/setting — animating from
+  // it guarantees Zara looks exactly like the storyboard in every rendered clip.
+  else if (imageForI2V) {
     try {
-      const { predictionId: pid } = await submitAtlasImageToVideo(safePrompt, characterImageUrl, clipDuration);
+      const { predictionId: pid } = await submitAtlasImageToVideo(safePrompt, imageForI2V, clipDuration);
       predictionId = pid;
-      console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud IMAGE-TO-VIDEO predictionId=${predictionId}`);
+      console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud IMAGE-TO-VIDEO (${storyboardImageUrl ? 'storyboard' : 'portrait'}) predictionId=${predictionId}`);
     } catch (i2vErr: any) {
       const i2vMsg = String(i2vErr?.message ?? i2vErr);
       console.warn(`[MusicVideo] Scene ${sceneId} image-to-video failed (${i2vMsg.slice(0, 150)}). Falling back to text-to-video.`);
