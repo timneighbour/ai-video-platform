@@ -238,13 +238,18 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             //   Strategy 1: lipSync=true + audioUrl + startTime → reference-to-video
             //   Strategy 2: lipSync=false or no audio → image-to-video
             //   Strategy 3: no character image → text-to-video
+            // ── PROVIDER OVERRIDE: respect job.fallbackProvider ───────────────
+            // If the job has fallbackProvider='wavespeed', force WaveSpeed routing.
+            // This survives Cloud Run cold starts (in-memory circuit breaker resets).
+            const forcedRenderer = job.fallbackProvider === "wavespeed" ? "wavespeed" : "atlas_cloud_fast";
+            console.log(`[SceneDispatch] Scene ${scene.id} renderer: ${forcedRenderer} (fallbackProvider=${job.fallbackProvider ?? 'none'})`);
             const taskId = await startSceneRender(
               scene.id,
               scenePrompt,
               scene.duration ?? 5,
               scene.lipSync ?? false,         // ✅ per-scene lip sync flag (Strategy 1 trigger)
               scene.lipSyncStyle ?? "natural",
-              "atlas_cloud_fast" as any,
+              forcedRenderer as any,
               undefined as any,
               scene.previewImageUrl ?? undefined,
               (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1",
