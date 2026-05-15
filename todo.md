@@ -7915,3 +7915,15 @@
 - [ ] Add /api/scheduled/render-dispatch handler that picks up stalled rendering jobs and dispatches pending scenes
 - [ ] Register heartbeat cron (every 60s) via manus-heartbeat CLI after deployment
 - [ ] Mount handler in server/_core/index.ts before Vite fallthrough
+
+## Low-Balance Warning Banner
+- [x] Backend: tRPC procedure admin.getProviderBalances — fetch live balance from Atlas Cloud and WaveSpeed
+- [x] Backend: Atlas Cloud balance API call (check /balance or account endpoint)
+- [x] Backend: WaveSpeed balance API call (reuse existing validateWaveSpeedKey + balance endpoint)
+- [x] Backend: Low-balance thresholds — warn at $10 Atlas, $20 WaveSpeed; critical at $5 both
+- [x] Frontend: ProviderBalanceBanner component in admin dashboard header
+- [x] Frontend: Yellow warning when balance < threshold, red critical when < $5
+- [x] Frontend: Shows provider name, current balance, and direct top-up link
+- [x] Frontend: Auto-refreshes every 5 minutes
+- [x] Frontend: Only visible to admin users
+- [x] Frontend: Dismissible per-session

@@ -32,6 +32,7 @@ import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 import { StudioLoungeCard } from "./StudioLounge";
+import { ProviderBalanceBanner } from "./ProviderBalanceBanner";
 
 const WIZANIMATE_LOGO = "/manus-storage/wizanimate-logo-new_a84f9808_a089857a.png";
 
@@ -345,6 +346,7 @@ function DashboardLayoutContent({
             </div>
           </div>
         )}
+        <ProviderBalanceBanner />
         <main className="flex-1 p-4">{children}</main>
       </SidebarInset>
     </>
