@@ -17,9 +17,18 @@ import { promisify } from "util";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
+import { createRequire } from "module";
 import { storagePut } from "./storage";
 
 const execAsync = promisify(exec);
+
+// Use bundled ffmpeg binary (works in Cloud Run production as well as sandbox)
+const _require = createRequire(import.meta.url);
+let FFMPEG_BIN = "ffmpeg";
+try {
+  const installer = _require("@ffmpeg-installer/ffmpeg");
+  if (installer?.path) FFMPEG_BIN = installer.path;
+} catch { /* fall back to system ffmpeg */ }
 
 /**
  * Download a remote audio file to a temp path.
@@ -68,7 +77,7 @@ export async function extractSceneAudioClip(
     // -ss: start time, -t: duration, -acodec libmp3lame: re-encode to mp3
     // -ar 44100: standard sample rate, -ab 128k: reasonable bitrate for lip sync
     const cmd = [
-      "ffmpeg",
+      `"${FFMPEG_BIN}"`,
       "-y",                          // overwrite output
       "-ss", startSeconds.toString(), // seek to start
       "-i", `"${inputPath}"`,        // input file

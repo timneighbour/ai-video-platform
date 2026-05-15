@@ -16,9 +16,18 @@ import { tmpdir } from "os";
 import { join } from "path";
 import { randomBytes } from "crypto";
 import { writeFile, readFile, unlink } from "fs/promises";
+import { createRequire } from "module";
 import { storagePut } from "./storage";
 
-const FFMPEG = process.env.FFMPEG_PATH ?? "ffmpeg";
+// Use bundled ffmpeg binary (works in Cloud Run production as well as sandbox)
+const _require = createRequire(import.meta.url);
+let _ffmpegBin = "ffmpeg";
+try {
+  const installer = _require("@ffmpeg-installer/ffmpeg");
+  if (installer?.path) _ffmpegBin = installer.path;
+} catch { /* fall back to system ffmpeg */ }
+
+const FFMPEG = process.env.FFMPEG_PATH ?? _ffmpegBin;
 const FFPROBE = process.env.FFPROBE_PATH ?? "ffprobe";
 
 const execAsync = promisify(exec);

@@ -8,6 +8,19 @@ import { promisify } from "util";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
+import { createRequire } from "module";
+// Use the bundled ffmpeg binary (works in both sandbox and Cloud Run production)
+const _require = createRequire(import.meta.url);
+let FFMPEG_BIN = "ffmpeg";
+let FFPROBE_BIN = "ffprobe";
+try {
+  const ffmpegInstaller = _require("@ffmpeg-installer/ffmpeg");
+  if (ffmpegInstaller?.path) {
+    FFMPEG_BIN = ffmpegInstaller.path;
+    // ffprobe is not shipped by @ffmpeg-installer — fall back to system or skip
+    // In production (Cloud Run) ffprobe may not exist; we handle that gracefully below
+  }
+} catch { /* fall back to system ffmpeg */ }
 import { getDb } from "./db";
 import { musicVideoJobs, musicVideoScenes, videoCharacters } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
@@ -50,6 +63,10 @@ const GROK_IMAGINE_PREFIX = "grok:";
 
 
 const execAsync = promisify(exec);
+// Helper: run ffmpeg/ffprobe with the correct binary path
+function ffmpegExec(args: string, opts?: { timeout?: number }) {
+  return execAsync(args.replace(/^ffmpeg /, `"${FFMPEG_BIN}" `).replace(/^ffprobe /, `"${FFPROBE_BIN}" `), opts);
+}
 
 // IMPORTANT: Import from products.ts — do NOT redefine locally. Single source of truth.
 import { getCreditsPerScene } from "./products";
@@ -1566,31 +1583,40 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     // Concatenate all video clips
     const concatenatedVideo = path.join(tmpDir, "concatenated.mp4");
      await execAsync(
-      `ffmpeg -y -f concat -safe 0 -i "${concatFile}" -c:v libx264 -preset fast -crf 22 "${concatenatedVideo}"`,
+      `"${FFMPEG_BIN}" -y -f concat -safe 0 -i "${concatFile}" -c:v libx264 -preset fast -crf 22 "${concatenatedVideo}"`,
       { timeout: 600000 } // 10 min — long videos with many scenes need more time
     );
     // Get the actual duration of the concatenated video and the audio
-    const videoInfo = await execAsync(`ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${concatenatedVideo}"`);
-    const videoDuration = parseFloat(videoInfo.stdout.trim()) || 0;
-    const audioInfo = await execAsync(`ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${audioFile}"`);
-    const audioDuration = parseFloat(audioInfo.stdout.trim()) || 0;
+    let videoDuration = 0;
+    let audioDuration = 0;
+    try {
+      const videoInfo = await execAsync(`"${FFPROBE_BIN}" -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${concatenatedVideo}"`);
+      videoDuration = parseFloat(videoInfo.stdout.trim()) || 0;
+      const audioInfo = await execAsync(`"${FFPROBE_BIN}" -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${audioFile}"`);
+      audioDuration = parseFloat(audioInfo.stdout.trim()) || 0;
+    } catch (probeErr: any) {
+      // ffprobe not available — estimate from scene count and duration
+      console.warn(`[Assembly] ffprobe unavailable (${probeErr?.message?.slice(0,80)}), estimating durations`);
+      videoDuration = sceneFiles.length * 6; // 6s per scene estimate
+      audioDuration = videoDuration; // treat as equal so we skip looping
+    }
     // Mix video with audio — loop video if shorter than audio to cover full track
     const finalVideo = path.join(tmpDir, "final.mp4");
     if (videoDuration > 0 && audioDuration > 0 && videoDuration < audioDuration) {
       // Loop the concatenated video to cover the full audio duration
       const loopedVideo = path.join(tmpDir, "looped.mp4");
       await execAsync(
-        `ffmpeg -y -stream_loop -1 -i "${concatenatedVideo}" -t ${audioDuration} -c:v libx264 -preset fast -crf 22 "${loopedVideo}"`,
+        `"${FFMPEG_BIN}" -y -stream_loop -1 -i "${concatenatedVideo}" -t ${audioDuration} -c:v libx264 -preset fast -crf 22 "${loopedVideo}"`,
         { timeout: 600000 }
       );
       await execAsync(
-        `ffmpeg -y -i "${loopedVideo}" -i "${audioFile}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -t ${audioDuration} "${finalVideo}"`,
+        `"${FFMPEG_BIN}" -y -i "${loopedVideo}" -i "${audioFile}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -t ${audioDuration} "${finalVideo}"`,
         { timeout: 600000 }
       );
     } else {
       // Video is long enough — trim to exact audio duration
       await execAsync(
-        `ffmpeg -y -i "${concatenatedVideo}" -i "${audioFile}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -t ${audioDuration} "${finalVideo}"`,
+        `"${FFMPEG_BIN}" -y -i "${concatenatedVideo}" -i "${audioFile}" -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -t ${audioDuration} "${finalVideo}"`,
         { timeout: 600000 }
       );
     }

@@ -18,8 +18,17 @@ import { promisify } from "util";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
+import { createRequire } from "module";
 
 const execAsync = promisify(exec);
+
+// Use bundled ffmpeg binary (works in Cloud Run production as well as sandbox)
+const _require = createRequire(import.meta.url);
+let FFMPEG_BIN = "ffmpeg";
+try {
+  const installer = _require("@ffmpeg-installer/ffmpeg");
+  if (installer?.path) FFMPEG_BIN = installer.path;
+} catch { /* fall back to system ffmpeg */ }
 
 export type AudioTier = "standard" | "enhanced" | "cinematic";
 
@@ -105,7 +114,7 @@ export async function applyWizSound(
   const codec = ext === ".mp3" ? "libmp3lame" : ext === ".aac" ? "aac" : "aac";
   const bitrate = tier === "cinematic" ? "320k" : "256k";
 
-  const cmd = `ffmpeg -y -i "${inputPath}" -af "${filterChain}" -c:a ${codec} -b:a ${bitrate} "${outputPath}"`;
+  const cmd = `"${FFMPEG_BIN}" -y -i "${inputPath}" -af "${filterChain}" -c:a ${codec} -b:a ${bitrate} "${outputPath}"`;
 
   console.log(`[WizSound™] Applying ${tier} tier to ${path.basename(inputPath)}`);
   const start = Date.now();
