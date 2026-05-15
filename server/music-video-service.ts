@@ -1099,9 +1099,19 @@ async function startSceneRenderAtlasCloud(
   enableLipSync: boolean = true
 ): Promise<string> {
   const MAX_PROMPT_CHARS = 480;
-  const safePrompt = prompt.length > MAX_PROMPT_CHARS
-    ? prompt.slice(0, MAX_PROMPT_CHARS).replace(/[,;.\s]+$/, "") + "."
+
+  // CRITICAL: Seedance 2.0 reference-to-video requires "@Image1" in the prompt
+  // to anchor the character reference image. Without this token the model treats
+  // the reference image as a style hint only, producing inconsistent character
+  // appearance across scenes. Prepend it when a character portrait is provided.
+  // See: https://fal.ai/docs/model-api-reference/video-generation-api/bytedance-seedance-2.0-reference-to-video
+  const anchoredPrompt = characterImageUrl
+    ? (prompt.startsWith("@Image1") ? prompt : `@Image1 ${prompt}`)
     : prompt;
+
+  const safePrompt = anchoredPrompt.length > MAX_PROMPT_CHARS
+    ? anchoredPrompt.slice(0, MAX_PROMPT_CHARS).replace(/[,;.\s]+$/, "") + "."
+    : anchoredPrompt;
 
   const clipDuration = Math.max(2, Math.min(15, duration));
   let predictionId: string;
@@ -1581,9 +1591,14 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     fs.writeFileSync(concatFile, concatContent);
 
     // Concatenate all video clips
+    // CRITICAL: -an strips ALL audio from scene clips before concatenation.
+    // Atlas Cloud reference-to-video clips contain the reference audio track (the
+    // per-scene audio clip used for lip sync). Without -an, that audio bleeds into
+    // the final video alongside the user's original music track, causing audible
+    // background noise. The correct audio is overlaid in the next step.
     const concatenatedVideo = path.join(tmpDir, "concatenated.mp4");
-     await execAsync(
-      `"${FFMPEG_BIN}" -y -f concat -safe 0 -i "${concatFile}" -c:v libx264 -preset fast -crf 22 "${concatenatedVideo}"`,
+    await execAsync(
+      `"${FFMPEG_BIN}" -y -f concat -safe 0 -i "${concatFile}" -an -c:v libx264 -preset fast -crf 22 "${concatenatedVideo}"`,
       { timeout: 600000 } // 10 min — long videos with many scenes need more time
     );
     // Get the actual duration of the concatenated video and the audio
@@ -1669,13 +1684,17 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       const existingSyncJobId = freshJob?.syncLabsJobId;
       const assemblyStartedAt = freshJob?.assemblyStartedAt;
 
-      // If assembly started more than 15 minutes ago, skip lip sync entirely
-      // (Sync Labs job is definitely dead — don't waste more time)
+      // Only skip lip sync if a Sync Labs job was actually submitted AND has been
+      // running for more than 15 minutes (meaning it's definitely dead/timed out).
+      // Do NOT skip just because the overall job has been rendering for a long time —
+      // that would cause lip sync to be silently skipped on jobs that were stuck in
+      // pending for hours before assembly finally ran.
       const assemblyAgeMs = assemblyStartedAt
         ? Date.now() - new Date(assemblyStartedAt).getTime()
         : 0;
-      if (assemblyAgeMs > 15 * 60 * 1000) {
-        console.warn(`[WizSync] Job ${jobId}: assembly started ${Math.round(assemblyAgeMs / 60000)}min ago — skipping lip sync, delivering cinematic version.`);
+      const syncJobIsStale = existingSyncJobId && assemblyAgeMs > 15 * 60 * 1000;
+      if (syncJobIsStale) {
+        console.warn(`[WizSync] Job ${jobId}: Sync Labs job ${existingSyncJobId} submitted ${Math.round(assemblyAgeMs / 60000)}min ago — stale, skipping lip sync, delivering cinematic version.`);
       } else {
         console.log(`[WizSync] sync-3 premium lip sync enabled for job ${jobId}. ${existingSyncJobId ? `Resuming job ${existingSyncJobId}` : 'Submitting new job'}...`);
         await dbConn.update(musicVideoJobs)

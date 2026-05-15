@@ -7927,3 +7927,10 @@
 - [x] Frontend: Auto-refreshes every 5 minutes
 - [x] Frontend: Only visible to admin users
 - [x] Frontend: Dismissible per-session
+
+## Critical Quality Fixes (Background Audio, Character Consistency, Lip Sync)
+- [ ] Fix 1: Background audio bleeding — strip all audio from individual scene clips before assembly, then overlay only the user's original audio track
+- [ ] Fix 2: Character inconsistency — audit reference image injection, seed usage, and prompt construction in Atlas Cloud scene generation
+- [ ] Fix 3: Lip sync not applied — trace why Sync Labs sync-3 pass is not producing lip-synced output; check if assembly reaches the lip sync step and if the API call succeeds
+- [ ] Fix 4: Scene 4 lip sync flag wrong — close-up of hand has lipSync=1, should be 0
+- [ ] Fix typo: "buildinging" → "building" in storyboard pre-render nudge text
