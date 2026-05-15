@@ -194,7 +194,10 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   providerSpendUsd: decimal("providerSpendUsd", { precision: 8, scale: 4 }).notNull().default("0"), // Total provider API cost for this job
   wastedSpendUsd: decimal("wastedSpendUsd", { precision: 8, scale: 4 }).notNull().default("0"),   // Provider cost from failed/timed-out scenes
   maxSpendLimitUsd: decimal("maxSpendLimitUsd", { precision: 6, scale: 2 }).notNull().default("25.00"), // Hard spend cap (default $25 — covers up to ~39 scenes at Atlas Cloud rates)
-  probePassed: boolean("probePassed"),                          // null = not probed, true = probe ok, false = probe failed
+  probePassed: boolean("probePassed"),                          // null = not probed yet, false = probe in progress, true = probe approved by owner
+  probeSceneId: int("probeSceneId"),                             // Which scene was used for the single-scene QA probe
+  probeVideoUrl: varchar("probeVideoUrl", { length: 1024 }),     // Completed probe clip URL for owner review
+  probeApprovedAt: timestamp("probeApprovedAt"),                 // When owner approved the probe — gates full render release
   finalVideoProduced: boolean("finalVideoProduced").notNull().default(false), // true only when final video URL is set
   // --- Provider Fallback System -------------------------------------------
   // When Atlas Cloud fails repeatedly on a job, the system auto-escalates to WaveSpeed.

@@ -1524,15 +1524,23 @@ Rules:
         console.warn("[pollProgress] pollPerSceneLipSyncJobs error:", e)
       );
 
+      const finalJob = updatedJob ?? job;
       return {
-        status: updatedJob?.status ?? job.status,
+        status: finalJob.status,
         totalScenes: scenes.length,
         completedScenes: completedCount,
         failedScenes: failedCount,
-        finalVideoUrl: updatedJob?.finalVideoUrl ?? null,
+        finalVideoUrl: finalJob.finalVideoUrl ?? null,
         // Timestamp when the job entered 'rendering' — used by the frontend elapsed timer
         // so the timer is accurate even after a page refresh.
-        jobStartedAt: (updatedJob ?? job).updatedAt ? new Date((updatedJob ?? job).updatedAt).getTime() : null,
+        jobStartedAt: finalJob.updatedAt ? new Date(finalJob.updatedAt).getTime() : null,
+        // ── PROBE GATE STATE ────────────────────────────────────────────────────
+        // probePassed: null = not started, false = probe in progress/awaiting approval, true = approved
+        probePassed: finalJob.probePassed,
+        probeVideoUrl: finalJob.probeVideoUrl ?? null,
+        probeState: finalJob.probePassed === null ? "not_started"
+          : finalJob.probePassed === false ? (finalJob.probeVideoUrl ? "awaiting_approval" : "rendering")
+          : "approved",
         // Per-scene status for real-time progress display
         sceneStatuses: updatedScenes.map((s) => ({
           id: s.id,
@@ -4905,6 +4913,93 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
         message: refundedCredits > 0
           ? `Render cancelled. ${refundedCredits} credits refunded for ${unrenderedCount} unrendered scenes.`
           : `Render cancelled. ${completedCount} scenes were already completed.`,
+      };
+    }),
+
+  // ── PROBE APPROVAL GATE ──────────────────────────────────────────────────────
+  // Owner reviews the single-scene probe clip and approves or rejects it.
+  // Approval releases the full render; rejection resets the probe for a re-run.
+
+  approveProbe: protectedProcedure
+    .input(z.object({ jobId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      if (job.probePassed !== false) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "No probe pending approval" });
+      }
+      await db.update(musicVideoJobs)
+        .set({ probePassed: true, probeApprovedAt: new Date(), updatedAt: new Date() })
+        .where(eq(musicVideoJobs.id, input.jobId));
+      console.log(`[MusicVideo] Job ${input.jobId} probe APPROVED by user ${ctx.user.id} — full render released`);
+      return { success: true, message: "Probe approved. Full render will begin on the next heartbeat tick." };
+    }),
+
+  rejectProbe: protectedProcedure
+    .input(z.object({ jobId: z.number(), reason: z.string().optional() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      if (job.probePassed !== false) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "No probe pending review" });
+      }
+      // Reset the probe scene back to pending and clear probe state
+      if (job.probeSceneId) {
+        await db.update(musicVideoScenes)
+          .set({
+            status: "pending",
+            taskId: null,
+            errorMessage: null,
+            lipSyncStatus: "pending",
+            lipSyncTaskId: null,
+            lipSyncVideoUrl: null,
+            updatedAt: new Date(),
+          })
+          .where(eq(musicVideoScenes.id, job.probeSceneId));
+      }
+      await db.update(musicVideoJobs)
+        .set({
+          probePassed: null,
+          probeSceneId: null,
+          probeVideoUrl: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(musicVideoJobs.id, input.jobId));
+      console.log(`[MusicVideo] Job ${input.jobId} probe REJECTED by user ${ctx.user.id}. Reason: ${input.reason ?? "not specified"}. Probe will re-run on next heartbeat.`);
+      return { success: true, message: "Probe rejected. A new probe scene will be dispatched on the next heartbeat tick." };
+    }),
+
+  // Get probe status for a job (used by UI to poll for probe completion)
+  getProbeStatus: protectedProcedure
+    .input(z.object({ jobId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const [job] = await db.select({
+        probePassed: musicVideoJobs.probePassed,
+        probeSceneId: musicVideoJobs.probeSceneId,
+        probeVideoUrl: musicVideoJobs.probeVideoUrl,
+        probeApprovedAt: musicVideoJobs.probeApprovedAt,
+        status: musicVideoJobs.status,
+      }).from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      return {
+        probePassed: job.probePassed,
+        probeSceneId: job.probeSceneId,
+        probeVideoUrl: job.probeVideoUrl,
+        probeApprovedAt: job.probeApprovedAt,
+        jobStatus: job.status,
+        // Derived state for UI
+        probeState: job.probePassed === null ? "not_started"
+          : job.probePassed === false ? (job.probeVideoUrl ? "awaiting_approval" : "rendering")
+          : "approved",
       };
     }),
 });

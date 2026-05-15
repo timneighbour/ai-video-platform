@@ -867,6 +867,9 @@ export default function MusicVideoAutopilot() {
   const [finalVideoUrl, setFinalVideoUrl] = useState<string | null>(null);
   const [sceneStatuses, setSceneStatuses] = useState<Record<number, string>>({});
   const [failedScenes, setFailedScenes] = useState(0);
+  // Probe gate state — controlled single-scene validation before full render
+  const [probeState, setProbeState] = useState<"not_started" | "rendering" | "awaiting_approval" | "approved">("not_started");
+  const [probeVideoUrl, setProbeVideoUrl] = useState<string | null>(null);
   // Per-scene statuses from pollProgress for the real-time progress grid
   const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; sceneIndex?: number; status: string; errorMessage?: string | null; prompt?: string; lyrics?: string | null; videoUrl?: string | null; lipSyncVideoUrl?: string | null; lipSyncStatus?: string | null; isApproved?: boolean }>>([]); 
   // Track which scenes are currently being retried
@@ -1006,6 +1009,14 @@ export default function MusicVideoAutopilot() {
   const cancelSceneMutation = trpc.musicVideo.cancelScene.useMutation();
   const retryAllFailedScenesMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
   const updateScenePromptMutation = trpc.musicVideo.updateScenePrompt.useMutation();
+  const approveProbe = trpc.musicVideo.approveProbe.useMutation({
+    onSuccess: () => { setProbeState("approved"); toast.success("Probe approved — full render starting!"); },
+    onError: (e) => toast.error(`Failed to approve probe: ${e.message}`),
+  });
+  const rejectProbe = trpc.musicVideo.rejectProbe.useMutation({
+    onSuccess: () => { setProbeState("not_started"); setProbeVideoUrl(null); toast.info("Probe rejected — job paused. Fix issues and re-render."); },
+    onError: (e) => toast.error(`Failed to reject probe: ${e.message}`),
+  });
   const pauseRenderMutation = trpc.musicVideo.pauseRender.useMutation();
   const resumeRenderMutation = trpc.musicVideo.resumeRender.useMutation();
   const cancelRenderMutation = trpc.musicVideo.cancelRender.useMutation();
@@ -2014,6 +2025,9 @@ export default function MusicVideoAutopilot() {
             setTotalScenes(progress.totalScenes);
             setFailedScenes(progress.failedScenes);
             setRenderStatus(progress.status);
+            // Update probe gate state from server
+            if ((progress as any).probeState) setProbeState((progress as any).probeState as "not_started" | "rendering" | "awaiting_approval" | "approved");
+            if ((progress as any).probeVideoUrl) setProbeVideoUrl((progress as any).probeVideoUrl as string);
             // Seed the elapsed timer from the server timestamp if we don't have a local start time
             // (e.g. after a page refresh mid-render). Use jobStartedAt from the server as the anchor.
             if (!renderStartTime && progress.jobStartedAt) {
@@ -5566,6 +5580,103 @@ export default function MusicVideoAutopilot() {
                           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-[--color-gold] inline-block" /> Done</span>
                           {failedScenes > 0 && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-amber-500/40 ring-1 ring-amber-400 inline-block" /> Failed</span>}
                         </div>
+
+                        {/* ===== PROBE GATE REVIEW PANEL ===== */}
+                        {(probeState === "rendering" || probeState === "awaiting_approval" || probeState === "approved") && (
+                          <div className={`mb-5 rounded-2xl border p-5 ${
+                            probeState === "awaiting_approval"
+                              ? "border-amber-500/40 bg-gradient-to-br from-[rgba(20,16,8,0.98)] to-[rgba(30,22,8,0.98)]"
+                              : probeState === "approved"
+                              ? "border-emerald-500/40 bg-gradient-to-br from-[rgba(8,20,12,0.98)] to-[rgba(8,30,16,0.98)]"
+                              : "border-purple-500/30 bg-gradient-to-br from-[rgba(14,10,20,0.98)] to-[rgba(20,14,30,0.98)]"
+                          }`}>
+                            {/* Header */}
+                            <div className="flex items-center gap-2 mb-3">
+                              {probeState === "rendering" && <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />}
+                              {probeState === "awaiting_approval" && <AlertCircle className="w-4 h-4 text-amber-400" />}
+                              {probeState === "approved" && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                              <p className="text-sm font-semibold text-white">
+                                {probeState === "rendering" && "Validation Scene Rendering…"}
+                                {probeState === "awaiting_approval" && "Probe Scene Ready — Review Before Full Render"}
+                                {probeState === "approved" && "Probe Approved — Full Render Underway"}
+                              </p>
+                              <span className={`ml-auto text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${
+                                probeState === "rendering" ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" :
+                                probeState === "awaiting_approval" ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" :
+                                "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                              }`}>
+                                {probeState === "rendering" ? "Rendering" : probeState === "awaiting_approval" ? "Awaiting Approval" : "Approved"}
+                              </span>
+                            </div>
+
+                            {/* Rendering state */}
+                            {probeState === "rendering" && (
+                              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                                <Loader2 className="w-5 h-5 text-purple-400 animate-spin flex-shrink-0" />
+                                <div>
+                                  <p className="text-sm text-white/80 font-medium">Rendering your validation scene</p>
+                                  <p className="text-xs text-white/40 mt-0.5">One scene is being rendered first so you can verify quality before committing to the full render. This protects your credits.</p>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Awaiting approval state — show video + approve/reject */}
+                            {probeState === "awaiting_approval" && probeVideoUrl && (
+                              <div className="space-y-4">
+                                <div className="rounded-xl overflow-hidden border border-amber-500/20" style={{maxWidth: 480}}>
+                                  <video
+                                    src={probeVideoUrl}
+                                    controls
+                                    className="w-full"
+                                    style={{maxHeight: 270}}
+                                  />
+                                </div>
+                                <p className="text-xs text-white/50 leading-relaxed">
+                                  Watch the clip above. If Zara looks correct, the lip sync is accurate, and the storyboard image is used as the first frame — click <strong className="text-emerald-400">Approve</strong> to release all remaining scenes. If something is wrong, click <strong className="text-red-400">Reject</strong> to pause the job and investigate.
+                                </p>
+                                <div className="flex items-center gap-3">
+                                  <button
+                                    onClick={() => jobId && approveProbe.mutate({ jobId })}
+                                    disabled={approveProbe.isPending || rejectProbe.isPending}
+                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 text-sm font-semibold hover:bg-emerald-500/30 transition-colors border border-emerald-500/40 disabled:opacity-50"
+                                  >
+                                    {approveProbe.isPending
+                                      ? <><Loader2 className="w-4 h-4 animate-spin" /> Approving…</>
+                                      : <><CheckCircle2 className="w-4 h-4" /> Approve &amp; Release Full Render</>}
+                                  </button>
+                                  <button
+                                    onClick={() => jobId && rejectProbe.mutate({ jobId })}
+                                    disabled={approveProbe.isPending || rejectProbe.isPending}
+                                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500/10 text-red-400 text-sm font-semibold hover:bg-red-500/20 transition-colors border border-red-500/20 disabled:opacity-50"
+                                  >
+                                    {rejectProbe.isPending
+                                      ? <><Loader2 className="w-4 h-4 animate-spin" /> Rejecting…</>
+                                      : <><X className="w-4 h-4" /> Reject — Pause &amp; Investigate</>}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Awaiting approval but video not yet available */}
+                            {probeState === "awaiting_approval" && !probeVideoUrl && (
+                              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                                <Loader2 className="w-4 h-4 text-amber-400 animate-spin flex-shrink-0" />
+                                <p className="text-xs text-white/60">Probe video is ready — loading preview…</p>
+                              </div>
+                            )}
+
+                            {/* Approved state */}
+                            {probeState === "approved" && (
+                              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                                <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                                <div>
+                                  <p className="text-sm text-white/80 font-medium">Probe approved — full render released</p>
+                                  <p className="text-xs text-white/40 mt-0.5">All remaining scenes are now being dispatched. The validated probe scene is included in the final video.</p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
 
                         {/* ===== LIVE SCENE PREVIEW GRID ===== */}
                         <ScenePreviewGrid

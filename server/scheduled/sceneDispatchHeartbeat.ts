@@ -42,6 +42,7 @@ import { sdk } from "../_core/sdk";
 import { startSceneRender, pollSceneStatus, assembleMusicVideo } from "../music-video-service";
 import { extractSceneAudioClip } from "../audio-clip-extractor";
 import { submitSyncLabsLipSync, pollSyncLabsLipSync } from "../ai-apis/synclabs-lipsync";
+import { getProbeDecision } from "../pre-render-validator";
 import type { AudioTier } from "../wizsound";
 
 const SCENE_STUCK_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes — reaper handles beyond this
@@ -140,15 +141,46 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           pendingScenes.push(...refreshed.filter(s => failedScenes.some(f => f.id === s.id)));
         }
 
-        // ── 3. Dispatch ALL pending scenes ─────────────────────────────────────
+        // ── 3. CONTROLLED VALIDATION: Probe gate ──────────────────────────────
+        // Before dispatching ANY scenes, run the pre-render validator and probe gate.
+        // probePassed=null  → dispatch only the probe scene (best vocal scene)
+        // probePassed=false → probe in progress — block all other scenes
+        // probePassed=true  → owner approved — dispatch all remaining scenes
+        const probeDecision = await getProbeDecision(job.id);
+
+        if (probeDecision.mode === "blocked") {
+          console.log(`[SceneDispatch] Job ${job.id} BLOCKED by probe gate: ${probeDecision.reason}`);
+          // Log validation failures for visibility
+          const failedChecks = probeDecision.validationResult.checks.filter(c => !c.passed);
+          if (failedChecks.length > 0) {
+            console.warn(`[SceneDispatch] Job ${job.id} failed checks: ${failedChecks.map(c => c.name).join(", ")}`);
+          }
+          // Still continue polling and Sync Labs — only block new dispatches
+        } else if (probeDecision.mode === "probe_only") {
+          // Only dispatch the probe scene — filter pendingScenes to just the probe
+          const probeScene = pendingScenes.find(s => s.id === probeDecision.probeSceneId);
+          if (probeScene) {
+            console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — dispatching only scene ${probeScene.id} (index ${probeScene.sceneIndex}) for QA validation`);
+            // Mark job as probe in progress
+            await db.update(musicVideoJobs)
+              .set({ probePassed: false, probeSceneId: probeScene.id, updatedAt: new Date() })
+              .where(eq(musicVideoJobs.id, job.id));
+            // Replace pendingScenes with just the probe scene for dispatch loop below
+            pendingScenes.length = 0;
+            pendingScenes.push(probeScene);
+          } else {
+            console.warn(`[SceneDispatch] Job ${job.id} PROBE MODE — probe scene ${probeDecision.probeSceneId} not found in pending scenes`);
+            pendingScenes.length = 0; // Block all dispatches
+          }
+        } else {
+          // full_render — dispatch all pending scenes normally
+          console.log(`[SceneDispatch] Job ${job.id} FULL RENDER MODE — probe approved, dispatching ${pendingScenes.length} pending scene(s)`);
+        }
+
+        // ── 4. Dispatch pending scenes (filtered by probe gate above) ──────────
         // STRATEGY ROUTING:
-        //   Strategy 1 (reference-to-video): scene.lipSync=true + job.audioUrl + scene.startTime
-        //     → Atlas Cloud Seedance 2.0 reference-to-video with character portrait + audio
-        //     → Produces character-consistent clip with audio-driven lip sync
-        //   Strategy 2 (image-to-video): character portrait available, no lip sync
-        //     → Atlas Cloud image-to-video with character portrait only
-        //   Strategy 3 (text-to-video): no character portrait
-        //     → Atlas Cloud text-to-video (fallback only)
+        //   image-to-video (storyboard image as starting frame, generate_audio:false)
+        //   + Sync Labs lip sync for vocal scenes (lipSync=true)
         for (const scene of pendingScenes) {
           try {
             const willUseLipSync = (scene.lipSync ?? false) && !!job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
@@ -325,6 +357,20 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   .where(eq(musicVideoScenes.id, scene.id));
                 console.log(`[SceneDispatch] Scene ${scene.id} completed (no lip sync needed) ✓`);
               }
+
+              // ── PROBE: store probeVideoUrl on job when probe scene completes ──
+              try {
+                const [currentJob] = await db.select({ probeSceneId: musicVideoJobs.probeSceneId, probePassed: musicVideoJobs.probePassed })
+                  .from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
+                if (currentJob?.probeSceneId === scene.id && currentJob?.probePassed === false) {
+                  // The probe scene just completed — store its video URL for owner review
+                  const probeUrl = pollResult.videoUrl;
+                  await db.update(musicVideoJobs)
+                    .set({ probeVideoUrl: probeUrl, updatedAt: new Date() })
+                    .where(eq(musicVideoJobs.id, job.id));
+                  console.log(`[SceneDispatch] Job ${job.id} PROBE COMPLETE — video ready for owner review: ${probeUrl.slice(0, 60)}...`);
+                }
+              } catch { /* non-fatal */ }
               totalPolled++;
             } else if (pollResult?.status === "failed") {
               await db.update(musicVideoScenes)

@@ -7934,3 +7934,32 @@
 - [ ] Fix 3: Lip sync not applied — trace why Sync Labs sync-3 pass is not producing lip-synced output; check if assembly reaches the lip sync step and if the API call succeeds
 - [ ] Fix 4: Scene 4 lip sync flag wrong — close-up of hand has lipSync=1, should be 0
 - [ ] Fix typo: "buildinging" → "building" in storyboard pre-render nudge text
+
+## Controlled Production Validation Mode (15 May 2026)
+
+- [ ] Pre-render validation service: check storyboardImageUrl, audioUrl, lipSync, sceneStartTime, characterRef, provider balance, ffmpeg, Sync Labs
+- [ ] Block scene dispatch if any validation check fails — surface reason to UI and logs
+- [ ] Single-scene QA pipeline: dispatch only one scene (active vocal section), block full render until owner approves
+- [ ] DB columns: add qaStatus (none/pending/approved/rejected), qaSceneId, qaVideoUrl, qaApprovedAt to musicVideoJobs
+- [ ] Heartbeat: respect qaStatus — only dispatch remaining scenes when qaStatus=approved
+- [ ] Financial protection: per-job maxSpendUsd cap, scene cost tracking, auto-stop on overspend
+- [ ] Provider failure alerts: notify owner when Atlas Cloud or Sync Labs fails
+- [ ] Validation dashboard UI: show pre-render checks, QA scene player, approve/reject buttons, cost tracker
+- [ ] Run single-scene validation for job 540026 (Zara scene 3) and present for approval
+- [ ] Deliver validation report: character consistency, lip sync, cost, reliability
+
+## Probe Gate / Controlled Validation Mode — COMPLETED ✅
+- [x] DB schema: added probePassed, probeSceneId, probeVideoUrl, probeApprovedAt columns to musicVideoJobs
+- [x] DB migration: applied schema changes to production DB
+- [x] Backend: pre-render validator (server/pre-render-validator.ts) — checks audio URL, storyboard images, lip sync flags, ffmpeg, spend cap
+- [x] Backend: getProbeDecision() — returns probe_only / blocked / full_render based on probePassed state
+- [x] Heartbeat: probe gate wired — dispatches only 1 probe scene when probePassed=null, blocks full render when probePassed=false
+- [x] Heartbeat: stores probeVideoUrl on job when probe scene completes
+- [x] tRPC: approveProbe, rejectProbe, getProbeStatus procedures added to musicVideo router
+- [x] tRPC: pollProgress now returns probeState, probeVideoUrl, probePassed fields
+- [x] Frontend: probeState and probeVideoUrl state variables added to MusicVideoAutopilot.tsx
+- [x] Frontend: pollProgress handler updates probeState and probeVideoUrl from server
+- [x] Frontend: approveProbe and rejectProbe tRPC mutations wired
+- [x] Frontend: Probe Review Panel built in render step — shows rendering/awaiting_approval/approved states with video player and Approve/Reject buttons
+- [x] TypeScript: no type errors (tsc --noEmit exit 0)
+- [x] Tests: 664/664 passing
