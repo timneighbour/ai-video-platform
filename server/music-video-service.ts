@@ -783,11 +783,11 @@ export async function startSceneRender(
     // Used when job.fallbackProvider='wavespeed' is set (Atlas known-bad).
     // The in-memory circuit breaker resets on Cloud Run cold starts, so we need this DB-level override.
     if (renderer === "wavespeed") {
-      console.log(`[MusicVideo] Scene ${sceneId}: WAVESPEED DIRECT (renderer override — skipping Atlas entirely)`);
-      const wsCircuitDirect = getCircuitBreaker("wavespeed");
-      if (!wsCircuitDirect.canRequest()) {
-        throw new Error(`WaveSpeed circuit is OPEN for scene ${sceneId}. Please try again shortly.`);
-      }
+      // WAVESPEED DIRECT: DB-level override — bypass circuit breaker entirely.
+      // When fallbackProvider=wavespeed is set, WaveSpeed is the ONLY provider available.
+      // The circuit breaker is in-memory and can be OPEN in any Cloud Run container instance.
+      // A DB-level override must never be blocked by in-memory state.
+      console.log(`[MusicVideo] Scene ${sceneId}: WAVESPEED DIRECT (renderer override — circuit breaker bypassed)`);
       try {
         const wsDirectResult = await startSceneRenderWaveSpeed(
           sceneId,
@@ -799,10 +799,8 @@ export async function startSceneRender(
           jobId,
           characterImageUrl ?? undefined
         );
-        wsCircuitDirect.recordSuccess();
         return wsDirectResult;
       } catch (wsDirectErr: any) {
-        wsCircuitDirect.recordFailure();
         throw new Error(`WaveSpeed render failed for scene ${sceneId}: ${String(wsDirectErr?.message ?? wsDirectErr).slice(0, 200)}`);
       }
     }
