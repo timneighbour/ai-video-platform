@@ -7972,3 +7972,11 @@
 - [x] Add amber "Paused — Action Required" banner with Resume/Delete decision UI
 - [x] Add pause button on actively rendering job cards
 - [x] Add paused status to JobStatus type and StatusBadge component
+
+## Pipeline Root-Cause Fixes (Priority — Must Ship)
+
+- [ ] Fix ffmpeg in production: chmod +x the bundled binary before execution; test in Cloud Run environment
+- [ ] Fix SyncLabs submission: sequential with retry/backoff, max 2 concurrent, never parallel burst
+- [ ] Fix stale job dispatch: heartbeat hard-guard — only process jobs with status='rendering', skip all others
+- [ ] Remove in-memory circuit breaker: replace with DB-persisted providerHealth table
+- [ ] TypeScript check, checkpoint, publish, verify end-to-end

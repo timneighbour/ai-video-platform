@@ -830,10 +830,9 @@ export async function startSceneRender(
       console.warn(`[MusicVideo] Scene ${sceneId}: Atlas Cloud circuit OPEN — routing to WaveSpeed fallback.`);
     }
     // ── Step 2: WaveSpeed fallback ($1.80/scene) ───────────────────────────────────
-    const wsCircuit = getCircuitBreaker("wavespeed");
-    if (!wsCircuit.canRequest()) {
-      throw new Error(`Video generation failed for scene ${sceneId}. Both Atlas Cloud and WaveSpeed circuits are OPEN. Please try again shortly.`);
-    }
+    // NOTE: WaveSpeed circuit breaker intentionally NOT checked here.
+    // The in-memory circuit breaker is unreliable across Cloud Run container instances.
+    // If Atlas Cloud fails, WaveSpeed is always attempted regardless of circuit state.
     try {
       const wsResult = await startSceneRenderWaveSpeed(
         sceneId,
@@ -845,10 +844,8 @@ export async function startSceneRender(
         jobId,
         characterImageUrl ?? undefined // ── CHARACTER LOCK™: pass portrait for dual-anchor injection
       );
-      wsCircuit.recordSuccess();
       return wsResult;
     } catch (wsErr: any) {
-      wsCircuit.recordFailure();
       const wsMsg = String(wsErr?.message ?? wsErr);
       console.error(`[MusicVideo] Scene ${sceneId} WaveSpeed fallback also failed: ${wsMsg.slice(0, 200)}`);
       throw new Error(`Video generation failed for scene ${sceneId}. Both Atlas Cloud and WaveSpeed are currently unavailable. Please try again shortly.`);

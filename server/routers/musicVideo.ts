@@ -693,10 +693,17 @@ Rules:
             )
           );
         if (activeJobs.length > 0) {
-          throw new TRPCError({
-            code: "TOO_MANY_REQUESTS",
-            message: "You already have a video rendering. Please wait for it to complete before starting another.",
-          });
+          // Auto-cancel stale rendering/assembling jobs — prevents credit waste from orphaned jobs
+          console.warn(`[MusicVideo] User ${ctx.user.id} has ${activeJobs.length} stale active job(s) — auto-cancelling before starting new render`);
+          for (const staleJob of activeJobs) {
+            await db.update(musicVideoJobs)
+              .set({ status: "cancelled", updatedAt: new Date() })
+              .where(eq(musicVideoJobs.id, staleJob.id));
+            await db.update(musicVideoScenes)
+              .set({ status: "failed", updatedAt: new Date() })
+              .where(and(eq(musicVideoScenes.jobId, staleJob.id), inArray(musicVideoScenes.status, ["pending", "generating"])));
+            console.warn(`[MusicVideo] Auto-cancelled stale job ${staleJob.id} for user ${ctx.user.id}`);
+          }
         }
 
         // ── Daily render cap (3 renders/day per user) ──────────────────────────────

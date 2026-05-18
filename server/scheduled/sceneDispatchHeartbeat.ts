@@ -107,6 +107,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
     let totalLipSyncSubmitted = 0;
     let totalLipSyncPolled = 0;
     let totalAssembled = 0;
+    // SyncLabs concurrency guard: max 2 submissions per heartbeat tick to avoid 429 rate limit errors
+    let syncLabsSubmittedThisTick = 0;
+    const SYNC_LABS_MAX_PER_TICK = 2;
 
     for (const job of activeJobs) {
       try {
@@ -314,7 +317,15 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               const needsLipSync = (scene.lipSync ?? false) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
 
               if (needsLipSync) {
-                // Submit to Sync Labs immediately — don't wait for next tick
+                // Rate-limit SyncLabs submissions: max 2 per heartbeat tick
+                if (syncLabsSubmittedThisTick >= SYNC_LABS_MAX_PER_TICK) {
+                  // Mark scene completed with raw clip for now; lip sync will be submitted next tick
+                  await db.update(musicVideoScenes)
+                    .set({ status: "completed", videoUrl: pollResult.videoUrl, lipSyncStatus: "pending", updatedAt: new Date() })
+                    .where(eq(musicVideoScenes.id, scene.id));
+                  console.log(`[SceneDispatch] Scene ${scene.id} clip ready — SyncLabs rate limit reached (${syncLabsSubmittedThisTick}/${SYNC_LABS_MAX_PER_TICK}), will submit next tick`);
+                } else {
+                // Submit to Sync Labs
                 try {
                   console.log(`[SceneDispatch] Scene ${scene.id} clip ready — submitting to Sync Labs for lip sync (startTime=${scene.startTime}s)`);
                   const sceneAudioUrl = await extractSceneAudioClip(
@@ -343,6 +354,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                     .where(eq(musicVideoScenes.id, scene.id));
                   console.log(`[SceneDispatch] Scene ${scene.id} → Sync Labs job ${syncJobId} submitted ✓`);
                   totalLipSyncSubmitted++;
+                  syncLabsSubmittedThisTick++;
                 } catch (syncSubmitErr: any) {
                   // If Sync Labs submission fails, still mark scene completed with raw clip
                   // Assembly will use the raw clip (no lip sync) rather than blocking forever
@@ -356,6 +368,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                     })
                     .where(eq(musicVideoScenes.id, scene.id));
                 }
+                } // end else (syncLabsSubmittedThisTick < SYNC_LABS_MAX_PER_TICK)
               } else {
                 // No lip sync needed — mark as completed with raw clip
                 await db.update(musicVideoScenes)
