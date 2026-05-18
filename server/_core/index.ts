@@ -409,6 +409,24 @@ async function startServer() {
     }
   });
 
+  // ── Debug: circuit breaker reset (owner-only, temporary) ──────────────────
+  app.post("/api/debug/reset-circuit/:provider", async (req, res) => {
+    try {
+      const secret = req.query.secret as string;
+      if (!secret || secret !== process.env.JWT_SECRET?.slice(0, 16)) {
+        return res.status(403).json({ error: "forbidden" });
+      }
+      const { resetCircuitBreaker, getCircuitBreaker } = await import("../circuit-breaker");
+      const provider = req.params.provider;
+      resetCircuitBreaker(provider);
+      const status = getCircuitBreaker(provider).getStatus();
+      console.log(`[Debug] Circuit breaker reset for provider: ${provider}`);
+      return res.json({ ok: true, provider, state: status.state });
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
+    }
+  });
+
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
