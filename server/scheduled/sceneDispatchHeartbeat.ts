@@ -155,6 +155,8 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           if (failedChecks.length > 0) {
             console.warn(`[SceneDispatch] Job ${job.id} failed checks: ${failedChecks.map(c => c.name).join(", ")}`);
           }
+          // CRITICAL: Clear pendingScenes so no scenes are dispatched while probe gate is blocking
+          pendingScenes.length = 0;
           // Still continue polling and Sync Labs — only block new dispatches
         } else if (probeDecision.mode === "probe_only") {
           // Only dispatch the probe scene — filter pendingScenes to just the probe
@@ -450,6 +452,18 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                       .where(eq(musicVideoScenes.id, scene.id));
                     console.log(`[SceneDispatch] Scene ${scene.id} Sync Labs lip sync DONE ✓ → ${url.slice(0, 60)}...`);
                     totalLipSyncPolled++;
+
+                    // ── PROBE: if this is the probe scene, set probeVideoUrl (lip-synced version) ──
+                    try {
+                      const [currentJob] = await db.select({ probeSceneId: musicVideoJobs.probeSceneId, probePassed: musicVideoJobs.probePassed })
+                        .from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
+                      if (currentJob?.probeSceneId === scene.id && currentJob?.probePassed === false) {
+                        await db.update(musicVideoJobs)
+                          .set({ probeVideoUrl: url, updatedAt: new Date() })
+                          .where(eq(musicVideoJobs.id, job.id));
+                        console.log(`[SceneDispatch] Job ${job.id} PROBE LIP SYNC COMPLETE — lip-synced video ready for owner review: ${url.slice(0, 60)}...`);
+                      }
+                    } catch { /* non-fatal */ }
                   } else {
                     // Completed but no URL — treat as error
                     console.error(`[SceneDispatch] Scene ${scene.id} Sync Labs COMPLETED but no outputUrl — using raw clip`);
