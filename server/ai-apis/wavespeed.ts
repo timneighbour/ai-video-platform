@@ -8,6 +8,12 @@ export type WaveSpeedModel =
   | "bytedance/seedance-2.0-fast/text-to-video"
   | "bytedance/seedance-v1.5-pro/text-to-video";
 
+/** Image-to-video model variants — use when a storyboard image is available */
+export type WaveSpeedI2VModel =
+  | "bytedance/seedance-2.0-fast/image-to-video"
+  | "bytedance/seedance-2.0/image-to-video"
+  | "bytedance/seedance-v1.5-pro/image-to-video";
+
 export interface WaveSpeedVideoRequest {
   prompt: string;
   aspect_ratio?: "16:9" | "9:16" | "4:3" | "3:4" | "1:1" | "21:9";
@@ -17,6 +23,15 @@ export interface WaveSpeedVideoRequest {
   reference_videos?: string[];
   reference_audios?: string[];
   enable_web_search?: boolean;
+}
+
+export interface WaveSpeedI2VRequest {
+  prompt: string;
+  /** Primary storyboard image URL — used as the first frame anchor */
+  image: string;
+  aspect_ratio?: "16:9" | "9:16" | "4:3" | "3:4" | "1:1" | "21:9";
+  duration?: 5 | 10 | 15;
+  resolution?: "480p" | "720p" | "1080p";
 }
 
 export interface WaveSpeedVideoResponse {
@@ -43,8 +58,8 @@ function extractWaveSpeedData(responseData: any): WaveSpeedVideoResponse {
 }
 
 /**
- * Submit a video generation request to WaveSpeed AI (v3 API)
- * Model is encoded in the URL path. Returns the prediction/task ID.
+ * Submit a text-to-video request to WaveSpeed AI (v3 API).
+ * Use submitWaveSpeedImageToVideo when a storyboard image is available.
  */
 export async function submitWaveSpeedVideo(
   request: WaveSpeedVideoRequest,
@@ -97,6 +112,82 @@ export async function submitWaveSpeedVideo(
       throw new Error(`WaveSpeed API error: ${status} ${detail}`);
     }
     throw error;
+  }
+}
+
+/**
+ * Submit an image-to-video request to WaveSpeed AI (v3 API).
+ * Uses the dedicated image-to-video endpoint with the `image` parameter
+ * (NOT reference_images) — this is the correct way to anchor the first frame.
+ * 
+ * This is the PRIMARY render path for WIZ AI cinematic production:
+ * storyboard image → WaveSpeed image-to-video → silent cinematic clip
+ */
+export async function submitWaveSpeedImageToVideo(
+  request: WaveSpeedI2VRequest,
+  model: WaveSpeedI2VModel = "bytedance/seedance-2.0-fast/image-to-video"
+): Promise<string> {
+  if (!WAVESPEED_API_KEY) {
+    throw new Error("WAVESPEED_API_KEY not configured");
+  }
+
+  const body: Record<string, unknown> = {
+    prompt: request.prompt,
+    image: request.image,
+    duration: request.duration ?? 5,
+    size: resolutionToSize(request.resolution ?? "720p", request.aspect_ratio ?? "16:9"),
+  };
+
+  try {
+    const response = await axios.post(
+      `${WAVESPEED_API_BASE}/${model}`,
+      body,
+      {
+        headers: {
+          Authorization: `Bearer ${WAVESPEED_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        timeout: 30000,
+      }
+    );
+
+    const responseData = response.data;
+    // Check for API-level error in response body (WaveSpeed returns 200 with error in body)
+    if (responseData?.code && responseData.code !== 200) {
+      throw new Error(`WaveSpeed image-to-video error: ${responseData.message || JSON.stringify(responseData)}`);
+    }
+
+    const inner = extractWaveSpeedData(responseData);
+    const taskId = inner?.id;
+    if (!taskId) {
+      throw new Error(
+        `WaveSpeed image-to-video: no task id in response: ${JSON.stringify(responseData)}`
+      );
+    }
+    return taskId;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      const detail =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message;
+      throw new Error(`WaveSpeed image-to-video API error: ${status} ${detail}`);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Convert resolution + aspect ratio to WaveSpeed's `size` parameter format (e.g. "1280:720").
+ */
+function resolutionToSize(resolution: string, aspectRatio: string): string {
+  const isPortrait = aspectRatio === "9:16";
+  switch (resolution) {
+    case "1080p": return isPortrait ? "1080:1920" : "1920:1080";
+    case "480p":  return isPortrait ? "480:854"   : "854:480";
+    case "720p":
+    default:      return isPortrait ? "720:1280"  : "1280:720";
   }
 }
 

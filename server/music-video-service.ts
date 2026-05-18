@@ -32,7 +32,7 @@ import { submitFalSeedanceVideo, pollFalSeedanceVideo } from "./ai-apis/fal-seed
 import { submitHyperealVideo, pollHyperealVideo, HYPEREAL_MODELS } from "./ai-apis/hypereal";
 import { submitAtlasVideo, submitAtlasReferenceToVideo, submitAtlasImageToVideo, pollAtlasVideo } from "./ai-apis/atlascloud";
 import { extractSceneAudioClip } from "./audio-clip-extractor";
-import { submitWaveSpeedVideo, pollWaveSpeedVideo, type WaveSpeedModel } from "./ai-apis/wavespeed";
+import { submitWaveSpeedVideo, submitWaveSpeedImageToVideo, pollWaveSpeedVideo, type WaveSpeedModel, type WaveSpeedI2VModel } from "./ai-apis/wavespeed";
 import { submitGrokVideo, pollGrokVideo } from "./ai-apis/grok-imagine";
 import type { RendererType } from "./products";
 import { RENDERER_COSTS } from "./products";
@@ -1888,42 +1888,49 @@ async function startSceneRenderWaveSpeed(
   const wsDuration: 5 | 10 | 15 = duration <= 5 ? 5 : duration <= 10 ? 10 : 15;
 
   // DUAL-ANCHOR CHARACTER LOCK™:
-  // reference_images[0] = character master portrait (identity anchor — WHO appears)
-  // reference_images[1] = storyboard preview frame (visual anchor — WHAT it looks like)
-  // Both anchors together enforce character consistency AND visual continuity.
-  const referenceImages: string[] = [];
-
-  if (characterPortraitUrl) {
-    referenceImages.push(characterPortraitUrl);
-    console.log(`[MusicVideo] Scene ${sceneId} CHARACTER LOCK™: portrait injected as ref[0] — ${characterPortraitUrl.slice(0, 80)}...`);
-  } else {
-    console.warn(`[MusicVideo] Scene ${sceneId} CHARACTER LOCK™ WARNING: no portrait URL — identity not anchored. Render may produce inconsistent character.`);
-  }
-
+  // ── PRIMARY PATH: Image-to-Video (storyboard image as first frame) ──────────────────
+  // When a storyboard image is available, use the dedicated i2v endpoint.
+  // This is the correct WaveSpeed API for first-frame-anchored cinematic rendering.
+  // The `image` parameter (single URL) is required — NOT reference_images.
   if (storyboardImageUrl) {
-    referenceImages.push(storyboardImageUrl);
-    console.log(`[MusicVideo] Scene ${sceneId} STORYBOARD LOCK: preview frame injected as ref[${referenceImages.length - 1}] — ${storyboardImageUrl.slice(0, 80)}...`);
+    console.log(`[MusicVideo] Scene ${sceneId} STORYBOARD-ANCHORED I2V: using image-to-video endpoint — ${storyboardImageUrl.slice(0, 80)}...`);
   } else {
-    console.warn(`[MusicVideo] Scene ${sceneId} WARNING: no storyboard preview image — visual anchor missing`);
+    console.warn(`[MusicVideo] Scene ${sceneId} WARNING: no storyboard image — falling back to text-to-video. Character Lock™ NOT enforced.`);
   }
-
-  if (referenceImages.length === 0) {
-    console.warn(`[MusicVideo] Scene ${sceneId} CRITICAL: no reference images at all — text-to-video only. Character Lock™ NOT enforced.`);
+  if (characterPortraitUrl) {
+    console.log(`[MusicVideo] Scene ${sceneId} CHARACTER LOCK™ NOTE: portrait available; storyboard image is the primary visual anchor for i2v.`);
   }
 
   const trySubmit = async (p: string): Promise<string> => {
-    const taskId = await submitWaveSpeedVideo(
-      {
-        prompt: p,
-        duration: wsDuration,
-        aspect_ratio: aspectRatio,
-        resolution: "720p",
-        reference_images: referenceImages,
-      },
-      model
-    );
-    if (!taskId) throw new Error(`WaveSpeed: no task_id returned for scene ${sceneId}`);
-    return taskId;
+    if (storyboardImageUrl) {
+      // ── IMAGE-TO-VIDEO: storyboard image anchors the first frame ──────────────
+      const i2vModel: WaveSpeedI2VModel = "bytedance/seedance-2.0-fast/image-to-video";
+      const taskId = await submitWaveSpeedImageToVideo(
+        {
+          prompt: p,
+          image: storyboardImageUrl,
+          duration: wsDuration,
+          aspect_ratio: aspectRatio,
+          resolution: "720p",
+        },
+        i2vModel
+      );
+      if (!taskId) throw new Error(`WaveSpeed i2v: no task_id returned for scene ${sceneId}`);
+      return taskId;
+    } else {
+      // ── TEXT-TO-VIDEO fallback: no storyboard image available ─────────────────
+      const taskId = await submitWaveSpeedVideo(
+        {
+          prompt: p,
+          duration: wsDuration,
+          aspect_ratio: aspectRatio,
+          resolution: "720p",
+        },
+        model
+      );
+      if (!taskId) throw new Error(`WaveSpeed t2v: no task_id returned for scene ${sceneId}`);
+      return taskId;
+    }
   };
 
   let taskId: string;
