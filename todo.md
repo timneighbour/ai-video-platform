@@ -7963,3 +7963,12 @@
 - [x] Frontend: Probe Review Panel built in render step — shows rendering/awaiting_approval/approved states with video player and Approve/Reject buttons
 - [x] TypeScript: no type errors (tsc --noEmit exit 0)
 - [x] Tests: 664/664 passing
+
+## Render Safety & Pause System
+- [x] Emergency DB pause — set all rendering jobs to paused to stop WaveSpeed spend
+- [x] Cancel all stale/old jobs that were dispatching alongside current job
+- [x] Fix heartbeat to only process jobs with status='rendering' (hard guard comment added)
+- [x] Add user-facing pause/resume/delete controls in MyProjects page
+- [x] Add amber "Paused — Action Required" banner with Resume/Delete decision UI
+- [x] Add pause button on actively rendering job cards
+- [x] Add paused status to JobStatus type and StatusBadge component

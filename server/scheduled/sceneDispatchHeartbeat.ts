@@ -68,6 +68,10 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
     }
 
     // ── 1. Find all jobs actively rendering ───────────────────────────────────
+    // IMPORTANT: Only process jobs with status='rendering'.
+    // Jobs with status='paused', 'cancelled', 'completed', 'failed', 'draft',
+    // or 'storyboard_ready' must NEVER be dispatched here.
+    // This is a hard guard — do not relax this filter.
     const activeJobs = await db
       .select({
         id: musicVideoJobs.id,

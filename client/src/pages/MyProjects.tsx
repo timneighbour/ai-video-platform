@@ -1,8 +1,6 @@
-import BackButton from "@/components/BackButton";
 import { trpc } from "@/lib/trpc";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +18,6 @@ import {
   Edit3,
   Trash2,
   Music,
-  Video,
   Clock,
   CheckCircle2,
   AlertCircle,
@@ -30,18 +27,22 @@ import {
   Sparkles,
   BookmarkCheck,
   Share2,
+  Pause,
+  Play,
 } from "@/lib/icons";
 
-type JobStatus = "draft" | "storyboard_ready" | "rendering" | "assembling" | "completed" | "failed";
+type JobStatus = "draft" | "storyboard_ready" | "rendering" | "assembling" | "completed" | "failed" | "paused" | "cancelled";
 
 function StatusBadge({ status }: { status: JobStatus }) {
   const config: Record<JobStatus, { label: string; className: string; icon: React.ReactNode }> = {
     draft:            { label: "Draft",            className: "bg-zinc-800 text-zinc-400 border-zinc-700",          icon: <Edit3 className="w-3 h-3" /> },
     storyboard_ready: { label: "Storyboard Ready", className: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30", icon: <BookmarkCheck className="w-3 h-3" /> },
-    rendering:        { label: "Building Your Video",        className: "bg-blue-500/15 text-[--color-gold] border-[--color-gold]/30",    icon: <Loader2 className="w-3 h-3 animate-spin" /> },
-    assembling:       { label: "Assembling",       className: "bg-blue-500/15 text-[--color-gold] border-[--color-gold]/30",    icon: <Loader2 className="w-3 h-3 animate-spin" /> },
+    rendering:        { label: "Building Your Video", className: "bg-blue-500/15 text-[--color-gold] border-[--color-gold]/30", icon: <Loader2 className="w-3 h-3 animate-spin" /> },
+    assembling:       { label: "Assembling",       className: "bg-blue-500/15 text-[--color-gold] border-[--color-gold]/30", icon: <Loader2 className="w-3 h-3 animate-spin" /> },
     completed:        { label: "Complete",         className: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30", icon: <CheckCircle2 className="w-3 h-3" /> },
     failed:           { label: "Failed",           className: "bg-red-500/15 text-red-300 border-red-500/30",       icon: <AlertCircle className="w-3 h-3" /> },
+    paused:           { label: "Paused — Action Required", className: "bg-amber-500/15 text-amber-300 border-amber-500/40 animate-pulse", icon: <Pause className="w-3 h-3" /> },
+    cancelled:        { label: "Cancelled",        className: "bg-zinc-800 text-zinc-500 border-zinc-700",          icon: <AlertCircle className="w-3 h-3" /> },
   };
   const { label, className, icon } = config[status] ?? config.draft;
   return (
@@ -62,10 +63,21 @@ function formatDate(ts: Date | string | number): string {
   return new Date(ts).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
 
-function ProjectCard({ job, onDelete }: { job: any; onDelete: (id: number) => void }) {
+function ProjectCard({
+  job,
+  onDelete,
+  onPause,
+  onResume,
+}: {
+  job: any;
+  onDelete: (id: number) => void;
+  onPause: (id: number) => void;
+  onResume: (id: number) => void;
+}) {
   const thumbnailUrl = job.thumbnailUrl ?? null;
   const isActive = job.status === "rendering" || job.status === "assembling";
-  const pct = isActive && job.totalScenes > 0
+  const isPaused = job.status === "paused";
+  const pct = (isActive || isPaused) && job.totalScenes > 0
     ? Math.round((job.completedScenes / job.totalScenes) * 100)
     : null;
 
@@ -90,7 +102,24 @@ function ProjectCard({ job, onDelete }: { job: any; onDelete: (id: number) => vo
   }
 
   return (
-    <div className="flex flex-col rounded-xl bg-[#141414] border border-white/8 hover:border-white/14 transition-all overflow-hidden group">
+    <div className={`flex flex-col rounded-xl border transition-all overflow-hidden group ${
+      isPaused
+        ? "bg-[#1a1200] border-amber-500/30 hover:border-amber-400/50"
+        : "bg-[#141414] border-white/8 hover:border-white/14"
+    }`}>
+      {/* Paused banner */}
+      {isPaused && (
+        <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 flex items-start gap-2">
+          <Pause className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+          <div>
+            <p className="text-amber-300 text-xs font-semibold">Rendering Paused — Your Decision Required</p>
+            <p className="text-amber-400/70 text-xs mt-0.5">
+              {job.completedScenes}/{job.totalScenes} scenes completed ({pct}%). Resume to continue spending credits, or delete this project.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Thumbnail */}
       <div className="relative aspect-video bg-black/40 overflow-hidden">
         {thumbnailUrl ? (
@@ -103,15 +132,18 @@ function ProjectCard({ job, onDelete }: { job: any; onDelete: (id: number) => vo
         <div className="absolute top-2 right-2">
           <StatusBadge status={job.status as JobStatus} />
         </div>
-        {/* Active render overlay */}
-        {isActive && pct !== null && (
+        {/* Progress overlay for active/paused */}
+        {(isActive || isPaused) && pct !== null && (
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3">
             <div className="flex justify-between text-xs text-white/70 mb-1.5">
               <span>{job.completedScenes}/{job.totalScenes} scenes</span>
-              <span className="font-semibold text-[--color-gold]">{pct}%</span>
+              <span className={`font-semibold ${isPaused ? "text-amber-400" : "text-[--color-gold]"}`}>{pct}%</span>
             </div>
             <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-blue-500 to-[#4a3010] rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
+              <div
+                className={`h-full rounded-full transition-all duration-700 ${isPaused ? "bg-amber-500/60" : "bg-gradient-to-r from-blue-500 to-[#4a3010]"}`}
+                style={{ width: `${pct}%` }}
+              />
             </div>
           </div>
         )}
@@ -132,7 +164,69 @@ function ProjectCard({ job, onDelete }: { job: any; onDelete: (id: number) => vo
 
         {/* Actions */}
         <div className="flex flex-wrap gap-2 mt-auto pt-2 border-t border-white/6">
-          {job.status === "completed" && job.finalVideoUrl ? (
+          {isPaused ? (
+            /* Paused job — show Resume and Delete prominently */
+            <>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    size="sm"
+                    className="flex-1 bg-green-600 hover:bg-green-500 text-white text-xs h-8"
+                  >
+                    <Play className="w-3 h-3 mr-1" />
+                    Resume Render
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-[#1a1a1a] border-white/10">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-white">Resume rendering?</AlertDialogTitle>
+                    <AlertDialogDescription className="text-white/50">
+                      This will resume rendering <strong className="text-white">{job.title}</strong>. The remaining {job.totalScenes - job.completedScenes} scene(s) will be dispatched and provider credits will be charged.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="border-white/15 bg-transparent text-white/60">Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-green-600 hover:bg-green-500 text-white"
+                      onClick={() => onResume(job.id)}
+                    >
+                      Yes, Resume
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 border-red-500/40 text-red-400 bg-transparent hover:bg-red-500/10 text-xs h-8"
+                  >
+                    <Trash2 className="w-3 h-3 mr-1" />
+                    Delete Project
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-[#1a1a1a] border-white/10">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-white">Delete project?</AlertDialogTitle>
+                    <AlertDialogDescription className="text-white/50">
+                      This will permanently delete <strong className="text-white">{job.title}</strong> and all its scenes, characters, and generated content. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="border-white/15 bg-transparent text-white/60">Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-red-600 hover:bg-red-500 text-white"
+                      onClick={() => onDelete(job.id)}
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
+          ) : job.status === "completed" && job.finalVideoUrl ? (
             <>
               <Button
                 size="sm"
@@ -165,14 +259,40 @@ function ProjectCard({ job, onDelete }: { job: any; onDelete: (id: number) => vo
               </Button>
             </>
           ) : isActive ? (
-            <Button
-              size="sm"
-              className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs h-8"
-              onClick={() => window.location.href = `/music-video/create?jobId=${job.id}`}
-            >
-              <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-              View Progress
-            </Button>
+            <>
+              <Button
+                size="sm"
+                className="flex-1 bg-blue-600 hover:bg-blue-500 text-white text-xs h-8"
+                onClick={() => window.location.href = `/music-video/create?jobId=${job.id}`}
+              >
+                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                View Progress
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-amber-400/60 hover:text-amber-300 hover:bg-amber-500/10 h-8 px-2">
+                    <Pause className="w-3 h-3" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-[#1a1a1a] border-white/10">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="text-white">Pause rendering?</AlertDialogTitle>
+                    <AlertDialogDescription className="text-white/50">
+                      Scenes currently generating will finish, but no new scenes will be dispatched until you resume. You can resume or delete the project at any time.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel className="border-white/15 bg-transparent text-white/60">Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-amber-600 hover:bg-amber-500 text-white"
+                      onClick={() => onPause(job.id)}
+                    >
+                      Pause
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </>
           ) : (
             <Button
               size="sm"
@@ -184,31 +304,33 @@ function ProjectCard({ job, onDelete }: { job: any; onDelete: (id: number) => vo
             </Button>
           )}
 
-          {/* Delete */}
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-white/25 hover:text-red-400 hover:bg-red-500/10 h-8 px-2">
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="bg-[#1a1a1a] border-white/10">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-white">Delete project?</AlertDialogTitle>
-                <AlertDialogDescription className="text-white/50">
-                  This will permanently delete <strong className="text-white">{job.title}</strong> and all its scenes, characters, and generated content. This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel className="border-white/15 bg-transparent text-white/60">Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  className="bg-red-600 hover:bg-red-500 text-white"
-                  onClick={() => onDelete(job.id)}
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          {/* Delete (for non-paused jobs) */}
+          {!isPaused && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-white/25 hover:text-red-400 hover:bg-red-500/10 h-8 px-2">
+                  <Trash2 className="w-3 h-3" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="bg-[#1a1a1a] border-white/10">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-white">Delete project?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-white/50">
+                    This will permanently delete <strong className="text-white">{job.title}</strong> and all its scenes, characters, and generated content. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="border-white/15 bg-transparent text-white/60">Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-red-600 hover:bg-red-500 text-white"
+                    onClick={() => onDelete(job.id)}
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
       </div>
     </div>
@@ -234,23 +356,41 @@ export default function MyProjects() {
       utils.musicVideo.listJobs.invalidate();
       toast.success("Project deleted — permanently removed.");
     },
-    onError: (err) => {
-      toast.error(`Delete failed: ${err.message}`);
-    },
+    onError: (err) => toast.error(`Delete failed: ${err.message}`),
   });
 
-  // Segment jobs into three buckets
-  const drafts     = jobs?.filter(j => j.status === "draft" || j.status === "storyboard_ready") ?? [];
+  const pauseMutation = trpc.musicVideo.pauseRender.useMutation({
+    onSuccess: () => {
+      utils.musicVideo.listJobs.invalidate();
+      toast.success("Render paused. Resume or delete when you're ready.");
+    },
+    onError: (err) => toast.error(`Pause failed: ${err.message}`),
+  });
+
+  const resumeMutation = trpc.musicVideo.resumeRender.useMutation({
+    onSuccess: () => {
+      utils.musicVideo.listJobs.invalidate();
+      toast.success("Render resumed — scenes will start dispatching shortly.");
+    },
+    onError: (err) => toast.error(`Resume failed: ${err.message}`),
+  });
+
+  // Segment jobs into buckets
+  const paused     = jobs?.filter(j => j.status === "paused") ?? [];
   const rendering  = jobs?.filter(j => j.status === "rendering" || j.status === "assembling") ?? [];
+  const drafts     = jobs?.filter(j => j.status === "draft" || j.status === "storyboard_ready") ?? [];
   const completed  = jobs?.filter(j => j.status === "completed" || j.status === "failed") ?? [];
+
+  const cardProps = (job: any) => ({
+    job,
+    onDelete: (id: number) => deleteMutation.mutate({ jobId: id }),
+    onPause:  (id: number) => pauseMutation.mutate({ jobId: id }),
+    onResume: (id: number) => resumeMutation.mutate({ jobId: id }),
+  });
 
   return (
     <DashboardLayout>
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-6">
-          <BackButton fallback="/dashboard" label="Back to Dashboard" className="mb-4" />
-        </div>
         <div className="flex items-center justify-between mb-10">
           <div>
             <h1 className="text-2xl font-bold text-white">My Projects</h1>
@@ -295,13 +435,34 @@ export default function MyProjects() {
         {/* Segmented sections */}
         {!isLoading && jobs && jobs.length > 0 && (
           <div className="space-y-12">
+
+            {/* ── Paused — action required ── */}
+            {paused.length > 0 && (
+              <section>
+                <div className="flex items-center gap-3 mb-4">
+                  <Pause className="w-4 h-4 text-amber-400" />
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-amber-400">Paused — Action Required</h2>
+                  <span className="text-xs text-white/25 font-mono">{paused.length}</span>
+                  <div className="flex-1 h-px bg-amber-500/20" />
+                </div>
+                <p className="text-amber-400/60 text-xs mb-4">
+                  These projects have been paused. Review each one and choose to <strong className="text-amber-300">Resume</strong> (continues spending credits) or <strong className="text-amber-300">Delete</strong> to remove permanently.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {paused.map((job: any) => (
+                    <ProjectCard key={job.id} {...cardProps(job)} />
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* Rendering */}
             {rendering.length > 0 && (
               <section>
                 <SectionHeader title="Building Your Video" count={rendering.length} color="text-[--color-gold]" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {rendering.map((job: any) => (
-                    <ProjectCard key={job.id} job={job} onDelete={(id) => deleteMutation.mutate({ jobId: id })} />
+                    <ProjectCard key={job.id} {...cardProps(job)} />
                   ))}
                 </div>
               </section>
@@ -312,8 +473,8 @@ export default function MyProjects() {
               <section>
                 <SectionHeader title="Drafts" count={drafts.length} color="text-[--color-gold]" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {drafts.map(job => (
-                    <ProjectCard key={job.id} job={job} onDelete={(id) => deleteMutation.mutate({ jobId: id })} />
+                  {drafts.map((job: any) => (
+                    <ProjectCard key={job.id} {...cardProps(job)} />
                   ))}
                 </div>
               </section>
@@ -324,8 +485,8 @@ export default function MyProjects() {
               <section>
                 <SectionHeader title="Completed" count={completed.length} color="text-[--color-silver]" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {completed.map(job => (
-                    <ProjectCard key={job.id} job={job} onDelete={(id) => deleteMutation.mutate({ jobId: id })} />
+                  {completed.map((job: any) => (
+                    <ProjectCard key={job.id} {...cardProps(job)} />
                   ))}
                 </div>
               </section>
