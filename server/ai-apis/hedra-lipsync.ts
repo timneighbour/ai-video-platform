@@ -234,3 +234,144 @@ export async function waitForHedraLipSync(
 export function isHedraConfigured(): boolean {
   return !!process.env.HEDRA_API_KEY;
 }
+
+/**
+ * Full pipeline: extract hero frame from WaveSpeed video, isolate vocals,
+ * submit to Hedra Character 3, and save the result to the database.
+ *
+ * Called automatically after a Performance Mode scene's WaveSpeed render completes.
+ */
+export async function runHedraLipSyncForScene(
+  sceneId: number,
+  videoUrl: string,
+  audioUrl: string,
+  sceneStartTime: number,
+): Promise<void> {
+  const { execSync } = await import("child_process");
+  const fs = await import("fs");
+  const os = await import("os");
+  const path = await import("path");
+  const { getDb } = await import("../db");
+  const { musicVideoScenes } = await import("../../drizzle/schema");
+  const { eq } = await import("drizzle-orm");
+  const { storagePut } = await import("../storage");
+
+  const tmpDir = os.tmpdir();
+  const videoTmp = path.join(tmpDir, `hedra-input-${sceneId}-${Date.now()}.mp4`);
+  const frameTmp = path.join(tmpDir, `hedra-frame-${sceneId}-${Date.now()}.jpg`);
+  const audioTmp = path.join(tmpDir, `hedra-audio-${sceneId}-${Date.now()}.mp3`);
+  const vocalsTmp = path.join(tmpDir, `hedra-vocals-${sceneId}-${Date.now()}.mp3`);
+
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+
+  try {
+    // Mark as processing
+    await db.update(musicVideoScenes)
+      .set({ hedraStatus: "processing", updatedAt: new Date() })
+      .where(eq(musicVideoScenes.id, sceneId));
+
+    // 1. Download the WaveSpeed video
+    console.log(`[HedraAuto] Downloading WaveSpeed video for scene ${sceneId}`);
+    const videoRes = await fetch(videoUrl);
+    if (!videoRes.ok) throw new Error(`Failed to download video: ${videoRes.status}`);
+    fs.writeFileSync(videoTmp, Buffer.from(await videoRes.arrayBuffer()));
+
+    // 2. Extract best frame (at 1s — usually a good singing pose)
+    console.log(`[HedraAuto] Extracting hero frame for scene ${sceneId}`);
+    execSync(`ffmpeg -y -i "${videoTmp}" -ss 1 -vframes 1 -q:v 2 "${frameTmp}"`, { stdio: "pipe" });
+
+    // 3. Download and isolate vocals using Demucs
+    console.log(`[HedraAuto] Downloading audio for scene ${sceneId}`);
+    const audioRes = await fetch(audioUrl);
+    if (!audioRes.ok) throw new Error(`Failed to download audio: ${audioRes.status}`);
+    fs.writeFileSync(audioTmp, Buffer.from(await audioRes.arrayBuffer()));
+
+    // Trim audio to scene segment
+    const sceneDuration = 6; // default 6s per scene
+    const trimmedAudioTmp = path.join(tmpDir, `hedra-trimmed-${sceneId}-${Date.now()}.mp3`);
+    execSync(
+      `ffmpeg -y -i "${audioTmp}" -ss ${sceneStartTime} -t ${sceneDuration} -ar 44100 -ac 1 "${trimmedAudioTmp}"`,
+      { stdio: "pipe" }
+    );
+
+    // Run Demucs vocal isolation
+    console.log(`[HedraAuto] Isolating vocals for scene ${sceneId}`);
+    const demucsOutDir = path.join(tmpDir, `demucs-${sceneId}-${Date.now()}`);
+    fs.mkdirSync(demucsOutDir, { recursive: true });
+    try {
+      execSync(
+        `python3 -m demucs --two-stems=vocals --mp3 --out "${demucsOutDir}" "${trimmedAudioTmp}"`,
+        { stdio: "pipe", timeout: 120000 }
+      );
+      // Find the vocals file
+      const modelDir = fs.readdirSync(demucsOutDir)[0];
+      const songDir = fs.readdirSync(path.join(demucsOutDir, modelDir))[0];
+      const vocalsPath = path.join(demucsOutDir, modelDir, songDir, "vocals.mp3");
+      if (fs.existsSync(vocalsPath)) {
+        fs.copyFileSync(vocalsPath, vocalsTmp);
+        console.log(`[HedraAuto] Vocals isolated successfully for scene ${sceneId}`);
+      } else {
+        // Fall back to trimmed audio if Demucs fails
+        fs.copyFileSync(trimmedAudioTmp, vocalsTmp);
+        console.warn(`[HedraAuto] Demucs vocals not found — using trimmed audio for scene ${sceneId}`);
+      }
+    } catch (demucsErr) {
+      // Demucs failed — use trimmed audio as fallback
+      fs.copyFileSync(trimmedAudioTmp, vocalsTmp);
+      console.warn(`[HedraAuto] Demucs failed for scene ${sceneId} — using trimmed audio:`, demucsErr);
+    }
+
+    // 4. Upload frame and vocals to S3 for Hedra
+    const frameBuffer = fs.readFileSync(frameTmp);
+    const vocalsBuffer = fs.readFileSync(vocalsTmp);
+    const [{ url: frameUrl }, { url: vocalsUrl }] = await Promise.all([
+      storagePut(`music-video-scenes/hedra-frame-${sceneId}-${Date.now()}.jpg`, frameBuffer, "image/jpeg"),
+      storagePut(`music-video-scenes/hedra-vocals-${sceneId}-${Date.now()}.mp3`, vocalsBuffer, "audio/mpeg"),
+    ]);
+
+    // 5. Submit to Hedra and wait for result
+    console.log(`[HedraAuto] Submitting to Hedra Character 3 for scene ${sceneId}`);
+    const result = await waitForHedraLipSync({
+      imageUrl: frameUrl,
+      audioUrl: vocalsUrl,
+      sceneId,
+      aspectRatio: "9:16",
+      resolution: "720p",
+      textPrompt: "A singer performing expressively to the camera, mouth moving naturally with the music, emotional vocal performance, realistic lip sync",
+    });
+
+    // 6. Download and store Hedra output to S3
+    const hedraRes = await fetch(result.outputUrl);
+    if (!hedraRes.ok) throw new Error(`Failed to download Hedra output: ${hedraRes.status}`);
+    const hedraBuffer = Buffer.from(await hedraRes.arrayBuffer());
+    const hedraKey = `music-video-scenes/hedra-${sceneId}-${Date.now()}.mp4`;
+    const { url: hedraVideoUrl } = await storagePut(hedraKey, hedraBuffer, "video/mp4");
+
+    // 7. Save to DB
+    await db.update(musicVideoScenes)
+      .set({
+        hedraVideoUrl,
+        hedraStatus: "done",
+        updatedAt: new Date(),
+      })
+      .where(eq(musicVideoScenes.id, sceneId));
+
+    console.log(`[HedraAuto] Scene ${sceneId} Hedra complete — ${hedraVideoUrl.slice(0, 80)}...`);
+
+  } catch (err) {
+    console.error(`[HedraAuto] Scene ${sceneId} failed:`, err);
+    const db2 = await getDb();
+    if (db2) {
+      await db2.update(musicVideoScenes)
+        .set({ hedraStatus: "error", updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, sceneId));
+    }
+    throw err;
+  } finally {
+    // Cleanup temp files
+    for (const f of [videoTmp, frameTmp, audioTmp, vocalsTmp]) {
+      try { fs.unlinkSync(f); } catch {}
+    }
+  }
+}

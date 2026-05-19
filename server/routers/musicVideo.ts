@@ -1452,6 +1452,22 @@ Rules:
           try {
             const result = await pollSceneStatus(scene.id, scene.taskId);
             if (result.status === "completed") {
+              // ── HEDRA AUTO-TRIGGER: Performance Mode scenes get Hedra lip sync automatically ──
+              if (scene.sceneType === "performance" && result.videoUrl && !scene.hedraVideoUrl) {
+                console.log(`[HedraAuto] Scene ${scene.id} is Performance Mode — auto-triggering Hedra lip sync`);
+                try {
+                  const { runHedraLipSyncForScene } = await import("../ai-apis/hedra-lipsync");
+                  const [jobRow] = await db.select({ audioUrl: musicVideoJobs.audioUrl })
+                    .from(musicVideoJobs).where(eq(musicVideoJobs.id, input.jobId)).limit(1);
+                  if (jobRow?.audioUrl) {
+                    await runHedraLipSyncForScene(scene.id, result.videoUrl, jobRow.audioUrl, scene.startTime ?? 0);
+                    console.log(`[HedraAuto] Scene ${scene.id} Hedra lip sync completed successfully`);
+                  }
+                } catch (hedraErr) {
+                  console.error(`[HedraAuto] Scene ${scene.id} Hedra auto-trigger failed (non-blocking):`, hedraErr);
+                  // Non-blocking — scene still counts as completed even if Hedra fails
+                }
+              }
               completedCount++;
               // Record successful outcome for provider health tracking
               recordProviderOutcome({
