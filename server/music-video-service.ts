@@ -1609,17 +1609,20 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
   try {
     const sceneFiles: string[] = [];
     for (const scene of scenes) {
-      // ── WizSync™: Prefer lip-synced clip (Sync Labs) over raw clip.
-      // lipSyncVideoUrl is set by the heartbeat after Sync Labs completes.
-      // Fall back to raw videoUrl if lip sync failed or was not needed.
-      const clipUrl = scene.lipSyncVideoUrl ?? scene.videoUrl;
+      // ── WizSync™: Clip selection priority:
+      // 1. hedraVideoUrl  — Performance Mode: Hedra Character 3 lip sync (best quality)
+      // 2. lipSyncVideoUrl — Sync Labs lip sync (legacy, non-performance scenes)
+      // 3. videoUrl        — raw WaveSpeed clip (fallback)
+      const clipUrl = (scene as any).hedraVideoUrl ?? scene.lipSyncVideoUrl ?? scene.videoUrl;
       if (!clipUrl) continue;
       const sceneFile = path.join(tmpDir, `scene-${scene.sceneIndex.toString().padStart(3, "0")}.mp4`);
       const resp = await fetch(clipUrl);
       const buf = Buffer.from(await resp.arrayBuffer());
       fs.writeFileSync(sceneFile, buf);
       sceneFiles.push(sceneFile);
-      if (scene.lipSyncVideoUrl) {
+      if ((scene as any).hedraVideoUrl) {
+        console.log(`[Assembly] Scene ${scene.sceneIndex}: using Hedra Character 3 lip-synced clip ✓`);
+      } else if (scene.lipSyncVideoUrl) {
         console.log(`[Assembly] Scene ${scene.sceneIndex}: using WizSync™ lip-synced clip ✓`);
       } else {
         console.log(`[Assembly] Scene ${scene.sceneIndex}: using raw clip (no lip sync)`);

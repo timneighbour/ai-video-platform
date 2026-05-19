@@ -313,7 +313,36 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             const pollResult = await pollSceneStatus(scene.id, scene.taskId!);
 
             if (pollResult?.status === "completed" && pollResult.videoUrl) {
-              // Scene clip is ready. Now check if we need Sync Labs lip sync.
+              // Scene clip is ready.
+
+              // ── HEDRA AUTO-TRIGGER: Performance Mode scenes use Hedra Character 3 for lip sync ──
+              // Performance scenes skip Sync Labs entirely. Hedra runs asynchronously (fire-and-forget).
+              // The scene is marked completed with the raw WaveSpeed clip immediately so assembly
+              // can proceed, and hedraVideoUrl is updated when Hedra finishes.
+              if (scene.sceneType === "performance" && job.audioUrl && !scene.hedraVideoUrl) {
+                console.log(`[HedraAuto] Scene ${scene.id} is Performance Mode — auto-triggering Hedra lip sync`);
+                // Mark scene completed with raw clip (non-blocking — Hedra runs async)
+                await db.update(musicVideoScenes)
+                  .set({ status: "completed", videoUrl: pollResult.videoUrl, lipSyncStatus: "done", updatedAt: new Date() })
+                  .where(eq(musicVideoScenes.id, scene.id));
+                // Fire Hedra asynchronously — don't block the heartbeat response
+                const hedraVideoUrl = pollResult.videoUrl;
+                const hedraAudioUrl = job.audioUrl;
+                const hedraSceneId = scene.id;
+                const hedraStartTimeSec = (scene.startTime ?? 0) / 1000;
+                (async () => {
+                  try {
+                    const { runHedraLipSyncForScene } = await import("../ai-apis/hedra-lipsync");
+                    await runHedraLipSyncForScene(hedraSceneId, hedraVideoUrl, hedraAudioUrl, hedraStartTimeSec);
+                    console.log(`[HedraAuto] Scene ${hedraSceneId} Hedra lip sync completed successfully`);
+                  } catch (hedraErr) {
+                    console.error(`[HedraAuto] Scene ${hedraSceneId} Hedra auto-trigger failed:`, hedraErr);
+                  }
+                })();
+                totalPolled++;
+              } else {
+
+              // Check if we need Sync Labs lip sync (for non-performance scenes)
               const needsLipSync = (scene.lipSync ?? false) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
 
               if (needsLipSync) {
@@ -381,6 +410,8 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   .where(eq(musicVideoScenes.id, scene.id));
                 console.log(`[SceneDispatch] Scene ${scene.id} completed (no lip sync needed) ✓`);
               }
+
+              } // end else (non-performance scenes — Sync Labs path)
 
               // ── PROBE: store probeVideoUrl on job when probe scene completes ──
               try {
