@@ -1,0 +1,1 @@
+Based on the audio clip provided, there is no singing or vocals present. The audio consists entirely of instrumental music, primarily featuring a piano and strings. Therefore, there are no words being sung and no start time for vocals to report.

@@ -548,12 +548,24 @@ Rules:
           : roster.length > 0
             ? [roster.find((c: { isLocked?: boolean }) => c.isLocked)?.name ?? roster[0].name]
             : [];
-        // Smart lip sync assignment:
-        // Only enable lip sync for close-up character scenes (seedance-2.0 model).
-        // Wide/atmospheric shots (hailuo-minimax) never get fake singing prompts.
-        // This prevents the broken "mouth movements synced to music" prompt on scenes
-        // where no character face is even visible.
-        const smartLipSync = scene.modelAssignment === "seedance-2.0" && assignedNames.length > 0;
+        // Smart lip sync assignment — WizSync™ Vocal-Aware Orchestration:
+        // Only enable lip sync when ALL THREE conditions are met:
+        //   1. Close-up character scene (seedance-2.0 model) — face must be visible
+        //   2. Character is assigned to this scene — someone to sync
+        //   3. Scene time window overlaps with actual vocals in the transcription
+        //      (prevents lip sync on instrumental intros, bridges, and outros)
+        const sceneEnd = (scene.startTime ?? 0) + (scene.duration ?? 6);
+        const sceneHasVocals = lyricsSegments && lyricsSegments.length > 0
+          ? lyricsSegments.some(seg =>
+              seg.text && seg.text.trim().length > 0 &&
+              seg.start < sceneEnd &&
+              seg.end > (scene.startTime ?? 0)
+            )
+          : true; // if no transcription available, default to enabled (safe fallback)
+        const smartLipSync = scene.modelAssignment === "seedance-2.0" && assignedNames.length > 0 && sceneHasVocals;
+        if (!sceneHasVocals && scene.modelAssignment === "seedance-2.0") {
+          console.log(`[MusicVideo] Scene ${scene.sceneIndex} (${scene.startTime}s–${sceneEnd}s): no vocals detected — lip sync DISABLED (instrumental window)`);
+        }
         const [insertedScene] = await db.insert(musicVideoScenes).values({
           jobId: input.jobId,
           sceneIndex: scene.sceneIndex,

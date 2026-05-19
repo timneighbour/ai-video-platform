@@ -7980,3 +7980,28 @@
 - [ ] Fix stale job dispatch: heartbeat hard-guard — only process jobs with status='rendering', skip all others
 - [ ] Remove in-memory circuit breaker: replace with DB-persisted providerHealth table
 - [ ] TypeScript check, checkpoint, publish, verify end-to-end
+
+## WizSync™ Vocal-Aware Lip Sync Orchestration
+- [ ] Disable lip sync for scenes 0 and 1 in DB (instrumental intro 0-12s)
+- [ ] Implement vocal-aware lip sync assignment: only enable lipSync when transcription words overlap scene time window
+- [ ] Re-run probe on scene 2 (600003, 12-18s) with correct vocal audio
+- [ ] Validate probe: character consistency, lip sync timing, cinematic quality, storyboard alignment
+- [ ] Release remaining scenes only after probe approval
+
+## WizSync™ Vocal-Aware Lip Sync Orchestration
+- [x] Add vocal overlap check to smartLipSync assignment in musicVideo.ts — only enable lip sync when scene time window contains actual Whisper transcription segments with non-empty text
+- [x] Log "no vocals detected — lip sync DISABLED (instrumental window)" for scenes that fail the vocal check
+- [x] TypeScript check passes cleanly after edit (exit 0)
+- [x] DB fix for job 540026: scenes 0 and 1 (0–12s instrumental intro) set to lipSync=0, lipSyncStatus=done
+- [x] DB fix for job 540026: scene 2 (12–18s, first vocal scene) reset to mvSceneStatus=pending for clean probe render
+- [x] Job 540026 reset to status=rendering, probePassed=0, probeSceneId=600003 (scene 2)
+
+## Assembly Pipeline Fixes (May 19 2026)
+- [x] Fix heartbeat syntax error blocking scene dispatch
+- [x] Fix stale idempotency lock blocking scene 600003 dispatch
+- [x] Fix probe panel showing raw clip instead of lip-synced clip
+- [x] Fix probe video URL to always use lipSyncVideoUrl when available
+- [x] Add WizSync™ normalization pass — re-encode all clips to uniform H.264/720p/24fps before concat (fixes SyncLabs+WaveSpeed codec incompatibility)
+- [x] Fix assembly storage key to use correct path (music-video-finals/) so CDN serves video/mp4 not text/html
+- [x] Add assembling-stuck recovery check in heartbeat (auto-complete jobs where finalVideoUrl is set)
+- [x] Implement vocal-aware lip sync — only enable SyncLabs for scenes with detected vocal content

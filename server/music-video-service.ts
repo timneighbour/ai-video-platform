@@ -1638,20 +1638,35 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     const audioFile = path.join(tmpDir, "audio.mp3");
     await applyWizSound(audioFileRaw, audioFile, audioTier);
 
+    // ── WizSync™ Normalization Pass ─────────────────────────────────────────────
+    // SyncLabs sync-3 and WaveSpeed Seedance produce clips with different H.264
+    // profiles, frame rates, and container formats. Direct concat-demux fails with
+    // "No start code found" / "Invalid data" errors when mixing these sources.
+    // Fix: re-encode every clip to a uniform 1280×720 H.264 baseline, 24fps,
+    // yuv420p before concatenation. Audio is stripped here (-an) and the original
+    // music track is overlaid in the final mix step.
+    console.log(`[Assembly] Job ${jobId}: normalizing ${sceneFiles.length} clips to uniform H.264 format...`);
+    const normalizedFiles: string[] = [];
+    for (let i = 0; i < sceneFiles.length; i++) {
+      const src = sceneFiles[i];
+      const dst = path.join(tmpDir, `norm-${String(i).padStart(3, "0")}.mp4`);
+      await execAsync(
+        `"${FFMPEG_BIN}" -y -i "${src}" -an -c:v libx264 -preset fast -crf 22 -vf "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2" -r 24 -pix_fmt yuv420p "${dst}"`,
+        { timeout: 120000 }
+      );
+      normalizedFiles.push(dst);
+      console.log(`[Assembly] Normalized clip ${i + 1}/${sceneFiles.length}`);
+    }
+
     const concatFile = path.join(tmpDir, "concat.txt");
-    const concatContent = sceneFiles.map(f => `file '${f}'`).join("\n");
+    const concatContent = normalizedFiles.map(f => `file '${f}'`).join("\n");
     fs.writeFileSync(concatFile, concatContent);
 
-    // Concatenate all video clips
-    // CRITICAL: -an strips ALL audio from scene clips before concatenation.
-    // Atlas Cloud reference-to-video clips contain the reference audio track (the
-    // per-scene audio clip used for lip sync). Without -an, that audio bleeds into
-    // the final video alongside the user's original music track, causing audible
-    // background noise. The correct audio is overlaid in the next step.
+    // Concatenate all normalized clips (stream copy — all same format now)
     const concatenatedVideo = path.join(tmpDir, "concatenated.mp4");
     await execAsync(
-      `"${FFMPEG_BIN}" -y -f concat -safe 0 -i "${concatFile}" -an -c:v libx264 -preset fast -crf 22 "${concatenatedVideo}"`,
-      { timeout: 600000 } // 10 min — long videos with many scenes need more time
+      `"${FFMPEG_BIN}" -y -f concat -safe 0 -i "${concatFile}" -c:v copy "${concatenatedVideo}"`,
+      { timeout: 600000 }
     );
     // Get the actual duration of the concatenated video and the audio
     let videoDuration = 0;

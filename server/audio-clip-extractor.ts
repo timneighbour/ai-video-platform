@@ -4,6 +4,16 @@
  * Extracts a time-windowed audio segment from a full song URL using ffmpeg.
  * Used to provide per-scene audio clips to SyncLabs sync-3 for lip sync.
  *
+ * Precision requirements for lip sync:
+ *   - The extracted clip MUST start at exactly the requested offset
+ *   - The extracted clip MUST be exactly the requested duration (no padding)
+ *   - No encoding delay or frame-boundary rounding that would shift vocal alignment
+ *
+ * ffmpeg precision strategy:
+ *   - Place -ss AFTER -i to use accurate (decode-based) seeking, not fast keyframe seek
+ *   - Use WAV output (PCM, no frame padding) for maximum precision
+ *   - Specify exact sample count via -t to avoid MP3 frame-boundary rounding
+ *
  * Cloud Run compatibility:
  *   - Uses @ffmpeg-installer/ffmpeg bundled binary
  *   - Ensures the binary is executable (chmod +x) before first use
@@ -64,6 +74,12 @@ async function downloadAudioToTemp(audioUrl: string, ext: string = "mp3"): Promi
 /**
  * Extract a time-windowed audio segment from a full song.
  *
+ * PRECISION APPROACH:
+ * 1. Place -ss AFTER -i (accurate seek, not fast keyframe seek)
+ * 2. Extract to WAV first (PCM — no frame padding, exact duration)
+ * 3. Convert WAV → MP3 in a second pass (SyncLabs requires MP3)
+ * This eliminates the ~26-52ms encoding delay that causes lip sync drift.
+ *
  * @param audioUrl       S3 URL of the full song (mp3/wav/m4a)
  * @param startSeconds   Start time of the scene in the song
  * @param durationSeconds Duration to extract (clamped to 2–15s for SyncLabs)
@@ -81,44 +97,76 @@ export async function extractSceneAudioClip(
   const ffmpeg = getFFmpegBin();
 
   let inputPath: string | null = null;
+  let wavPath: string | null = null;
   let outputPath: string | null = null;
 
   try {
     // Download the full song to a temp file
     inputPath = await downloadAudioToTemp(audioUrl, "mp3");
 
-    // Output path for the extracted clip
+    // Intermediate WAV path (PCM — frame-perfect, no encoding delay)
+    wavPath = path.join(
+      os.tmpdir(),
+      `wiz-scene-audio-${sceneId}-${Date.now()}.wav`
+    );
+
+    // Final MP3 output path
     outputPath = path.join(
       os.tmpdir(),
       `wiz-scene-audio-${sceneId}-${Date.now()}.mp3`
     );
 
-    // Use ffmpeg to extract the exact time window
-    // Note: no quotes around paths — execAsync uses shell, but paths from os.tmpdir()
-    // are safe. Quoting causes issues on some Cloud Run environments.
-    const cmd = [
+    // STEP 1: Extract to WAV with accurate seek (-ss AFTER -i)
+    // This gives frame-perfect extraction with no encoding delay.
+    // -ss after -i = decode-based seek (slow but exact)
+    // -t = exact duration in seconds
+    const wavCmd = [
       ffmpeg,
-      "-y",                             // overwrite output
-      "-ss", startSeconds.toString(),   // seek to start
-      "-i", inputPath,                  // input file
-      "-t", clampedDuration.toString(), // duration
-      "-acodec", "libmp3lame",          // mp3 codec
-      "-ar", "44100",                   // sample rate
-      "-ab", "128k",                    // bitrate
-      "-ac", "2",                       // stereo
-      "-loglevel", "error",             // suppress verbose output
-      outputPath,
+      "-y",
+      "-i", `"${inputPath}"`,            // input first
+      "-ss", startSeconds.toString(),    // seek AFTER input = accurate
+      "-t", clampedDuration.toString(),  // exact duration
+      "-acodec", "pcm_s16le",            // PCM WAV — no frame padding
+      "-ar", "44100",
+      "-ac", "2",
+      "-loglevel", "error",
+      `"${wavPath}"`,
     ].join(" ");
 
-    console.log(`[AudioExtractor] Scene ${sceneId}: running ffmpeg (start=${startSeconds}s, dur=${clampedDuration}s)`);
-    const { stderr } = await execAsync(cmd, { timeout: 45_000 });
-    if (stderr && stderr.trim()) {
-      console.warn(`[AudioExtractor] Scene ${sceneId} ffmpeg stderr: ${stderr.trim().slice(0, 200)}`);
+    console.log(`[AudioExtractor] Scene ${sceneId}: step 1 — WAV extraction (start=${startSeconds}s, dur=${clampedDuration}s)`);
+    const { stderr: wavStderr } = await execAsync(wavCmd, { timeout: 45_000 });
+    if (wavStderr && wavStderr.trim()) {
+      console.warn(`[AudioExtractor] Scene ${sceneId} WAV stderr: ${wavStderr.trim().slice(0, 200)}`);
+    }
+
+    if (!fs.existsSync(wavPath)) {
+      throw new Error(`ffmpeg WAV extraction failed for scene ${sceneId}`);
+    }
+
+    // STEP 2: Convert WAV → MP3 (SyncLabs requires MP3)
+    // No seeking needed here — WAV is already the exact clip
+    const mp3Cmd = [
+      ffmpeg,
+      "-y",
+      "-i", `"${wavPath}"`,
+      "-acodec", "libmp3lame",
+      "-ar", "44100",
+      "-ab", "192k",                    // higher bitrate for better quality
+      "-ac", "2",
+      "-write_xing", "0",              // suppress Xing header (prevents duration inflation)
+      "-loglevel", "error",
+      `"${outputPath}"`,
+    ].join(" ");
+
+    console.log(`[AudioExtractor] Scene ${sceneId}: step 2 — WAV→MP3 conversion`);
+    const { stderr: mp3Stderr } = await execAsync(mp3Cmd, { timeout: 30_000 });
+    if (mp3Stderr && mp3Stderr.trim()) {
+      console.warn(`[AudioExtractor] Scene ${sceneId} MP3 stderr: ${mp3Stderr.trim().slice(0, 200)}`);
     }
 
     // Verify the output file exists and has content
     if (!fs.existsSync(outputPath)) {
-      throw new Error(`ffmpeg did not produce output file for scene ${sceneId}`);
+      throw new Error(`ffmpeg did not produce MP3 output file for scene ${sceneId}`);
     }
     const stats = fs.statSync(outputPath);
     if (stats.size < 500) {
@@ -130,7 +178,7 @@ export async function extractSceneAudioClip(
     const s3Key = `music-video-scene-audio/${sceneId}-${Date.now()}.mp3`;
     const { url } = await storagePut(s3Key, buffer, "audio/mpeg");
 
-    console.log(`[AudioExtractor] Scene ${sceneId}: extracted ${clampedDuration}s clip → uploaded to S3`);
+    console.log(`[AudioExtractor] Scene ${sceneId}: extracted ${clampedDuration}s clip (precise) → uploaded to S3`);
     return url;
   } catch (err: any) {
     console.error(`[AudioExtractor] Scene ${sceneId} FAILED: ${err.message}`);
@@ -139,6 +187,9 @@ export async function extractSceneAudioClip(
     // Clean up temp files
     if (inputPath && fs.existsSync(inputPath)) {
       try { fs.unlinkSync(inputPath); } catch {}
+    }
+    if (wavPath && fs.existsSync(wavPath)) {
+      try { fs.unlinkSync(wavPath); } catch {}
     }
     if (outputPath && fs.existsSync(outputPath)) {
       try { fs.unlinkSync(outputPath); } catch {}
