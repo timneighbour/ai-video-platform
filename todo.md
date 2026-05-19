@@ -8005,3 +8005,24 @@
 - [x] Fix assembly storage key to use correct path (music-video-finals/) so CDN serves video/mp4 not text/html
 - [x] Add assembling-stuck recovery check in heartbeat (auto-complete jobs where finalVideoUrl is set)
 - [x] Implement vocal-aware lip sync — only enable SyncLabs for scenes with detected vocal content
+
+## Hero Performance Workflow (WizSync™ v2) — NEW STRATEGY
+- [ ] Generate ONE lip-sync-ready hero shot for Scene 4 (golden hour rooftop) — chest-up close-up, face fills frame, stable camera, forward-facing, minimal head rotation
+- [ ] Submit hero shot to HeyGen or Hedra for lip sync — validate obvious mouth movement before scaling
+- [ ] Composite validated hero shot into existing assembled video at Scene 4 position
+- [ ] Add "Performance Mode" scene type to platform (close-up, lip-sync-ready framing) alongside existing "Cinematic Mode"
+- [ ] Update WizSync™ to only apply lip sync to Performance Mode scenes
+
+## Hedra Performance Mode Integration - COMPLETED ✅
+- [x] Add HEDRA_API_KEY to environment (verified working)
+- [x] Create Hedra lip sync service (server/ai-apis/hedra-lipsync.ts) with correct API endpoints (X-API-Key, /web-app/public)
+- [x] Add sceneType field to musicVideoScenes (cinematic | performance) via DB migration
+- [x] Add hedraVideoUrl, hedraStatus, heroImageUrl, heroImageKey fields to musicVideoScenes
+- [x] Classify scenes as performance/cinematic automatically during storyboard generation
+- [x] Add runHedraLipSync tRPC procedure for triggering Hedra on a scene
+- [x] Add setSceneType tRPC procedure for manually overriding scene type
+- [x] Add generateHeroShot tRPC procedure for generating a WaveSpeed close-up with active mouth motion
+- [x] Update probe panel UI: show violet Performance Mode panel with Hedra button for performance scenes
+- [x] Expose hedraVideoUrl, hedraStatus, sceneType, heroImageUrl in job status query
+- [x] Install form-data package for multipart file upload to Hedra
+- [x] Demucs vocal isolation already working — will be used in Hedra pipeline

@@ -1010,6 +1010,44 @@ export default function MusicVideoAutopilot() {
   const cancelSceneMutation = trpc.musicVideo.cancelScene.useMutation();
   const retryAllFailedScenesMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
   const updateScenePromptMutation = trpc.musicVideo.updateScenePrompt.useMutation();
+  // Hedra Performance Mode mutations
+  const runHedraLipSyncMutation = trpc.musicVideo.runHedraLipSync.useMutation({
+    onSuccess: () => toast.success("Hedra lip sync started — this takes 1–3 minutes"),
+    onError: (e) => toast.error(`Hedra lip sync failed: ${e.message}`),
+  });
+  const setSceneTypeMutation = trpc.musicVideo.setSceneType.useMutation({
+    onError: (e) => toast.error(`Failed to update scene type: ${e.message}`),
+  });
+  const [hedraSceneId, setHedraSceneId] = useState<number | null>(null);
+  const [hedraVideoUrl, setHedraVideoUrl] = useState<string | null>(null);
+  const [hedraStatus, setHedraStatus] = useState<"pending" | "processing" | "done" | "error">("pending");
+
+  // Poll Hedra status when a Performance Mode scene is processing
+  const hedraStatusQuery = trpc.musicVideo.getHedraStatus.useQuery(
+    { sceneId: probeSceneId ?? 0 },
+    {
+      enabled: !!(probeSceneId && hedraStatus === "processing"),
+      refetchInterval: 5000,
+    }
+  );
+  // React to Hedra status changes
+  useEffect(() => {
+    const data = hedraStatusQuery.data;
+    if (!data) return;
+    if (data.hedraStatus === "done" && data.hedraVideoUrl) {
+      setHedraStatus("done");
+      setHedraVideoUrl(data.hedraVideoUrl);
+    } else if (data.hedraStatus === "error") {
+      setHedraStatus("error");
+      toast.error("Hedra lip sync failed — please try again");
+    }
+  }, [hedraStatusQuery.data]);
+  // Sync hedraStatus from mutation response
+  const prevRunHedraIsPending = runHedraLipSyncMutation.isPending;
+  if (!prevRunHedraIsPending && runHedraLipSyncMutation.data?.hedraStatus === "processing" && hedraStatus !== "processing") {
+    setHedraStatus("processing");
+  }
+
   const approveProbe = trpc.musicVideo.approveProbe.useMutation({
     onSuccess: () => { setProbeState("approved"); toast.success("Probe approved — full render starting!"); },
     onError: (e) => toast.error(`Failed to approve probe: ${e.message}`),
@@ -5691,6 +5729,39 @@ export default function MusicVideoAutopilot() {
                                       <span>Motion looks cinematic?</span>
                                     </div>
                                   </div>
+
+                                  {/* Hedra Performance Mode Lip Sync Panel */}
+                                  {probeScene && (probeScene as any).sceneType === "performance" && (
+                                    <div className="rounded-xl border border-violet-500/30 bg-violet-500/10 p-3 space-y-2">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-[10px] font-bold uppercase tracking-widest text-violet-400">Performance Mode</span>
+                                        <span className="text-[10px] text-white/40">This is a hero close-up scene — enhance with Hedra Avatar lip sync</span>
+                                      </div>
+                                      {(probeScene as any).hedraVideoUrl ? (
+                                        <div className="space-y-2">
+                                          <p className="text-[10px] text-emerald-400 font-semibold">✓ Hedra lip sync complete — compare below with the WaveSpeed render</p>
+                                          <div className="rounded-lg overflow-hidden border border-violet-500/25" style={{aspectRatio: "16/9"}}>
+                                            <video src={(probeScene as any).hedraVideoUrl} controls className="w-full h-full object-cover" />
+                                          </div>
+                                        </div>
+                                      ) : (probeScene as any).hedraStatus === "processing" ? (
+                                        <div className="flex items-center gap-2 text-xs text-violet-300">
+                                          <span className="inline-block w-3 h-3 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
+                                          Hedra is animating the face — usually 1–3 minutes…
+                                        </div>
+                                      ) : (
+                                        <button
+                                          onClick={() => probeSceneId && runHedraLipSyncMutation.mutate({ sceneId: probeSceneId })}
+                                          disabled={runHedraLipSyncMutation.isPending}
+                                          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-500/20 text-violet-300 text-xs font-semibold hover:bg-violet-500/30 transition-colors border border-violet-500/30 disabled:opacity-50"
+                                        >
+                                          {runHedraLipSyncMutation.isPending
+                                            ? <><span className="inline-block w-3 h-3 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" /> Starting Hedra…</>
+                                            : <>▶ Run Hedra Avatar Lip Sync</>}
+                                        </button>
+                                      )}
+                                    </div>
+                                  )}
 
                                   <p className="text-xs text-white/50 leading-relaxed">
                                     Compare the storyboard image (left) with the rendered clip (right). If character, lip sync, and motion all look correct — click <strong className="text-emerald-400">Approve</strong> to release all remaining scenes. If anything is wrong, click <strong className="text-red-400">Reject</strong> to pause and investigate.

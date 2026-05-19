@@ -283,6 +283,15 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   lipSyncVideoKey: varchar("lipSyncVideoKey", { length: 512 }), // S3 key for the lip-synced preview video
   lipSyncTaskId: varchar("lipSyncTaskId", { length: 255 }), // Sync Labs job ID for polling
   lipSyncStatus: mysqlEnum("lipSyncStatus", ["pending", "processing", "done", "error"]).default("pending").notNull(), // Per-scene lip sync status
+  // --- Scene Type (Cinematic vs Performance Mode) ---
+  sceneType: mysqlEnum("sceneType", ["cinematic", "performance"]).default("cinematic").notNull(), // cinematic = wide/atmospheric (WaveSpeed only); performance = close-up hero shot (Hedra lip sync)
+  // --- Hedra Performance Mode Lip Sync ---
+  hedraVideoUrl: varchar("hedraVideoUrl", { length: 1024 }), // Hedra Avatar output URL for Performance Mode scenes
+  hedraVideoKey: varchar("hedraVideoKey", { length: 512 }), // S3 key for Hedra output video
+  hedraGenerationId: varchar("hedraGenerationId", { length: 255 }), // Hedra generation ID for polling
+  hedraStatus: mysqlEnum("hedraStatus", ["pending", "processing", "done", "error"]).default("pending").notNull(), // Hedra generation status
+  heroImageUrl: varchar("heroImageUrl", { length: 1024 }), // Portrait image URL used as Hedra input (extracted hero frame)
+  heroImageKey: varchar("heroImageKey", { length: 512 }), // S3 key for the hero portrait image
   // --- Scene Approval (user explicitly locks in a scene before full render) ---
   isApproved: boolean("isApproved").default(false).notNull(), // true when user has approved this scene for final render
   approvedAt: timestamp("approvedAt"),                        // When the user approved this scene

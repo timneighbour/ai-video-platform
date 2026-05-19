@@ -566,6 +566,11 @@ Rules:
         if (!sceneHasVocals && scene.modelAssignment === "seedance-2.0") {
           console.log(`[MusicVideo] Scene ${scene.sceneIndex} (${scene.startTime}s–${sceneEnd}s): no vocals detected — lip sync DISABLED (instrumental window)`);
         }
+        // Classify scene as 'performance' if it's a close-up character scene with lip sync enabled.
+        // Performance Mode scenes will use Hedra Avatar for phoneme-accurate lip sync.
+        // Cinematic Mode scenes use WaveSpeed only (no lip sync required).
+        const isPerformanceScene = smartLipSync && scene.modelAssignment === "seedance-2.0" && assignedNames.length > 0;
+        const detectedSceneType: "cinematic" | "performance" = isPerformanceScene ? "performance" : "cinematic";
         const [insertedScene] = await db.insert(musicVideoScenes).values({
           jobId: input.jobId,
           sceneIndex: scene.sceneIndex,
@@ -577,6 +582,7 @@ Rules:
           characterAssignments: assignedNames.length > 0 ? JSON.stringify(assignedNames) : null,
           status: "pending",
           lipSync: smartLipSync,
+          sceneType: detectedSceneType,
         });
         // Populate characterScenes junction table for this scene
         const newSceneId = (insertedScene as any).insertId as number;
@@ -1570,6 +1576,10 @@ Rules:
           videoUrl: s.videoUrl ?? null,
           lipSyncVideoUrl: s.lipSyncVideoUrl ?? null, // Sync Labs per-scene lip sync output
           lipSyncStatus: s.lipSyncStatus ?? "pending", // "pending" | "processing" | "done" | "error"
+          sceneType: s.sceneType ?? "cinematic", // "cinematic" | "performance"
+          hedraVideoUrl: s.hedraVideoUrl ?? null, // Hedra Avatar output for Performance Mode
+          hedraStatus: s.hedraStatus ?? "pending", // "pending" | "processing" | "done" | "error"
+          heroImageUrl: s.heroImageUrl ?? null, // Portrait image used as Hedra input
           prompt: s.prompt ?? null,
           lyrics: s.lyrics ?? null,
           isApproved: s.isApproved ?? false,
@@ -4993,6 +5003,184 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
         .where(eq(musicVideoJobs.id, input.jobId));
       console.log(`[MusicVideo] Job ${input.jobId} probe REJECTED by user ${ctx.user.id}. Reason: ${input.reason ?? "not specified"}. Probe will re-run on next heartbeat.`);
       return { success: true, message: "Probe rejected. A new probe scene will be dispatched on the next heartbeat tick." };
+    }),
+
+  // ─── Hedra Performance Mode Procedures ───────────────────────────────────────
+
+  /**
+   * Set a scene's type to 'cinematic' or 'performance'.
+   * Performance scenes will use Hedra Avatar for lip sync instead of WaveSpeed + Sync Labs.
+   */
+  setSceneType: protectedProcedure
+    .input(z.object({
+      sceneId: z.number().int(),
+      sceneType: z.enum(["cinematic", "performance"]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      // Verify ownership
+      const [scene] = await db.select({ id: musicVideoScenes.id, jobId: musicVideoScenes.jobId })
+        .from(musicVideoScenes).where(eq(musicVideoScenes.id, input.sceneId));
+      if (!scene) throw new TRPCError({ code: "NOT_FOUND" });
+      const [job] = await db.select({ userId: musicVideoJobs.userId })
+        .from(musicVideoJobs).where(eq(musicVideoJobs.id, scene.jobId));
+      if (!job || job.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN" });
+      await db.update(musicVideoScenes)
+        .set({ sceneType: input.sceneType, updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, input.sceneId));
+      return { success: true, sceneId: input.sceneId, sceneType: input.sceneType };
+    }),
+
+  /**
+   * Run Hedra Avatar lip sync on a Performance Mode scene.
+   * Requires heroImageUrl to be set on the scene (the portrait frame for Hedra input).
+   * Uses isolated vocals from Demucs if available, otherwise falls back to full audio.
+   */
+  runHedraLipSync: protectedProcedure
+    .input(z.object({
+      sceneId: z.number().int(),
+      heroImageUrl: z.string().url().optional(), // Override portrait image URL
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      // Verify ownership and get scene + job data
+      const [scene] = await db.select()
+        .from(musicVideoScenes).where(eq(musicVideoScenes.id, input.sceneId));
+      if (!scene) throw new TRPCError({ code: "NOT_FOUND", message: "Scene not found" });
+      const [job] = await db.select()
+        .from(musicVideoJobs).where(eq(musicVideoJobs.id, scene.jobId));
+      if (!job || job.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN" });
+
+      const { isHedraConfigured } = await import("../ai-apis/hedra-lipsync");
+      if (!isHedraConfigured()) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Hedra API key not configured" });
+      }
+
+      const imageUrl = input.heroImageUrl ?? scene.heroImageUrl;
+      if (!imageUrl) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "No hero image URL available. Please provide a portrait image for this scene." });
+      }
+
+      // Save the hero image URL if provided
+      if (input.heroImageUrl && input.heroImageUrl !== scene.heroImageUrl) {
+        await db.update(musicVideoScenes)
+          .set({ heroImageUrl: input.heroImageUrl, updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, input.sceneId));
+      }
+
+      // Mark as processing
+      await db.update(musicVideoScenes)
+        .set({ hedraStatus: "processing", sceneType: "performance", updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, input.sceneId));
+
+      // Extract audio segment for this scene
+      const startSec = scene.startTime;
+      const durationSec = scene.duration;
+      const audioUrl = job.audioUrl;
+
+      // Run Hedra asynchronously — don't block the HTTP response
+      (async () => {
+        try {
+          const { waitForHedraLipSync } = await import("../ai-apis/hedra-lipsync");
+          const { storagePut } = await import("../storage");
+          const os = await import("os");
+          const path = await import("path");
+          const fs = await import("fs");
+          const { execSync } = await import("child_process");
+
+          // Download and trim audio to scene duration
+          const tmpDir = os.tmpdir();
+          const rawAudioFile = path.join(tmpDir, `hedra-raw-${scene.id}-${Date.now()}.mp3`);
+          const trimmedAudioFile = path.join(tmpDir, `hedra-trimmed-${scene.id}-${Date.now()}.mp3`);
+
+          execSync(`curl -s -L -o "${rawAudioFile}" "${audioUrl}"`);
+          execSync(`ffmpeg -y -i "${rawAudioFile}" -ss ${startSec} -t ${durationSec} -c:a libmp3lame -q:a 2 "${trimmedAudioFile}" 2>/dev/null`);
+
+          // Upload trimmed audio to S3
+          const trimmedAudioBuffer = fs.readFileSync(trimmedAudioFile);
+          const trimmedAudioKey = `music-video-scenes/hedra-audio-${scene.id}-${Date.now()}.mp3`;
+          const { url: trimmedAudioUrl } = await storagePut(trimmedAudioKey, trimmedAudioBuffer, "audio/mpeg");
+
+          // Clean up temp files
+          try { fs.unlinkSync(rawAudioFile); fs.unlinkSync(trimmedAudioFile); } catch {}
+
+          // Run Hedra
+          const result = await waitForHedraLipSync({
+            imageUrl,
+            audioUrl: trimmedAudioUrl,
+            sceneId: scene.id,
+            aspectRatio: (job.aspectRatio === "9:16" ? "9:16" : job.aspectRatio === "1:1" ? "1:1" : "16:9") as "9:16" | "16:9" | "1:1",
+            resolution: "720p",
+            textPrompt: "A singer performing expressively to the camera, mouth moving naturally with the music, emotional vocal performance",
+          });
+
+          // Save output to S3
+          const hedraVideoRes = await fetch(result.outputUrl);
+          const hedraVideoBuffer = Buffer.from(await hedraVideoRes.arrayBuffer());
+          const hedraVideoKey = `music-video-scenes/hedra-${scene.id}-${Date.now()}.mp4`;
+          const { url: hedraVideoUrl } = await storagePut(hedraVideoKey, hedraVideoBuffer, "video/mp4");
+
+          // Update scene with result
+          const dbConn = await getDb();
+          if (dbConn) {
+            await dbConn.update(musicVideoScenes)
+              .set({
+                hedraVideoUrl,
+                hedraVideoKey,
+                hedraGenerationId: result.generationId,
+                hedraStatus: "done",
+                updatedAt: new Date(),
+              })
+              .where(eq(musicVideoScenes.id, scene.id));
+          }
+          console.log(`[HedraLipSync] Scene ${scene.id} complete — output: ${hedraVideoUrl}`);
+        } catch (err) {
+          console.error(`[HedraLipSync] Scene ${scene.id} failed:`, err);
+          const dbConn = await getDb();
+          if (dbConn) {
+            await dbConn.update(musicVideoScenes)
+              .set({ hedraStatus: "error", errorMessage: String(err), updatedAt: new Date() })
+              .where(eq(musicVideoScenes.id, scene.id));
+          }
+        }
+      })();
+
+      return { success: true, sceneId: input.sceneId, hedraStatus: "processing" };
+    }),
+
+  /**
+   * Get the current Hedra status for a Performance Mode scene.
+   * Poll this until hedraStatus === 'done' to get the output URL.
+   */
+  getHedraStatus: protectedProcedure
+    .input(z.object({ sceneId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const [scene] = await db.select({
+        id: musicVideoScenes.id,
+        jobId: musicVideoScenes.jobId,
+        hedraStatus: musicVideoScenes.hedraStatus,
+        hedraVideoUrl: musicVideoScenes.hedraVideoUrl,
+        hedraGenerationId: musicVideoScenes.hedraGenerationId,
+        heroImageUrl: musicVideoScenes.heroImageUrl,
+        sceneType: musicVideoScenes.sceneType,
+      }).from(musicVideoScenes).where(eq(musicVideoScenes.id, input.sceneId));
+      if (!scene) throw new TRPCError({ code: "NOT_FOUND" });
+      const [job] = await db.select({ userId: musicVideoJobs.userId })
+        .from(musicVideoJobs).where(eq(musicVideoJobs.id, scene.jobId));
+      if (!job || job.userId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN" });
+      return {
+        sceneId: scene.id,
+        sceneType: scene.sceneType,
+        hedraStatus: scene.hedraStatus,
+        hedraVideoUrl: scene.hedraVideoUrl ?? null,
+        hedraGenerationId: scene.hedraGenerationId ?? null,
+        heroImageUrl: scene.heroImageUrl ?? null,
+      };
     }),
 
   // Get probe status for a job (used by UI to poll for probe completion)
