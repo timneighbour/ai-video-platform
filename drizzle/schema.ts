@@ -205,6 +205,14 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   // fallbackProvider: when set to 'wavespeed', all pending scenes skip Atlas entirely.
   atlasFailureCount: int("atlasFailureCount").notNull().default(0), // Atlas timeout/failure count for this job
   fallbackProvider: varchar("fallbackProvider", { length: 32 }), // null = normal routing | 'wavespeed' = skip Atlas
+  // --- Vocal Isolation (Demucs) -------------------------------------------
+  // Demucs-isolated lead vocals — used exclusively for SyncLabs lip sync input.
+  // The final assembled video always uses the original full mix (audioUrl) for the viewer.
+  // vocalsStatus: pending = not yet isolated | processing = Demucs running | done = ready | failed = isolation failed
+  vocalsUrl: varchar("vocalsUrl", { length: 1024 }),          // S3 URL of Demucs-isolated lead vocals
+  vocalsKey: varchar("vocalsKey", { length: 512 }),           // S3 key for isolated vocals file
+  vocalsStatus: varchar("vocalsStatus", { length: 32 }).default("pending"), // pending | processing | done | failed
+  songBpm: int("songBpm"),                                    // Detected BPM (used to generate tempo-matched instrument motion prompts)
   // --- Sync Labs Lip Sync Tracking -------------------------------------------
   syncLabsJobId: varchar("syncLabsJobId", { length: 128 }), // Sync Labs job ID — used to resume polling after server restart
   assemblyStartedAt: timestamp("assemblyStartedAt"),         // When assembly began — used to detect truly stuck jobs
@@ -213,6 +221,27 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
 });
 export type MusicVideoJob = typeof musicVideoJobs.$inferSelect;
 export type InsertMusicVideoJob = typeof musicVideoJobs.$inferInsert;
+
+// --- Vocal Stems Table (per-vocalist isolated audio for lip sync) -----------
+// Each row is one isolated vocal stem produced by Demucs + speaker diarisation.
+// For solo tracks: one row (isLeadVocal=true).
+// For duets/groups: one row per vocalist, each assigned to a character.
+export const musicVideoVocalStems = mysqlTable("musicVideoVocalStems", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: int("jobId").notNull(),                           // references musicVideoJobs.id
+  stemIndex: int("stemIndex").notNull().default(0),        // 0 = first stem, 1 = second, etc.
+  stemUrl: varchar("stemUrl", { length: 1024 }).notNull(), // S3 URL of isolated vocal stem
+  stemKey: varchar("stemKey", { length: 512 }).notNull(),  // S3 key
+  characterId: int("characterId"),                         // references videoCharacters.id (null until assigned)
+  characterName: varchar("characterName", { length: 255 }), // denormalised for quick lookup
+  voiceGender: mysqlEnum("voiceGender", ["male", "female", "unknown"]).default("unknown"),
+  voiceLabel: varchar("voiceLabel", { length: 128 }),      // e.g. "Lead Vocal", "Male Vocalist", "Harmony"
+  isLeadVocal: boolean("isLeadVocal").default(false).notNull(), // Primary lip sync stem
+  diarisationStatus: varchar("diarisationStatus", { length: 32 }).default("done"), // done | processing | failed
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type MusicVideoVocalStem = typeof musicVideoVocalStems.$inferSelect;
+export type InsertMusicVideoVocalStem = typeof musicVideoVocalStems.$inferInsert;
 
 // --- Kids Video Mode & Captions Types --------------------------------------
 export type KidsEducationalTheme = "counting" | "colours" | "animals" | "letters" | "friendship" | "feelings" | "routines" | "adventure" | "music_and_movement";

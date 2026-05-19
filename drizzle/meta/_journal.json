@@ -638,6 +638,20 @@
       "when": 1779204084027,
       "tag": "0090_wise_carnage",
       "breakpoints": true
+    },
+    {
+      "idx": 91,
+      "version": "5",
+      "when": 1779230576084,
+      "tag": "0091_watery_rumiko_fujikawa",
+      "breakpoints": true
+    },
+    {
+      "idx": 92,
+      "version": "5",
+      "when": 1779230668939,
+      "tag": "0092_motionless_gunslinger",
+      "breakpoints": true
     }
   ]
 }

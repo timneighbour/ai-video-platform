@@ -43,6 +43,7 @@ import { startSceneRender, pollSceneStatus } from "../music-video-service";
 import { extractSceneAudioClip } from "../audio-clip-extractor";
 import { submitSyncLabsLipSync, pollSyncLabsLipSync } from "../ai-apis/synclabs-lipsync";
 import { getProbeDecision } from "../pre-render-validator";
+import { getVocalStemForCharacter } from "../vocal-isolation-service";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
 const SCENE_STUCK_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes — reaper handles beyond this
@@ -347,19 +348,34 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   // scene.startTime is stored in MILLISECONDS in the DB — convert to seconds for ffmpeg
                   const startTimeSec = (scene.startTime ?? 0) / 1000;
                   console.log(`[SceneDispatch] Scene ${scene.id} clip ready — submitting to Sync Labs for lip sync (startTime=${startTimeSec}s, raw=${scene.startTime}ms)`);
-                  // Prefer isolated vocals if already available in DB
+                  // VOCAL ISOLATION STRATEGY (2026-05-19):
+                  //   1. Look up the character's assigned vocal stem from musicVideoVocalStems
+                  //   2. Cut the exact scene segment from that isolated stem
+                  //   3. Fall back to full mix segment ONLY if no stem is available
+                  //   Final assembly ALWAYS uses original full mix (job.audioUrl) — SyncLabs audio is stripped
                   let sceneAudioUrl: string;
-                  if ((scene as any).sceneAudioUrl) {
-                    sceneAudioUrl = (scene as any).sceneAudioUrl;
-                    console.log(`[SceneDispatch] Scene ${scene.id}: using pre-isolated vocals for SyncLabs ✓`);
-                  } else {
+                  const characterName = (scene as any).characterName ?? undefined;
+                  const isolatedVocalsUrl = await getVocalStemForCharacter(job.id, characterName);
+                  if (isolatedVocalsUrl) {
+                    // Cut the scene's time window from the isolated vocals stem
                     sceneAudioUrl = await extractSceneAudioClip(
-                      job.audioUrl!,
-                      startTimeSec,           // ✅ FIXED: was scene.startTime (ms), now correctly in seconds
+                      isolatedVocalsUrl,
+                      startTimeSec,
                       scene.duration ?? 5,
                       scene.id
                     );
-                    console.log(`[SceneDispatch] Scene ${scene.id}: using full mix segment for SyncLabs (no isolated vocals available)`);
+                    console.log(`[SceneDispatch] Scene ${scene.id}: using isolated vocals stem for SyncLabs ✓ (character: ${characterName ?? 'lead'})`);
+                  } else if ((scene as any).sceneAudioUrl) {
+                    sceneAudioUrl = (scene as any).sceneAudioUrl;
+                    console.log(`[SceneDispatch] Scene ${scene.id}: using pre-set sceneAudioUrl for SyncLabs`);
+                  } else {
+                    sceneAudioUrl = await extractSceneAudioClip(
+                      job.audioUrl!,
+                      startTimeSec,
+                      scene.duration ?? 5,
+                      scene.id
+                    );
+                    console.warn(`[SceneDispatch] Scene ${scene.id}: ⚠ no isolated vocals — falling back to full mix segment`);
                   }
                   const syncJobId = await submitSyncLabsLipSync({
                     videoUrl: pollResult.videoUrl,
@@ -468,7 +484,18 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 const startTimeSec = (scene.startTime ?? 0) / 1000;
                 console.log(`[SceneDispatch] Scene ${scene.id} RETRY lip sync submission (startTime=${startTimeSec}s)`);
                 let sceneAudioUrl: string;
-                if ((scene as any).sceneAudioUrl) {
+                const retryCharacterName = (scene as any).characterName ?? undefined;
+                const retryIsolatedVocalsUrl = await getVocalStemForCharacter(job.id, retryCharacterName);
+                if (retryIsolatedVocalsUrl) {
+                  const { extractSceneAudioClip: extractForRetry } = await import("../audio-clip-extractor");
+                  sceneAudioUrl = await extractForRetry(
+                    retryIsolatedVocalsUrl,
+                    startTimeSec,
+                    scene.duration ?? 5,
+                    scene.id
+                  );
+                  console.log(`[SceneDispatch] Scene ${scene.id} RETRY: using isolated vocals stem ✓`);
+                } else if ((scene as any).sceneAudioUrl) {
                   sceneAudioUrl = (scene as any).sceneAudioUrl;
                 } else {
                   const { extractSceneAudioClip: extractForRetry } = await import("../audio-clip-extractor");
@@ -478,6 +505,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                     scene.duration ?? 5,
                     scene.id
                   );
+                  console.warn(`[SceneDispatch] Scene ${scene.id} RETRY: ⚠ no isolated vocals — falling back to full mix`);
                 }
                 const syncJobId = await submitSyncLabsForRetry({
                   videoUrl: scene.videoUrl,

@@ -27,6 +27,8 @@ import { generateImage } from "../_core/imageGeneration";
 import { generateFaceConsistentImage } from "../_core/fluxPuLID";
 
 import { validateSceneFaceConsistency, validateFaceConsistency, ensureReferencePhotoBase64, type CharacterLockData } from "../character-lock";
+import { musicVideoVocalStems } from "../../drizzle/schema";
+import { getVocalStemForCharacter } from "../vocal-isolation-service";
 import { getUserSubscription, mapDbPlanToProductPlan, countVideosThisMonth } from "../db";
 import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS, PLAN_SCENE_LIMITS, getPlanMaxScenesPerVideo } from "../products";
 import { classifyScenes } from "../scene-classifier";
@@ -1583,6 +1585,9 @@ Rules:
         probeState: finalJob.probePassed === null ? "not_started"
           : (finalJob.probePassed === false || (finalJob.probePassed as any) === 0) ? (finalJob.probeVideoUrl ? "awaiting_approval" : "rendering")
           : "approved",
+        // ── VOCAL ISOLATION STATE ──────────────────────────────────────────────
+        vocalsStatus: (finalJob as any).vocalsStatus ?? null,
+        songBpm: (finalJob as any).songBpm ?? null,
         // Per-scene status for real-time progress display
         sceneStatuses: updatedScenes.map((s) => ({
           id: s.id,
@@ -5225,5 +5230,132 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
           : (job.probePassed === false || (job.probePassed as any) === 0) ? (job.probeVideoUrl ? "awaiting_approval" : "rendering")
           : "approved",
       };
+    }),
+
+  // ── VOCAL STEMS ─────────────────────────────────────────────────────────────
+
+  /** Return all vocal stems for a job (for the WizPerformer assignment UI) */
+  getVocalStems: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      // Verify ownership
+      const [job] = await db.select({ id: musicVideoJobs.id })
+        .from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const stems = await db.select().from(musicVideoVocalStems)
+        .where(eq(musicVideoVocalStems.jobId, input.jobId));
+
+      return stems.map((s) => ({
+        id: s.id,
+        stemIndex: s.stemIndex,
+        stemUrl: s.stemUrl,
+        voiceGender: s.voiceGender ?? "unknown",
+        voiceLabel: s.voiceLabel ?? "Lead Vocal",
+        isLeadVocal: s.isLeadVocal,
+        characterName: s.characterName ?? null,
+      }));
+    }),
+
+  /** Assign a vocal stem to a character (for duet/ensemble mode) */
+  assignVocalStem: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      stemId: z.number().int(),
+      characterName: z.string().min(1),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      // Verify ownership
+      const [job] = await db.select({ id: musicVideoJobs.id })
+        .from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      await db.update(musicVideoVocalStems)
+        .set({ characterName: input.characterName })
+        .where(and(
+          eq(musicVideoVocalStems.id, input.stemId),
+          eq(musicVideoVocalStems.jobId, input.jobId)
+        ));
+
+      return { success: true };
+    }),
+
+  /** Mark a stem as the lead vocal (used for single-vocalist jobs) */
+  setLeadVocalStem: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      stemId: z.number().int(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      // Verify ownership
+      const [job] = await db.select({ id: musicVideoJobs.id })
+        .from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Clear existing lead flag on all stems for this job
+      await db.update(musicVideoVocalStems)
+        .set({ isLeadVocal: false })
+        .where(eq(musicVideoVocalStems.jobId, input.jobId));
+
+      // Set the new lead stem
+      await db.update(musicVideoVocalStems)
+        .set({ isLeadVocal: true })
+        .where(and(
+          eq(musicVideoVocalStems.id, input.stemId),
+          eq(musicVideoVocalStems.jobId, input.jobId)
+        ));
+
+      return { success: true };
+    }),
+
+  /** Activate Duet or Ensemble Mode — deducts credits and marks the job */
+  activateMultiVocalMode: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      mode: z.enum(["duet", "ensemble"]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      // Verify ownership
+      const [job] = await db.select({ id: musicVideoJobs.id, userId: musicVideoJobs.userId })
+        .from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Credit cost
+      const creditCost = input.mode === "duet" ? 25 : 50;
+      const label = input.mode === "duet" ? "Duet Mode" : "Ensemble Mode";
+
+      // Deduct credits
+      const deducted = await deductCredits(
+        ctx.user.id,
+        creditCost,
+        `${label} — multi-vocal lip sync for job ${input.jobId}`,
+        input.jobId
+      );
+      if (!deducted) {
+        throw new TRPCError({
+          code: "PAYMENT_REQUIRED",
+          message: `Insufficient credits. ${label} requires ${creditCost} credits.`,
+        });
+      }
+
+      // Mark the job with the vocal mode
+      await db.update(musicVideoJobs)
+        .set({ multiVocalMode: input.mode } as any)
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      return { success: true, creditsDeducted: creditCost, mode: input.mode };
     }),
 });

@@ -100,6 +100,7 @@ import { VoicePromptButton } from "@/components/VoicePromptButton";
 import { StarterTemplates } from "@/components/StarterTemplates";
 import { LyricTimelineBar } from "@/components/LyricTimelineBar";
 import { InstrumentAccuracyPanel } from "@/components/InstrumentAccuracyPanel";
+import { VocalStemAssignmentPanel } from "@/components/VocalStemAssignmentPanel";
 import { SceneLipSyncPreviewModal } from "@/components/SceneLipSyncPreviewModal";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
@@ -3897,6 +3898,17 @@ export default function MusicVideoAutopilot() {
             {/* Instrument Accuracy Panel */}
             {jobId && (
               <InstrumentAccuracyPanel jobId={jobId} isLocked={false} />
+            )}
+
+            {/* Vocal Stem Assignment Panel — WizPerformer multi-vocal */}
+            {jobId && (
+              <div className="mb-4">
+                <VocalStemAssignmentPanel
+                  jobId={jobId}
+                  characters={characters.map((c, i) => ({ id: i, name: c.name }))}
+                  isLocked={false}
+                />
+              </div>
             )}
 
             {/* Export Format Selection */}

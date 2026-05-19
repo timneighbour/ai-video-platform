@@ -72,7 +72,36 @@ export const VIDEO_CREDIT_COSTS = {
   perCinematicScene: 20,
   /** Additional credits for lip sync / avatar */
   lipSync: 30,
+  /** Additional credits for Duet Mode (2 vocal stems, per-character lip sync) */
+  duetMode: 25,
+  /** Additional credits for Ensemble Mode (3–6 vocal stems, per-character lip sync) */
+  ensembleMode: 50,
 } as const;
+
+/**
+ * Multi-Vocal Add-On Tiers
+ * Charged in addition to the base video cost when a job has 2+ vocal stems.
+ */
+export const MULTI_VOCAL_ADDONS = {
+  duet: {
+    key: "duet" as const,
+    label: "Duet Mode",
+    description: "2 vocal stems — each performer lip syncs to their own isolated vocal track",
+    stemCount: 2,
+    credits: VIDEO_CREDIT_COSTS.duetMode,
+    badge: "2 Vocalists",
+  },
+  ensemble: {
+    key: "ensemble" as const,
+    label: "Ensemble Mode",
+    description: "3–6 vocal stems — full band or choir with per-character lip sync accuracy",
+    stemCount: 6,
+    credits: VIDEO_CREDIT_COSTS.ensembleMode,
+    badge: "Up to 6 Vocalists",
+  },
+} as const;
+
+export type MultiVocalAddonKey = keyof typeof MULTI_VOCAL_ADDONS;
 
 /**
  * Calculate the credit cost for a video based on duration and options.

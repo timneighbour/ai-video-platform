@@ -106,7 +106,7 @@
 - [x] Add tempo-matched musician motion: 76 BPM ballad, slow sustained bow strokes
 - [x] Fix probe gate: clear idempotency records so scenes can be re-dispatched
 - [x] Fix SyncLabs audio extraction: startTime was in ms, must divide by 1000 before passing to ffmpeg
-- [ ] Deploy fix to production and verify SyncLabs lip sync completes for Scene 1
+- [x] Deploy fix to production and verify SyncLabs lip sync completes for Scene 1
 - [ ] After probe approval, dispatch all 11 scenes and assemble final video
 
 ## API Integration & Real Video Generation
@@ -8068,3 +8068,37 @@
 - [ ] Ensure assembly waits until lipSyncStatus = 'done' OR 'error' for ALL scenes before triggering
 - [ ] Verify user-facing video player and download only exposes the final assembled video (not individual scene clips)
 - [ ] WaveSpeed credit top-up: $10 added — resume Air Studios render for Job 660001 (scenes 4-10 pending)
+
+## Permanent Pipeline Fixes (Vocal Isolation + Instrument Tempo)
+- [ ] Add vocalsUrl column to musicVideoJobs schema and apply migration
+- [ ] Add vocal isolation heartbeat step: runs Demucs in sandbox, stores vocalsUrl on job before render starts
+- [ ] Update SyncLabs submission: always use vocalsUrl (isolated vocals) for sceneAudioUrl, never full mix
+- [ ] Update instrument scene prompts: inject BPM-matched motion descriptor (e.g. "slow sustained bow strokes at 76 BPM")
+- [ ] Verify assembly: original full mix audio overlaid on final video (SyncLabs audio stripped)
+- [ ] Deploy and verify with Job 660001 Scene 1 probe
+
+## Multi-Vocalist Vocal Stem Pipeline
+- [ ] Add musicVideoVocalStems table: jobId, stemIndex, stemUrl, stemKey, characterId, voiceGender, voiceLabel, isLeadVocal, diarisationStatus
+- [ ] Apply migration for musicVideoVocalStems table
+- [ ] Build vocal isolation service: Demucs (vocals/instruments split) + AssemblyAI speaker diarisation (per-vocalist stems)
+- [ ] Auto-assign stems to characters by voice gender/pitch detection
+- [ ] Wire vocal isolation as pre-render heartbeat step (runs once per job when enableLipSync=true)
+- [ ] Update SyncLabs submission: look up the correct vocal stem for the character in each scene
+- [ ] Update instrument scene prompts: inject BPM (songBpm) into motion descriptor
+- [ ] Final assembly: always overlay original full mix (audioUrl) — SyncLabs audio stripped
+- [ ] Seed Job 660001 with existing Demucs vocals as stem 0 (isLeadVocal=true)
+- [ ] Deploy and verify Scene 1 probe with isolated vocals
+
+## WizPerformer Multi-Vocal System (Premium Feature)
+- [ ] Fix TypeScript errors in vocal-isolation-service.ts (use getDb() not db, fix Set iteration, add explicit types)
+- [ ] Build sandbox-side vocal isolation heartbeat endpoint (runs Demucs + AssemblyAI diarisation, stores stems)
+- [ ] Add vocalsIsolationStatus to job polling so frontend knows when stems are ready
+- [ ] WizPerformer UI: multi-vocal detection banner when 2+ stems found
+- [ ] WizPerformer UI: stem assignment panel with waveform preview + character dropdown per stem
+- [ ] WizPerformer UI: play/preview button for each isolated stem before assignment
+- [ ] Stripe upsell: Duet Mode add-on (2 stems) credit charge at render time
+- [ ] Stripe upsell: Ensemble Mode add-on (3-6 stems) credit charge at render time
+- [ ] Upsell prompt: surfaces automatically when multi-vocal track detected
+- [ ] Wire per-character stem into heartbeat SyncLabs submission (partially done)
+- [ ] Job 660001: verify Scene 1 probe with isolated vocals after deploy
+- [ ] After probe approval: release all 11 scenes and assemble final video
