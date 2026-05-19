@@ -387,12 +387,19 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 const [currentJob] = await db.select({ probeSceneId: musicVideoJobs.probeSceneId, probePassed: musicVideoJobs.probePassed })
                   .from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
                 if (currentJob?.probeSceneId === scene.id && currentJob?.probePassed === false) {
-                  // The probe scene just completed — store its video URL for owner review
-                  const probeUrl = pollResult.videoUrl;
-                  await db.update(musicVideoJobs)
-                    .set({ probeVideoUrl: probeUrl, updatedAt: new Date() })
-                    .where(eq(musicVideoJobs.id, job.id));
-                  console.log(`[SceneDispatch] Job ${job.id} PROBE COMPLETE — video ready for owner review: ${probeUrl.slice(0, 60)}...`);
+                  // Only set probeVideoUrl here if this scene does NOT need lip sync.
+                  // For lip sync scenes, the lip sync poller below will set probeVideoUrl
+                  // to the lip-synced version (with correct audio) — don't overwrite it with the raw clip.
+                  const needsLipSyncForProbe = (scene.lipSync ?? false) && !!job.audioUrl;
+                  if (!needsLipSyncForProbe) {
+                    const probeUrl = pollResult.videoUrl;
+                    await db.update(musicVideoJobs)
+                      .set({ probeVideoUrl: probeUrl, updatedAt: new Date() })
+                      .where(eq(musicVideoJobs.id, job.id));
+                    console.log(`[SceneDispatch] Job ${job.id} PROBE COMPLETE (no lip sync) — raw video ready for owner review: ${probeUrl.slice(0, 60)}...`);
+                  } else {
+                    console.log(`[SceneDispatch] Job ${job.id} probe scene ${scene.id} clip ready — waiting for lip sync before setting probeVideoUrl`);
+                  }
                 }
               } catch { /* non-fatal */ }
               totalPolled++;
