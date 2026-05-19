@@ -197,13 +197,13 @@ export async function getProbeDecision(jobId: number): Promise<ProbeDecision> {
     return { mode: "blocked", reason: "Job not found", validationResult };
   }
 
-  // probePassed=true → owner has approved the probe → full render
-  if (job.probePassed === true) {
+  // probePassed=true (or 1 from MySQL tinyint) → owner has approved the probe → full render
+  if (job.probePassed === true || (job.probePassed as any) === 1) {
     return { mode: "full_render", validationResult };
   }
 
-  // probePassed=false → probe is in progress OR dispatch failed — check if scene actually has a taskId
-  if (job.probePassed === false) {
+  // probePassed=false (or 0 from MySQL tinyint) → probe is in progress OR dispatch failed
+  if (job.probePassed === false || (job.probePassed as any) === 0) {
     // If probeSceneId is set, check if the scene actually has a taskId (was actually dispatched)
     if (job.probeSceneId) {
       const [probeScene] = await db

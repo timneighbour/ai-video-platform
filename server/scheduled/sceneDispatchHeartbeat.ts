@@ -417,7 +417,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               try {
                 const [currentJob] = await db.select({ probeSceneId: musicVideoJobs.probeSceneId, probePassed: musicVideoJobs.probePassed })
                   .from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
-                if (currentJob?.probeSceneId === scene.id && currentJob?.probePassed === false) {
+                if (currentJob?.probeSceneId === scene.id && (currentJob?.probePassed === false || (currentJob?.probePassed as any) === 0)) {
                   // Only set probeVideoUrl here if this scene does NOT need lip sync.
                   // For lip sync scenes, the lip sync poller below will set probeVideoUrl
                   // to the lip-synced version (with correct audio) — don't overwrite it with the raw clip.
@@ -512,7 +512,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                     try {
                       const [currentJob] = await db.select({ probeSceneId: musicVideoJobs.probeSceneId, probePassed: musicVideoJobs.probePassed })
                         .from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
-                      if (currentJob?.probeSceneId === scene.id && currentJob?.probePassed === false) {
+                      if (currentJob?.probeSceneId === scene.id && (currentJob?.probePassed === false || (currentJob?.probePassed as any) === 0)) {
                         await db.update(musicVideoJobs)
                           .set({ probeVideoUrl: url, updatedAt: new Date() })
                           .where(eq(musicVideoJobs.id, job.id));

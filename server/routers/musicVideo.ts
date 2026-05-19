@@ -1581,7 +1581,7 @@ Rules:
         probeVideoUrl: finalJob.probeVideoUrl ?? null,
         probeSceneId: finalJob.probeSceneId ?? null,
         probeState: finalJob.probePassed === null ? "not_started"
-          : finalJob.probePassed === false ? (finalJob.probeVideoUrl ? "awaiting_approval" : "rendering")
+          : (finalJob.probePassed === false || (finalJob.probePassed as any) === 0) ? (finalJob.probeVideoUrl ? "awaiting_approval" : "rendering")
           : "approved",
         // Per-scene status for real-time progress display
         sceneStatuses: updatedScenes.map((s) => ({
@@ -5222,7 +5222,7 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
         jobStatus: job.status,
         // Derived state for UI
         probeState: job.probePassed === null ? "not_started"
-          : job.probePassed === false ? (job.probeVideoUrl ? "awaiting_approval" : "rendering")
+          : (job.probePassed === false || (job.probePassed as any) === 0) ? (job.probeVideoUrl ? "awaiting_approval" : "rendering")
           : "approved",
       };
     }),
