@@ -1610,21 +1610,44 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     const sceneFiles: string[] = [];
     for (const scene of scenes) {
       // ── WizSync™: Clip selection priority (2026-05-19):
-      // 1. lipSyncVideoUrl — SyncLabs sync-3 lip sync (PRIMARY provider for all scenes)
-      // 2. videoUrl        — raw WaveSpeed clip (fallback when no lip sync)
-      // NOTE: Hedra deprecated — does not produce convincing lip sync for music videos
-      const clipUrl = scene.lipSyncVideoUrl ?? scene.videoUrl;
+      // 1. lipSyncVideoUrl — SyncLabs sync-3 lip sync (PRIMARY, used when lipSyncStatus='done')
+      // 2. videoUrl        — raw clip (only used when scene does NOT need lip sync, OR lip sync errored)
+      //
+      // CRITICAL RULE: If a scene needs lip sync (lipSync=true OR sceneType='performance')
+      // and lipSyncStatus is NOT 'done' or 'error', SKIP this scene entirely.
+      // The assembly should never be triggered before lip sync is complete (the heartbeat
+      // checks allLipSyncReady before queuing assembly), but this is a belt-and-braces guard.
+      const needsLipSync = (scene.lipSync === true) || (scene.sceneType === "performance");
+      const lipSyncDone = scene.lipSyncStatus === "done";
+      const lipSyncErrored = scene.lipSyncStatus === "error";
+
+      let clipUrl: string | null = null;
+      if (needsLipSync) {
+        if (lipSyncDone && scene.lipSyncVideoUrl) {
+          // Best case: fully lip-synced clip ready
+          clipUrl = scene.lipSyncVideoUrl;
+          console.log(`[Assembly] Scene ${scene.sceneIndex}: using WizSync™ SyncLabs lip-synced clip ✓`);
+        } else if (lipSyncErrored) {
+          // SyncLabs failed — fall back to raw clip with a warning
+          clipUrl = scene.videoUrl;
+          console.warn(`[Assembly] Scene ${scene.sceneIndex}: SyncLabs errored — using raw clip as fallback (lip sync unavailable)`);
+        } else {
+          // Lip sync still processing — skip this scene (assembly triggered too early)
+          console.error(`[Assembly] Scene ${scene.sceneIndex}: SKIPPED — lip sync still in progress (lipSyncStatus=${scene.lipSyncStatus}). Assembly should not have been triggered yet.`);
+          continue;
+        }
+      } else {
+        // No lip sync needed — use raw clip directly
+        clipUrl = scene.videoUrl;
+        console.log(`[Assembly] Scene ${scene.sceneIndex}: using raw clip (no lip sync required)`);
+      }
+
       if (!clipUrl) continue;
       const sceneFile = path.join(tmpDir, `scene-${scene.sceneIndex.toString().padStart(3, "0")}.mp4`);
       const resp = await fetch(clipUrl);
       const buf = Buffer.from(await resp.arrayBuffer());
       fs.writeFileSync(sceneFile, buf);
       sceneFiles.push(sceneFile);
-      if (scene.lipSyncVideoUrl) {
-        console.log(`[Assembly] Scene ${scene.sceneIndex}: using WizSync™ SyncLabs lip-synced clip ✓`);
-      } else {
-        console.log(`[Assembly] Scene ${scene.sceneIndex}: using raw clip (no lip sync)`);
-      }
     }
 
     // Download original audio
@@ -1642,7 +1665,8 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     // Fix: find the earliest scene startTime and trim the full mix to start from that offset.
     // This ensures the audio the viewer hears is time-aligned with the lip-synced video.
     const firstScene = scenes[0]; // scenes are sorted by sceneIndex above
-    const audioStartSec = firstScene ? Math.floor(firstScene.startTime / 1000) : 0;
+    // NOTE: startTime is stored in SECONDS (e.g. 0, 6, 12...), NOT milliseconds
+    const audioStartSec = firstScene ? Math.floor(firstScene.startTime ?? 0) : 0;
     const audioTrimmedRaw = path.join(tmpDir, "audio-trimmed-raw.mp3");
     if (audioStartSec > 0) {
       console.log(`[Assembly] Job ${jobId}: trimming audio from ${audioStartSec}s to align with scene startTime`);
@@ -1673,8 +1697,9 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     for (let i = 0; i < sceneFiles.length; i++) {
       const src = sceneFiles[i];
       const dst = path.join(tmpDir, `norm-${String(i).padStart(3, "0")}.mp4`);
-      // Enforce exact scene duration with -t to prevent VFR drift from Hedra clips
-      const sceneDurSec = scenes[i]?.duration ? scenes[i].duration / 1000 : null;
+      // Enforce exact scene duration with -t to prevent VFR drift
+      // NOTE: duration is stored in SECONDS (e.g. 6), NOT milliseconds
+      const sceneDurSec = scenes[i]?.duration ? scenes[i].duration : null;
       const durFlag = sceneDurSec ? `-t ${sceneDurSec}` : "";
       await execAsync(
         `"${FFMPEG_BIN}" -y -i "${src}" ${durFlag} -an -c:v libx264 -preset fast -crf 22 -vf "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,fps=24" -vsync cfr -r 24 -pix_fmt yuv420p "${dst}"`,

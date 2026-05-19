@@ -344,7 +344,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 //   - Otherwise fall back to extractSceneAudioClip (full mix segment)
                 //   - Final assembly always uses the ORIGINAL FULL MIX audio track (job.audioUrl)
                 try {
-                  console.log(`[SceneDispatch] Scene ${scene.id} clip ready — submitting to Sync Labs for lip sync (startTime=${scene.startTime}s)`);
+                  // scene.startTime is stored in MILLISECONDS in the DB — convert to seconds for ffmpeg
+                  const startTimeSec = (scene.startTime ?? 0) / 1000;
+                  console.log(`[SceneDispatch] Scene ${scene.id} clip ready — submitting to Sync Labs for lip sync (startTime=${startTimeSec}s, raw=${scene.startTime}ms)`);
                   // Prefer isolated vocals if already available in DB
                   let sceneAudioUrl: string;
                   if ((scene as any).sceneAudioUrl) {
@@ -353,7 +355,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   } else {
                     sceneAudioUrl = await extractSceneAudioClip(
                       job.audioUrl!,
-                      scene.startTime!,
+                      startTimeSec,           // ✅ FIXED: was scene.startTime (ms), now correctly in seconds
                       scene.duration ?? 5,
                       scene.id
                     );
@@ -513,7 +515,8 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                         console.log(`[SceneDispatch] Job ${job.id} PROBE LIP SYNC COMPLETE — lip-synced video ready for owner review: ${url.slice(0, 60)}...`);
                       }
                     } catch { /* non-fatal */ }
-                  } else {
+                  }
+                  if (!outputUrl) {
                     // Completed but no URL — treat as error
                     console.error(`[SceneDispatch] Scene ${scene.id} Sync Labs COMPLETED but no outputUrl — using raw clip`);
                     await db.update(musicVideoScenes)

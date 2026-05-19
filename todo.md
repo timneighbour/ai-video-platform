@@ -99,6 +99,16 @@
 - Beautiful WizVid logo with magic wand design
 
 
+## Critical Bug Fixes (Job 660001 Re-render)
+- [x] Fix WaveSpeed aspect ratio: 960x960 → 1280x720 (16:9)
+- [x] Fix character description: restore original Zara (white/Caucasian, long black hair, green eyes)
+- [x] Fix storyboard prompts: remove pianist fingers, replace orchestra with Zara-focused shots
+- [x] Add tempo-matched musician motion: 76 BPM ballad, slow sustained bow strokes
+- [x] Fix probe gate: clear idempotency records so scenes can be re-dispatched
+- [x] Fix SyncLabs audio extraction: startTime was in ms, must divide by 1000 before passing to ffmpeg
+- [ ] Deploy fix to production and verify SyncLabs lip sync completes for Scene 1
+- [ ] After probe approval, dispatch all 11 scenes and assemble final video
+
 ## API Integration & Real Video Generation
 - [x] Integrate Kling AI 3.0 for text-to-video generation
 - [x] Integrate HeyGen Avatar IV for lip-sync and talking avatars
@@ -8052,3 +8062,9 @@
 - [x] AUDIO STRATEGY: SyncLabs receives isolated vocals (Demucs) for lip sync generation; final assembly uses original full mix audio track for the viewer
 - [x] Ensure assembly always uses job.audioUrl (full mix) for final video audio, NOT isolated vocals
 - [x] Ensure SyncLabs submission uses Demucs-isolated vocals (sceneAudioUrl) for lip sync input, with full mix fallback
+
+## Assembly Lip Sync Finalization (19 May 2026)
+- [ ] Fix assembly clip selection: for scenes that need lip sync, ONLY use lipSyncVideoUrl — never fall back to raw videoUrl
+- [ ] Ensure assembly waits until lipSyncStatus = 'done' OR 'error' for ALL scenes before triggering
+- [ ] Verify user-facing video player and download only exposes the final assembled video (not individual scene clips)
+- [ ] WaveSpeed credit top-up: $10 added — resume Air Studios render for Job 660001 (scenes 4-10 pending)
