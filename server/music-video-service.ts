@@ -2208,22 +2208,39 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
     console.warn(`[triggerMusicVideoRender] No character portraits found for job ${musicVideoJobId} — scenes without assignments will use text-to-video`);
   }
 
-  // Auto-generate missing previews
+  // Auto-generate missing previews — use cinematic aspect-ratio-aware image generation
+  // so WaveSpeed i2v inherits the correct frame dimensions natively
   const scenesWithoutPreview = scenes.filter(s => !s.previewImageUrl);
   if (scenesWithoutPreview.length > 0) {
-    console.log(`[triggerMusicVideoRender] Auto-generating ${scenesWithoutPreview.length} missing previews for job ${musicVideoJobId}`);
-    const { generateImage } = await import("./_core/imageGeneration");
+    console.log(`[triggerMusicVideoRender] Auto-generating ${scenesWithoutPreview.length} cinematic previews for job ${musicVideoJobId} (${job.aspectRatio ?? "16:9"})`);
+    const { generateCinematicStoryboardImage } = await import("./ai-apis/fal-image-gen");
     await Promise.allSettled(
       scenesWithoutPreview.map(async (scene) => {
         try {
-          const { url } = await generateImage({ prompt: scene.prompt });
+          const { url } = await generateCinematicStoryboardImage({
+            prompt: scene.prompt,
+            aspectRatio: (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9",
+            storageKeyPrefix: `music-video-storyboard/${musicVideoJobId}-scene-${scene.id}-cinematic`,
+          });
           if (url) {
             await db!.update(musicVideoScenes)
               .set({ previewImageUrl: url })
               .where(eq(musicVideoScenes.id, scene.id));
           }
         } catch (err) {
-          console.warn(`[triggerMusicVideoRender] Auto-preview failed for scene ${scene.sceneIndex + 1}:`, err);
+          console.warn(`[triggerMusicVideoRender] Cinematic preview failed for scene ${scene.sceneIndex + 1}, falling back to generic:`, err);
+          // Fallback to generic image generation if fal.ai fails
+          try {
+            const { generateImage } = await import("./_core/imageGeneration");
+            const { url } = await generateImage({ prompt: scene.prompt });
+            if (url) {
+              await db!.update(musicVideoScenes)
+                .set({ previewImageUrl: url })
+                .where(eq(musicVideoScenes.id, scene.id));
+            }
+          } catch (fallbackErr) {
+            console.warn(`[triggerMusicVideoRender] Fallback preview also failed for scene ${scene.sceneIndex + 1}:`, fallbackErr);
+          }
         }
       })
     );
