@@ -8040,3 +8040,15 @@
 - [x] Add -t duration flag to assembly normalization (enforces exact scene duration, prevents drift)
 - [x] Successfully downloaded Hedra Character 3 lip sync video (Zara singing 36-42s isolated vocals)
 - [x] Successfully assembled final video with Hedra lip sync clip + cinematic scene + audio trimmed from 24s
+
+## Lip Sync Provider Decision (19 May 2026)
+- [x] DECISION: Hedra Character 3 does NOT produce convincing lip sync — mouth movement is not synced to lyrics
+- [x] DECISION: SyncLabs sync-3 is the PRIMARY lip sync provider for all scenes (including Performance Mode)
+- [x] NOTE: SyncLabs has slight latency offset (fractions of a second) but is acceptable for production
+- [x] NOTE: SyncLabs preserves original character appearance (no face replacement)
+- [x] Update sceneDispatchHeartbeat.ts: remove Hedra auto-trigger for Performance Mode scenes, use SyncLabs instead
+- [x] Update assembly clip priority: remove hedraVideoUrl preference, use lipSyncVideoUrl (SyncLabs) as primary
+- [x] Document in code comments: Hedra deprecated, SyncLabs is the production lip sync provider
+- [x] AUDIO STRATEGY: SyncLabs receives isolated vocals (Demucs) for lip sync generation; final assembly uses original full mix audio track for the viewer
+- [x] Ensure assembly always uses job.audioUrl (full mix) for final video audio, NOT isolated vocals
+- [x] Ensure SyncLabs submission uses Demucs-isolated vocals (sceneAudioUrl) for lip sync input, with full mix fallback

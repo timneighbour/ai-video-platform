@@ -1609,21 +1609,19 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
   try {
     const sceneFiles: string[] = [];
     for (const scene of scenes) {
-      // ── WizSync™: Clip selection priority:
-      // 1. hedraVideoUrl  — Performance Mode: Hedra Character 3 lip sync (best quality)
-      // 2. lipSyncVideoUrl — Sync Labs lip sync (legacy, non-performance scenes)
-      // 3. videoUrl        — raw WaveSpeed clip (fallback)
-      const clipUrl = (scene as any).hedraVideoUrl ?? scene.lipSyncVideoUrl ?? scene.videoUrl;
+      // ── WizSync™: Clip selection priority (2026-05-19):
+      // 1. lipSyncVideoUrl — SyncLabs sync-3 lip sync (PRIMARY provider for all scenes)
+      // 2. videoUrl        — raw WaveSpeed clip (fallback when no lip sync)
+      // NOTE: Hedra deprecated — does not produce convincing lip sync for music videos
+      const clipUrl = scene.lipSyncVideoUrl ?? scene.videoUrl;
       if (!clipUrl) continue;
       const sceneFile = path.join(tmpDir, `scene-${scene.sceneIndex.toString().padStart(3, "0")}.mp4`);
       const resp = await fetch(clipUrl);
       const buf = Buffer.from(await resp.arrayBuffer());
       fs.writeFileSync(sceneFile, buf);
       sceneFiles.push(sceneFile);
-      if ((scene as any).hedraVideoUrl) {
-        console.log(`[Assembly] Scene ${scene.sceneIndex}: using Hedra Character 3 lip-synced clip ✓`);
-      } else if (scene.lipSyncVideoUrl) {
-        console.log(`[Assembly] Scene ${scene.sceneIndex}: using WizSync™ lip-synced clip ✓`);
+      if (scene.lipSyncVideoUrl) {
+        console.log(`[Assembly] Scene ${scene.sceneIndex}: using WizSync™ SyncLabs lip-synced clip ✓`);
       } else {
         console.log(`[Assembly] Scene ${scene.sceneIndex}: using raw clip (no lip sync)`);
       }
@@ -1638,10 +1636,11 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     fs.writeFileSync(audioFileRaw, audioBuf);
 
     // ── WizSync™ Audio Sync Fix (2026-05-19) ────────────────────────────────────
-    // Problem: Hedra lip sync is trained on a trimmed scene segment (e.g. 24–30s of the song).
-    // If we mix the full audio track from 0:00, the mouth movements are offset by startTime.
-    // Fix: find the earliest scene startTime and trim the full audio to start from that offset.
-    // This ensures the audio the viewer hears matches the segment Hedra was trained on.
+    // AUDIO STRATEGY: The final assembled video uses the ORIGINAL FULL MIX audio track.
+    // SyncLabs receives isolated vocals for lip sync accuracy, but the viewer hears the
+    // complete song with instruments, backing vocals, etc.
+    // Fix: find the earliest scene startTime and trim the full mix to start from that offset.
+    // This ensures the audio the viewer hears is time-aligned with the lip-synced video.
     const firstScene = scenes[0]; // scenes are sorted by sceneIndex above
     const audioStartSec = firstScene ? Math.floor(firstScene.startTime / 1000) : 0;
     const audioTrimmedRaw = path.join(tmpDir, "audio-trimmed-raw.mp3");
