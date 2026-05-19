@@ -449,6 +449,60 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           }
         }
 
+        // ── 4b. Re-submit completed scenes whose lip sync is still pending ─────
+        // These are scenes that completed WaveSpeed generation but SyncLabs submission
+        // was deferred (rate limit) or failed and needs retry.
+        const lipSyncPendingScenes = scenes.filter(
+          (s) => s.status === "completed" && s.lipSyncStatus === "pending" && !s.lipSyncTaskId
+        );
+
+        if (lipSyncPendingScenes.length > 0) {
+          const { isSyncLabsConfigured: isSyncLabsConfiguredForRetry, submitSyncLabsLipSync: submitSyncLabsForRetry } = await import("../ai-apis/synclabs-lipsync");
+          if (isSyncLabsConfiguredForRetry()) {
+            for (const scene of lipSyncPendingScenes) {
+              if (syncLabsSubmittedThisTick >= SYNC_LABS_MAX_PER_TICK) break;
+              const isPerformanceScene = scene.sceneType === "performance";
+              const needsLipSync = (isPerformanceScene || (scene.lipSync ?? false)) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
+              if (!needsLipSync || !scene.videoUrl) continue;
+              try {
+                const startTimeSec = (scene.startTime ?? 0) / 1000;
+                console.log(`[SceneDispatch] Scene ${scene.id} RETRY lip sync submission (startTime=${startTimeSec}s)`);
+                let sceneAudioUrl: string;
+                if ((scene as any).sceneAudioUrl) {
+                  sceneAudioUrl = (scene as any).sceneAudioUrl;
+                } else {
+                  const { extractSceneAudioClip: extractForRetry } = await import("../audio-clip-extractor");
+                  sceneAudioUrl = await extractForRetry(
+                    job.audioUrl!,
+                    startTimeSec,
+                    scene.duration ?? 5,
+                    scene.id
+                  );
+                }
+                const syncJobId = await submitSyncLabsForRetry({
+                  videoUrl: scene.videoUrl,
+                  audioUrl: sceneAudioUrl,
+                  syncMode: "cut_off",
+                  outputFileName: `wizsync-scene-${scene.id}-retry-${Date.now()}`,
+                  temperature: 1.0,
+                  occlusionDetection: true,
+                });
+                await db.update(musicVideoScenes)
+                  .set({ lipSyncStatus: "processing", lipSyncTaskId: syncJobId, updatedAt: new Date() })
+                  .where(eq(musicVideoScenes.id, scene.id));
+                console.log(`[SceneDispatch] Scene ${scene.id} RETRY → Sync Labs job ${syncJobId} submitted ✓`);
+                syncLabsSubmittedThisTick++;
+                totalLipSyncSubmitted++;
+              } catch (retryErr: any) {
+                console.error(`[SceneDispatch] Scene ${scene.id} RETRY lip sync failed: ${String(retryErr?.message ?? retryErr).slice(0, 200)}`);
+                await db.update(musicVideoScenes)
+                  .set({ lipSyncStatus: "error", updatedAt: new Date() })
+                  .where(eq(musicVideoScenes.id, scene.id));
+              }
+            }
+          }
+        }
+
         // ── 5. Poll Sync Labs lip sync jobs ────────────────────────────────────
         const lipSyncProcessingScenes = scenes.filter(
           (s) => s.status === "completed" && s.lipSyncStatus === "processing" && s.lipSyncTaskId
