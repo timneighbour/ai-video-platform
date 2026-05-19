@@ -1637,6 +1637,27 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     const audioBuf = Buffer.from(await audioResp.arrayBuffer());
     fs.writeFileSync(audioFileRaw, audioBuf);
 
+    // ── WizSync™ Audio Sync Fix (2026-05-19) ────────────────────────────────────
+    // Problem: Hedra lip sync is trained on a trimmed scene segment (e.g. 24–30s of the song).
+    // If we mix the full audio track from 0:00, the mouth movements are offset by startTime.
+    // Fix: find the earliest scene startTime and trim the full audio to start from that offset.
+    // This ensures the audio the viewer hears matches the segment Hedra was trained on.
+    const firstScene = scenes[0]; // scenes are sorted by sceneIndex above
+    const audioStartSec = firstScene ? Math.floor(firstScene.startTime / 1000) : 0;
+    const audioTrimmedRaw = path.join(tmpDir, "audio-trimmed-raw.mp3");
+    if (audioStartSec > 0) {
+      console.log(`[Assembly] Job ${jobId}: trimming audio from ${audioStartSec}s to align with scene startTime`);
+      await execAsync(
+        `"${FFMPEG_BIN}" -y -i "${audioFileRaw}" -ss ${audioStartSec} -acodec copy "${audioTrimmedRaw}"`,
+        { timeout: 60000 }
+      );
+      // Replace the raw audio file reference with the trimmed version
+      fs.copyFileSync(audioTrimmedRaw, audioFileRaw);
+      console.log(`[Assembly] Job ${jobId}: audio trimmed to start at ${audioStartSec}s ✓`);
+    } else {
+      console.log(`[Assembly] Job ${jobId}: first scene starts at 0s — no audio trim needed`);
+    }
+
     // Apply WizSound™ audio enhancement
     const audioFile = path.join(tmpDir, "audio.mp3");
     await applyWizSound(audioFileRaw, audioFile, audioTier);

@@ -292,6 +292,9 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   hedraStatus: mysqlEnum("hedraStatus", ["pending", "processing", "done", "error"]).default("pending").notNull(), // Hedra generation status
   heroImageUrl: varchar("heroImageUrl", { length: 1024 }), // Portrait image URL used as Hedra input (extracted hero frame)
   heroImageKey: varchar("heroImageKey", { length: 512 }), // S3 key for the hero portrait image
+  // --- Per-scene isolated vocals (Demucs output, trimmed to scene window) ---
+  sceneAudioUrl: varchar("sceneAudioUrl", { length: 1024 }), // S3 URL of isolated vocals for this scene (used by Hedra + assembly audio sync)
+  sceneAudioKey: varchar("sceneAudioKey", { length: 512 }), // S3 key for the isolated vocals
   // --- Scene Approval (user explicitly locks in a scene before full render) ---
   isApproved: boolean("isApproved").default(false).notNull(), // true when user has approved this scene for final render
   approvedAt: timestamp("approvedAt"),                        // When the user approved this scene

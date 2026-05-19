@@ -8026,3 +8026,8 @@
 - [x] Expose hedraVideoUrl, hedraStatus, sceneType, heroImageUrl in job status query
 - [x] Install form-data package for multipart file upload to Hedra
 - [x] Demucs vocal isolation already working — will be used in Hedra pipeline
+
+## Pipeline Fixes (19 May 2026)
+- [x] Fix assembly timeout: reduce assemblyWorker threshold from 16min to 2min so it picks up new jobs quickly; remove direct assembly call from heartbeat (heartbeat only sets status=assembling)
+- [x] Fix audio sync: in assembly, trim full audio track to each scene's startTime+duration for per-scene mixing so Hedra lip sync matches the audio
+- [x] Save sceneAudioUrl after Demucs isolation in runHedraLipSyncForScene

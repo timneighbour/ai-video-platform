@@ -325,10 +325,18 @@ export async function runHedraLipSyncForScene(
     // 4. Upload frame and vocals to S3 for Hedra
     const frameBuffer = fs.readFileSync(frameTmp);
     const vocalsBuffer = fs.readFileSync(vocalsTmp);
+    const vocalsKey = `music-video-scenes/hedra-vocals-${sceneId}-${Date.now()}.mp3`;
     const [{ url: frameUrl }, { url: vocalsUrl }] = await Promise.all([
       storagePut(`music-video-scenes/hedra-frame-${sceneId}-${Date.now()}.jpg`, frameBuffer, "image/jpeg"),
-      storagePut(`music-video-scenes/hedra-vocals-${sceneId}-${Date.now()}.mp3`, vocalsBuffer, "audio/mpeg"),
+      storagePut(vocalsKey, vocalsBuffer, "audio/mpeg"),
     ]);
+
+    // Save sceneAudioUrl to DB immediately after Demucs — persists the isolated vocals
+    // for re-use in assembly audio sync and future Hedra re-runs.
+    await db.update(musicVideoScenes)
+      .set({ sceneAudioUrl: vocalsUrl, updatedAt: new Date() } as any)
+      .where(eq(musicVideoScenes.id, sceneId));
+    console.log(`[HedraAuto] Scene ${sceneId}: sceneAudioUrl saved to DB ✓`);
 
     // 5. Submit to Hedra and wait for result
     console.log(`[HedraAuto] Submitting to Hedra Character 3 for scene ${sceneId}`);

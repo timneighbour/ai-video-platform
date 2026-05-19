@@ -39,11 +39,11 @@ import {
 } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { sdk } from "../_core/sdk";
-import { startSceneRender, pollSceneStatus, assembleMusicVideo } from "../music-video-service";
+import { startSceneRender, pollSceneStatus } from "../music-video-service";
 import { extractSceneAudioClip } from "../audio-clip-extractor";
 import { submitSyncLabsLipSync, pollSyncLabsLipSync } from "../ai-apis/synclabs-lipsync";
 import { getProbeDecision } from "../pre-render-validator";
-import type { AudioTier } from "../wizsound";
+// AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
 const SCENE_STUCK_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes — reaper handles beyond this
 const SYNC_LABS_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes max for Sync Labs
@@ -576,44 +576,23 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         const hasCompletedScenes = nowCompleted.length > 0;
 
         if (allVideosDone && allLipSyncReady && hasCompletedScenes) {
+          // ARCHITECTURE NOTE (2026-05-19):
+          // The heartbeat ONLY sets status='assembling'. It does NOT call assembleMusicVideo.
+          // The assemblyWorker (server/assemblyWorker.ts) is the sole caller of assembleMusicVideo.
+          // This ensures assembly always runs outside the HTTP request lifecycle and is never
+          // killed by Cloud Run's 180-second request timeout.
+          // The assemblyWorker polls every 2 minutes and picks up newly-queued jobs within 2 min.
           console.log(
-            `[SceneDispatch] Job ${job.id} — all scenes done + lip sync ready (${nowLipSyncReady.length} ready). Triggering assembly.`
+            `[SceneDispatch] Job ${job.id} — all scenes done + lip sync ready (${nowLipSyncReady.length} ready). Queuing for assembly (assemblyWorker will pick up within 2 min).`
           );
           try {
             await db
               .update(musicVideoJobs)
-              .set({ status: "assembling", updatedAt: new Date() })
+              .set({ status: "assembling", assemblyStartedAt: new Date(), updatedAt: new Date() })
               .where(eq(musicVideoJobs.id, job.id));
-
-            // Fire assembly asynchronously — don't block the heartbeat response
-            assembleMusicVideo(job.id, "standard" as AudioTier)
-              .then(async (finalUrl: string) => {
-                if (finalUrl) {
-                  const [currentJob] = await db.select({ status: musicVideoJobs.status })
-                    .from(musicVideoJobs)
-                    .where(eq(musicVideoJobs.id, job.id));
-                  if (currentJob && currentJob.status !== "completed") {
-                    console.warn(`[SceneDispatch] Assembly returned URL but status was '${currentJob.status}' — force-setting to completed.`);
-                    await db.update(musicVideoJobs)
-                      .set({ status: "completed", updatedAt: new Date() })
-                      .where(eq(musicVideoJobs.id, job.id));
-                  }
-                }
-              })
-              .catch(async (assemblyErr: any) => {
-                console.error(`[SceneDispatch] Assembly failed for job ${job.id}:`, assemblyErr);
-                try {
-                  await db.update(musicVideoJobs)
-                    .set({ status: "rendering", errorMessage: "Assembly error — retrying...", updatedAt: new Date() })
-                    .where(and(eq(musicVideoJobs.id, job.id), eq(musicVideoJobs.status, "assembling")));
-                } catch (resetErr) {
-                  console.error(`[SceneDispatch] Failed to reset job ${job.id} after assembly error:`, resetErr);
-                }
-              });
-
             totalAssembled++;
           } catch (assemblyTriggerErr: any) {
-            console.error(`[SceneDispatch] Failed to trigger assembly for job ${job.id}:`, assemblyTriggerErr);
+            console.error(`[SceneDispatch] Failed to queue job ${job.id} for assembly:`, assemblyTriggerErr);
           }
         } else if (allVideosDone && !allLipSyncReady) {
           console.log(`[SceneDispatch] Job ${job.id} — all clips done, waiting for ${nowLipSyncProcessing.length} Sync Labs job(s) to complete...`);

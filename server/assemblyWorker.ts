@@ -1,23 +1,18 @@
 /**
- * Assembly Worker — Background job that picks up orphaned "assembling" jobs.
+ * Assembly Worker — Background job that runs ALL music-video assemblies.
  *
- * Problem: When the server restarts mid-assembly (e.g. during a deploy or crash),
- * jobs get stuck in "assembling" status permanently because assembly is only triggered
- * via pollProgress (which requires the user to be on the page).
+ * Architecture (updated 2026-05-19):
+ * The heartbeat (sceneDispatchHeartbeat.ts) now ONLY sets status='assembling' when all
+ * scenes are done. It does NOT call assembleMusicVideo directly. This worker is the SOLE
+ * caller of assembleMusicVideo, which means assembly always runs outside any HTTP request
+ * lifecycle and is never killed by Cloud Run's 180-second request timeout.
  *
- * Solution: This worker runs every 2 minutes and re-triggers assembly for any job
- * that has been in "assembling" status for more than 16 minutes without a finalVideoUrl.
- *
- * WHY 16 MINUTES:
- * - Sync Labs sync-3 has an 8-minute hard timeout in assembleMusicVideo.
- * - assembleMusicVideo also skips lip sync if assemblyStartedAt is >15 minutes ago.
- * - So by the time this worker fires (16 min), the assembly will skip lip sync and
- *   deliver the cinematic version immediately — no more infinite loops.
+ * Threshold: 2 minutes — the worker picks up newly-queued jobs within 2 minutes of the
+ * heartbeat setting status='assembling'. This replaces the old 16-minute orphan-reaper
+ * approach with a proactive first-run model.
  *
  * CRITICAL: Do NOT bump updatedAt on pickup. The music-video-service uses assemblyStartedAt
- * (not updatedAt) to determine if the job is too old to attempt lip sync. Bumping updatedAt
- * was causing the old 3-minute threshold to never trigger — the worker kept the job "fresh"
- * indefinitely, preventing any recovery.
+ * (not updatedAt) to determine if the job is too old to attempt lip sync.
  *
  * Start this worker once at server startup from server/_core/index.ts.
  */
@@ -27,9 +22,11 @@ import { musicVideoJobs, renderJobs } from "../drizzle/schema";
 import { and, eq, isNull, lt, desc } from "drizzle-orm";
 
 const WORKER_INTERVAL_MS = 2 * 60 * 1000; // 2 minutes
-const STUCK_THRESHOLD_MINUTES = 16; // Jobs assembling for >16 min without finalVideoUrl
-// 16 min > 15 min assembly age limit in music-video-service.ts, so by the time
-// the worker re-triggers, the assembly will skip lip sync and deliver immediately.
+// NEW: Use a 2-minute threshold so the worker picks up freshly-queued jobs quickly.
+// The heartbeat now only sets status='assembling' and never calls assembleMusicVideo directly.
+// The worker is the ONLY thing that calls assembleMusicVideo — this means assembly always
+// runs outside any HTTP request lifecycle and is never killed by Cloud Run's 180s timeout.
+const STUCK_THRESHOLD_MINUTES = 2; // Pick up jobs assembling for >2 min without finalVideoUrl
 
 // Track in-flight assemblies to avoid double-triggering
 const inFlightAssemblies = new Set<number>();
@@ -41,7 +38,7 @@ async function processOrphanedAssemblyJobs(): Promise<void> {
   const stuckThreshold = new Date(Date.now() - STUCK_THRESHOLD_MINUTES * 60 * 1000);
 
   try {
-    // Find jobs stuck in "assembling" with no finalVideoUrl for >16 minutes
+    // Find jobs in "assembling" with no finalVideoUrl for >2 minutes (newly queued or orphaned).
     // We check updatedAt — but we no longer bump it on pickup, so it reflects
     // the last genuine update from the assembly process itself.
     const stuckJobs = await db
@@ -135,5 +132,5 @@ export function startAssemblyWorker(): void {
     });
   }, WORKER_INTERVAL_MS);
 
-  console.log(`[AssemblyWorker] Started — checking every ${WORKER_INTERVAL_MS / 60000} min for orphaned assembly jobs (threshold: ${STUCK_THRESHOLD_MINUTES} min)`);
+  console.log(`[AssemblyWorker] Started — checking every ${WORKER_INTERVAL_MS / 60000} min for assembling jobs (pickup threshold: ${STUCK_THRESHOLD_MINUTES} min). Worker is the SOLE caller of assembleMusicVideo.`);
 }
