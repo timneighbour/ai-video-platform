@@ -369,7 +369,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                     .where(eq(musicVideoScenes.id, scene.id));
                 }
                 } // end else (syncLabsSubmittedThisTick < SYNC_LABS_MAX_PER_TICK)
-              } else {
+              } else { // needsLipSync is false
                 // No lip sync needed — mark as completed with raw clip
                 await db.update(musicVideoScenes)
                   .set({
