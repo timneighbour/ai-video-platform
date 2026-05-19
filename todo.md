@@ -8031,3 +8031,12 @@
 - [x] Fix assembly timeout: reduce assemblyWorker threshold from 16min to 2min so it picks up new jobs quickly; remove direct assembly call from heartbeat (heartbeat only sets status=assembling)
 - [x] Fix audio sync: in assembly, trim full audio track to each scene's startTime+duration for per-scene mixing so Hedra lip sync matches the audio
 - [x] Save sceneAudioUrl after Demucs isolation in runHedraLipSyncForScene
+
+## Hedra JWT Expiry Fix & Assembly Hardening (19 May 2026)
+- [x] Fix Hedra JWT expiry bug: after detecting status=complete, re-poll immediately to get a fresh Mux JWT before downloading
+- [x] Add pollHedraLipSyncOnce helper for retry download with fresh URL
+- [x] Add download retry in runHedraLipSyncForScene: if first download fails (404/expired JWT), re-poll for fresh URL
+- [x] Add -vsync cfr and fps=24 filter to assembly normalization pass (fixes VFR from Hedra clips)
+- [x] Add -t duration flag to assembly normalization (enforces exact scene duration, prevents drift)
+- [x] Successfully downloaded Hedra Character 3 lip sync video (Zara singing 36-42s isolated vocals)
+- [x] Successfully assembled final video with Hedra lip sync clip + cinematic scene + audio trimmed from 24s

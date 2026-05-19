@@ -193,12 +193,32 @@ export async function pollHedraLipSync(
     console.log(`[HedraLipSync] ${generationId} — status: ${gen.status} progress: ${pct} eta: ${gen.eta_sec ?? "?"}s`);
 
     if (gen.status === "complete") {
-      // Output URL is at gen.asset.asset.download_url (Mux MP4)
-      const downloadUrl = gen?.asset?.asset?.download_url;
+      // CRITICAL FIX: Mux JWT in download_url expires ~15 min from issuance.
+      // The JWT is generated when the list endpoint is called, but by the time
+      // we detect completion (after ~8 min of generation), the JWT from THIS
+      // response may already be close to expiry. Re-poll IMMEDIATELY to get
+      // a guaranteed-fresh JWT before attempting download.
+      console.log(`[HedraLipSync] ${generationId} COMPLETE — re-polling for fresh JWT...`);
+      await new Promise((r) => setTimeout(r, 1000)); // brief pause
+      const freshRes = await fetch(`${HEDRA_BASE_URL}/generations`, {
+        headers: { "X-API-Key": key },
+      });
+      if (!freshRes.ok) {
+        // If re-poll fails, try the URL from the original response
+        console.warn(`[HedraLipSync] Fresh poll failed (${freshRes.status}), using original URL`);
+        const downloadUrl = gen?.asset?.asset?.download_url;
+        if (!downloadUrl) {
+          throw new Error(`[HedraLipSync] Generation ${generationId} complete but no download_url`);
+        }
+        return downloadUrl;
+      }
+      const freshData = await freshRes.json() as any;
+      const freshGen = (freshData.data as any[]).find((g: any) => g.id === generationId);
+      const downloadUrl = freshGen?.asset?.asset?.download_url ?? gen?.asset?.asset?.download_url;
       if (!downloadUrl) {
         throw new Error(`[HedraLipSync] Generation ${generationId} complete but no download_url`);
       }
-      console.log(`[HedraLipSync] COMPLETE — output: ${downloadUrl.slice(0, 80)}...`);
+      console.log(`[HedraLipSync] COMPLETE — fresh URL: ${downloadUrl.slice(0, 80)}...`);
       return downloadUrl;
     }
 
@@ -208,6 +228,25 @@ export async function pollHedraLipSync(
   }
 
   throw new Error(`[HedraLipSync] Generation ${generationId} timed out after ${timeoutMs / 1000}s`);
+}
+
+/**
+ * Single poll to get a fresh download URL for a completed generation.
+ * Used as a retry mechanism when the JWT in the original URL has expired.
+ */
+async function pollHedraLipSyncOnce(generationId: string): Promise<string | null> {
+  try {
+    const key = getApiKey();
+    const res = await fetch(`${HEDRA_BASE_URL}/generations`, {
+      headers: { "X-API-Key": key },
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as any;
+    const gen = (data.data as any[]).find((g: any) => g.id === generationId);
+    return gen?.asset?.asset?.download_url ?? null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -350,8 +389,20 @@ export async function runHedraLipSyncForScene(
     });
 
     // 6. Download and store Hedra output to S3
-    const hedraRes = await fetch(result.outputUrl);
-    if (!hedraRes.ok) throw new Error(`Failed to download Hedra output: ${hedraRes.status}`);
+    // First attempt with the URL from pollHedraLipSync (should have fresh JWT)
+    let hedraRes = await fetch(result.outputUrl);
+    if (!hedraRes.ok) {
+      // JWT may have expired between poll and download — re-poll for fresh URL
+      console.warn(`[HedraAuto] Download failed (${hedraRes.status}), re-polling for fresh JWT...`);
+      await new Promise((r) => setTimeout(r, 2000));
+      const freshUrl = await pollHedraLipSyncOnce(result.generationId);
+      if (freshUrl) {
+        hedraRes = await fetch(freshUrl);
+        if (!hedraRes.ok) throw new Error(`Failed to download Hedra output after retry: ${hedraRes.status}`);
+      } else {
+        throw new Error(`Failed to download Hedra output: ${hedraRes.status} (retry also failed)`);
+      }
+    }
     const hedraBuffer = Buffer.from(await hedraRes.arrayBuffer());
     const hedraKey = `music-video-scenes/hedra-${sceneId}-${Date.now()}.mp4`;
     const { url: hedraVideoUrl } = await storagePut(hedraKey, hedraBuffer, "video/mp4");

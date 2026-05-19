@@ -1674,12 +1674,15 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     for (let i = 0; i < sceneFiles.length; i++) {
       const src = sceneFiles[i];
       const dst = path.join(tmpDir, `norm-${String(i).padStart(3, "0")}.mp4`);
+      // Enforce exact scene duration with -t to prevent VFR drift from Hedra clips
+      const sceneDurSec = scenes[i]?.duration ? scenes[i].duration / 1000 : null;
+      const durFlag = sceneDurSec ? `-t ${sceneDurSec}` : "";
       await execAsync(
-        `"${FFMPEG_BIN}" -y -i "${src}" -an -c:v libx264 -preset fast -crf 22 -vf "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2" -r 24 -pix_fmt yuv420p "${dst}"`,
+        `"${FFMPEG_BIN}" -y -i "${src}" ${durFlag} -an -c:v libx264 -preset fast -crf 22 -vf "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,fps=24" -vsync cfr -r 24 -pix_fmt yuv420p "${dst}"`,
         { timeout: 120000 }
       );
       normalizedFiles.push(dst);
-      console.log(`[Assembly] Normalized clip ${i + 1}/${sceneFiles.length}`);
+      console.log(`[Assembly] Normalized clip ${i + 1}/${sceneFiles.length} (dur=${sceneDurSec ?? 'auto'}s, CFR)`);
     }
 
     const concatFile = path.join(tmpDir, "concat.txt");
