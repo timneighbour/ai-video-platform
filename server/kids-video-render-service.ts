@@ -159,16 +159,18 @@ export async function triggerKidsVideoRender(jobId: number): Promise<void> {
 
       try {
         // Get isolated vocals (Demucs separation)
-        let vocalsAudioUrl = job.vocalsUrl;
+        let vocalsAudioUrl: string | null = job.vocalsUrl ?? null;
         if (!vocalsAudioUrl) {
-          // Run Demucs separation on the fly
+          // Run vocal isolation — getVocalStemForCharacter returns a URL string or null
+          // For WizAnimate, the job's vocalsUrl should be pre-populated during job creation
+          // or via a separate Demucs run. This is a fallback that queries musicVideoVocalStems.
           const { getVocalStemForCharacter } = await import("./vocal-isolation-service");
-          const vocalsResult = await getVocalStemForCharacter(jobId, job.audioUrl, "kids_video");
-          if (vocalsResult?.vocalsUrl) {
-            vocalsAudioUrl = vocalsResult.vocalsUrl;
+          const stemUrl = await getVocalStemForCharacter(jobId);
+          if (stemUrl) {
+            vocalsAudioUrl = stemUrl;
             // Save for future use
             await db.update(kidsVideoJobs)
-              .set({ vocalsUrl: vocalsResult.vocalsUrl, vocalsKey: vocalsResult.vocalsKey ?? null, updatedAt: new Date() })
+              .set({ vocalsUrl: stemUrl, updatedAt: new Date() })
               .where(eq(kidsVideoJobs.id, jobId));
           }
         }
