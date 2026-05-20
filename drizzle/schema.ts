@@ -654,6 +654,11 @@ export const kidsVideoJobs = mysqlTable("kidsVideoJobs", {
   audioUrl: varchar("audioUrl", { length: 1024 }),
   audioKey: varchar("audioKey", { length: 512 }),
   audioMimeType: varchar("audioMimeType", { length: 64 }),
+  // Isolated vocals (Demucs separation) for lip sync
+  vocalsUrl: varchar("kidsVocalsUrl", { length: 1024 }),
+  vocalsKey: varchar("kidsVocalsKey", { length: 512 }),
+  // Lip sync toggle (per-job)
+  enableLipSync: boolean("kidsEnableLipSync").default(false).notNull(),
 
   // Storyboard (free)
   storyboardStatus: mysqlEnum("kidsStoryboardStatus", ["pending", "generating", "ready", "failed"]).default("pending").notNull(),

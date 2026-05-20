@@ -1786,7 +1786,25 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       console.warn(`[WizSync] Job ${jobId}: audio is ${job.audioDuration}s — exceeds sync-3 max of ${SYNC_LABS_MAX_AUDIO_SECONDS}s (5 min). Skipping lip sync, delivering cinematic version.`);
     }
 
-    if (hasLipSyncCharacter && !audioTooLongForSyncLabs && isSyncLabsConfigured() && job.audioUrl) {
+    // ── WHOLE-VIDEO WIZSYNC PASS ─────────────────────────────────────────────────
+    // RULE (2026-05-20): If ALL lip-sync scenes already have lipSyncVideoUrl (per-scene
+    // SyncLabs with isolated vocals), SKIP the whole-video pass entirely. The per-scene
+    // approach is superior because each scene gets isolated vocals at the exact timestamp.
+    // The whole-video pass is ONLY used as a fallback when per-scene lip sync was not applied.
+    const allLipSyncScenesHaveVideo = scenes
+      .filter(s => (s.lipSync === true) || (s.sceneType === "performance"))
+      .every(s => s.lipSyncStatus === "done" && s.lipSyncVideoUrl);
+
+    if (allLipSyncScenesHaveVideo && hasLipSyncCharacter) {
+      console.log(`[WizSync] Job ${jobId}: ALL lip-sync scenes already have per-scene SyncLabs lip sync (isolated vocals). Skipping whole-video pass — per-scene is superior.`);
+    } else if (hasLipSyncCharacter && !audioTooLongForSyncLabs && isSyncLabsConfigured() && job.audioUrl) {
+      // Whole-video fallback: only runs when per-scene lip sync was NOT fully applied.
+      // CRITICAL: Use ISOLATED VOCALS (job.vocalsUrl) for the whole-video pass, NOT the full mix.
+      // If isolated vocals are not available, fall back to full mix (worse quality but better than nothing).
+      const wholeVideoAudioUrl = (job as any).vocalsUrl || job.audioUrl;
+      const usingIsolatedVocals = !!(job as any).vocalsUrl;
+      console.log(`[WizSync] Job ${jobId}: per-scene lip sync incomplete — running whole-video fallback pass with ${usingIsolatedVocals ? 'ISOLATED VOCALS ✓' : '⚠ FULL MIX (no isolated vocals available)'}`);
+
       // Sync Labs sync-3: one pass on the final assembled video.
       // Hard timeout: 12 minutes. Occlusion detection adds ~2-3 min processing time.
       // syncLabsJobId is persisted to DB so polling can resume after server restart
@@ -1837,9 +1855,11 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
             // Submit to sync-3 and save the job ID immediately
             syncJobId = await submitSyncLabsLipSync({
               videoUrl: preSyncUrl,
-              audioUrl: job.audioUrl,
+              audioUrl: wholeVideoAudioUrl, // ISOLATED VOCALS when available, full mix as fallback
               syncMode: "cut_off",
               outputFileName: `wizsync-job-${jobId}`,
+              temperature: 1.0,
+              occlusionDetection: true,
             });
 
             // Persist the Sync Labs job ID so we can resume polling after a server restart

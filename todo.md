@@ -8102,3 +8102,11 @@
 - [ ] Wire per-character stem into heartbeat SyncLabs submission (partially done)
 - [ ] Job 660001: verify Scene 1 probe with isolated vocals after deploy
 - [ ] After probe approval: release all 11 scenes and assemble final video
+
+## Lip Sync Pipeline Fix (2026-05-20)
+- [x] Fix whole-video WizSync pass to skip when per-scene lip sync is complete
+- [x] Fix whole-video WizSync fallback to use isolated vocals (not full mix)
+- [x] Add lip sync pipeline to WizAnimate (kids-video-render-service.ts)
+- [x] Add vocalsUrl, vocalsKey, enableLipSync fields to kidsVideoJobs schema
+- [x] Document definitive lip sync pipeline in references/LIP-SYNC-PIPELINE.md
+- [x] Confirm BPM in WaveSpeed prompts improves orchestral movement timing
