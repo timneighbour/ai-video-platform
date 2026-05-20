@@ -76,10 +76,15 @@ export async function triggerKidsVideoRender(jobId: number): Promise<void> {
 
     console.log(`[KidsVideoRender] Job ${jobId}: animating ${renderableFrames.length} frames`);
 
+    // BPM-aware tempo guidance for movement speed
+    const bpmSuffix = job.songBpm
+      ? ` Tempo: ${job.songBpm} BPM. ${job.songBpm < 90 ? 'Slow, graceful, flowing movements.' : job.songBpm < 120 ? 'Moderate, natural-paced movements.' : 'Energetic, dynamic, fast movements.'}`
+      : '';
+
     // Step 1: Submit all frames to Seedance in parallel
     const submissions = await Promise.all(
       renderableFrames.map(async (frame) => {
-        const prompt = `${frame.description}, smooth cinematic animation, kids animation style, fluid motion`;
+        const prompt = `${frame.description}, smooth cinematic animation, kids animation style, fluid motion${bpmSuffix}`;
         const requestId = await fal.seedanceImageToVideoSubmit({
           prompt,
           image_url: frame.imageUrl,

@@ -487,7 +487,8 @@ Rules:
         lockedCharacters.length > 0 ? lockedCharacters : undefined,
         job.sceneSetting ?? undefined,
         undefined, // existingContentAnalysis
-        job.enableLipSync ?? false
+        job.enableLipSync ?? false,
+        job.songBpm ?? null
       ));
 
       console.log(`[MusicVideo] Roster for job ${input.jobId}: ${roster.map(c => c.name).join(", ")}`);

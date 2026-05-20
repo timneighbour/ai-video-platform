@@ -659,6 +659,8 @@ export const kidsVideoJobs = mysqlTable("kidsVideoJobs", {
   vocalsKey: varchar("kidsVocalsKey", { length: 512 }),
   // Lip sync toggle (per-job)
   enableLipSync: boolean("kidsEnableLipSync").default(false).notNull(),
+  // Detected BPM (used to generate tempo-matched motion prompts)
+  songBpm: int("kidsSongBpm"),
 
   // Storyboard (free)
   storyboardStatus: mysqlEnum("kidsStoryboardStatus", ["pending", "generating", "ready", "failed"]).default("pending").notNull(),

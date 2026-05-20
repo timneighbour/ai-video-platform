@@ -196,7 +196,8 @@ export async function generateStoryboard(
   lockedCharacters?: Array<{ name: string; role: string | null; lockedDescription: string }>,
   sceneSetting?: string | null,
   existingContentAnalysis?: ContentAnalysis | null,
-  enableLipSync?: boolean
+  enableLipSync?: boolean,
+  songBpm?: number | null
 ): Promise<StoryboardResult> {
   const sceneCount = calculateSceneCount(audioDurationSeconds);
 
@@ -562,7 +563,7 @@ Song details:
 - Theme/Concept: ${themePrompt}
 - Genre: ${genre || "not specified"}
 - Mood: ${mood || "not specified"}
-- Number of scenes: ${sceneCount} (one scene every ${SCENE_DURATION_SECONDS} seconds)${sceneSetting ? `\n- Locations/Scene Setting: ${sceneSetting} — USE THESE LOCATIONS as the primary visual environments for scenes. Vary between them naturally across the video.` : ""}
+- Number of scenes: ${sceneCount} (one scene every ${SCENE_DURATION_SECONDS} seconds)${songBpm ? `\n- Song BPM: ${songBpm} — ALL movement, gestures, and visual rhythm in every scene MUST match this tempo. For ${songBpm < 90 ? 'slow, graceful, flowing movements' : songBpm < 120 ? 'moderate, natural-paced movements' : 'energetic, dynamic movements'}. Musicians must play at this tempo.` : ''}${sceneSetting ? `\n- Locations/Scene Setting: ${sceneSetting} — USE THESE LOCATIONS as the primary visual environments for scenes. Vary between them naturally across the video.` : ""}
 
 ${hasLyrics ? `Lyrics by scene (use these to inspire each scene's visuals — make the imagery match what is being sung):
 ${sceneList}

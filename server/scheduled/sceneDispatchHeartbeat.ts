@@ -86,6 +86,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         audioUrl: musicVideoJobs.audioUrl,
         characterImageUrl: musicVideoJobs.characterImageUrl,
         updatedAt: musicVideoJobs.updatedAt,
+        songBpm: musicVideoJobs.songBpm,
       })
       .from(musicVideoJobs)
       .where(eq(musicVideoJobs.status, "rendering"));
@@ -240,6 +241,12 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               console.log(`[SceneDispatch] Scene ${scene.id} CHARACTER LOCK™ active: ${resolvedCharacterUrl.slice(0, 80)}...`);
             } else {
               console.warn(`[SceneDispatch] Scene ${scene.id} WARNING: no character portrait — rendering text-only`);
+            }
+
+            // ── BPM INJECTION: append tempo guidance to every render prompt ────────
+            if (job.songBpm) {
+              const tempoDesc = job.songBpm < 90 ? 'slow, graceful, flowing' : job.songBpm < 120 ? 'moderate, natural-paced' : 'energetic, dynamic, fast';
+              scenePrompt += ` Tempo: ${job.songBpm} BPM. All movement must be ${tempoDesc}.`;
             }
 
             // ── STRATEGY DISPATCH ─────────────────────────────────────────────

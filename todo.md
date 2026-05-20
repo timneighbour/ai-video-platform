@@ -8110,3 +8110,10 @@
 - [x] Add vocalsUrl, vocalsKey, enableLipSync fields to kidsVideoJobs schema
 - [x] Document definitive lip sync pipeline in references/LIP-SYNC-PIPELINE.md
 - [x] Confirm BPM in WaveSpeed prompts improves orchestral movement timing
+
+## BPM-Aware Video Prompts (2026-05-20)
+- [x] Ensure BPM is automatically included in all WaveSpeed prompts during scene generation
+- [x] Ensure BPM is included in Atlas Cloud prompts (same heartbeat dispatch)
+- [x] Ensure BPM is included in Kling AI prompts (same heartbeat dispatch)
+- [x] Add BPM tempo description mapping (slow/moderate/energetic based on BPM range)
+- [x] Apply BPM prompts to WizAnimate scene generation as well
