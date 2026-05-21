@@ -12,7 +12,7 @@ import { z } from "zod";
 import { desc, eq, and, gte, sql } from "drizzle-orm";
 import { router, adminProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { validationRuns, renderAttempts, musicVideoJobs } from "../../drizzle/schema";
+import { validationRuns, renderAttempts, musicVideoJobs, musicVideoVocalStems } from "../../drizzle/schema";
 
 export const pipelineOpsRouter = router({
   /**
@@ -176,5 +176,51 @@ export const pipelineOpsRouter = router({
         attempts,
         total: Number(countResult[0]?.count ?? 0),
       };
+    }),
+
+  /**
+   * Manually inject a pre-prepared Demucs vocal stem into a job.
+   * Used for showcase/benchmark renders where Demucs was run in the sandbox
+   * and the stem was uploaded to CDN before the job was created.
+   *
+   * This inserts a row into musicVideoVocalStems so the pipeline picks it up
+   * automatically during SyncLabs dispatch.
+   */
+  injectVocalStem: adminProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      stemUrl: z.string().url(),
+      stemKey: z.string().min(1),
+      characterName: z.string().optional(),
+      voiceGender: z.enum(["male", "female", "unknown"]).default("unknown"),
+      voiceLabel: z.string().default("Lead Vocal"),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB unavailable");
+
+      // Remove any existing stems for this job first (clean slate)
+      await db.delete(musicVideoVocalStems)
+        .where(eq(musicVideoVocalStems.jobId, input.jobId));
+
+      // Insert the new stem as the lead vocal
+      await db.insert(musicVideoVocalStems).values({
+        jobId: input.jobId,
+        stemIndex: 0,
+        stemUrl: input.stemUrl,
+        stemKey: input.stemKey,
+        characterName: input.characterName ?? null,
+        voiceGender: input.voiceGender,
+        voiceLabel: input.voiceLabel,
+        isLeadVocal: true,
+        diarisationStatus: "done",
+      });
+
+      // Update the job vocals_status to 'done'
+      await db.update(musicVideoJobs)
+        .set({ vocalsStatus: "done" } as any)
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      return { success: true, jobId: input.jobId, stemUrl: input.stemUrl };
     }),
 });

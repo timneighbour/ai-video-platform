@@ -14,6 +14,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Link } from "wouter";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import {
   CheckCircle2,
   XCircle,
@@ -25,6 +27,7 @@ import {
   Database,
   Film,
   Zap,
+  Mic,
 } from "lucide-react";
 
 function StatusBadge({ status }: { status: string }) {
@@ -67,6 +70,19 @@ export default function PipelineOpsDashboard() {
   const { user } = useAuth();
   const [renderPage, setRenderPage] = useState(0);
   const PAGE_SIZE = 25;
+
+  // Stem injection form state — pre-filled with the showcase Zara vocal stem
+  const SHOWCASE_STEM_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/vocal-stems/showcase-zara-vocals-1779394965563.mp3";
+  const SHOWCASE_STEM_KEY = "vocal-stems/showcase-zara-vocals-1779394965563.mp3";
+  const [stemJobId, setStemJobId] = useState("");
+  const [stemUrl, setStemUrl] = useState(SHOWCASE_STEM_URL);
+  const [stemKey, setStemKey] = useState(SHOWCASE_STEM_KEY);
+  const [stemCharName, setStemCharName] = useState("Zara");
+
+  const injectStemMutation = trpc.pipelineOps.injectVocalStem.useMutation({
+    onSuccess: (data) => { toast.success(`Vocal stem injected for job ${data.jobId}`); },
+    onError: (err) => { toast.error(`Injection failed: ${err.message}`); },
+  });
 
   const {
     data: health,
@@ -227,7 +243,7 @@ export default function PipelineOpsDashboard() {
 
       {/* Tabs */}
       <Tabs defaultValue="validation">
-        <TabsList className="grid grid-cols-3 w-full max-w-lg">
+        <TabsList className="grid grid-cols-4 w-full max-w-2xl">
           <TabsTrigger value="validation">
             <CheckCircle2 className="w-4 h-4 mr-1" /> Validation Runs
           </TabsTrigger>
@@ -236,6 +252,9 @@ export default function PipelineOpsDashboard() {
           </TabsTrigger>
           <TabsTrigger value="attempts">
             <Database className="w-4 h-4 mr-1" /> Render Audit
+          </TabsTrigger>
+          <TabsTrigger value="stem-inject">
+            <Mic className="w-4 h-4 mr-1" /> Stem Inject
           </TabsTrigger>
         </TabsList>
 
@@ -421,6 +440,90 @@ export default function PipelineOpsDashboard() {
                   </div>
                 </>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        {/* Stem Injection Tab */}
+        <TabsContent value="stem-inject" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mic className="w-5 h-5 text-amber-400" />
+                Manual Vocal Stem Injection
+              </CardTitle>
+              <CardDescription>
+                Inject a pre-prepared Demucs vocal stem into a job before render.
+                The URL below is the showcase Zara vocal stem (70.9s, 320 kbps, htdemucs model).
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Job ID</label>
+                  <Input
+                    type="number"
+                    placeholder="e.g. 42"
+                    value={stemJobId}
+                    onChange={(e) => setStemJobId(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Character Name</label>
+                  <Input
+                    placeholder="e.g. Zara"
+                    value={stemCharName}
+                    onChange={(e) => setStemCharName(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Stem CDN URL</label>
+                <Input
+                  value={stemUrl}
+                  onChange={(e) => setStemUrl(e.target.value)}
+                  className="font-mono text-xs"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Stem S3 Key</label>
+                <Input
+                  value={stemKey}
+                  onChange={(e) => setStemKey(e.target.value)}
+                  className="font-mono text-xs"
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={() => {
+                    const jobId = parseInt(stemJobId, 10);
+                    if (!jobId || isNaN(jobId)) { toast.error("Enter a valid Job ID"); return; }
+                    injectStemMutation.mutate({
+                      jobId,
+                      stemUrl,
+                      stemKey,
+                      characterName: stemCharName || undefined,
+                      voiceGender: "female",
+                      voiceLabel: "Lead Vocal",
+                    });
+                  }}
+                  disabled={injectStemMutation.isPending}
+                >
+                  {injectStemMutation.isPending ? "Injecting…" : "Inject Stem"}
+                </Button>
+                {injectStemMutation.isSuccess && (
+                  <span className="text-sm text-emerald-500 flex items-center gap-1">
+                    <CheckCircle2 className="w-4 h-4" /> Stem injected successfully
+                  </span>
+                )}
+              </div>
+              <div className="mt-2 p-3 rounded-lg bg-muted/40 border border-border">
+                <p className="text-xs font-semibold text-muted-foreground mb-1">Showcase Stem Details</p>
+                <div className="text-xs font-mono text-muted-foreground space-y-0.5">
+                  <div>Duration: 70.9s · Bitrate: 320 kbps · Format: MP3</div>
+                  <div>Source: Demucs htdemucs model · Track: Zara demo track</div>
+                  <div>Uploaded: 2026-05-21 · SHA256 verified</div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

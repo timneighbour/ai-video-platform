@@ -3393,6 +3393,31 @@ export default function MusicVideoAutopilot() {
                     className="bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white placeholder:text-white/30 min-h-[110px] text-sm resize-none"
                     rows={5}
                   />
+                  {/* ── Air Studios / Lyndhurst Hall — featured showcase preset ── */}
+                  {(() => {
+                    const AIR_STUDIOS_PRESET = "Lyndhurst Hall, Air Studios — warm amber orchestral lighting, grand recording studio with high vaulted ceilings, orchestra in background, premium film scoring environment, camera circling artist, cinematic depth of field";
+                    const isActive = sceneSetting.includes("Lyndhurst Hall");
+                    return (
+                      <button
+                        type="button"
+                        onClick={() => setSceneSetting(isActive ? "" : AIR_STUDIOS_PRESET)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold border-2 transition-all mb-1 ${
+                          isActive
+                            ? "bg-[--color-gold]/10 border-[--color-gold] text-[--color-gold]"
+                            : "bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.25)] text-white/80 hover:border-[--color-gold]/60 hover:text-white"
+                        }`}
+                      >
+                        <span className="text-lg">🎼</span>
+                        <div className="text-left flex-1">
+                          <div className="font-bold tracking-wide">Air Studios / Lyndhurst Hall</div>
+                          <div className="text-xs font-normal opacity-60 mt-0.5">Warm amber orchestral lighting · Grand recording studio · Camera circling artist</div>
+                        </div>
+                        {isActive && (
+                          <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[--color-gold]/20 text-[--color-gold] border border-[--color-gold]/30">Active</span>
+                        )}
+                      </button>
+                    );
+                  })()}
                   {/* Quick-pick location chips */}
                   <div className="flex flex-wrap gap-2">
                     {[
