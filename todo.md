@@ -8197,6 +8197,6 @@
 - [x] Golden Validation heartbeat handler (server/scheduled/goldenValidationHandler.ts)
 - [x] Golden Validation route registered at POST /api/scheduled/golden-validation
 - [x] Fix TypeScript errors introduced by new modules (top-level await, duplicate property, missing brace)
-- [ ] Upload GOLDEN_AUDIO_URL (silent 30s MP3) and set env var before first validation run
-- [ ] Create Manus Heartbeat cron for golden-validation (daily 03:00 UTC) after deploy
-- [ ] Admin dashboard page showing validationRuns history
+- [x] Upload GOLDEN_AUDIO_URL (silent 30s MP3) and set env var — done, CDN URL configured
+- [x] Create Manus Heartbeat cron for golden-validation (daily 03:00 UTC) — task_uid: LnSrhangoijxT2cuLj6DdG, first run 2026-05-22T03:00:00Z
+- [x] Admin dashboard page showing validationRuns history (PipelineOpsDashboard at /admin/pipeline)

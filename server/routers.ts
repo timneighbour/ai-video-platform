@@ -26,6 +26,7 @@ import { voiceRouter } from "./routers/voice";
 import { adminEmailRouter } from "./routers/adminEmail";
 import { adminCreditsRouter } from "./routers/adminCredits";
 import { providerHealthRouter } from "./routers/providerHealth";
+import { pipelineOpsRouter } from "./routers/pipelineOps";
 import { unsubscribeRouter } from "./routers/unsubscribe";
 import { characterLibraryRouter } from "./routers/characterLibrary";
 import { studiosRouter } from "./routers/studios";
@@ -58,6 +59,7 @@ export const appRouter = router({
   adminEmail: adminEmailRouter,
   adminCredits: adminCreditsRouter,
   providerHealth: providerHealthRouter,
+  pipelineOps: pipelineOpsRouter,
   unsubscribe: unsubscribeRouter,
   characterLibrary: characterLibraryRouter,
   studios: studiosRouter,
