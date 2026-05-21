@@ -19,6 +19,7 @@ import { wizadoraRouter } from "../wizadora/router";
 import Stripe from "stripe";
 import { stuckSceneReaperHandler } from "../scheduled/stuckSceneReaper";
 import { sceneDispatchHeartbeatHandler } from "../scheduled/sceneDispatchHeartbeat";
+import { goldenValidationHandler } from "../scheduled/goldenValidationHandler";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -390,6 +391,11 @@ async function startServer() {
   // Dispatches pending scenes every 60s regardless of browser state.
   // This ensures renders complete even when users close their browser tab.
   app.post("/api/scheduled/sceneDispatchHeartbeat", sceneDispatchHeartbeatHandler);
+
+  // ── Scheduled: Golden Validation (daily regression test) ─────────────────
+  // Runs the frozen Golden Benchmark fixture end-to-end every day at 03:00 UTC.
+  // Detects regressions before real users are affected.
+  app.post("/api/scheduled/golden-validation", goldenValidationHandler);
 
   // ── Debug: pre-render validation check (owner-only, temporary) ─────────────
   app.get("/api/debug/validate/:jobId", async (req, res) => {

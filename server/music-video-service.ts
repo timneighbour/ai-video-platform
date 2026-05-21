@@ -25,6 +25,9 @@ import { getDb } from "./db";
 import { musicVideoJobs, musicVideoScenes, videoCharacters } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { storagePut } from "./storage";
+import { randomUUID } from "crypto";
+import { validateExport } from "./export-validator";
+import { renderAttempts } from "../drizzle/schema";
 import { invokeLLM } from "./_core/llm";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { initKlingAI } from "./ai-apis/kling";
@@ -1906,8 +1909,68 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     }
 
     const finalBuffer = fs.readFileSync(finalVideoPath);
-    const finalKey = `music-videos/job-${jobId}-final-${Date.now()}.mp4`;
+    // Phase 2: UUID-keyed S3 path — never reuses a previous path, even on re-render
+    const finalUuid = randomUUID();
+    const finalKey = `music-videos/${finalUuid}.mp4`;
     const { url } = await storagePut(finalKey, finalBuffer, "video/mp4");
+
+    // Phase 2: Export validation — verify the uploaded file before marking completed
+    let validationStatus: "passed" | "failed" | "skipped" = "skipped";
+    let validationError: string | undefined;
+    let validationErrorCode: string | undefined;
+    let sha256 = "";
+    let measuredDuration = 0;
+    const fileSizeBytes = finalBuffer.length;
+    try {
+      const validation = await validateExport({
+        cdnUrl: url,
+        expectedDurationSeconds: (job.audioDuration ?? 60000) / 1000,
+      });
+      validationStatus = validation.valid ? "passed" : "failed";
+      sha256 = validation.sha256;
+      measuredDuration = validation.durationSeconds;
+      if (!validation.valid) {
+        validationError = validation.error;
+        validationErrorCode = validation.errorCode;
+        console.error(`[ExportValidator] Job ${jobId}: FAILED — ${validation.error}`);
+      } else {
+        console.log(`[ExportValidator] Job ${jobId}: PASSED — ${measuredDuration.toFixed(2)}s, ${validation.fileSizeBytes} bytes, sha256=${sha256.slice(0, 16)}...`);
+      }
+    } catch (valErr) {
+      console.warn(`[ExportValidator] Job ${jobId}: validation threw — ${(valErr as Error).message}`);
+      validationStatus = "skipped";
+    }
+
+    // Phase 2: Write immutable render attempt record
+    try {
+      const [countRow] = await dbConn.select({ id: renderAttempts.id })
+        .from(renderAttempts)
+        .where(eq(renderAttempts.jobId, jobId));
+      const nextAttempt = countRow ? 2 : 1;
+      await dbConn.insert(renderAttempts).values({
+        jobId,
+        attemptNumber: nextAttempt,
+        finalVideoUrl: url,
+        finalVideoKey: finalKey,
+        sha256: sha256 || null,
+        fileSizeBytes: fileSizeBytes || null,
+        durationSeconds: measuredDuration ? String(measuredDuration) : null,
+        sceneCount: scenes.length,
+        validationStatus,
+        validationError: validationError ?? null,
+        validationErrorCode: validationErrorCode ?? null,
+      });
+    } catch (raErr) {
+      console.warn(`[RenderAttempts] Failed to write audit record: ${(raErr as Error).message}`);
+    }
+
+    // If validation failed, mark job failed rather than delivering a corrupt video
+    if (validationStatus === "failed") {
+      await dbConn.update(musicVideoJobs)
+        .set({ status: "failed", errorMessage: `Export validation failed: ${validationError}`, updatedAt: new Date() })
+        .where(eq(musicVideoJobs.id, jobId));
+      throw new Error(`Export validation failed: ${validationError}`);
+    }
 
     await dbConn.update(musicVideoJobs)
       .set({ status: "completed", finalVideoUrl: url, finalVideoKey: finalKey, updatedAt: new Date() })

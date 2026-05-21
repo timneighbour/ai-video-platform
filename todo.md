@@ -8117,3 +8117,86 @@
 - [x] Ensure BPM is included in Kling AI prompts (same heartbeat dispatch)
 - [x] Add BPM tempo description mapping (slow/moderate/energetic based on BPM range)
 - [x] Apply BPM prompts to WizAnimate scene generation as well
+
+
+## Phase 2: Production Pipeline Hardening (2026-05-21)
+
+### P2-1: Export Validator (Delivery Integrity)
+- [ ] Create server/export-validator.ts — validates uploaded MP4 (codec, duration, file size, SHA256)
+- [ ] Wire export validator into assembleMusicVideo() — validate before marking job completed
+- [ ] Add render_attempts table to schema (uuid key, sha256, file size, duration, validation status)
+- [ ] Apply render_attempts migration via webdev_execute_sql
+- [ ] Write vitest tests for export-validator.ts
+
+### P2-2: Immutable UUID Asset Keys
+- [ ] Update assembleMusicVideo() to use uuid-based S3 key for final video (no job ID in path)
+- [ ] Update scene clip upload paths to use uuid keys (music-video-assets/{uuid}.mp4)
+- [ ] Update vocal stem upload paths to use uuid keys (music-video-stems/{uuid}.mp3)
+- [ ] Verify no S3 path reuse on re-render (new uuid generated each time)
+
+### P2-3: Scene Attempt Counter + Circuit Breaker
+- [ ] Add attempt_count INT and last_error TEXT columns to music_video_scenes
+- [ ] Apply schema migration
+- [ ] Update sceneDispatchHeartbeat.ts to increment attempt_count on dispatch
+- [ ] After attempt_count >= 3, mark scene failed permanently (no more retries)
+- [ ] Verify circuit-breaker.ts is active for all provider dispatch calls
+- [ ] Write vitest tests for attempt counter logic
+
+### P2-4: Timeline Normaliser
+- [ ] Create server/timeline-normaliser.ts — sorts scenes, fills gaps, resolves overlaps, enforces coverage
+- [ ] Wire timeline normaliser into startRendering procedure (runs before status = "rendering")
+- [ ] Normaliser must be idempotent (running twice = same result)
+- [ ] Write vitest tests for timeline-normaliser.ts (gap fill, overlap resolution, full coverage)
+
+### P2-5: Unified Job Status + Retry UX
+- [ ] Define 7-state user-facing status model (Preparing, Building Storyboard, Ready, Generating, Finishing, Done, Error)
+- [ ] Add progress percentage computation to getJobStatus procedure
+- [ ] Add retryJob tRPC procedure (resets failed scenes to pending, re-enqueues, no credit re-charge)
+- [ ] Update frontend polling to use new status model and show progress bar
+- [ ] Translate internal error codes to user-friendly messages
+
+### P2-6: Vocal Energy Scene Planning
+- [ ] Create server/vocal-energy-analyser.ts — computes per-second RMS energy from vocal stem
+- [ ] Store vocal_energy_profile JSON on musicVideoJobs
+- [ ] Wire into storyboard generation: override LLM scene type with energy-based classification
+- [ ] BPM-aligned scene boundary snapping (snap startTime/endTime to nearest beat grid)
+- [ ] Write vitest tests for vocal-energy-analyser.ts
+
+### P2-7: Golden Validation Project
+- [ ] Create server/golden-validation/ directory with fixed fixtures
+- [ ] Upload Zara face crop as permanent fixture to S3 (golden-validation/zara-portrait.jpg)
+- [ ] Upload 30s benchmark audio clip as permanent fixture (golden-validation/benchmark-30s.mp3)
+- [ ] Define fixed scene manifest (5 scenes, known vocal/cinematic split, fixed timings)
+- [ ] Create server/golden-validation/golden-manifest.ts with all fixture URLs and expected outputs
+- [ ] Write golden-validation.test.ts — validates assembly output against known SHA256 and duration
+
+### P2-8: Automated Daily Validation Heartbeat
+- [ ] Create server/scheduled/dailyValidationHeartbeat.ts
+- [ ] Heartbeat creates a golden validation job, runs it end-to-end, validates output
+- [ ] Write result to validation_runs table (passed/failed, sha256, duration, timestamp)
+- [ ] Send owner notification on failure
+- [ ] Register heartbeat in periodic-updates config (daily at 03:00 UTC)
+- [ ] Write vitest tests for validation heartbeat logic
+
+### P2-9: Naming Convention Enforcement
+- [ ] Remove all "FINAL", "FINAL-CLEAN", "FINAL-v*", "LOCKED-FINAL" from codebase and comments
+- [ ] Replace with "candidate", "benchmark", "validation-export", "assembly-proof" naming
+- [ ] Update any UI labels that say "Final Video" → "Rendered Video"
+
+## Phase 2: Production Pipeline Hardening (May 2026)
+
+- [x] Export validator module (server/export-validator.ts) — validates CDN MP4 before job marked completed
+- [x] UUID asset keys — all final video S3 paths now use UUID to prevent stale CDN aliases
+- [x] Render attempts audit table (renderAttempts) — schema + migration applied
+- [x] Validation runs table (validationRuns) — schema + migration applied
+- [x] Scene attempt counter — max 3 attempts per scene before marking failed
+- [x] Timeline normaliser module (server/timeline-normaliser.ts) — validates scene coverage of full audio duration
+- [x] Vocal energy analyser module (server/vocal-energy-analyser.ts) — RMS-based performance/cinematic classification
+- [x] Unified job status model in musicVideo router (getJobProgress, retryJob procedures)
+- [x] Golden Validation fixture (server/golden-validation.ts) — frozen benchmark project
+- [x] Golden Validation heartbeat handler (server/scheduled/goldenValidationHandler.ts)
+- [x] Golden Validation route registered at POST /api/scheduled/golden-validation
+- [x] Fix TypeScript errors introduced by new modules (top-level await, duplicate property, missing brace)
+- [ ] Upload GOLDEN_AUDIO_URL (silent 30s MP3) and set env var before first validation run
+- [ ] Create Manus Heartbeat cron for golden-validation (daily 03:00 UTC) after deploy
+- [ ] Admin dashboard page showing validationRuns history

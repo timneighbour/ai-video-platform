@@ -1474,3 +1474,58 @@ export const sceneActionLogs = mysqlTable("sceneActionLogs", {
 });
 export type SceneActionLog = typeof sceneActionLogs.$inferSelect;
 export type InsertSceneActionLog = typeof sceneActionLogs.$inferInsert;
+
+// ── Phase 2: Production Pipeline Hardening ────────────────────────────────────
+
+/**
+ * renderAttempts — Immutable audit trail for every assembled final video.
+ *
+ * Every call to assembleMusicVideo() writes one row here with a UUID-keyed
+ * S3 path, SHA256 hash, file size, measured duration, and validation result.
+ * Re-renders always produce a new row — previous rows are never updated.
+ */
+export const renderAttempts = mysqlTable("renderAttempts", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: int("jobId").notNull(),
+  attemptNumber: int("attemptNumber").notNull().default(1),
+  finalVideoUrl: varchar("finalVideoUrl", { length: 1024 }),
+  finalVideoKey: varchar("finalVideoKey", { length: 512 }),
+  sha256: varchar("sha256", { length: 64 }),
+  fileSizeBytes: bigint("fileSizeBytes", { mode: "number" }),
+  durationSeconds: decimal("durationSeconds", { precision: 8, scale: 3 }),
+  sceneCount: int("sceneCount").notNull().default(0),
+  validationStatus: mysqlEnum("renderValidationStatus", [
+    "pending", "passed", "failed", "skipped",
+  ]).notNull().default("pending"),
+  validationError: text("validationError"),
+  validationErrorCode: varchar("validationErrorCode", { length: 64 }),
+  assembledAt: timestamp("assembledAt").defaultNow().notNull(),
+});
+export type RenderAttempt = typeof renderAttempts.$inferSelect;
+export type InsertRenderAttempt = typeof renderAttempts.$inferInsert;
+
+/**
+ * validationRuns — Results of the automated daily Golden Validation pipeline.
+ *
+ * Each row represents one end-to-end automated render of the Golden Validation
+ * fixture. Used to detect regressions before real users are affected.
+ */
+export const validationRuns = mysqlTable("validationRuns", {
+  id: int("id").autoincrement().primaryKey(),
+  runAt: timestamp("runAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+  status: mysqlEnum("validationRunStatus", [
+    "running", "passed", "failed", "timeout",
+  ]).notNull().default("running"),
+  jobId: int("jobId"),
+  finalVideoUrl: varchar("finalVideoUrl", { length: 1024 }),
+  sha256: varchar("sha256", { length: 64 }),
+  durationSeconds: decimal("durationSeconds", { precision: 8, scale: 3 }),
+  expectedDurationSeconds: decimal("expectedDurationSeconds", { precision: 8, scale: 3 }),
+  sceneCount: int("sceneCount").default(0),
+  expectedSceneCount: int("expectedSceneCount").default(0),
+  errorMessage: text("errorMessage"),
+  durationMs: int("durationMs"),
+});
+export type ValidationRun = typeof validationRuns.$inferSelect;
+export type InsertValidationRun = typeof validationRuns.$inferInsert;

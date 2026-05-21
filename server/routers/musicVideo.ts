@@ -5359,4 +5359,186 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
 
       return { success: true, creditsDeducted: creditCost, mode: input.mode };
     }),
+
+  // ── Phase 2: Unified Job Status ───────────────────────────────────────────
+  // Returns a user-facing progress model with percentage and human-readable state.
+  // The frontend polls this every 5 seconds instead of the raw status field.
+  getJobProgress: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+
+      const scenes = await db.select().from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, input.jobId));
+
+      const completedCount = scenes.filter((s) => s.status === "completed").length;
+      const failedCount = scenes.filter((s) => s.status === "failed").length;
+      const totalCount = scenes.length;
+
+      // Compute user-facing state and progress percentage
+      type UserFacingState = "preparing" | "building_storyboard" | "ready_to_review" | "generating" | "finishing" | "done" | "error";
+      let userState: UserFacingState;
+      let progressPct: number;
+      let userMessage: string;
+
+      switch (job.status) {
+        case "draft":
+          userState = "preparing";
+          progressPct = 5;
+          userMessage = "Setting up your project...";
+          break;
+        case "storyboard_ready":
+          userState = "ready_to_review";
+          progressPct = 25;
+          userMessage = "Storyboard ready — review and start render";
+          break;
+        case "rendering":
+          userState = "generating";
+          progressPct = totalCount > 0
+            ? Math.round(25 + (completedCount / totalCount) * 60)
+            : 30;
+          userMessage = totalCount > 0
+            ? `Generating scenes (${completedCount}/${totalCount})...`
+            : "Starting scene generation...";
+          break;
+        case "assembling":
+          userState = "finishing";
+          progressPct = 90;
+          userMessage = "Assembling your video...";
+          break;
+        case "completed":
+          userState = "done";
+          progressPct = 100;
+          userMessage = "Your video is ready!";
+          break;
+        case "failed":
+          userState = "error";
+          progressPct = 0;
+          // Translate internal error codes to user-friendly messages
+          userMessage = translateErrorMessage(job.errorMessage ?? "");
+          break;
+        case "paused":
+          userState = "generating";
+          progressPct = totalCount > 0 ? Math.round(25 + (completedCount / totalCount) * 60) : 30;
+          userMessage = "Render paused — will resume automatically";
+          break;
+        default:
+          userState = "preparing";
+          progressPct = 5;
+          userMessage = "Preparing...";
+      }
+
+      return {
+        jobId: job.id,
+        status: job.status,
+        userState,
+        progressPct,
+        userMessage,
+        totalScenes: totalCount,
+        completedScenes: completedCount,
+        failedScenes: failedCount,
+        finalVideoUrl: job.finalVideoUrl ?? null,
+        canRetry: job.status === "failed" && failedCount > 0,
+      };
+    }),
+
+  // ── Phase 2: Retry Failed Job ─────────────────────────────────────────────
+  // Resets only the failed scenes to pending and re-queues the job.
+  // Does NOT regenerate the storyboard or re-charge credits.
+  retryJob: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+      if (job.status !== "failed") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Only failed jobs can be retried" });
+      }
+
+      // Reset failed scenes to pending (completed scenes stay completed)
+      const failedScenes = await db.select({ id: musicVideoScenes.id })
+        .from(musicVideoScenes)
+        .where(and(
+          eq(musicVideoScenes.jobId, input.jobId),
+          eq(musicVideoScenes.status, "failed")
+        ));
+
+      if (failedScenes.length === 0) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "No failed scenes to retry" });
+      }
+
+      // Reset each failed scene to pending
+      for (const scene of failedScenes) {
+        await db.update(musicVideoScenes)
+          .set({
+            status: "pending",
+            taskId: null,
+            errorMessage: null,
+            retryCount: 0,
+            updatedAt: new Date(),
+          } as any)
+          .where(eq(musicVideoScenes.id, scene.id));
+      }
+
+      // Reset job to rendering state
+      await db.update(musicVideoJobs)
+        .set({
+          status: "rendering",
+          errorMessage: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      return { success: true, resetScenes: failedScenes.length };
+    }),
+
+  // ── Phase 2: Get Render Attempts (audit trail) ────────────────────────────
+  getRenderAttempts: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
+
+      // Verify ownership
+      const [job] = await db.select({ id: musicVideoJobs.id })
+        .from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+
+      const { renderAttempts } = await import("../../drizzle/schema");
+      const attempts = await db.select().from(renderAttempts)
+        .where(eq(renderAttempts.jobId, input.jobId));
+
+      return attempts.map((a) => ({
+        id: a.id,
+        attemptNumber: a.attemptNumber,
+        finalVideoUrl: a.finalVideoUrl,
+        sha256: a.sha256,
+        fileSizeBytes: a.fileSizeBytes,
+        durationSeconds: a.durationSeconds ? parseFloat(String(a.durationSeconds)) : null,
+        sceneCount: a.sceneCount,
+        validationStatus: a.validationStatus,
+        validationError: a.validationError,
+        assembledAt: a.assembledAt,
+      }));
+    }),
 });
+
+/** Translate internal error codes to user-friendly messages. */
+function translateErrorMessage(errorMessage: string): string {
+  if (!errorMessage) return "Something went wrong. Please try again.";
+  if (errorMessage.includes("export_validation_failed")) return "The video could not be verified after rendering. Please retry.";
+  if (errorMessage.includes("max_attempts_exceeded")) return "Some scenes failed to generate after multiple attempts.";
+  if (errorMessage.includes("spend_cap")) return "Render stopped: spend limit reached. Please contact support.";
+  if (errorMessage.includes("insufficient_credits")) return "Insufficient credits to complete this render.";
+  if (errorMessage.includes("provider")) return "A generation service was unavailable. Please retry.";
+  return "Something went wrong. Please retry or contact support.";
+}
