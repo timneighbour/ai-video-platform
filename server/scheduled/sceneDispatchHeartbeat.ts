@@ -813,7 +813,12 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
 
         const nowCompleted = freshScenes.filter((s) => s.status === "completed");
         const nowFailed = freshScenes.filter((s) => s.status === "failed");
-        const nowPending = freshScenes.filter((s) => s.status === "pending" && !s.taskId);
+        // A scene is "pending" if:
+        //   - status=pending AND no taskId (never dispatched to Seedance), OR
+        //   - status=pending AND lipSyncStatus=pending (performance scene awaiting InfiniteTalk, may have taskId from Seedance)
+        const nowPending = freshScenes.filter(
+          (s) => s.status === "pending" && (!s.taskId || (s as any).lipSyncStatus === "pending")
+        );
         const nowGenerating = freshScenes.filter((s) => s.status === "generating");
 
         // Lip sync readiness: a scene is "lip sync ready" if:
