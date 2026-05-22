@@ -935,7 +935,11 @@ Rules:
           });
           // Persist to DB for future renders
           await db!.update(musicVideoJobs)
-            .set({ instrumentAnalysis: JSON.stringify(instrumentAnalysis), updatedAt: new Date() } as any)
+            .set({
+              instrumentAnalysis: JSON.stringify(instrumentAnalysis),
+              songBpm: instrumentAnalysis.tempo ?? job.songBpm ?? null,
+              updatedAt: new Date(),
+            } as any)
             .where(eq(musicVideoJobs.id, input.jobId));
           console.log(`[MusicVideo] Instrument analysis complete for job ${input.jobId}: ${instrumentAnalysis.instruments.map(i => i.label).join(", ")} at ${instrumentAnalysis.tempo} BPM`);
         }
