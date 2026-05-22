@@ -27,8 +27,8 @@ import { eq } from "drizzle-orm";
 import * as fs from "fs";
 import * as path from "path";
 import { execSync } from "child_process";
-import { generateWaveSpeedVideo, pollWaveSpeedVideo } from "./ai-apis/wavespeed-i2v";
-import { submitSyncLabsJob, pollSyncLabsJob } from "./ai-apis/synclabs-lipsync";
+import { submitWaveSpeedVideo as generateWaveSpeedVideo, pollWaveSpeedVideo } from "./ai-apis/wavespeed";
+import { submitSyncLabsLipSync, pollSyncLabsLipSync } from "./ai-apis/synclabs-lipsync";
 import { storagePut } from "./storage";
 
 const WORK_DIR = "/tmp/canonical-pipeline";
@@ -97,9 +97,9 @@ async function renderPerformanceScene(sceneIndex: number): Promise<string> {
   const taskId = await generateWaveSpeedVideo({
     image: refImageUrl,
     prompt,
-    duration: 6,
-    resolution: "960*960",
-  });
+    duration: 5,
+    resolution: "720p",
+  } as any);
   log(`WaveSpeed task: ${taskId}`);
   
   const result = await pollWaveSpeedVideo(taskId);
@@ -127,16 +127,16 @@ async function applySyncLabs(videoUrl: string, sceneIndex: number, startMs: numb
   log(`Audio segment URL: ${audioUrl}`);
   
   // Submit to SyncLabs sync-3 with full mix audio segment
-  const jobId = await submitSyncLabsJob({
+  const jobId = await submitSyncLabsLipSync({
     videoUrl,
     audioUrl,
-    model: "sync-3",
     temperature: 1.0,
     occlusionDetection: true,
+    syncMode: "cut_off",
   });
   log(`SyncLabs job: ${jobId}`);
   
-  const lsResult = await pollSyncLabsJob(jobId);
+  const lsResult = await pollSyncLabsLipSync(jobId);
   log(`SyncLabs done: ${lsResult}`);
   
   // Save to S3

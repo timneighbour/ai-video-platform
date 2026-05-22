@@ -43,7 +43,8 @@ export const PROVIDER_COST_USD: Record<string, number> = {
 // Per-job cap: maximum USD we will spend on a single render job
 // At Atlas Cloud pricing ($0.64-0.80/scene): cap allows ~250 scenes per job
 // Raised 2026-05-22: 12 scenes × $1.80 = $21.60 max realistic cost. Cap at $40 for safety margin.
-export const MAX_SPEND_PER_JOB_USD = 40.00;
+// Raised 2026-05-22 (second pass): job 720001 hit $41.40 due to retries — raised to $80 for safety.
+export const MAX_SPEND_PER_JOB_USD = 80.00;
 
 // Daily cap: maximum USD across ALL jobs in a calendar day
 // Raised 2026-05-14: cap lifted to $150 to allow Zara demo renders to complete today.

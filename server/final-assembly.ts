@@ -28,7 +28,7 @@ console.log(`\nFull mix audio: ${audioUrl}`);
 await conn.end();
 
 // Performance scene lip sync URLs from the canonical pipeline
-const perfLipSyncUrls = {
+const perfLipSyncUrls: Record<number, string> = {
   0: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/1/music-video/630002/lipsync-630001-1779173997099.mp4', // canonical S0
   2: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-canonical/lipsync-s2-1779295807907.mp4',
   4: 'https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/music-video-canonical/lipsync-s4-1779296196177.mp4',
@@ -70,8 +70,8 @@ for (const s of sceneOrder) {
       if (size < 1000) {
         console.log(`  WARNING: clip-${s.idx} is too small (${size} bytes) - may be an error`);
       }
-    } catch (e) {
-      console.log(`  ERROR downloading clip-${s.idx}: ${e.message}`);
+    } catch (e: any) {
+      console.log(`  ERROR downloading clip-${s.idx}: ${e?.message ?? e}`);
     }
   }
 }
@@ -96,11 +96,11 @@ for (const s of sceneOrder) {
   try {
     const probe = execSync(`ffprobe -v quiet -print_format json -show_streams "${inPath}"`).toString();
     const streams = JSON.parse(probe).streams;
-    const video = streams.find(s => s.codec_type === 'video');
+    const video = streams.find((s: any) => s.codec_type === 'video');
     width = video.width;
     height = video.height;
-  } catch (e) {
-    console.log(`  ERROR probing clip-${s.idx}: ${e.message}`);
+  } catch (e: any) {
+    console.log(`  ERROR probing clip-${s.idx}: ${e?.message ?? e}`);
     continue;
   }
   
@@ -119,8 +119,8 @@ for (const s of sceneOrder) {
     execSync(`ffmpeg -y -i "${inPath}" -vf "${filter},fps=24" -c:v libx264 -preset fast -crf 18 -an "${outPath}" 2>/dev/null`, { timeout: 30000 });
     const size = readFileSync(outPath).length;
     console.log(`  norm-${s.idx}.mp4: ${(size/1024).toFixed(0)}K (${width}x${height} -> 1280x720)`);
-  } catch (e) {
-    console.log(`  ERROR normalizing clip-${s.idx}: ${e.message}`);
+  } catch (e: any) {
+    console.log(`  ERROR normalizing clip-${s.idx}: ${e?.message ?? e}`);
   }
 }
 

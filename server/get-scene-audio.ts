@@ -23,7 +23,7 @@ async function main() {
   const stems = await db.select().from(musicVideoVocalStems).where(inArray(musicVideoVocalStems.jobId, [630001, 630002]));
   console.log(`Vocal stems: ${stems.length}`);
   for (const st of stems) {
-    console.log(`  jobId=${st.jobId} char=${st.characterName} url=${st.vocalsUrl?.split('/').pop()}`);
+    console.log(`  jobId=${st.jobId} char=${st.characterName} url=${st.stemUrl?.split('/').pop()}`);
   }
 
   await conn.end();

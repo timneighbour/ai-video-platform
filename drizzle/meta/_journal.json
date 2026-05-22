@@ -673,6 +673,13 @@
       "when": 1779391324661,
       "tag": "0095_glamorous_multiple_man",
       "breakpoints": true
+    },
+    {
+      "idx": 96,
+      "version": "5",
+      "when": 1779476421970,
+      "tag": "0096_gorgeous_black_widow",
+      "breakpoints": true
     }
   ]
 }

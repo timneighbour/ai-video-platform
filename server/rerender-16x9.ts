@@ -150,24 +150,22 @@ async function main() {
 
     // Submit to SyncLabs
     console.log(`  Submitting to SyncLabs...`);
-    const syncResult = await submitSyncLabsLipSync({
+    const syncJobId = await submitSyncLabsLipSync({
       videoUrl: scene.videoUrl,
       audioUrl: audioS3Url,
-      model: "sync-3",
-      synergize: true,
-      maxCredits: 200,
-      webhookUrl: undefined,
+      temperature: 1.0,
+      occlusionDetection: true,
+      syncMode: "cut_off",
     });
-    console.log(`  Job: ${syncResult.id}`);
+    console.log(`  Job: ${syncJobId}`);
 
-    // Poll
+    // Poll — pollSyncLabsLipSync returns the output URL string directly (throws on failure)
     const syncStart = Date.now();
     let lsUrl: string | undefined;
-    while (Date.now() - syncStart < 5 * 60 * 1000) {
-      const poll = await pollSyncLabsLipSync(syncResult.id);
-      if (poll.status === "COMPLETED" && poll.outputUrl) { lsUrl = poll.outputUrl; break; }
-      if (poll.status === "FAILED" || poll.status === "REJECTED") { console.error(`  ${poll.status}`); break; }
-      await new Promise(r => setTimeout(r, 10000));
+    try {
+      lsUrl = await pollSyncLabsLipSync(syncJobId, 5 * 60 * 1000);
+    } catch (pollErr: any) {
+      console.error(`  Lip sync poll failed: ${String(pollErr?.message ?? pollErr).slice(0, 200)}`);
     }
 
     if (lsUrl) {

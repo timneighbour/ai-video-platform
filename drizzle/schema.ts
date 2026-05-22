@@ -327,6 +327,17 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   // --- Scene Approval (user explicitly locks in a scene before full render) ---
   isApproved: boolean("isApproved").default(false).notNull(), // true when user has approved this scene for final render
   approvedAt: timestamp("approvedAt"),                        // When the user approved this scene
+  // --- Stage 4: Cinematic Compositing (WIZ AI 5-Stage Pipeline) ---------------
+  // compositeStatus: tracks Stage 3+4 compositing progress
+  //   pending    = waiting for lipSyncStatus=done before compositing can start
+  //   processing = compositing job running (ffmpeg chromakey + overlay)
+  //   done       = composited clip ready in compositeVideoUrl
+  //   error      = compositing failed (will retry)
+  //   skipped    = cinematic scene (no compositing needed, Seedance clip used directly)
+  compositeStatus: mysqlEnum("compositeStatus", ["pending", "processing", "done", "error", "skipped"]).default("pending").notNull(),
+  compositeVideoUrl: varchar("compositeVideoUrl", { length: 1024 }), // Final composited clip URL (Zara on concert hall background)
+  compositeVideoKey: varchar("compositeVideoKey", { length: 512 }), // S3 key for composited clip
+  compositeAttempts: int("compositeAttempts").notNull().default(0), // Number of compositing attempts
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

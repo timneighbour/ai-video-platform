@@ -8200,3 +8200,22 @@
 - [x] Upload GOLDEN_AUDIO_URL (silent 30s MP3) and set env var — done, CDN URL configured
 - [x] Create Manus Heartbeat cron for golden-validation (daily 03:00 UTC) — task_uid: LnSrhangoijxT2cuLj6DdG, first run 2026-05-22T03:00:00Z
 - [x] Admin dashboard page showing validationRuns history (PipelineOpsDashboard at /admin/pipeline)
+
+## Probe Approval UI (Per-User Lip Sync Preview Gate)
+- [ ] Reset probe gate for job 720001 (probePassed=null, probeVideoUrl=null) and trigger fresh probe scene
+- [ ] Build per-user probe approval card in dashboard — shows probe clip with audio, approve/reject buttons
+- [ ] tRPC procedures: approveProbe(jobId) and rejectProbe(jobId, reason)
+- [ ] Heartbeat: block full render dispatch until probePassed=true for the job owner
+- [ ] Notification to user when probe clip is ready for review
+- [ ] Notification to owner (Tim) when any user approves/rejects a probe
+- [ ] Re-render probe scene on rejection (reset probe scene to pending, re-dispatch)
+- [ ] Test end-to-end probe approval flow for job 720001
+
+## Canonical 5-Stage WIZ AI Compositing Pipeline (2026-05-22)
+- [x] Stage 2 fix: auto face-crop service (face-crop-service.ts) — tight head-and-shoulders crop of Portrait B before InfiniteTalk submission
+- [x] Stage 3: matte extraction service (matte-extraction-service.ts) — fal.ai BiRefNet background removal on InfiniteTalk output
+- [x] Stage 4: cinematic compositing service (cinematic-composite-service.ts) — ffmpeg overlay of Zara performance onto Seedance background
+- [x] DB migration: add compositeStatus, compositeVideoUrl, compositeVideoKey, compositeAttempts columns to musicVideoScenes
+- [x] Wire all 5 stages into heartbeat orchestrator (sceneDispatchHeartbeat.ts)
+- [x] Fix TypeScript errors: rerender-16x9.ts, get-scene-audio.ts, final-assembly.ts, canonical-pipeline.ts (18 errors → 0)
+- [x] Reset job 720001 to rendering: 8 cinematic scenes → compositeStatus=skipped, 4 performance scenes → compositeStatus=pending, job status=rendering
