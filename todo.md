@@ -8219,3 +8219,10 @@
 - [x] Wire all 5 stages into heartbeat orchestrator (sceneDispatchHeartbeat.ts)
 - [x] Fix TypeScript errors: rerender-16x9.ts, get-scene-audio.ts, final-assembly.ts, canonical-pipeline.ts (18 errors → 0)
 - [x] Reset job 720001 to rendering: 8 cinematic scenes → compositeStatus=skipped, 4 performance scenes → compositeStatus=pending, job status=rendering
+
+## Real-Time Pipeline Progress Bar (Management UI)
+- [x] tRPC procedure: pipelineOps.getPipelineStatus — returns per-job, per-scene, per-stage status for active rendering jobs
+- [x] PipelineProgressTab component — 5-stage progress visualization with per-scene rows (client/src/components/PipelineProgressTab.tsx)
+- [x] Wire into Management UI at /admin/pipeline as the default Pipeline tab
+- [x] Auto-poll every 10 seconds with live updates
+- [x] Vitest tests: 680/680 passing (pipeline-progress.test.ts + pipelineOps.test.ts updated)

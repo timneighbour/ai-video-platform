@@ -85,7 +85,7 @@ describe("pipelineOps router", () => {
     expect(proc).toBeDefined();
   });
 
-  it("pipelineOpsRouter exposes exactly 5 procedures", async () => {
+  it("pipelineOpsRouter exposes all required procedures", async () => {
     (getDb as ReturnType<typeof vi.fn>).mockResolvedValue(null);
     const { pipelineOpsRouter } = await import("./routers/pipelineOps");
     const procedures = Object.keys(pipelineOpsRouter._def.procedures);
@@ -94,6 +94,9 @@ describe("pipelineOps router", () => {
     expect(procedures).toContain("getExportFailures");
     expect(procedures).toContain("getPipelineHealth");
     expect(procedures).toContain("getAllRenderAttempts");
-    expect(procedures.length).toBe(5);
+    // New procedures added in 5-stage pipeline update
+    expect(procedures).toContain("getPipelineStatus");
+    expect(procedures).toContain("injectVocalStem");
+    expect(procedures.length).toBe(7);
   });
 });

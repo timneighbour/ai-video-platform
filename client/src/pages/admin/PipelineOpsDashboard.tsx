@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
 import {
   Table,
   TableBody,
@@ -28,7 +29,10 @@ import {
   Film,
   Zap,
   Mic,
+  Layers,
+  Clapperboard,
 } from "lucide-react";
+import { PipelineProgressTab } from "@/components/PipelineProgressTab";
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; variant: "default" | "destructive" | "secondary" | "outline" }> = {
@@ -242,13 +246,16 @@ export default function PipelineOpsDashboard() {
       )}
 
       {/* Tabs */}
-      <Tabs defaultValue="validation">
-        <TabsList className="grid grid-cols-4 w-full max-w-2xl">
+      <Tabs defaultValue="pipeline">
+        <TabsList className="grid grid-cols-5 w-full max-w-3xl">
+          <TabsTrigger value="pipeline">
+            <Layers className="w-4 h-4 mr-1" /> Pipeline
+          </TabsTrigger>
           <TabsTrigger value="validation">
-            <CheckCircle2 className="w-4 h-4 mr-1" /> Validation Runs
+            <CheckCircle2 className="w-4 h-4 mr-1" /> Validation
           </TabsTrigger>
           <TabsTrigger value="failures">
-            <XCircle className="w-4 h-4 mr-1" /> Export Failures
+            <XCircle className="w-4 h-4 mr-1" /> Failures
           </TabsTrigger>
           <TabsTrigger value="attempts">
             <Database className="w-4 h-4 mr-1" /> Render Audit
@@ -257,6 +264,9 @@ export default function PipelineOpsDashboard() {
             <Mic className="w-4 h-4 mr-1" /> Stem Inject
           </TabsTrigger>
         </TabsList>
+
+        {/* Pipeline Progress Tab */}
+        <PipelineProgressTab />
 
         {/* Validation Runs Tab */}
         <TabsContent value="validation" className="mt-4">

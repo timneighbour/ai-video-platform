@@ -12,7 +12,8 @@ import { z } from "zod";
 import { desc, eq, and, gte, sql } from "drizzle-orm";
 import { router, adminProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { validationRuns, renderAttempts, musicVideoJobs, musicVideoVocalStems } from "../../drizzle/schema";
+import { validationRuns, renderAttempts, musicVideoJobs, musicVideoScenes } from "../../drizzle/schema";
+import { musicVideoVocalStems } from "../../drizzle/schema";
 
 export const pipelineOpsRouter = router({
   /**
@@ -186,6 +187,111 @@ export const pipelineOpsRouter = router({
    * This inserts a row into musicVideoVocalStems so the pipeline picks it up
    * automatically during SyncLabs dispatch.
    */
+  /**
+   * Real-time compositing pipeline status for the Management UI progress bar.
+   * Returns per-job, per-scene, per-stage status for all active rendering jobs.
+   * Designed to be polled every 10 seconds.
+   */
+  getPipelineStatus: adminProcedure
+    .input(z.object({
+      jobId: z.number().int().optional(), // if omitted, returns all active rendering jobs
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return { jobs: [] };
+
+      // Fetch active jobs (rendering or assembling)
+      const jobsQuery = db.select({
+        id: musicVideoJobs.id,
+        title: musicVideoJobs.title,
+        status: musicVideoJobs.status,
+        totalScenes: musicVideoJobs.totalScenes,
+        completedScenes: musicVideoJobs.completedScenes,
+        finalVideoUrl: musicVideoJobs.finalVideoUrl,
+        updatedAt: musicVideoJobs.updatedAt,
+        probePassed: musicVideoJobs.probePassed,
+      }).from(musicVideoJobs);
+
+      const allJobs = input.jobId
+        ? await jobsQuery.where(eq(musicVideoJobs.id, input.jobId))
+        : await jobsQuery.where(
+            sql`${musicVideoJobs.status} IN ('rendering', 'assembling', 'completed')`
+          ).orderBy(desc(musicVideoJobs.updatedAt)).limit(10);
+
+      const result = await Promise.all(allJobs.map(async (job) => {
+        const scenes = await db.select({
+          id: musicVideoScenes.id,
+          sceneIndex: musicVideoScenes.sceneIndex,
+          sceneType: musicVideoScenes.sceneType,
+          status: musicVideoScenes.status,
+          lipSyncStatus: musicVideoScenes.lipSyncStatus,
+          lipSyncTaskId: musicVideoScenes.lipSyncTaskId,
+          lipSyncVideoUrl: musicVideoScenes.lipSyncVideoUrl,
+          compositeStatus: musicVideoScenes.compositeStatus,
+          compositeVideoUrl: musicVideoScenes.compositeVideoUrl,
+          compositeAttempts: musicVideoScenes.compositeAttempts,
+          videoUrl: musicVideoScenes.videoUrl,
+          updatedAt: musicVideoScenes.updatedAt,
+        }).from(musicVideoScenes)
+          .where(eq(musicVideoScenes.jobId, job.id))
+          .orderBy(musicVideoScenes.sceneIndex);
+
+        // Compute aggregate stage counts
+        const totalScenes = scenes.length;
+        const stage1Done = scenes.filter(s => s.status === 'completed' || s.status === 'generating').length;
+        const stage2Done = scenes.filter(s => s.lipSyncStatus === 'done').length;
+        const stage2Pending = scenes.filter(s => s.lipSyncStatus === 'processing').length;
+        const stage3_4Done = scenes.filter(s =>
+          s.compositeStatus === 'done' || s.compositeStatus === 'skipped'
+        ).length;
+        const stage3_4Pending = scenes.filter(s => s.compositeStatus === 'processing').length;
+        const stage3_4Error = scenes.filter(s => s.compositeStatus === 'error').length;
+        const assemblyDone = job.status === 'completed' && !!job.finalVideoUrl;
+
+        // Overall pipeline progress (0-100)
+        const stageWeights = [0.2, 0.25, 0.25, 0.25, 0.05]; // S1, S2, S3/4, S5, done
+        const s1Progress = totalScenes > 0 ? (stage1Done / totalScenes) * stageWeights[0] : 0;
+        const s2Progress = totalScenes > 0 ? (stage2Done / totalScenes) * stageWeights[1] : 0;
+        const s34Progress = totalScenes > 0 ? (stage3_4Done / totalScenes) * stageWeights[2] : 0;
+        const s5Progress = assemblyDone ? stageWeights[3] + stageWeights[4] : (job.status === 'assembling' ? stageWeights[3] * 0.5 : 0);
+        const overallProgress = Math.round((s1Progress + s2Progress + s34Progress + s5Progress) * 100);
+
+        return {
+          job: {
+            id: job.id,
+            title: job.title,
+            status: job.status,
+            totalScenes,
+            finalVideoUrl: job.finalVideoUrl,
+            updatedAt: job.updatedAt,
+            probePassed: job.probePassed,
+            overallProgress,
+          },
+          stages: {
+            stage1: { label: 'Cinematic World (Seedance)', done: stage1Done, total: totalScenes, status: stage1Done === totalScenes ? 'done' : 'processing' },
+            stage2: { label: 'Performance Plate (InfiniteTalk)', done: stage2Done, pending: stage2Pending, total: totalScenes, status: stage2Done === totalScenes ? 'done' : stage2Pending > 0 ? 'processing' : 'waiting' },
+            stage3_4: { label: 'Matte + Composite (ffmpeg)', done: stage3_4Done, pending: stage3_4Pending, error: stage3_4Error, total: totalScenes, status: stage3_4Done === totalScenes ? 'done' : stage3_4Pending > 0 ? 'processing' : stage3_4Error > 0 ? 'error' : 'waiting' },
+            stage5: { label: 'Final Audio Restoration', status: assemblyDone ? 'done' : job.status === 'assembling' ? 'processing' : 'waiting' },
+          },
+          scenes: scenes.map(s => ({
+            id: s.id,
+            sceneIndex: s.sceneIndex,
+            sceneType: s.sceneType,
+            stage1: s.status,
+            stage2: s.lipSyncStatus ?? 'n/a',
+            stage3_4: s.compositeStatus ?? 'pending',
+            compositeAttempts: s.compositeAttempts ?? 0,
+            hasLipSyncVideo: !!s.lipSyncVideoUrl,
+            hasCompositeVideo: !!s.compositeVideoUrl,
+            hasRawVideo: !!s.videoUrl,
+            updatedAt: s.updatedAt,
+          })),
+        };
+      }));
+
+      return { jobs: result };
+    }),
+
   injectVocalStem: adminProcedure
     .input(z.object({
       jobId: z.number().int(),
