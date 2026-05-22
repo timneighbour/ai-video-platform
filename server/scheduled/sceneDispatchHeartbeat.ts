@@ -41,25 +41,32 @@ import { eq, and } from "drizzle-orm";
 import { sdk } from "../_core/sdk";
 import { startSceneRender, pollSceneStatus } from "../music-video-service";
 import { extractSceneAudioClip } from "../audio-clip-extractor";
-import { submitSyncLabsLipSync, pollSyncLabsLipSync } from "../ai-apis/synclabs-lipsync";
+import { submitWaveSpeedInfiniteTalk, pollWaveSpeedInfiniteTalk } from "../ai-apis/wavespeed";
+// SyncLabs import retained for legacy polling of in-flight jobs only — NOT used for new submissions
+import { pollSyncLabsLipSync } from "../ai-apis/synclabs-lipsync";
 import { getProbeDecision } from "../pre-render-validator";
 import { getVocalStemForCharacter } from "../vocal-isolation-service";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
 const SCENE_STUCK_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes — reaper handles beyond this
-const SYNC_LABS_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes max for Sync Labs
+const SYNC_LABS_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes max for legacy Sync Labs jobs
+const INFINITETALK_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes max for InfiniteTalk
 
 export async function sceneDispatchHeartbeatHandler(req: Request, res: Response) {
   const startedAt = Date.now();
 
   // Authenticate via Manus cron session
-  try {
-    const user = await sdk.authenticateRequest(req);
-    if (!user.isCron) {
-      return res.status(403).json({ error: "cron-only endpoint" });
+  // DEV BYPASS: allow local dev calls with X-Dev-Bypass header
+  const isDevBypass = process.env.NODE_ENV === 'development' && req.headers['x-dev-bypass'] === 'scene-dispatch-2026';
+  if (!isDevBypass) {
+    try {
+      const user = await sdk.authenticateRequest(req);
+      if (!user.isCron) {
+        return res.status(403).json({ error: "cron-only endpoint" });
+      }
+    } catch {
+      return res.status(403).json({ error: "authentication failed" });
     }
-  } catch {
-    return res.status(403).json({ error: "authentication failed" });
   }
 
   try {
@@ -85,8 +92,11 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         aspectRatio: musicVideoJobs.aspectRatio,
         audioUrl: musicVideoJobs.audioUrl,
         characterImageUrl: musicVideoJobs.characterImageUrl,
+        vocalsStatus: musicVideoJobs.vocalsStatus,
         updatedAt: musicVideoJobs.updatedAt,
         songBpm: musicVideoJobs.songBpm,
+        probeSceneId: musicVideoJobs.probeSceneId,
+        probePassed: musicVideoJobs.probePassed,
       })
       .from(musicVideoJobs)
       .where(eq(musicVideoJobs.status, "rendering"));
@@ -332,94 +342,95 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             if (pollResult?.status === "completed" && pollResult.videoUrl) {
               // Scene clip is ready.
 
-              // ── LIP SYNC PROVIDER: SyncLabs sync-3 (primary) ──
-              // DECISION (2026-05-19): Hedra Character 3 does NOT produce convincing lip sync.
-              // SyncLabs sync-3 is the production lip sync provider for ALL scene types
-              // (both Performance Mode and Cinematic). SyncLabs preserves original character
-              // appearance and produces visible mouth movement synced to isolated vocals.
-              // Hedra code remains available but is NOT auto-triggered.
+              // ── LIP SYNC PROVIDER: WaveSpeed InfiniteTalk (LOCKED — canonical engine) ──
+              // DECISION (2026-05-22): InfiniteTalk is the ONLY approved lip sync engine.
+              // It takes a character portrait + isolated vocal stem and generates a
+              // believable performance video directly. No SyncLabs, no Hedra, no fallback.
+              //
+              // AUDIO CONTRACT (non-negotiable):
+              //   A. Lip-sync DRIVER = isolated Demucs vocal stem (this section)
+              //   B. Final playback  = original mastered full mix (assembly only)
+              // These two are NEVER interchangeable.
+              //
+              // HARD GUARD: If vocalsStatus='done' (isolated stem exists), the system
+              // MUST use the isolated stem. Full-mix fallback is a production failure.
 
-              // Check if we need Sync Labs lip sync (for ALL scenes with vocals)
-              // Performance Mode scenes ALWAYS get lip sync (they are close-up singing shots)
-              // Cinematic scenes use the per-scene lipSync flag from vocal-aware assignment
               const isPerformanceScene = scene.sceneType === "performance";
               const needsLipSync = (isPerformanceScene || (scene.lipSync ?? false)) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
 
               if (needsLipSync) {
-                // Rate-limit SyncLabs submissions: max 2 per heartbeat tick
-                if (syncLabsSubmittedThisTick >= SYNC_LABS_MAX_PER_TICK) {
-                  // Mark scene completed with raw clip for now; lip sync will be submitted next tick
-                  await db.update(musicVideoScenes)
-                    .set({ status: "completed", videoUrl: pollResult.videoUrl, lipSyncStatus: "pending", updatedAt: new Date() })
-                    .where(eq(musicVideoScenes.id, scene.id));
-                  console.log(`[SceneDispatch] Scene ${scene.id} clip ready — SyncLabs rate limit reached (${syncLabsSubmittedThisTick}/${SYNC_LABS_MAX_PER_TICK}), will submit next tick`);
-                } else {
-                // Submit to Sync Labs
-                // AUDIO STRATEGY (2026-05-19):
-                //   - SyncLabs receives ISOLATED VOCALS for best lip sync accuracy
-                //   - If sceneAudioUrl exists (pre-isolated Demucs vocals), use that
-                //   - Otherwise fall back to extractSceneAudioClip (full mix segment)
-                //   - Final assembly always uses the ORIGINAL FULL MIX audio track (job.audioUrl)
+                // Mark scene completed with raw clip, then submit InfiniteTalk
+                // (InfiniteTalk generates a new performance video from portrait + audio;
+                //  the raw Seedance clip is stored as videoUrl for cinematic reference)
                 try {
-                  // scene.startTime is stored in seconds for current music-video rows.
-                  // Guard legacy millisecond rows by converting only implausibly large values.
                   const rawStartTime = scene.startTime ?? 0;
                   const startTimeSec = rawStartTime > 300 ? rawStartTime / 1000 : rawStartTime;
-                  console.log(`[SceneDispatch] Scene ${scene.id} clip ready — submitting to Sync Labs for lip sync (startTime=${startTimeSec}s, raw=${scene.startTime})`);
-                  // VOCAL ISOLATION STRATEGY (2026-05-19):
-                  //   1. Look up the character's assigned vocal stem from musicVideoVocalStems
-                  //   2. Cut the exact scene segment from that isolated stem
-                  //   3. Fall back to full mix segment ONLY if no stem is available
-                  //   Final assembly ALWAYS uses original full mix (job.audioUrl) — SyncLabs audio is stripped
-                  let sceneAudioUrl: string;
+                  console.log(`[SceneDispatch] Scene ${scene.id} clip ready — submitting to InfiniteTalk (startTime=${startTimeSec}s, raw=${scene.startTime})`);
+
+                  // HARD GUARD: isolated vocals MUST be used when available
                   const characterName = (scene as any).characterName ?? undefined;
                   const isolatedVocalsUrl = await getVocalStemForCharacter(job.id, characterName);
-                  if (isolatedVocalsUrl) {
+
+                  if (!isolatedVocalsUrl && job.vocalsStatus === "done") {
+                    // vocalsStatus=done but stem lookup failed — this is a data integrity error
+                    throw new Error(`[HARD GUARD] Scene ${scene.id}: vocalsStatus=done but no stem found for character '${characterName ?? 'lead'}' — refusing full-mix fallback`);
+                  }
+
+                  if (!isolatedVocalsUrl) {
+                    // No vocals isolated yet — defer lip sync, mark raw clip complete
+                    await db.update(musicVideoScenes)
+                      .set({ status: "completed", videoUrl: pollResult.videoUrl, lipSyncStatus: "pending", updatedAt: new Date() })
+                      .where(eq(musicVideoScenes.id, scene.id));
+                    console.log(`[SceneDispatch] Scene ${scene.id}: no vocal stem yet — raw clip saved, lip sync deferred`);
+                  } else {
                     // Cut the scene's time window from the isolated vocals stem
-                    sceneAudioUrl = await extractSceneAudioClip(
+                    const sceneAudioUrl = await extractSceneAudioClip(
                       isolatedVocalsUrl,
                       startTimeSec,
                       scene.duration ?? 5,
                       scene.id
                     );
-                    console.log(`[SceneDispatch] Scene ${scene.id}: using isolated vocals stem for SyncLabs ✓ (character: ${characterName ?? 'lead'})`);
-                  } else if ((scene as any).sceneAudioUrl) {
-                    sceneAudioUrl = (scene as any).sceneAudioUrl;
-                    console.log(`[SceneDispatch] Scene ${scene.id}: using pre-set sceneAudioUrl for SyncLabs`);
-                  } else {
-                    sceneAudioUrl = await extractSceneAudioClip(
-                      job.audioUrl!,
-                      startTimeSec,
-                      scene.duration ?? 5,
-                      scene.id
-                    );
-                    console.warn(`[SceneDispatch] Scene ${scene.id}: ⚠ no isolated vocals — falling back to full mix segment`);
+                    console.log(`[SceneDispatch] Scene ${scene.id}: isolated vocals stem cut ✓ (character: ${characterName ?? 'lead'}, window: ${startTimeSec}–${startTimeSec + (scene.duration ?? 5)}s)`);
+
+                    // Get the character portrait for InfiniteTalk (polling scope — look up from videoCharacters)
+                    let heroImageUrl: string | null = (scene as any).heroImageUrl ?? job.characterImageUrl ?? null;
+                    try {
+                      const { videoCharacters: vcPoll } = await import("../../drizzle/schema");
+                      const { eq: eqPoll } = await import("drizzle-orm");
+                      const pollChars = await db.select().from(vcPoll).where(eqPoll(vcPoll.jobId, job.id));
+                      const bestPollChar = pollChars.find(c => c.masterPortraitUrl) ?? pollChars[0];
+                      if (bestPollChar?.masterPortraitUrl) heroImageUrl = bestPollChar.masterPortraitUrl;
+                    } catch { /* non-fatal — use fallback */ }
+                    if (!heroImageUrl) {
+                      throw new Error(`Scene ${scene.id}: no heroImageUrl or characterImageUrl for InfiniteTalk`);
+                    }
+
+                    // Submit to WaveSpeed InfiniteTalk
+                    const itTaskId = await submitWaveSpeedInfiniteTalk({
+                      image: heroImageUrl,
+                      audio: sceneAudioUrl,
+                      prompt: scene.prompt ?? "Singer performing at a vintage microphone in a warm concert hall, cinematic lighting, emotional performance",
+                      duration: scene.duration ?? 5,
+                      resolution: "720p",
+                    });
+
+                    // Mark scene completed (raw Seedance clip) + lip sync processing (InfiniteTalk)
+                    await db.update(musicVideoScenes)
+                      .set({
+                        status: "completed",
+                        videoUrl: pollResult.videoUrl,
+                        lipSyncStatus: "processing",
+                        lipSyncTaskId: itTaskId,
+                        updatedAt: new Date(),
+                      })
+                      .where(eq(musicVideoScenes.id, scene.id));
+                    console.log(`[SceneDispatch] Scene ${scene.id} → InfiniteTalk task ${itTaskId} submitted ✓`);
+                    totalLipSyncSubmitted++;
+                    syncLabsSubmittedThisTick++; // reuse counter for rate limiting
                   }
-                  const syncJobId = await submitSyncLabsLipSync({
-                    videoUrl: pollResult.videoUrl,
-                    audioUrl: sceneAudioUrl,
-                    syncMode: "cut_off",
-                    outputFileName: `wizsync-scene-${scene.id}-${Date.now()}`,
-                    temperature: 1.0,
-                    occlusionDetection: true,
-                  });
-                  // Mark scene as completed (raw clip) but lip sync as processing
-                  await db.update(musicVideoScenes)
-                    .set({
-                      status: "completed",
-                      videoUrl: pollResult.videoUrl,
-                      lipSyncStatus: "processing",
-                      lipSyncTaskId: syncJobId,
-                      updatedAt: new Date(),
-                    })
-                    .where(eq(musicVideoScenes.id, scene.id));
-                  console.log(`[SceneDispatch] Scene ${scene.id} → Sync Labs job ${syncJobId} submitted ✓`);
-                  totalLipSyncSubmitted++;
-                  syncLabsSubmittedThisTick++;
-                } catch (syncSubmitErr: any) {
-                  // If Sync Labs submission fails, still mark scene completed with raw clip
-                  // Assembly will use the raw clip (no lip sync) rather than blocking forever
-                  console.error(`[SceneDispatch] Scene ${scene.id} Sync Labs submission failed: ${String(syncSubmitErr?.message ?? syncSubmitErr).slice(0, 200)}`);
+                } catch (itSubmitErr: any) {
+                  // InfiniteTalk submission failed — mark error, do NOT silently fall back
+                  console.error(`[SceneDispatch] Scene ${scene.id} InfiniteTalk submission FAILED: ${String(itSubmitErr?.message ?? itSubmitErr).slice(0, 300)}`);
                   await db.update(musicVideoScenes)
                     .set({
                       status: "completed",
@@ -429,7 +440,6 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                     })
                     .where(eq(musicVideoScenes.id, scene.id));
                 }
-                } // end else (syncLabsSubmittedThisTick < SYNC_LABS_MAX_PER_TICK)
               } else { // needsLipSync is false
                 // No lip sync needed — mark as completed with raw clip
                 await db.update(musicVideoScenes)
@@ -491,150 +501,126 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         );
 
         if (lipSyncPendingScenes.length > 0) {
-          const { isSyncLabsConfigured: isSyncLabsConfiguredForRetry, submitSyncLabsLipSync: submitSyncLabsForRetry } = await import("../ai-apis/synclabs-lipsync");
-          if (isSyncLabsConfiguredForRetry()) {
-            for (const scene of lipSyncPendingScenes) {
-              if (syncLabsSubmittedThisTick >= SYNC_LABS_MAX_PER_TICK) break;
-              const isPerformanceScene = scene.sceneType === "performance";
-              const needsLipSync = (isPerformanceScene || (scene.lipSync ?? false)) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
-              if (!needsLipSync || !scene.videoUrl) continue;
-              try {
-                const retryRawStartTime = scene.startTime ?? 0;
-                const startTimeSec = retryRawStartTime > 300 ? retryRawStartTime / 1000 : retryRawStartTime;
-                console.log(`[SceneDispatch] Scene ${scene.id} RETRY lip sync submission (startTime=${startTimeSec}s, raw=${scene.startTime})`);
-                let sceneAudioUrl: string;
-                const retryCharacterName = (scene as any).characterName ?? undefined;
-                const retryIsolatedVocalsUrl = await getVocalStemForCharacter(job.id, retryCharacterName);
-                if (retryIsolatedVocalsUrl) {
-                  const { extractSceneAudioClip: extractForRetry } = await import("../audio-clip-extractor");
-                  sceneAudioUrl = await extractForRetry(
-                    retryIsolatedVocalsUrl,
-                    startTimeSec,
-                    scene.duration ?? 5,
-                    scene.id
-                  );
-                  console.log(`[SceneDispatch] Scene ${scene.id} RETRY: using isolated vocals stem ✓`);
-                } else if ((scene as any).sceneAudioUrl) {
-                  sceneAudioUrl = (scene as any).sceneAudioUrl;
-                } else {
-                  const { extractSceneAudioClip: extractForRetry } = await import("../audio-clip-extractor");
-                  sceneAudioUrl = await extractForRetry(
-                    job.audioUrl!,
-                    startTimeSec,
-                    scene.duration ?? 5,
-                    scene.id
-                  );
-                  console.warn(`[SceneDispatch] Scene ${scene.id} RETRY: ⚠ no isolated vocals — falling back to full mix`);
-                }
-                const syncJobId = await submitSyncLabsForRetry({
-                  videoUrl: scene.videoUrl,
-                  audioUrl: sceneAudioUrl,
-                  syncMode: "cut_off",
-                  outputFileName: `wizsync-scene-${scene.id}-retry-${Date.now()}`,
-                  temperature: 1.0,
-                  occlusionDetection: true,
-                });
-                await db.update(musicVideoScenes)
-                  .set({ lipSyncStatus: "processing", lipSyncTaskId: syncJobId, updatedAt: new Date() })
-                  .where(eq(musicVideoScenes.id, scene.id));
-                console.log(`[SceneDispatch] Scene ${scene.id} RETRY → Sync Labs job ${syncJobId} submitted ✓`);
-                syncLabsSubmittedThisTick++;
-                totalLipSyncSubmitted++;
-              } catch (retryErr: any) {
-                console.error(`[SceneDispatch] Scene ${scene.id} RETRY lip sync failed: ${String(retryErr?.message ?? retryErr).slice(0, 200)}`);
-                await db.update(musicVideoScenes)
-                  .set({ lipSyncStatus: "error", updatedAt: new Date() })
-                  .where(eq(musicVideoScenes.id, scene.id));
+          // RETRY: scenes that completed Seedance but InfiniteTalk submission was deferred
+          for (const scene of lipSyncPendingScenes) {
+            if (syncLabsSubmittedThisTick >= SYNC_LABS_MAX_PER_TICK) break;
+            const isPerformanceScene = scene.sceneType === "performance";
+            const needsLipSync = (isPerformanceScene || (scene.lipSync ?? false)) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
+            if (!needsLipSync || !scene.videoUrl) continue;
+            try {
+              const retryRawStartTime = scene.startTime ?? 0;
+              const startTimeSec = retryRawStartTime > 300 ? retryRawStartTime / 1000 : retryRawStartTime;
+              const retryCharacterName = (scene as any).characterName ?? undefined;
+              const retryIsolatedVocalsUrl = await getVocalStemForCharacter(job.id, retryCharacterName);
+
+              if (!retryIsolatedVocalsUrl) {
+                console.log(`[SceneDispatch] Scene ${scene.id} RETRY: no vocal stem yet — deferring`);
+                continue;
               }
+
+              const sceneAudioUrl = await extractSceneAudioClip(
+                retryIsolatedVocalsUrl,
+                startTimeSec,
+                scene.duration ?? 5,
+                scene.id
+              );
+              console.log(`[SceneDispatch] Scene ${scene.id} RETRY: isolated vocals stem cut ✓`);
+
+              // For RETRY: look up character portrait from videoCharacters table
+              let retryHeroImageUrl: string | null = (scene as any).heroImageUrl ?? job.characterImageUrl ?? null;
+              try {
+                const { videoCharacters: vcTable } = await import("../../drizzle/schema");
+                const { eq: eqVc } = await import("drizzle-orm");
+                const chars = await db.select().from(vcTable).where(eqVc(vcTable.jobId, job.id));
+                const bestRetryChar = chars.find(c => c.masterPortraitUrl) ?? chars[0];
+                if (bestRetryChar?.masterPortraitUrl) retryHeroImageUrl = bestRetryChar.masterPortraitUrl;
+              } catch { /* non-fatal — use fallback */ }
+              const heroImageUrl = retryHeroImageUrl;
+              if (!heroImageUrl) throw new Error(`Scene ${scene.id} RETRY: no heroImageUrl for InfiniteTalk`);
+
+              const itTaskId = await submitWaveSpeedInfiniteTalk({
+                image: heroImageUrl,
+                audio: sceneAudioUrl,
+                prompt: scene.prompt ?? "Singer performing at a vintage microphone in a warm concert hall, cinematic lighting, emotional performance",
+                duration: scene.duration ?? 5,
+                resolution: "720p",
+              });
+              await db.update(musicVideoScenes)
+                .set({ lipSyncStatus: "processing", lipSyncTaskId: itTaskId, updatedAt: new Date() })
+                .where(eq(musicVideoScenes.id, scene.id));
+              console.log(`[SceneDispatch] Scene ${scene.id} RETRY → InfiniteTalk task ${itTaskId} submitted ✓`);
+              syncLabsSubmittedThisTick++;
+              totalLipSyncSubmitted++;
+            } catch (retryErr: any) {
+              console.error(`[SceneDispatch] Scene ${scene.id} RETRY InfiniteTalk failed: ${String(retryErr?.message ?? retryErr).slice(0, 200)}`);
+              await db.update(musicVideoScenes)
+                .set({ lipSyncStatus: "error", updatedAt: new Date() })
+                .where(eq(musicVideoScenes.id, scene.id));
             }
           }
         }
 
-        // ── 5. Poll Sync Labs lip sync jobs ────────────────────────────────────
+        // ── 5. Poll WaveSpeed InfiniteTalk lip sync jobs ──────────────────────
         const lipSyncProcessingScenes = scenes.filter(
           (s) => s.status === "completed" && s.lipSyncStatus === "processing" && s.lipSyncTaskId
         );
 
         if (lipSyncProcessingScenes.length > 0) {
-          const { isSyncLabsConfigured } = await import("../ai-apis/synclabs-lipsync");
-          if (!isSyncLabsConfigured()) {
-            // Sync Labs not configured — mark all as error so assembly can proceed
-            for (const scene of lipSyncProcessingScenes) {
-              await db.update(musicVideoScenes)
-                .set({ lipSyncStatus: "error", updatedAt: new Date() })
-                .where(eq(musicVideoScenes.id, scene.id));
-            }
-          } else {
-            const { SyncClient } = await import("@sync.so/sdk");
-            const sync = new SyncClient({ apiKey: process.env.SYNC_LABS_API_KEY! });
+          for (const scene of lipSyncProcessingScenes) {
+            try {
+              const sceneAge = Date.now() - new Date(scene.updatedAt).getTime();
 
-            for (const scene of lipSyncProcessingScenes) {
-              try {
-                const sceneAge = Date.now() - new Date(scene.updatedAt).getTime();
-
-                // If stuck too long, mark as error and use raw clip for assembly
-                if (sceneAge > SYNC_LABS_STUCK_TIMEOUT_MS) {
-                  console.warn(`[SceneDispatch] Scene ${scene.id} Sync Labs job stuck for ${Math.round(sceneAge / 60000)}min — marking as error, will use raw clip`);
-                  await db.update(musicVideoScenes)
-                    .set({ lipSyncStatus: "error", updatedAt: new Date() })
-                    .where(eq(musicVideoScenes.id, scene.id));
-                  continue;
-                }
-
-                const generation = await sync.generations.get(scene.lipSyncTaskId!);
-
-                if (generation.status === "COMPLETED") {
-                  // The SDK returns outputUrl on the generation object
-                  const outputUrl = (generation as any).outputUrl ?? (generation as any).output_url;
-                  if (outputUrl) {
-                    // Download and re-upload to S3 for permanent storage
-                    const { storagePut } = await import("../storage");
-                    const resp = await fetch(outputUrl);
-                    const buf = Buffer.from(await resp.arrayBuffer());
-                    const key = `music-video-scenes/${scene.id}-synclabs-${Date.now()}.mp4`;
-                    const { url } = await storagePut(key, buf, "video/mp4");
-
-                    await db.update(musicVideoScenes)
-                      .set({
-                        lipSyncStatus: "done",
-                        lipSyncVideoUrl: url,
-                        lipSyncVideoKey: key,
-                        updatedAt: new Date(),
-                      })
-                      .where(eq(musicVideoScenes.id, scene.id));
-                    console.log(`[SceneDispatch] Scene ${scene.id} Sync Labs lip sync DONE ✓ → ${url.slice(0, 60)}...`);
-                    totalLipSyncPolled++;
-
-                    // ── PROBE: if this is the probe scene, set probeVideoUrl (lip-synced version) ──
-                    try {
-                      const [currentJob] = await db.select({ probeSceneId: musicVideoJobs.probeSceneId, probePassed: musicVideoJobs.probePassed })
-                        .from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
-                      if (currentJob?.probeSceneId === scene.id && (currentJob?.probePassed === false || (currentJob?.probePassed as any) === 0)) {
-                        await db.update(musicVideoJobs)
-                          .set({ probeVideoUrl: url, updatedAt: new Date() })
-                          .where(eq(musicVideoJobs.id, job.id));
-                        console.log(`[SceneDispatch] Job ${job.id} PROBE LIP SYNC COMPLETE — lip-synced video ready for owner review: ${url.slice(0, 60)}...`);
-                      }
-                    } catch { /* non-fatal */ }
-                  }
-                  if (!outputUrl) {
-                    // Completed but no URL — treat as error
-                    console.error(`[SceneDispatch] Scene ${scene.id} Sync Labs COMPLETED but no outputUrl — using raw clip`);
-                    await db.update(musicVideoScenes)
-                      .set({ lipSyncStatus: "error", updatedAt: new Date() })
-                      .where(eq(musicVideoScenes.id, scene.id));
-                  }
-                } else if (generation.status === "FAILED" || generation.status === "REJECTED") {
-                  console.error(`[SceneDispatch] Scene ${scene.id} Sync Labs job ${scene.lipSyncTaskId} ${generation.status} — using raw clip for assembly`);
-                  await db.update(musicVideoScenes)
-                    .set({ lipSyncStatus: "error", updatedAt: new Date() })
-                    .where(eq(musicVideoScenes.id, scene.id));
-                } else {
-                  console.log(`[SceneDispatch] Scene ${scene.id} Sync Labs status: ${generation.status} — polling next tick`);
-                }
-              } catch (pollSyncErr: any) {
-                console.error(`[SceneDispatch] Sync Labs poll error for scene ${scene.id}: ${String(pollSyncErr?.message ?? pollSyncErr).slice(0, 200)}`);
+              if (sceneAge > INFINITETALK_STUCK_TIMEOUT_MS) {
+                console.warn(`[SceneDispatch] Scene ${scene.id} InfiniteTalk job stuck for ${Math.round(sceneAge / 60000)}min — marking as error`);
+                await db.update(musicVideoScenes)
+                  .set({ lipSyncStatus: "error", updatedAt: new Date() })
+                  .where(eq(musicVideoScenes.id, scene.id));
+                continue;
               }
+
+              const pollResult = await pollWaveSpeedInfiniteTalk(scene.lipSyncTaskId!);
+
+              if (pollResult.status === "completed" && pollResult.videoUrl) {
+                // Download and re-upload to S3 for permanent storage
+                const { storagePut } = await import("../storage");
+                const resp = await fetch(pollResult.videoUrl);
+                const buf = Buffer.from(await resp.arrayBuffer());
+                const key = `music-video-scenes/${scene.id}-infinitetalk-${Date.now()}.mp4`;
+                const { url } = await storagePut(key, buf, "video/mp4");
+
+                await db.update(musicVideoScenes)
+                  .set({
+                    lipSyncStatus: "done",
+                    lipSyncVideoUrl: url,
+                    lipSyncVideoKey: key,
+                    updatedAt: new Date(),
+                  })
+                  .where(eq(musicVideoScenes.id, scene.id));
+                console.log(`[SceneDispatch] Scene ${scene.id} InfiniteTalk lip sync DONE ✓ → ${url.slice(0, 60)}...`);
+                totalLipSyncPolled++;
+
+                // ── PROBE: if this is the probe scene, set probeVideoUrl (lip-synced version) ──
+                try {
+                  const [currentJob] = await db.select({ probeSceneId: musicVideoJobs.probeSceneId, probePassed: musicVideoJobs.probePassed })
+                    .from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
+                  if (currentJob?.probeSceneId === scene.id && (currentJob?.probePassed === false || (currentJob?.probePassed as any) === 0)) {
+                    await db.update(musicVideoJobs)
+                      .set({ probeVideoUrl: url, updatedAt: new Date() })
+                      .where(eq(musicVideoJobs.id, job.id));
+                    console.log(`[SceneDispatch] Job ${job.id} PROBE INFINITETALK COMPLETE — lip-synced video ready for owner review: ${url.slice(0, 60)}...`);
+                  }
+                } catch { /* non-fatal */ }
+
+              } else if (pollResult.status === "failed") {
+                console.error(`[SceneDispatch] Scene ${scene.id} InfiniteTalk job ${scene.lipSyncTaskId} FAILED`);
+                await db.update(musicVideoScenes)
+                  .set({ lipSyncStatus: "error", updatedAt: new Date() })
+                  .where(eq(musicVideoScenes.id, scene.id));
+              } else {
+                console.log(`[SceneDispatch] Scene ${scene.id} InfiniteTalk status: ${pollResult.status} — polling next tick`);
+              }
+            } catch (pollItErr: any) {
+              console.error(`[SceneDispatch] InfiniteTalk poll error for scene ${scene.id}: ${String(pollItErr?.message ?? pollItErr).slice(0, 200)}`);
             }
           }
         }

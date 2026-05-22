@@ -3395,7 +3395,7 @@ export default function MusicVideoAutopilot() {
                   />
                   {/* ── Air Studios / Lyndhurst Hall — featured showcase preset ── */}
                   {(() => {
-                    const AIR_STUDIOS_PRESET = "Lyndhurst Hall, Air Studios — warm amber orchestral lighting, grand recording studio with high vaulted ceilings, orchestra in background, premium film scoring environment, camera circling artist, cinematic depth of field";
+                    const AIR_STUDIOS_PRESET = "Lyndhurst Hall at Air Studios London — a converted church recording studio with white walls and high arched stained-glass windows flooding the space with cool natural daylight, modern acoustic ceiling baffles and wood slat sound panels, full orchestra on the studio floor with music stands and professional microphones, contemporary recording session atmosphere, camera circling the artist at floor level, cinematic depth of field, professional recording studio NOT a concert hall or cathedral";
                     const isActive = sceneSetting.includes("Lyndhurst Hall");
                     return (
                       <button
@@ -3410,7 +3410,7 @@ export default function MusicVideoAutopilot() {
                         <span className="text-lg">🎼</span>
                         <div className="text-left flex-1">
                           <div className="font-bold tracking-wide">Air Studios / Lyndhurst Hall</div>
-                          <div className="text-xs font-normal opacity-60 mt-0.5">Warm amber orchestral lighting · Grand recording studio · Camera circling artist</div>
+                          <div className="text-xs font-normal opacity-60 mt-0.5">Cool daylight through stained-glass · White walls · Orchestra on studio floor · Camera circling artist</div>
                         </div>
                         {isActive && (
                           <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[--color-gold]/20 text-[--color-gold] border border-[--color-gold]/30">Active</span>

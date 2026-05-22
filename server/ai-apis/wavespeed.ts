@@ -39,7 +39,8 @@ export interface WaveSpeedVideoResponse {
   model?: string;
   status: "pending" | "processing" | "completed" | "failed" | "created";
   outputs?: string[]; // Array of output video URLs (when completed)
-  video_url?: string; // Legacy compat field
+  video_url?: string; // Raw API snake_case field
+  videoUrl?: string; // Normalised camelCase alias — set by pollWaveSpeedVideo
   error?: string | null;
   created_at?: string;
 }
@@ -218,9 +219,12 @@ export async function pollWaveSpeedVideo(
     // v3 API: response is { code, message, data: { id, status, outputs, ... } }
     const data = extractWaveSpeedData(resultResp.data);
 
-    // Normalise: set video_url from outputs array for backward compat
+    // Normalise: set video_url and videoUrl from outputs array
     if (data.status === "completed" && data.outputs && data.outputs.length > 0 && !data.video_url) {
       data.video_url = data.outputs[0];
+    }
+    if (data.video_url && !data.videoUrl) {
+      data.videoUrl = data.video_url;
     }
 
     return data;
@@ -274,4 +278,112 @@ export async function getWaveSpeedBalance(): Promise<number | null> {
   } catch {
     return null;
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WaveSpeed InfiniteTalk — portrait-driven lip-sync performance engine
+// Canonical path for all WIZ AI music video performance scenes.
+//
+// CRITICAL RULES:
+// 1. Audio MUST be isolated Demucs vocal stem — NOT the full mix.
+//    Full mix is only used during final assembly.
+// 2. Audio URL MUST be served with Content-Type: audio/mpeg.
+//    Use CloudFront URLs (d2xsxph8kpxj0f.cloudfront.net).
+//    BunnyCDN (wiz-ai.b-cdn.net) returns text/html and causes silent FFmpeg failure.
+// 3. No fallback to SyncLabs or any other lip sync provider.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface WaveSpeedInfiniteTalkRequest {
+  /** Locked character portrait URL — must be publicly accessible */
+  image: string;
+  /**
+   * Isolated Demucs vocal stem URL for the scene's time window.
+   * MUST be served with Content-Type: audio/mpeg (use CloudFront, not BunnyCDN).
+   * This is the lip-sync DRIVER only — never used as final playback audio.
+   */
+  audio: string;
+  /** Scene description prompt */
+  prompt: string;
+  /** Duration in seconds — must match the audio clip duration exactly */
+  duration?: number;
+  /** Resolution — only "480p" or "720p" accepted by InfiniteTalk */
+  resolution?: "480p" | "720p";
+}
+
+/**
+ * Submit a WaveSpeed InfiniteTalk performance scene.
+ *
+ * This is the ONLY approved lip-sync engine for WIZ AI music videos.
+ * Do NOT use SyncLabs, HeyGen, Hedra, or any other provider for performance scenes.
+ *
+ * Audio routing contract:
+ *   - input.audio  = isolated Demucs vocal stem, scene time window (lip-sync driver)
+ *   - assembly     = original mastered full mix overlaid on all clips (final playback)
+ *
+ * These two audio sources are NEVER interchangeable.
+ */
+export async function submitWaveSpeedInfiniteTalk(
+  request: WaveSpeedInfiniteTalkRequest
+): Promise<string> {
+  if (!WAVESPEED_API_KEY) {
+    throw new Error("WAVESPEED_API_KEY not configured");
+  }
+
+  const body: Record<string, unknown> = {
+    image: request.image,
+    audio: request.audio,
+    prompt: request.prompt,
+    duration: request.duration ?? 6,
+    resolution: request.resolution ?? "720p",
+  };
+
+  try {
+    const response = await axios.post(
+      `${WAVESPEED_API_BASE}/wavespeed-ai/infinitetalk`,
+      body,
+      {
+        headers: {
+          Authorization: `Bearer ${WAVESPEED_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        timeout: 30000,
+      }
+    );
+
+    const responseData = response.data;
+    if (responseData?.code && responseData.code !== 200) {
+      throw new Error(
+        `WaveSpeed InfiniteTalk error: ${responseData.message || JSON.stringify(responseData)}`
+      );
+    }
+
+    const inner = extractWaveSpeedData(responseData);
+    const taskId = inner?.id;
+    if (!taskId) {
+      throw new Error(
+        `WaveSpeed InfiniteTalk: no task id in response: ${JSON.stringify(responseData)}`
+      );
+    }
+    return taskId;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      const detail =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message;
+      throw new Error(`WaveSpeed InfiniteTalk API error: ${status} ${detail}`);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Poll a WaveSpeed InfiniteTalk task.
+ * Uses the same /predictions/{id}/result endpoint as Seedance.
+ */
+export async function pollWaveSpeedInfiniteTalk(
+  taskId: string
+): Promise<WaveSpeedVideoResponse> {
+  return pollWaveSpeedVideo(taskId);
 }
