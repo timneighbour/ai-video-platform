@@ -352,9 +352,11 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 //   - Otherwise fall back to extractSceneAudioClip (full mix segment)
                 //   - Final assembly always uses the ORIGINAL FULL MIX audio track (job.audioUrl)
                 try {
-                  // scene.startTime is stored in MILLISECONDS in the DB — convert to seconds for ffmpeg
-                  const startTimeSec = (scene.startTime ?? 0) / 1000;
-                  console.log(`[SceneDispatch] Scene ${scene.id} clip ready — submitting to Sync Labs for lip sync (startTime=${startTimeSec}s, raw=${scene.startTime}ms)`);
+                  // scene.startTime is stored in seconds for current music-video rows.
+                  // Guard legacy millisecond rows by converting only implausibly large values.
+                  const rawStartTime = scene.startTime ?? 0;
+                  const startTimeSec = rawStartTime > 300 ? rawStartTime / 1000 : rawStartTime;
+                  console.log(`[SceneDispatch] Scene ${scene.id} clip ready — submitting to Sync Labs for lip sync (startTime=${startTimeSec}s, raw=${scene.startTime})`);
                   // VOCAL ISOLATION STRATEGY (2026-05-19):
                   //   1. Look up the character's assigned vocal stem from musicVideoVocalStems
                   //   2. Cut the exact scene segment from that isolated stem
@@ -488,8 +490,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               const needsLipSync = (isPerformanceScene || (scene.lipSync ?? false)) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
               if (!needsLipSync || !scene.videoUrl) continue;
               try {
-                const startTimeSec = (scene.startTime ?? 0) / 1000;
-                console.log(`[SceneDispatch] Scene ${scene.id} RETRY lip sync submission (startTime=${startTimeSec}s)`);
+                const retryRawStartTime = scene.startTime ?? 0;
+                const startTimeSec = retryRawStartTime > 300 ? retryRawStartTime / 1000 : retryRawStartTime;
+                console.log(`[SceneDispatch] Scene ${scene.id} RETRY lip sync submission (startTime=${startTimeSec}s, raw=${scene.startTime})`);
                 let sceneAudioUrl: string;
                 const retryCharacterName = (scene as any).characterName ?? undefined;
                 const retryIsolatedVocalsUrl = await getVocalStemForCharacter(job.id, retryCharacterName);
