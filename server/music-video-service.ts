@@ -1705,8 +1705,36 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       // NOTE: duration is stored in SECONDS (e.g. 6), NOT milliseconds
       const sceneDurSec = scenes[i]?.duration ? scenes[i].duration : null;
       const durFlag = sceneDurSec ? `-t ${sceneDurSec}` : "";
+      // Detect clip dimensions to choose the right scaling strategy:
+      //   Square (e.g. 960x960 from InfiniteTalk) → centre-crop to fill 1280x720 (no black bars)
+      //   Near-16:9 (e.g. 1280x720 from Seedance)  → simple scale
+      //   Other aspect ratios                       → scale-down + pad (safe fallback)
+      let vfFilter = 'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,fps=24';
+      try {
+        const probeOut = await execAsync(
+          `"${FFPROBE_BIN}" -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "${src}"`,
+          { timeout: 15000 }
+        );
+        const [pw, ph] = probeOut.stdout.trim().split(',').map(Number);
+        if (pw > 0 && ph > 0) {
+          const isSquare = Math.abs(pw - ph) < 20;
+          const isNear16x9 = Math.abs(pw / ph - 16 / 9) < 0.1;
+          if (isSquare) {
+            // Square clip (InfiniteTalk outputs 960x960): scale to fill width, centre-crop height
+            vfFilter = 'scale=1280:-1,crop=1280:720,fps=24';
+            console.log(`[Assembly] Clip ${i + 1}: square ${pw}x${ph} → centre-crop to 1280x720`);
+          } else if (isNear16x9) {
+            vfFilter = 'scale=1280:720,fps=24';
+            console.log(`[Assembly] Clip ${i + 1}: 16:9 ${pw}x${ph} → scale to 1280x720`);
+          } else {
+            console.log(`[Assembly] Clip ${i + 1}: other ${pw}x${ph} → pad to 1280x720`);
+          }
+        }
+      } catch (probeErr: any) {
+        console.warn(`[Assembly] Clip ${i + 1}: probe failed (${probeErr?.message?.slice(0,60)}), using pad fallback`);
+      }
       await execAsync(
-        `"${FFMPEG_BIN}" -y -i "${src}" ${durFlag} -an -c:v libx264 -preset fast -crf 22 -vf "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,fps=24" -vsync cfr -r 24 -pix_fmt yuv420p "${dst}"`,
+        `"${FFMPEG_BIN}" -y -i "${src}" ${durFlag} -an -c:v libx264 -preset fast -crf 22 -vf "${vfFilter}" -vsync cfr -r 24 -pix_fmt yuv420p "${dst}"`,
         { timeout: 120000 }
       );
       normalizedFiles.push(dst);

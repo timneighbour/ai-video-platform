@@ -114,6 +114,18 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
       });
     }
 
+    // ── JOB SERIALISATION GUARD ────────────────────────────────────────────────
+    // Only ONE job may dispatch new scenes at a time to prevent concurrent jobs
+    // from competing for provider credits (WaveSpeed, Fal.ai, etc.).
+    // The job with the LOWEST id (oldest) gets the dispatch slot.
+    // All other jobs still poll for completions and run assembly — they just
+    // cannot submit NEW scene tasks until the active job finishes.
+    const sortedJobs = [...activeJobs].sort((a, b) => a.id - b.id);
+    const dispatchSlotJobId = sortedJobs[0].id;
+    if (activeJobs.length > 1) {
+      console.log(`[SceneDispatch] SERIALISATION: ${activeJobs.length} active jobs — only job ${dispatchSlotJobId} may dispatch new scenes this tick. Others will poll only.`);
+    }
+
     let totalDispatched = 0;
     let totalPolled = 0;
     let totalLipSyncSubmitted = 0;
@@ -131,9 +143,12 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           .where(eq(musicVideoScenes.jobId, job.id));
 
         // Note: schema uses 'status' as the TypeScript field name (DB column is 'mvSceneStatus')
-        const pendingScenes = scenes.filter(
-          (s) => s.status === "pending" && !s.taskId
-        );
+        // SERIALISATION: if this job does not hold the dispatch slot, suppress new dispatches.
+        // It will still poll generating scenes and trigger assembly.
+        const holdsDispatchSlot = job.id === dispatchSlotJobId;
+        const pendingScenes = holdsDispatchSlot
+          ? scenes.filter((s) => s.status === "pending" && !s.taskId)
+          : []; // Non-priority jobs: poll only, no new dispatches
         const generatingScenes = scenes.filter(
           (s) => s.status === "generating" && s.taskId
         );
