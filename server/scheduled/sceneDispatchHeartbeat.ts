@@ -845,6 +845,35 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             .where(eq(musicVideoJobs.id, job.id));
         }
 
+        // ── 6b. Composite stuck-scene reaper ────────────────────────────────────────
+        // Any scene that has been in compositeStatus='processing' for longer than
+        // COMPOSITE_STUCK_TIMEOUT_MS (10 min) is reset to 'error' so the dispatch
+        // loop can retry it (up to compositeAttempts < 3).
+        // This prevents scenes from being permanently stuck after a server restart
+        // or a silent composite failure.
+        const stuckCompositeScenes = nowCompleted.filter(
+          (s) =>
+            s.compositeStatus === "processing" &&
+            Date.now() - new Date(s.updatedAt).getTime() > COMPOSITE_STUCK_TIMEOUT_MS
+        );
+        if (stuckCompositeScenes.length > 0) {
+          console.warn(
+            `[SceneDispatch] Job ${job.id} — ${stuckCompositeScenes.length} composite scene(s) stuck >10min. Resetting to error for retry.`
+          );
+          for (const stuck of stuckCompositeScenes) {
+            await db
+              .update(musicVideoScenes)
+              .set({ compositeStatus: "error" as any, updatedAt: new Date() })
+              .where(eq(musicVideoScenes.id, stuck.id));
+          }
+          // Refresh nowCompositeProcessing after reaping
+          nowCompositeProcessing.splice(
+            0,
+            nowCompositeProcessing.length,
+            ...nowCompositeProcessing.filter((s) => !stuckCompositeScenes.find((st) => st.id === s.id))
+          );
+        }
+
         // ── 7. Trigger assembly when all scenes are done AND all compositing is ready ──
         // ASSEMBLY GATE (5-stage pipeline):
         //   1. No pending or generating scenes

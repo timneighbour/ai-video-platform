@@ -8226,3 +8226,13 @@
 - [x] Wire into Management UI at /admin/pipeline as the default Pipeline tab
 - [x] Auto-poll every 10 seconds with live updates
 - [x] Vitest tests: 680/680 passing (pipeline-progress.test.ts + pipelineOps.test.ts updated)
+
+## Face-Crop Full-Head Fix (2026-05-22)
+- [ ] Replace heuristic top-55% crop with fal.ai face detection — anchor crop to actual face bounding box with 25% headroom above crown, shoulders below chin, guaranteed full head visible
+- [ ] Clear the in-memory crop cache so job 720001 performance scenes get re-cropped with the new logic
+- [ ] Reset job 720001 performance scenes for re-render through the full 5-stage pipeline with the corrected crop
+
+## Pipeline Hardening — Permanent Lockdown (2026-05-22)
+- [x] Stuck-scene timeout recovery: any scene in lipSyncStatus='processing' or compositeStatus='processing' for >10 min is reset to 'error' and retried (max 3 attempts)
+- [x] Project instruction: pipeline rules written to references/pipeline-rules.md (manus-config save blocked in collab session — Tim to confirm)
+- [x] Verify job 720001 re-runs with corrected face-crop (fal.ai face detection, 30% headroom) and assembles with composited clips — CONFIRMED: finalVideoUrl set 2026-05-22T20:39:33Z
