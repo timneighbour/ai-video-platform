@@ -208,7 +208,10 @@ export async function compositeCinematicScene(
       // Normalise background to 1280x720
       `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase,crop=${outW}:${outH},fps=24[bg]`,
       // Scale Zara + chromakey grey background removal
-      `[1:v]scale=${zaraTargetW}:${zaraTargetH},chromakey=0x808080:similarity=0.30:blend=0.05[fg]`,
+      // GATE 1 FIX (2026-05-23): InfiniteTalk background is #ADAEAE (RGB 173,174,174), NOT #808080.
+      // Sampled from actual InfiniteTalk output — old value caused complete chromakey failure.
+      // similarity=0.40 covers the slight gradient variation across the background.
+      `[1:v]scale=${zaraTargetW}:${zaraTargetH},chromakey=0xADAEAE:similarity=0.40:blend=0.08[fg]`,
       // Overlay Zara onto background
       `[bg][fg]overlay=x=${zaraX}:y=${zaraY}[composited]`,
       // Warm colour grade to match Air Studios golden lighting

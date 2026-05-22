@@ -279,8 +279,13 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             }
 
             // ── TEXT ANCHOR: Prepend character identity to prompt ──────────────
+            // PERFORMANCE SCENE EXCEPTION: Performance scenes use Seedance to generate an EMPTY
+            // stage background (no person). Zara is composited in via InfiniteTalk chromakey.
+            // Therefore, we MUST NOT prepend the character description to the Seedance prompt —
+            // doing so causes Seedance to generate another AI singer as the background.
+            const isPerformanceSceneDispatch = scene.sceneType === "performance";
             let scenePrompt = scene.prompt ?? "";
-            if (resolvedCharacterDescription && resolvedCharacterName) {
+            if (!isPerformanceSceneDispatch && resolvedCharacterDescription && resolvedCharacterName) {
               const charAnchor = `${resolvedCharacterName}: ${resolvedCharacterDescription.slice(0, 150)}. `;
               const MAX_TOTAL = 480;
               const remainingChars = MAX_TOTAL - charAnchor.length;
@@ -289,6 +294,8 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 : scenePrompt;
               scenePrompt = charAnchor + trimmedScene;
               console.log(`[SceneDispatch] Scene ${scene.id} TEXT ANCHOR injected for ${resolvedCharacterName}`);
+            } else if (isPerformanceSceneDispatch) {
+              console.log(`[SceneDispatch] Scene ${scene.id} PERFORMANCE SCENE — using empty stage prompt for Seedance (character composited via InfiniteTalk)`);
             }
 
             if (resolvedCharacterUrl) {
@@ -467,10 +474,14 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                     }
 
                     // Submit to WaveSpeed InfiniteTalk with cropped portrait
+                    // IMPORTANT: The InfiniteTalk prompt describes Zara's PERFORMANCE STYLE,
+                    // NOT the background (which is handled by Seedance separately).
+                    // Use a neutral performance prompt that focuses on face/expression/movement.
+                    const itPrompt = "Emotional singing performance, face clearly visible and forward-facing, natural lip movement, expressive eyes, cinematic close-up. Neutral grey studio background.";
                     const itTaskId = await submitWaveSpeedInfiniteTalk({
                       image: croppedPortraitUrl,
                       audio: sceneAudioUrl,
-                      prompt: scene.prompt ?? "Singer performing at a vintage microphone in a warm concert hall, cinematic lighting, emotional performance",
+                      prompt: itPrompt,
                       duration: scene.duration ?? 5,
                       resolution: "720p",
                     });
@@ -613,10 +624,12 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 console.warn(`[SceneDispatch] Scene ${scene.id} RETRY: face-crop failed, using original`);
               }
 
+              // RETRY: Same neutral performance prompt — do NOT use scene.prompt (which is the Seedance background prompt)
+              const retryItPrompt = "Emotional singing performance, face clearly visible and forward-facing, natural lip movement, expressive eyes, cinematic close-up. Neutral grey studio background.";
               const itTaskId = await submitWaveSpeedInfiniteTalk({
                 image: retryCroppedPortraitUrl,
                 audio: sceneAudioUrl,
-                prompt: scene.prompt ?? "Singer performing at a vintage microphone in a warm concert hall, cinematic lighting, emotional performance",
+                prompt: retryItPrompt,
                 duration: scene.duration ?? 5,
                 resolution: "720p",
               });

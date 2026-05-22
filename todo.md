@@ -8246,3 +8246,18 @@
 - [x] Verify composited clips are exactly 6s after fix — confirmed in logs: "composited clip: 2042485 bytes, 6s"
 - [x] Verify final assembled video has lip sync in time with vocals — all 12 clips normalized at 6s, final video assembled
 - [x] Fix heartbeat nowPending filter: performance scenes with taskId but lipSyncStatus=pending were incorrectly excluded from pending count, causing premature assembly trigger
+
+## Compositing Pipeline Fix (2026-05-23)
+- [ ] Diagnose why chromakey (grey background removal) is not working on InfiniteTalk outputs
+- [ ] Test chromakey locally on actual InfiniteTalk clip — verify grey fully removed before touching pipeline
+- [ ] Fix Seedance prompts: all cinematic scenes must have orchestra + audience (not empty rooms)
+- [ ] Fix final scene Seedance prompt: remove microphone, replace with Zara looking at camera / close-up face shot
+- [ ] Fix face-crop: InfiniteTalk crop is too tight — must show full head with headroom above
+- [ ] Diagnose lip sync offset on first performance scene (12s) — why out of sync at start
+- [ ] Test single complete scene end-to-end before triggering full render
+- [ ] Reset ALL scenes and trigger full pipeline re-render only after all fixes verified
+- [ ] Fix chromakey: ensure grey background is properly removed and Zara is composited onto Seedance background
+- [ ] Fix face-crop: InfiniteTalk receives too-tight crop cutting off top of head — needs head-and-shoulders with full head visible
+- [ ] Fix lip sync timing: first performance scene (12s) is already out of sync at the start
+- [ ] Test single composited scene end-to-end and verify output visually before full re-render
+- [ ] Re-run full pipeline with all fixes applied and verify final video
