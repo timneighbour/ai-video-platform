@@ -1613,24 +1613,31 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
   try {
     const sceneFiles: string[] = [];
     for (const scene of scenes) {
-      // ── WizSync™: Clip selection priority (2026-05-19):
-      // 1. lipSyncVideoUrl — SyncLabs sync-3 lip sync (PRIMARY, used when lipSyncStatus='done')
-      // 2. videoUrl        — raw clip (only used when scene does NOT need lip sync, OR lip sync errored)
+      // ── WizSync™: Clip selection priority (2026-05-22, 5-stage pipeline):
+      // 1. compositeVideoUrl — Zara composited onto Air Studios background (HIGHEST PRIORITY)
+      //    Used when compositeStatus='done'. This is the final cinematic output.
+      // 2. lipSyncVideoUrl   — InfiniteTalk performance on grey background
+      //    Used when compositeStatus != 'done' but lipSyncStatus='done'.
+      // 3. videoUrl          — raw Seedance clip (cinematic scenes, or fallback)
       //
       // CRITICAL RULE: If a scene needs lip sync (lipSync=true OR sceneType='performance')
       // and lipSyncStatus is NOT 'done' or 'error', SKIP this scene entirely.
-      // The assembly should never be triggered before lip sync is complete (the heartbeat
-      // checks allLipSyncReady before queuing assembly), but this is a belt-and-braces guard.
       const needsLipSync = (scene.lipSync === true) || (scene.sceneType === "performance");
       const lipSyncDone = scene.lipSyncStatus === "done";
       const lipSyncErrored = scene.lipSyncStatus === "error";
+      const compositeDone = (scene as any).compositeStatus === "done";
+      const compositeVideoUrl = (scene as any).compositeVideoUrl as string | null | undefined;
 
       let clipUrl: string | null = null;
       if (needsLipSync) {
-        if (lipSyncDone && scene.lipSyncVideoUrl) {
-          // Best case: fully lip-synced clip ready
+        if (compositeDone && compositeVideoUrl) {
+          // BEST CASE: fully composited clip — Zara on Air Studios background
+          clipUrl = compositeVideoUrl;
+          console.log(`[Assembly] Scene ${scene.sceneIndex}: using WizSync™ composited clip (Stage 4) ✓`);
+        } else if (lipSyncDone && scene.lipSyncVideoUrl) {
+          // Good: lip-synced clip (grey background — composite not ready)
           clipUrl = scene.lipSyncVideoUrl;
-          console.log(`[Assembly] Scene ${scene.sceneIndex}: using WizSync™ SyncLabs lip-synced clip ✓`);
+          console.log(`[Assembly] Scene ${scene.sceneIndex}: using WizSync™ InfiniteTalk lip-synced clip (composite not ready)`);
         } else if (lipSyncErrored) {
           // SyncLabs failed — fall back to raw clip with a warning
           clipUrl = scene.videoUrl;

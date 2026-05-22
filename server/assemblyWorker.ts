@@ -18,7 +18,7 @@
  */
 import { assembleMusicVideo } from "./music-video-service";
 import { getDb } from "./db";
-import { musicVideoJobs, renderJobs } from "../drizzle/schema";
+import { musicVideoJobs, musicVideoScenes, renderJobs } from "../drizzle/schema";
 import { and, eq, isNull, lt, desc } from "drizzle-orm";
 
 const WORKER_INTERVAL_MS = 2 * 60 * 1000; // 2 minutes
@@ -68,6 +68,33 @@ async function processOrphanedAssemblyJobs(): Promise<void> {
       }
 
       inFlightAssemblies.add(job.id);
+
+      // ── COMPOSITE GUARD ─────────────────────────────────────────────────────
+      // Before assembling, verify all scenes have compositeStatus = done|skipped|error.
+      // If any scene is still pending/processing, the compositing pipeline hasn't finished.
+      // Reset the job to 'rendering' so the heartbeat can complete compositing first.
+      const allScenes = await db
+        .select({ compositeStatus: musicVideoScenes.compositeStatus })
+        .from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, job.id));
+
+      const compositeIncomplete = allScenes.filter(
+        (s) => s.compositeStatus === "pending" || s.compositeStatus === "processing"
+      );
+
+      if (compositeIncomplete.length > 0) {
+        console.log(
+          `[AssemblyWorker] Job ${job.id} has ${compositeIncomplete.length} scene(s) with compositeStatus=pending/processing — ` +
+          `resetting to 'rendering' so heartbeat can finish compositing first`
+        );
+        await db
+          .update(musicVideoJobs)
+          .set({ status: "rendering", updatedAt: new Date() })
+          .where(eq(musicVideoJobs.id, job.id));
+        inFlightAssemblies.delete(job.id);
+        continue;
+      }
+      // ── END COMPOSITE GUARD ─────────────────────────────────────────────────
 
       // Look up audioTier from the most recent renderJob for this musicVideoJob
       const [latestRenderJob] = await db
