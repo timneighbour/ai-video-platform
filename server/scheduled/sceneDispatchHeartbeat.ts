@@ -155,6 +155,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         // probePassed=null  → dispatch only the probe scene (best vocal scene)
         // probePassed=false → probe in progress — block all other scenes
         // probePassed=true  → owner approved — dispatch all remaining scenes
+        let pendingProbeSceneId: number | null = null;
         const probeDecision = await getProbeDecision(job.id);
 
         if (probeDecision.mode === "blocked") {
@@ -172,10 +173,11 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           const probeScene = pendingScenes.find(s => s.id === probeDecision.probeSceneId);
           if (probeScene) {
             console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — dispatching only scene ${probeScene.id} (index ${probeScene.sceneIndex}) for QA validation`);
-            // Mark job as probe in progress
-            await db.update(musicVideoJobs)
-              .set({ probePassed: false, probeSceneId: probeScene.id, updatedAt: new Date() })
-              .where(eq(musicVideoJobs.id, job.id));
+            // Defer marking the probe as in progress until after provider dispatch
+            // succeeds and a taskId has been written. This prevents a transient
+            // provider/API failure from leaving the job locked in probePassed=false
+            // with no actual provider task to poll.
+            pendingProbeSceneId = probeScene.id;
             // Replace pendingScenes with just the probe scene for dispatch loop below
             pendingScenes.length = 0;
             pendingScenes.push(probeScene);
@@ -280,6 +282,13 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               .update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
+
+            if (pendingProbeSceneId === scene.id) {
+              await db.update(musicVideoJobs)
+                .set({ probePassed: false, probeSceneId: scene.id, updatedAt: new Date() })
+                .where(eq(musicVideoJobs.id, job.id));
+              console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — marked scene ${scene.id} in progress after taskId persisted`);
+            }
 
             console.log(`[SceneDispatch] Scene ${scene.id} dispatched → taskId: ${taskId}`);
             totalDispatched++;
