@@ -8236,3 +8236,12 @@
 - [x] Stuck-scene timeout recovery: any scene in lipSyncStatus='processing' or compositeStatus='processing' for >10 min is reset to 'error' and retried (max 3 attempts)
 - [x] Project instruction: pipeline rules written to references/pipeline-rules.md (manus-config save blocked in collab session — Tim to confirm)
 - [x] Verify job 720001 re-runs with corrected face-crop (fal.ai face detection, 30% headroom) and assembles with composited clips — CONFIRMED: finalVideoUrl set 2026-05-22T20:39:33Z
+
+## Lip Sync Timing Fix (2026-05-22)
+- [x] Fix cinematic-composite-service.ts: composited clips are 5s not 6s — ffprobe fallback returns 5 when stream duration probe fails; use format-level duration or always target sceneDuration with freeze-frame padding
+- [x] Fix compositing service: output must be exactly sceneDuration seconds (pad last frame if InfiniteTalk is slightly short)
+- [x] Reset performance scenes 750027, 750031, 750033, 750035: lipSyncStatus=pending, lipSyncTaskId=null, lipSyncVideoUrl=null, compositeStatus=pending, compositeVideoUrl=null
+- [x] Verify Seedance dispatch unblocked for 5 cinematic scenes (750025, 750028, 750030, 750034, 750036) — confirmed generating
+- [x] Trigger heartbeat and monitor full pipeline re-run — pipeline active, 5 cinematic scenes generating
+- [ ] Verify composited clips are exactly 6s after fix
+- [ ] Verify final assembled video has lip sync in time with vocals

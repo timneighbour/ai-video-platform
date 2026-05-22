@@ -80,24 +80,50 @@ async function downloadVideoToTemp(videoUrl: string, suffix: string = "mp4"): Pr
 
 /**
  * Get video dimensions using ffprobe.
+ *
+ * IMPORTANT: Stream-level duration (stream=duration) can return N/A for some MP4 files
+ * (e.g. InfiniteTalk outputs) where duration is only stored in the container format header.
+ * We always fall back to format-level duration probe to avoid the silent `|| 5` truncation
+ * that was causing composited clips to be 5s instead of 5.96s.
  */
 async function getVideoDimensions(videoPath: string): Promise<{ width: number; height: number; duration: number }> {
   const ffmpeg = getFFmpegBin();
   const ffprobeBin = ffmpeg.replace(/ffmpeg$/, "ffprobe");
+
+  let width = 960;
+  let height = 960;
+  let duration = 0;
+
   try {
-    const { stdout } = await execAsync(
-      `"${ffprobeBin}" -v quiet -select_streams v:0 -show_entries stream=width,height,duration -of csv=p=0 "${videoPath}"`
+    // Step 1: Get width and height from stream (reliable)
+    const { stdout: dimOut } = await execAsync(
+      `"${ffprobeBin}" -v quiet -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "${videoPath}"`
     );
-    const parts = stdout.trim().split(",");
-    if (parts.length >= 2) {
-      return {
-        width: parseInt(parts[0]) || 960,
-        height: parseInt(parts[1]) || 960,
-        duration: parseFloat(parts[2]) || 5,
-      };
+    const dimParts = dimOut.trim().split(",");
+    if (dimParts.length >= 2) {
+      width = parseInt(dimParts[0]) || 960;
+      height = parseInt(dimParts[1]) || 960;
     }
-  } catch { /* fallback */ }
-  return { width: 960, height: 960, duration: 5 };
+  } catch { /* use defaults */ }
+
+  try {
+    // Step 2: Get duration from FORMAT level (reliable even when stream duration is N/A)
+    const { stdout: durOut } = await execAsync(
+      `"${ffprobeBin}" -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${videoPath}"`
+    );
+    const parsed = parseFloat(durOut.trim());
+    if (!isNaN(parsed) && parsed > 0) {
+      duration = parsed;
+    }
+  } catch { /* use fallback */ }
+
+  // Final fallback: if duration is still 0, use 5s as a safe default
+  if (duration <= 0) {
+    console.warn(`[Composite] getVideoDimensions: could not probe duration for ${videoPath} — using 5s fallback`);
+    duration = 5;
+  }
+
+  return { width, height, duration };
 }
 
 /**
@@ -138,8 +164,8 @@ export async function compositeCinematicScene(
     // Step 2: Get dimensions of both clips
     const fgDims = await getVideoDimensions(fgPath);
     const bgDims = await getVideoDimensions(bgPath);
-    console.log(`[Composite] FG (InfiniteTalk): ${fgDims.width}x${fgDims.height}, ${fgDims.duration}s`);
-    console.log(`[Composite] BG (Seedance): ${bgDims.width}x${bgDims.height}, ${bgDims.duration}s`);
+    console.log(`[Composite] FG (InfiniteTalk): ${fgDims.width}x${fgDims.height}, probed=${fgDims.duration.toFixed(3)}s (target=${sceneDuration}s)`);
+    console.log(`[Composite] BG (Seedance): ${bgDims.width}x${bgDims.height}, probed=${bgDims.duration.toFixed(3)}s`);
 
     // Step 3: Calculate compositing geometry
     // Target output: 1280x720 (16:9)
@@ -191,8 +217,17 @@ export async function compositeCinematicScene(
 
     outputPath = path.join(os.tmpdir(), `wiz-composite-out-${Date.now()}-${Math.random().toString(36).slice(2)}.mp4`);
 
-    // Use the shorter of the two clips as the duration reference
-    const effectiveDuration = Math.min(sceneDuration, fgDims.duration, bgDims.duration > 0 ? bgDims.duration : sceneDuration);
+    // CRITICAL FIX (2026-05-22): Always use sceneDuration as the output target.
+    // Previously used Math.min(sceneDuration, fgDims.duration, bgDims.duration) which
+    // truncated the output to 5s when InfiniteTalk returned 5.96s clips — causing
+    // 1s drift per performance scene and lip sync timing errors in the final assembly.
+    //
+    // InfiniteTalk outputs are typically 5.96s for a 6s request (4 frames short at 24fps).
+    // Using -t sceneDuration with the longer background clip means ffmpeg will freeze-extend
+    // the last frame of the InfiniteTalk clip to fill the final ~40ms — imperceptible.
+    //
+    // The background (Seedance) is always ≥ sceneDuration (10s clips), so no issue there.
+    const effectiveDuration = sceneDuration;
 
     const compositeCmd = [
       `"${ffmpeg}" -y`,
