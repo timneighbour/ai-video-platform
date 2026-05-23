@@ -205,8 +205,8 @@ export async function compositeCinematicScene(
     // - Blue channel: slightly reduced (warm tone)
 
     const filterComplex = [
-      // Normalise background to 1280x720
-      `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase,crop=${outW}:${outH},fps=24[bg]`,
+      // Normalise background to 1280x720 (no fps resampling — output -r 24 handles framerate)
+      `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase,crop=${outW}:${outH}[bg]`,
       // Scale Zara + chromakey grey background removal
       // GATE 1 FIX (2026-05-23): InfiniteTalk background is #ADAEAE (RGB 173,174,174), NOT #808080.
       // Sampled from actual InfiniteTalk output — old value caused complete chromakey failure.
@@ -215,7 +215,9 @@ export async function compositeCinematicScene(
       // Overlay Zara onto background
       `[bg][fg]overlay=x=${zaraX}:y=${zaraY}[composited]`,
       // Warm colour grade to match Air Studios golden lighting
-      `[composited]curves=r='0/0 0.5/0.55 1/1':g='0/0 0.5/0.5 1/1':b='0/0 0.5/0.45 1/0.9'[graded]`,
+      // Using eq filter (faster than curves on 1 vCPU): slight brightness boost, warm saturation,
+      // gamma_r boost (warm), gamma_b reduce (cool blue removed)
+      `[composited]eq=brightness=0.05:saturation=1.1:gamma_r=1.1:gamma_b=0.9[graded]`,
     ].join(";");
 
     outputPath = path.join(os.tmpdir(), `wiz-composite-out-${Date.now()}-${Math.random().toString(36).slice(2)}.mp4`);
@@ -234,11 +236,14 @@ export async function compositeCinematicScene(
 
     const compositeCmd = [
       `"${ffmpeg}" -y`,
+      `-threads 2`,        // use both hyperthreads on Cloud Run's 1 vCPU
       `-i "${bgPath}"`,   // [0:v] background
       `-i "${fgPath}"`,   // [1:v] foreground
       `-filter_complex "${filterComplex}"`,
       `-map "[graded]"`,
-      `-c:v libx264 -preset fast -crf 18`,
+      // ultrafast preset: ~2x faster encode than 'fast' on 1 vCPU, imperceptible quality diff at crf 23
+      // threads 2: Cloud Run has 1 vCPU but 2 hyperthreads — use both
+      `-c:v libx264 -preset ultrafast -crf 23 -threads 2`,
       `-pix_fmt yuv420p`,
       `-t ${effectiveDuration}`,
       `-vsync cfr -r 24`,
