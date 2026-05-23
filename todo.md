@@ -8261,3 +8261,14 @@
 - [ ] Fix lip sync timing: first performance scene (12s) is already out of sync at the start
 - [ ] Test single composited scene end-to-end and verify output visually before full re-render
 - [ ] Re-run full pipeline with all fixes applied and verify final video
+
+## Scene Preview Feature (2026-05-23)
+- [x] Add tRPC procedure `musicVideo.getScenePreviews` returning per-scene compositeVideoUrl, videoUrl, status, sceneType, sceneIndex, lipSyncStatus, compositeStatus, prompt
+- [x] Build RenderScenePreview component — responsive grid of scene cards with video player, status badge, scene index label
+- [x] Scene cards show correct status: Queued / Rendering / Compositing / Ready (with play button) / Cinematic (raw clip)
+- [x] Auto-polling every 8 seconds while job is in rendering/assembling state
+- [x] Video playback on click — inline player opens in a lightbox modal with controls
+- [x] Integrate RenderScenePreview into MusicVideoAutopilot render step (below existing scene grid)
+- [x] Scene cards animate in as they become ready (fade-in)
+- [x] Show overall progress (X of 12 scenes ready) in header
+- [x] 13 vitest tests passing for previewState derivation logic

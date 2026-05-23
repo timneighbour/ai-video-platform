@@ -47,6 +47,7 @@ import EnhancePromptButton from "@/components/EnhancePromptButton";
 import { Link } from "wouter";
 import { NavLink } from "@/components/NavLink";
 import { StudioLoungePrompt } from "@/components/StudioLounge";
+import { RenderScenePreview } from "@/components/RenderScenePreview";
 import { QuickTopUpModal } from "@/components/QuickTopUpModal";
 import { useSEO } from "@/hooks/useSEO";
 import {
@@ -5939,6 +5940,17 @@ export default function MusicVideoAutopilot() {
                           }}
                         />
                         {/* ===== END LIVE SCENE PREVIEW GRID ===== */}
+
+                        {/* ===== COMPOSITED SCENE PREVIEW (WizSync™ live preview) ===== */}
+                        {jobId && (renderStatus === "rendering" || renderStatus === "assembling" || renderStatus === "completed") && (
+                          <div className="mt-6">
+                            <RenderScenePreview
+                              jobId={jobId}
+                              jobStatus={renderStatus}
+                            />
+                          </div>
+                        )}
+                        {/* ===== END COMPOSITED SCENE PREVIEW ===== */}
 
                         {/* Studio Lounge nudge — shown while scenes are still generating */}
                         {perSceneStatuses.some((s) => s.status === "generating" || s.status === "pending") && (
