@@ -70,22 +70,29 @@ async function processOrphanedAssemblyJobs(): Promise<void> {
       inFlightAssemblies.add(job.id);
 
       // ── COMPOSITE GUARD ─────────────────────────────────────────────────────
-      // Before assembling, verify all scenes have compositeStatus = done|skipped|error.
-      // If any scene is still pending/processing, the compositing pipeline hasn't finished.
-      // Reset the job to 'rendering' so the heartbeat can complete compositing first.
+      // PREMIUM POLICY (2026-05-23): Performance scenes MUST have compositeStatus='done'.
+      // 'error', 'pending', or 'processing' are not acceptable for performance scenes.
+      // Cinematic scenes are expected to be 'skipped'.
       const allScenes = await db
-        .select({ compositeStatus: musicVideoScenes.compositeStatus })
+        .select({ compositeStatus: musicVideoScenes.compositeStatus, sceneType: musicVideoScenes.sceneType, lipSync: musicVideoScenes.lipSync })
         .from(musicVideoScenes)
         .where(eq(musicVideoScenes.jobId, job.id));
 
-      const compositeIncomplete = allScenes.filter(
-        (s) => s.compositeStatus === "pending" || s.compositeStatus === "processing"
-      );
+      const compositeIncomplete = allScenes.filter((s) => {
+        const isPerformance = s.sceneType === "performance" || (s.lipSync ?? false);
+        if (isPerformance) {
+          // Performance scenes: ONLY 'done' is acceptable — no grey backgrounds, no substitutes
+          return s.compositeStatus !== "done";
+        } else {
+          // Cinematic scenes: only block on pending/processing (skipped is fine)
+          return s.compositeStatus === "pending" || s.compositeStatus === "processing";
+        }
+      });
 
       if (compositeIncomplete.length > 0) {
         console.log(
-          `[AssemblyWorker] Job ${job.id} has ${compositeIncomplete.length} scene(s) with compositeStatus=pending/processing — ` +
-          `resetting to 'rendering' so heartbeat can finish compositing first`
+          `[AssemblyWorker] Job ${job.id} has ${compositeIncomplete.length} scene(s) not composite-ready — ` +
+          `resetting to 'rendering' so heartbeat can complete compositing first`
         );
         await db
           .update(musicVideoJobs)

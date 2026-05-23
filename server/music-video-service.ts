@@ -1613,44 +1613,39 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
   try {
     const sceneFiles: string[] = [];
     for (const scene of scenes) {
-      // ── WizSync™: Clip selection priority (2026-05-22, 5-stage pipeline):
-      // 1. compositeVideoUrl — Zara composited onto Air Studios background (HIGHEST PRIORITY)
-      //    Used when compositeStatus='done'. This is the final cinematic output.
-      // 2. lipSyncVideoUrl   — InfiniteTalk performance on grey background
-      //    Used when compositeStatus != 'done' but lipSyncStatus='done'.
-      // 3. videoUrl          — raw Seedance clip (cinematic scenes, or fallback)
+      // ── WizSync™: Clip selection (2026-05-23, premium-only policy):
       //
-      // CRITICAL RULE: If a scene needs lip sync (lipSync=true OR sceneType='performance')
-      // and lipSyncStatus is NOT 'done' or 'error', SKIP this scene entirely.
+      // PERFORMANCE SCENES (sceneType='performance' or lipSync=true):
+      //   ONLY compositeVideoUrl is acceptable — Zara chromakeyed onto Air Studios background.
+      //   Grey background (lipSyncVideoUrl) and raw clips (videoUrl) are NEVER used.
+      //   If composite is not done, assembly MUST NOT proceed — throw to force a retry.
+      //
+      // CINEMATIC SCENES:
+      //   Use videoUrl (raw Seedance clip). No lip sync or compositing needed.
       const needsLipSync = (scene.lipSync === true) || (scene.sceneType === "performance");
-      const lipSyncDone = scene.lipSyncStatus === "done";
-      const lipSyncErrored = scene.lipSyncStatus === "error";
       const compositeDone = (scene as any).compositeStatus === "done";
       const compositeVideoUrl = (scene as any).compositeVideoUrl as string | null | undefined;
 
       let clipUrl: string | null = null;
       if (needsLipSync) {
         if (compositeDone && compositeVideoUrl) {
-          // BEST CASE: fully composited clip — Zara on Air Studios background
+          // ONLY acceptable output: Zara composited onto Air Studios background
           clipUrl = compositeVideoUrl;
-          console.log(`[Assembly] Scene ${scene.sceneIndex}: using WizSync™ composited clip (Stage 4) ✓`);
-        } else if (lipSyncDone && scene.lipSyncVideoUrl) {
-          // Good: lip-synced clip (grey background — composite not ready)
-          clipUrl = scene.lipSyncVideoUrl;
-          console.log(`[Assembly] Scene ${scene.sceneIndex}: using WizSync™ InfiniteTalk lip-synced clip (composite not ready)`);
-        } else if (lipSyncErrored) {
-          // SyncLabs failed — fall back to raw clip with a warning
-          clipUrl = scene.videoUrl;
-          console.warn(`[Assembly] Scene ${scene.sceneIndex}: SyncLabs errored — using raw clip as fallback (lip sync unavailable)`);
+          console.log(`[Assembly] Scene ${scene.sceneIndex}: using WizSync™ composited clip ✓`);
         } else {
-          // Lip sync still processing — skip this scene (assembly triggered too early)
-          console.error(`[Assembly] Scene ${scene.sceneIndex}: SKIPPED — lip sync still in progress (lipSyncStatus=${scene.lipSyncStatus}). Assembly should not have been triggered yet.`);
-          continue;
+          // Composite not ready — this is a hard failure. Do not use grey background or raw clips.
+          // Throw so the assembly worker retries rather than producing a degraded output.
+          throw new Error(
+            `[Assembly] HARD STOP — Scene ${scene.sceneIndex} (id=${scene.id}) composite not ready ` +
+            `(compositeStatus=${(scene as any).compositeStatus ?? 'null'}, lipSyncStatus=${scene.lipSyncStatus}). ` +
+            `Assembly cannot proceed without a fully composited performance clip. ` +
+            `This is a premium service — no grey backgrounds or raw clip substitutes.`
+          );
         }
       } else {
-        // No lip sync needed — use raw clip directly
+        // Cinematic scene — use raw Seedance clip directly
         clipUrl = scene.videoUrl;
-        console.log(`[Assembly] Scene ${scene.sceneIndex}: using raw clip (no lip sync required)`);
+        console.log(`[Assembly] Scene ${scene.sceneIndex}: using cinematic clip (no lip sync required)`);
       }
 
       if (!clipUrl) continue;

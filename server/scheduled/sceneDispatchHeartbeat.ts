@@ -845,14 +845,25 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         );
 
         // ── COMPOSITING READINESS CHECK ────────────────────────────────────────
-        // Assembly can only run when ALL scenes have compositeStatus=done OR skipped.
-        // Performance scenes: compositeStatus must be 'done' (or 'error' as fallback)
-        // Cinematic scenes: compositeStatus must be 'skipped'
-        const nowCompositeReady = nowCompleted.filter(
-          (s) => s.compositeStatus === "done" || s.compositeStatus === "skipped" || s.compositeStatus === "error"
-        );
+        // PREMIUM POLICY (2026-05-23): Assembly only runs when ALL performance scenes
+        // have compositeStatus='done'. 'error' is NOT acceptable — it means Zara would
+        // appear on a grey background or be missing entirely. The pipeline retries until
+        // compositeStatus='done' or compositeAttempts is exhausted (then the job stalls
+        // and the owner is notified). No grey backgrounds, no raw clip substitutes.
+        //
+        // Cinematic scenes: compositeStatus must be 'skipped' (they use raw Seedance clips).
+        const nowCompositeReady = nowCompleted.filter((s) => {
+          const isPerformance = s.sceneType === "performance" || (s.lipSync ?? false);
+          if (isPerformance) {
+            // Performance scenes: ONLY 'done' is acceptable
+            return s.compositeStatus === "done";
+          } else {
+            // Cinematic scenes: 'skipped' is the expected state
+            return s.compositeStatus === "skipped";
+          }
+        });
         const nowCompositeProcessing = nowCompleted.filter(
-          (s) => s.compositeStatus === "processing" || (s.compositeStatus === "pending" && s.lipSyncStatus === "done")
+          (s) => s.compositeStatus === "processing" || s.compositeStatus === "pending" || s.compositeStatus === "error"
         );
 
         // Update completedScenes count on the job
@@ -876,12 +887,20 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         );
         if (stuckCompositeScenes.length > 0) {
           console.warn(
-            `[SceneDispatch] Job ${job.id} — ${stuckCompositeScenes.length} composite scene(s) stuck >10min. Resetting to error for retry.`
+            `[SceneDispatch] Job ${job.id} — ${stuckCompositeScenes.length} composite scene(s) stuck >10min. Resetting to pending for retry.`
           );
           for (const stuck of stuckCompositeScenes) {
+            // Reset to 'pending' (not 'error') so the composite pipeline retries.
+            // Under the premium policy, 'error' blocks assembly permanently.
+            // Also reset compositeAttempts if at limit so retry is possible.
+            const currentAttempts = stuck.compositeAttempts ?? 0;
             await db
               .update(musicVideoScenes)
-              .set({ compositeStatus: "error" as any, updatedAt: new Date() })
+              .set({
+                compositeStatus: "pending" as any,
+                compositeAttempts: currentAttempts >= MAX_COMPOSITE_ATTEMPTS ? 0 : currentAttempts,
+                updatedAt: new Date()
+              })
               .where(eq(musicVideoScenes.id, stuck.id));
           }
           // Refresh nowCompositeProcessing after reaping
