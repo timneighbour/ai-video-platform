@@ -23,7 +23,11 @@ import {
 } from "../../drizzle/schema";
 import { eq, and, lte, inArray, sql } from "drizzle-orm";
 import { resetSceneAttempts } from "../spend-protection";
-import { startSceneRender } from "../music-video-service";
+// NOTE: startSceneRender is intentionally NOT called here.
+// The reaper only resets scenes to 'pending'. The sceneDispatchHeartbeat is the
+// sole dispatcher — it handles probe gate, CHARACTER LOCK™, performance scene routing,
+// BPM injection, and provider selection. Calling startSceneRender here would bypass
+// all of that and re-introduce bugs (e.g. character description as Seedance prompt).
 import { sdk } from "../_core/sdk";
 
 /** Scenes stuck longer than this are considered timed-out. */
@@ -213,14 +217,31 @@ export async function stuckSceneReaperHandler(req: Request, res: Response) {
       autoRetryScenes.push(...manualRetryScenes);
     }
 
-    // ── 8. Auto-retry eligible scenes ────────────────────────────────────────
+    // ── 8. Reset eligible scenes to pending ──────────────────────────────────
+    // ARCHITECTURE: The reaper ONLY resets scenes to 'pending'. It does NOT call
+    // startSceneRender directly. The sceneDispatchHeartbeat is the sole dispatcher
+    // and handles all routing (probe gate, CHARACTER LOCK™, performance scene routing,
+    // BPM injection, provider selection). The heartbeat will pick up these pending
+    // scenes on its next tick (within 2 minutes).
     let autoRetried = 0;
     for (const scene of autoRetryScenes) {
       try {
-        // Reset to pending first
+        // Full pipeline reset — clear ALL state fields so the heartbeat starts clean.
+        // This prevents stale lipSyncStatus/compositeStatus from confusing the pipeline.
         await db
           .update(musicVideoScenes)
-          .set({ status: "pending", taskId: null, videoUrl: null, errorMessage: null, updatedAt: new Date() })
+          .set({
+            status: "pending",
+            taskId: null,
+            videoUrl: null,
+            errorMessage: null,
+            lipSyncStatus: "pending",
+            lipSyncTaskId: null,
+            lipSyncVideoUrl: null,
+            compositeStatus: "pending",
+            compositeVideoUrl: null,
+            updatedAt: new Date(),
+          })
           .where(eq(musicVideoScenes.id, scene.id));
 
         // Ensure the parent job is still in rendering state
@@ -237,40 +258,12 @@ export async function stuckSceneReaperHandler(req: Request, res: Response) {
             );
         }
 
-        // Kick off the render asynchronously (fire-and-forget)
-        ;(async () => {
-          try {
-            const taskId = await startSceneRender(
-              scene.id,
-              scene.prompt,
-              scene.duration,
-              scene.lipSync ?? true,
-              (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
-              "wavespeed" as any,
-              (scene.modelAssignment ?? "bytedance/seedance-2.0/text-to-video") as any,
-              scene.previewImageUrl ?? undefined,
-              undefined,
-              scene.jobId
-            );
-            await db!
-              .update(musicVideoScenes)
-              .set({ status: "generating", taskId, updatedAt: new Date() })
-              .where(eq(musicVideoScenes.id, scene.id));
-            console.log(
-              `[StuckSceneReaper] Auto-retried scene ${scene.id} (job ${scene.jobId}) → taskId ${taskId}`
-            );
-          } catch (err) {
-            console.error(`[StuckSceneReaper] Auto-retry failed for scene ${scene.id}:`, err);
-            await db!
-              .update(musicVideoScenes)
-              .set({ status: "failed", errorMessage: String(err), updatedAt: new Date() })
-              .where(eq(musicVideoScenes.id, scene.id));
-          }
-        })();
-
+        console.log(
+          `[StuckSceneReaper] Scene ${scene.id} (job ${scene.jobId}) reset to pending — heartbeat will dispatch on next tick`
+        );
         autoRetried++;
       } catch (err) {
-        console.error(`[StuckSceneReaper] Failed to queue auto-retry for scene ${scene.id}:`, err);
+        console.error(`[StuckSceneReaper] Failed to reset scene ${scene.id} to pending:`, err);
       }
     }
 

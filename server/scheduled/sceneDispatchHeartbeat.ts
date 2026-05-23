@@ -62,6 +62,7 @@ import { submitWaveSpeedInfiniteTalk, pollWaveSpeedInfiniteTalk } from "../ai-ap
 // SyncLabs import retained for legacy polling of in-flight jobs only — NOT used for new submissions
 import { pollSyncLabsLipSync } from "../ai-apis/synclabs-lipsync";
 import { getProbeDecision } from "../pre-render-validator";
+import { resetSceneAttempts } from "../spend-protection";
 import { getVocalStemForCharacter } from "../vocal-isolation-service";
 import { getCroppedPortraitForInfiniteTalk } from "../face-crop-service";
 import { compositeCinematicScene, compositeCinematicSceneFallback } from "../cinematic-composite-service";
@@ -183,6 +184,8 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         if (failedScenes.length > 0) {
           console.log(`[SceneDispatch] Job ${job.id} — resetting ${failedScenes.length} failed scene(s) back to pending for retry`);
           for (const fs of failedScenes) {
+            // CRITICAL: Cancel providerJobLogs entries so idempotency check doesn't block re-dispatch
+            await resetSceneAttempts(fs.id);
             await db.update(musicVideoScenes)
               .set({
                 status: "pending",
@@ -503,11 +506,14 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 } catch (itSubmitErr: any) {
                   // InfiniteTalk submission failed — mark error, do NOT silently fall back
                   console.error(`[SceneDispatch] Scene ${scene.id} InfiniteTalk submission FAILED: ${String(itSubmitErr?.message ?? itSubmitErr).slice(0, 300)}`);
+                  // InfiniteTalk submission failed — reset lipSyncStatus to pending for retry.
+                  // Under the premium policy, 'error' blocks assembly permanently.
                   await db.update(musicVideoScenes)
                     .set({
                       status: "completed",
                       videoUrl: pollResult.videoUrl,
-                      lipSyncStatus: "error",
+                      lipSyncStatus: "pending",
+                      lipSyncTaskId: null,
                       updatedAt: new Date(),
                     })
                     .where(eq(musicVideoScenes.id, scene.id));
@@ -640,10 +646,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               syncLabsSubmittedThisTick++;
               totalLipSyncSubmitted++;
             } catch (retryErr: any) {
-              console.error(`[SceneDispatch] Scene ${scene.id} RETRY InfiniteTalk failed: ${String(retryErr?.message ?? retryErr).slice(0, 200)}`);
-              await db.update(musicVideoScenes)
-                .set({ lipSyncStatus: "error", updatedAt: new Date() })
-                .where(eq(musicVideoScenes.id, scene.id));
+              console.error(`[SceneDispatch] Scene ${scene.id} RETRY InfiniteTalk failed: ${String(retryErr?.message ?? retryErr).slice(0, 200)} — will retry next tick`);
+              // Do NOT set lipSyncStatus=error — that permanently blocks assembly.
+              // Leave as pending so the next heartbeat tick retries submission.
             }
           }
         }
@@ -659,9 +664,11 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               const sceneAge = Date.now() - new Date(scene.updatedAt).getTime();
 
               if (sceneAge > INFINITETALK_STUCK_TIMEOUT_MS) {
-                console.warn(`[SceneDispatch] Scene ${scene.id} InfiniteTalk job stuck for ${Math.round(sceneAge / 60000)}min — marking as error`);
+                console.warn(`[SceneDispatch] Scene ${scene.id} InfiniteTalk job stuck for ${Math.round(sceneAge / 60000)}min — resetting to pending for retry`);
+                // Reset to pending so the heartbeat re-submits to InfiniteTalk on the next tick.
+                // Under the premium policy, 'error' blocks assembly permanently — never use it here.
                 await db.update(musicVideoScenes)
-                  .set({ lipSyncStatus: "error", updatedAt: new Date() })
+                  .set({ lipSyncStatus: "pending", lipSyncTaskId: null, updatedAt: new Date() })
                   .where(eq(musicVideoScenes.id, scene.id));
                 continue;
               }
@@ -703,9 +710,11 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 } catch { /* non-fatal */ }
 
               } else if (pollResult.status === "failed") {
-                console.error(`[SceneDispatch] Scene ${scene.id} InfiniteTalk job ${scene.lipSyncTaskId} FAILED`);
+                console.error(`[SceneDispatch] Scene ${scene.id} InfiniteTalk job ${scene.lipSyncTaskId} FAILED — resetting to pending for retry`);
+                // Reset to pending so the heartbeat re-submits to InfiniteTalk on the next tick.
+                // Under the premium policy, 'error' permanently blocks assembly — never use it for InfiniteTalk failures.
                 await db.update(musicVideoScenes)
-                  .set({ lipSyncStatus: "error", updatedAt: new Date() })
+                  .set({ lipSyncStatus: "pending", lipSyncTaskId: null, updatedAt: new Date() })
                   .where(eq(musicVideoScenes.id, scene.id));
               } else {
                 console.log(`[SceneDispatch] Scene ${scene.id} InfiniteTalk status: ${pollResult.status} — polling next tick`);
@@ -826,19 +835,18 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
 
         const nowCompleted = freshScenes.filter((s) => s.status === "completed");
         const nowFailed = freshScenes.filter((s) => s.status === "failed");
-        // A scene is "pending" if:
-        //   - status=pending AND no taskId (never dispatched to Seedance), OR
-        //   - status=pending AND lipSyncStatus=pending (performance scene awaiting InfiniteTalk, may have taskId from Seedance)
+        // A scene is "pending" if status=pending AND no taskId (not yet dispatched to Seedance).
+        // Scenes with a taskId are in 'generating' state (Seedance is running) — never treat them as pending.
         const nowPending = freshScenes.filter(
-          (s) => s.status === "pending" && (!s.taskId || (s as any).lipSyncStatus === "pending")
+          (s) => s.status === "pending" && !s.taskId
         );
         const nowGenerating = freshScenes.filter((s) => s.status === "generating");
 
-        // Lip sync readiness: a scene is "lip sync ready" if:
-        //   - lipSync is false (no lip sync needed) → lipSyncStatus = 'done'
-        //   - lipSync is true AND lipSyncStatus is 'done' OR 'error' (error = use raw clip)
+        // Lip sync readiness: a scene is "lip sync ready" ONLY if lipSyncStatus='done'.
+        // 'error' is NOT acceptable under the premium policy — it means InfiniteTalk failed
+        // and the scene has no composited clip. The pipeline retries until 'done'.
         const nowLipSyncReady = nowCompleted.filter(
-          (s) => s.lipSyncStatus === "done" || s.lipSyncStatus === "error"
+          (s) => s.lipSyncStatus === "done"
         );
         const nowLipSyncProcessing = nowCompleted.filter(
           (s) => s.lipSyncStatus === "processing"
@@ -848,8 +856,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         // PREMIUM POLICY (2026-05-23): Assembly only runs when ALL performance scenes
         // have compositeStatus='done'. 'error' is NOT acceptable — it means Zara would
         // appear on a grey background or be missing entirely. The pipeline retries until
-        // compositeStatus='done' or compositeAttempts is exhausted (then the job stalls
-        // and the owner is notified). No grey backgrounds, no raw clip substitutes.
+        // compositeStatus='done'. No grey backgrounds, no raw clip substitutes.
         //
         // Cinematic scenes: compositeStatus must be 'skipped' (they use raw Seedance clips).
         const nowCompositeReady = nowCompleted.filter((s) => {
@@ -862,6 +869,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             return s.compositeStatus === "skipped";
           }
         });
+        // nowCompositeProcessing: scenes that are NOT yet ready for assembly.
+        // Includes 'processing', 'pending', AND 'error' — all three block assembly
+        // because 'error' scenes will be reset to 'pending' by the reaper below.
         const nowCompositeProcessing = nowCompleted.filter(
           (s) => s.compositeStatus === "processing" || s.compositeStatus === "pending" || s.compositeStatus === "error"
         );
@@ -875,15 +885,14 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         }
 
         // ── 6b. Composite stuck-scene reaper ────────────────────────────────────────
-        // Any scene that has been in compositeStatus='processing' for longer than
-        // COMPOSITE_STUCK_TIMEOUT_MS (10 min) is reset to 'error' so the dispatch
-        // loop can retry it (up to compositeAttempts < 3).
-        // This prevents scenes from being permanently stuck after a server restart
-        // or a silent composite failure.
+        // Resets scenes stuck in 'processing' OR permanently stuck in 'error' back to
+        // 'pending' so the composite pipeline can retry them.
+        // Under the premium policy, 'error' blocks assembly — we must always retry.
         const stuckCompositeScenes = nowCompleted.filter(
           (s) =>
-            s.compositeStatus === "processing" &&
-            Date.now() - new Date(s.updatedAt).getTime() > COMPOSITE_STUCK_TIMEOUT_MS
+            (s.compositeStatus === "processing" &&
+             Date.now() - new Date(s.updatedAt).getTime() > COMPOSITE_STUCK_TIMEOUT_MS) ||
+            (s.compositeStatus === "error" && (s.compositeAttempts ?? 0) < MAX_COMPOSITE_ATTEMPTS)
         );
         if (stuckCompositeScenes.length > 0) {
           console.warn(
