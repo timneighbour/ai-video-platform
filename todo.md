@@ -8280,3 +8280,49 @@
 - [x] Root cause: Cloud Run scales to zero between requests — in-process setInterval doesn't survive; HTTP route ensures heartbeat cron can trigger assembly on cold starts
 - [x] Fix deadlock: job 720001 was stuck in 'assembling' with finalVideoUrl set (old assembly) and scene 10 compositeStatus=pending
 - [x] Reset job 720001: status=rendering, finalVideoUrl=NULL, scene 10 compositeStatus=pending — ready for re-assembly with all 4 performance scenes composited
+
+## Self-Healing Pipeline — Zero-Intervention Guarantee (2026-05-23)
+
+### Failure Mode Audit (every known way a job can get stuck)
+- [x] Stage 1 stuck (Seedance generating >8min) → stuckSceneReaper resets to pending ✓
+- [x] Stage 1 failed → heartbeat auto-resets failed scenes to pending ✓
+- [x] Stage 2 InfiniteTalk stuck >15min → heartbeat resets lipSyncStatus=pending ✓
+- [x] Stage 2 InfiniteTalk failed → heartbeat resets to pending (never error) ✓
+- [x] Stage 4 composite stuck >10min → heartbeat composite reaper resets to pending ✓
+- [x] Stage 4 composite error <3 attempts → heartbeat resets to pending ✓
+- [x] Assembly worker HTTP route missing → FIXED (registered /api/scheduled/assemblyWorker) ✓
+- [ ] **UNCOVERED: Job stuck in 'assembling' with finalVideoUrl set (zombie state)** → needs resurrection
+- [ ] **UNCOVERED: Job stuck in 'assembling' >30min with no finalVideoUrl** → needs resurrection  
+- [ ] **UNCOVERED: Stage 4 composite error >=3 attempts → permanently blocked** → needs reset-and-retry
+- [ ] **UNCOVERED: Assembly throws hard error → job stays assembling forever** → needs retry with reset
+- [ ] **UNCOVERED: Job stuck in 'rendering' >2hrs with no activity** → needs resurrection
+- [ ] **UNCOVERED: No owner alert when any job is stuck >30min** → needs alerting
+- [ ] **UNCOVERED: No subscriber notification when video is ready** → needs email
+- [ ] **UNCOVERED: No subscriber notification when job fails/retries** → needs status updates
+
+### Self-Healing Engine (jobResurrectionReaper.ts — new cron every 5 min)
+- [x] Detect zombie assembling jobs: status=assembling + finalVideoUrl IS NOT NULL → set status=completed
+- [x] Detect stuck assembling jobs: status=assembling + finalVideoUrl IS NULL + assemblyStartedAt >30min → reset to rendering + clear assemblyStartedAt + reset scene compositeStatus if needed
+- [x] Detect permanently blocked composite: compositeAttempts>=3 AND compositeStatus=error → reset attempts to 0 + compositeStatus=pending (infinite retry with backoff)
+- [x] Detect assembly hard-error loop: job status=assembling + updatedAt >10min + no finalVideoUrl → reset to rendering + reset all performance scene compositeStatus=pending
+- [x] Detect dead rendering jobs: status=rendering + updatedAt >2hrs + no generating scenes + no pending scenes → full scene reset to pending
+- [x] Register new cron heartbeat: POST /api/scheduled/jobResurrectionReaper (every 5 min) — pending deploy
+- [x] Wire HTTP route in server/_core/index.ts
+
+### Owner Alert System (inline in jobResurrectionReaper.ts)
+- [x] Alert owner when any job is resurrected (zombie, stuck assembling, dead rendering)
+- [x] Alert owner when composite permanently fails and gets force-reset
+- [x] Alert owner when any job has been in rendering >1hr (SLA breach warning)
+- [x] Alert includes: job ID, user email, job title, failure mode, action taken, time stuck
+
+### Subscriber Notification (email on completion)
+- [x] Email subscriber when finalVideoUrl is set and status=completed (already exists in assembleMusicVideo — verified: emailRenderComplete called at line 2017 of music-video-service.ts)
+- [x] Email subscriber when job is resurrected after being stuck (emailJobResurrected added to email.ts, wired into jobResurrectionReaper for stuck_assembling and dead_rendering modes)
+- [ ] Add in-app notification badge: show "Your video is ready!" when job completes (deferred — email covers this for now)
+
+### Vitest Tests
+- [x] Test zombie assembling detection and resolution (32 tests in server/jobResurrectionReaper.test.ts, 732 total passing)
+- [x] Test stuck assembling detection and reset
+- [x] Test permanently blocked composite reset
+- [x] Test dead rendering job detection and reset
+- [x] Test owner alert is called for each failure mode (verified via notifyOwner calls in reaper)

@@ -476,3 +476,76 @@ export async function emailRenderComplete(data: {
     }
   }
 }
+
+/**
+ * emailJobResurrected — Sent to a subscriber when their job was stuck and
+ * has been automatically recovered by the self-healing pipeline.
+ * Reassures them that their video is still being processed and gives an ETA.
+ */
+export async function emailJobResurrected(data: {
+  name: string;
+  email: string;
+  jobId: string;
+  jobTitle?: string;
+  failureMode: string;
+  origin?: string;
+}): Promise<void> {
+  if (!data.email) return;
+  const client = getResend();
+  if (!client) return;
+
+  const dashboardLink = data.origin
+    ? `${data.origin}/render/history`
+    : "https://www.wiz-ai.io/render/history";
+
+  try {
+    await client.emails.send({
+      from: FROM_EMAIL,
+      to: data.email,
+      subject: `– Your WIZ AI video is still being processed`,
+      html: `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8" /></head>
+<body style="margin:0;padding:0;background:#0f0f17;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:40px auto;">
+    <tr>
+      <td style="background:#1a1a2e;border-radius:12px;overflow:hidden;border:1px solid #2d2d4e;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding:24px 24px 20px;background:linear-gradient(135deg,#1e1b4b,#312e81);">
+              <span style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;">WIZ AI</span>
+              <span style="display:block;font-size:13px;color:#a5b4fc;margin-top:4px;">Video processing update</span>
+            </td>
+          </tr>
+        </table>
+        <table width="100%" cellpadding="0" cellspacing="0" style="padding:20px 24px;">
+          <tr><td style="color:#f3f4f6;font-size:15px;padding-bottom:12px;">Hi ${data.name || "there"},</td></tr>
+          <tr><td style="color:#d1d5db;font-size:14px;padding-bottom:16px;">
+            We noticed your video <strong style="color:#a5b4fc;">${data.jobTitle ? `"${data.jobTitle}"` : `(Job #${data.jobId})`}</strong> took longer than expected to process. Our system automatically detected this and has resumed rendering.
+          </td></tr>
+          <tr><td style="color:#d1d5db;font-size:14px;padding-bottom:20px;">
+            You don't need to do anything — your video is back in the queue and will be ready shortly. We'll send you another email as soon as it's complete.
+          </td></tr>
+          <tr>
+            <td style="padding-bottom:24px;">
+              <a href="${dashboardLink}" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:15px;">
+                Check Progress →
+              </a>
+            </td>
+          </tr>
+          <tr><td style="color:#6b7280;font-size:12px;border-top:1px solid #2d2d4e;padding-top:16px;">
+            If you have any questions, reply to this email or visit <a href="https://www.wiz-ai.io" style="color:#a5b4fc;">wiz-ai.io</a>
+          </td></tr>
+        </table>
+      </td>
+    </tr>
+    <tr><td style="padding:16px;text-align:center;color:#4b5563;font-size:11px;">WIZ AI · wiz-ai.io · Automated notification</td></tr>
+  </table>
+</body>
+</html>`,
+    });
+    console.log(`[Email] Job resurrected email sent to subscriber: ${data.email}`);
+  } catch (err) {
+    console.error("[Email] Failed to send job resurrected email:", err);
+  }
+}

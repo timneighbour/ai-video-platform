@@ -21,6 +21,7 @@ import { stuckSceneReaperHandler } from "../scheduled/stuckSceneReaper";
 import { sceneDispatchHeartbeatHandler } from "../scheduled/sceneDispatchHeartbeat";
 import { goldenValidationHandler } from "../scheduled/goldenValidationHandler";
 import { processOrphanedAssemblyJobs } from "../assemblyWorker";
+import { jobResurrectionReaperHandler } from "../scheduled/jobResurrectionReaper";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -412,6 +413,12 @@ async function startServer() {
       res.status(500).json({ error: err?.message ?? "unknown" });
     }
   });
+
+  // ── Scheduled: Job Resurrection Reaper (Manus Heartbeat cron, every 5 min) ───
+  // Covers all failure modes NOT handled by the scene heartbeat or stuckSceneReaper:
+  // zombie assembling jobs, stuck assembling jobs, permanently blocked composites,
+  // dead rendering jobs, and SLA breach alerts.
+  app.post("/api/scheduled/jobResurrectionReaper", jobResurrectionReaperHandler);
 
   // ── Debug: pre-render validation check (owner-only, temporary) ─────────────
   app.get("/api/debug/validate/:jobId", async (req, res) => {
