@@ -31,7 +31,7 @@ const STUCK_THRESHOLD_MINUTES = 2; // Pick up jobs assembling for >2 min without
 // Track in-flight assemblies to avoid double-triggering
 const inFlightAssemblies = new Set<number>();
 
-async function processOrphanedAssemblyJobs(): Promise<void> {
+export async function processOrphanedAssemblyJobs(): Promise<void> {
   const db = await getDb();
   if (!db) return;
 

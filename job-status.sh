@@ -18,3 +18,7 @@ SELECT status FROM musicVideoJobs WHERE id = 720001;
 SELECT sceneIndex, sceneType, mvSceneStatus, lipSyncStatus, compositeStatus, compositeAttempts, DATE_FORMAT(updatedAt, '%H:%i:%s') as upd 
 FROM musicVideoScenes WHERE jobId = 720001 ORDER BY sceneIndex;
 SQL
+# Also show job updatedAt
+mysql -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" --ssl-mode=REQUIRED 2>/dev/null <<'SQL'
+SELECT id, status, DATE_FORMAT(updatedAt, '%Y-%m-%d %H:%i:%s') as updatedAt, DATE_FORMAT(assemblyStartedAt, '%Y-%m-%d %H:%i:%s') as assemblyStartedAt, finalVideoUrl IS NOT NULL as hasFinalVideo FROM musicVideoJobs WHERE id = 720001;
+SQL

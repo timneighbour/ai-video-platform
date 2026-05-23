@@ -912,12 +912,10 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               })
               .where(eq(musicVideoScenes.id, stuck.id));
           }
-          // Refresh nowCompositeProcessing after reaping
-          nowCompositeProcessing.splice(
-            0,
-            nowCompositeProcessing.length,
-            ...nowCompositeProcessing.filter((s) => !stuckCompositeScenes.find((st) => st.id === s.id))
-          );
+          // IMPORTANT: Do NOT remove reaped scenes from nowCompositeProcessing.
+          // They were reset to 'pending' which still blocks assembly — the assembly gate
+          // must see them as blocking so it does NOT fire this tick.
+          // The scenes will be composited on the next heartbeat tick.
         }
 
         // ── 7. Trigger assembly when all scenes are done AND all compositing is ready ──

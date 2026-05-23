@@ -20,6 +20,7 @@ import Stripe from "stripe";
 import { stuckSceneReaperHandler } from "../scheduled/stuckSceneReaper";
 import { sceneDispatchHeartbeatHandler } from "../scheduled/sceneDispatchHeartbeat";
 import { goldenValidationHandler } from "../scheduled/goldenValidationHandler";
+import { processOrphanedAssemblyJobs } from "../assemblyWorker";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -396,6 +397,21 @@ async function startServer() {
   // Runs the frozen Golden Benchmark fixture end-to-end every day at 03:00 UTC.
   // Detects regressions before real users are affected.
   app.post("/api/scheduled/golden-validation", goldenValidationHandler);
+
+  // ── Scheduled: Assembly Worker (Manus Heartbeat cron, every 2 min) ─────────
+  // The assembly worker also runs as an in-process interval (startAssemblyWorker),
+  // but Cloud Run scales to zero between requests so the in-process interval
+  // doesn't survive. This HTTP endpoint ensures the heartbeat cron can trigger
+  // assembly even after a cold start.
+  app.post("/api/scheduled/assemblyWorker", async (_req, res) => {
+    try {
+      await processOrphanedAssemblyJobs();
+      res.json({ ok: true, ts: new Date().toISOString() });
+    } catch (err: any) {
+      console.error("[assemblyWorker route] Error:", err?.message);
+      res.status(500).json({ error: err?.message ?? "unknown" });
+    }
+  });
 
   // ── Debug: pre-render validation check (owner-only, temporary) ─────────────
   app.get("/api/debug/validate/:jobId", async (req, res) => {

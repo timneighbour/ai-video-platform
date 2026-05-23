@@ -8272,3 +8272,11 @@
 - [x] Scene cards animate in as they become ready (fade-in)
 - [x] Show overall progress (X of 12 scenes ready) in header
 - [x] 13 vitest tests passing for previewState derivation logic
+
+## Assembly Worker HTTP Route Fix (2026-05-23)
+- [x] Register POST /api/scheduled/assemblyWorker HTTP endpoint in server/_core/index.ts
+- [x] Export processOrphanedAssemblyJobs() from assemblyWorker.ts so it can be called from the HTTP route
+- [x] Import processOrphanedAssemblyJobs in index.ts and wire to the HTTP route
+- [x] Root cause: Cloud Run scales to zero between requests — in-process setInterval doesn't survive; HTTP route ensures heartbeat cron can trigger assembly on cold starts
+- [x] Fix deadlock: job 720001 was stuck in 'assembling' with finalVideoUrl set (old assembly) and scene 10 compositeStatus=pending
+- [x] Reset job 720001: status=rendering, finalVideoUrl=NULL, scene 10 compositeStatus=pending — ready for re-assembly with all 4 performance scenes composited
