@@ -186,9 +186,13 @@ interface SceneReviewItem {
   index: number;
   sceneIndex?: number;
   status: string;
+  sceneType?: string | null;
   videoUrl?: string | null;
   lipSyncVideoUrl?: string | null;
   lipSyncStatus?: string | null;
+  /** WizSync™ composite: Zara on Air Studios background. FINAL quality output for performance scenes. */
+  compositeVideoUrl?: string | null;
+  compositeStatus?: string | null;
   prompt?: string;
   lyrics?: string | null;
   errorMessage?: string | null;
@@ -305,15 +309,32 @@ function ScenePreviewGrid({
           const secs = Math.floor(startTime % 60);
           const timeLabel = `${mins}:${secs.toString().padStart(2, "0")}`;
 
+          // WizSync™ quality logic:
+          // - Performance scenes: show compositeVideoUrl when ready (Zara on Air Studios + lip sync)
+          //   While compositing, show a "Finalising" state (not raw footage)
+          // - Cinematic scenes: show videoUrl (raw Seedance, no lip sync needed)
+          const isPerformance = scene.sceneType === "performance";
+          const compositeDone = isPerformance && scene.compositeStatus === "done" && !!scene.compositeVideoUrl;
+          const compositing = isPerformance && scene.status === "completed" && !compositeDone;
+          // The display video: composite for performance (when ready), raw for cinematic
+          const displayVideoUrl = isPerformance
+            ? (compositeDone ? scene.compositeVideoUrl! : null)
+            : (scene.status === "completed" ? scene.videoUrl ?? null : null);
+          const canPreview = !!displayVideoUrl;
+
           return (
             <div
               key={scene.id}
               className={`rounded-xl overflow-hidden border transition-colors ${
-                scene.status === "completed"
+                compositeDone || (!isPerformance && scene.status === "completed")
                   ? "border-[rgba(184,137,42,0.25)] bg-[rgba(14,11,7,0.95)]"
+                  : compositing
+                  ? "border-purple-500/20 bg-[rgba(14,11,7,0.85)]"
                   : scene.status === "generating" || scene.status === "pending"
                   ? "border-[rgba(184,137,42,0.12)] bg-[rgba(14,11,7,0.7)]"
-                  : "border-red-500/20 bg-red-950/10"
+                  : scene.status === "failed"
+                  ? "border-red-500/20 bg-red-950/10"
+                  : "border-[rgba(184,137,42,0.12)] bg-[rgba(14,11,7,0.7)]"
               }`}
             >
               <div className="flex gap-0">
@@ -322,17 +343,17 @@ function ScenePreviewGrid({
                   className="relative flex-shrink-0 cursor-pointer"
                   style={{ width: 160, aspectRatio: "16/9" }}
                   onClick={() => {
-                    if (scene.status === "completed" && (scene.videoUrl || scene.lipSyncVideoUrl)) {
+                    if (canPreview) {
                       const idx = scenes.findIndex(s => s.id === scene.id);
                       setPreviewModalIdx(idx >= 0 ? idx : 0);
                       setPreviewModalOpen(true);
                     }
                   }}
                 >
-                  {scene.status === "completed" && scene.videoUrl ? (
+                  {canPreview ? (
                     isPlaying ? (
                       <SceneVideoPlayer
-                        videoUrl={scene.videoUrl!}
+                        videoUrl={displayVideoUrl!}
                         audioRef={audioRef}
                         startTime={startTime}
                         duration={duration}
@@ -342,7 +363,7 @@ function ScenePreviewGrid({
                     ) : (
                       <div className="relative w-full h-full group">
                         <video
-                          src={scene.videoUrl!}
+                          src={displayVideoUrl!}
                           className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                           muted
                           preload="metadata"
@@ -358,6 +379,12 @@ function ScenePreviewGrid({
                         </div>
                       </div>
                     )
+                  ) : compositing ? (
+                    // Performance scene: video rendered, now compositing Zara onto background
+                    <div className="w-full h-full bg-[rgba(20,14,28,0.95)] flex flex-col items-center justify-center">
+                      <div className="w-8 h-8 rounded-full border-2 border-purple-400/60 border-t-purple-400 animate-spin mb-1.5" />
+                      <span className="text-[9px] text-purple-300/70 text-center px-2">Finalising…</span>
+                    </div>
                   ) : scene.status === "generating" || scene.status === "pending" ? (
                     <div className="w-full h-full bg-[rgba(24,20,16,0.9)] flex flex-col items-center justify-center animate-pulse">
                       <Loader2 className="w-5 h-5 text-[--color-gold] animate-spin mb-1" />
@@ -420,20 +447,27 @@ function ScenePreviewGrid({
 
                   {/* Action buttons */}
                   <div className="flex items-center gap-1.5 mt-auto flex-wrap">
-                    {scene.status === "completed" && !isEditing && !isRegenerating && (
+                    {(canPreview || compositing) && !isEditing && !isRegenerating && (
                       <>
-                        <button
-                          onClick={() => {
-                            const idx = scenes.findIndex(s => s.id === scene.id);
-                            setPreviewModalIdx(idx >= 0 ? idx : 0);
-                            setPreviewModalOpen(true);
-                          }}
-                          className="flex items-center gap-1 px-2 py-1 rounded-md bg-[--color-gold]/15 text-[--color-gold] text-[11px] font-medium hover:bg-[--color-gold]/25 transition-colors border border-[--color-gold]/20"
-                        >
-                          {scene.lipSyncVideoUrl
-                            ? <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Preview Lip Sync</>
-                            : <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Play</>}
-                        </button>
+                        {canPreview ? (
+                          <button
+                            onClick={() => {
+                              const idx = scenes.findIndex(s => s.id === scene.id);
+                              setPreviewModalIdx(idx >= 0 ? idx : 0);
+                              setPreviewModalOpen(true);
+                            }}
+                            className="flex items-center gap-1 px-2 py-1 rounded-md bg-[--color-gold]/15 text-[--color-gold] text-[11px] font-medium hover:bg-[--color-gold]/25 transition-colors border border-[--color-gold]/20"
+                          >
+                            {compositeDone
+                              ? <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Preview WizSync™</>
+                              : <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Play</>}
+                          </button>
+                        ) : compositing ? (
+                          <span className="flex items-center gap-1 px-2 py-1 text-[11px] text-purple-300/60">
+                            <div className="w-2.5 h-2.5 rounded-full border border-purple-400/60 border-t-purple-400 animate-spin" />
+                            Finalising WizSync™…
+                          </span>
+                        ) : null}
                         <button
                           onClick={() => handleOpenEdit(scene)}
                           className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 text-white/50 text-[11px] font-medium hover:bg-white/10 hover:text-white/80 transition-colors border border-white/10"
@@ -507,20 +541,28 @@ function ScenePreviewGrid({
       <SceneLipSyncPreviewModal
         open={previewModalOpen}
         onClose={() => setPreviewModalOpen(false)}
-        scenes={scenes.map((s, i) => ({
-          id: s.id,
-          index: i,
-          sceneIndex: s.sceneIndex,
-          videoUrl: s.videoUrl ?? null,
-          lipSyncVideoUrl: s.lipSyncVideoUrl ?? null,
-          lipSyncStatus: s.lipSyncStatus ?? null,
-          audioUrl: audioUrl ?? null,
-          audioStartTime: startTimeMap?.get(s.id) ?? 0,
-          audioDuration: durationMap?.get(s.id) ?? 6,
-          lyrics: s.lyrics ?? null,
-          prompt: s.prompt ?? "",
-          isApproved: s.isApproved ?? false,
-        }))}
+        scenes={scenes.map((s, i) => {
+          // WizSync™ quality: for performance scenes, the modal must show the composite
+          // (Zara on Air Studios background with lip sync), never the raw Seedance clip.
+          const sIsPerf = s.sceneType === "performance";
+          const sCompDone = sIsPerf && s.compositeStatus === "done" && !!s.compositeVideoUrl;
+          return {
+            id: s.id,
+            index: i,
+            sceneIndex: s.sceneIndex,
+            // For performance scenes: use compositeVideoUrl as primary; fall back to null (not raw)
+            // For cinematic scenes: use videoUrl directly
+            videoUrl: sIsPerf ? (sCompDone ? s.compositeVideoUrl ?? null : null) : (s.videoUrl ?? null),
+            lipSyncVideoUrl: null, // composite already includes lip sync — don't double-play
+            lipSyncStatus: sCompDone ? "done" : (s.lipSyncStatus ?? null),
+            audioUrl: audioUrl ?? null,
+            audioStartTime: startTimeMap?.get(s.id) ?? 0,
+            audioDuration: durationMap?.get(s.id) ?? 6,
+            lyrics: s.lyrics ?? null,
+            prompt: s.prompt ?? "",
+            isApproved: s.isApproved ?? false,
+          };
+        })}
         initialSceneIndex={previewModalIdx}
         onApprove={onApproveScene ? (id) => onApproveScene(id) : undefined}
         onRerender={onRegenerateScene ? (id) => onRegenerateScene(id) : undefined}
@@ -874,7 +916,7 @@ export default function MusicVideoAutopilot() {
   const [probeVideoUrl, setProbeVideoUrl] = useState<string | null>(null);
   const [probeSceneId, setProbeSceneId] = useState<number | null>(null);
   // Per-scene statuses from pollProgress for the real-time progress grid
-  const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; sceneIndex?: number; status: string; errorMessage?: string | null; prompt?: string; lyrics?: string | null; videoUrl?: string | null; lipSyncVideoUrl?: string | null; lipSyncStatus?: string | null; isApproved?: boolean }>>([]); 
+  const [perSceneStatuses, setPerSceneStatuses] = useState<Array<{ id: number; index: number; sceneIndex?: number; status: string; errorMessage?: string | null; prompt?: string; lyrics?: string | null; videoUrl?: string | null; lipSyncVideoUrl?: string | null; lipSyncStatus?: string | null; compositeVideoUrl?: string | null; compositeStatus?: string | null; sceneType?: string | null; isApproved?: boolean }>>([]); 
   // Track which scenes are currently being retried
   const [retryingScenes, setRetryingScenes] = useState<Set<number>>(new Set());
   const [approvingScenes, setApprovingScenes] = useState<Set<number>>(new Set());
@@ -2079,7 +2121,7 @@ export default function MusicVideoAutopilot() {
               setPerSceneStatuses((prev) => {
                 // Merge: keep existing prompt/lyrics from storyboard scenes or previous poll
                 const prevMap = new Map(prev.map((s) => [s.id, s]));
-                return (progress.sceneStatuses as Array<{ id: number; index: number; sceneIndex?: number; status: string; errorMessage?: string | null; videoUrl?: string | null; lipSyncVideoUrl?: string | null; lipSyncStatus?: string | null; prompt?: string | null; lyrics?: string | null; isApproved?: boolean }>).map((s) => ({
+                return (progress.sceneStatuses as Array<{ id: number; index: number; sceneIndex?: number; status: string; errorMessage?: string | null; videoUrl?: string | null; lipSyncVideoUrl?: string | null; lipSyncStatus?: string | null; compositeVideoUrl?: string | null; compositeStatus?: string | null; sceneType?: string | null; prompt?: string | null; lyrics?: string | null; isApproved?: boolean }>).map((s) => ({
                   ...s,
                   // Preserve prompt/lyrics from the storyboard scenes array if available
                   prompt: s.prompt ?? prevMap.get(s.id)?.prompt ?? scenes.find((sc) => sc.id === s.id)?.prompt ?? undefined,
@@ -2089,6 +2131,11 @@ export default function MusicVideoAutopilot() {
                   // Preserve lipSyncVideoUrl — once set, keep it
                   lipSyncVideoUrl: s.lipSyncVideoUrl ?? prevMap.get(s.id)?.lipSyncVideoUrl ?? null,
                   lipSyncStatus: s.lipSyncStatus ?? prevMap.get(s.id)?.lipSyncStatus ?? null,
+                  // WizSync™ composite — the FINAL quality output for performance scenes
+                  // Once compositeVideoUrl is set, preserve it (it never reverts)
+                  compositeVideoUrl: s.compositeVideoUrl ?? prevMap.get(s.id)?.compositeVideoUrl ?? null,
+                  compositeStatus: s.compositeStatus ?? prevMap.get(s.id)?.compositeStatus ?? null,
+                  sceneType: s.sceneType ?? prevMap.get(s.id)?.sceneType ?? null,
                   // isApproved comes from server; preserve local optimistic state if server hasn't caught up
                   isApproved: s.isApproved ?? prevMap.get(s.id)?.isApproved ?? false,
                 }));
@@ -4708,7 +4755,15 @@ export default function MusicVideoAutopilot() {
 
             {/* ── Sticky bottom approval bar ── */}
             {(() => {
-              const completedForBar = perSceneStatuses.filter((s) => s.status === "completed" && s.videoUrl);
+              // WizSync™: a scene is "ready" when:
+              //   - performance: compositeStatus=done AND compositeVideoUrl set
+              //   - cinematic: status=completed AND videoUrl set
+              const completedForBar = perSceneStatuses.filter((s) => {
+                const isPerf = s.sceneType === "performance";
+                return isPerf
+                  ? s.compositeStatus === "done" && !!s.compositeVideoUrl
+                  : s.status === "completed" && !!s.videoUrl;
+              });
               const approvedForBar = completedForBar.filter((s) => s.isApproved).length;
               const allApprovedForBar = completedForBar.length > 0 && approvedForBar === completedForBar.length;
               const canRender = scenes.length > 0 && !startRender.isPending && (completedForBar.length === 0 || allApprovedForBar);
@@ -4717,9 +4772,28 @@ export default function MusicVideoAutopilot() {
                   {/* Approval status dots — green if approved, gold if ready but not approved, dark if pending */}
                   <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap',flex:1,minWidth:0}}>
                     <span style={{fontSize:10,fontWeight:600,letterSpacing:1.5,color:'#555',textTransform:'uppercase',marginRight:4,whiteSpace:'nowrap'}}>SCENES</span>
-                    {perSceneStatuses.slice(0,8).map((sc,i) => (
-                      <div key={sc.id} title={`Scene ${i+1}: ${sc.status}${sc.isApproved ? ' ✓ approved' : ''}`} style={{width:8,height:8,borderRadius:'50%',background: sc.status === 'completed' && sc.videoUrl ? (sc.isApproved ? '#4ade80' : 'rgba(212,168,67,0.9)') : sc.status === 'generating' ? 'rgba(212,168,67,0.4)' : '#2a2a2a',boxShadow: sc.status === 'completed' && sc.isApproved ? '0 0 6px rgba(74,222,128,0.5)' : sc.status === 'completed' ? '0 0 6px rgba(212,168,67,0.4)' : 'none',transition:'background 0.2s',flexShrink:0}} />
-                    ))}
+                    {perSceneStatuses.slice(0,8).map((sc,i) => {
+                      const scIsPerf = sc.sceneType === "performance";
+                      const scReady = scIsPerf
+                        ? sc.compositeStatus === "done" && !!sc.compositeVideoUrl
+                        : sc.status === "completed" && !!sc.videoUrl;
+                      const scCompositing = scIsPerf && sc.status === "completed" && !scReady;
+                      const dotBg = scReady
+                        ? (sc.isApproved ? '#4ade80' : 'rgba(212,168,67,0.9)')
+                        : scCompositing
+                        ? 'rgba(167,139,250,0.7)' // purple = finalising
+                        : sc.status === 'generating'
+                        ? 'rgba(212,168,67,0.4)'
+                        : '#2a2a2a';
+                      const dotShadow = scReady && sc.isApproved
+                        ? '0 0 6px rgba(74,222,128,0.5)'
+                        : scReady
+                        ? '0 0 6px rgba(212,168,67,0.4)'
+                        : 'none';
+                      return (
+                        <div key={sc.id} title={`Scene ${i+1}: ${scReady ? 'ready' : scCompositing ? 'finalising' : sc.status}${sc.isApproved ? ' ✓ approved' : ''}`} style={{width:8,height:8,borderRadius:'50%',background:dotBg,boxShadow:dotShadow,transition:'background 0.2s',flexShrink:0}} />
+                      );
+                    })}
                     {perSceneStatuses.length > 8 && <span style={{fontSize:9,color:'#555',marginLeft:2}}>+{perSceneStatuses.length-8}</span>}
                     {completedForBar.length > 0 && (
                       <span style={{fontSize:10,marginLeft:8,whiteSpace:'nowrap',color: allApprovedForBar ? '#4ade80' : '#555'}}>

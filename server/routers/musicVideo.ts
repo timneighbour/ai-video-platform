@@ -1602,6 +1602,11 @@ Rules:
           videoUrl: s.videoUrl ?? null,
           lipSyncVideoUrl: s.lipSyncVideoUrl ?? null, // Sync Labs per-scene lip sync output
           lipSyncStatus: s.lipSyncStatus ?? "pending", // "pending" | "processing" | "done" | "error"
+          // ── WizSync™ composite output (Zara on Air Studios background) ──────────
+          // For performance scenes, this is the FINAL quality output the user should see.
+          // compositeVideoUrl is the fully composited clip — use this for preview, not videoUrl.
+          compositeVideoUrl: (s as any).compositeVideoUrl ?? null,
+          compositeStatus: (s as any).compositeStatus ?? "pending",
           sceneType: s.sceneType ?? "cinematic", // "cinematic" | "performance"
           hedraVideoUrl: s.hedraVideoUrl ?? null, // Hedra Avatar output for Performance Mode
           hedraStatus: s.hedraStatus ?? "pending", // "pending" | "processing" | "done" | "error"

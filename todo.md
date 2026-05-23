@@ -8326,3 +8326,36 @@
 - [x] Test permanently blocked composite reset
 - [x] Test dead rendering job detection and reset
 - [x] Test owner alert is called for each failure mode (verified via notifyOwner calls in reaper)
+
+## Audio Quality & Scene Quality Gates (2026-05-23)
+
+### Audio Mixing Bugs
+- [ ] Audit assembleMusicVideo: verify which audio track is used as the final mix (original upload vs stems vs WizSound processed)
+- [ ] Fix: ensure the full original audio (vocals + all instruments) is the primary audio track in the final video
+- [ ] Fix: orchestral/strings stems must NOT be audible independently — they should only appear as part of the full mix
+- [ ] Fix: lip-sync audio must be present and correctly mixed in the final output
+- [ ] Verify WizSound audio processing pipeline does not strip vocals or produce stems-only output
+- [ ] Add audio track validation before assembly: check audio file exists, duration matches video, not silent
+
+### Scene Quality Gates (No Raw Footage)
+- [ ] Enforce: performance scenes MUST have lipSyncStatus=done before being included in assembly
+- [ ] Enforce: performance scenes MUST have compositeStatus=done before being included in assembly
+- [ ] Enforce: non-performance scenes MUST have videoUrl set (not null) before inclusion
+- [ ] Add hard gate: if ANY required scene fails quality check, assembly must NOT proceed (not skip and continue)
+- [ ] Add fallback: if a scene fails quality check, log it, alert owner, and hold assembly until scene is fixed
+- [ ] Verify the assembly gate in sceneDispatchHeartbeat correctly counts all scene types
+- [ ] Add vitest tests for scene quality gate enforcement
+
+## Scene Quality Gates — Frontend Fix (2026-05-23)
+
+- [x] Add compositeVideoUrl + compositeStatus to sceneStatuses polling response (server/routers/musicVideo.ts)
+- [x] Update SceneReviewItem interface to include compositeVideoUrl, compositeStatus, sceneType
+- [x] Update perSceneStatuses state type to include new fields
+- [x] Update polling merge to preserve compositeVideoUrl/compositeStatus/sceneType
+- [x] Update scene card thumbnail: performance scenes show compositeVideoUrl (not raw videoUrl)
+- [x] Update scene card: show purple "Finalising…" state while composite is in progress (no raw footage shown)
+- [x] Update play button: shows "Preview WizSync™" when composite done, "Finalising WizSync™…" while compositing
+- [x] Update preview modal: performance scenes use compositeVideoUrl as primary video (not lipSyncVideoUrl or videoUrl)
+- [x] Update progress bar dots: purple=finalising, gold=ready, green=approved (performance-aware)
+- [x] Update completedForBar: performance scenes count as ready only when compositeStatus=done
+- [x] 732 tests passing (63 test files), 0 TypeScript errors
