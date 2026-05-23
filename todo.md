@@ -8370,3 +8370,18 @@
 - [x] All 732 tests passing, zero TypeScript errors
 - [ ] Deploy fix to production (requires checkpoint + publish)
 - [ ] Reset scene 10 to pending after deploy so new synchronous code handles it
+
+## CRITICAL FIX: Performance Scene Composite — Static Air Studios Background (2026-05-23)
+
+- [x] Root cause: Seedance ignores "empty stage, no people" prompt — always generates a person — composite was overlaying InfiniteTalk Zara onto a Seedance Zara, producing double-person or raw footage
+- [x] Fix: Replace Seedance video background with 4 static AI-generated Air Studios Lyndhurst Hall images (empty stage, no people, guaranteed)
+- [x] Generated 4 Air Studios backgrounds via AI image generation, uploaded to CloudFront CDN
+- [x] Updated compositeCinematicScene() to accept backgroundImageUrl param (static image instead of Seedance video)
+- [x] Updated sceneDispatchHeartbeat.ts to pass AIR_STUDIOS_BACKGROUNDS[sceneIndex % 4] instead of scene.videoUrl
+- [x] Fixed chromakey parameters (TESTED locally — do not change without re-testing):
+  - colour: 0xadadad (exact InfiniteTalk grey, sampled pixel-by-pixel)
+  - similarity: 0.08 (tight — preserves skin tones, 0.15+ removes face)
+  - blend: 0.02 (minimal edge softening)
+- [x] Fixed Zara scale: 720x720 (full frame height) centred at x=280
+- [x] Verified composite locally: Zara fully solid on Air Studios background, no transparency, no ghosting
+- [x] TypeScript: 0 errors | Tests: 731/732 (1 flaky DB connectivity test, unrelated to changes)

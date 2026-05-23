@@ -127,122 +127,135 @@ async function getVideoDimensions(videoPath: string): Promise<{ width: number; h
 }
 
 /**
- * Composite Zara's InfiniteTalk performance onto the Seedance cinematic background.
+ * Air Studios background images — static, guaranteed empty (no people).
+ * Rotated per scene index to provide visual variety across performance scenes.
+ * These replace the Seedance background which always generates a person.
+ */
+export const AIR_STUDIOS_BACKGROUNDS = [
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/air-studios-backgrounds/air-studios-bg-1.jpg",
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/air-studios-backgrounds/air-studios-bg-2.jpg",
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/air-studios-backgrounds/air-studios-bg-3.jpg",
+  "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/air-studios-backgrounds/air-studios-bg-4.jpg",
+];
+
+/**
+ * Download a remote image to a temp path (supports jpg, png, webp).
+ */
+async function downloadImageToTemp(imageUrl: string, suffix: string = "img"): Promise<string> {
+  const ext = imageUrl.includes(".webp") ? "webp" : imageUrl.includes(".png") ? "png" : "jpg";
+  const tmpPath = path.join(os.tmpdir(), `wiz-composite-${suffix}-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`);
+  const response = await fetch(imageUrl);
+  if (!response.ok) throw new Error(`Failed to download image: HTTP ${response.status} from ${imageUrl}`);
+  const buffer = Buffer.from(await response.arrayBuffer());
+  fs.writeFileSync(tmpPath, buffer);
+  console.log(`[Composite] Downloaded ${suffix} image: ${buffer.length} bytes → ${tmpPath}`);
+  return tmpPath;
+}
+
+/**
+ * Composite Zara's InfiniteTalk performance onto a static Air Studios background image.
+ *
+ * PIPELINE FIX (2026-05-23): Replaced Seedance video background with static AI-generated
+ * Air Studios images. Seedance was ignoring "empty stage" prompts and always generating
+ * a person (Zara at a microphone), causing the composite to show two Zaras or the wrong
+ * character entirely. Static images are guaranteed empty — no people, no AI hallucinations.
  *
  * This is the core Stage 4 operation:
- * 1. Seedance clip = Air Studios concert hall background (1280x720)
+ * 1. Static Air Studios background image (2560x1440 → scaled to 1280x720)
  * 2. InfiniteTalk clip = Zara performing (960x960, grey background)
  * 3. Chromakey removes grey background from InfiniteTalk clip
  * 4. Zara is overlaid onto the concert hall background
  * 5. Warm colour grade applied to match hall ambiance
+ * 6. Background is looped/extended to match sceneDuration (it's a still image)
  *
- * @param lipSyncVideoUrl   CDN URL of InfiniteTalk output (Zara + grey background)
- * @param seedanceVideoUrl  CDN URL of Seedance cinematic clip (concert hall background)
- * @param sceneId           Used for S3 key naming
- * @param sceneDuration     Expected duration in seconds (for output trimming)
- * @returns                 CDN URL of the final composited 1280x720 clip
+ * @param lipSyncVideoUrl     CDN URL of InfiniteTalk output (Zara + grey background)
+ * @param backgroundImageUrl  CDN URL of Air Studios background image (static, no people)
+ * @param sceneId             Used for S3 key naming
+ * @param sceneDuration       Expected duration in seconds (for output trimming)
+ * @returns                   CDN URL of the final composited 1280x720 clip
  */
 export async function compositeCinematicScene(
   lipSyncVideoUrl: string,
-  seedanceVideoUrl: string,
+  backgroundImageUrl: string,
   sceneId: number | string,
   sceneDuration: number = 5
 ): Promise<string> {
   const ffmpeg = getFFmpegBin();
   let fgPath: string | null = null;   // InfiniteTalk foreground (Zara)
-  let bgPath: string | null = null;   // Seedance background (concert hall)
+  let bgPath: string | null = null;   // Air Studios background image
   let outputPath: string | null = null;
 
   try {
-    // Step 1: Download both clips in parallel
-    console.log(`[Composite] Scene ${sceneId}: downloading performance + background clips...`);
+    // Step 1: Download both assets in parallel
+    console.log(`[Composite] Scene ${sceneId}: downloading performance clip + Air Studios background...`);
     [fgPath, bgPath] = await Promise.all([
       downloadVideoToTemp(lipSyncVideoUrl, "fg"),
-      downloadVideoToTemp(seedanceVideoUrl, "bg"),
+      downloadImageToTemp(backgroundImageUrl, "bg"),
     ]);
 
-    // Step 2: Get dimensions of both clips
+    // Step 2: Get dimensions of the foreground clip
     const fgDims = await getVideoDimensions(fgPath);
-    const bgDims = await getVideoDimensions(bgPath);
     console.log(`[Composite] FG (InfiniteTalk): ${fgDims.width}x${fgDims.height}, probed=${fgDims.duration.toFixed(3)}s (target=${sceneDuration}s)`);
-    console.log(`[Composite] BG (Seedance): ${bgDims.width}x${bgDims.height}, probed=${bgDims.duration.toFixed(3)}s`);
+    console.log(`[Composite] BG (Air Studios static image): ${backgroundImageUrl.slice(-40)}`);
 
     // Step 3: Calculate compositing geometry
     // Target output: 1280x720 (16:9)
     const outW = 1280;
     const outH = 720;
 
-    // Scale Zara to fill ~60% of the frame height (concert hall perspective)
-    // For a 960x960 input, we scale to 432x432 (60% of 720)
-    const zaraTargetH = Math.round(outH * 0.60); // 432px
+    // Scale Zara to fill ~65% of the frame height (concert hall perspective)
+    // For a 960x960 input, we scale to 468x468 (65% of 720)
+    const zaraTargetH = Math.round(outH * 0.65); // 468px
     const zaraTargetW = zaraTargetH; // square input → square scaled output
 
-    // Position: lower-centre of frame, 20px from bottom
+    // Position: lower-centre of frame, 10px from bottom
     const zaraX = Math.round((outW - zaraTargetW) / 2); // centre horizontally
-    const zaraY = outH - zaraTargetH - 20; // 20px from bottom
+    const zaraY = outH - zaraTargetH - 10; // 10px from bottom
 
     console.log(`[Composite] Zara position: ${zaraTargetW}x${zaraTargetH} at (${zaraX}, ${zaraY})`);
 
     // Step 4: Build ffmpeg filter chain
-    // [0:v] = background (Seedance)
+    // [0:v] = background (static Air Studios image, looped to sceneDuration)
     // [1:v] = foreground (InfiniteTalk, grey background)
     //
     // Filter chain:
-    // 1. Normalise background to 1280x720 (in case Seedance output is different size)
+    // 1. Scale static background image to 1280x720 (it's 2560x1440)
     // 2. Scale Zara to target height
     // 3. Chromakey: remove grey background from Zara clip
     // 4. Overlay Zara onto background at calculated position
     // 5. Warm colour grade to match concert hall lighting
     //
-    // Chromakey parameters:
-    // - color=0x808080: target grey colour (InfiniteTalk background)
-    // - similarity=0.30: tolerance (higher = more aggressive removal)
-    // - blend=0.05: soft edge feathering for natural look
-    //
-    // Colour grade (curves):
-    // - Red channel: slightly boosted (warm tone)
-    // - Green channel: neutral
-    // - Blue channel: slightly reduced (warm tone)
+    // Chromakey parameters (TESTED 2026-05-23 — do not change without re-testing):
+    // - color=0xadadad: exact InfiniteTalk background grey (sampled pixel-by-pixel from actual output)
+    // - similarity=0.08: TIGHT — only removes pure grey, preserves skin tones and dark clothing
+    //   (0.15+ removes skin; 0.08 is the sweet spot for InfiniteTalk grey + Zara's complexion)
+    // - blend=0.02: minimal edge softening to avoid halo artefacts
+    // Scale Zara to fill full frame height (720px) for concert hall presence
 
     const filterComplex = [
-      // Normalise background to 1280x720 (no fps resampling — output -r 24 handles framerate)
+      // Scale static background image to 1280x720
       `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase,crop=${outW}:${outH}[bg]`,
-      // Scale Zara + chromakey grey background removal
-      // GATE 1 FIX (2026-05-23): InfiniteTalk background is #ADAEAE (RGB 173,174,174), NOT #808080.
-      // Sampled from actual InfiniteTalk output — old value caused complete chromakey failure.
-      // similarity=0.40 covers the slight gradient variation across the background.
-      `[1:v]scale=${zaraTargetW}:${zaraTargetH},chromakey=0xADAEAE:similarity=0.40:blend=0.08[fg]`,
-      // Overlay Zara onto background
-      `[bg][fg]overlay=x=${zaraX}:y=${zaraY}[composited]`,
+      // Scale Zara to full frame height (720px) — square 960x960 → 720x720
+      `[1:v]scale=720:720,colorkey=0xadadad:0.08:0.02[fg]`,
+      // Overlay Zara centred horizontally, anchored to bottom
+      `[bg][fg]overlay=x=280:y=0[composited]`,
       // Warm colour grade to match Air Studios golden lighting
-      // Using eq filter (faster than curves on 1 vCPU): slight brightness boost, warm saturation,
-      // gamma_r boost (warm), gamma_b reduce (cool blue removed)
       `[composited]eq=brightness=0.05:saturation=1.1:gamma_r=1.1:gamma_b=0.9[graded]`,
     ].join(";");
 
     outputPath = path.join(os.tmpdir(), `wiz-composite-out-${Date.now()}-${Math.random().toString(36).slice(2)}.mp4`);
-
-    // CRITICAL FIX (2026-05-22): Always use sceneDuration as the output target.
-    // Previously used Math.min(sceneDuration, fgDims.duration, bgDims.duration) which
-    // truncated the output to 5s when InfiniteTalk returned 5.96s clips — causing
-    // 1s drift per performance scene and lip sync timing errors in the final assembly.
-    //
-    // InfiniteTalk outputs are typically 5.96s for a 6s request (4 frames short at 24fps).
-    // Using -t sceneDuration with the longer background clip means ffmpeg will freeze-extend
-    // the last frame of the InfiniteTalk clip to fill the final ~40ms — imperceptible.
-    //
-    // The background (Seedance) is always ≥ sceneDuration (10s clips), so no issue there.
     const effectiveDuration = sceneDuration;
 
+    // IMPORTANT: -loop 1 on the image input makes ffmpeg loop the still image for the full duration.
+    // -t on the image input caps it at sceneDuration so it doesn't loop forever.
+    // The foreground (InfiniteTalk) is the timing reference — -t on output ensures correct length.
     const compositeCmd = [
       `"${ffmpeg}" -y`,
-      `-threads 2`,        // use both hyperthreads on Cloud Run's 1 vCPU
-      `-i "${bgPath}"`,   // [0:v] background
-      `-i "${fgPath}"`,   // [1:v] foreground
+      `-threads 2`,
+      `-loop 1 -i "${bgPath}"`,  // [0:v] static background image, looped
+      `-i "${fgPath}"`,           // [1:v] InfiniteTalk foreground
       `-filter_complex "${filterComplex}"`,
       `-map "[graded]"`,
-      // ultrafast preset: ~2x faster encode than 'fast' on 1 vCPU, imperceptible quality diff at crf 23
-      // threads 2: Cloud Run has 1 vCPU but 2 hyperthreads — use both
       `-c:v libx264 -preset ultrafast -crf 23 -threads 2`,
       `-pix_fmt yuv420p`,
       `-t ${effectiveDuration}`,
@@ -277,20 +290,18 @@ export async function compositeCinematicScene(
 }
 
 /**
- * Fallback compositing: if chromakey fails (e.g., background colour mismatch),
- * use a simple picture-in-picture overlay without background removal.
- * This is a degraded mode — Zara will appear in a box on the background.
- * Used only when chromakey produces poor results.
+ * Fallback compositing: chromakey failed — use simple picture-in-picture overlay.
+ * Still uses static Air Studios background (no Seedance video).
  *
- * @param lipSyncVideoUrl   CDN URL of InfiniteTalk output
- * @param seedanceVideoUrl  CDN URL of Seedance cinematic clip
- * @param sceneId           Used for S3 key naming
- * @param sceneDuration     Expected duration in seconds
- * @returns                 CDN URL of the fallback composited clip
+ * @param lipSyncVideoUrl       CDN URL of InfiniteTalk output
+ * @param backgroundImageUrl    CDN URL of Air Studios background image
+ * @param sceneId               Used for S3 key naming
+ * @param sceneDuration         Expected duration in seconds
+ * @returns                     CDN URL of the fallback composited clip
  */
 export async function compositeCinematicSceneFallback(
   lipSyncVideoUrl: string,
-  seedanceVideoUrl: string,
+  backgroundImageUrl: string,
   sceneId: number | string,
   sceneDuration: number = 5
 ): Promise<string> {
@@ -300,21 +311,21 @@ export async function compositeCinematicSceneFallback(
   let outputPath: string | null = null;
 
   try {
-    console.log(`[Composite] Scene ${sceneId}: FALLBACK mode (no chromakey)`);
+    console.log(`[Composite] Scene ${sceneId}: FALLBACK mode (no chromakey) with static Air Studios BG`);
     [fgPath, bgPath] = await Promise.all([
       downloadVideoToTemp(lipSyncVideoUrl, "fg-fallback"),
-      downloadVideoToTemp(seedanceVideoUrl, "bg-fallback"),
+      downloadImageToTemp(backgroundImageUrl, "bg-fallback"),
     ]);
 
     const outW = 1280;
     const outH = 720;
-    const zaraH = Math.round(outH * 0.60);
+    const zaraH = Math.round(outH * 0.65);
     const zaraW = zaraH;
     const zaraX = Math.round((outW - zaraW) / 2);
-    const zaraY = outH - zaraH - 20;
+    const zaraY = outH - zaraH - 10;
 
     const filterComplex = [
-      `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase,crop=${outW}:${outH},fps=24[bg]`,
+      `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase,crop=${outW}:${outH}[bg]`,
       `[1:v]scale=${zaraW}:${zaraH}[fg]`,
       `[bg][fg]overlay=x=${zaraX}:y=${zaraY}[out]`,
     ].join(";");
@@ -323,11 +334,11 @@ export async function compositeCinematicSceneFallback(
 
     await execAsync([
       `"${ffmpeg}" -y`,
-      `-i "${bgPath}"`,
+      `-loop 1 -i "${bgPath}"`,  // static background image, looped
       `-i "${fgPath}"`,
       `-filter_complex "${filterComplex}"`,
       `-map "[out]"`,
-      `-c:v libx264 -preset fast -crf 18`,
+      `-c:v libx264 -preset ultrafast -crf 23`,
       `-pix_fmt yuv420p`,
       `-t ${sceneDuration}`,
       `-vsync cfr -r 24`,

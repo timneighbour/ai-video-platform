@@ -65,7 +65,7 @@ import { getProbeDecision } from "../pre-render-validator";
 import { resetSceneAttempts } from "../spend-protection";
 import { getVocalStemForCharacter } from "../vocal-isolation-service";
 import { getCroppedPortraitForInfiniteTalk } from "../face-crop-service";
-import { compositeCinematicScene, compositeCinematicSceneFallback } from "../cinematic-composite-service";
+import { compositeCinematicScene, compositeCinematicSceneFallback, AIR_STUDIOS_BACKGROUNDS } from "../cinematic-composite-service";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
 const SCENE_STUCK_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes — reaper handles beyond this
@@ -765,9 +765,13 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             // The composite takes ~10-30s on Cloud Run (2s in sandbox). Awaiting it directly
             // ensures the DB update always completes before the heartbeat returns.
             try {
+              // PIPELINE FIX (2026-05-23): Use static Air Studios background image.
+              // Seedance ignored empty stage prompts and always generated a person.
+              const bgImageUrl = AIR_STUDIOS_BACKGROUNDS[(scene.sceneIndex ?? 0) % AIR_STUDIOS_BACKGROUNDS.length];
+              console.log(`[SceneDispatch] Scene ${scene.id}: using Air Studios BG #${(scene.sceneIndex ?? 0) % AIR_STUDIOS_BACKGROUNDS.length}`);
               const compositeUrl = await compositeCinematicScene(
                 scene.lipSyncVideoUrl!,
-                scene.videoUrl!,
+                bgImageUrl,
                 scene.id,
                 scene.duration ?? 5
               );
@@ -787,9 +791,10 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               // Try fallback compositing (no chromakey — picture-in-picture)
               try {
                 console.log(`[SceneDispatch] Scene ${scene.id} STAGE 4: trying fallback compositing...`);
+                const bgImageUrlFb = AIR_STUDIOS_BACKGROUNDS[(scene.sceneIndex ?? 0) % AIR_STUDIOS_BACKGROUNDS.length];
                 const fallbackUrl = await compositeCinematicSceneFallback(
                   scene.lipSyncVideoUrl!,
-                  scene.videoUrl!,
+                  bgImageUrlFb,
                   scene.id,
                   scene.duration ?? 5
                 );
