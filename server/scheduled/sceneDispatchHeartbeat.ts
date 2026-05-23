@@ -759,31 +759,30 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             console.log(`[SceneDispatch] Scene ${scene.id} STAGE 4: starting cinematic compositing (attempt ${(scene.compositeAttempts ?? 0) + 1})`);
             totalCompositeStarted++;
 
-            // Run compositing asynchronously (don't await — it takes ~60s)
-            // The next heartbeat tick will pick up the result
-            compositeCinematicScene(
-              scene.lipSyncVideoUrl!,
-              scene.videoUrl!,
-              scene.id,
-              scene.duration ?? 5
-            ).then(async (compositeUrl) => {
-              try {
-                const db2 = await getDb();
-                if (!db2) return;
-                const key = compositeUrl.includes("cloudfront") ? compositeUrl.split("/").pop()! : `music-video-scenes/${scene.id}-composite.mp4`;
-                await db2.update(musicVideoScenes)
-                  .set({
-                    compositeStatus: "done",
-                    compositeVideoUrl: compositeUrl,
-                    compositeVideoKey: key,
-                    updatedAt: new Date(),
-                  })
-                  .where(eq(musicVideoScenes.id, scene.id));
-                console.log(`[SceneDispatch] Scene ${scene.id} STAGE 4 COMPLETE ✓ → ${compositeUrl.slice(0, 60)}...`);
-              } catch (dbErr) {
-                console.error(`[SceneDispatch] Scene ${scene.id} STAGE 4: DB update failed after compositing:`, dbErr);
-              }
-            }).catch(async (compositeErr: any) => {
+            // CRITICAL FIX (2026-05-23): Await the composite synchronously within the heartbeat.
+            // Previously fire-and-forget — Cloud Run kills the process after 180s request timeout,
+            // so the .then() callback never fires and compositeStatus stays 'processing' forever.
+            // The composite takes ~10-30s on Cloud Run (2s in sandbox). Awaiting it directly
+            // ensures the DB update always completes before the heartbeat returns.
+            try {
+              const compositeUrl = await compositeCinematicScene(
+                scene.lipSyncVideoUrl!,
+                scene.videoUrl!,
+                scene.id,
+                scene.duration ?? 5
+              );
+              const key = compositeUrl.includes("cloudfront") ? compositeUrl.split("/").pop()! : `music-video-scenes/${scene.id}-composite.mp4`;
+              await db.update(musicVideoScenes)
+                .set({
+                  compositeStatus: "done",
+                  compositeVideoUrl: compositeUrl,
+                  compositeVideoKey: key,
+                  updatedAt: new Date(),
+                })
+                .where(eq(musicVideoScenes.id, scene.id));
+              console.log(`[SceneDispatch] Scene ${scene.id} STAGE 4 COMPLETE ✓ → ${compositeUrl.slice(0, 60)}...`);
+              totalCompositeCompleted++;
+            } catch (compositeErr: any) {
               console.error(`[SceneDispatch] Scene ${scene.id} STAGE 4 FAILED: ${String(compositeErr?.message ?? compositeErr).slice(0, 300)}`);
               // Try fallback compositing (no chromakey — picture-in-picture)
               try {
@@ -794,9 +793,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   scene.id,
                   scene.duration ?? 5
                 );
-                const db2 = await getDb();
-                if (!db2) return;
-                await db2.update(musicVideoScenes)
+                await db.update(musicVideoScenes)
                   .set({
                     compositeStatus: "done",
                     compositeVideoUrl: fallbackUrl,
@@ -804,17 +801,14 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   })
                   .where(eq(musicVideoScenes.id, scene.id));
                 console.log(`[SceneDispatch] Scene ${scene.id} STAGE 4 FALLBACK COMPLETE ✓`);
+                totalCompositeCompleted++;
               } catch (fallbackErr: any) {
                 console.error(`[SceneDispatch] Scene ${scene.id} STAGE 4 FALLBACK ALSO FAILED: ${String(fallbackErr?.message ?? fallbackErr).slice(0, 200)}`);
-                try {
-                  const db2 = await getDb();
-                  if (!db2) return;
-                  await db2.update(musicVideoScenes)
-                    .set({ compositeStatus: "error", updatedAt: new Date() })
-                    .where(eq(musicVideoScenes.id, scene.id));
-                } catch { /* ignore */ }
+                await db.update(musicVideoScenes)
+                  .set({ compositeStatus: "error", updatedAt: new Date() })
+                  .where(eq(musicVideoScenes.id, scene.id));
               }
-            });
+            }
 
           } catch (compositeStartErr: any) {
             console.error(`[SceneDispatch] Scene ${scene.id} STAGE 4 start failed: ${String(compositeStartErr?.message ?? compositeStartErr).slice(0, 200)}`);

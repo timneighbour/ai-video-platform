@@ -8359,3 +8359,14 @@
 - [x] Update progress bar dots: purple=finalising, gold=ready, green=approved (performance-aware)
 - [x] Update completedForBar: performance scenes count as ready only when compositeStatus=done
 - [x] 732 tests passing (63 test files), 0 TypeScript errors
+
+## CRITICAL FIX: Composite Fire-and-Forget → Synchronous Await (2026-05-23)
+- [x] Root cause identified: compositeCinematicScene was fire-and-forget (.then/.catch without await)
+- [x] Cloud Run kills the process after 180s request timeout → .then() callback never fires → compositeStatus stays 'processing' forever
+- [x] Fix: changed to await compositeCinematicScene() synchronously within the heartbeat loop
+- [x] Fix: fallback composite also awaited synchronously
+- [x] Fix: removed redundant db2 = await getDb() — use existing db connection
+- [x] Fix: totalCompositeCompleted++ now incremented correctly after successful composite
+- [x] All 732 tests passing, zero TypeScript errors
+- [ ] Deploy fix to production (requires checkpoint + publish)
+- [ ] Reset scene 10 to pending after deploy so new synchronous code handles it
