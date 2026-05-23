@@ -29,6 +29,7 @@ import { resetSceneAttempts } from "../spend-protection";
 // BPM injection, and provider selection. Calling startSceneRender here would bypass
 // all of that and re-introduce bugs (e.g. character description as Seedance prompt).
 import { sdk } from "../_core/sdk";
+import { runJobResurrectionReaper } from "./jobResurrectionReaper";
 
 /** Scenes stuck longer than this are considered timed-out. */
 const STUCK_THRESHOLD_MS = 8 * 60 * 1000; // 8 minutes (reduced from 15 for faster auto-recovery)
@@ -267,12 +268,26 @@ export async function stuckSceneReaperHandler(req: Request, res: Response) {
       }
     }
 
+    // ── 9. Run job-level resurrection reaper (zombie jobs, stuck assembly, dead rendering) ─
+    // This piggybacks on the existing 10-minute stuckSceneReaper heartbeat so we don't
+    // need a separate cron slot. It's fast (<100ms) and fully idempotent.
+    let resurrectionResult: Awaited<ReturnType<typeof runJobResurrectionReaper>> | null = null;
+    try {
+      resurrectionResult = await runJobResurrectionReaper();
+      if (resurrectionResult.totalFixed > 0) {
+        console.log(`[StuckSceneReaper] Resurrection reaper fixed ${resurrectionResult.totalFixed} job(s):`, resurrectionResult);
+      }
+    } catch (rrErr) {
+      console.error("[StuckSceneReaper] Resurrection reaper error (non-fatal):", rrErr);
+    }
+
     const summary = {
       ok: true,
       reaped: stuckScenes.length,
       autoRetried,
       manualRetryRequired: manualRetryScenes.length,
       sceneIds,
+      resurrection: resurrectionResult ?? { totalFixed: 0 },
       durationMs: Date.now() - startedAt,
     };
 

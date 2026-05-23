@@ -64,21 +64,9 @@ const DEAD_RENDERING_THRESHOLD_MS = 2 * 60 * 60 * 1000; // 2 hours
 const SLA_WARNING_THRESHOLD_MS = 60 * 60 * 1000; // 1 hour — alert owner
 const MAX_COMPOSITE_ATTEMPTS = 3; // Must match sceneDispatchHeartbeat.ts
 
-export async function jobResurrectionReaperHandler(req: Request, res: Response) {
+/** Core logic — callable without req/res (e.g. from stuckSceneReaper piggyback). */
+export async function runJobResurrectionReaper() {
   const startedAt = Date.now();
-
-  // Authenticate via Manus cron session
-  const isDevBypass = process.env.NODE_ENV === "development" && req.headers["x-dev-bypass"] === "resurrection-2026";
-  if (!isDevBypass) {
-    try {
-      const user = await sdk.authenticateRequest(req);
-      if (!user.isCron) {
-        return res.status(403).json({ error: "cron-only endpoint" });
-      }
-    } catch {
-      return res.status(403).json({ error: "authentication failed" });
-    }
-  }
 
   const results = {
     zombieJobsFixed: 0,
@@ -86,6 +74,7 @@ export async function jobResurrectionReaperHandler(req: Request, res: Response) 
     permanentCompositeReset: 0,
     deadRenderingReset: 0,
     slaBreachAlerts: 0,
+    totalFixed: 0,
     errors: [] as string[],
     durationMs: 0,
   };
@@ -93,7 +82,9 @@ export async function jobResurrectionReaperHandler(req: Request, res: Response) 
   try {
     const db = await getDb();
     if (!db) {
-      return res.status(500).json({ error: "Database unavailable" });
+      results.errors.push("Database unavailable");
+      results.durationMs = Date.now() - startedAt;
+      return results;
     }
 
     const now = Date.now();
@@ -399,15 +390,39 @@ export async function jobResurrectionReaperHandler(req: Request, res: Response) 
   }
 
   results.durationMs = Date.now() - startedAt;
-
-  const totalActions = results.zombieJobsFixed + results.stuckAssemblingReset +
+  results.totalFixed = results.zombieJobsFixed + results.stuckAssemblingReset +
     results.permanentCompositeReset + results.deadRenderingReset;
 
-  if (totalActions > 0) {
+  if (results.totalFixed > 0) {
     console.log(`[JobResurrectionReaper] ✅ Done: ${JSON.stringify(results)}`);
   } else {
     console.log(`[JobResurrectionReaper] All clear — no stuck jobs found (${results.durationMs}ms)`);
   }
 
-  return res.json({ ok: true, ...results });
+  return results;
+}
+
+/** HTTP handler — called by the /api/scheduled/jobResurrectionReaper heartbeat route. */
+export async function jobResurrectionReaperHandler(req: Request, res: Response) {
+  // Authenticate via Manus cron session
+  const isDevBypass = process.env.NODE_ENV === "development" && req.headers["x-dev-bypass"] === "resurrection-2026";
+  if (!isDevBypass) {
+    try {
+      const user = await sdk.authenticateRequest(req);
+      if (!user.isCron) {
+        return res.status(403).json({ error: "cron-only endpoint" });
+      }
+    } catch {
+      return res.status(403).json({ error: "authentication failed" });
+    }
+  }
+
+  try {
+    const results = await runJobResurrectionReaper();
+    return res.json({ ok: true, ...results });
+  } catch (err: any) {
+    const error = err?.message ?? String(err);
+    console.error("[JobResurrectionReaper] Unhandled error:", error);
+    return res.status(500).json({ error, timestamp: new Date().toISOString() });
+  }
 }
