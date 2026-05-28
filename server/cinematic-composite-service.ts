@@ -236,7 +236,7 @@ export async function compositeCinematicScene(
       // Scale static background image to 1280x720
       `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase,crop=${outW}:${outH}[bg]`,
       // Scale Zara to full frame height (720px) — square 960x960 → 720x720
-      `[1:v]scale=720:720,colorkey=0xadadad:0.08:0.02[fg]`,
+      `[1:v]scale=720:720,colorkey=0xadadad:0.15:0.02[fg]`,
       // Overlay Zara centred horizontally, anchored to bottom
       `[bg][fg]overlay=x=280:y=0[composited]`,
       // Warm colour grade to match Air Studios golden lighting

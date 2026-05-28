@@ -1,30 +1,25 @@
+import { drizzle } from 'drizzle-orm/mysql2';
 import mysql from 'mysql2/promise';
+import { musicVideoJobs } from './drizzle/schema.ts';
+import { eq } from 'drizzle-orm';
 
-const url = process.env.DATABASE_URL;
-const conn = await mysql.createConnection(url);
+const dbUrl = process.env.DATABASE_URL;
+const connection = await mysql.createConnection(dbUrl);
+const db = drizzle(connection);
 
-// Check status breakdown for job 390001 using correct column name
-const [statusCounts] = await conn.execute(
-  'SELECT mvSceneStatus, COUNT(*) as cnt FROM musicVideoScenes WHERE jobId = 390001 GROUP BY mvSceneStatus'
-);
-console.log('Status breakdown for job 390001:', JSON.stringify(statusCounts, null, 2));
+const job = await db.select().from(musicVideoJobs).where(eq(musicVideoJobs.id, 720001)).limit(1);
 
-// Check if completed scenes have videoUrls
-const [noUrl] = await conn.execute(
-  "SELECT COUNT(*) as cnt FROM musicVideoScenes WHERE jobId = 390001 AND mvSceneStatus = 'completed' AND (videoUrl IS NULL OR videoUrl = '')"
-);
-console.log('Completed scenes with no videoUrl:', noUrl[0].cnt);
+if (job.length > 0) {
+  const j = job[0];
+  console.log('✅ Job 720001 found');
+  console.log('Status:', j.status);
+  console.log('Has Final Video:', !!j.finalVideoUrl);
+  if (j.finalVideoUrl) {
+    console.log('Video URL:', j.finalVideoUrl);
+  }
+  console.log('Last Updated:', new Date(j.updatedAt).toISOString());
+} else {
+  console.log('❌ Job not found');
+}
 
-// Check the one non-completed scene
-const [other] = await conn.execute(
-  "SELECT sceneIndex, mvSceneStatus, errorMessage, taskId FROM musicVideoScenes WHERE jobId = 390001 AND mvSceneStatus != 'completed' ORDER BY sceneIndex"
-);
-console.log('Non-completed scenes:', JSON.stringify(other, null, 2));
-
-// Check job error message
-const [job] = await conn.execute(
-  'SELECT status, errorMessage, completedScenes, totalScenes, updatedAt FROM musicVideoJobs WHERE id = 390001'
-);
-console.log('Job status:', JSON.stringify(job[0], null, 2));
-
-await conn.end();
+await connection.end();
