@@ -8385,3 +8385,28 @@
 - [x] Fixed Zara scale: 720x720 (full frame height) centred at x=280
 - [x] Verified composite locally: Zara fully solid on Air Studios background, no transparency, no ghosting
 - [x] TypeScript: 0 errors | Tests: 731/732 (1 flaky DB connectivity test, unrelated to changes)
+- [x] UPDATED 2026-05-28: Chromakey similarity threshold changed from 0.08 → 0.15 to handle grey variations across InfiniteTalk renders (scene 8 had different grey tone causing 0.08 to remove Zara entirely)
+- [x] Checkpoint saved (version 9a44a72f): chromakey fix deployed to production
+- [ ] Monitor production: scene 8 (ID 750033) should re-composite with new 0.15 threshold within next heartbeat cycle (10 min)
+- [ ] Verify scene 8 composite: check compositeVideoUrl in database — should show Zara on Air Studios background (not grey removal artifact)
+- [ ] Verify final video assembly: job 720001 should re-assemble with corrected scene 8 composite
+- [ ] Frame-by-frame lip-sync audit: verify scene 8 lip movements match audio timing in final video
+
+## Orchestration Server Setup (2026-05-28)
+
+- [x] Provision $30 Standard cloud computer (34.24.150.95, 4 GB RAM, 70 GB SSD, Ubuntu 24.04)
+- [x] Install ffmpeg 6.1.1, ffprobe, Node.js v22.22.2, pnpm 11.4.0, Python 3.12.3
+- [x] Install Python packages: opencv-python-headless 4.13.0, numpy 2.4.6, Pillow 12.2.0, rembg[cpu] 2.0.75, boto3, requests, onnxruntime 1.26.0
+- [x] Create /home/ubuntu/wiz-orchestration/ directory structure (queue, compositing, validation, manifests, logs, assets, exports)
+- [x] Deploy WIZ AI Orchestration Server (Node.js Express, port 4001)
+- [x] Install as systemd service (wiz-orchestration.service) with auto-restart on reboot
+- [x] Open port 4001 in UFW firewall
+- [x] Verify health endpoint: http://34.24.150.95:4001/health returns 200 OK
+- [x] Validate chromakey composite pipeline: 1280x720, 3.000s output confirmed on server
+- [x] Write agents.md on cloud computer for session persistence
+- [x] SSH key authentication established (no password required for future sessions)
+- [ ] Configure /home/ubuntu/wiz-orchestration/.env with production credentials (DATABASE_URL, S3, CDN)
+- [ ] Update Cloud Run cinematic-composite-service.ts to call orchestration server instead of running ffmpeg locally
+- [ ] Add ORCHESTRATION_SERVER_URL to webdev secrets
+- [ ] Test end-to-end: Cloud Run → orchestration server → S3 → callback → database update
+- [ ] Monitor scene 8 (ID 750033) re-composite with new 0.15 threshold on orchestration server
