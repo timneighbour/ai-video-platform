@@ -518,6 +518,58 @@ CINEMATIC VARIETY MANDATE — for every 5 scenes, include at minimum:
 - Only 1 direct singing close-up (and only if lyrics are emotionally powerful at that moment)
 ═══════════════════════════════════════════════════════════════` : "";
 
+  // ── NEW PIPELINE RULES (2026-05-28) ─────────────────────────────────────────
+  // When enableLipSync=true AND a character image is provided:
+  //   • Performance scenes MUST generate the character INSIDE the real environment
+  //   • NO grey backgrounds — the character is part of the scene world
+  //   • NO microphone unless explicitly requested
+  //   • InfiniteTalk is a lip-sync CORRECTION PASS on the already-coherent Seedance clip
+  //   • 70-80% of scenes must be tight performance shots (character face visible)
+  //   • 20-30% must be cinematic intercuts (orchestral wides, atmosphere, cutaways)
+  // ─────────────────────────────────────────────────────────────────────────────
+  const hasCharacterImage = hasLockedCharacters; // character image = locked character present
+
+  const characterPerformanceBlock = (enableLipSync && hasCharacterImage) ? `
+
+═══════════════════════════════════════════════════════════════
+⚠️ CRITICAL — NEW PIPELINE RULE (READ CAREFULLY BEFORE WRITING ANY SCENE):
+═══════════════════════════════════════════════════════════════
+
+This video uses the WIZ AI direct-generation pipeline.
+The character is generated INSIDE the scene by the video model — NOT composited on top of a background.
+
+WHAT THIS MEANS FOR EVERY PERFORMANCE SCENE:
+• The character must be physically present INSIDE the environment (Air Studios / Lyndhurst Hall or the user-specified setting)
+• The character is part of the world — standing in the hall, walking through the space, performing in the room
+• The background is NOT a grey studio wall — it is the actual cinematic environment (warm amber lighting, orchestra behind, grand piano, session musicians, high ceilings, beautiful acoustic space)
+• The camera moves AROUND the character — dolly, crane, rack focus, slow push-in
+• The character's face must be clearly visible and forward-facing (essential for lip-sync correction pass)
+• NO microphone stand unless the user explicitly requested one
+• The character looks at the camera or sings forward with natural body presence
+
+PERFORMANCE SCENE PROMPT FORMULA (use this structure):
+  [Camera movement] on [character name], [character action — singing/performing], inside [specific environment detail — e.g. 'the grand Lyndhurst Hall recording room, warm amber light, orchestra visible behind'], [lighting detail], [emotional quality], [BPM-matched movement if applicable].
+
+EXAMPLE GOOD PERFORMANCE PROMPT:
+  "Slow push-in on Zara singing inside the Lyndhurst Hall recording room. Warm amber spotlights illuminate her face. Orchestra musicians visible behind her in soft focus. Emotional, intimate expression. Camera drifts slightly right, revealing the grand piano and high ceiling. 76 BPM — slow, sustained, graceful."
+
+EXAMPLE BAD PERFORMANCE PROMPT (NEVER DO THIS):
+  "Close-up of Zara singing at a microphone against a grey background." ← WRONG: grey background, microphone, no environment
+  "Zara performs on stage with dramatic lighting." ← WRONG: too vague, no environment detail
+  "Tight shot of Zara's face singing." ← WRONG: no environment context, no camera movement
+
+CINEMATIC INTERCUT SCENES (20-30% of total):
+  These scenes have NO character assignment. They are pure environment/atmosphere shots:
+  • Wide shot of the full Lyndhurst Hall — orchestra, grand piano, high windows, warm light
+  • Close-up of violin bows moving in slow motion
+  • Hands on piano keys, fingers pressing slowly
+  • Light streaming through tall hall windows
+  • Conductor's baton, sheet music pages
+  • Empty conductor's podium with orchestra behind
+  • Atmospheric hall reverb — mist, dust particles in light beams
+  These use "hailuo-minimax" and have empty characterAssignments []
+═══════════════════════════════════════════════════════════════` : "";
+
   const systemPrompt = `You are a premium cinematic music video director — not an AI avatar generator.
 Your job is to create detailed, emotionally directed scene descriptions for AI video generation.
 Think: Hype Williams, David Fincher, Anton Corbijn. Every scene must feel like it belongs in a premium music video, not a generic AI singing clip.
@@ -541,7 +593,7 @@ Instead, prioritise:
 - Dramatic camera work (Dutch angle, crane shot, rack focus)
 - Slow-motion detail (sweat, light, fabric, smoke)
 A singing close-up should be EARNED — reserved for the most emotionally powerful lyric moments, not used as a default.
-${sceneSettingConstraint}${contentAnalysisBlock}
+${sceneSettingConstraint}${contentAnalysisBlock}${characterPerformanceBlock}
 
 Each scene description must be:
 - Highly visual and specific (lighting, camera angle, movement, subjects, atmosphere)
@@ -582,7 +634,20 @@ ${sceneList}
 - visualStyle: string (e.g. "cinematic", "dark neon", "ethereal", "gritty realism", "anime")
 - characterAssignments: array of character names from [${allCharacterNames}] who appear in this scene
 - modelAssignment: string, either "seedance-2.0" or "hailuo-minimax"
-${enableLipSync ? `  ⚠️ LIP SYNC IS ACTIVE — CRITICAL FACE SHOT RULES:
+${(enableLipSync && hasCharacterImage) ? `  ⚠️ NEW PIPELINE — CHARACTER INSIDE SCENE (CRITICAL — READ BEFORE ASSIGNING MODELS):
+  • Performance scenes (character present, face visible): MUST use "seedance-2.0"
+    - The character is generated INSIDE the environment by Seedance — not composited on top
+    - Prompt MUST describe the character physically present in the environment (e.g. "inside the Lyndhurst Hall", "in the recording room")
+    - Character face must be clearly visible and forward-facing (required for lip-sync correction pass)
+    - NO microphone unless explicitly requested
+    - Camera moves around the character — dolly, push-in, slow drift
+    - Aim for 70-80% of scenes to be performance shots (character present, seedance-2.0)
+  • Cinematic intercut scenes (no character, pure environment): MUST use "hailuo-minimax"
+    - Wide shots of the hall, orchestra, instruments, light, atmosphere
+    - Empty characterAssignments [] — no character assigned
+    - These are 20-30% of total scenes
+  • NEVER assign a character to a scene and use "hailuo-minimax" — if a character is present, use "seedance-2.0"
+  • NEVER write a performance prompt with a grey background, microphone stand, or empty studio` : enableLipSync ? `  ⚠️ LIP SYNC IS ACTIVE — CRITICAL FACE SHOT RULES:
   • EVERY scene where a character appears MUST use "seedance-2.0" and MUST be a close-up or medium shot with the character's face clearly visible and forward-facing
   • Wide shots, silhouettes, atmospheric cutaways, and scenes where no character face is visible MUST use "hailuo-minimax" — and these scenes should NOT have character assignments
   • The character's face must be the primary focus in every scene where they appear — this is essential for lip sync verification
@@ -1613,33 +1678,34 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
   try {
     const sceneFiles: string[] = [];
     for (const scene of scenes) {
-      // ── WizSync™: Clip selection (2026-05-23, premium-only policy):
+      // ── Clip selection (3-stage pipeline, 2026-05-28):
       //
       // PERFORMANCE SCENES (sceneType='performance' or lipSync=true):
-      //   ONLY compositeVideoUrl is acceptable — Zara chromakeyed onto Air Studios background.
-      //   Grey background (lipSyncVideoUrl) and raw clips (videoUrl) are NEVER used.
-      //   If composite is not done, assembly MUST NOT proceed — throw to force a retry.
+      //   Use lipSyncVideoUrl — InfiniteTalk output IS the final performance clip.
+      //   Zara was generated INSIDE the scene by Seedance. InfiniteTalk corrected lip sync.
+      //   No compositing. No grey background. lipSyncVideoUrl is the final clip.
+      //   If lipSync is not done, assembly MUST NOT proceed — throw to force a retry.
       //
       // CINEMATIC SCENES:
-      //   Use videoUrl (raw Seedance clip). No lip sync or compositing needed.
+      //   Use videoUrl (raw Seedance clip). No lip sync needed.
       const needsLipSync = (scene.lipSync === true) || (scene.sceneType === "performance");
-      const compositeDone = (scene as any).compositeStatus === "done";
-      const compositeVideoUrl = (scene as any).compositeVideoUrl as string | null | undefined;
+      const lipSyncDone = scene.lipSyncStatus === "done";
+      const lipSyncVideoUrl = scene.lipSyncVideoUrl as string | null | undefined;
 
       let clipUrl: string | null = null;
       if (needsLipSync) {
-        if (compositeDone && compositeVideoUrl) {
-          // ONLY acceptable output: Zara composited onto Air Studios background
-          clipUrl = compositeVideoUrl;
-          console.log(`[Assembly] Scene ${scene.sceneIndex}: using WizSync™ composited clip ✓`);
+        if (lipSyncDone && lipSyncVideoUrl) {
+          // FINAL performance clip: InfiniteTalk lip-synced output (Zara inside the scene)
+          clipUrl = lipSyncVideoUrl;
+          console.log(`[Assembly] Scene ${scene.sceneIndex}: using InfiniteTalk lip-synced clip ✓`);
         } else {
-          // Composite not ready — this is a hard failure. Do not use grey background or raw clips.
+          // Lip sync not ready — hard failure. Do not use raw clips.
           // Throw so the assembly worker retries rather than producing a degraded output.
           throw new Error(
-            `[Assembly] HARD STOP — Scene ${scene.sceneIndex} (id=${scene.id}) composite not ready ` +
-            `(compositeStatus=${(scene as any).compositeStatus ?? 'null'}, lipSyncStatus=${scene.lipSyncStatus}). ` +
-            `Assembly cannot proceed without a fully composited performance clip. ` +
-            `This is a premium service — no grey backgrounds or raw clip substitutes.`
+            `[Assembly] HARD STOP — Scene ${scene.sceneIndex} (id=${scene.id}) lip sync not ready ` +
+            `(lipSyncStatus=${scene.lipSyncStatus ?? 'null'}, lipSyncVideoUrl=${lipSyncVideoUrl ? 'present' : 'null'}). ` +
+            `Assembly cannot proceed without a lip-synced performance clip. ` +
+            `This is a premium service — no raw clip substitutes.`
           );
         }
       } else {

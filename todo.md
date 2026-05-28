@@ -8417,3 +8417,25 @@
 - [x] Add local ffmpeg fallback when orchestration server unreachable
 - [x] Add compositeJobId column to musicVideoScenes schema (migration 0097 applied)
 - [x] Add /api/composite-callback endpoint to receive async composite results
+
+## Pipeline Redesign — Zara Generated Inside Scene (2026-05-28)
+- [ ] Rewrite storyboard LLM prompt: performance scenes must request Zara singing inside the Air Studios/Lyndhurst Hall environment — no grey background, no cutout
+- [ ] Performance scene prompts: tight cinematic close-up or medium-close, warm amber lighting, visible mouth/face, natural body presence, camera movement, orchestra/session environment behind her
+- [ ] 70-80% of scenes must be performance shots when character image is provided
+- [ ] Add validation gate: before lip-sync, visually confirm raw Seedance scene shows Zara in a real environment (not grey background)
+- [ ] Remove compositing from pipeline: InfiniteTalk output replaces Seedance video directly — no chromakey, no cutout, no static background
+- [ ] Remove Air Studios background compositing code paths — they are no longer needed
+- [ ] Re-generate Beauty of the Wreckage with new pipeline
+- [ ] Validate each raw Seedance scene before lip-sync pass
+- [ ] Final video must look like a real cinematic music video — Zara inside the world, not pasted on top
+
+## Pipeline Redesign — Direct Generation (2026-05-28)
+- [x] Drop chromakey/compositing approach — remove Stage 3 (matte extraction) and Stage 4 (ffmpeg overlay)
+- [x] Storyboard LLM prompt: performance scenes must generate character INSIDE the scene (not on grey background)
+- [x] Storyboard LLM prompt: 70-80% performance shots, 20-30% cinematic intercuts, no microphone unless requested
+- [x] Raw scene validation gate (Stage 1b): validate Seedance clip before InfiniteTalk submission
+- [x] InfiniteTalk prompt: changed from "grey studio background" to "preserve existing scene background"
+- [x] sceneDispatchHeartbeat: remove compositing stage (5b), update assembly gate to use lipSyncStatus only
+- [x] sceneDispatchHeartbeat: compositeStatus=skipped for ALL scenes (compositing removed)
+- [x] assemblyWorker: replace composite guard with lip sync guard (lipSyncStatus=done required)
+- [x] assembleMusicVideo: use lipSyncVideoUrl (not compositeVideoUrl) for performance scene clips

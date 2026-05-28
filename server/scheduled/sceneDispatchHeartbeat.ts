@@ -8,40 +8,40 @@
  * backbone of the render pipeline.
  *
  * ═══════════════════════════════════════════════════════════════════════════
- * CANONICAL 5-STAGE WIZ AI COMPOSITING PIPELINE (LOCKED 2026-05-22)
+ * CANONICAL 3-STAGE WIZ AI DIRECT-GENERATION PIPELINE (LOCKED 2026-05-28)
  * ═══════════════════════════════════════════════════════════════════════════
  *
- * STAGE 1 — CINEMATIC WORLD (Seedance)
- *   Generate Air Studios / Lyndhurst Hall environment.
- *   Cinematic scenes: no character face visible.
- *   Performance scenes: placeholder clip (background reference only).
+ * STAGE 1 — CINEMATIC WORLD WITH CHARACTER INSIDE (Seedance)
+ *   Generate the scene with the character ALREADY INSIDE the environment.
+ *   Performance scenes: Zara generated inside Air Studios / Lyndhurst Hall.
+ *   Cinematic scenes: pure environment shots (no character).
+ *   NO grey backgrounds. NO compositing. The character IS the scene.
  *
- * STAGE 2 — PERFORMANCE PLATE (InfiniteTalk)
- *   Generate Zara's facial performance (lip sync + emotional articulation).
- *   Input: tight head-and-shoulders crop of Portrait B (auto-cropped by face-crop-service).
- *   Audio: isolated Demucs vocal stem (HARD GUARD — never full mix).
- *   Output: raw performance plate (grey background — this is correct).
+ * STAGE 1b — RAW SCENE VALIDATION GATE (new 2026-05-28)
+ *   Before submitting to InfiniteTalk, visually validate the raw Seedance clip.
+ *   If the clip shows a grey background or no real environment → reset to pending.
+ *   If the clip looks like a real music video shot → proceed to Stage 2.
+ *   This gate prevents wasting InfiniteTalk API cost on bad Seedance outputs.
  *
- * STAGE 3 — MATTE EXTRACTION (ffmpeg chromakey)
- *   Remove grey background from InfiniteTalk output.
- *   Handled inline during Stage 4 compositing (no separate file produced).
+ * STAGE 2 — LIP-SYNC CORRECTION PASS (InfiniteTalk)
+ *   Improve lip sync on the already-coherent Seedance performance clip.
+ *   Input: character portrait + isolated Demucs vocal stem.
+ *   Output: lip-synced performance video (lipSyncVideoUrl).
+ *   This is the FINAL performance scene clip used in assembly.
+ *   NO chromakey. NO compositing. InfiniteTalk output IS the final clip.
  *
- * STAGE 4 — CINEMATIC COMPOSITING (ffmpeg overlay)
- *   Composite Zara performance matte onto Seedance concert hall background.
- *   Output: compositeVideoUrl — Zara singing inside Air Studios (1280x720).
- *   This is the final performance scene clip used in assembly.
- *
- * STAGE 5 — FINAL AUDIO RESTORATION (assembly worker)
+ * STAGE 3 — FINAL AUDIO RESTORATION (assembly worker)
  *   Assembly uses original mastered full mix (never vocal stem).
  *   Handled by assemblyWorker.ts (not here).
  *
  * SCENE TYPE ROUTING:
- *   performance (lipSync=true):  All 5 stages.
+ *   performance (lipSync=true):  Stages 1 + 1b + 2. compositeStatus=skipped.
  *   cinematic (lipSync=false):   Stage 1 only. compositeStatus=skipped.
  *
  * ASSEMBLY GATE:
- *   All performance scenes must have compositeStatus=done (or error).
- *   All cinematic scenes must have compositeStatus=skipped.
+ *   All performance scenes must have lipSyncStatus=done.
+ *   All cinematic scenes must have lipSyncStatus=done (set to done immediately).
+ *   compositeStatus is set to 'skipped' for ALL scenes — compositing is removed.
  *   Only then does the heartbeat queue the job for assembly.
  *
  * Route: POST /api/scheduled/sceneDispatchHeartbeat
@@ -65,14 +65,17 @@ import { getProbeDecision } from "../pre-render-validator";
 import { resetSceneAttempts } from "../spend-protection";
 import { getVocalStemForCharacter } from "../vocal-isolation-service";
 import { getCroppedPortraitForInfiniteTalk } from "../face-crop-service";
-import { compositeCinematicScene, compositeCinematicSceneFallback, AIR_STUDIOS_BACKGROUNDS } from "../cinematic-composite-service";
+// compositeCinematicScene removed — compositing is no longer part of the pipeline (2026-05-28)
+// The character is now generated INSIDE the scene by Seedance, not composited on top.
+import { validateRawSceneForLipSync } from "../raw-scene-validator";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
 const SCENE_STUCK_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes — reaper handles beyond this
 const SYNC_LABS_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes max for legacy Sync Labs jobs
 const INFINITETALK_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes max for InfiniteTalk
-const COMPOSITE_STUCK_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes max for compositing
-const MAX_COMPOSITE_ATTEMPTS = 3; // Max compositing retries before marking error
+// Compositing removed from pipeline (2026-05-28) — constants kept for legacy polling only
+const COMPOSITE_STUCK_TIMEOUT_MS = 10 * 60 * 1000;
+const MAX_COMPOSITE_ATTEMPTS = 3;
 
 export async function sceneDispatchHeartbeatHandler(req: Request, res: Response) {
   const startedAt = Date.now();
@@ -154,8 +157,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
     let totalPolled = 0;
     let totalLipSyncSubmitted = 0;
     let totalLipSyncPolled = 0;
-    let totalCompositeStarted = 0;
-    let totalCompositeCompleted = 0;
+    // Compositing removed (2026-05-28) — kept for backward-compatible summary response only
+    const totalCompositeStarted = 0;
+    const totalCompositeCompleted = 0;
     let totalAssembled = 0;
     // SyncLabs concurrency guard: max 2 submissions per heartbeat tick to avoid 429 rate limit errors
     let syncLabsSubmittedThisTick = 0;
@@ -194,7 +198,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 lipSyncStatus: "pending",
                 lipSyncTaskId: null,
                 lipSyncVideoUrl: null,
-                compositeStatus: "pending",
+                compositeStatus: "skipped", // compositing removed
                 compositeVideoUrl: null,
                 updatedAt: new Date(),
               })
@@ -476,11 +480,37 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                       croppedPortraitUrl = heroImageUrl; // fallback to original
                     }
 
+                    // ── STAGE 1b: RAW SCENE VALIDATION GATE ──────────────────────────────
+                    // Before submitting to InfiniteTalk, validate the raw Seedance clip.
+                    // If the clip shows a grey background or no real environment, reset to pending.
+                    // This prevents wasting InfiniteTalk API cost on bad Seedance outputs.
+                    const rawValidation = await validateRawSceneForLipSync(
+                      pollResult.videoUrl,
+                      scene.id,
+                      scene.sceneIndex ?? 0
+                    );
+                    if (!rawValidation.passed) {
+                      console.warn(`[SceneDispatch] Scene ${scene.id} FAILED raw validation — resetting to pending for re-generation. Reason: ${rawValidation.reason}`);
+                      await db.update(musicVideoScenes)
+                        .set({
+                          status: "pending",
+                          taskId: null,
+                          errorMessage: `Raw scene validation failed: ${rawValidation.reason}`,
+                          lipSyncStatus: "pending",
+                          compositeStatus: "skipped",
+                          updatedAt: new Date(),
+                        })
+                        .where(eq(musicVideoScenes.id, scene.id));
+                      continue; // Skip InfiniteTalk submission for this scene
+                    }
+                    console.log(`[SceneDispatch] Scene ${scene.id} PASSED raw validation (${rawValidation.confidence} confidence) — proceeding to InfiniteTalk`);
+
                     // Submit to WaveSpeed InfiniteTalk with cropped portrait
-                    // IMPORTANT: The InfiniteTalk prompt describes Zara's PERFORMANCE STYLE,
-                    // NOT the background (which is handled by Seedance separately).
-                    // Use a neutral performance prompt that focuses on face/expression/movement.
-                    const itPrompt = "Emotional singing performance, face clearly visible and forward-facing, natural lip movement, expressive eyes, cinematic close-up. Neutral grey studio background.";
+                    // NEW PIPELINE (2026-05-28): InfiniteTalk is a LIP-SYNC CORRECTION PASS
+                    // on the already-coherent Seedance clip. The background is already correct
+                    // (Zara is inside the scene). InfiniteTalk only corrects lip movement.
+                    // Use a prompt that focuses on natural lip sync and face expression only.
+                    const itPrompt = "Natural lip sync performance, face clearly visible and forward-facing, precise lip movement matching the audio, expressive eyes, cinematic close-up. Preserve the existing scene background.";
                     const itTaskId = await submitWaveSpeedInfiniteTalk({
                       image: croppedPortraitUrl,
                       audio: sceneAudioUrl,
@@ -563,7 +593,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   lipSyncStatus: "pending",
                   lipSyncTaskId: null,
                   lipSyncVideoUrl: null,
-                  compositeStatus: "pending",
+                  compositeStatus: "skipped", // compositing removed
                   compositeVideoUrl: null,
                   updatedAt: new Date(),
                 })
@@ -631,7 +661,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               }
 
               // RETRY: Same neutral performance prompt — do NOT use scene.prompt (which is the Seedance background prompt)
-              const retryItPrompt = "Emotional singing performance, face clearly visible and forward-facing, natural lip movement, expressive eyes, cinematic close-up. Neutral grey studio background.";
+              const retryItPrompt = "Natural lip sync performance, face clearly visible and forward-facing, precise lip movement matching the audio, expressive eyes, cinematic close-up. Preserve the existing scene background.";
               const itTaskId = await submitWaveSpeedInfiniteTalk({
                 image: retryCroppedPortraitUrl,
                 audio: sceneAudioUrl,
@@ -688,13 +718,12 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                     lipSyncStatus: "done",
                     lipSyncVideoUrl: url,
                     lipSyncVideoKey: key,
-                    // STAGE 4: Mark compositeStatus=pending so compositing can start
-                    // (compositing will pick this up in the next section)
-                    compositeStatus: "pending",
+                    // Compositing removed (2026-05-28) — lipSyncVideoUrl IS the final clip
+                    compositeStatus: "skipped",
                     updatedAt: new Date(),
                   })
                   .where(eq(musicVideoScenes.id, scene.id));
-                console.log(`[SceneDispatch] Scene ${scene.id} InfiniteTalk lip sync DONE ✓ → compositeStatus=pending`);
+                console.log(`[SceneDispatch] Scene ${scene.id} InfiniteTalk lip sync DONE ✓ → compositeStatus=skipped (compositing removed)`);
                 totalLipSyncPolled++;
 
                 // ── PROBE: if this is the probe scene, set probeVideoUrl (lip-synced version) ──
@@ -725,106 +754,11 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           }
         }
 
-        // ── 5b. STAGE 4: Run cinematic compositing for scenes where lipSync=done ──
-        // Re-fetch scenes to get the latest lipSyncStatus after polling above
-        const freshScenesForComposite = await db
-          .select()
-          .from(musicVideoScenes)
-          .where(eq(musicVideoScenes.jobId, job.id));
-
-        const compositePendingScenes = freshScenesForComposite.filter(
-          (s) => s.status === "completed" &&
-                 s.lipSyncStatus === "done" &&
-                 s.lipSyncVideoUrl &&
-                 s.videoUrl && // Seedance background clip
-                 (s.compositeStatus === "pending" || s.compositeStatus === "error") &&
-                 (s.compositeAttempts ?? 0) < MAX_COMPOSITE_ATTEMPTS
-        );
-
-        if (compositePendingScenes.length > 0) {
-          console.log(`[SceneDispatch] Job ${job.id}: ${compositePendingScenes.length} scene(s) ready for compositing`);
-        }
-
-        for (const scene of compositePendingScenes) {
-          try {
-            // Mark as processing to prevent concurrent compositing attempts
-            await db.update(musicVideoScenes)
-              .set({
-                compositeStatus: "processing",
-                compositeAttempts: (scene.compositeAttempts ?? 0) + 1,
-                updatedAt: new Date(),
-              })
-              .where(eq(musicVideoScenes.id, scene.id));
-
-            console.log(`[SceneDispatch] Scene ${scene.id} STAGE 4: starting cinematic compositing (attempt ${(scene.compositeAttempts ?? 0) + 1})`);
-            totalCompositeStarted++;
-
-            // CRITICAL FIX (2026-05-23): Await the composite synchronously within the heartbeat.
-            // Previously fire-and-forget — Cloud Run kills the process after 180s request timeout,
-            // so the .then() callback never fires and compositeStatus stays 'processing' forever.
-            // The composite takes ~10-30s on Cloud Run (2s in sandbox). Awaiting it directly
-            // ensures the DB update always completes before the heartbeat returns.
-            try {
-              // PIPELINE FIX (2026-05-23): Use static Air Studios background image.
-              // Seedance ignored empty stage prompts and always generated a person.
-              const bgImageUrl = AIR_STUDIOS_BACKGROUNDS[(scene.sceneIndex ?? 0) % AIR_STUDIOS_BACKGROUNDS.length];
-              console.log(`[SceneDispatch] Scene ${scene.id}: using Air Studios BG #${(scene.sceneIndex ?? 0) % AIR_STUDIOS_BACKGROUNDS.length}`);
-              const compositeUrl = await compositeCinematicScene(
-                scene.lipSyncVideoUrl!,
-                bgImageUrl,
-                scene.id,
-                scene.duration ?? 5
-              );
-              const key = compositeUrl.includes("cloudfront") ? compositeUrl.split("/").pop()! : `music-video-scenes/${scene.id}-composite.mp4`;
-              await db.update(musicVideoScenes)
-                .set({
-                  compositeStatus: "done",
-                  compositeVideoUrl: compositeUrl,
-                  compositeVideoKey: key,
-                  updatedAt: new Date(),
-                })
-                .where(eq(musicVideoScenes.id, scene.id));
-              console.log(`[SceneDispatch] Scene ${scene.id} STAGE 4 COMPLETE ✓ → ${compositeUrl.slice(0, 60)}...`);
-              totalCompositeCompleted++;
-            } catch (compositeErr: any) {
-              console.error(`[SceneDispatch] Scene ${scene.id} STAGE 4 FAILED: ${String(compositeErr?.message ?? compositeErr).slice(0, 300)}`);
-              // Try fallback compositing (no chromakey — picture-in-picture)
-              try {
-                console.log(`[SceneDispatch] Scene ${scene.id} STAGE 4: trying fallback compositing...`);
-                const bgImageUrlFb = AIR_STUDIOS_BACKGROUNDS[(scene.sceneIndex ?? 0) % AIR_STUDIOS_BACKGROUNDS.length];
-                const fallbackUrl = await compositeCinematicSceneFallback(
-                  scene.lipSyncVideoUrl!,
-                  bgImageUrlFb,
-                  scene.id,
-                  scene.duration ?? 5
-                );
-                await db.update(musicVideoScenes)
-                  .set({
-                    compositeStatus: "done",
-                    compositeVideoUrl: fallbackUrl,
-                    updatedAt: new Date(),
-                  })
-                  .where(eq(musicVideoScenes.id, scene.id));
-                console.log(`[SceneDispatch] Scene ${scene.id} STAGE 4 FALLBACK COMPLETE ✓`);
-                totalCompositeCompleted++;
-              } catch (fallbackErr: any) {
-                console.error(`[SceneDispatch] Scene ${scene.id} STAGE 4 FALLBACK ALSO FAILED: ${String(fallbackErr?.message ?? fallbackErr).slice(0, 200)}`);
-                await db.update(musicVideoScenes)
-                  .set({ compositeStatus: "error", updatedAt: new Date() })
-                  .where(eq(musicVideoScenes.id, scene.id));
-              }
-            }
-
-          } catch (compositeStartErr: any) {
-            console.error(`[SceneDispatch] Scene ${scene.id} STAGE 4 start failed: ${String(compositeStartErr?.message ?? compositeStartErr).slice(0, 200)}`);
-            await db.update(musicVideoScenes)
-              .set({ compositeStatus: "error", updatedAt: new Date() })
-              .where(eq(musicVideoScenes.id, scene.id));
-          }
-        }
-
-        // Count completed composites this tick
-        totalCompositeCompleted += freshScenesForComposite.filter(s => s.compositeStatus === "done").length;
+        // ── 5b. COMPOSITING REMOVED (2026-05-28) ─────────────────────────────────────────────
+        // The compositing stage (ffmpeg chromakey + overlay) has been removed from the pipeline.
+        // Zara is now generated INSIDE the scene by Seedance — no cutout, no grey background.
+        // InfiniteTalk output (lipSyncVideoUrl) is the final performance clip for assembly.
+        // compositeStatus is set to 'skipped' for ALL scenes.
 
         // ── 6. Re-check completion after polling ───────────────────────────────
         const freshScenes = await db
@@ -844,35 +778,21 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         // Lip sync readiness: a scene is "lip sync ready" ONLY if lipSyncStatus='done'.
         // 'error' is NOT acceptable under the premium policy — it means InfiniteTalk failed
         // and the scene has no composited clip. The pipeline retries until 'done'.
-        const nowLipSyncReady = nowCompleted.filter(
-          (s) => s.lipSyncStatus === "done"
-        );
+        // nowLipSyncReady and nowLipSyncProcessing are now handled by nowCompositeReady/nowCompositeProcessing
+        // (which are based on lipSyncStatus in the 3-stage pipeline)
         const nowLipSyncProcessing = nowCompleted.filter(
           (s) => s.lipSyncStatus === "processing"
         );
 
-        // ── COMPOSITING READINESS CHECK ────────────────────────────────────────
-        // PREMIUM POLICY (2026-05-23): Assembly only runs when ALL performance scenes
-        // have compositeStatus='done'. 'error' is NOT acceptable — it means Zara would
-        // appear on a grey background or be missing entirely. The pipeline retries until
-        // compositeStatus='done'. No grey backgrounds, no raw clip substitutes.
-        //
-        // Cinematic scenes: compositeStatus must be 'skipped' (they use raw Seedance clips).
-        const nowCompositeReady = nowCompleted.filter((s) => {
-          const isPerformance = s.sceneType === "performance" || (s.lipSync ?? false);
-          if (isPerformance) {
-            // Performance scenes: ONLY 'done' is acceptable
-            return s.compositeStatus === "done";
-          } else {
-            // Cinematic scenes: 'skipped' is the expected state
-            return s.compositeStatus === "skipped";
-          }
-        });
-        // nowCompositeProcessing: scenes that are NOT yet ready for assembly.
-        // Includes 'processing', 'pending', AND 'error' — all three block assembly
-        // because 'error' scenes will be reset to 'pending' by the reaper below.
+        // ── ASSEMBLY READINESS CHECK (3-stage pipeline, 2026-05-28) ──────────────────────────
+        // Compositing removed. Assembly gate is now based on lipSyncStatus only.
+        // Performance scenes: lipSyncStatus must be 'done' (InfiniteTalk output = final clip).
+        // Cinematic scenes: lipSyncStatus is set to 'done' immediately (no lip sync needed).
+        // compositeStatus is 'skipped' for ALL scenes.
+        const nowCompositeReady = nowCompleted.filter((s) => s.lipSyncStatus === "done");
+        // nowCompositeProcessing: scenes still waiting for lip sync (blocks assembly)
         const nowCompositeProcessing = nowCompleted.filter(
-          (s) => s.compositeStatus === "processing" || s.compositeStatus === "pending" || s.compositeStatus === "error"
+          (s) => s.lipSyncStatus === "processing" || (s.lipSyncStatus === "pending" && !s.lipSyncTaskId)
         );
 
         // Update completedScenes count on the job
@@ -883,62 +803,30 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             .where(eq(musicVideoJobs.id, job.id));
         }
 
-        // ── 6b. Composite stuck-scene reaper ────────────────────────────────────────
-        // Resets scenes stuck in 'processing' OR permanently stuck in 'error' back to
-        // 'pending' so the composite pipeline can retry them.
-        // Under the premium policy, 'error' blocks assembly — we must always retry.
-        const stuckCompositeScenes = nowCompleted.filter(
-          (s) =>
-            (s.compositeStatus === "processing" &&
-             Date.now() - new Date(s.updatedAt).getTime() > COMPOSITE_STUCK_TIMEOUT_MS) ||
-            (s.compositeStatus === "error" && (s.compositeAttempts ?? 0) < MAX_COMPOSITE_ATTEMPTS)
-        );
-        if (stuckCompositeScenes.length > 0) {
-          console.warn(
-            `[SceneDispatch] Job ${job.id} — ${stuckCompositeScenes.length} composite scene(s) stuck >10min. Resetting to pending for retry.`
-          );
-          for (const stuck of stuckCompositeScenes) {
-            // Reset to 'pending' (not 'error') so the composite pipeline retries.
-            // Under the premium policy, 'error' blocks assembly permanently.
-            // Also reset compositeAttempts if at limit so retry is possible.
-            const currentAttempts = stuck.compositeAttempts ?? 0;
-            await db
-              .update(musicVideoScenes)
-              .set({
-                compositeStatus: "pending" as any,
-                compositeAttempts: currentAttempts >= MAX_COMPOSITE_ATTEMPTS ? 0 : currentAttempts,
-                updatedAt: new Date()
-              })
-              .where(eq(musicVideoScenes.id, stuck.id));
-          }
-          // IMPORTANT: Do NOT remove reaped scenes from nowCompositeProcessing.
-          // They were reset to 'pending' which still blocks assembly — the assembly gate
-          // must see them as blocking so it does NOT fire this tick.
-          // The scenes will be composited on the next heartbeat tick.
-        }
+        // ── 6b. Composite reaper REMOVED (2026-05-28) ──────────────────────────────────────
+        // Compositing is no longer part of the pipeline.
+        // compositeStatus is 'skipped' for all scenes — no reaper needed.
 
         // ── 7. Trigger assembly when all scenes are done AND all compositing is ready ──
         // ASSEMBLY GATE (5-stage pipeline):
         //   1. No pending or generating scenes
         //   2. No lip sync jobs still processing
         //   3. No compositing jobs still processing
-        //   4. All completed scenes have compositeStatus=done|skipped|error
+        //   4. All completed scenes have lipSyncStatus=done (compositing removed)
         const allVideosDone = nowPending.length === 0 && nowGenerating.length === 0;
-        const allLipSyncReady = nowLipSyncProcessing.length === 0;
+        // allLipSyncReady removed — assembly gate now uses allCompositeReady (lipSyncStatus-based)
         const allCompositeReady = nowCompositeProcessing.length === 0;
         const hasCompletedScenes = nowCompleted.length > 0;
 
-        if (allVideosDone && allLipSyncReady && allCompositeReady && hasCompletedScenes) {
+        if (allVideosDone && allCompositeReady && hasCompletedScenes) {
           // ARCHITECTURE NOTE (2026-05-19):
           // The heartbeat ONLY sets status='assembling'. It does NOT call assembleMusicVideo.
           // The assemblyWorker (server/assemblyWorker.ts) is the sole caller of assembleMusicVideo.
           // This ensures assembly always runs outside the HTTP request lifecycle and is never
           // killed by Cloud Run's 180-second request timeout.
           // The assemblyWorker polls every 2 minutes and picks up newly-queued jobs within 2 min.
-          const compositeCount = nowCompositeReady.filter(s => s.compositeStatus === "done").length;
-          const skippedCount = nowCompositeReady.filter(s => s.compositeStatus === "skipped").length;
           console.log(
-            `[SceneDispatch] Job ${job.id} — all scenes done + compositing ready (${compositeCount} composited, ${skippedCount} skipped). Queuing for assembly.`
+            `[SceneDispatch] Job ${job.id} — all scenes done + lip sync ready (${nowCompositeReady.length} scenes). Queuing for assembly.`
           );
           try {
             await db
@@ -949,14 +837,12 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           } catch (assemblyTriggerErr: any) {
             console.error(`[SceneDispatch] Failed to queue job ${job.id} for assembly:`, assemblyTriggerErr);
           }
-        } else if (allVideosDone && allLipSyncReady && !allCompositeReady) {
-          console.log(`[SceneDispatch] Job ${job.id} — all clips done, waiting for ${nowCompositeProcessing.length} compositing job(s) to complete...`);
-        } else if (allVideosDone && !allLipSyncReady) {
-          console.log(`[SceneDispatch] Job ${job.id} — all clips done, waiting for ${nowLipSyncProcessing.length} InfiniteTalk job(s) to complete...`);
+        } else if (allVideosDone && !allCompositeReady) {
+          console.log(`[SceneDispatch] Job ${job.id} — all clips done, waiting for ${nowCompositeProcessing.length} lip sync job(s) to complete...`);
         }
 
         // ── 8. Never mark job as failed — if all scenes are stuck, reset them ──
-        if (allVideosDone && allLipSyncReady && allCompositeReady && nowCompleted.length === 0 && nowFailed.length > 0) {
+        if (allVideosDone && allCompositeReady && nowCompleted.length === 0 && nowFailed.length > 0) {
           console.warn(`[SceneDispatch] Job ${job.id} — all scenes in failed state. Resetting all to pending for retry.`);
           await db
             .update(musicVideoScenes)
@@ -967,7 +853,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               lipSyncStatus: "pending",
               lipSyncTaskId: null,
               lipSyncVideoUrl: null,
-              compositeStatus: "pending",
+              compositeStatus: "skipped", // compositing removed — always skipped
               compositeVideoUrl: null,
               updatedAt: new Date(),
             })
@@ -985,8 +871,8 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
       polled: totalPolled,
       lipSyncSubmitted: totalLipSyncSubmitted,
       lipSyncPolled: totalLipSyncPolled,
-      compositeStarted: totalCompositeStarted,
-      compositeCompleted: totalCompositeCompleted,
+      compositeStarted: totalCompositeStarted, // always 0 — compositing removed
+      compositeCompleted: totalCompositeCompleted, // always 0 — compositing removed
       assembled: totalAssembled,
       durationMs: Date.now() - startedAt,
     };

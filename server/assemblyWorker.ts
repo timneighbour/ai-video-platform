@@ -69,30 +69,30 @@ export async function processOrphanedAssemblyJobs(): Promise<void> {
 
       inFlightAssemblies.add(job.id);
 
-      // ── COMPOSITE GUARD ─────────────────────────────────────────────────────
-      // PREMIUM POLICY (2026-05-23): Performance scenes MUST have compositeStatus='done'.
-      // 'error', 'pending', or 'processing' are not acceptable for performance scenes.
-      // Cinematic scenes are expected to be 'skipped'.
+      // ── LIP SYNC GUARD (3-stage pipeline, 2026-05-28) ──────────────────────────────────
+      // Compositing removed. Assembly gate is now based on lipSyncStatus only.
+      // Performance scenes: lipSyncStatus must be 'done' (InfiniteTalk output = final clip).
+      // Cinematic scenes: lipSyncStatus is 'done' immediately (no lip sync needed).
       const allScenes = await db
-        .select({ compositeStatus: musicVideoScenes.compositeStatus, sceneType: musicVideoScenes.sceneType, lipSync: musicVideoScenes.lipSync })
+        .select({ lipSyncStatus: musicVideoScenes.lipSyncStatus, sceneType: musicVideoScenes.sceneType, lipSync: musicVideoScenes.lipSync })
         .from(musicVideoScenes)
         .where(eq(musicVideoScenes.jobId, job.id));
 
-      const compositeIncomplete = allScenes.filter((s) => {
+      const lipSyncIncomplete = allScenes.filter((s) => {
         const isPerformance = s.sceneType === "performance" || (s.lipSync ?? false);
         if (isPerformance) {
-          // Performance scenes: ONLY 'done' is acceptable — no grey backgrounds, no substitutes
-          return s.compositeStatus !== "done";
+          // Performance scenes: ONLY 'done' is acceptable — lipSyncVideoUrl IS the final clip
+          return s.lipSyncStatus !== "done";
         } else {
-          // Cinematic scenes: only block on pending/processing (skipped is fine)
-          return s.compositeStatus === "pending" || s.compositeStatus === "processing";
+          // Cinematic scenes: lipSyncStatus should be 'done' (set immediately after Seedance)
+          return s.lipSyncStatus === "processing";
         }
       });
 
-      if (compositeIncomplete.length > 0) {
+      if (lipSyncIncomplete.length > 0) {
         console.log(
-          `[AssemblyWorker] Job ${job.id} has ${compositeIncomplete.length} scene(s) not composite-ready — ` +
-          `resetting to 'rendering' so heartbeat can complete compositing first`
+          `[AssemblyWorker] Job ${job.id} has ${lipSyncIncomplete.length} scene(s) not lip-sync-ready — ` +
+          `resetting to 'rendering' so heartbeat can complete lip sync first`
         );
         await db
           .update(musicVideoJobs)
@@ -101,7 +101,7 @@ export async function processOrphanedAssemblyJobs(): Promise<void> {
         inFlightAssemblies.delete(job.id);
         continue;
       }
-      // ── END COMPOSITE GUARD ─────────────────────────────────────────────────
+      // ── END LIP SYNC GUARD ──────────────────────────────────────────────────
 
       // Look up audioTier from the most recent renderJob for this musicVideoJob
       const [latestRenderJob] = await db
