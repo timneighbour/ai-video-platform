@@ -456,6 +456,62 @@ async function startServer() {
     }
   });
 
+  // ── Orchestration Server Callback: composite job result ──────────────────────
+  // The persistent orchestration server (34.24.150.95:4001) POSTs here when a
+  // composite job completes. This endpoint updates the DB with the composited
+  // video URL and advances the scene to compositeStatus=done.
+  app.post("/api/composite-callback", async (req, res) => {
+    try {
+      const { jobId, sceneId, status, compositeVideoUrl, error } = req.body as {
+        jobId: string;
+        sceneId: string;
+        status: "done" | "error";
+        compositeVideoUrl?: string;
+        error?: string;
+      };
+
+      if (!jobId || !sceneId || !status) {
+        return res.status(400).json({ error: "Missing required fields: jobId, sceneId, status" });
+      }
+
+      const db = await getDb();
+      if (!db) return res.status(503).json({ error: "Database unavailable" });
+      const { musicVideoScenes } = await import("../../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+
+      const sceneIdNum = parseInt(sceneId, 10);
+      if (isNaN(sceneIdNum)) {
+        return res.status(400).json({ error: `Invalid sceneId: ${sceneId}` });
+      }
+
+      if (status === "done" && compositeVideoUrl) {
+        await db.update(musicVideoScenes)
+          .set({
+            compositeStatus: "done",
+            compositeVideoUrl,
+            updatedAt: new Date(),
+          })
+          .where(eq(musicVideoScenes.id, sceneIdNum));
+        console.log(`[CompositeCallback] Scene ${sceneId}: composite done → ${compositeVideoUrl.slice(0, 80)}...`);
+      } else if (status === "error") {
+        await db.update(musicVideoScenes)
+          .set({
+            compositeStatus: "error",
+            updatedAt: new Date(),
+          })
+          .where(eq(musicVideoScenes.id, sceneIdNum));
+        console.error(`[CompositeCallback] Scene ${sceneId}: composite error — ${error ?? "unknown"}`);
+      } else {
+        return res.status(400).json({ error: `Invalid status or missing compositeVideoUrl` });
+      }
+
+      return res.json({ ok: true, sceneId, status });
+    } catch (err: any) {
+      console.error("[CompositeCallback] Error:", err?.message);
+      return res.status(500).json({ error: err?.message ?? "unknown" });
+    }
+  });
+
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);

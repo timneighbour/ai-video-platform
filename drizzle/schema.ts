@@ -338,6 +338,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   compositeVideoUrl: varchar("compositeVideoUrl", { length: 1024 }), // Final composited clip URL (Zara on concert hall background)
   compositeVideoKey: varchar("compositeVideoKey", { length: 512 }), // S3 key for composited clip
   compositeAttempts: int("compositeAttempts").notNull().default(0), // Number of compositing attempts
+  compositeJobId: varchar("compositeJobId", { length: 255 }), // Orchestration server jobId (for async composite tracking)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoScenes` ADD `compositeJobId` varchar(255);

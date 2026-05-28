@@ -680,6 +680,13 @@
       "when": 1779476421970,
       "tag": "0096_gorgeous_black_widow",
       "breakpoints": true
+    },
+    {
+      "idx": 97,
+      "version": "5",
+      "when": 1779990877958,
+      "tag": "0097_sparkling_master_mold",
+      "breakpoints": true
     }
   ]
 }

@@ -8410,3 +8410,10 @@
 - [ ] Add ORCHESTRATION_SERVER_URL to webdev secrets
 - [ ] Test end-to-end: Cloud Run → orchestration server → S3 → callback → database update
 - [ ] Monitor scene 8 (ID 750033) re-composite with new 0.15 threshold on orchestration server
+
+## Orchestration Server Wiring (2026-05-28) - COMPLETED ✅
+- [x] Add ORCHESTRATION_SERVER_URL secret (http://34.24.150.95:4001)
+- [x] Rewrite cinematic-composite-service.ts: delegate compositing to orchestration server (async POST /composite)
+- [x] Add local ffmpeg fallback when orchestration server unreachable
+- [x] Add compositeJobId column to musicVideoScenes schema (migration 0097 applied)
+- [x] Add /api/composite-callback endpoint to receive async composite results
