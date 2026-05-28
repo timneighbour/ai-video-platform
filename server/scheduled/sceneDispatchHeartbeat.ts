@@ -482,15 +482,27 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
 
                     // ── STAGE 1b: RAW SCENE VALIDATION GATE ──────────────────────────────
                     // Before submitting to InfiniteTalk, validate the raw Seedance clip.
-                    // If the clip shows a grey background or no real environment, reset to pending.
+                    // Checks: real background, no head crop, face size, population, framing, environment.
+                    // If any check fails, reset to pending for re-generation.
                     // This prevents wasting InfiniteTalk API cost on bad Seedance outputs.
+                    const scenePromptLower = (scene.prompt ?? "").toLowerCase();
+                    const requiresPopulation = (
+                      scenePromptLower.includes("orchestra") ||
+                      scenePromptLower.includes("audience") ||
+                      scenePromptLower.includes("session musician") ||
+                      scenePromptLower.includes("musicians") ||
+                      scenePromptLower.includes("lyndhurst hall") ||
+                      scenePromptLower.includes("air studios") ||
+                      scenePromptLower.includes("concert hall")
+                    );
                     const rawValidation = await validateRawSceneForLipSync(
                       pollResult.videoUrl,
                       scene.id,
-                      scene.sceneIndex ?? 0
+                      scene.sceneIndex ?? 0,
+                      requiresPopulation
                     );
                     if (!rawValidation.passed) {
-                      console.warn(`[SceneDispatch] Scene ${scene.id} FAILED raw validation — resetting to pending for re-generation. Reason: ${rawValidation.reason}`);
+                      console.warn(`[SceneDispatch] Scene ${scene.id} FAILED raw validation [${rawValidation.failureCategory ?? "unknown"}] — resetting to pending for re-generation. Reason: ${rawValidation.reason}`);
                       await db.update(musicVideoScenes)
                         .set({
                           status: "pending",

@@ -159,7 +159,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   creditCost: int("creditCost").default(0).notNull(),
   characterRoster: text("characterRoster"), // JSON array of all characters (locked + AI-invented) with fixed descriptions
   sceneSetting: text("sceneSetting"), // User-chosen visual environment — TEXT (no length limit) so users can paste full descriptions
-  performanceShotRatio: int("performanceShotRatio").default(75), // 0-100: % of scenes that should be character performance shots (default 75%)
+  performanceShotRatio: int("performanceShotRatio").default(80), // 0-100: % of scenes that should be character performance shots (default 80% for vocal-led tracks)
   characterLockEnabled: boolean("characterLockEnabled").default(true).notNull(), // Whether to enforce face consistency validation across scenes
   // --- Style Lock -------------------------------------------------------
   lockedStyle: text("lockedStyle"), // JSON: { descriptor: string, lighting: string, colourPalette: string, cameraAngle: string, mood: string, rawPromptSuffix: string }

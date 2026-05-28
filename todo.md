@@ -8456,3 +8456,57 @@
 - [x] Replace hardcoded 70-80%/20-30% ratios with dynamic performanceShotRatio in LLM prompt
 - [x] Add Shot Mix UI card with 3 presets (Cinematic/Balanced/Performance) + custom slider + visual bar
 - [x] Write and pass vitest tests for performanceShotRatio (5/5 tests passing)
+
+## Phase 1 — Immediate Pipeline Quality Improvements
+
+### Phase 1a — Shot Mix Default
+- [ ] Change default performanceShotRatio from 75 to 80 (DB default, UI default, localStorage default, service default)
+
+### Phase 1b — Storyboard LLM Linting Rules
+- [ ] Add vocal-only singing scene rule: only scenes with active vocals may be classified as "singing performance" scenes
+- [ ] Add max 2 consecutive intercuts rule (unless no active lead vocal)
+- [ ] Add explicit population field enforcement (orchestra+audience or none — must be stated)
+- [ ] Add explicit atmosphere field enforcement (lighting, haze, depth, room detail — must be stated)
+- [ ] Add structured prompt slot enforcement (shot_size, face_priority, environment, population, camera_motion, emotion, tempo_motion)
+- [ ] Add forbidden token list (grey background, isolated studio background, floating portrait, microphone-only hero frame, empty stage, duplicate singer, vague "performs on stage")
+- [ ] Add at-least-half-medium-close-up rule for performance scenes
+- [ ] Change storyboard LLM prompt to enforce exact prompt formula with all required slots
+
+### Phase 1c — Raw Scene Validation Gate Upgrades
+- [ ] Add head crop detection (crown or chin excluded = fail)
+- [ ] Add minimum face size threshold (face too small for believable singing = fail)
+- [ ] Add missing population detection (empty hall when orchestra/audience required = fail)
+- [ ] Add weak framing detection (face not primary focus in performance scene = fail)
+- [ ] Add empty environment rejection (dominant flat grey or low-variance background = fail)
+
+## Phase 2 — Architecture Implementation
+
+### Phase 2a — Manifest Schema + Scene Graph
+- [ ] Design versioned render manifest JSON schema (project ID, song metadata, scene list, lyrics intervals, provider/model per scene, prompt, seeds, aspect ratio, expected duration, validation results, retry counters, final asset URLs)
+- [ ] Add render_manifest table to DB schema
+- [ ] Add scene state machine with explicit states (pending_storyboard, queued_render, provider_created, provider_processing, raw_generated, raw_failed_gate, correction_queued, corrected, approved, assembly_ready, assembled, delivered)
+
+### Phase 2b — Webhook-First Provider I/O
+- [ ] Move WaveSpeed/Seedance job submission to async with webhook receipt
+- [ ] Add webhook handler with signature verification and idempotency
+- [ ] Fall back to polling only for recovery/debugging
+
+### Phase 2c — Immediate Asset Copy
+- [ ] Copy every WaveSpeed/Seedance provider output to WIZ S3 immediately on completion (7-day retention window is P0 risk)
+- [ ] Store provider task IDs for audit and explicit deletion
+- [ ] Never use provider URLs as durable assets in assembly
+
+### Phase 2d — SKIP LOCKED Queue + Advisory Locks
+- [ ] Implement DB queue with FOR UPDATE SKIP LOCKED worker leasing
+- [ ] Add project-level advisory locks before mutating render graph or launching assembly
+
+### Phase 2e — LSE-D/LSE-C Lip-Sync Gating
+- [ ] Implement SyncNet-style lip-sync metrics gate (Green: LSE-D ≤ 8.0 and LSE-C ≥ 6.5; Amber: 8-10/4-6.5; Red: >10/<4.0)
+- [ ] Implement temporal alignment gate (pass ≤40ms, review 40-80ms, fail >80ms)
+
+## Phase 1 Upgrades (2026-05-28)
+- [x] Change default shot mix from 75% to 80% (service, DB, tRPC, UI)
+- [x] Add 7 storyboard LLM linting rules (vocal-only, max 2 intercuts, medium close-up, population, atmosphere, structured slots, forbidden tokens)
+- [x] Upgrade raw-scene validation gate v2 (head crop, face size, missing population, weak framing, empty environment, failureCategory)
+- [x] Update heartbeat to infer requiresPopulation from scene prompt keywords
+- [x] All 18 Phase 1 tests pass, 772 total tests pass

@@ -685,8 +685,8 @@ export default function MusicVideoAutopilot() {
   const [sceneSetting, setSceneSetting] = useLocalStorage("musicVideo_sceneSetting", "");
   // User-selected duration cap: null = full song, or a number in seconds to cap the video length
   const [selectedDurationCap, setSelectedDurationCap] = useLocalStorage<number | null>("musicVideo_durationCap", null);
-  // Performance/cinematic ratio: 0-100, default 75 (75% performance shots, 25% cinematic intercuts)
-  const [performanceShotRatio, setPerformanceShotRatio] = useLocalStorage<number>("musicVideo_performanceShotRatio", 75);
+  // Performance/cinematic ratio: 0-100, default 80 (80% performance shots for vocal-led tracks, 20% cinematic intercuts)
+  const [performanceShotRatio, setPerformanceShotRatio] = useLocalStorage<number>("musicVideo_performanceShotRatio", 80);
 
   // Handle URL params: ?job_id=X&render_started=true (redirected from RenderSuccess after Stripe payment)
   // Also handles ?demo=1&prompt=... (quick-start pre-fill from onboarding)

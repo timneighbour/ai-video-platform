@@ -201,7 +201,7 @@ export async function generateStoryboard(
   existingContentAnalysis?: ContentAnalysis | null,
   enableLipSync?: boolean,
   songBpm?: number | null,
-  performanceShotRatio: number = 75
+  performanceShotRatio: number = 80
 ): Promise<StoryboardResult> {
   const sceneCount = calculateSceneCount(audioDurationSeconds);
 
@@ -569,6 +569,54 @@ CINEMATIC INTERCUT SCENES (${100 - performanceShotRatio}% of total):
   • Empty conductor's podium with orchestra behind
   • Atmospheric hall reverb — mist, dust particles in light beams
   These use "hailuo-minimax" and have empty characterAssignments []
+
+═══════════════════════════════════════════════════════════════
+🎙️ VOCAL-SCENE LINTING RULES (NON-NEGOTIABLE — ENFORCED BEFORE OUTPUT):
+═══════════════════════════════════════════════════════════════
+
+RULE 1 — VOCAL-ONLY SINGING SCENES:
+  Only scenes with ACTIVE LEAD VOCALS may be classified as singing performance scenes.
+  Instrumental sections, intros, outros, and bridges with no lead vocal MUST be intercut/atmospheric scenes.
+  Do NOT assign a singing performance scene to a section where no one is singing.
+
+RULE 2 — MAX 2 CONSECUTIVE INTERCUTS:
+  You may NOT place more than 2 consecutive cinematic intercut scenes in a row unless there is no active lead vocal in that section.
+  After 2 intercuts, the next scene MUST be a performance scene (if vocals are active).
+  This prevents the video from losing the performer for too long.
+
+RULE 3 — AT LEAST HALF OF PERFORMANCE SCENES MUST BE MEDIUM CLOSE-UP OR HEAD-AND-SHOULDERS:
+  At least 50% of all performance scenes must be framed as medium close-up or head-and-shoulders.
+  This preserves face readability and keeps lip-sync correction viable.
+  Wide performance shots are allowed but must not dominate.
+
+RULE 4 — EXPLICIT POPULATION FIELD (REQUIRED FOR EVERY HALL/STUDIO SCENE):
+  Every hall, studio, or indoor performance scene MUST explicitly state the population:
+  • If orchestra/audience is present: state it — "full orchestra visible behind her", "seated audience filling the hall", "session musicians at their stands"
+  • If the scene is intentionally empty: state it — "empty hall, chairs vacant, only ambient light"
+  NEVER leave the population ambiguous. Empty rooms happen when you forget to ask for people.
+
+RULE 5 — EXPLICIT ATMOSPHERE FIELD (REQUIRED FOR EVERY SCENE):
+  Every scene MUST explicitly state the atmosphere:
+  • Lighting: "warm amber key light", "cool blue rim", "soft diffused daylight", "dramatic side-lighting"
+  • Depth/haze: "shallow depth of field", "soft bokeh background", "light haze in the air", "dust particles in light beams"
+  • Room detail: "high vaulted ceiling", "tall windows", "dark wood panelling", "acoustic panels"
+  Atmosphere is what separates a cinematic shot from an empty AI room.
+
+RULE 6 — STRUCTURED PROMPT SLOT ENFORCEMENT:
+  Every performance scene prompt MUST contain all of these elements (in any order):
+  [shot_size] + [camera_move] + [character_in_environment] + [population] + [lighting] + [emotion] + [depth_cue]
+  Example: "Medium close-up [shot_size], slow push-in [camera_move] on Zara singing inside Lyndhurst Hall [character_in_environment], full orchestra visible behind her [population], warm amber key light [lighting], emotionally vulnerable expression [emotion], shallow depth of field [depth_cue]."
+
+RULE 7 — FORBIDDEN TOKENS (NEVER USE THESE IN ANY PROMPT):
+  The following patterns are BANNED and will cause the scene to fail validation:
+  ❌ "grey background" or "gray background"
+  ❌ "isolated studio background" or "plain background"
+  ❌ "floating portrait" or "portrait against"
+  ❌ "microphone stand" or "at a microphone" (unless user explicitly requested)
+  ❌ "empty stage" or "empty room" or "empty hall" (unless intentional — must be labelled as such)
+  ❌ "duplicate singer" or "two versions of"
+  ❌ "performs on stage" (too vague — always specify the exact environment)
+  ❌ "singing in front of" (implies a flat background — use "inside" or "within" instead)
 ═══════════════════════════════════════════════════════════════` : "";
 
   const systemPrompt = `You are a premium cinematic music video director — not an AI avatar generator.

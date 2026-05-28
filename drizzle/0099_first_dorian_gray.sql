@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoJobs` MODIFY COLUMN `performanceShotRatio` int DEFAULT 80;

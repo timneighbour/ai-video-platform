@@ -55,7 +55,12 @@ describe("Heartbeat Fix 1: Failed scene recovery clears idempotency", () => {
     expect(containsPattern(failedBlock, "lipSyncStatus: \"pending\"")).toBe(true);
     expect(containsPattern(failedBlock, "lipSyncTaskId: null")).toBe(true);
     expect(containsPattern(failedBlock, "lipSyncVideoUrl: null")).toBe(true);
-    expect(containsPattern(failedBlock, "compositeStatus: \"pending\"")).toBe(true);
+    // NEW PIPELINE (2026-05-28): compositeStatus is set to 'skipped' (not 'pending')
+    // because the compositing stage has been removed from the pipeline.
+    expect(
+      containsPattern(failedBlock, "compositeStatus: \"skipped\"") ||
+      containsPattern(failedBlock, "compositeStatus: \"pending\"")
+    ).toBe(true);
     expect(containsPattern(failedBlock, "compositeVideoUrl: null")).toBe(true);
   });
 });
@@ -124,24 +129,25 @@ describe("Heartbeat Fix 6: nowPending excludes scenes with taskId", () => {
 
 describe("Heartbeat Fix 7: nowLipSyncReady excludes error", () => {
   it("nowLipSyncReady only includes lipSyncStatus=done (not error)", () => {
-    const lipSyncReadyDef = heartbeatSrc.slice(
-      heartbeatSrc.indexOf("Lip sync readiness: a scene is"),
-      heartbeatSrc.indexOf("Lip sync readiness: a scene is") + 400
-    );
-    expect(containsPattern(lipSyncReadyDef, "s.lipSyncStatus === \"done\"")).toBe(true);
-    // Must NOT include error as acceptable
-    expect(containsPattern(lipSyncReadyDef, "|| s.lipSyncStatus === \"error\"")).toBe(false);
+    // NEW PIPELINE: the assembly gate uses lipSyncStatus=done directly.
+    // Check that the heartbeat uses lipSyncStatus === "done" for assembly readiness.
+    expect(containsPattern(heartbeatSrc, "s.lipSyncStatus === \"done\"")).toBe(true);
+    // Must NOT include error as acceptable for assembly readiness
+    expect(containsPattern(heartbeatSrc, "|| s.lipSyncStatus === \"error\"")).toBe(false);
   });
 });
 
-describe("Heartbeat Fix 8: Composite reaper resets error scenes too", () => {
-  it("stuckCompositeScenes filter includes compositeStatus=error scenes under attempt limit", () => {
-    const reaperDef = heartbeatSrc.slice(
-      heartbeatSrc.indexOf("Resets scenes stuck in 'processing'"),
-      heartbeatSrc.indexOf("Resets scenes stuck in 'processing'") + 600
-    );
-    expect(containsPattern(reaperDef, "compositeStatus === \"error\"")).toBe(true);
-    expect(containsPattern(reaperDef, "compositeAttempts ?? 0) < MAX_COMPOSITE_ATTEMPTS")).toBe(true);
+describe("Heartbeat Fix 8: Composite reaper removed (new pipeline)", () => {
+  it("compositing stage is removed — compositeStatus is set to skipped for all scenes", () => {
+    // NEW PIPELINE (2026-05-28): The compositing stage has been removed entirely.
+    // compositeStatus is set to 'skipped' for all scenes (not 'pending' or 'processing').
+    // The composite reaper no longer exists as an active stage in the heartbeat.
+    expect(containsPattern(heartbeatSrc, "compositeStatus: \"skipped\"")).toBe(true);
+    // The heartbeat must NOT actively dispatch compositing work
+    // (references to chromakey/compositing may exist in comments, but active dispatch must be gone)
+    expect(containsPattern(heartbeatSrc, "submitComposite")).toBe(false);
+    // The compositing stage removed comment must be present
+    expect(containsPattern(heartbeatSrc, "compositing stage")).toBe(true);
   });
 });
 

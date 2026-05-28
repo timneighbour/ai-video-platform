@@ -205,7 +205,7 @@ export const musicVideoRouter = router({
         creditCost,
         characterRoster: null,
         sceneSetting: input.sceneSetting ?? null,
-        performanceShotRatio: input.performanceShotRatio ?? 75,
+        performanceShotRatio: input.performanceShotRatio ?? 80,
         lyricsApproved: false,
         errorMessage: null,
       });
