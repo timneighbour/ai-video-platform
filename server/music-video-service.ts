@@ -200,7 +200,8 @@ export async function generateStoryboard(
   sceneSetting?: string | null,
   existingContentAnalysis?: ContentAnalysis | null,
   enableLipSync?: boolean,
-  songBpm?: number | null
+  songBpm?: number | null,
+  performanceShotRatio: number = 75
 ): Promise<StoryboardResult> {
   const sceneCount = calculateSceneCount(audioDurationSeconds);
 
@@ -524,8 +525,8 @@ CINEMATIC VARIETY MANDATE — for every 5 scenes, include at minimum:
   //   • NO grey backgrounds — the character is part of the scene world
   //   • NO microphone unless explicitly requested
   //   • InfiniteTalk is a lip-sync CORRECTION PASS on the already-coherent Seedance clip
-  //   • 70-80% of scenes must be tight performance shots (character face visible)
-  //   • 20-30% must be cinematic intercuts (orchestral wides, atmosphere, cutaways)
+  //   • performanceShotRatio% of scenes must be tight performance shots (character face visible)
+  //   • (100-performanceShotRatio)% must be cinematic intercuts (orchestral wides, atmosphere, cutaways)
   // ─────────────────────────────────────────────────────────────────────────────
   const hasCharacterImage = hasLockedCharacters; // character image = locked character present
 
@@ -558,7 +559,7 @@ EXAMPLE BAD PERFORMANCE PROMPT (NEVER DO THIS):
   "Zara performs on stage with dramatic lighting." ← WRONG: too vague, no environment detail
   "Tight shot of Zara's face singing." ← WRONG: no environment context, no camera movement
 
-CINEMATIC INTERCUT SCENES (20-30% of total):
+CINEMATIC INTERCUT SCENES (${100 - performanceShotRatio}% of total):
   These scenes have NO character assignment. They are pure environment/atmosphere shots:
   • Wide shot of the full Lyndhurst Hall — orchestra, grand piano, high windows, warm light
   • Close-up of violin bows moving in slow motion
@@ -641,18 +642,18 @@ ${(enableLipSync && hasCharacterImage) ? `  ⚠️ NEW PIPELINE — CHARACTER IN
     - Character face must be clearly visible and forward-facing (required for lip-sync correction pass)
     - NO microphone unless explicitly requested
     - Camera moves around the character — dolly, push-in, slow drift
-    - Aim for 70-80% of scenes to be performance shots (character present, seedance-2.0)
+    - Aim for ${performanceShotRatio}% of scenes to be performance shots (character present, seedance-2.0)
   • Cinematic intercut scenes (no character, pure environment): MUST use "hailuo-minimax"
     - Wide shots of the hall, orchestra, instruments, light, atmosphere
     - Empty characterAssignments [] — no character assigned
-    - These are 20-30% of total scenes
+    - These are ${100 - performanceShotRatio}% of total scenes
   • NEVER assign a character to a scene and use "hailuo-minimax" — if a character is present, use "seedance-2.0"
   • NEVER write a performance prompt with a grey background, microphone stand, or empty studio` : enableLipSync ? `  ⚠️ LIP SYNC IS ACTIVE — CRITICAL FACE SHOT RULES:
   • EVERY scene where a character appears MUST use "seedance-2.0" and MUST be a close-up or medium shot with the character's face clearly visible and forward-facing
   • Wide shots, silhouettes, atmospheric cutaways, and scenes where no character face is visible MUST use "hailuo-minimax" — and these scenes should NOT have character assignments
   • The character's face must be the primary focus in every scene where they appear — this is essential for lip sync verification
   • Do NOT assign characters to wide/atmospheric scenes — reserve those for pure environmental shots
-  • Aim for 70-80% of scenes to be character close-up/medium shots ("seedance-2.0"), with 20-30% as atmospheric/environmental cutaways ("hailuo-minimax", no character assignments)` : `  • Use "seedance-2.0" ONLY for hero close-up performance shots where character likeness and facial expression are critical (e.g. the most powerful lyric moment, a direct-to-camera performance shot)
+  • Aim for ${performanceShotRatio}% of scenes to be character close-up/medium shots ("seedance-2.0"), with ${100 - performanceShotRatio}% as atmospheric/environmental cutaways ("hailuo-minimax", no character assignments)` : `  • Use "seedance-2.0" ONLY for hero close-up performance shots where character likeness and facial expression are critical (e.g. the most powerful lyric moment, a direct-to-camera performance shot)
   • Use "hailuo-minimax" for: wide shots, atmospheric scenes, crowd shots, instrument cutaways, silhouette shots, environmental scenes, any scene where the character's face is not the primary focus
   • Default to "hailuo-minimax" unless the scene specifically requires a close-up character face — this produces better cinematic results
   • Aim for no more than 30–40% of scenes using "seedance-2.0"` }

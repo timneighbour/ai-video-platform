@@ -685,6 +685,8 @@ export default function MusicVideoAutopilot() {
   const [sceneSetting, setSceneSetting] = useLocalStorage("musicVideo_sceneSetting", "");
   // User-selected duration cap: null = full song, or a number in seconds to cap the video length
   const [selectedDurationCap, setSelectedDurationCap] = useLocalStorage<number | null>("musicVideo_durationCap", null);
+  // Performance/cinematic ratio: 0-100, default 75 (75% performance shots, 25% cinematic intercuts)
+  const [performanceShotRatio, setPerformanceShotRatio] = useLocalStorage<number>("musicVideo_performanceShotRatio", 75);
 
   // Handle URL params: ?job_id=X&render_started=true (redirected from RenderSuccess after Stripe payment)
   // Also handles ?demo=1&prompt=... (quick-start pre-fill from onboarding)
@@ -1700,6 +1702,7 @@ export default function MusicVideoAutopilot() {
         characterImageMimeType: characterImageMimeType as any,
         enableLipSync,
         sceneSetting: sceneSetting.trim() || undefined,
+        performanceShotRatio,
       });
 
       setJobId(result.jobId);
@@ -3505,6 +3508,87 @@ export default function MusicVideoAutopilot() {
                         </button>
                       );
                     })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* ── Shot Mix Ratio Toggle ── */}
+              <Card className="studio-card border-0">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <span className="text-xl text-[--color-gold]">&#9632;</span>
+                    Shot Mix
+                    <Badge variant="outline" className="border-zinc-600 text-white/50 text-xs ml-1">Optional</Badge>
+                  </CardTitle>
+                  <p className="text-white/40 text-xs mt-1">
+                    Control the balance between character performance shots and cinematic intercuts.
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Preset buttons */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { label: "Cinematic", value: 50, desc: "50/50 split", icon: "🎬" },
+                      { label: "Balanced", value: 75, desc: "75% performance", icon: "⚖️" },
+                      { label: "Performance", value: 90, desc: "90% close-ups", icon: "🎤" },
+                    ].map((preset) => {
+                      const isActive = performanceShotRatio === preset.value;
+                      return (
+                        <button
+                          key={preset.value}
+                          type="button"
+                          onClick={() => setPerformanceShotRatio(preset.value)}
+                          className={`flex flex-col items-center gap-1 px-3 py-3 rounded-xl text-xs font-semibold border-2 transition-all ${
+                            isActive
+                              ? "bg-[--color-gold]/10 border-[--color-gold] text-[--color-gold]"
+                              : "bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.15)] text-white/60 hover:border-[--color-gold]/50 hover:text-white/90"
+                          }`}
+                        >
+                          <span className="text-base">{preset.icon}</span>
+                          <span className="font-bold tracking-wide">{preset.label}</span>
+                          <span className="text-[10px] font-normal opacity-60">{preset.desc}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {/* Custom slider */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-white/40">More cinematic</span>
+                      <span className="text-[--color-gold] font-bold font-mono">{performanceShotRatio}% performance</span>
+                      <span className="text-white/40">More close-ups</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={20}
+                      max={95}
+                      step={5}
+                      value={performanceShotRatio}
+                      onChange={(e) => setPerformanceShotRatio(Number(e.target.value))}
+                      className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
+                      style={{
+                        background: `linear-gradient(to right, rgba(184,137,42,0.8) 0%, rgba(184,137,42,0.8) ${((performanceShotRatio - 20) / 75) * 100}%, rgba(255,255,255,0.1) ${((performanceShotRatio - 20) / 75) * 100}%, rgba(255,255,255,0.1) 100%)`,
+                      }}
+                    />
+                    <div className="flex items-center justify-between text-[10px] text-white/30 font-mono">
+                      <span>{100 - performanceShotRatio}% intercuts</span>
+                      <span>{performanceShotRatio}% performance</span>
+                    </div>
+                  </div>
+                  {/* Visual breakdown */}
+                  <div className="flex rounded-lg overflow-hidden h-5 border border-[rgba(184,137,42,0.15)]">
+                    <div
+                      className="flex items-center justify-center text-[9px] font-bold text-black transition-all duration-300"
+                      style={{ width: `${performanceShotRatio}%`, background: 'rgba(184,137,42,0.8)' }}
+                    >
+                      {performanceShotRatio >= 40 ? `${performanceShotRatio}% PERF` : ''}
+                    </div>
+                    <div
+                      className="flex items-center justify-center text-[9px] font-bold text-white/60 transition-all duration-300"
+                      style={{ width: `${100 - performanceShotRatio}%`, background: 'rgba(255,255,255,0.06)' }}
+                    >
+                      {(100 - performanceShotRatio) >= 20 ? `${100 - performanceShotRatio}% CUT` : ''}
+                    </div>
                   </div>
                 </CardContent>
               </Card>

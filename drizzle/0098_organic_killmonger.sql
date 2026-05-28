@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoJobs` ADD `performanceShotRatio` int DEFAULT 75;

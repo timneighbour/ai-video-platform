@@ -95,6 +95,7 @@ export const musicVideoRouter = router({
         characterImageMimeType: z.string().optional(), // e.g. "image/jpeg"
         enableLipSync: z.boolean().optional(),
         sceneSetting: z.string().max(5000).optional(), // e.g. "concert venue", "desert", "rooftop" — high limit so users can paste full descriptions
+        performanceShotRatio: z.number().int().min(0).max(100).optional(), // 0-100: % of scenes that should be character performance shots (default 75)
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -204,6 +205,7 @@ export const musicVideoRouter = router({
         creditCost,
         characterRoster: null,
         sceneSetting: input.sceneSetting ?? null,
+        performanceShotRatio: input.performanceShotRatio ?? 75,
         lyricsApproved: false,
         errorMessage: null,
       });
@@ -490,7 +492,8 @@ Rules:
         job.sceneSetting ?? undefined,
         undefined, // existingContentAnalysis
         job.enableLipSync ?? false,
-        job.songBpm ?? null
+        job.songBpm ?? null,
+        job.performanceShotRatio ?? 75
       ));
 
       console.log(`[MusicVideo] Roster for job ${input.jobId}: ${roster.map(c => c.name).join(", ")}`);

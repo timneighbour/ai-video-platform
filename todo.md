@@ -8439,3 +8439,20 @@
 - [x] sceneDispatchHeartbeat: compositeStatus=skipped for ALL scenes (compositing removed)
 - [x] assemblyWorker: replace composite guard with lip sync guard (lipSyncStatus=done required)
 - [x] assembleMusicVideo: use lipSyncVideoUrl (not compositeVideoUrl) for performance scene clips
+
+## Performance/Cinematic Ratio Toggle (2026-05-28)
+- [ ] Add performanceShotRatio field to storyboard generation tRPC input (0-100, default 75)
+- [ ] Pass performanceShotRatio through generateStoryboard to the LLM prompt
+- [ ] Update storyboard LLM prompt to use the user-specified ratio instead of hardcoded 70-80%
+- [ ] Add ratio toggle UI to the music video creation form (presets + custom slider)
+- [ ] Persist ratio preference in the job record (new column or existing metadata)
+- [ ] Write vitest test for the ratio parameter
+
+- [x] Add performanceShotRatio state to MusicVideoAutopilot.tsx (useLocalStorage, default 75)
+- [x] Add performanceShotRatio to createJob tRPC input schema (z.number().int().min(0).max(100).optional())
+- [x] Store performanceShotRatio in musicVideoJobs DB table (migration applied)
+- [x] Pass performanceShotRatio from job to generateStoryboard service call
+- [x] Add performanceShotRatio parameter to generateStoryboard function signature
+- [x] Replace hardcoded 70-80%/20-30% ratios with dynamic performanceShotRatio in LLM prompt
+- [x] Add Shot Mix UI card with 3 presets (Cinematic/Balanced/Performance) + custom slider + visual bar
+- [x] Write and pass vitest tests for performanceShotRatio (5/5 tests passing)
