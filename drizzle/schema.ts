@@ -1542,3 +1542,131 @@ export const validationRuns = mysqlTable("validationRuns", {
 });
 export type ValidationRun = typeof validationRuns.$inferSelect;
 export type InsertValidationRun = typeof validationRuns.$inferInsert;
+
+// =============================================================================
+// MANIFEST-DRIVEN SCENE GRAPH (Phase 2a — 2026-05-28)
+// Architecture: https://wiz-ai.io/docs/pipeline-architecture
+//
+// Three additive tables that implement the manifest-driven orchestration layer:
+//   1. renderManifests   — versioned JSON manifest per job (one-to-one with musicVideoJobs)
+//   2. sceneAuditLog     — immutable per-scene audit trail (prompt, seed, validation metrics, retries)
+//   3. sceneWebhookEvents — idempotent webhook receipt log (provider task ID, event type, dedup hash)
+// =============================================================================
+
+/**
+ * renderManifests
+ * One manifest per music video job. Stores the full versioned render plan as JSON,
+ * including scene list, provider assignments, seeds, validation results, and final asset URLs.
+ * This is the single source of truth for rerenders — replaying the manifest must produce
+ * a deterministic output.
+ */
+export const renderManifests = mysqlTable("renderManifests", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: int("jobId").notNull().unique(),          // FK → musicVideoJobs.id (one manifest per job)
+  schemaVersion: varchar("schemaVersion", { length: 16 }).notNull().default("1.0"), // Manifest schema version for migration
+  // Core manifest fields (also stored as structured columns for fast querying)
+  totalScenes: int("totalScenes").notNull().default(0),
+  approvedScenes: int("approvedScenes").notNull().default(0),
+  failedScenes: int("failedScenes").notNull().default(0),
+  pendingScenes: int("pendingScenes").notNull().default(0),
+  // Full manifest JSON — includes scene list, provider assignments, seeds, validation results
+  manifestJson: longtext("manifestJson"),          // JSON: RenderManifest (see shared/manifest-types.ts)
+  // Pipeline state machine (job-level)
+  pipelineState: mysqlEnum("manifestPipelineState", [
+    "draft",               // Storyboard not yet generated
+    "storyboard_ready",    // Storyboard generated, scenes queued
+    "rendering",           // Scenes being rendered by providers
+    "validation",          // All scenes generated, running validation gates
+    "correction",          // Some scenes in InfiniteTalk correction pass
+    "assembly_ready",      // All scenes approved, ready for final assembly
+    "assembling",          // Final assembly in progress
+    "delivered",           // Final video delivered to user
+    "failed",              // Unrecoverable failure
+    "paused",              // User-paused or spend-limit reached
+  ]).notNull().default("draft"),
+  // Spend tracking (mirrored from musicVideoJobs for manifest-level reporting)
+  totalProviderSpendUsd: decimal("totalProviderSpendUsd", { precision: 8, scale: 4 }).notNull().default("0"),
+  // Audit
+  lastUpdatedBy: varchar("lastUpdatedBy", { length: 64 }), // "heartbeat" | "webhook" | "user" | "admin"
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type RenderManifest = typeof renderManifests.$inferSelect;
+export type InsertRenderManifest = typeof renderManifests.$inferInsert;
+
+/**
+ * sceneAuditLog
+ * Immutable append-only audit trail for every scene state transition.
+ * Each row captures: what prompt was used, which provider was called, what the validation
+ * result was, and why the scene moved to its new state. Never updated — only inserted.
+ */
+export const sceneAuditLog = mysqlTable("sceneAuditLog", {
+  id: int("id").autoincrement().primaryKey(),
+  sceneId: int("sceneId").notNull(),               // FK → musicVideoScenes.id
+  jobId: int("jobId").notNull(),                   // FK → musicVideoJobs.id (denormalised for fast job-level queries)
+  // State transition
+  fromState: varchar("fromState", { length: 64 }), // Previous scene status
+  toState: varchar("toState", { length: 64 }).notNull(), // New scene status
+  triggeredBy: varchar("triggeredBy", { length: 64 }).notNull(), // "heartbeat" | "webhook" | "user" | "validation_gate" | "reaper"
+  // Provider context
+  provider: varchar("provider", { length: 64 }),   // "wavespeed-seedance-2.0" | "wavespeed-hailuo" | "infinitetalk" | "hedra"
+  providerTaskId: varchar("providerTaskId", { length: 255 }), // Provider job/task ID at time of transition
+  providerModel: varchar("providerModel", { length: 128 }), // Exact model slug used
+  // Prompt snapshot (captured at submission time — immutable record of what was sent)
+  promptSnapshot: text("promptSnapshot"),          // Full prompt text sent to provider
+  negativePromptSnapshot: text("negativePromptSnapshot"), // Negative prompt (if any)
+  seedValue: varchar("seedValue", { length: 64 }), // Seed used for deterministic rerender
+  // Validation results
+  validationGate: varchar("validationGate", { length: 64 }), // "raw_scene" | "lip_sync" | "av_sync" | "assembly"
+  validationPassed: boolean("validationPassed"),   // null = not validated, true = pass, false = fail
+  validationFailureCategory: varchar("validationFailureCategory", { length: 64 }), // e.g. "grey_background" | "head_crop" | "missing_population"
+  validationMetricsJson: text("validationMetricsJson"), // JSON: { lseD, lseC, offsetMs, driftMs, faceSize, ... }
+  // Retry context
+  retryNumber: int("retryNumber").notNull().default(0), // Which retry attempt this represents (0 = first attempt)
+  retryReason: text("retryReason"),                // Human-readable reason for retry
+  // Asset URLs at time of transition (for before/after comparison)
+  rawVideoUrl: varchar("rawVideoUrl", { length: 1024 }), // Seedance output URL
+  correctedVideoUrl: varchar("correctedVideoUrl", { length: 1024 }), // InfiniteTalk output URL
+  screenshotUrl: varchar("screenshotUrl", { length: 1024 }), // Frame capture at validation time
+  // Cost
+  providerCostUsd: decimal("providerCostUsd", { precision: 6, scale: 4 }).notNull().default("0"),
+  // Metadata
+  errorMessage: text("errorMessage"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(), // Immutable — no updatedAt
+});
+export type SceneAuditEntry = typeof sceneAuditLog.$inferSelect;
+export type InsertSceneAuditEntry = typeof sceneAuditLog.$inferInsert;
+
+/**
+ * sceneWebhookEvents
+ * Idempotent log of all incoming provider webhook events.
+ * Deduplication is enforced by (providerTaskId, eventType) unique index.
+ * The heartbeat processes unprocessed events on each tick.
+ */
+export const sceneWebhookEvents = mysqlTable("sceneWebhookEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  // Provider identification
+  provider: varchar("provider", { length: 64 }).notNull(), // "wavespeed" | "infinitetalk" | "hedra" | "synclabs"
+  providerTaskId: varchar("providerTaskId", { length: 255 }).notNull(), // Provider's task/job ID
+  eventType: varchar("eventType", { length: 64 }).notNull(), // "completed" | "failed" | "processing" | "created"
+  // Deduplication
+  payloadHash: varchar("payloadHash", { length: 64 }), // SHA-256 of raw payload (for exact-duplicate detection)
+  // Processing state
+  processed: boolean("processed").notNull().default(false), // false = pending processing by heartbeat
+  processedAt: timestamp("processedAt"),           // When heartbeat processed this event
+  processingError: text("processingError"),        // Error if processing failed
+  processingAttempts: int("processingAttempts").notNull().default(0), // Number of processing attempts
+  // Payload
+  rawPayloadJson: longtext("rawPayloadJson"),      // Full raw webhook payload (for debugging/replay)
+  // Resolved context (filled in when processed)
+  resolvedSceneId: int("resolvedSceneId"),         // FK → musicVideoScenes.id (resolved from providerTaskId)
+  resolvedJobId: int("resolvedJobId"),             // FK → musicVideoJobs.id
+  // Signature verification
+  signatureVerified: boolean("signatureVerified").notNull().default(false), // Was webhook signature verified?
+  // Timing
+  receivedAt: timestamp("receivedAt").defaultNow().notNull(), // When webhook was received
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SceneWebhookEvent = typeof sceneWebhookEvents.$inferSelect;
+export type InsertSceneWebhookEvent = typeof sceneWebhookEvents.$inferInsert;

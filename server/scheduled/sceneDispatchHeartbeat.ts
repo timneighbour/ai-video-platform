@@ -55,6 +55,8 @@ import {
   musicVideoJobs,
 } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
+import { acquireJobLock, releaseJobLock } from "../queue-lock";
+import { assessLipSyncQuality, shouldProceedToAssembly, shouldRetryLipSync } from "../lip-sync-gate";
 import { sdk } from "../_core/sdk";
 import { startSceneRender, pollSceneStatus } from "../music-video-service";
 import { extractSceneAudioClip } from "../audio-clip-extractor";
@@ -725,18 +727,54 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 const key = `music-video-scenes/${scene.id}-infinitetalk-${Date.now()}.mp4`;
                 const { url } = await storagePut(key, buf, "video/mp4");
 
-                await db.update(musicVideoScenes)
-                  .set({
-                    lipSyncStatus: "done",
-                    lipSyncVideoUrl: url,
-                    lipSyncVideoKey: key,
-                    // Compositing removed (2026-05-28) — lipSyncVideoUrl IS the final clip
-                    compositeStatus: "skipped",
-                    updatedAt: new Date(),
-                  })
-                  .where(eq(musicVideoScenes.id, scene.id));
-                console.log(`[SceneDispatch] Scene ${scene.id} InfiniteTalk lip sync DONE ✓ → compositeStatus=skipped (compositing removed)`);
-                totalLipSyncPolled++;
+                // ── LSE-D / LSE-C lip-sync gate ──────────────────────────────────────────────────
+                // Assess lip-sync quality before marking as done.
+                // GREEN/AMBER → proceed to assembly (AMBER is flagged in audit log)
+                // RED → reset to pending for retry
+                let lipSyncGateResult;
+                try {
+                  lipSyncGateResult = await assessLipSyncQuality({
+                    videoUrl: url,
+                    sceneId: scene.id,
+                    jobId: job.id,
+                    scenePrompt: scene.prompt ?? undefined,
+                  });
+                } catch (gateErr: any) {
+                  console.warn(`[SceneDispatch] Scene ${scene.id} lip-sync gate error (fail open): ${gateErr.message}`);
+                  lipSyncGateResult = { gate: "AMBER" as const, usedSyncNetMetrics: false, confidence: 0.2 };
+                }
+
+                if (shouldRetryLipSync(lipSyncGateResult)) {
+                  // RED gate: reset to pending for retry
+                  console.warn(
+                    `[SceneDispatch] Scene ${scene.id} lip-sync gate RED — retrying. Reason: ${lipSyncGateResult.failureReason ?? "LLM assessment"}`
+                  );
+                  await db.update(musicVideoScenes)
+                    .set({ lipSyncStatus: "pending", lipSyncTaskId: null, updatedAt: new Date() })
+                    .where(eq(musicVideoScenes.id, scene.id));
+                } else {
+                  // GREEN or AMBER: proceed
+                  if (lipSyncGateResult.gate === "AMBER") {
+                    console.warn(
+                      `[SceneDispatch] Scene ${scene.id} lip-sync gate AMBER — proceeding with flag. Assessment: ${lipSyncGateResult.qualitativeAssessment ?? ""}`
+                    );
+                  } else {
+                    console.log(`[SceneDispatch] Scene ${scene.id} lip-sync gate GREEN ✓`);
+                  }
+
+                  await db.update(musicVideoScenes)
+                    .set({
+                      lipSyncStatus: "done",
+                      lipSyncVideoUrl: url,
+                      lipSyncVideoKey: key,
+                      // Compositing removed (2026-05-28) — lipSyncVideoUrl IS the final clip
+                      compositeStatus: "skipped",
+                      updatedAt: new Date(),
+                    })
+                    .where(eq(musicVideoScenes.id, scene.id));
+                  console.log(`[SceneDispatch] Scene ${scene.id} InfiniteTalk lip sync DONE ✓ (gate: ${lipSyncGateResult.gate}) → compositeStatus=skipped`);
+                  totalLipSyncPolled++;
+                }
 
                 // ── PROBE: if this is the probe scene, set probeVideoUrl (lip-synced version) ──
                 try {
@@ -837,17 +875,28 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           // This ensures assembly always runs outside the HTTP request lifecycle and is never
           // killed by Cloud Run's 180-second request timeout.
           // The assemblyWorker polls every 2 minutes and picks up newly-queued jobs within 2 min.
-          console.log(
-            `[SceneDispatch] Job ${job.id} — all scenes done + lip sync ready (${nowCompositeReady.length} scenes). Queuing for assembly.`
-          );
-          try {
-            await db
-              .update(musicVideoJobs)
-              .set({ status: "assembling", assemblyStartedAt: new Date(), updatedAt: new Date() })
-              .where(eq(musicVideoJobs.id, job.id));
-            totalAssembled++;
-          } catch (assemblyTriggerErr: any) {
-            console.error(`[SceneDispatch] Failed to queue job ${job.id} for assembly:`, assemblyTriggerErr);
+          //
+          // Advisory lock guard (2026-05-28):
+          // Prevents two concurrent heartbeat ticks from both triggering assembly for the same job.
+          // GET_LOCK acquires a named mutex; if another tick holds it, we skip this cycle.
+          const assemblyLock = await acquireJobLock(db, job.id, 3);
+          if (!assemblyLock.acquired) {
+            console.log(`[SceneDispatch] Job ${job.id} — assembly lock held by another worker, skipping this tick`);
+          } else {
+            console.log(
+              `[SceneDispatch] Job ${job.id} — all scenes done + lip sync ready (${nowCompositeReady.length} scenes). Queuing for assembly.`
+            );
+            try {
+              await db
+                .update(musicVideoJobs)
+                .set({ status: "assembling", assemblyStartedAt: new Date(), updatedAt: new Date() })
+                .where(eq(musicVideoJobs.id, job.id));
+              totalAssembled++;
+            } catch (assemblyTriggerErr: any) {
+              console.error(`[SceneDispatch] Failed to queue job ${job.id} for assembly:`, assemblyTriggerErr);
+            } finally {
+              await releaseJobLock(db, job.id);
+            }
           }
         } else if (allVideosDone && !allCompositeReady) {
           console.log(`[SceneDispatch] Job ${job.id} — all clips done, waiting for ${nowCompositeProcessing.length} lip sync job(s) to complete...`);

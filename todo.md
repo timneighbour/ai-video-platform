@@ -8510,3 +8510,12 @@
 - [x] Upgrade raw-scene validation gate v2 (head crop, face size, missing population, weak framing, empty environment, failureCategory)
 - [x] Update heartbeat to infer requiresPopulation from scene prompt keywords
 - [x] All 18 Phase 1 tests pass, 772 total tests pass
+
+## Phase 2 Architecture (2026-05-28) — COMPLETED
+- [x] Phase 2a: renderManifests, sceneAuditLog, sceneWebhookEvents tables added to DB schema
+- [x] Phase 2b: Webhook-first provider I/O — POST /api/webhooks/wavespeed with HMAC-SHA256 signature verification
+- [x] Phase 2c: Immediate asset copy from WaveSpeed to S3 on webhook completion (7-day retention protection)
+- [x] Phase 2d: SKIP LOCKED queue helpers (claimPendingScenes, claimPendingLipSyncScenes) + advisory locks (acquireJobLock/releaseJobLock) for assembly gate
+- [x] Phase 2e: LSE-D/LSE-C lip-sync gate — GREEN (≤8.0/≥6.5), AMBER (8-10/4-6.5), RED (>10/<4.0) + temporal offset thresholds (40ms/80ms)
+- [x] Lip-sync gate wired into InfiniteTalk done handler — RED resets to pending, AMBER/GREEN proceed
+- [x] 802 tests pass (67 test files)

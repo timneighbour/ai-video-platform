@@ -15,6 +15,7 @@ import { getDb } from "../db";
 import { sunoMusicTasks } from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { handleStripeWebhook } from "../webhooks";
+import { handleWaveSpeedWebhook } from "../webhooks/wavespeed";
 import { wizadoraRouter } from "../wizadora/router";
 import Stripe from "stripe";
 import { stuckSceneReaperHandler } from "../scheduled/stuckSceneReaper";
@@ -83,6 +84,10 @@ async function startServer() {
   const server = createServer(app);
   // Trust the first proxy hop (required for accurate IP detection behind load balancers / CDNs)
   app.set("trust proxy", 1);
+
+  // ── WaveSpeed Webhook (MUST be before express.json() — needs raw body) ─────────
+  // WaveSpeed sends a raw body that must be verified with HMAC-SHA256 signature
+  app.post("/api/webhooks/wavespeed", express.raw({ type: "application/json" }), handleWaveSpeedWebhook);
 
   // ── Stripe Webhook (MUST be before express.json() — needs raw body) ──────────
   // Stripe sends a raw body that must be verified with the webhook secret
