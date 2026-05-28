@@ -177,7 +177,9 @@ export const musicVideoRouter = router({
         transcriptionStatus: "pending",
         characterImageUrl: characterImageUrl ?? null,
         characterImageKey: characterImageKey ?? null,
-        enableLipSync: input.enableLipSync ?? false,
+        // Auto-enable lip sync when a character image is provided — the user wants their character to perform.
+        // Only disable if the caller explicitly passes enableLipSync: false.
+        enableLipSync: input.enableLipSync ?? (characterImageUrl != null ? true : false),
         isKidsVideo: false,
         kidsTargetAge: null,
         kidsEducationalTheme: null,
