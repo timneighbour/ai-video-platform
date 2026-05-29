@@ -8549,3 +8549,42 @@
 - [x] Add missing columns to editIntelligenceResults (beatGridJson, emotionalArcJson, editSequenceJson, cameraEnergyJson, motifMapJson, transitionPlanJson)
 - [x] Apply DB migrations for new columns
 - [x] 802 tests pass (67 test files), 0 TypeScript errors
+
+## Phase 8 — Showcase & Conversion Readiness
+
+### 8A — Full-Funnel Analytics Gaps
+- [x] Add missing Mixpanel funnel events: onboardingCompleted, audioUploaded, storyboardViewed, renderPaywallHit, creditBalanceLow, pricingPageScrollDepth
+- [x] Add funnel event: first_music_video_job_created (tracks audio upload → job creation)
+- [x] Add funnel event: storyboard_approved (tracks storyboard → render intent)
+- [x] Add funnel event: render_abandoned (user leaves render page before completion)
+- [x] Add funnel event: upgrade_prompt_shown (tracks every paywall/upsell impression)
+- [x] Wire funnel events to Onboarding, MusicVideoAutopilot, and Pricing pages
+
+### 8B — Launch Readiness Dashboard (Admin)
+- [x] Add getLaunchReadiness tRPC procedure: render success rate, lip-sync pass rate, retry rate, avg render time, provider reliability scores, conversion rate, abandonment rate
+- [x] Add getQualityMetrics tRPC procedure: per-provider success/failure, avg render time, wasted spend, quarantine rate
+- [x] Add getAbandonmentAnalysis tRPC procedure: top 10 funnel drop-off points from analytics events
+- [x] Build LaunchReadinessDashboard page at /admin/launch with KPI scorecard, funnel chart, provider health grid, quality metrics, abandonment heatmap
+- [x] Add /admin/launch route to App.tsx and admin navigation
+
+### 8C — Golden Benchmark Library
+- [x] Create benchmark seeder: insert 3 showcase entries (Zara ballad, upbeat pop, cinematic instrumental) with poster images and video URLs
+- [x] Build GoldenBenchmarkLibrary admin page at /admin/benchmarks: list, add, edit, delete benchmark entries with quality scores
+- [x] Add benchmark quality score fields to showcase items (lipSyncScore, continuityScore, renderTimeMs, providerUsed)
+- [x] Add /admin/benchmarks route to App.tsx
+
+### 8D — First-Time User Journey Audit & Fixes
+- [x] Audit the 10-step free-to-paid journey: Landing → Sign-up → Onboarding → Audio Upload → Storyboard → Render → Post-render → Pricing → Checkout → Paid
+- [x] Fix: Add progress indicator to Onboarding page showing step X of Y
+- [x] Fix: Add "What happens next" explainer after audio upload (before storyboard generation)
+- [x] Fix: Add credit balance warning when user has < 30 credits (before render paywall)
+- [x] Fix: Add "Your first video is free to storyboard" messaging on the empty dashboard state
+- [x] Fix: Add social proof (X users created videos this week) to pricing page
+- [x] Fix: Add exit-intent modal on pricing page for users who scroll to bottom without subscribing
+- [x] Fix: Ensure post-render subscription modal fires correctly after first music video render
+- [x] Fix: Add "Continue where you left off" banner for returning users with incomplete jobs
+
+### 8E — Launch-Readiness Report
+- [x] Compile launch-readiness report (PDF): strengths, weaknesses, conversion blockers, quality blockers, launch recommendations
+- [x] Include funnel conversion rates, provider reliability scores, render quality metrics, top abandonment points
+- [x] Include specific actionable recommendations with priority order

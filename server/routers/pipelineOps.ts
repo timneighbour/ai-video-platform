@@ -292,6 +292,16 @@ export const pipelineOpsRouter = router({
       return { jobs: result };
     }),
 
+  triggerGoldenValidation: adminProcedure
+    .mutation(async () => {
+      // Fire-and-forget: start the golden validation in background
+      const { runGoldenValidation } = await import("../golden-validation");
+      runGoldenValidation().catch((err) => {
+        console.error("[GoldenValidation] Manual trigger failed:", err);
+      });
+      return { triggered: true, message: "Golden validation started. Check the runs table for progress." };
+    }),
+
   injectVocalStem: adminProcedure
     .input(z.object({
       jobId: z.number().int(),

@@ -998,6 +998,22 @@ export default function MusicVideoAutopilot() {
     return () => { if (elapsedTickerRef.current) clearInterval(elapsedTickerRef.current); };
   }, [step, renderStatus, renderStartTime]);
 
+  // ── Render abandoned tracking ──────────────────────────────────────────────
+  useEffect(() => {
+    if (step !== "render" || (renderStatus !== "rendering" && renderStatus !== "assembling" && renderStatus !== "wizsound")) return;
+    const handleBeforeUnload = () => {
+      if (!jobId) return;
+      mp.renderAbandoned({
+        jobId,
+        completedScenes,
+        totalScenes: perSceneStatuses.length || scenes.length,
+        elapsedSeconds: liveElapsed,
+      });
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [step, renderStatus, jobId, completedScenes, perSceneStatuses.length, scenes.length, liveElapsed]);
+
   // ── Auto-save project progress every 5 seconds ──────────────────────────
   useProjectAutoSave({
     title,
@@ -1468,6 +1484,8 @@ export default function MusicVideoAutopilot() {
       return;
     }
     setAudioFile(file);
+    // Track audio upload funnel event
+    mp.audioUploaded({ fileSizeMb: parseFloat((file.size / 1024 / 1024).toFixed(2)), format: file.name.split('.').pop()?.toLowerCase() });
     setIsUploading(true);
     setUploadProgress(0);
     
@@ -1867,6 +1885,7 @@ export default function MusicVideoAutopilot() {
         setStoryboardGenerating(false);
         setStep("storyboard");
         mp.storyboardGenerated(storyboard.scenes.length);
+        mp.storyboardViewed({ sceneCount: storyboard.scenes.length, jobId: result.jobId });
         toast.success("Storyboard ready!", { description: `${storyboard.scenes.length} scenes created. Review and edit before building.` });
       }
     } catch (err: any) {
@@ -2068,6 +2087,7 @@ export default function MusicVideoAutopilot() {
       return;
     }
     // Show render paywall modal — user chooses quality/audio and pays (or uses free render)
+    mp.upgradePromptShown("render_paywall", "music_video_autopilot");
     setShowRenderPaywall(true);
   };
 
@@ -2076,6 +2096,10 @@ export default function MusicVideoAutopilot() {
     if (!jobId || isRenderingRef.current) return;
     isRenderingRef.current = true;
     analytics.renderVideoClicked("music_video_autopilot");
+    // Track storyboard approved (user committed to render)
+    if (jobId && scenes.length > 0) {
+      mp.storyboardApproved({ sceneCount: scenes.length, jobId });
+    }
     // Request browser notification permission so we can notify when render completes
     try {
       if ("Notification" in window && Notification.permission === "default") {

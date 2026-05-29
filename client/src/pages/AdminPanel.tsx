@@ -247,6 +247,12 @@ export default function AdminPanel() {
             <Link href="/admin/pipeline">
               <Button size="sm" className="bg-blue-900/60 hover:bg-blue-800/70 text-blue-200 border border-blue-700/50">🔬 Pipeline Ops</Button>
             </Link>
+            <Link href="/admin/launch">
+              <Button size="sm" className="bg-emerald-900/60 hover:bg-emerald-800/70 text-emerald-200 border border-emerald-700/50">🚀 Launch Readiness</Button>
+            </Link>
+            <Link href="/admin/benchmarks">
+              <Button size="sm" className="bg-yellow-900/60 hover:bg-yellow-800/70 text-yellow-200 border border-yellow-700/50">🏆 Benchmarks</Button>
+            </Link>
             <Link href="/blog/admin">
               <Button variant="outline" size="sm">Blog Admin</Button>
             </Link>

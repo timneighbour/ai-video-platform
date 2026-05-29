@@ -97,6 +97,8 @@ describe("pipelineOps router", () => {
     // New procedures added in 5-stage pipeline update
     expect(procedures).toContain("getPipelineStatus");
     expect(procedures).toContain("injectVocalStem");
-    expect(procedures.length).toBe(7);
+    // triggerGoldenValidation added in Phase 8
+    expect(procedures).toContain("triggerGoldenValidation");
+    expect(procedures.length).toBe(8);
   });
 });

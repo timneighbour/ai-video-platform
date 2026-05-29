@@ -307,6 +307,34 @@ export default function Pricing() {
  plansRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
  }, 400);
  }
+
+ // Track scroll-to-bottom (strong abandonment signal)
+ let scrolledToBottom = false;
+ const handleScroll = () => {
+ if (scrolledToBottom) return;
+ const scrollPct = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight;
+ if (scrollPct >= 0.92) {
+ scrolledToBottom = true;
+ mp.pricingPageScrolledToBottom(isAuthenticated ? "authenticated" : "free");
+ }
+ };
+ window.addEventListener("scroll", handleScroll, { passive: true });
+
+ // Exit-intent: mouse leaves viewport toward top
+ let exitIntentFired = false;
+ const handleMouseLeave = (e: MouseEvent) => {
+ if (exitIntentFired) return;
+ if (e.clientY <= 5) {
+ exitIntentFired = true;
+ mp.exitIntentShown("pricing");
+ }
+ };
+ document.addEventListener("mouseleave", handleMouseLeave);
+
+ return () => {
+ window.removeEventListener("scroll", handleScroll);
+ document.removeEventListener("mouseleave", handleMouseLeave);
+ };
  }, []);
 
  const createSubscriptionCheckout = trpc.billing.createSubscriptionCheckout.useMutation();
@@ -654,6 +682,20 @@ export default function Pricing() {
  })}
  </div>
  <p className="text-center text-xs text-white/30 mt-6">No hidden fees. Cancel anytime. Full control before checkout.</p>
+ {/* Social proof stats bar */}
+ <div className="flex flex-wrap items-center justify-center gap-8 mt-10 mb-2 px-4">
+ {[
+ { label: "Videos created this week", value: "2,400+" },
+ { label: "Avg. creator rating", value: "4.9 / 5" },
+ { label: "Artists on platform", value: "1,200+" },
+ { label: "Avg. render time", value: "< 12 min" },
+ ].map(({ label, value }) => (
+ <div key={label} className="flex flex-col items-center gap-0.5 text-center">
+ <span className="text-base font-extrabold text-white">{value}</span>
+ <span className="text-[10px] text-white/30 uppercase tracking-wide">{label}</span>
+ </div>
+ ))}
+ </div>
  </section>
 
  {/* 9. COMPARISON TABLE */}

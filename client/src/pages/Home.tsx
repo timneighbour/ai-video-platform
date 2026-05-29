@@ -3921,6 +3921,11 @@ function StickyMobileCTA() {
 // Continue Project Banner 
 function ContinueProjectBanner() {
  const { resumeData, showResume } = useProjectResume();
+ useEffect(() => {
+ if (showResume && resumeData) {
+ mp.returnBannerShown(resumeData.jobId ?? 0, 0);
+ }
+ }, [showResume, resumeData]);
  if (!showResume || !resumeData) return null;
  return (
  <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-sm w-full mx-4">

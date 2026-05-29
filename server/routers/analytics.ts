@@ -27,6 +27,10 @@ import {
   users,
   subscriptions,
   renderJobs,
+  musicVideoJobs,
+  musicVideoScenes,
+  providerHealth,
+  providerSpendEvents,
 } from "../../drizzle/schema";
 import { eq, desc, sql, and, gte, lte, count, avg } from "drizzle-orm";
 
@@ -402,5 +406,164 @@ export const analyticsRouter = router({
         .orderBy(desc(analyticsSessions.lastSeenAt))
         .limit(input.limit);
       return rows;
+    }),
+
+  getLaunchReadiness: protectedProcedure
+    .input(z.object({ days: z.number().min(1).max(90).default(30) }))
+    .query(async ({ ctx, input }) => {
+      adminOnly(ctx);
+      const db = await getDb();
+      if (!db) return null;
+      const since = daysAgo(input.days);
+
+      // ── Render Quality Metrics ──────────────────────────────────────────────
+      const [sceneStats] = await db.select({
+        totalScenes: count(musicVideoScenes.id),
+        completedScenes: sql<number>`SUM(CASE WHEN ${musicVideoScenes.status} = 'completed' THEN 1 ELSE 0 END)`,
+        failedScenes: sql<number>`SUM(CASE WHEN ${musicVideoScenes.status} = 'failed' THEN 1 ELSE 0 END)`,
+        quarantinedScenes: sql<number>`SUM(CASE WHEN ${musicVideoScenes.retryCount} >= 5 AND ${musicVideoScenes.status} = 'failed' THEN 1 ELSE 0 END)`,
+        avgRetryCount: avg(musicVideoScenes.retryCount),
+        totalRetries: sql<number>`SUM(${musicVideoScenes.retryCount})`,
+        lipSyncDone: sql<number>`SUM(CASE WHEN ${musicVideoScenes.lipSyncStatus} = 'done' THEN 1 ELSE 0 END)`,
+        lipSyncError: sql<number>`SUM(CASE WHEN ${musicVideoScenes.lipSyncStatus} = 'error' THEN 1 ELSE 0 END)`,
+        lipSyncTotal: sql<number>`SUM(CASE WHEN ${musicVideoScenes.sceneType} = 'performance' THEN 1 ELSE 0 END)`,
+        hedraSuccess: sql<number>`SUM(CASE WHEN ${musicVideoScenes.hedraStatus} = 'done' THEN 1 ELSE 0 END)`,
+        hedraTotal: sql<number>`SUM(CASE WHEN ${musicVideoScenes.hedraStatus} != 'pending' THEN 1 ELSE 0 END)`,
+      }).from(musicVideoScenes)
+        .where(gte(musicVideoScenes.createdAt, since));
+
+      // ── Job Completion Metrics ──────────────────────────────────────────────
+      const [jobStats] = await db.select({
+        totalJobs: count(musicVideoJobs.id),
+        completedJobs: sql<number>`SUM(CASE WHEN ${musicVideoJobs.status} = 'done' THEN 1 ELSE 0 END)`,
+        failedJobs: sql<number>`SUM(CASE WHEN ${musicVideoJobs.status} = 'error' THEN 1 ELSE 0 END)`,
+        renderingJobs: sql<number>`SUM(CASE WHEN ${musicVideoJobs.status} = 'rendering' THEN 1 ELSE 0 END)`,
+        downloadedJobs: sql<number>`SUM(CASE WHEN ${musicVideoJobs.downloadedAt} IS NOT NULL THEN 1 ELSE 0 END)`,
+        totalProviderSpend: sql<number>`SUM(CAST(${musicVideoJobs.providerSpendUsd} AS DECIMAL(10,4)))`,
+        totalWastedSpend: sql<number>`SUM(CAST(${musicVideoJobs.wastedSpendUsd} AS DECIMAL(10,4)))`,
+      }).from(musicVideoJobs)
+        .where(gte(musicVideoJobs.createdAt, since));
+
+      // ── Provider Health ─────────────────────────────────────────────────────
+      const providers = await db.select({
+        provider: providerHealth.provider,
+        successCount: providerHealth.successCount,
+        failureCount: providerHealth.failureCount,
+        consecutiveFailures: providerHealth.consecutiveFailures,
+        totalSpendUsd: providerHealth.totalSpendUsd,
+        wastedSpendUsd: providerHealth.wastedSpendUsd,
+        avgRenderTimeMs: providerHealth.avgRenderTimeMs,
+        isHealthy: providerHealth.isHealthy,
+        mode: providerHealth.mode,
+        lastSuccessAt: providerHealth.lastSuccessAt,
+        lastFailureAt: providerHealth.lastFailureAt,
+      }).from(providerHealth);
+
+      // ── Conversion Funnel ───────────────────────────────────────────────────
+      const [funnelStats] = await db.select({
+        totalVisitors: sql<number>`COUNT(DISTINCT ${analyticsSessions.visitorId})`,
+        totalSignups: sql<number>`COUNT(DISTINCT ${analyticsSessions.userId})`,
+        converted: sql<number>`SUM(CASE WHEN ${analyticsSessions.converted} = 1 THEN 1 ELSE 0 END)`,
+      }).from(analyticsSessions)
+        .where(gte(analyticsSessions.startedAt, since));
+
+      const [subStats] = await db.select({
+        totalPaid: count(subscriptions.id),
+      }).from(subscriptions)
+        .where(and(
+          eq(subscriptions.status, "active"),
+          gte(subscriptions.createdAt, since)
+        ));
+
+      // ── Spend Events (recent 7 days for trend) ──────────────────────────────
+      const recentSpend = await db.select({
+        provider: providerSpendEvents.provider,
+        status: providerSpendEvents.status,
+        count: count(providerSpendEvents.id),
+        totalCost: sql<number>`SUM(CAST(${providerSpendEvents.costUsd} AS DECIMAL(10,4)))`,
+        avgRenderTimeMs: avg(providerSpendEvents.renderTimeMs),
+      }).from(providerSpendEvents)
+        .where(gte(providerSpendEvents.createdAt, daysAgo(7)))
+        .groupBy(providerSpendEvents.provider, providerSpendEvents.status);
+
+      // ── Compute derived metrics ─────────────────────────────────────────────
+      const totalScenes = Number(sceneStats.totalScenes) || 0;
+      const completedScenes = Number(sceneStats.completedScenes) || 0;
+      const failedScenes = Number(sceneStats.failedScenes) || 0;
+      const lipSyncDone = Number(sceneStats.lipSyncDone) || 0;
+      const lipSyncTotal = Number(sceneStats.lipSyncTotal) || 0;
+      const hedraSuccess = Number(sceneStats.hedraSuccess) || 0;
+      const hedraTotal = Number(sceneStats.hedraTotal) || 0;
+      const totalJobs = Number(jobStats.totalJobs) || 0;
+      const completedJobs = Number(jobStats.completedJobs) || 0;
+      const downloadedJobs = Number(jobStats.downloadedJobs) || 0;
+      const totalSpend = Number(jobStats.totalProviderSpend) || 0;
+      const wastedSpend = Number(jobStats.totalWastedSpend) || 0;
+      const totalVisitors = Number(funnelStats.totalVisitors) || 0;
+      const totalSignups = Number(funnelStats.totalSignups) || 0;
+      const totalPaid = Number(subStats.totalPaid) || 0;
+
+      const renderSuccessRate = totalScenes > 0 ? (completedScenes / totalScenes) * 100 : null;
+      const lipSyncPassRate = lipSyncTotal > 0 ? (lipSyncDone / lipSyncTotal) * 100 : null;
+      const hedraPassRate = hedraTotal > 0 ? (hedraSuccess / hedraTotal) * 100 : null;
+      const jobCompletionRate = totalJobs > 0 ? (completedJobs / totalJobs) * 100 : null;
+      const downloadRate = completedJobs > 0 ? (downloadedJobs / completedJobs) * 100 : null;
+      const wasteRate = totalSpend > 0 ? (wastedSpend / totalSpend) * 100 : null;
+      const visitorToSignup = totalVisitors > 0 ? (totalSignups / totalVisitors) * 100 : null;
+      const signupToPaid = totalSignups > 0 ? (totalPaid / totalSignups) * 100 : null;
+      const visitorToPaid = totalVisitors > 0 ? (totalPaid / totalVisitors) * 100 : null;
+
+      // ── Launch Readiness Score (0–100) ──────────────────────────────────────
+      // Weighted composite: render quality (40%) + conversion (35%) + cost efficiency (25%)
+      const renderScore = renderSuccessRate !== null ? Math.min(renderSuccessRate, 100) : 50;
+      const lipScore = lipSyncPassRate !== null ? Math.min(lipSyncPassRate, 100) : 50;
+      const qualityScore = (renderScore * 0.6 + lipScore * 0.4);
+      const conversionScore = visitorToPaid !== null ? Math.min(visitorToPaid * 50, 100) : 0; // 2% v2p = 100
+      const efficiencyScore = wasteRate !== null ? Math.max(0, 100 - wasteRate) : 75;
+      const launchReadinessScore = Math.round(
+        qualityScore * 0.40 + conversionScore * 0.35 + efficiencyScore * 0.25
+      );
+
+      return {
+        period: { days: input.days, since },
+        quality: {
+          renderSuccessRate,
+          lipSyncPassRate,
+          hedraPassRate,
+          jobCompletionRate,
+          downloadRate,
+          avgRetryCount: Number(sceneStats.avgRetryCount) || 0,
+          quarantinedScenes: Number(sceneStats.quarantinedScenes) || 0,
+          totalScenes,
+          completedScenes,
+          failedScenes,
+          totalJobs,
+          completedJobs,
+          downloadedJobs,
+        },
+        spend: {
+          totalSpendUsd: totalSpend,
+          wastedSpendUsd: wastedSpend,
+          wasteRate,
+          avgCostPerJob: totalJobs > 0 ? totalSpend / totalJobs : 0,
+          avgCostPerScene: totalScenes > 0 ? totalSpend / totalScenes : 0,
+        },
+        conversion: {
+          totalVisitors,
+          totalSignups,
+          totalPaid,
+          visitorToSignup,
+          signupToPaid,
+          visitorToPaid,
+        },
+        providers,
+        recentSpend,
+        launchReadinessScore,
+        scoreBreakdown: {
+          qualityScore: Math.round(qualityScore),
+          conversionScore: Math.round(conversionScore),
+          efficiencyScore: Math.round(efficiencyScore),
+        },
+      };
     }),
 });

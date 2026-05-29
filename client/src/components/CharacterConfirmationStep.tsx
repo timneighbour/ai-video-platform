@@ -710,6 +710,19 @@ export default function CharacterConfirmationStep({
             )}
           </button>
           <div style={{textAlign:'center',fontSize:10,color:'#555',marginTop:8}}>Face · Build · Instrument · Performance · Wardrobe — all locked. No randomness.</div>
+          {/* Escape route: skip character lock and proceed with AI-generated characters */}
+          {!allApproved && characters.length > 0 && (
+            <button
+              type="button"
+              onClick={onApproveAll}
+              disabled={isGeneratingStoryboard}
+              style={{width:'100%',background:'transparent',border:'1px solid rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.35)',padding:'10px 14px',fontSize:11,fontWeight:600,letterSpacing:1,borderRadius:3,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,transition:'all 0.2s',marginTop:8}}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.18)'; (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.6)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.08)'; (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.35)'; }}
+            >
+              Skip character lock — use AI-generated appearance
+            </button>
+          )}
         </div>
       </div>
     </div>

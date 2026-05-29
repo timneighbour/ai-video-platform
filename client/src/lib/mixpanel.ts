@@ -337,6 +337,75 @@ export const mp = {
   firstRenderToSubscription: (plan: string, hoursAfterRender?: number) =>
     track("First Render to Subscription", { plan, hours_after_render: hoursAfterRender }),
 
+  // ── Music Video creation funnel ─────────────────────────────────────────────
+  /**
+   * Fires when the user uploads an audio file on the Music Video page.
+   * Key funnel step: audio upload → storyboard generation.
+   */
+  audioUploaded: (props: { durationSeconds?: number; fileSizeMb?: number; format?: string }) =>
+    track("Audio Uploaded", props),
+
+  /**
+   * Fires when the storyboard is displayed to the user for review.
+   * Key funnel step: storyboard generation → render intent.
+   */
+  storyboardViewed: (props: { sceneCount: number; jobId?: number }) =>
+    track("Storyboard Viewed", { scene_count: props.sceneCount, job_id: props.jobId }),
+
+  /**
+   * Fires when the user clicks "Start Render" / "Build Video" after reviewing the storyboard.
+   * This is the highest-intent pre-render signal.
+   */
+  storyboardApproved: (props: { sceneCount: number; jobId?: number; creditCost?: number }) =>
+    track("Storyboard Approved", { scene_count: props.sceneCount, job_id: props.jobId, credit_cost: props.creditCost }),
+
+  /**
+   * Fires when the user navigates away from the render page before completion.
+   * Key abandonment signal.
+   */
+  renderAbandoned: (props: { jobId: number; completedScenes: number; totalScenes: number; elapsedSeconds?: number }) =>
+    track("Render Abandoned", { job_id: props.jobId, completed_scenes: props.completedScenes, total_scenes: props.totalScenes, elapsed_seconds: props.elapsedSeconds }),
+
+  /**
+   * Fires every time an upgrade prompt / paywall is shown to the user.
+   * @param trigger  What triggered the prompt: "render_paywall", "credit_low", "feature_gate", "post_render"
+   * @param source  Page/component where it appeared
+   */
+  upgradePromptShown: (trigger: string, source?: string, currentPlan?: string) =>
+    track("Upgrade Prompt Shown", { trigger, source, current_plan: currentPlan }),
+
+  /**
+   * Fires when the user scrolls to the bottom of the pricing page without clicking a CTA.
+   * Strong abandonment signal for the pricing page.
+   */
+  pricingPageScrolledToBottom: (currentPlan?: string) =>
+    track("Pricing Page Scrolled To Bottom", { current_plan: currentPlan }),
+
+  /**
+   * Fires when the exit-intent modal is shown on the pricing page.
+   */
+  exitIntentShown: (page: string) =>
+    track("Exit Intent Shown", { page }),
+
+  /**
+   * Fires when the exit-intent modal CTA is clicked.
+   */
+  exitIntentCTAClicked: (page: string, action: string) =>
+    track("Exit Intent CTA Clicked", { page, action }),
+
+  /**
+   * Fires when the "Continue where you left off" return banner is shown.
+   */
+  returnBannerShown: (jobId: number, completedScenes: number) =>
+    track("Return Banner Shown", { job_id: jobId, completed_scenes: completedScenes }),
+
+  /**
+   * Fires when the first music video job is created (audio uploaded + job record created).
+   * Key activation metric: user has committed to creating their first video.
+   */
+  firstMusicVideoJobCreated: (props: { sceneCount?: number; theme?: string }) =>
+    track("First Music Video Job Created", props),
+
   // ── Generic passthrough ─────────────────────────────────
   track,
 };
