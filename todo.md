@@ -8519,3 +8519,33 @@
 - [x] Phase 2e: LSE-D/LSE-C lip-sync gate — GREEN (≤8.0/≥6.5), AMBER (8-10/4-6.5), RED (>10/<4.0) + temporal offset thresholds (40ms/80ms)
 - [x] Lip-sync gate wired into InfiniteTalk done handler — RED resets to pending, AMBER/GREEN proceed
 - [x] 802 tests pass (67 test files)
+
+## Phase 3 — Continuity Engine — COMPLETED ✅
+- [x] Add continuity fields to renderManifests schema: performerEmbedding, continuityScore, identityVariance, identityLockStrength
+- [x] Add sceneRelationships table: prevSceneId, nextSceneId, chorusGroup, verseGroup, motifGroup
+- [x] Add continuityResults column to sceneAuditLog
+- [x] Create server/continuity-validator.ts: compare adjacent scenes, detect drift, assign continuity scores, reject severe discontinuity
+- [x] Continuity validator categories: performer, wardrobe, environment, lighting, camera energy
+- [x] Wire continuity validator into assembly gate (run before final assembly)
+- [x] Store continuity scores in sceneAuditLog
+## Phase 4 — Edit Intelligence — COMPLETED ✅
+- [x] Create server/edit-intelligence.ts with beat-aware sequencing, emotional arc engine, camera energy logic, visual motif recurrence, transition intelligence
+- [x] Beat-aware sequencing: align cuts with BPM, intensify chorus pacing, slow emotional sections
+- [x] Emotional arc engine: detect intro/build/pre-chorus/chorus/bridge/finale, adjust shot intensity and pacing
+- [x] Camera energy logic: track motion intensity across timeline, avoid visual fatigue, ensure escalation
+- [x] Visual motif recurrence: reintroduce signature shots, symbolic environments, callback shots
+- [x] Transition intelligence: smash cut, fade, match cut, motion continuation, whip, light flare — selected contextually
+- [x] Wire edit intelligence into storyboard generation (post-storyboard sequencing pass)
+## Phase 5 — Director Mode System — COMPLETED ✅
+- [x] Add directorMode field to musicVideoJobs schema (enum of 12 modes)
+- [x] Create server/director-modes.ts with 12 modes: MTV Pop, Dark Cinematic, Indie Film, Live Arena, Neo-Noir, Dreamscape, West End Musical, Documentary Performance, Hyperreal Concert, Emotional Ballad, Epic Cinematic, Art House
+- [x] Each mode modifies: storyboard prompts, validation thresholds, pacing logic, edit sequencing, scene density, transition logic
+- [x] Add Director Mode selector UI to MusicVideoAutopilot.tsx
+- [x] Wire director mode into generateStoryboard service
+## Phase 6 — Human-in-the-Loop Cinematic Control — COMPLETED ✅
+- [x] Add sceneVersions table: sceneId, versionNumber, videoUrl, status (accepted/rejected/alternate), createdAt
+- [x] Add tRPC procedures: swapEnvironment, changeCameraAngle, getSceneVersionHistory
+- [x] Add lipSyncVideoUrl and lipSyncGrade columns to sceneVersions
+- [x] Add missing columns to editIntelligenceResults (beatGridJson, emotionalArcJson, editSequenceJson, cameraEnergyJson, motifMapJson, transitionPlanJson)
+- [x] Apply DB migrations for new columns
+- [x] 802 tests pass (67 test files), 0 TypeScript errors

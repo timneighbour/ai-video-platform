@@ -29,6 +29,7 @@ import { randomUUID } from "crypto";
 import { validateExport } from "./export-validator";
 import { renderAttempts } from "../drizzle/schema";
 import { invokeLLM } from "./_core/llm";
+import { buildDirectorModePromptBlock } from "./director-modes";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { initKlingAI } from "./ai-apis/kling";
 import { submitFalSeedanceVideo, pollFalSeedanceVideo } from "./ai-apis/fal-seedance";
@@ -201,7 +202,8 @@ export async function generateStoryboard(
   existingContentAnalysis?: ContentAnalysis | null,
   enableLipSync?: boolean,
   songBpm?: number | null,
-  performanceShotRatio: number = 80
+  performanceShotRatio: number = 80,
+  directorMode?: string | null
 ): Promise<StoryboardResult> {
   const sceneCount = calculateSceneCount(audioDurationSeconds);
 

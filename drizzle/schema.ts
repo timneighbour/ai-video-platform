@@ -23,7 +23,7 @@ export const users = mysqlTable("users", {
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
   isFoundingCreator: boolean("isFoundingCreator").default(false).notNull(),
   foundingCreatorGrantedAt: timestamp("foundingCreatorGrantedAt"),
-  /** Marketing opt-out — set when user clicks unsubscribe link in campaign emails */
+  /** Marketing opt-out -- set when user clicks unsubscribe link in campaign emails */
   marketingOptOut: boolean("marketingOptOut").default(false).notNull(),
   marketingOptOutAt: timestamp("marketingOptOutAt"),
 });
@@ -80,7 +80,7 @@ export const creditTransactions = mysqlTable("creditTransactions", {
 export type CreditTransaction = typeof creditTransactions.$inferSelect;
 export type InsertCreditTransaction = typeof creditTransactions.$inferInsert;
 
-// Top-up purchases audit table — one row per successful Stripe checkout
+// Top-up purchases audit table -- one row per successful Stripe checkout
 export const topupPurchases = mysqlTable("topupPurchases", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
@@ -158,7 +158,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   finalVideoKey: varchar("finalVideoKey", { length: 512 }),
   creditCost: int("creditCost").default(0).notNull(),
   characterRoster: text("characterRoster"), // JSON array of all characters (locked + AI-invented) with fixed descriptions
-  sceneSetting: text("sceneSetting"), // User-chosen visual environment — TEXT (no length limit) so users can paste full descriptions
+  sceneSetting: text("sceneSetting"), // User-chosen visual environment -- TEXT (no length limit) so users can paste full descriptions
   performanceShotRatio: int("performanceShotRatio").default(80), // 0-100: % of scenes that should be character performance shots (default 80% for vocal-led tracks)
   characterLockEnabled: boolean("characterLockEnabled").default(true).notNull(), // Whether to enforce face consistency validation across scenes
   // --- Style Lock -------------------------------------------------------
@@ -179,26 +179,26 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   thumbnailUrl: varchar("thumbnailUrl", { length: 1024 }), // First scene image used as video thumbnail
   errorMessage: text("errorMessage"),
   aspectRatio: varchar("aspectRatio", { length: 8 }).default("16:9").notNull(), // Export format: "16:9" | "9:16" | "1:1"
-  contextAssetUrls: text("contextAssetUrls"), // JSON: Array<{url: string, mimeType: string, type: 'image'|'video'}> — user-uploaded visual references for storyboard generation
+  contextAssetUrls: text("contextAssetUrls"), // JSON: Array<{url: string, mimeType: string, type: 'image'|'video'}> -- user-uploaded visual references for storyboard generation
   artistType: mysqlEnum("artistType", ["band", "solo_artist", "animated_characters", "solo_animated"]).default("solo_artist"), // Artist type selection from step 1
-  storyboardLockedAt: timestamp("storyboardLockedAt"), // Set when render starts — storyboard is frozen from this point
+  storyboardLockedAt: timestamp("storyboardLockedAt"), // Set when render starts -- storyboard is frozen from this point
   previewCreditsUsed: int("previewCreditsUsed").default(0).notNull(), // Credits charged for scene preview regenerations (first full set per job is free)
   // --- Quality Guarantee System -------------------------------------------
   // Users may preview the completed video before downloading.
   // Free re-renders are available BEFORE download. Once downloaded, no refunds.
   qualityStatus: mysqlEnum("qualityStatus", ["pending", "previewing", "approved", "rerender_requested", "rerendering"]).default("pending").notNull(),
-  downloadedAt: timestamp("downloadedAt"), // Set when user confirms download — locks out free re-renders
+  downloadedAt: timestamp("downloadedAt"), // Set when user confirms download -- locks out free re-renders
   reRenderCount: int("reRenderCount").default(0).notNull(), // Number of free re-renders used
   reRenderReason: text("reRenderReason"), // User's stated reason for re-render (last one)
   reRenderRequestedAt: timestamp("reRenderRequestedAt"), // When last re-render was requested
   // --- Cost Protection Fields -------------------------------------------
   providerSpendUsd: decimal("providerSpendUsd", { precision: 8, scale: 4 }).notNull().default("0"), // Total provider API cost for this job
   wastedSpendUsd: decimal("wastedSpendUsd", { precision: 8, scale: 4 }).notNull().default("0"),   // Provider cost from failed/timed-out scenes
-  maxSpendLimitUsd: decimal("maxSpendLimitUsd", { precision: 6, scale: 2 }).notNull().default("25.00"), // Hard spend cap (default $25 — covers up to ~39 scenes at Atlas Cloud rates)
+  maxSpendLimitUsd: decimal("maxSpendLimitUsd", { precision: 6, scale: 2 }).notNull().default("25.00"), // Hard spend cap (default $25 -- covers up to ~39 scenes at Atlas Cloud rates)
   probePassed: boolean("probePassed"),                          // null = not probed yet, false = probe in progress, true = probe approved by owner
   probeSceneId: int("probeSceneId"),                             // Which scene was used for the single-scene QA probe
   probeVideoUrl: varchar("probeVideoUrl", { length: 1024 }),     // Completed probe clip URL for owner review
-  probeApprovedAt: timestamp("probeApprovedAt"),                 // When owner approved the probe — gates full render release
+  probeApprovedAt: timestamp("probeApprovedAt"),                 // When owner approved the probe -- gates full render release
   finalVideoProduced: boolean("finalVideoProduced").notNull().default(false), // true only when final video URL is set
   // --- Provider Fallback System -------------------------------------------
   // When Atlas Cloud fails repeatedly on a job, the system auto-escalates to WaveSpeed.
@@ -207,7 +207,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   atlasFailureCount: int("atlasFailureCount").notNull().default(0), // Atlas timeout/failure count for this job
   fallbackProvider: varchar("fallbackProvider", { length: 32 }), // null = normal routing | 'wavespeed' = skip Atlas
   // --- Vocal Isolation (Demucs) -------------------------------------------
-  // Demucs-isolated lead vocals — used exclusively for SyncLabs lip sync input.
+  // Demucs-isolated lead vocals -- used exclusively for SyncLabs lip sync input.
   // The final assembled video always uses the original full mix (audioUrl) for the viewer.
   // vocalsStatus: pending = not yet isolated | processing = Demucs running | done = ready | failed = isolation failed
   vocalsUrl: varchar("vocalsUrl", { length: 1024 }),          // S3 URL of Demucs-isolated lead vocals
@@ -215,8 +215,8 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   vocalsStatus: varchar("vocalsStatus", { length: 32 }).default("pending"), // pending | processing | done | failed
   songBpm: int("songBpm"),                                    // Detected BPM (used to generate tempo-matched instrument motion prompts)
   // --- Sync Labs Lip Sync Tracking -------------------------------------------
-  syncLabsJobId: varchar("syncLabsJobId", { length: 128 }), // Sync Labs job ID — used to resume polling after server restart
-  assemblyStartedAt: timestamp("assemblyStartedAt"),         // When assembly began — used to detect truly stuck jobs
+  syncLabsJobId: varchar("syncLabsJobId", { length: 128 }), // Sync Labs job ID -- used to resume polling after server restart
+  assemblyStartedAt: timestamp("assemblyStartedAt"),         // When assembly began -- used to detect truly stuck jobs
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -294,7 +294,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   faceValidationScores: text("faceValidationScores"), // JSON: { characterName: confidenceScore } per assigned character
   faceValidationAttempts: int("faceValidationAttempts").default(0), // Number of regeneration attempts due to face mismatch
   modelAssignment: mysqlEnum("modelAssignment", ["seedance-2.0", "hailuo-minimax"]).default("seedance-2.0").notNull(), // WaveSpeed model: seedance-2.0 for character-heavy, hailuo-minimax for wide/atmospheric
-  lipSync: boolean("lipSync").default(false).notNull(), // Per-scene lip sync control — false by default; set true only for close-up character scenes (seedance-2.0)
+  lipSync: boolean("lipSync").default(false).notNull(), // Per-scene lip sync control -- false by default; set true only for close-up character scenes (seedance-2.0)
   lipSyncStyle: mysqlEnum("lipSyncStyle", ["natural", "expressive", "subtle", "dramatic", "anime"]).default("natural").notNull(), // Lip sync animation style
   userEditedPrompt: boolean("userEditedPrompt").default(false).notNull(), // true when the user has manually edited this scene's prompt
   focusCharacter: varchar("focusCharacter", { length: 128 }), // Placeholder: character to apply lip sync to (future feature)
@@ -400,7 +400,7 @@ export const videoCharacters = mysqlTable("videoCharacters", {
   lockedProps: longtext("lockedProps"),     // JSON: { instrument, mic, other }
   lockedRole: text("lockedRole"),           // e.g. "Lead Singer and Guitarist"
   lockedRules: longtext("lockedRules"),     // JSON: strict behavioural rules (NEVER wears X, ALWAYS holds Y)
-  // Body build hint — injected into portrait and scene prompts so AI matches the user's physique
+  // Body build hint -- injected into portrait and scene prompts so AI matches the user's physique
   bodyBuild: mysqlEnum("bodyBuild", ["slim", "lean", "average", "athletic", "stocky", "muscular"]).default("average"),
   normalisedAt: timestamp("normalisedAt"),  // When normaliseCharacter() last ran
   voiceProfile: longtext("voiceProfile"),    // Placeholder: future lip sync voice matching data (JSON)
@@ -520,7 +520,7 @@ export const sunoMusicTasks = mysqlTable("suno_music_tasks", {
   status: mysqlEnum("status", ["pending", "processing", "complete", "failed"]).default("pending"),
   /** Target duration in seconds requested by user (null = no limit) */
   targetDuration: int("targetDuration"),
-  /** Generation provider: suno (default), elevenlabs_sfx (≤30s exact), elevenlabs_music (30s–5min) */
+  /** Generation provider: suno (default), elevenlabs_sfx (<=30s exact), elevenlabs_music (30s-5min) */
   provider: mysqlEnum("provider", ["suno", "elevenlabs_sfx", "elevenlabs_music"]).default("suno"),
   /** Generation mode chosen by user */
   generationMode: mysqlEnum("generationMode", ["score", "song", "suno", "cover", "extend"]).default("suno"),
@@ -535,7 +535,7 @@ export const sunoMusicTasks = mysqlTable("suno_music_tasks", {
 
 // --- Render Jobs (Pay-to-Render Model) -----------------------------------------
 // Tracks each render request: quality tier, audio tier, payment status, download URL.
-// Free creation → pay to render. Subscription plans include N renders/month.
+// Free creation -> pay to render. Subscription plans include N renders/month.
 export const renderJobs = mysqlTable("renderJobs", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
@@ -550,8 +550,8 @@ export const renderJobs = mysqlTable("renderJobs", {
   audioTier: mysqlEnum("audioTier", ["standard", "enhanced", "cinematic"]).notNull().default("standard"),
 
   // Pricing (in pence, GBP)
-  basePrice: int("basePrice").notNull().default(0), // e.g. 200 = £2.00
-  audioAddon: int("audioAddon").notNull().default(0), // e.g. 100 = £1.00
+  basePrice: int("basePrice").notNull().default(0), // e.g. 200 = GBP2.00
+  audioAddon: int("audioAddon").notNull().default(0), // e.g. 100 = GBP1.00
   totalPrice: int("totalPrice").notNull().default(0), // basePrice + audioAddon
 
   // Payment
@@ -647,7 +647,7 @@ export const inAppNotifications = mysqlTable("inAppNotifications", {
 export type InAppNotification = typeof inAppNotifications.$inferSelect;
 export type InsertInAppNotification = typeof inAppNotifications.$inferInsert;
 
-// ── Kids Video Jobs ─────────────────────────────────────────────────────────
+// -- Kids Video Jobs ---------------------------------------------------------
 // Standalone kids animated video creation flow (separate from music video)
 export const kidsVideoJobs = mysqlTable("kidsVideoJobs", {
   id: int("id").autoincrement().primaryKey(),
@@ -708,7 +708,7 @@ export interface KidsStoryboardFrame {
   description: string;
 }
 
-// ── Blog Posts ────────────────────────────────────────────────────────────────
+// -- Blog Posts ----------------------------------------------------------------
 export const blogPosts = mysqlTable("blogPosts", {
   id: int("id").autoincrement().primaryKey(),
   slug: varchar("slug", { length: 255 }).notNull().unique(),
@@ -729,10 +729,10 @@ export const blogPosts = mysqlTable("blogPosts", {
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type InsertBlogPost = typeof blogPosts.$inferInsert;
 
-// ── Creator Network ───────────────────────────────────────────────────────────
+// -- Creator Network -----------------------------------------------------------
 export const creators = mysqlTable("creators", {
   id: int("id").autoincrement().primaryKey(),
-  userId: int("userId"), // nullable — admin can seed creators without a user account
+  userId: int("userId"), // nullable -- admin can seed creators without a user account
   name: varchar("name", { length: 255 }).notNull(),
   creatorType: mysqlEnum("creatorType", [
     "music_artist",
@@ -759,9 +759,9 @@ export const creators = mysqlTable("creators", {
 export type Creator = typeof creators.$inferSelect;
 export type InsertCreator = typeof creators.$inferInsert;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// WizSync™ — Voice to Character Assignment System
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// WizSync(TM) -- Voice to Character Assignment System
+// -----------------------------------------------------------------------------
 
 /** Top-level WizSync analysis job (one per audio track) */
 export const wizSyncJobs = mysqlTable("wizSyncJobs", {
@@ -813,7 +813,7 @@ export const wizSyncSegments = mysqlTable("wizSyncSegments", {
   hedraGenerationId: varchar("hedraGenerationId", { length: 255 }),
   lipSyncVideoUrl: varchar("lipSyncVideoUrl", { length: 1024 }),
   lipSyncStatus: mysqlEnum("wizSyncLipStatus", ["pending", "processing", "done", "error"]).default("pending").notNull(),
-  /** Free 5-second preview clip — generated before full lip-sync render, costs 0 credits */
+  /** Free 5-second preview clip -- generated before full lip-sync render, costs 0 credits */
   previewVideoUrl: varchar("previewVideoUrl", { length: 1024 }),
   previewStatus: mysqlEnum("wizSyncPreviewStatus", ["idle", "generating", "ready", "error"]).default("idle").notNull(),
   previewAtlasJobId: varchar("previewAtlasJobId", { length: 255 }),
@@ -822,7 +822,7 @@ export const wizSyncSegments = mysqlTable("wizSyncSegments", {
 export type WizSyncSegment = typeof wizSyncSegments.$inferSelect;
 export type InsertWizSyncSegment = typeof wizSyncSegments.$inferInsert;
 
-// --- WizScore Jobs (Video → AI Analysis → Matched Soundtrack) -------------------
+// --- WizScore Jobs (Video -> AI Analysis -> Matched Soundtrack) -------------------
 // User uploads a video; AI analyses mood/pacing/energy/duration and auto-generates
 // a Suno music prompt, then produces a synced soundtrack that ends on the final frame.
 export const wizScoreJobs = mysqlTable("wizScoreJobs", {
@@ -850,7 +850,7 @@ export const wizScoreJobs = mysqlTable("wizScoreJobs", {
 export type WizScoreJob = typeof wizScoreJobs.$inferSelect;
 export type InsertWizScoreJob = typeof wizScoreJobs.$inferInsert;
 
-// --- WizImage — AI Image Creator (Grok Imagine) --------------------------------
+// --- WizImage -- AI Image Creator (Grok Imagine) --------------------------------
 export const wizImages = mysqlTable("wizImages", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
@@ -871,7 +871,7 @@ export const wizImages = mysqlTable("wizImages", {
 export type WizImage = typeof wizImages.$inferSelect;
 export type InsertWizImage = typeof wizImages.$inferInsert;
 
-// --- WizShorts — Short-Form Video Creator (Grok Imagine Video) -----------------
+// --- WizShorts -- Short-Form Video Creator (Grok Imagine Video) -----------------
 export const wizShortsJobs = mysqlTable("wizShortsJobs", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
@@ -895,7 +895,7 @@ export const wizShortsJobs = mysqlTable("wizShortsJobs", {
   videoKey: varchar("videoKey", { length: 512 }),
   status: mysqlEnum("wizShortsStatus", ["pending", "generating_scenes", "rendering", "assembling", "complete", "failed"]).default("pending").notNull(),
   errorMessage: text("errorMessage"),
-  /** Character Lock: FK to characters table (nullable — no lock if null) */
+  /** Character Lock: FK to characters table (nullable -- no lock if null) */
   characterId: int("characterId"),
   /** Whether to enforce character lock for this job */
   characterLockEnabled: boolean("characterLockEnabled").default(false).notNull(),
@@ -932,7 +932,7 @@ export const wizShortsScenes = mysqlTable("wizShortsScenes", {
 export type WizShortsScene = typeof wizShortsScenes.$inferSelect;
 export type InsertWizShortsScene = typeof wizShortsScenes.$inferInsert;
 
-// ── Analytics Tables ──────────────────────────────────────────────────────────
+// -- Analytics Tables ----------------------------------------------------------
 
 export const analyticsSessions = mysqlTable("analyticsSessions", {
   id: varchar("id", { length: 36 }).primaryKey(), // UUID
@@ -988,7 +988,7 @@ export const analyticsEvents = mysqlTable("analyticsEvents", {
 });
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 
-// ── PROVIDER JOB TRACKING (Spend Protection Item 6) ──────────────────────────
+// -- PROVIDER JOB TRACKING (Spend Protection Item 6) --------------------------
 // Every provider submission is logged here for idempotency, spend tracking, and audit.
 export const providerJobLogs = mysqlTable("providerJobLogs", {
   id: int("id").autoincrement().primaryKey(),
@@ -1011,7 +1011,7 @@ export const providerJobLogs = mysqlTable("providerJobLogs", {
 export type ProviderJobLog = typeof providerJobLogs.$inferSelect;
 export type InsertProviderJobLog = typeof providerJobLogs.$inferInsert;
 
-// ── WIZPERFORMER CONSENT LOGGING (GDPR Art. 9 explicit consent) ──────────────
+// -- WIZPERFORMER CONSENT LOGGING (GDPR Art. 9 explicit consent) --------------
 // Logs each explicit consent given before uploading a performer photo.
 export const wizPerformerConsents = mysqlTable("wizPerformerConsents", {
   id: int("id").autoincrement().primaryKey(),
@@ -1030,7 +1030,7 @@ export const wizPerformerConsents = mysqlTable("wizPerformerConsents", {
 export type WizPerformerConsent = typeof wizPerformerConsents.$inferSelect;
 export type InsertWizPerformerConsent = typeof wizPerformerConsents.$inferInsert;
 
-// ── DATA DELETION / EXPORT REQUESTS ──────────────────────────────────────────
+// -- DATA DELETION / EXPORT REQUESTS ------------------------------------------
 export const dataRequests = mysqlTable("dataRequests", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
@@ -1043,15 +1043,15 @@ export const dataRequests = mysqlTable("dataRequests", {
 export type DataRequest = typeof dataRequests.$inferSelect;
 export type InsertDataRequest = typeof dataRequests.$inferInsert;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// WizAdora™ — Internal API Foundation (Phase 1)
+// -----------------------------------------------------------------------------
+// WizAdora(TM) -- Internal API Foundation (Phase 1)
 // Private internal API layer. Not publicly exposed.
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Internal API keys for WizAdora.
  * Only wiz_test_sk_ keys for now. wiz_live_sk_ reserved for future production.
- * No public user-generated keys yet — admin-only.
+ * No public user-generated keys yet -- admin-only.
  */
 export const wizadoraApiKeys = mysqlTable("wizadora_api_keys", {
   id: int("id").primaryKey().autoincrement(),
@@ -1070,8 +1070,8 @@ export type WizadoraApiKey = typeof wizadoraApiKeys.$inferSelect;
 export type InsertWizadoraApiKey = typeof wizadoraApiKeys.$inferInsert;
 
 /**
- * WizAdora job model — full lifecycle.
- * queued → processing → completed | failed | cancelled
+ * WizAdora job model -- full lifecycle.
+ * queued -> processing -> completed | failed | cancelled
  */
 export const wizadoraJobs = mysqlTable("wizadora_jobs", {
   id: varchar("id", { length: 36 }).primaryKey(),
@@ -1109,7 +1109,7 @@ export type WizadoraJob = typeof wizadoraJobs.$inferSelect;
 export type InsertWizadoraJob = typeof wizadoraJobs.$inferInsert;
 
 /**
- * Provider submission log — every Atlas Cloud call logged here, never deleted.
+ * Provider submission log -- every Atlas Cloud call logged here, never deleted.
  */
 export const wizadoraProviderLogs = mysqlTable("wizadora_provider_logs", {
   id: int("id").primaryKey().autoincrement(),
@@ -1131,7 +1131,7 @@ export type WizadoraProviderLog = typeof wizadoraProviderLogs.$inferSelect;
 export type InsertWizadoraProviderLog = typeof wizadoraProviderLogs.$inferInsert;
 
 /**
- * Idempotency key store — prevents duplicate jobs from same client key.
+ * Idempotency key store -- prevents duplicate jobs from same client key.
  */
 export const wizadoraIdempotencyKeys = mysqlTable("wizadora_idempotency_keys", {
   id: int("id").primaryKey().autoincrement(),
@@ -1146,7 +1146,7 @@ export type WizadoraIdempotencyKey = typeof wizadoraIdempotencyKeys.$inferSelect
 export type InsertWizadoraIdempotencyKey = typeof wizadoraIdempotencyKeys.$inferInsert;
 
 /**
- * Webhook delivery log — HMAC-SHA256 signed, replay protection.
+ * Webhook delivery log -- HMAC-SHA256 signed, replay protection.
  */
 export const wizadoraWebhookLogs = mysqlTable("wizadora_webhook_logs", {
   id: int("id").primaryKey().autoincrement(),
@@ -1168,7 +1168,7 @@ export type WizadoraWebhookLog = typeof wizadoraWebhookLogs.$inferSelect;
 export type InsertWizadoraWebhookLog = typeof wizadoraWebhookLogs.$inferInsert;
 
 /**
- * Spend cap configuration per user — checked before every provider submission.
+ * Spend cap configuration per user -- checked before every provider submission.
  */
 export const wizadoraSpendCaps = mysqlTable("wizadora_spend_caps", {
   id: int("id").primaryKey().autoincrement(),
@@ -1188,7 +1188,7 @@ export type WizadoraSpendCap = typeof wizadoraSpendCaps.$inferSelect;
 export type InsertWizadoraSpendCap = typeof wizadoraSpendCaps.$inferInsert;
 
 /**
- * A/B experiment assignments — stores which variant each user was assigned to.
+ * A/B experiment assignments -- stores which variant each user was assigned to.
  * Keyed on (userId, experimentId) so one row per user per experiment.
  * Anonymous users are stored with userId = NULL and identified by anonId.
  */
@@ -1203,7 +1203,7 @@ export const experimentAssignments = mysqlTable("experiment_assignments", {
 export type ExperimentAssignment = typeof experimentAssignments.$inferSelect;
 export type InsertExperimentAssignment = typeof experimentAssignments.$inferInsert;
 
-// ── Broadcast Emails ─────────────────────────────────────────────────────────
+// -- Broadcast Emails ---------------------------------------------------------
 /**
  * Tracks every mailshot sent by the admin via the broadcast email tool.
  * Each row represents one send campaign.
@@ -1219,11 +1219,11 @@ export const broadcastEmails = mysqlTable("broadcast_emails", {
 export type BroadcastEmail = typeof broadcastEmails.$inferSelect;
 export type InsertBroadcastEmail = typeof broadcastEmails.$inferInsert;
 
-// ── Credit Disputes ───────────────────────────────────────────────────────────
+// -- Credit Disputes -----------------------------------------------------------
 /**
  * Tracks user-submitted credit dispute requests.
  * Admin reviews each dispute and decides how many credits to refund.
- * No automatic refunds — admin approval required for every credit return.
+ * No automatic refunds -- admin approval required for every credit return.
  */
 export const creditDisputes = mysqlTable("creditDisputes", {
   id: int("id").autoincrement().primaryKey(),
@@ -1244,9 +1244,9 @@ export const creditDisputes = mysqlTable("creditDisputes", {
 export type CreditDispute = typeof creditDisputes.$inferSelect;
 export type InsertCreditDispute = typeof creditDisputes.$inferInsert;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Character Library — saved characters reusable across all products
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// Character Library -- saved characters reusable across all products
+// -----------------------------------------------------------------------------
 export const savedCharacters = mysqlTable("savedCharacters", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
@@ -1254,7 +1254,7 @@ export const savedCharacters = mysqlTable("savedCharacters", {
   name: varchar("name", { length: 255 }).notNull(),
   /** Full description used for AI generation (traits, costume, colours, etc.) */
   description: text("description"),
-  /** Voice/lip-sync type for WizSync™ */
+  /** Voice/lip-sync type for WizSync(TM) */
   gender: mysqlEnum("gender", ["male", "female", "neutral"]).default("neutral").notNull(),
   /** Animation style slug (e.g. "pixar3d", "ghibli", "anime") */
   animStyle: varchar("animStyle", { length: 64 }),
@@ -1273,9 +1273,9 @@ export const savedCharacters = mysqlTable("savedCharacters", {
 export type SavedCharacter = typeof savedCharacters.$inferSelect;
 export type InsertSavedCharacter = typeof savedCharacters.$inferInsert;
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // CREATIVE STUDIOS SYSTEM
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 export const creativeProfiles = mysqlTable("creativeProfiles", {
   id: int("id").autoincrement().primaryKey(),
@@ -1338,9 +1338,9 @@ export const socialPublishLogs = mysqlTable("socialPublishLogs", {
 });
 export type SocialPublishLog = typeof socialPublishLogs.$inferSelect;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// WIZAVISION — Streaming & Discovery Platform
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+// WIZAVISION -- Streaming & Discovery Platform
+// -----------------------------------------------------------------------------
 
 export const wizavisionVideos = mysqlTable("wizavisionVideos", {
   id: int("id").autoincrement().primaryKey(),
@@ -1400,7 +1400,7 @@ export const wizavisionCreatorChannels = mysqlTable("wizavisionCreatorChannels",
 export type WizavisionCreatorChannel = typeof wizavisionCreatorChannels.$inferSelect;
 export type InsertWizavisionCreatorChannel = typeof wizavisionCreatorChannels.$inferInsert;
 
-// ─── Saved Storyboards ────────────────────────────────────────────────────────
+// --- Saved Storyboards --------------------------------------------------------
 export const savedStoryboards = mysqlTable("savedStoryboards", {
   id: int("id").primaryKey().autoincrement(),
   userId: int("userId").notNull(),
@@ -1417,14 +1417,14 @@ export type SavedStoryboard = typeof savedStoryboards.$inferSelect;
 export type InsertSavedStoryboard = typeof savedStoryboards.$inferInsert;
 
 
-// ─── Character-Scene Junction Table ──────────────────────────────────────────
+// --- Character-Scene Junction Table ------------------------------------------
 // Maps which characters appear in each music video scene, with ordering and
 // primary character designation. This replaces the JSON characterAssignments
 // column in musicVideoScenes for richer per-scene character management.
 export const characterScenes = mysqlTable("characterScenes", {
   id: int("id").autoincrement().primaryKey(),
-  sceneId: int("sceneId").notNull(),       // FK → musicVideoScenes.id
-  characterId: int("characterId").notNull(), // FK → videoCharacters.id
+  sceneId: int("sceneId").notNull(),       // FK -> musicVideoScenes.id
+  characterId: int("characterId").notNull(), // FK -> videoCharacters.id
   isPrimary: boolean("isPrimary").notNull().default(false), // true = focus character for this scene
   positionOrder: int("positionOrder").notNull().default(0), // 0 = first/leftmost character
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -1433,7 +1433,7 @@ export const characterScenes = mysqlTable("characterScenes", {
 export type CharacterScene = typeof characterScenes.$inferSelect;
 export type InsertCharacterScene = typeof characterScenes.$inferInsert;
 
-// ─── Provider Health & Cost Protection ───────────────────────────────────────
+// --- Provider Health & Cost Protection ---------------------------------------
 // Tracks per-provider reliability metrics to enable automatic routing,
 // demotion, and spend guards. Updated after every scene completes or fails.
 export const providerHealth = mysqlTable("providerHealth", {
@@ -1471,7 +1471,7 @@ export const providerSpendEvents = mysqlTable("providerSpendEvents", {
 export type ProviderSpendEvent = typeof providerSpendEvents.$inferSelect;
 export type InsertProviderSpendEvent = typeof providerSpendEvents.$inferInsert;
 
-// ── Scene Action History Log ──────────────────────────────────────────────────
+// -- Scene Action History Log --------------------------------------------------
 // Records every user-initiated retry or cancel action on a music video scene.
 // Used to populate the Scene History section on the user dashboard.
 export const sceneActionLogs = mysqlTable("sceneActionLogs", {
@@ -1488,14 +1488,14 @@ export const sceneActionLogs = mysqlTable("sceneActionLogs", {
 export type SceneActionLog = typeof sceneActionLogs.$inferSelect;
 export type InsertSceneActionLog = typeof sceneActionLogs.$inferInsert;
 
-// ── Phase 2: Production Pipeline Hardening ────────────────────────────────────
+// -- Phase 2: Production Pipeline Hardening ------------------------------------
 
 /**
- * renderAttempts — Immutable audit trail for every assembled final video.
+ * renderAttempts -- Immutable audit trail for every assembled final video.
  *
  * Every call to assembleMusicVideo() writes one row here with a UUID-keyed
  * S3 path, SHA256 hash, file size, measured duration, and validation result.
- * Re-renders always produce a new row — previous rows are never updated.
+ * Re-renders always produce a new row -- previous rows are never updated.
  */
 export const renderAttempts = mysqlTable("renderAttempts", {
   id: int("id").autoincrement().primaryKey(),
@@ -1518,7 +1518,7 @@ export type RenderAttempt = typeof renderAttempts.$inferSelect;
 export type InsertRenderAttempt = typeof renderAttempts.$inferInsert;
 
 /**
- * validationRuns — Results of the automated daily Golden Validation pipeline.
+ * validationRuns -- Results of the automated daily Golden Validation pipeline.
  *
  * Each row represents one end-to-end automated render of the Golden Validation
  * fixture. Used to detect regressions before real users are affected.
@@ -1544,32 +1544,32 @@ export type ValidationRun = typeof validationRuns.$inferSelect;
 export type InsertValidationRun = typeof validationRuns.$inferInsert;
 
 // =============================================================================
-// MANIFEST-DRIVEN SCENE GRAPH (Phase 2a — 2026-05-28)
+// MANIFEST-DRIVEN SCENE GRAPH (Phase 2a -- 2026-05-28)
 // Architecture: https://wiz-ai.io/docs/pipeline-architecture
 //
 // Three additive tables that implement the manifest-driven orchestration layer:
-//   1. renderManifests   — versioned JSON manifest per job (one-to-one with musicVideoJobs)
-//   2. sceneAuditLog     — immutable per-scene audit trail (prompt, seed, validation metrics, retries)
-//   3. sceneWebhookEvents — idempotent webhook receipt log (provider task ID, event type, dedup hash)
+//   1. renderManifests   -- versioned JSON manifest per job (one-to-one with musicVideoJobs)
+//   2. sceneAuditLog     -- immutable per-scene audit trail (prompt, seed, validation metrics, retries)
+//   3. sceneWebhookEvents -- idempotent webhook receipt log (provider task ID, event type, dedup hash)
 // =============================================================================
 
 /**
  * renderManifests
  * One manifest per music video job. Stores the full versioned render plan as JSON,
  * including scene list, provider assignments, seeds, validation results, and final asset URLs.
- * This is the single source of truth for rerenders — replaying the manifest must produce
+ * This is the single source of truth for rerenders -- replaying the manifest must produce
  * a deterministic output.
  */
 export const renderManifests = mysqlTable("renderManifests", {
   id: int("id").autoincrement().primaryKey(),
-  jobId: int("jobId").notNull().unique(),          // FK → musicVideoJobs.id (one manifest per job)
+  jobId: int("jobId").notNull().unique(),          // FK -> musicVideoJobs.id (one manifest per job)
   schemaVersion: varchar("schemaVersion", { length: 16 }).notNull().default("1.0"), // Manifest schema version for migration
   // Core manifest fields (also stored as structured columns for fast querying)
   totalScenes: int("totalScenes").notNull().default(0),
   approvedScenes: int("approvedScenes").notNull().default(0),
   failedScenes: int("failedScenes").notNull().default(0),
   pendingScenes: int("pendingScenes").notNull().default(0),
-  // Full manifest JSON — includes scene list, provider assignments, seeds, validation results
+  // Full manifest JSON -- includes scene list, provider assignments, seeds, validation results
   manifestJson: longtext("manifestJson"),          // JSON: RenderManifest (see shared/manifest-types.ts)
   // Pipeline state machine (job-level)
   pipelineState: mysqlEnum("manifestPipelineState", [
@@ -1598,12 +1598,12 @@ export type InsertRenderManifest = typeof renderManifests.$inferInsert;
  * sceneAuditLog
  * Immutable append-only audit trail for every scene state transition.
  * Each row captures: what prompt was used, which provider was called, what the validation
- * result was, and why the scene moved to its new state. Never updated — only inserted.
+ * result was, and why the scene moved to its new state. Never updated -- only inserted.
  */
 export const sceneAuditLog = mysqlTable("sceneAuditLog", {
   id: int("id").autoincrement().primaryKey(),
-  sceneId: int("sceneId").notNull(),               // FK → musicVideoScenes.id
-  jobId: int("jobId").notNull(),                   // FK → musicVideoJobs.id (denormalised for fast job-level queries)
+  sceneId: int("sceneId").notNull(),               // FK -> musicVideoScenes.id
+  jobId: int("jobId").notNull(),                   // FK -> musicVideoJobs.id (denormalised for fast job-level queries)
   // State transition
   fromState: varchar("fromState", { length: 64 }), // Previous scene status
   toState: varchar("toState", { length: 64 }).notNull(), // New scene status
@@ -1612,7 +1612,7 @@ export const sceneAuditLog = mysqlTable("sceneAuditLog", {
   provider: varchar("provider", { length: 64 }),   // "wavespeed-seedance-2.0" | "wavespeed-hailuo" | "infinitetalk" | "hedra"
   providerTaskId: varchar("providerTaskId", { length: 255 }), // Provider job/task ID at time of transition
   providerModel: varchar("providerModel", { length: 128 }), // Exact model slug used
-  // Prompt snapshot (captured at submission time — immutable record of what was sent)
+  // Prompt snapshot (captured at submission time -- immutable record of what was sent)
   promptSnapshot: text("promptSnapshot"),          // Full prompt text sent to provider
   negativePromptSnapshot: text("negativePromptSnapshot"), // Negative prompt (if any)
   seedValue: varchar("seedValue", { length: 64 }), // Seed used for deterministic rerender
@@ -1632,7 +1632,7 @@ export const sceneAuditLog = mysqlTable("sceneAuditLog", {
   providerCostUsd: decimal("providerCostUsd", { precision: 6, scale: 4 }).notNull().default("0"),
   // Metadata
   errorMessage: text("errorMessage"),
-  createdAt: timestamp("createdAt").defaultNow().notNull(), // Immutable — no updatedAt
+  createdAt: timestamp("createdAt").defaultNow().notNull(), // Immutable -- no updatedAt
 });
 export type SceneAuditEntry = typeof sceneAuditLog.$inferSelect;
 export type InsertSceneAuditEntry = typeof sceneAuditLog.$inferInsert;
@@ -1659,8 +1659,8 @@ export const sceneWebhookEvents = mysqlTable("sceneWebhookEvents", {
   // Payload
   rawPayloadJson: longtext("rawPayloadJson"),      // Full raw webhook payload (for debugging/replay)
   // Resolved context (filled in when processed)
-  resolvedSceneId: int("resolvedSceneId"),         // FK → musicVideoScenes.id (resolved from providerTaskId)
-  resolvedJobId: int("resolvedJobId"),             // FK → musicVideoJobs.id
+  resolvedSceneId: int("resolvedSceneId"),         // FK -> musicVideoScenes.id (resolved from providerTaskId)
+  resolvedJobId: int("resolvedJobId"),             // FK -> musicVideoJobs.id
   // Signature verification
   signatureVerified: boolean("signatureVerified").notNull().default(false), // Was webhook signature verified?
   // Timing
@@ -1670,3 +1670,147 @@ export const sceneWebhookEvents = mysqlTable("sceneWebhookEvents", {
 });
 export type SceneWebhookEvent = typeof sceneWebhookEvents.$inferSelect;
 export type InsertSceneWebhookEvent = typeof sceneWebhookEvents.$inferInsert;
+
+// -----------------------------------------------------------------------------
+// PHASE 3 -- CONTINUITY ENGINE
+// -----------------------------------------------------------------------------
+
+/**
+ * sceneRelationships
+ * Encodes the scene graph: prev/next pointers plus semantic groupings
+ * (chorus, verse, motif) used by the Continuity Engine and Edit Intelligence.
+ */
+export const sceneRelationships = mysqlTable("sceneRelationships", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: int("jobId").notNull(),                          // FK -> musicVideoJobs.id
+  sceneId: int("sceneId").notNull().unique(),             // FK -> musicVideoScenes.id (one row per scene)
+  prevSceneId: int("prevSceneId"),                        // FK -> musicVideoScenes.id
+  nextSceneId: int("nextSceneId"),                        // FK -> musicVideoScenes.id
+  // Semantic groupings
+  chorusGroup: int("chorusGroup"),                        // Scenes sharing the same chorus index (1, 2, 3...)
+  verseGroup: int("verseGroup"),                          // Scenes sharing the same verse index
+  bridgeGroup: int("bridgeGroup"),                        // Bridge scenes
+  motifGroup: varchar("motifGroup", { length: 64 }),      // Named motif (e.g. "piano_close", "hall_wide")
+  sectionType: varchar("sectionType", { length: 32 }),    // "intro"|"verse"|"pre-chorus"|"chorus"|"bridge"|"outro"
+  positionInSection: int("positionInSection"),            // 0-indexed position within section
+  // Continuity lock flags
+  inheritCostumeFromPrev: boolean("inheritCostumeFromPrev").default(true).notNull(),
+  inheritLightingFromPrev: boolean("inheritLightingFromPrev").default(true).notNull(),
+  inheritEnvironmentFromPrev: boolean("inheritEnvironmentFromPrev").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SceneRelationship = typeof sceneRelationships.$inferSelect;
+export type InsertSceneRelationship = typeof sceneRelationships.$inferInsert;
+
+/**
+ * continuityResults
+ * Per-adjacent-pair continuity validation results, produced by the
+ * ContinuityValidator before final assembly.
+ */
+export const continuityResults = mysqlTable("continuityResults", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: int("jobId").notNull(),                          // FK -> musicVideoJobs.id
+  sceneAId: int("sceneAId").notNull(),                    // FK -> musicVideoScenes.id (earlier scene)
+  sceneBId: int("sceneBId").notNull(),                    // FK -> musicVideoScenes.id (later scene)
+  // Per-category scores (0.0 = total discontinuity, 1.0 = perfect continuity)
+  performerScore: decimal("performerScore", { precision: 4, scale: 3 }),
+  wardrobeScore: decimal("wardrobeScore", { precision: 4, scale: 3 }),
+  environmentScore: decimal("environmentScore", { precision: 4, scale: 3 }),
+  lightingScore: decimal("lightingScore", { precision: 4, scale: 3 }),
+  cameraEnergyScore: decimal("cameraEnergyScore", { precision: 4, scale: 3 }),
+  // Composite
+  overallScore: decimal("overallScore", { precision: 4, scale: 3 }),
+  // Gate result
+  passed: boolean("passed").notNull().default(false),
+  failureCategories: text("failureCategories"),           // JSON array of failed categories
+  // Performer identity embedding (compact JSON vector or base64)
+  performerEmbeddingJson: text("performerEmbeddingJson"), // Stored embedding for scene A
+  identityVariance: decimal("identityVariance", { precision: 5, scale: 4 }), // Drift from reference
+  identityLockStrength: decimal("identityLockStrength", { precision: 4, scale: 3 }), // 0-1 confidence
+  // Detailed notes from LLM vision assessment
+  assessmentNotes: text("assessmentNotes"),
+  // Action taken
+  action: varchar("action", { length: 32 }),              // "approved" | "flagged" | "rejected" | "skipped"
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type ContinuityResult = typeof continuityResults.$inferSelect;
+export type InsertContinuityResult = typeof continuityResults.$inferInsert;
+
+// -----------------------------------------------------------------------------
+// PHASE 4 -- EDIT INTELLIGENCE
+// -----------------------------------------------------------------------------
+
+/**
+ * editIntelligenceResults
+ * Stores the output of the Edit Intelligence pass for each job:
+ * beat-aware sequencing decisions, emotional arc mapping, transition recommendations.
+ */
+export const editIntelligenceResults = mysqlTable("editIntelligenceResults", {
+  id: int("id").autoincrement().primaryKey(),
+  jobId: int("jobId").notNull().unique(),                 // FK -> musicVideoJobs.id (one result per job)
+  // Beat analysis
+  detectedBpm: decimal("detectedBpm", { precision: 6, scale: 2 }),
+  beatGridJson: text("beatGridJson"),                     // JSON: array of beat timestamps in ms
+  // Emotional arc
+  emotionalArcJson: text("emotionalArcJson"),             // JSON: [{section, startMs, endMs, intensity, shotType}]
+  // Camera energy profile
+  cameraEnergyProfileJson: text("cameraEnergyProfileJson"), // JSON: [{sceneId, energyLevel, motionType}]
+  // Motif recurrence plan
+  motifPlanJson: text("motifPlanJson"),                   // JSON: [{motifName, sceneIds, recurrenceType}]
+  // Transition recommendations
+  transitionPlanJson: text("transitionPlanJson"),         // JSON: [{fromSceneId, toSceneId, transitionType, durationMs}]
+  // Sequencing adjustments applied
+  sequencingAdjustmentsJson: text("sequencingAdjustmentsJson"), // JSON: list of reordering/pacing decisions
+  // Overall quality score
+  editQualityScore: decimal("editQualityScore", { precision: 4, scale: 3 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type EditIntelligenceResult = typeof editIntelligenceResults.$inferSelect;
+export type InsertEditIntelligenceResult = typeof editIntelligenceResults.$inferInsert;
+
+// -----------------------------------------------------------------------------
+// PHASE 5 -- DIRECTOR MODE
+// -----------------------------------------------------------------------------
+
+// directorMode is added as a column on musicVideoJobs (migration below)
+// The enum values are defined in server/director-modes.ts
+
+// -----------------------------------------------------------------------------
+// PHASE 6 -- SCENE VERSION HISTORY
+// -----------------------------------------------------------------------------
+
+/**
+ * sceneVersions
+ * Stores every render attempt for a scene, enabling version history,
+ * before/after comparison, and isolated re-render without full rebuild.
+ */
+export const sceneVersions = mysqlTable("sceneVersions", {
+  id: int("id").autoincrement().primaryKey(),
+  sceneId: int("sceneId").notNull(),                      // FK -> musicVideoScenes.id
+  jobId: int("jobId").notNull(),                          // FK -> musicVideoJobs.id
+  versionNumber: int("versionNumber").notNull().default(1), // Monotonically increasing per scene
+  // Render configuration at time of this version
+  promptSnapshot: text("promptSnapshot"),
+  directorModeSnapshot: varchar("directorModeSnapshot", { length: 64 }),
+  cameraAngle: varchar("cameraAngle", { length: 32 }),    // "close-up"|"medium"|"wide"|"tracking"|"overhead"|"handheld"|"steadicam"
+  rerenderType: varchar("rerenderType", { length: 32 }),  // "full"|"environment_only"|"lip_sync_only"|"camera_angle"
+  identityPreserved: boolean("identityPreserved").default(false).notNull(),
+  // Output
+  rawVideoUrl: varchar("rawVideoUrl", { length: 1024 }),
+  lipSyncVideoUrl: varchar("lipSyncVideoUrl", { length: 1024 }),
+  thumbnailUrl: varchar("thumbnailUrl", { length: 1024 }),
+  // Status
+  status: mysqlEnum("status", ["rendering", "ready", "accepted", "rejected", "alternate"]).notNull().default("rendering"),
+  acceptedAt: timestamp("acceptedAt"),
+  rejectedAt: timestamp("rejectedAt"),
+  rejectionReason: text("rejectionReason"),
+  // Validation scores at time of acceptance/rejection
+  continuityScore: decimal("continuityScore", { precision: 4, scale: 3 }),
+  lipSyncGrade: varchar("lipSyncGrade", { length: 8 }),   // "GREEN"|"AMBER"|"RED"
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type SceneVersion = typeof sceneVersions.$inferSelect;
+export type InsertSceneVersion = typeof sceneVersions.$inferInsert;
