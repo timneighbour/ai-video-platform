@@ -8673,3 +8673,10 @@
 - [ ] Auto-save AI-generated character portrait as referencePhotoBase64 on videoCharacters table
 - [ ] Ensure identity gate runs for AI characters (same as real-photo uploads)
 - [ ] Write vitest test confirming AI character reference is saved and identity gate is not skipped
+
+## Subscriber Readiness Audit — Scenario Testing
+
+- [ ] Scenario C — Poor photo: upload deliberately bad photo, document validation gate response with screenshots
+- [ ] Scenario B — AI character: run end-to-end flow, document identity gate, lip-sync gate, probe workflow
+- [x] Scenario A — real selfie upload, Air Studios music video
+- [ ] Compile Scenario A/B/C evidence report (PDF)
