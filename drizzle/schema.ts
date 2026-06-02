@@ -214,6 +214,26 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   vocalsKey: varchar("vocalsKey", { length: 512 }),           // S3 key for isolated vocals file
   vocalsStatus: varchar("vocalsStatus", { length: 32 }).default("pending"), // pending | processing | done | failed
   songBpm: int("songBpm"),                                    // Detected BPM (used to generate tempo-matched instrument motion prompts)
+  // --- Stem Intelligence (Demucs 8-stem analysis) --------------------------
+  // Generated once per upload by the stem-intelligence-service.
+  // stemAnalysisStatus: pending | processing | done | failed
+  stemAnalysisStatus: varchar("stemAnalysisStatus", { length: 32 }).default("pending"),
+  stemAnalysisCompletedAt: timestamp("stemAnalysisCompletedAt"),
+  // S3 URLs for the 8 stem WAV files
+  stemVocalsUrl: varchar("stemVocalsUrl", { length: 1024 }),
+  stemDrumsUrl: varchar("stemDrumsUrl", { length: 1024 }),
+  stemBassUrl: varchar("stemBassUrl", { length: 1024 }),
+  stemPianoUrl: varchar("stemPianoUrl", { length: 1024 }),
+  stemGuitarUrl: varchar("stemGuitarUrl", { length: 1024 }),
+  stemOtherUrl: varchar("stemOtherUrl", { length: 1024 }),
+  stemAccompanimentUrl: varchar("stemAccompanimentUrl", { length: 1024 }),
+  // S3 URLs for large JSON blobs (envelopes, energy maps)
+  envelopesUrl: varchar("envelopesUrl", { length: 1024 }),
+  energyMapsUrl: varchar("energyMapsUrl", { length: 1024 }),
+  // Compact JSON stored inline (sections, subtitle timing, validation)
+  sectionsJson: text("sectionsJson"),
+  subtitleTimingJson: text("subtitleTimingJson"),
+  validationJson: text("validationJson"),
   // --- Sync Labs Lip Sync Tracking -------------------------------------------
   syncLabsJobId: varchar("syncLabsJobId", { length: 128 }), // Sync Labs job ID -- used to resume polling after server restart
   assemblyStartedAt: timestamp("assemblyStartedAt"),         // When assembly began -- used to detect truly stuck jobs

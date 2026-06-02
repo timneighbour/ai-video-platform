@@ -8775,3 +8775,18 @@
 - [x] Wire sceneDispatchHeartbeat to select reference URL by scene type (performance/mediumShot/cinematic/environment)
 - [x] Write vitest tests for character-auto-prep service
 - [ ] Validate on one Zara / Air Studios scene: identity, black hair, Air Studios world, no grey background, face size for lip-sync
+
+## Priority 1 — Demucs Stem Intelligence (Completed)
+
+- [x] Install demucs 4.0.1, librosa 0.11.0, scipy 1.17.1 in sandbox
+- [x] Write Python stem extraction script (server/audio/stem_extract.py): 8-stem Demucs separation, amplitude envelope extraction, section classification, energy maps, subtitle timing, validation output
+- [x] Add 14 stem intelligence columns to musicVideoJobs schema (stemVocalsUrl, stemDrumsUrl, stemBassUrl, stemPianoUrl, stemGuitarUrl, stemOtherUrl, stemAccompanimentUrl, envelopesUrl, energyMapsUrl, sectionsJson, subtitleTimingJson, validationJson, stemAnalysisStatus, stemAnalysisError)
+- [x] Run Drizzle migration for stem intelligence columns
+- [x] Build TypeScript stem-intelligence-service.ts: runStemIntelligence, getStemSections, getSectionTypeAtTime, stemSectionToSceneType, getStemVocalsUrl, getEnergyMapSummary, getValidationSummary
+- [x] Wire stem intelligence fire-and-forget trigger into startRender (background, non-blocking)
+- [x] Phase 1A: 8-stem extraction (vocals, drums, bass, piano, guitar, strings, other, accompaniment) with amplitude envelopes
+- [x] Phase 1B: Section classification (vocal_performance, instrumental, orchestral_build, emotional_transition, climax, outro)
+- [x] Phase 1C: Energy intensity maps (vocal, orchestral, rhythm) with build regions and emotional peak detection
+- [x] Phase 1D: Subtitle timing data structures (SubtitlePhrase, SubtitleTimingData) — ready for lyric alignment
+- [x] Phase 1E: Validation output (section breakdown, stem availability, classification quality, energy peaks, build regions)
+- [x] Write 26 vitest tests for stem intelligence service — all passing

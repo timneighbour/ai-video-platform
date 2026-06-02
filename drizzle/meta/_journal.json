@@ -722,6 +722,13 @@
       "when": 1780403977598,
       "tag": "0102_lean_deathbird",
       "breakpoints": true
+    },
+    {
+      "idx": 103,
+      "version": "5",
+      "when": 1780405139912,
+      "tag": "0103_dapper_jackpot",
+      "breakpoints": true
     }
   ]
 }

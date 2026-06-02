@@ -44,6 +44,7 @@ import {
   type CharacterInstrumentAssignment,
 } from "../instrument-analysis";
 import { getCharacterDefaults } from "../../shared/characterDefaults";
+import { runStemIntelligence } from "../stem-intelligence-service";
 
 export const musicVideoRouter = router({
   // Transcribe audio directly (no job required) — called as soon as user selects a file
@@ -1324,11 +1325,23 @@ Rules:
             console.error(`[MusicVideo] CRITICAL: Failed to refund credits for job ${job.id}:`, refundErr);
           }
         }
-      })();
-
+            })();
+      // ── STEM INTELLIGENCE: fire-and-forget parallel to scene dispatch ──────────
+      // Runs Demucs 8-stem separation + envelope extraction + section classification
+      // + energy maps + subtitle timing + validation output.
+      // Results stored on the job record and used by the heartbeat for:
+      //   - vocal scene placement (lip-sync allocation)
+      //   - scene type selection (performance vs cinematic)
+      //   - subtitle timing (future)
+      // Non-blocking: if this fails, render continues with BPM-only classification.
+      if (job.audioUrl && (job as any).stemAnalysisStatus !== 'done') {
+        runStemIntelligence(input.jobId, job.audioUrl).catch((stemErr: unknown) => {
+          console.warn(`[MusicVideo] Stem intelligence failed for job ${input.jobId} (non-fatal):`, stemErr);
+        });
+        console.log(`[MusicVideo] Stem intelligence started for job ${input.jobId} (background)`);
+      }
       return { success: true, creditCost: job.creditCost };
     }),
-
   // Poll render progress and trigger assembly when all scenes done
   pollProgress: protectedProcedure
     .input(z.object({ jobId: z.number().int() }))
