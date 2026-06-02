@@ -22,6 +22,7 @@ import { WizGenesisModal } from "@/components/WizGenesisModal";
 import { PostRenderRetentionScreen } from "@/components/PostRenderRetentionScreen";
 import { LyricsIntelligencePanel } from "@/components/LyricsIntelligencePanel";
 import { LyricsReviewModal } from "@/components/LyricsReviewModal";
+import { LyricsReviewPanel } from "@/components/LyricsReviewPanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -1052,6 +1053,7 @@ export default function MusicVideoAutopilot() {
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [showRenderPaywall, setShowRenderPaywall] = useState(false);
   const [showLyricsReview, setShowLyricsReview] = useState(false);
+  const [lyricsConfirmed, setLyricsConfirmed] = useState(false);
   const [showLyricsIntelligence, setShowLyricsIntelligence] = useState(false);
   const [isUpgradingCinematic, setIsUpgradingCinematic] = useState(false);
   const cinematicUpgradeMutation = trpc.musicVideo.cinematicUpgrade.useMutation();
@@ -4090,9 +4092,19 @@ export default function MusicVideoAutopilot() {
                   Regenerate
                 </Button>
                 <Button
-                  className="bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white font-semibold"
-                  onClick={handleStartRender}
+                  className="bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white font-semibold disabled:opacity-60"
+                  onClick={() => {
+                    if (!lyricsConfirmed && scenes.some(sc => sc.sceneType === "performance" || sc.lipSync)) {
+                      toast.info("Please review and confirm your lyrics below before starting the render.", {
+                        description: "Scroll down to the Lyrics Review section and click \"Confirm Lyrics\".",
+                        duration: 5000,
+                      });
+                      return;
+                    }
+                    handleStartRender();
+                  }}
                   disabled={startRender.isPending || scenes.length === 0}
+                  title={!lyricsConfirmed && scenes.some(sc => sc.sceneType === "performance" || sc.lipSync) ? "Review and confirm lyrics before rendering" : undefined}
                 >
                   {startRender.isPending ? (
                     <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Starting...</>
@@ -4129,6 +4141,38 @@ export default function MusicVideoAutopilot() {
                   jobId={jobId}
                   characters={characters.map((c, i) => ({ id: i, name: c.name }))}
                   isLocked={false}
+                />
+              </div>
+            )}
+
+            {/* Lyrics Review Panel — inline per-scene lyrics review before render */}
+            {jobId && scenes.length > 0 && (
+              <div className="mb-4">
+                <LyricsReviewPanel
+                  scenes={scenes.map((s, i) => ({
+                    id: s.id,
+                    sceneIndex: i,
+                    startTime: s.startTime ?? i * 6,
+                    duration: s.duration ?? 6,
+                    lyrics: s.lyrics,
+                    prompt: s.prompt,
+                    sceneType: s.sceneType,
+                    lipSync: s.lipSync,
+                  }))}
+                  jobId={jobId}
+                  confirmed={lyricsConfirmed}
+                  onConfirmed={() => setLyricsConfirmed(true)}
+                  onUnconfirmed={() => setLyricsConfirmed(false)}
+                  onLyricsUpdated={(sceneId, newLyrics) => {
+                    setScenes(prev =>
+                      prev.map(sc => sc.id === sceneId ? { ...sc, lyrics: newLyrics } : sc)
+                    );
+                  }}
+                  onLipSyncToggled={(sceneId, enabled) => {
+                    setScenes(prev =>
+                      prev.map(sc => sc.id === sceneId ? { ...sc, lipSync: enabled } : sc)
+                    );
+                  }}
                 />
               </div>
             )}

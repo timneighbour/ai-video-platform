@@ -8940,3 +8940,10 @@
 - [x] Defer scene when Stage 2 is already processing (autoPrepStatus = stage2_processing)
 - [x] Use job.sceneSetting as sceneStyle for Stage 2 (fallback to Air Studios default)
 - [x] Write 15 vitest tests for environment portrait gate logic (all passing)
+
+## Session: Lyrics Review Panel (Jun 02 2026)
+- [x] Build LyricsReviewPanel component — per-scene timeline with inline editing, time stamps, scene type badges, lip-sync toggle, save state
+- [x] Add updateSceneLyrics tRPC procedure (lyrics-only edit, no scene reset)
+- [x] Wire LyricsReviewPanel into storyboard step (between VocalStemAssignmentPanel and Export Format)
+- [x] Add lyricsConfirmed state gate on "Create your video" button
+- [x] 16 vitest tests for confirmation gate, lyrics resolution priority, and r2v prompt construction — all passing
