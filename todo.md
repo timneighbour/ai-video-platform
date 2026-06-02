@@ -8691,3 +8691,87 @@
 - [ ] Build admin Provider Health Dashboard (auth, balance, last render, availability)
 - [ ] Investigate WaveSpeed 401 — expired/revoked/misconfigured key
 - [ ] Write tests for all failure-recovery changes
+
+## Pipeline Stabilisation — Approved Priorities (Provider decisions frozen)
+
+> **Directive:** No provider changes until the showcase pipeline reliably produces showcase-quality output.
+> The next competitive advantage is orchestration quality, not another API.
+
+---
+
+### Priority 1 — Demucs Stem Separation Integration
+
+- [ ] Install `demucs` as a server-side Python dependency (MIT licence, Meta open-source)
+- [ ] Create `server/audio/stemSeparation.ts` — wrapper that calls Demucs via child_process and returns 8 stem audio file paths (drums, bass, vocals, piano, guitar, other + 2 instrument stems)
+- [ ] Create `server/audio/stemEnvelopes.ts` — extract amplitude time-series (per-frame RMS) from each stem as JSON array
+- [ ] Store stem envelope data on `musicVideoJobs` (add `stemEnvelopesUrl` column pointing to S3 JSON)
+- [ ] Apply migration: add `stemEnvelopesUrl` to musicVideoJobs schema
+- [ ] **Vocal isolation:** extract clean vocal stem and store as `vocalStemUrl` on musicVideoJobs for use in lip-sync
+- [ ] **Scene classification:** use vocal energy envelope to classify each scene timestamp as "performance" (high vocal energy) vs "cinematic" (low/no vocal energy) — store classification on musicVideoScenes
+- [ ] **Vocal-energy mapping:** use vocal RMS envelope to determine lip-sync scene priority order (highest vocal energy scenes get lip-sync first)
+- [ ] **Lip-sync driving:** pass `vocalStemUrl` (isolated vocal) to HeyGen Precision v3 instead of full mix audio — cleaner sync signal
+- [ ] **Subtitle timing:** use vocal onset detection from vocal stem envelope to align subtitle/lyric caption timestamps to actual sung syllables (not BPM grid)
+- [ ] Update `sceneDispatchHeartbeat` to read stem classification before dispatching scenes (performance scenes → lip-sync path, cinematic scenes → Seedance-only path)
+- [ ] Write vitest tests: stem separation produces 8 files, envelope extraction returns valid time-series, scene classification produces correct performance/cinematic split
+- [ ] Write integration test: full audio → stems → envelopes → scene classification pipeline
+
+---
+
+### Priority 2 — HeyGen Precision Lipsync v3 Integration
+
+- [x] Confirm `server/ai-apis/heygen-lipsync.ts` exports `submitHeyGenLipSync(videoUrl, audioUrl)` and `pollHeyGenLipSync(taskId)` using v3 Precision API
+- [x] Wire HeyGen as the **primary** lip-sync provider in `sceneDispatchHeartbeat` for all performance scenes
+- [x] Pass `vocalStemUrl` (from Demucs) as the audio input to HeyGen — not the full mix
+- [x] Enforce video-in / video-out architecture: Seedance scene video → HeyGen → lip-synced video (no portrait-first compositing)
+- [x] Remove WaveSpeed InfiniteTalk from the primary lip-sync path (retain as emergency fallback only, clearly labelled)
+- [x] Add HeyGen polling loop with exponential backoff (max 10 min timeout, mark scene FAILED_RETRYABLE on timeout)
+- [ ] Add HeyGen result validation: verify output video duration matches input duration (±0.5s), fail if mismatch
+- [ ] Store `lipSyncProvider: 'heygen_v3'` on musicVideoScenes for audit trail
+- [x] Write vitest tests: HeyGen submission, polling, timeout handling, duration validation
+- [ ] Verify full path: Seedance scene generation → HeyGen lip sync → validation → assembly
+
+---
+
+### Priority 3 — Automated Character-Preparation Layer
+
+- [ ] Create `server/character-prep/characterReferenceBuilder.ts` — triggered automatically when user approves a generated character
+- [ ] **Performance reference:** generate a close-up, forward-facing, neutral-expression portrait crop from the approved character image (for lip-sync input)
+- [ ] **Medium-shot reference:** generate a waist-up framing of the character in the target environment (for mid-scene shots)
+- [ ] **Cinematic reference:** generate a full-body or environmental shot of the character with cinematic lighting and depth-of-field (for establishing shots)
+- [ ] **Environment-aware reference:** generate the character placed within the selected scene environment (e.g., Air Studios) for background-consistent compositing
+- [ ] Store all four reference URLs on `videoCharacters` table (add columns: `perfRefUrl`, `mediumShotRefUrl`, `cinematicRefUrl`, `envRefUrl`)
+- [ ] Apply migration: add four reference URL columns to videoCharacters schema
+- [ ] Trigger character-prep automatically on character approval — user should never see or need to trigger this step
+- [ ] Update `sceneDispatchHeartbeat` to use the appropriate reference type per scene classification (performance → perfRefUrl, cinematic → cinematicRefUrl, etc.)
+- [ ] Add progress indicator in UI: "Preparing your character..." shown during reference generation (non-blocking, runs in background)
+- [ ] Write vitest tests: all four references generated on approval, correct reference type selected per scene classification
+- [ ] Write integration test: character approval → all four references ready → scene dispatch uses correct reference
+
+---
+
+### Priority 4 — End-to-End New-User Workflow Validation
+
+- [ ] Define the canonical new-user test scenario: Upload song → Generate character → Choose Air Studios → Generate video
+- [ ] Audit each pipeline stage for manual intervention requirements — document any step that currently requires user action beyond the defined inputs
+- [ ] **Vocal extraction:** confirm Demucs runs automatically on audio upload (no user action required)
+- [ ] **Scene selection:** confirm scene classification (performance vs cinematic) runs automatically from stem envelopes (no user action required)
+- [ ] **Lip-sync allocation:** confirm performance scenes are automatically routed to HeyGen (no user action required)
+- [ ] **Framing:** confirm correct reference type (perf/medium/cinematic/env) is automatically selected per scene (no user action required)
+- [ ] **Validation:** confirm identity gate and lip-sync gate run automatically before assembly (no user action required)
+- [ ] **Assembly:** confirm final video assembly runs automatically after all scenes pass validation (no user action required)
+- [ ] Run the full scenario end-to-end on staging with a real song and AI-generated character
+- [ ] Document every failure, manual step, or quality issue encountered
+- [ ] Fix all blocking issues before marking this priority complete
+- [ ] Produce a Showcase Pipeline Validation Report: pass/fail per stage, quality assessment, time-to-completion
+- [ ] The pipeline is considered validated only when a new user can complete the full flow without any manual intervention and the output meets showcase quality bar
+
+## Character Auto-Preparation Layer (Priority 3 — 2026-06-02)
+
+- [x] Add performanceRefUrl, mediumShotRefUrl, cinematicRefUrl, environmentRefUrl columns to videoCharacters schema
+- [x] Run Drizzle migration for new reference columns
+- [x] Build character-auto-prep.ts: Stage 1 (performance + mediumShot + cinematic on approval), Stage 2 (environmentRef on style selection)
+- [x] Hook Stage 1 auto-prep into character approval flow (background, non-blocking)
+- [x] Expose triggerEnvironmentRef tRPC mutation for Stage 2 (called when user selects scene style)
+- [x] Wire sceneDispatchHeartbeat to select reference URL by scene type (performance/mediumShot/cinematic/environment)
+- [x] Write vitest tests for character-auto-prep service
+- [ ] Validate on one Zara / Air Studios scene: identity, black hair, Air Studios world, no grey background, face size for lip-sync

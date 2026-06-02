@@ -413,6 +413,17 @@ export const videoCharacters = mysqlTable("videoCharacters", {
   faceVideoKey: varchar("faceVideoKey", { length: 512 }), // S3 key for face video
   // Whether this character is the primary focus (primary) or background (secondary)
   rolePriority: mysqlEnum("rolePriority", ["primary", "secondary"]).default("primary"),
+  // ── Auto-Preparation References (generated automatically on character approval) ──────────────
+  // Stage 1: generated immediately after previewApproved = true (background, non-blocking)
+  performanceRefUrl: varchar("performanceRefUrl", { length: 1024 }),   // Head-and-shoulders / MCU — optimised for lip-sync readability
+  mediumShotRefUrl: varchar("mediumShotRefUrl", { length: 1024 }),     // Waist-up — preserves wardrobe, hair, body language
+  cinematicRefUrl: varchar("cinematicRefUrl", { length: 1024 }),       // Wide / environmental — identity-consistent, non-lip-sync shots
+  // Stage 2: generated when user selects scene style (style-aware, uses job.sceneStyle)
+  environmentRefUrl: varchar("environmentRefUrl", { length: 1024 }),   // Character placed into chosen scene world (e.g. Air Studios)
+  environmentRefStyle: varchar("environmentRefStyle", { length: 255 }), // The sceneStyle used to generate environmentRefUrl (for cache invalidation)
+  autoPrepStatus: mysqlEnum("autoPrepStatus", ["pending", "stage1_processing", "stage1_done", "stage2_processing", "complete", "failed"]).default("pending"),
+  autoPrepStartedAt: timestamp("autoPrepStartedAt"),
+  autoPrepCompletedAt: timestamp("autoPrepCompletedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });

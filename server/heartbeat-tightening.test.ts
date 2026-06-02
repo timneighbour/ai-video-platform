@@ -1,16 +1,16 @@
 /**
  * heartbeat-tightening.test.ts
  *
- * Tests for all 8 heartbeat hardening fixes (2026-05-23):
+ * Tests for all 8 heartbeat hardening fixes (updated 2026-06-02 for HeyGen Precision v3):
  *
  * 1. Failed scene recovery calls resetSceneAttempts (idempotency cleared)
- * 2. InfiniteTalk stuck → resets to pending (not error)
- * 3. InfiniteTalk failed → resets to pending (not error)
- * 4. InfiniteTalk submission error → resets to pending (not error)
- * 5. Retry InfiniteTalk error → leaves as pending (not error)
+ * 2. HeyGen stuck → resets to pending (not error)
+ * 3. HeyGen failed poll → resets to pending (not error)
+ * 4. HeyGen submission error → resets to pending (not error)
+ * 5. Retry HeyGen error → leaves as pending (not error)
  * 6. nowPending definition excludes scenes with taskId
  * 7. nowLipSyncReady excludes lipSyncStatus=error
- * 8. Composite reaper resets error scenes (not just processing)
+ * 8. Composite reaper removed (new pipeline)
  * 9. stuckSceneReaper does full pipeline reset (all fields cleared)
  * 10. stuckSceneReaper does NOT call startSceneRender directly
  */
@@ -65,11 +65,11 @@ describe("Heartbeat Fix 1: Failed scene recovery clears idempotency", () => {
   });
 });
 
-describe("Heartbeat Fix 2: InfiniteTalk stuck → pending (not error)", () => {
-  it("resets lipSyncStatus to pending (not error) when InfiniteTalk is stuck", () => {
+describe("Heartbeat Fix 2: HeyGen stuck → pending (not error)", () => {
+  it("resets lipSyncStatus to pending (not error) when HeyGen Precision v3 is stuck", () => {
     const stuckBlock = heartbeatSrc.slice(
-      heartbeatSrc.indexOf("InfiniteTalk job stuck for"),
-      heartbeatSrc.indexOf("InfiniteTalk job stuck for") + 600
+      heartbeatSrc.indexOf("HeyGen Precision v3 job stuck for"),
+      heartbeatSrc.indexOf("HeyGen Precision v3 job stuck for") + 600
     );
     // Must set lipSyncStatus to pending
     expect(containsPattern(stuckBlock, "lipSyncStatus: \"pending\"")).toBe(true);
@@ -80,11 +80,11 @@ describe("Heartbeat Fix 2: InfiniteTalk stuck → pending (not error)", () => {
   });
 });
 
-describe("Heartbeat Fix 3: InfiniteTalk failed poll → pending (not error)", () => {
-  it("resets lipSyncStatus to pending (not error) when InfiniteTalk poll returns failed", () => {
+describe("Heartbeat Fix 3: HeyGen failed poll → pending (not error)", () => {
+  it("resets lipSyncStatus to pending (not error) when HeyGen Precision v3 poll returns failed", () => {
     const failedPollBlock = heartbeatSrc.slice(
-      heartbeatSrc.indexOf("InfiniteTalk job ${scene.lipSyncTaskId} FAILED"),
-      heartbeatSrc.indexOf("InfiniteTalk job ${scene.lipSyncTaskId} FAILED") + 500
+      heartbeatSrc.indexOf("HeyGen Precision v3 job ${scene.lipSyncTaskId} FAILED"),
+      heartbeatSrc.indexOf("HeyGen Precision v3 job ${scene.lipSyncTaskId} FAILED") + 500
     );
     expect(containsPattern(failedPollBlock, "lipSyncStatus: \"pending\"")).toBe(true);
     expect(containsPattern(failedPollBlock, "lipSyncTaskId: null")).toBe(true);
@@ -92,11 +92,11 @@ describe("Heartbeat Fix 3: InfiniteTalk failed poll → pending (not error)", ()
   });
 });
 
-describe("Heartbeat Fix 4: InfiniteTalk submission error → pending (not error)", () => {
-  it("resets lipSyncStatus to pending when InfiniteTalk submission throws", () => {
+describe("Heartbeat Fix 4: HeyGen submission error → pending (not error)", () => {
+  it("resets lipSyncStatus to pending when HeyGen Precision v3 submission throws", () => {
     const submitErrBlock = heartbeatSrc.slice(
-      heartbeatSrc.indexOf("InfiniteTalk submission FAILED"),
-      heartbeatSrc.indexOf("InfiniteTalk submission FAILED") + 600
+      heartbeatSrc.indexOf("HeyGen Precision v3 submission FAILED"),
+      heartbeatSrc.indexOf("HeyGen Precision v3 submission FAILED") + 600
     );
     expect(containsPattern(submitErrBlock, "lipSyncStatus: \"pending\"")).toBe(true);
     expect(containsPattern(submitErrBlock, "lipSyncTaskId: null")).toBe(true);
@@ -104,11 +104,11 @@ describe("Heartbeat Fix 4: InfiniteTalk submission error → pending (not error)
   });
 });
 
-describe("Heartbeat Fix 5: Retry InfiniteTalk error → leave as pending", () => {
+describe("Heartbeat Fix 5: Retry HeyGen error → leave as pending", () => {
   it("does not set lipSyncStatus=error in the retry catch block", () => {
     const retryErrBlock = heartbeatSrc.slice(
-      heartbeatSrc.indexOf("RETRY InfiniteTalk failed"),
-      heartbeatSrc.indexOf("RETRY InfiniteTalk failed") + 400
+      heartbeatSrc.indexOf("RETRY HeyGen Precision v3 failed"),
+      heartbeatSrc.indexOf("RETRY HeyGen Precision v3 failed") + 400
     );
     expect(containsPattern(retryErrBlock, "lipSyncStatus: \"error\"")).toBe(false);
     expect(containsPattern(retryErrBlock, "will retry next tick")).toBe(true);

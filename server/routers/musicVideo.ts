@@ -32,6 +32,7 @@ import { getVocalStemForCharacter } from "../vocal-isolation-service";
 import { getUserSubscription, mapDbPlanToProductPlan, countVideosThisMonth } from "../db";
 import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS, PLAN_SCENE_LIMITS, getPlanMaxScenesPerVideo } from "../products";
 import { classifyScenes } from "../scene-classifier";
+import { runStage1AutoPrep, runStage2EnvironmentPrep, selectReferenceForScene, sceneTypeToRefType } from "../character-auto-prep";
 import { buildRoutingPlan, enforceHardStop } from "../renderer-router";
 import { isAnyProviderAvailable, checkAllProviders, getBestProvider, recordProviderOutcome, checkJobSpendLimit, updateJobSpend, PROVIDER_COST_PER_SCENE_USD } from "../provider-health";
 import { classifyFailure, isRetryableFailure, resetSceneAttempts } from "../spend-protection";
@@ -3651,13 +3652,28 @@ Rules:
         ? { masterPortraitUrl: char.previewImageUrl }
         : {};
 
-      await db.update(videoCharacters)
+            await db.update(videoCharacters)
         .set({ previewApproved: true, ...masterPortraitFix, updatedAt: new Date() })
         .where(eq(videoCharacters.id, input.characterId));
-
       if (isAiDescribedCharacter && masterPortraitFix.masterPortraitUrl) {
         console.log(`[approveCharacterPreview] AI character ${char.name}: masterPortraitUrl locked from approved preview for Character Lock™`);
       }
+
+      // ── Auto-Preparation Stage 1 (non-blocking, background) ─────────────────
+      // Immediately kick off generation of performance, medium-shot, and cinematic
+      // reference images. The user never waits for this — it runs silently in the
+      // background and is ready by the time scene dispatch begins.
+      const masterPortraitForPrep = masterPortraitFix.masterPortraitUrl ?? char.masterPortraitUrl;
+      runStage1AutoPrep({
+        characterId: input.characterId,
+        identityBrief: char.lockedDescription ?? char.characterPrompt ?? char.name,
+        characterName: char.name,
+        masterPortraitUrl: masterPortraitForPrep ?? null,
+      }).catch((err) => {
+        console.error(`[approveCharacterPreview] Stage 1 auto-prep failed for char ${input.characterId}:`, err);
+      });
+      console.log(`[approveCharacterPreview] Stage 1 auto-prep triggered for char ${char.name} (${input.characterId})`);
+
       return { success: true };
     }),
 
@@ -5631,7 +5647,59 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
         validationStatus: a.validationStatus,
         validationError: a.validationError,
         assembledAt: a.assembledAt,
-      }));
+            }));
+    }),
+
+  // ── Character Auto-Prep: Trigger Stage 2 Environment Reference ─────────────
+  // Called when the user selects or changes the scene style / world setting.
+  // Fires Stage 2 auto-prep (environment-aware reference) for all approved
+  // characters on the job. Non-blocking — returns immediately.
+  triggerEnvironmentRef: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      sceneStyle: z.string().min(1).max(1000),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify job ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Update job sceneSetting
+      await db.update(musicVideoJobs)
+        .set({ sceneSetting: input.sceneStyle })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      // Fetch all approved characters for this job
+      const chars = await db.select().from(videoCharacters)
+        .where(and(
+          eq(videoCharacters.jobId, input.jobId),
+          eq(videoCharacters.userId, ctx.user.id),
+        ));
+
+      const approvedChars = chars.filter((c) => c.previewApproved);
+      console.log(
+        `[triggerEnvironmentRef] Job ${input.jobId}: firing Stage 2 for ` +
+        `${approvedChars.length} approved characters (style: "${input.sceneStyle}")`
+      );
+
+      // Fire Stage 2 for each approved character (non-blocking)
+      for (const char of approvedChars) {
+        runStage2EnvironmentPrep({
+          characterId: char.id,
+          identityBrief: char.lockedDescription ?? char.characterPrompt ?? char.name,
+          characterName: char.name,
+          masterPortraitUrl: char.masterPortraitUrl ?? null,
+          sceneStyle: input.sceneStyle,
+        }).catch((err) => {
+          console.error(`[triggerEnvironmentRef] Stage 2 failed for char ${char.id}:`, err);
+        });
+      }
+
+      return { success: true, charactersQueued: approvedChars.length };
     }),
 });
 

@@ -6,7 +6,7 @@
 import { getDb } from "./db";
 import { musicVideoScenes, musicVideoJobs } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
-import { submitHeyGenLipSync, waitForHeyGenLipSync } from "./ai-apis/heygen-lipsync";
+import { submitHeyGenLipSyncV3, waitForHeyGenLipSyncV3 } from "./ai-apis/heygen-lipsync";
 import { storagePut } from "./storage";
 import { execSync } from "child_process";
 import { readFileSync, existsSync, mkdirSync } from "fs";
@@ -50,13 +50,13 @@ async function main() {
   // Test 1: HeyGen with full mix
   console.log("\n=== TEST 1: HeyGen with FULL MIX ===");
   try {
-    const jobId1 = await submitHeyGenLipSync({
+    const jobId1 = await submitHeyGenLipSyncV3({
       videoUrl: scene7.videoUrl!,
       audioUrl: mixUrl,
       title: "WizAI Test - Scene 7 Full Mix",
     });
     console.log("HeyGen job submitted:", jobId1);
-    const outputUrl1 = await waitForHeyGenLipSync(jobId1, 8 * 60 * 1000);
+    const outputUrl1 = await waitForHeyGenLipSyncV3(jobId1, 8 * 60 * 1000);
     console.log("✅ HeyGen full mix result:", outputUrl1);
     
     // Download and save
@@ -72,13 +72,13 @@ async function main() {
   // Test 2: HeyGen with isolated vocals
   console.log("\n=== TEST 2: HeyGen with ISOLATED VOCALS ===");
   try {
-    const jobId2 = await submitHeyGenLipSync({
+    const jobId2 = await submitHeyGenLipSyncV3({
       videoUrl: scene7.videoUrl!,
       audioUrl: voxUrl,
       title: "WizAI Test - Scene 7 Vocals Only",
     });
     console.log("HeyGen job submitted:", jobId2);
-    const outputUrl2 = await waitForHeyGenLipSync(jobId2, 8 * 60 * 1000);
+    const outputUrl2 = await waitForHeyGenLipSyncV3(jobId2, 8 * 60 * 1000);
     console.log("✅ HeyGen vocals result:", outputUrl2);
     
     // Download and save
