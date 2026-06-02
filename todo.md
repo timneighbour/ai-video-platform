@@ -8913,3 +8913,11 @@
 - [ ] DB migration: add environmentPortraitUrl column to videoCharacters
 - [ ] Update heartbeat to slice vocal stem per-scene and pass as audio_url to r2v
 - [ ] Write vitest tests for r2v dispatch path and LyricsReviewModal
+
+## Session: Per-Scene Vocal Stem Slicing (Jun 02 2026)
+- [x] Audit stemVocalsUrl and scene timing data for Job 870022 (6s scenes, WAV stem confirmed)
+- [x] Add sliceVocalStemForSeedance() to audio-clip-extractor.ts (WAV output, decode-based seek, S3 upload)
+- [x] Add stemVocalsUrl to heartbeat job select query
+- [x] Add sliceVocalStemForSeedance import to sceneDispatchHeartbeat.ts
+- [x] Integrate vocal stem slicing into heartbeat dispatch path (willUseR2V gate, stemVocalsUrl > audioUrl priority, non-fatal fallback)
+- [x] Write 8 vitest tests for sliceVocalStemForSeedance (all passing)

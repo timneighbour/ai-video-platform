@@ -198,6 +198,95 @@ export async function extractSceneAudioClip(
 }
 
 /**
+ * Slice a vocal stem for Seedance reference-to-video.
+ *
+ * Unlike extractSceneAudioClip (which outputs MP3 for SyncLabs), this function
+ * outputs a WAV file — Seedance's audio_urls parameter accepts WAV and benefits
+ * from the lossless format for phoneme-level lip sync accuracy.
+ *
+ * The vocal stem (isolated vocals from Demucs) is used rather than the full mix
+ * so Seedance only hears the singing voice, not instruments.
+ *
+ * @param stemVocalsUrl  S3/CDN URL of the isolated vocal stem WAV
+ * @param startSeconds   Scene start time in the full track
+ * @param durationSeconds Scene duration (Seedance supports up to 10s per clip)
+ * @param sceneId        Used for S3 key naming and logging
+ * @returns S3 URL of the sliced vocal WAV clip
+ */
+export async function sliceVocalStemForSeedance(
+  stemVocalsUrl: string,
+  startSeconds: number,
+  durationSeconds: number,
+  sceneId: number
+): Promise<string> {
+  // Clamp to Seedance's supported range (1–10s per audio_url clip)
+  const clampedDuration = Math.max(1, Math.min(10, durationSeconds));
+  const ffmpeg = getFFmpegBin();
+
+  let inputPath: string | null = null;
+  let outputPath: string | null = null;
+
+  try {
+    // Detect extension from URL (vocal stems are typically .wav)
+    const ext = stemVocalsUrl.split(".").pop()?.split("?")[0] ?? "wav";
+    inputPath = await downloadAudioToTemp(stemVocalsUrl, ext);
+
+    outputPath = path.join(
+      os.tmpdir(),
+      `wiz-stem-slice-${sceneId}-${Date.now()}.wav`
+    );
+
+    // Single-pass WAV extraction with decode-based seek (accurate, not keyframe)
+    // -ss AFTER -i = frame-perfect start point
+    // PCM output = no encoding delay, exact duration
+    const cmd = [
+      ffmpeg,
+      "-y",
+      "-i", `"${inputPath}"`,
+      "-ss", startSeconds.toString(),
+      "-t", clampedDuration.toString(),
+      "-acodec", "pcm_s16le",
+      "-ar", "44100",
+      "-ac", "2",
+      "-loglevel", "error",
+      `"${outputPath}"`,
+    ].join(" ");
+
+    console.log(`[VocalStemSlicer] Scene ${sceneId}: slicing stem start=${startSeconds}s dur=${clampedDuration}s`);
+    const { stderr } = await execAsync(cmd, { timeout: 60_000 });
+    if (stderr && stderr.trim()) {
+      console.warn(`[VocalStemSlicer] Scene ${sceneId} stderr: ${stderr.trim().slice(0, 200)}`);
+    }
+
+    if (!fs.existsSync(outputPath)) {
+      throw new Error(`ffmpeg did not produce WAV output for scene ${sceneId}`);
+    }
+    const stats = fs.statSync(outputPath);
+    if (stats.size < 500) {
+      throw new Error(`Sliced vocal stem too small (${stats.size} bytes) for scene ${sceneId}`);
+    }
+
+    // Upload to S3
+    const buffer = fs.readFileSync(outputPath);
+    const s3Key = `music-video-stem-slices/${sceneId}-${Date.now()}.wav`;
+    const { url } = await storagePut(s3Key, buffer, "audio/wav");
+
+    console.log(`[VocalStemSlicer] Scene ${sceneId}: sliced ${clampedDuration}s vocal clip → S3`);
+    return url;
+  } catch (err: any) {
+    console.error(`[VocalStemSlicer] Scene ${sceneId} FAILED: ${err.message}`);
+    throw err;
+  } finally {
+    if (inputPath && fs.existsSync(inputPath)) {
+      try { fs.unlinkSync(inputPath); } catch {}
+    }
+    if (outputPath && fs.existsSync(outputPath)) {
+      try { fs.unlinkSync(outputPath); } catch {}
+    }
+  }
+}
+
+/**
  * Pre-extract audio clips for all scenes in a job.
  * Runs sequentially to avoid overwhelming the temp filesystem in Cloud Run.
  *

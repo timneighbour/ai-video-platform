@@ -61,7 +61,7 @@ import { acquireJobLock, releaseJobLock } from "../queue-lock";
 import { assessLipSyncQuality, shouldProceedToAssembly, shouldRetryLipSync } from "../lip-sync-gate";
 import { sdk } from "../_core/sdk";
 import { startSceneRender, pollSceneStatus } from "../music-video-service";
-import { extractSceneAudioClip } from "../audio-clip-extractor";
+import { extractSceneAudioClip, sliceVocalStemForSeedance } from "../audio-clip-extractor";
 // WaveSpeed InfiniteTalk import removed — all in-flight jobs have completed or been reset.
 // pollWaveSpeedInfiniteTalk is no longer called; HeyGen Precision v3 is the sole lip-sync provider.
 // SyncLabs — retained for legacy polling of in-flight jobs ONLY. NOT used for new submissions.
@@ -130,6 +130,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         songBpm: musicVideoJobs.songBpm,
         probeSceneId: musicVideoJobs.probeSceneId,
         probePassed: musicVideoJobs.probePassed,
+        stemVocalsUrl: musicVideoJobs.stemVocalsUrl,
       })
       .from(musicVideoJobs)
       .where(eq(musicVideoJobs.status, "rendering"));
@@ -358,10 +359,41 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               scenePrompt += ` Tempo: ${job.songBpm} BPM. All movement must be ${tempoDesc}.`;
             }
 
+            // ── PER-SCENE VOCAL STEM SLICING ──────────────────────────────────
+            // For r2v (reference-to-video) performance scenes, slice the isolated vocal
+            // stem to the exact scene window BEFORE dispatching to Seedance.
+            // This gives Seedance only the singing voice for this scene's time window,
+            // not the full track — enabling phoneme-accurate lip sync.
+            //
+            // Priority: stemVocalsUrl (Demucs-isolated vocals) > audioUrl (full mix)
+            // The sliced WAV is uploaded to S3 and passed as audio_url to Seedance r2v.
+            let sceneAudioUrlForR2V: string | undefined = undefined;
+            if (willUseR2V && scene.startTime !== null && scene.startTime !== undefined) {
+              const stemSource = job.stemVocalsUrl ?? job.audioUrl;
+              if (stemSource) {
+                try {
+                  console.log(`[SceneDispatch] Scene ${scene.id} VOCAL STEM SLICE: start=${scene.startTime}s dur=${scene.duration ?? 5}s source=${job.stemVocalsUrl ? 'stemVocalsUrl' : 'audioUrl (fallback)'}`);
+                  sceneAudioUrlForR2V = await sliceVocalStemForSeedance(
+                    stemSource,
+                    scene.startTime,
+                    scene.duration ?? 5,
+                    scene.id
+                  );
+                  console.log(`[SceneDispatch] Scene ${scene.id} VOCAL STEM SLICE complete → ${sceneAudioUrlForR2V.slice(0, 80)}...`);
+                } catch (sliceErr: any) {
+                  // Non-fatal: fall back to passing the full track URL
+                  // Seedance will still work, just with less precise lip sync
+                  console.warn(`[SceneDispatch] Scene ${scene.id} vocal stem slice FAILED (falling back to full track): ${sliceErr.message}`);
+                  sceneAudioUrlForR2V = job.audioUrl ?? undefined;
+                }
+              }
+            }
+
             // ── STRATEGY DISPATCH ─────────────────────────────────────────────
-            // Pass scene.lipSync, job.audioUrl, and scene.startTime so startSceneRender
-            // can select the correct strategy:
-            //   Strategy 1: lipSync=true + audioUrl + startTime → reference-to-video
+            // Pass scene.lipSync, sceneAudioUrlForR2V (sliced vocal stem), and scene.startTime
+            // so startSceneRender can select the correct strategy:
+            //   Strategy 1: lipSync=true + audioUrl + startTime → reference-to-video (r2v)
+            //     audioUrl is now the pre-sliced vocal stem WAV for this scene window
             //   Strategy 2: lipSync=false or no audio → image-to-video
             //   Strategy 3: no character image → text-to-video
             // ── PROVIDER OVERRIDE: respect job.fallbackProvider ───────────────
@@ -383,7 +415,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1",
               job.id,
               resolvedCharacterUrl,
-              job.audioUrl ?? undefined,      // ✅ full music track URL (no /1000 division needed)
+              // ✅ For r2v: use the pre-sliced vocal stem WAV for this scene window
+              // ✅ For i2v/t2v: pass full audioUrl (not used by Seedance in those modes)
+              sceneAudioUrlForR2V ?? job.audioUrl ?? undefined,
               scene.startTime ?? undefined    // ✅ scene start time in seconds (already correct unit)
             );
 
