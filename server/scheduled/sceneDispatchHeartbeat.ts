@@ -71,7 +71,7 @@ import { submitHeyGenLipSyncV3, pollHeyGenLipSyncV3 } from "../ai-apis/heygen-li
 import { getProbeDecision } from "../pre-render-validator";
 import { resetSceneAttempts } from "../spend-protection";
 import { getVocalStemForCharacter } from "../vocal-isolation-service";
-import { selectReferenceForScene } from "../character-auto-prep";
+import { selectReferenceForScene, runStage2EnvironmentPrep } from "../character-auto-prep";
 // compositeCinematicScene removed — compositing is no longer part of the pipeline (2026-05-28)
 // The character is now generated INSIDE the scene by Seedance, not composited on top.
 import { validateRawSceneForLipSync } from "../raw-scene-validator";
@@ -132,6 +132,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         probePassed: musicVideoJobs.probePassed,
         stemVocalsUrl: musicVideoJobs.stemVocalsUrl,
         transcriptionSegments: musicVideoJobs.transcriptionSegments,
+        sceneSetting: musicVideoJobs.sceneSetting,
       })
       .from(musicVideoJobs)
       .where(eq(musicVideoJobs.status, "rendering"));
@@ -295,6 +296,35 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   //
                   // For cinematic/wide scenes, use cinematicRefUrl or mediumShotRefUrl.
                   const isLipSyncScene = (scene.lipSync ?? false) && scene.sceneType === "performance";
+
+                  // ── ENVIRONMENT PORTRAIT GATE ─────────────────────────────────────────
+                  // For performance/lip-sync scenes, the character MUST be placed inside
+                  // the correct studio environment (e.g. Air Studios) before dispatch.
+                  // If environmentRefUrl is missing:
+                  //   a) If Stage 2 is already processing → defer this scene (try next tick)
+                  //   b) If Stage 2 hasn't started → trigger it now, defer this scene
+                  // This prevents grey/plain backgrounds from reaching Seedance.
+                  if (isLipSyncScene && !bestChar.environmentRefUrl) {
+                    const isStage2InFlight = bestChar.autoPrepStatus === "stage2_processing";
+                    if (isStage2InFlight) {
+                      console.log(`[SceneDispatch] Scene ${scene.id} DEFERRED — Stage 2 environment prep in progress for char ${bestChar.id} (${bestChar.name}). Will retry next tick.`);
+                    } else {
+                      // Trigger Stage 2 asynchronously — do NOT await (non-blocking)
+                      const sceneStyle = job.sceneSetting ?? "Air Studios recording studio, Lyndhurst Hall, cinematic lighting";
+                      console.log(`[SceneDispatch] Scene ${scene.id} TRIGGERING Stage 2 environment prep for char ${bestChar.id} (${bestChar.name}) — style: "${sceneStyle.slice(0, 60)}"`);
+                      runStage2EnvironmentPrep({
+                        characterId: bestChar.id,
+                        identityBrief: bestChar.lockedDescription ?? bestChar.characterPrompt ?? bestChar.name ?? "performer",
+                        characterName: bestChar.name ?? undefined,
+                        masterPortraitUrl: bestChar.masterPortraitUrl ?? undefined,
+                        sceneStyle,
+                      }).catch(err => console.error(`[SceneDispatch] Stage 2 trigger error for char ${bestChar.id}:`, err));
+                      console.log(`[SceneDispatch] Scene ${scene.id} DEFERRED — Stage 2 environment prep triggered. Will retry next tick.`);
+                    }
+                    // Skip dispatch for this scene — environment portrait not ready
+                    continue;
+                  }
+
                   let autoRef: string | null;
                   if (isLipSyncScene && bestChar.environmentRefUrl) {
                     // BEST: character already placed in the correct environment

@@ -8931,3 +8931,12 @@
 - [x] Heartbeat lyrics resolution: Priority 1 scene.lyrics, Priority 2 transcriptionSegments extraction, Priority 3 audio-only
 - [x] Pass sceneLyrics to startSceneRender in heartbeat dispatch block
 - [x] 15 vitest tests for extractLyricsForWindow (all passing)
+
+## Session: Environment Portrait Gate (2026-06-02)
+- [x] Add sceneSetting to heartbeat job select query
+- [x] Import runStage2EnvironmentPrep in sceneDispatchHeartbeat.ts
+- [x] Add ENVIRONMENT PORTRAIT GATE block: defer lip-sync scenes when environmentRefUrl is null
+- [x] Trigger Stage 2 asynchronously when environmentRefUrl missing and Stage 2 not in flight
+- [x] Defer scene when Stage 2 is already processing (autoPrepStatus = stage2_processing)
+- [x] Use job.sceneSetting as sceneStyle for Stage 2 (fallback to Air Studios default)
+- [x] Write 15 vitest tests for environment portrait gate logic (all passing)
