@@ -8921,3 +8921,13 @@
 - [x] Add sliceVocalStemForSeedance import to sceneDispatchHeartbeat.ts
 - [x] Integrate vocal stem slicing into heartbeat dispatch path (willUseR2V gate, stemVocalsUrl > audioUrl priority, non-fatal fallback)
 - [x] Write 8 vitest tests for sliceVocalStemForSeedance (all passing)
+
+## Session: Per-Scene Lyrics Injection (2026-06-02)
+- [x] Audit lyrics/transcription storage — scene.lyrics + job.transcriptionSegments (Whisper segments)
+- [x] Export extractLyricsForWindow from music-video-service.ts
+- [x] Add sceneLyrics parameter to startSceneRender public signature
+- [x] Thread sceneLyrics through startSceneRender → startSceneRenderFalSeedance
+- [x] Add transcriptionSegments to heartbeat job select query
+- [x] Heartbeat lyrics resolution: Priority 1 scene.lyrics, Priority 2 transcriptionSegments extraction, Priority 3 audio-only
+- [x] Pass sceneLyrics to startSceneRender in heartbeat dispatch block
+- [x] 15 vitest tests for extractLyricsForWindow (all passing)

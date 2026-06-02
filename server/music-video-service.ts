@@ -155,7 +155,7 @@ export async function transcribeJobAudio(
 /**
  * Extract lyrics for a specific time window from Whisper segments.
  */
-function extractLyricsForWindow(
+export function extractLyricsForWindow(
   segments: Array<{ start: number; end: number; text: string }>,
   windowStart: number,
   windowEnd: number
@@ -872,7 +872,9 @@ export async function startSceneRender(
   /** Full song S3 URL for extracting scene audio clips (used by Atlas Cloud reference-to-video for lip sync) */
   audioUrl?: string | null,
   /** Start time of this scene in the song (seconds) — used to extract the correct audio segment */
-  sceneStartTime?: number
+  sceneStartTime?: number,
+  /** Lyrics text for this scene’s time window — embedded in r2v prompt for phoneme-level lip sync */
+  sceneLyrics?: string
 ): Promise<string> {
   // ── SPEND PROTECTION: Pre-submission guard (Items 1–4, 9) ─────────────────────────
   // Determine provider for idempotency check (use primary provider in fallback chain)
@@ -954,7 +956,7 @@ export async function startSceneRender(
           jobId,
           characterImageUrl ?? storyboardImageUrl ?? undefined,
           sceneAudioClipUrl,
-          undefined // sceneLyrics injected by heartbeat via prompt already
+          sceneLyrics  // ✅ per-scene lyrics for phoneme-accurate lip sync
         );
         return falResult;
       } catch (falErr: any) {

@@ -60,7 +60,7 @@ import { eq, and } from "drizzle-orm";
 import { acquireJobLock, releaseJobLock } from "../queue-lock";
 import { assessLipSyncQuality, shouldProceedToAssembly, shouldRetryLipSync } from "../lip-sync-gate";
 import { sdk } from "../_core/sdk";
-import { startSceneRender, pollSceneStatus } from "../music-video-service";
+import { startSceneRender, pollSceneStatus, extractLyricsForWindow } from "../music-video-service";
 import { extractSceneAudioClip, sliceVocalStemForSeedance } from "../audio-clip-extractor";
 // WaveSpeed InfiniteTalk import removed — all in-flight jobs have completed or been reset.
 // pollWaveSpeedInfiniteTalk is no longer called; HeyGen Precision v3 is the sole lip-sync provider.
@@ -131,6 +131,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         probeSceneId: musicVideoJobs.probeSceneId,
         probePassed: musicVideoJobs.probePassed,
         stemVocalsUrl: musicVideoJobs.stemVocalsUrl,
+        transcriptionSegments: musicVideoJobs.transcriptionSegments,
       })
       .from(musicVideoJobs)
       .where(eq(musicVideoJobs.status, "rendering"));
@@ -389,6 +390,33 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               }
             }
 
+            // ── PER-SCENE LYRICS RESOLUTION ───────────────────────────────────
+            // Priority 1: scene.lyrics (set by storyboard generator or user edit)
+            // Priority 2: extract from job.transcriptionSegments (Whisper timestamps)
+            //             using the scene's time window (startTime → startTime + duration)
+            // Priority 3: no lyrics (r2v will still work, just without phoneme anchoring)
+            let sceneLyrics: string | undefined = undefined;
+            if (scene.lyrics && scene.lyrics.trim().length > 0) {
+              sceneLyrics = scene.lyrics.trim();
+              console.log(`[SceneDispatch] Scene ${scene.id} LYRICS from scene.lyrics: "${sceneLyrics.slice(0, 60)}..."`);
+            } else if (job.transcriptionSegments && scene.startTime !== null && scene.startTime !== undefined) {
+              try {
+                const segments: Array<{ start: number; end: number; text: string }> = JSON.parse(job.transcriptionSegments);
+                const windowEnd = (scene.startTime ?? 0) + (scene.duration ?? 5);
+                const extracted = extractLyricsForWindow(segments, scene.startTime ?? 0, windowEnd);
+                if (extracted.length > 0) {
+                  sceneLyrics = extracted;
+                  console.log(`[SceneDispatch] Scene ${scene.id} LYRICS extracted from transcriptionSegments: "${sceneLyrics.slice(0, 60)}..."`);
+                }
+              } catch (lyricsErr) {
+                // Non-fatal: proceed without lyrics
+                console.warn(`[SceneDispatch] Scene ${scene.id} lyrics extraction from transcriptionSegments failed (non-fatal):`, lyricsErr);
+              }
+            }
+            if (!sceneLyrics) {
+              console.log(`[SceneDispatch] Scene ${scene.id} no lyrics available — r2v will use audio-only lip sync`);
+            }
+
             // ── STRATEGY DISPATCH ─────────────────────────────────────────────
             // Pass scene.lipSync, sceneAudioUrlForR2V (sliced vocal stem), and scene.startTime
             // so startSceneRender can select the correct strategy:
@@ -418,7 +446,8 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               // ✅ For r2v: use the pre-sliced vocal stem WAV for this scene window
               // ✅ For i2v/t2v: pass full audioUrl (not used by Seedance in those modes)
               sceneAudioUrlForR2V ?? job.audioUrl ?? undefined,
-              scene.startTime ?? undefined    // ✅ scene start time in seconds (already correct unit)
+              scene.startTime ?? undefined,   // ✅ scene start time in seconds (already correct unit)
+              sceneLyrics                     // ✅ per-scene lyrics for phoneme-accurate lip sync
             );
 
             // Mark cinematic scenes as compositeStatus=skipped immediately
