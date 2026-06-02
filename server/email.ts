@@ -549,3 +549,74 @@ export async function emailJobResurrected(data: {
     console.error("[Email] Failed to send job resurrected email:", err);
   }
 }
+
+/**
+ * emailProbeReminder — Sent to a subscriber when their probe clip is ready
+ * and is waiting for their approval. Sent at 1h and 6h after probe readiness.
+ */
+export async function emailProbeReminder(data: {
+  name: string;
+  email: string;
+  jobId: number;
+  jobTitle?: string;
+  hoursWaiting: number;
+  origin?: string;
+}): Promise<void> {
+  if (!data.email) return;
+  const client = getResend();
+  if (!client) return;
+  const reviewLink = data.origin
+    ? `${data.origin}/render/history`
+    : "https://www.wiz-ai.io/render/history";
+  const urgency = data.hoursWaiting >= 6
+    ? "Your video is still waiting — we'll auto-approve in 18 hours if we don't hear from you."
+    : "Your preview is ready and waiting for your approval.";
+  try {
+    await client.emails.send({
+      from: FROM_EMAIL,
+      to: data.email,
+      subject: `Your WIZ AI preview is ready — action required`,
+      html: `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8" /></head>
+<body style="margin:0;padding:0;background:#0f0f17;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:40px auto;">
+    <tr>
+      <td style="background:#1a1a2e;border-radius:12px;overflow:hidden;border:1px solid #2d2d4e;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding:24px 24px 20px;background:linear-gradient(135deg,#1e1b4b,#312e81);">
+              <span style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;">WIZ AI</span>
+              <span style="display:block;font-size:13px;color:#a5b4fc;margin-top:4px;">Preview approval needed</span>
+            </td>
+          </tr>
+        </table>
+        <table width="100%" cellpadding="0" cellspacing="0" style="padding:20px 24px;">
+          <tr><td style="color:#f3f4f6;font-size:15px;padding-bottom:12px;">Hi ${data.name || "there"},</td></tr>
+          <tr><td style="color:#d1d5db;font-size:14px;padding-bottom:12px;">
+            Your preview scene for <strong style="color:#a5b4fc;">${data.jobTitle ? `"${data.jobTitle}"` : `Job #${data.jobId}`}</strong> has been ready for ${data.hoursWaiting} hour${data.hoursWaiting !== 1 ? "s" : ""}.
+          </td></tr>
+          <tr><td style="color:#d1d5db;font-size:14px;padding-bottom:20px;">${urgency}</td></tr>
+          <tr>
+            <td style="padding-bottom:24px;">
+              <a href="${reviewLink}" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:15px;">
+                Review Preview →
+              </a>
+            </td>
+          </tr>
+          <tr><td style="color:#6b7280;font-size:12px;border-top:1px solid #2d2d4e;padding-top:16px;">
+            If you approve, your full video will begin rendering immediately. If you reject, a new preview will be generated.
+          </td></tr>
+        </table>
+      </td>
+    </tr>
+    <tr><td style="padding:16px;text-align:center;color:#4b5563;font-size:11px;">WIZ AI · wiz-ai.io · Automated notification</td></tr>
+  </table>
+</body>
+</html>`,
+    });
+    console.log(`[Email] Probe reminder email sent to subscriber: ${data.email} (${data.hoursWaiting}h reminder)`);
+  } catch (err) {
+    console.error("[Email] Failed to send probe reminder email:", err);
+  }
+}

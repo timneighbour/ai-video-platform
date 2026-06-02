@@ -17,6 +17,14 @@ import { eq } from "drizzle-orm";
 import { isSyncLabsConfigured } from "./ai-apis/synclabs-lipsync";
 import { execSync } from "child_process";
 
+// ─── Probe Auto-Approval Configuration ───────────────────────────────────────
+// If a subscriber does not approve or reject their probe within this window,
+// the probe is automatically approved so the render can complete.
+// Reminder emails are sent at 1h and 6h. Auto-approval fires at 24h.
+export const PROBE_AUTO_APPROVE_AFTER_MS = 24 * 60 * 60 * 1000;  // 24 hours
+export const PROBE_REMINDER_1_AFTER_MS   =  1 * 60 * 60 * 1000;  //  1 hour
+export const PROBE_REMINDER_2_AFTER_MS   =  6 * 60 * 60 * 1000;  //  6 hours
+
 export interface ValidationCheck {
   name: string;
   passed: boolean;
@@ -202,7 +210,7 @@ export async function getProbeDecision(jobId: number): Promise<ProbeDecision> {
     return { mode: "full_render", validationResult };
   }
 
-  // probePassed=false (or 0 from MySQL tinyint) → probe is in progress OR dispatch failed
+    // probePassed=false (or 0 from MySQL tinyint) → probe is in progress OR dispatch failed
   if (job.probePassed === false || (job.probePassed as any) === 0) {
     // If probeSceneId is set, check if the scene actually has a taskId (was actually dispatched)
     if (job.probeSceneId) {
@@ -210,7 +218,6 @@ export async function getProbeDecision(jobId: number): Promise<ProbeDecision> {
         .select({ id: musicVideoScenes.id, taskId: musicVideoScenes.taskId, status: musicVideoScenes.status })
         .from(musicVideoScenes)
         .where(eq(musicVideoScenes.id, job.probeSceneId));
-
       if (probeScene && !probeScene.taskId && probeScene.status === "pending") {
         // Dispatch failed silently — reset probePassed to null so the heartbeat retries
         console.warn(`[ProbeGate] Probe scene ${job.probeSceneId} has no taskId (dispatch failed) — resetting probePassed to null for retry`);
@@ -219,7 +226,40 @@ export async function getProbeDecision(jobId: number): Promise<ProbeDecision> {
           .where(eq(musicVideoJobs.id, jobId));
         // Fall through to probe_only selection below
       } else {
-        // Scene is genuinely rendering (has taskId) or completed
+        // Scene is genuinely rendering (has taskId) or completed.
+        // Check if the probe video is ready and the subscriber has not acted within the timeout.
+        const probeVideoReady = !!job.probeVideoUrl;
+        if (probeVideoReady && job.updatedAt) {
+          const msSinceProbeReady = Date.now() - new Date(job.updatedAt).getTime();
+          // ── AUTO-APPROVAL: probe has been waiting > 24h without subscriber action ──
+          if (msSinceProbeReady >= PROBE_AUTO_APPROVE_AFTER_MS) {
+            console.log(
+              `[ProbeGate] Job ${jobId}: probe auto-approved after ${Math.round(msSinceProbeReady / 3600000)}h ` +
+              `(subscriber did not respond within ${PROBE_AUTO_APPROVE_AFTER_MS / 3600000}h timeout)`
+            );
+            await db.update(musicVideoJobs)
+              .set({ probePassed: true, probeApprovedAt: new Date(), updatedAt: new Date() })
+              .where(eq(musicVideoJobs.id, jobId));
+            // Notify owner of auto-approval
+            try {
+              const { notifyOwner } = await import("./_core/notification");
+              await notifyOwner({
+                title: `Probe auto-approved — Job #${jobId}`,
+                content: `The probe for job #${jobId} was automatically approved after ${Math.round(msSinceProbeReady / 3600000)} hours because the subscriber did not respond. Full render has been released.`,
+              });
+            } catch { /* non-fatal */ }
+            return { mode: "full_render", validationResult };
+          }
+          // ── REMINDER EMAILS: send at 1h and 6h if not yet sent ──
+          // We use the updatedAt timestamp as a proxy for when the probe became ready.
+          // In future, a dedicated probeVideoReadyAt column would be more precise.
+          if (msSinceProbeReady >= PROBE_REMINDER_2_AFTER_MS) {
+            // 6h reminder — only log (email sending is handled by a separate scheduled job)
+            console.log(`[ProbeGate] Job ${jobId}: probe has been awaiting approval for ${Math.round(msSinceProbeReady / 3600000)}h — 6h reminder threshold reached`);
+          } else if (msSinceProbeReady >= PROBE_REMINDER_1_AFTER_MS) {
+            console.log(`[ProbeGate] Job ${jobId}: probe has been awaiting approval for ${Math.round(msSinceProbeReady / 3600000)}h — 1h reminder threshold reached`);
+          }
+        }
         return {
           mode: "blocked",
           reason: "Probe scene is rendering — waiting for owner approval before releasing full render",

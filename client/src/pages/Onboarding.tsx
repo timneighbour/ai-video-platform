@@ -223,13 +223,29 @@ const Onboarding: React.FC = () => {
         </div>
 
         {/* ── Trust badges ───────────────────────────────────────────────── */}
-        <div className="flex items-center gap-5 mb-14 text-[11px] text-white/25 font-medium tracking-wide">
-          {['Preview before you pay', 'Consistent characters', 'Free to start'].map((item, i) => (
-            <React.Fragment key={item}>
-              {i > 0 && <span className="w-1 h-1 rounded-full bg-[#b8892a]/30" />}
-              <span>{item}</span>
-            </React.Fragment>
-          ))}
+        {/* P0.2: Prominent free tier badge */}
+        <div className="flex flex-col items-center gap-3 mb-12">
+          <div
+            className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full"
+            style={{
+              background: "linear-gradient(135deg, rgba(34,197,94,0.18) 0%, rgba(16,185,129,0.10) 100%)",
+              border: "1.5px solid rgba(34,197,94,0.45)",
+              boxShadow: "0 0 18px rgba(34,197,94,0.20)",
+            }}
+          >
+            <span className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.8)] animate-pulse" />
+            <span className="text-[14px] font-bold tracking-wide" style={{ color: "rgb(134,239,172)" }}>
+              Start Free — No Credit Card Required
+            </span>
+          </div>
+          <div className="flex items-center gap-5 text-[11px] text-white/25 font-medium tracking-wide">
+            {['Preview before you pay', 'Consistent characters', '2 free projects included'].map((item, i) => (
+              <React.Fragment key={item}>
+                {i > 0 && <span className="w-1 h-1 rounded-full bg-[#b8892a]/30" />}
+                <span>{item}</span>
+              </React.Fragment>
+            ))}
+          </div>
         </div>
 
         {/* ── Cards grid ─────────────────────────────────────────────────── */}

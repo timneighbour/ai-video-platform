@@ -113,19 +113,28 @@ export function applyNumericLipSyncGate(
 // ─── LLM Vision Assessment ────────────────────────────────────────────────────
 
 /**
- * Use the built-in LLM with vision to assess lip-sync quality from a video frame.
+ * Use the built-in LLM with vision to assess lip-sync quality from a full video clip.
  * This is the primary assessment method for the current Cloud Run deployment.
  *
+ * IMPORTANT: This function sends the full video (not a single frame) using file_url
+ * with mime_type "video/mp4". This allows the LLM to assess mouth movement across
+ * the entire clip duration, not just a single frame.
+ *
  * The LLM is asked to evaluate:
- * 1. Whether mouth movement appears to match the vocal performance
- * 2. Whether the face is clearly visible and well-framed
- * 3. Whether there are obvious sync issues (mouth open when silent, etc.)
+ * 1. Whether mouth movement is present and active throughout the clip (not just one frame)
+ * 2. Whether the character's mouth is open and moving during vocal passages
+ * 3. Whether there are obvious sync failures (mouth closed throughout, or static expression)
  * 4. Overall quality verdict: GREEN / AMBER / RED
+ *
+ * CRITICAL FAILURE MODES TO DETECT:
+ * - Mouth closed or barely open for the entire clip duration (most common failure)
+ * - Static facial expression with no visible articulation
+ * - Mouth movement present in only one frame but absent in others
  */
 async function assessLipSyncWithLLM(
   videoUrl: string,
   scenePrompt?: string
-): Promise<{ gate: LipSyncGate; assessment: string; confidence: number }> {
+): Promise<{ gate: LipSyncGate; assessment: string; confidence: number; failureReason?: string; mouthOpenFrames?: number; articulationVisible?: boolean }> {
   try {
     const contextNote = scenePrompt
       ? `The scene prompt was: "${scenePrompt.slice(0, 200)}"`
@@ -138,32 +147,39 @@ async function assessLipSyncWithLLM(
           content: `You are a professional music video quality control expert specialising in lip-sync assessment.
 Your task is to evaluate whether a video clip shows convincing lip-sync between the character's mouth movements and the vocal performance.
 
-You will be shown a frame from the video. Assess:
-1. Is the character's face clearly visible with good framing (not cropped, not too small)?
-2. Does the mouth position appear natural and consistent with singing/speaking?
-3. Are there obvious sync issues (mouth wide open during silence, mouth closed during loud notes)?
-4. Is the overall lip-sync quality acceptable for a premium music video?
+You are being shown the FULL VIDEO CLIP, not a single frame. You must assess mouth movement ACROSS THE ENTIRE CLIP DURATION.
+
+CRITICAL: The most common failure mode is a character whose mouth is CLOSED or barely open throughout the entire clip, or whose facial expression is STATIC with no visible articulation. This must be rated RED.
+
+Assess the following across the full clip:
+1. MOUTH ACTIVITY: Is the character's mouth visibly open and moving throughout the clip? A character with a closed mouth or a slight smile but no articulation = RED.
+2. ARTICULATION: Does the mouth movement show distinct open/close cycles consistent with singing? Minimal or no movement = RED.
+3. TEMPORAL CONSISTENCY: Is mouth movement present throughout the clip, or only in isolated frames? Movement in only 1-2 frames out of many = RED.
+4. SYNC QUALITY: Does the timing of mouth movement appear to match the vocal performance rhythm?
+5. FACE VISIBILITY: Is the character's face clearly visible and well-framed throughout?
 
 Return a JSON object with:
-- gate: "GREEN" (excellent, proceed), "AMBER" (acceptable but flagged), or "RED" (unacceptable, retry)
-- assessment: 1-2 sentence explanation
-- confidence: 0.0-1.0 (how confident you are given only a single frame)
-- failureReason: specific issue if gate is RED or AMBER, null if GREEN`,
+- gate: "GREEN" (convincing lip-sync with clear mouth movement throughout), "AMBER" (some movement but inconsistent or weak), or "RED" (mouth closed/static, no visible articulation, or movement absent for majority of clip)
+- assessment: 2-3 sentence explanation describing what you observed across the clip
+- confidence: 0.0-1.0 (how confident you are in this assessment)
+- failureReason: specific issue if gate is RED or AMBER (e.g. "mouth closed throughout clip", "static expression with no articulation"), null if GREEN
+- mouthOpenFrames: estimated percentage of clip where mouth appears open (0-100)
+- articulationVisible: boolean — true only if clear open/close mouth cycles are visible`,
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: `Please assess the lip-sync quality of this music video frame. ${contextNote}
+              text: `Please assess the lip-sync quality of this music video clip. Evaluate mouth movement ACROSS THE ENTIRE CLIP, not just a single frame. ${contextNote}
 
-Return your assessment as JSON with keys: gate, assessment, confidence, failureReason.`,
+Return your assessment as JSON with keys: gate, assessment, confidence, failureReason, mouthOpenFrames, articulationVisible.`,
             },
             {
-              type: "image_url",
-              image_url: {
+              type: "file_url",
+              file_url: {
                 url: videoUrl,
-                detail: "high",
+                mime_type: "video/mp4",
               },
             },
           ],
@@ -184,7 +200,7 @@ Return your assessment as JSON with keys: gate, assessment, confidence, failureR
               },
               assessment: {
                 type: "string",
-                description: "1-2 sentence explanation of the assessment",
+                description: "2-3 sentence explanation describing mouth movement observed across the full clip",
               },
               confidence: {
                 type: "number",
@@ -192,10 +208,18 @@ Return your assessment as JSON with keys: gate, assessment, confidence, failureR
               },
               failureReason: {
                 type: ["string", "null"],
-                description: "Specific failure reason if gate is RED or AMBER",
+                description: "Specific failure reason if gate is RED or AMBER (e.g. mouth closed throughout clip)",
+              },
+              mouthOpenFrames: {
+                type: "number",
+                description: "Estimated percentage of clip (0-100) where mouth appears open",
+              },
+              articulationVisible: {
+                type: "boolean",
+                description: "True only if clear open/close mouth cycles are visible across the clip",
               },
             },
-            required: ["gate", "assessment", "confidence", "failureReason"],
+            required: ["gate", "assessment", "confidence", "failureReason", "mouthOpenFrames", "articulationVisible"],
             additionalProperties: false,
           },
         },
@@ -208,10 +232,30 @@ Return your assessment as JSON with keys: gate, assessment, confidence, failureR
     }
 
     const parsed = typeof content === "string" ? JSON.parse(content) : content;
+    const gate = (parsed.gate as LipSyncGate) ?? "AMBER";
+    const mouthOpenFrames = typeof parsed.mouthOpenFrames === "number" ? parsed.mouthOpenFrames : null;
+    const articulationVisible = typeof parsed.articulationVisible === "boolean" ? parsed.articulationVisible : null;
+
+    // Enforce: if articulation is not visible and mouth is open <20% of clip, escalate AMBER to RED
+    if (gate === "AMBER" && articulationVisible === false && mouthOpenFrames !== null && mouthOpenFrames < 20) {
+      console.warn(
+        `[LipSyncGate] AMBER escalated to RED — articulationVisible=false, mouthOpenFrames=${mouthOpenFrames}% (threshold: 20%)`
+      );
+      return {
+        gate: "RED",
+        assessment: parsed.assessment ?? "No assessment",
+        confidence: Math.min(1, Math.max(0, Number(parsed.confidence) || 0.5)),
+        failureReason: `Escalated from AMBER: no articulation visible, mouth open only ${mouthOpenFrames}% of clip`,
+      };
+    }
+
     return {
-      gate: (parsed.gate as LipSyncGate) ?? "AMBER",
+      gate,
       assessment: parsed.assessment ?? "No assessment",
       confidence: Math.min(1, Math.max(0, Number(parsed.confidence) || 0.5)),
+      failureReason: parsed.failureReason ?? undefined,
+      mouthOpenFrames: mouthOpenFrames ?? undefined,
+      articulationVisible: articulationVisible ?? undefined,
     };
   } catch (err: any) {
     console.error(`[LipSyncGate] LLM assessment failed: ${err.message}`);
@@ -257,17 +301,18 @@ export async function assessLipSyncQuality(
     };
   }
 
-  // Mode 2: LLM vision assessment (current deployment)
-  console.log(`[LipSyncGate] Scene ${input.sceneId} — using LLM vision assessment`);
+  // Mode 2: LLM vision assessment (current deployment) — full video via file_url
+  console.log(`[LipSyncGate] Scene ${input.sceneId} — using LLM vision assessment (full video)`);
   const llmResult = await assessLipSyncWithLLM(videoUrl, scenePrompt);
 
   console.log(
-    `[LipSyncGate] Scene ${input.sceneId} — LLM gate: ${llmResult.gate} (confidence: ${llmResult.confidence.toFixed(2)})`
+    `[LipSyncGate] Scene ${input.sceneId} — LLM gate: ${llmResult.gate} (confidence: ${llmResult.confidence.toFixed(2)}, mouthOpen: ${llmResult.mouthOpenFrames ?? "N/A"}%, articulation: ${llmResult.articulationVisible ?? "N/A"})`
   );
 
   return {
     gate: llmResult.gate,
     qualitativeAssessment: llmResult.assessment,
+    failureReason: llmResult.failureReason,
     usedSyncNetMetrics: false,
     confidence: llmResult.confidence,
   };

@@ -8588,3 +8588,75 @@
 - [x] Compile launch-readiness report (PDF): strengths, weaknesses, conversion blockers, quality blockers, launch recommendations
 - [x] Include funnel conversion rates, provider reliability scores, render quality metrics, top abandonment points
 - [x] Include specific actionable recommendations with priority order
+
+## Phase 9 — P0 Launch Readiness Strike Plan
+
+### P0.1 — Zara Benchmark Showcase (WIZ-SHOWCASE-001)
+- [ ] Seed WIZ-SHOWCASE-001 canonical benchmark record in showcaseItems table
+- [ ] Add homepage hero showcase slot that displays WIZ-SHOWCASE-001 when video URL is set
+- [ ] Create showcase description, thumbnail placeholder, and launch assets library entry
+- [ ] Document exact steps to trigger the Zara benchmark render job
+
+### P0.2 — Free Tier Visibility
+- [ ] Add "Start Free — No Credit Card Required" badge above the fold on homepage hero
+- [ ] Add free tier callout on Pricing page (above plan cards)
+- [ ] Add free tier reminder on render paywall modal
+- [ ] Add free tier messaging on Onboarding page step 1
+
+### P0.3 — Render Completion Recovery (Resend Email)
+- [ ] Create renderCompletionEmail Resend template (thumbnail, title, return link, CTA)
+- [ ] Add sendRenderCompletionEmail server function using Resend API
+- [ ] Wire render completion email to assembly worker (fires once when job status → completed)
+- [ ] Add resend protection (idempotency key per jobId, never send twice)
+- [ ] Add render_completion_email_sent flag to musicVideoJobs schema
+
+### P0.4 — Microphone Artefact Elimination
+- [ ] Create PERFORMANCE_NEGATIVE_PROMPTS constant in shared/negativePrompts.ts
+- [ ] Apply negative prompts to HeyGen provider
+- [ ] Apply negative prompts to InfiniteTalk/WaveSpeed provider
+- [ ] Apply negative prompts to Hedra provider
+- [ ] Apply negative prompts to D-ID provider
+- [ ] Apply negative prompts to Seedance provider
+- [ ] Apply negative prompts to Kling AI provider
+- [ ] Add negative prompt audit test
+
+### P0.5 — Stripe Production Audit
+- [ ] Verify live Stripe keys are configured (STRIPE_SECRET_KEY, VITE_STRIPE_PUBLISHABLE_KEY)
+- [ ] Verify webhook endpoint is registered and receiving events
+- [ ] Verify subscription creation flow (checkout.session.completed)
+- [ ] Verify subscription upgrade flow
+- [ ] Verify subscription cancellation flow (customer.subscription.deleted)
+- [ ] Verify credit top-up flow
+- [ ] Verify failed payment handling (invoice.payment_failed)
+- [ ] Produce Stripe Production Readiness Report
+
+### P0.6 — Conversion Improvement Plan
+- [ ] Rank top 10 fastest conversion improvements by Impact / Effort
+- [ ] Include impact estimate, effort estimate, expected revenue impact, implementation time
+
+### P0 Final Report
+- [ ] Produce WIZ AI Launch Readiness Execution Report (PDF)
+
+## Subscriber-Readiness Remediation — Phase 1
+
+### 1.1 Identity Consistency Gate
+- [x] Wire validateFaceConsistency into assembleMusicVideo (music-video-service.ts) — call per performance scene before marking job completed
+- [x] Add faceValidationStatus and faceValidationScore columns to musicVideoScenes if not present
+- [x] Surface identity validation results in admin dashboard (per-scene pass/fail, similarity score)
+- [x] Fail scenes below threshold and surface actionable subscriber message
+- [x] Write vitest tests for identity gate integration
+- [x] Produce architecture document and example pass/fail report
+
+### 1.2 Lip-Sync Gate Fix
+- [x] Replace image_url with file_url + mime_type: "video/mp4" in lip-sync-gate.ts assessLipSyncWithLLM
+- [x] Update prompt to request temporal assessment across the clip (not single frame)
+- [x] Write vitest test confirming file_url is used
+- [x] Produce before/after root cause analysis document
+
+### 1.3 Probe Auto-Approval Workflow
+- [x] Add probeAutoApproveAt timestamp column to musicVideoJobs
+- [x] Implement 24-hour auto-approval timeout in sceneDispatchHeartbeat
+- [x] Send email reminder at 1h and 6h after probe becomes available
+- [x] Add admin override endpoint (admin can approve any probe without being the job owner)
+- [x] Improve subscriber messaging on probe screen (what to look for, what approve/reject means)
+- [x] Write vitest tests for auto-approval logic

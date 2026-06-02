@@ -221,13 +221,28 @@ export function RenderPaywallModal({
             <p className="text-sm text-white/50 mt-1">Choose your enhancement — only pay when you build your final video.</p>
           </div>
 
-          {/* Free render badge */}
-          {!renderStatus.isLoading && (hasFreeRenders || isAdmin) && (
-            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[--color-silver]/10 border border-[--color-silver]/25 text-[--color-silver] text-xs font-medium">
-              <Check className="w-3.5 h-3.5" />
-              {isAdmin ? "Admin — unlimited builds" : `${renderStatus.data?.total} free build${(renderStatus.data?.total ?? 0) !== 1 ? "s" : ""} available`}
-            </div>
-          )}
+ {/* Free render badge — P0.2: prominent free tier messaging */}
+ {!renderStatus.isLoading && (hasFreeRenders || isAdmin) ? (
+ <div
+ className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full"
+ style={{
+ background: "linear-gradient(135deg, rgba(34,197,94,0.18) 0%, rgba(16,185,129,0.10) 100%)",
+ border: "1.5px solid rgba(34,197,94,0.45)",
+ boxShadow: "0 0 14px rgba(34,197,94,0.18)",
+ }}
+ >
+ <span className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.8)]" />
+ <span className="text-[13px] font-bold" style={{ color: "rgb(134,239,172)" }}>
+ {isAdmin ? "Admin — unlimited builds" : `✓ ${renderStatus.data?.total} free build${(renderStatus.data?.total ?? 0) !== 1 ? "s" : ""} available — no credit card needed`}
+ </span>
+ </div>
+ ) : (
+ !renderStatus.isLoading && (
+ <p className="mt-2 text-[11px] text-white/35 font-medium">
+ <span className="text-green-400/70">✓</span> Creating &amp; previewing is always free · Only pay to download your final video
+ </p>
+ )
+ )}
         </div>
 
         <div className="px-6 py-5 space-y-6">

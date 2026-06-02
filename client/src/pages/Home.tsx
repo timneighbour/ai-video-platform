@@ -1039,10 +1039,24 @@ function Hero() {
  <ChevronRight className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:translate-x-1" style={{ color: "rgba(196,164,100,0.70)" }} />
  </button>
  </div>
- {/* No card required — directly below primary CTA */}
- <p className="text-[11px] text-white/35 font-medium">
- <span className="text-green-400/80">✓</span> No credit card required · <span className="text-green-400/80">✓</span> 2 free projects included · <span className="text-green-400/80">✓</span> Cancel anytime
- </p>
+ {/* Free tier trust bar — P0.2: must be impossible to miss */}
+ <div className="flex flex-wrap items-center gap-3 mt-1">
+ <span
+ className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-bold tracking-wide"
+ style={{
+ background: "linear-gradient(135deg, rgba(34,197,94,0.18) 0%, rgba(16,185,129,0.10) 100%)",
+ border: "1.5px solid rgba(34,197,94,0.45)",
+ boxShadow: "0 0 16px rgba(34,197,94,0.20)",
+ color: "rgb(134,239,172)",
+ }}
+ >
+ <span className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.8)]" />
+ Start Free — No Credit Card Required
+ </span>
+ <span className="text-white/40 text-[12px] font-medium hidden sm:inline">
+ <span className="text-green-400/70">✓</span> 2 free projects · <span className="text-green-400/70">✓</span> Cancel anytime
+ </span>
+ </div>
  </div>
 
  {/* Proof strip — studio-grade capabilities */}

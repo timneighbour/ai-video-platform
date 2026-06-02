@@ -27,6 +27,7 @@ import { eq, and } from "drizzle-orm";
 import { storagePut } from "./storage";
 import { randomUUID } from "crypto";
 import { validateExport } from "./export-validator";
+import { validateSceneFaceConsistency } from "./character-lock";
 import { renderAttempts } from "../drizzle/schema";
 import { invokeLLM } from "./_core/llm";
 import { buildDirectorModePromptBlock } from "./director-modes";
@@ -1720,6 +1721,76 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       .where(eq(musicVideoJobs.id, jobId));
   } else {
     console.log(`[QC PASS] Job ${jobId}: ${completedSceneCount}/${expectedSceneCount} scenes validated. All scenes have video URLs and storyboard references.`);
+  }
+
+  // ── STEP 9b: IDENTITY CONSISTENCY GATE ─────────────────────────────────────
+  // Run face validation on all performance scenes before assembly.
+  // This catches identity drift (character looks different in each scene) before
+  // the video is delivered to the subscriber.
+  //
+  // Behaviour:
+  //   - "matched"  → face validation passed for all characters in this scene
+  //   - "warning"  → one or more characters failed the similarity threshold
+  //   - "skipped"  → no reference photo available (AI-generated character) or no API keys
+  //
+  // On "warning": log and flag the scene in the DB. Do NOT block assembly — we want
+  // the subscriber to receive a video. The warning is surfaced in the admin dashboard.
+  // Future: auto-regenerate scenes that fail identity validation.
+  const performanceScenes = scenes.filter(
+    s => s.sceneType === "performance" || s.lipSync === true
+  );
+  if (performanceScenes.length > 0) {
+    console.log(`[IdentityGate] Job ${jobId}: running face validation on ${performanceScenes.length} performance scene(s)...`);
+    // Fetch characters assigned to this job
+    const jobCharacters = await dbConn
+      .select()
+      .from(videoCharacters)
+      .where(eq(videoCharacters.jobId, jobId));
+
+    const charData = jobCharacters
+      .filter(c => c.referencePhotoBase64) // only characters with a reference photo
+      .map(c => ({
+        characterId: c.id,
+        name: c.name,
+        referencePhotoBase64: c.referencePhotoBase64 as string,
+        lockedDescription: c.lockedDescription ?? "",
+        faceValidationThreshold: c.faceValidationThreshold ?? 75,
+      }));
+
+    let identityWarnings = 0;
+    for (const scene of performanceScenes) {
+      // Use the lip-synced clip URL for performance scenes (the final output)
+      const clipUrl = (scene.lipSyncVideoUrl as string | null) ?? (scene.videoUrl as string | null);
+      if (!clipUrl) {
+        console.warn(`[IdentityGate] Scene ${scene.sceneIndex}: no clip URL, skipping face validation`);
+        continue;
+      }
+      // Use the preview image for face comparison (faster than video frame extraction)
+      const imageUrl = (scene.previewImageUrl as string | null) ?? clipUrl;
+      const status = await validateSceneFaceConsistency(scene.id, imageUrl, charData);
+      if (status === "warning") {
+        identityWarnings++;
+        console.warn(`[IdentityGate] Scene ${scene.sceneIndex}: IDENTITY WARNING — face similarity below threshold`);
+      } else if (status === "matched") {
+        console.log(`[IdentityGate] Scene ${scene.sceneIndex}: identity matched ✓`);
+      } else {
+        console.log(`[IdentityGate] Scene ${scene.sceneIndex}: skipped (no reference photo or no API keys)`);
+      }
+    }
+
+    if (identityWarnings > 0) {
+      const warningMsg = `Identity Gate: ${identityWarnings}/${performanceScenes.length} performance scene(s) failed face similarity check. Video delivered but flagged for review.`;
+      console.warn(`[IdentityGate] Job ${jobId}: ${warningMsg}`);
+      // Append to existing error message (don't overwrite QC warnings)
+      const existingMsg = qcIssues.length > 0 ? `QC Warning: ${qcIssues.join("; ")}; ` : "";
+      await dbConn.update(musicVideoJobs)
+        .set({ errorMessage: existingMsg + warningMsg, updatedAt: new Date() })
+        .where(eq(musicVideoJobs.id, jobId));
+    } else {
+      console.log(`[IdentityGate] Job ${jobId}: all performance scenes passed identity validation ✓`);
+    }
+  } else {
+    console.log(`[IdentityGate] Job ${jobId}: no performance scenes found, skipping identity gate`);
   }
 
   scenes.sort((a, b) => a.sceneIndex - b.sceneIndex);

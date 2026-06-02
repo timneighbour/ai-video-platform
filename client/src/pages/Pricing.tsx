@@ -490,10 +490,20 @@ export default function Pricing() {
  {/* 4. SUBSCRIPTION PLANS */}
  <section className="max-w-7xl mx-auto px-6 mb-20" id="plans">
  <div className="text-center mb-12">
- {/* Free tier lead — friction reducer */}
- <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/[0.08] border border-emerald-500/20 mb-5">
- <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
- <span className="text-[12px] font-bold text-emerald-400">2 free projects included — no credit card required</span>
+ {/* Free tier lead — P0.2: must be impossible to miss */}
+ <div
+ className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full mb-5"
+ style={{
+ background: "linear-gradient(135deg, rgba(34,197,94,0.20) 0%, rgba(16,185,129,0.12) 100%)",
+ border: "1.5px solid rgba(34,197,94,0.50)",
+ boxShadow: "0 0 20px rgba(34,197,94,0.22), 0 0 40px rgba(34,197,94,0.08)",
+ }}
+ >
+ <span className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.9)] animate-pulse" />
+ <span className="text-[14px] font-bold tracking-wide" style={{ color: "rgb(134,239,172)" }}>
+ Start Free — No Credit Card Required
+ </span>
+ <span className="text-green-300/50 text-[12px] font-medium hidden sm:inline">· 2 free projects included</span>
  </div>
  <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">Subscription Plans</p>
  <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-3">Monthly plans for regular creators</h2>

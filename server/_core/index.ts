@@ -23,6 +23,7 @@ import { sceneDispatchHeartbeatHandler } from "../scheduled/sceneDispatchHeartbe
 import { goldenValidationHandler } from "../scheduled/goldenValidationHandler";
 import { processOrphanedAssemblyJobs } from "../assemblyWorker";
 import { jobResurrectionReaperHandler } from "../scheduled/jobResurrectionReaper";
+import { runProbeReminderHeartbeat } from "../scheduled/probeReminderHeartbeat";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -419,6 +420,18 @@ async function startServer() {
     }
   });
 
+  // ── Scheduled: Probe Reminder Heartbeat (Manus Heartbeat cron, every 30 min) ──
+  // Sends 1h and 6h reminder emails to subscribers whose probe clip is awaiting approval.
+  // Auto-approval at 24h is handled by getProbeDecision() in pre-render-validator.ts.
+  app.post("/api/scheduled/probeReminderHeartbeat", async (_req, res) => {
+    try {
+      await runProbeReminderHeartbeat();
+      res.json({ ok: true, ts: new Date().toISOString() });
+    } catch (err: any) {
+      console.error("[probeReminderHeartbeat route] Error:", err?.message);
+      res.status(500).json({ error: err?.message ?? "unknown" });
+    }
+  });
   // ── Scheduled: Job Resurrection Reaper (Manus Heartbeat cron, every 5 min) ───
   // Covers all failure modes NOT handled by the scene heartbeat or stuckSceneReaper:
   // zombie assembling jobs, stuck assembling jobs, permanently blocked composites,
