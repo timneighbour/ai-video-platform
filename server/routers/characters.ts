@@ -10,6 +10,7 @@ import { getDb } from "../db";
 import { videoCharacters, videoCharacterPhotos, musicVideoJobs } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { storagePut } from "../storage";
+import { validateCharacterPhoto } from "../character-photo-validator";
 import { getCharacterDefaults } from "../../shared/characterDefaults";
 
 const photoInputSchema = z.object({
@@ -152,6 +153,31 @@ export const charactersRouter = router({
         });
         const characterId = (result as any).insertId as number;
 
+        // ── Phase 1.4 / AI Character Identity Reference ────────────────────────
+        // For AI-generated characters, download the generated portrait and store
+        // it as referencePhotoBase64 so the identity gate has a reference to
+        // compare against — same protection as real-photo uploads.
+        if (isAiGenerated && charInput.aiGeneratedImageUrl) {
+          try {
+            const imgRes = await fetch(charInput.aiGeneratedImageUrl);
+            if (imgRes.ok) {
+              const buf = Buffer.from(await imgRes.arrayBuffer());
+              const mime = charInput.aiGeneratedImageUrl.match(/\.png(\?|$)/i)
+                ? "image/png"
+                : charInput.aiGeneratedImageUrl.match(/\.webp(\?|$)/i)
+                ? "image/webp"
+                : "image/jpeg";
+              const dataUrl = `data:${mime};base64,${buf.toString("base64")}`;
+              await db.update(videoCharacters)
+                .set({ referencePhotoBase64: dataUrl, updatedAt: new Date() })
+                .where(eq(videoCharacters.id, characterId));
+              console.log(`[saveCharacters] AI character ${charInput.name}: referencePhotoBase64 saved (${buf.length} bytes)`);
+            }
+          } catch (err) {
+            console.warn(`[saveCharacters] Could not cache referencePhotoBase64 for AI character ${charInput.name}:`, err);
+          }
+        }
+
         // Upload and save photos
         for (let i = 0; i < charInput.photos.length; i++) {
           const photo = charInput.photos[i];
@@ -214,6 +240,9 @@ export const charactersRouter = router({
       photoBase64: z.string(),
       photoMimeType: z.enum(["image/jpeg", "image/png", "image/webp"]),
       isPrimary: z.boolean().optional().default(false),
+      /** Optional: client-side image dimensions for resolution pre-check */
+      widthPx: z.number().int().optional(),
+      heightPx: z.number().int().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
@@ -236,6 +265,22 @@ export const charactersRouter = router({
       const photoKey = `video-characters/${ctx.user.id}-${char.jobId}-${char.slotIndex}-${Date.now()}.${ext}`;
       const { url: photoUrl } = await storagePut(photoKey, imgBuffer, input.photoMimeType);
 
+      // ── Phase 1.4: Character Photo Validation Gate ─────────────────────────
+      // Validate AFTER upload so we have a public URL for the LLM vision call.
+      // If validation fails, reject with a clear subscriber-facing message.
+      const validation = await validateCharacterPhoto(photoUrl, input.widthPx, input.heightPx);
+      if (!validation.passed) {
+        // Clean up the uploaded file — no point keeping a rejected photo
+        try {
+          const { storageDel } = await import("../storage") as any;
+          if (typeof storageDel === "function") await storageDel(photoKey);
+        } catch { /* storage delete is best-effort */ }
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: validation.message,
+        });
+      }
+
       const [result] = await db.insert(videoCharacterPhotos).values({
         characterId: input.characterId,
         jobId: char.jobId,
@@ -245,7 +290,7 @@ export const charactersRouter = router({
         isPrimary: input.isPrimary || existingPhotos.length === 0,
       });
 
-      return { id: (result as any).insertId, photoUrl };
+      return { id: (result as any).insertId, photoUrl, validation };
     }),
 
   // Delete a single photo

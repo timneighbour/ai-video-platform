@@ -8660,3 +8660,16 @@
 - [x] Add admin override endpoint (admin can approve any probe without being the job owner)
 - [x] Improve subscriber messaging on probe screen (what to look for, what approve/reject means)
 - [x] Write vitest tests for auto-approval logic
+
+## Subscriber-Readiness Remediation — Phase 1.4 (Character Input Validation)
+### 1.4 Character Photo Validation Gate
+- [ ] Create server/character-photo-validator.ts with LLM-based validation (face detected, one person, min resolution, face size %, no sunglasses, no mask, no severe blur, frontal facing, adequate lighting)
+- [ ] Integrate validator into music video job creation (block render start if validation fails)
+- [ ] Return structured rejection reason to frontend (specific failure, not generic error)
+- [ ] Show subscriber clear explanation with actionable guidance ("Please upload a clear front-facing photo")
+- [ ] Write vitest tests for character photo validator (pass/fail cases for each check)
+
+### AI Character Identity Reference Fix
+- [ ] Auto-save AI-generated character portrait as referencePhotoBase64 on videoCharacters table
+- [ ] Ensure identity gate runs for AI characters (same as real-photo uploads)
+- [ ] Write vitest test confirming AI character reference is saved and identity gate is not skipped
