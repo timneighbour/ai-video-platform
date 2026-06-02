@@ -1,4 +1,4 @@
-import { } from "react";
+import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { AlertTriangle, CheckCircle, XCircle, DollarSign, TrendingUp, TrendingDown, RefreshCw, Shield, Activity } from "lucide-react";
+import { AlertTriangle, CheckCircle, XCircle, DollarSign, TrendingUp, TrendingDown, RefreshCw, Shield, Activity, Clock, Play } from "lucide-react";
 
 function HealthBadge({ isHealthy, mode }: { isHealthy: boolean; mode: string }) {
   if (mode === "disabled") return <Badge variant="outline" className="text-zinc-400 border-zinc-600">Disabled</Badge>;
@@ -16,12 +16,27 @@ function HealthBadge({ isHealthy, mode }: { isHealthy: boolean; mode: string }) 
   return <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">Healthy</Badge>;
 }
 
+function timeAgo(date: string | Date | null | undefined): string {
+  if (!date) return "Never";
+  const d = typeof date === "string" ? new Date(date) : date;
+  const diffMs = Date.now() - d.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "Just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffH = Math.floor(diffMin / 60);
+  if (diffH < 24) return `${diffH}h ago`;
+  const diffD = Math.floor(diffH / 24);
+  return `${diffD}d ago`;
+}
+
 function ProviderCard({ provider, onModeChange, onReset }: {
   provider: any;
   onModeChange: (p: string, m: string) => void;
   onReset: (p: string) => void;
 }) {
   const successColor = provider.successRate >= 80 ? "text-emerald-400" : provider.successRate >= 50 ? "text-amber-400" : "text-red-400";
+  const neverRendered = provider.successCount + provider.failureCount === 0;
+
   return (
     <Card className="bg-zinc-900 border-zinc-700">
       <CardHeader className="pb-3">
@@ -38,12 +53,16 @@ function ProviderCard({ provider, onModeChange, onReset }: {
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-zinc-800 rounded-lg p-3">
             <p className="text-zinc-400 text-xs mb-1">Success Rate</p>
-            <p className={`text-2xl font-bold ${successColor}`}>{provider.successRate}%</p>
+            <p className={`text-2xl font-bold ${neverRendered ? "text-zinc-500" : successColor}`}>
+              {neverRendered ? "—" : `${provider.successRate}%`}
+            </p>
             <p className="text-zinc-500 text-xs">{provider.successCount} succeeded</p>
           </div>
           <div className="bg-zinc-800 rounded-lg p-3">
             <p className="text-zinc-400 text-xs mb-1">Failure Rate</p>
-            <p className="text-2xl font-bold text-red-400">{provider.failureRate}%</p>
+            <p className={`text-2xl font-bold ${neverRendered ? "text-zinc-500" : "text-red-400"}`}>
+              {neverRendered ? "—" : `${provider.failureRate}%`}
+            </p>
             <p className="text-zinc-500 text-xs">{provider.failureCount} failed</p>
           </div>
           <div className="bg-zinc-800 rounded-lg p-3">
@@ -57,6 +76,33 @@ function ProviderCard({ provider, onModeChange, onReset }: {
             <p className="text-zinc-500 text-xs">${provider.costPerFailureUsd} / failure</p>
           </div>
         </div>
+
+        {/* Last render timestamps */}
+        <div className="bg-zinc-800 rounded-lg p-3 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-zinc-400 flex items-center gap-1.5">
+              <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> Last success
+            </span>
+            <span className={provider.lastSuccessAt ? "text-emerald-300" : "text-zinc-500"}>
+              {timeAgo(provider.lastSuccessAt)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-zinc-400 flex items-center gap-1.5">
+              <XCircle className="w-3.5 h-3.5 text-red-400" /> Last failure
+            </span>
+            <span className={provider.lastFailureAt ? "text-red-300" : "text-zinc-500"}>
+              {timeAgo(provider.lastFailureAt)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-zinc-400 flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-zinc-400" /> Avg render time
+            </span>
+            <span className="text-white">{provider.avgRenderTimeSec}s</span>
+          </div>
+        </div>
+
         {/* Consecutive failures warning */}
         {provider.consecutiveFailures >= 3 && (
           <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-lg p-3">
@@ -64,11 +110,7 @@ function ProviderCard({ provider, onModeChange, onReset }: {
             <p className="text-red-300 text-sm">{provider.consecutiveFailures} consecutive failures</p>
           </div>
         )}
-        {/* Avg render time */}
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-zinc-400">Avg render time</span>
-          <span className="text-white">{provider.avgRenderTimeSec}s</span>
-        </div>
+
         {/* Controls */}
         <div className="flex items-center gap-2 pt-2 border-t border-zinc-700">
           <Select defaultValue={provider.mode} onValueChange={(v) => onModeChange(provider.provider, v)}>
@@ -93,6 +135,8 @@ function ProviderCard({ provider, onModeChange, onReset }: {
 export default function ProviderDashboard() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
+  const [resumingJobId, setResumingJobId] = useState<number | null>(null);
+
   if (user && user.role !== "admin") {
     navigate("/");
     return null;
@@ -101,6 +145,7 @@ export default function ProviderDashboard() {
   const { data: summary, refetch: refetchSummary, isLoading: loadingSummary } = trpc.providerHealth.getSummary.useQuery();
   const { data: spendStats, refetch: refetchStats } = trpc.providerHealth.getSpendStats.useQuery();
   const { data: jobCosts, refetch: refetchJobs } = trpc.providerHealth.getJobCostAnalytics.useQuery({ limit: 20 });
+  const { data: stalledJobs, refetch: refetchStalled } = trpc.providerHealth.getProviderUnavailableJobs.useQuery();
 
   const setMode = trpc.providerHealth.setProviderMode.useMutation({
     onSuccess: () => { refetchSummary(); toast.success("Provider mode updated"); },
@@ -110,8 +155,19 @@ export default function ProviderDashboard() {
     onSuccess: () => { refetchSummary(); toast.success("Provider health reset"); },
     onError: (e) => toast.error(e.message),
   });
+  const resumeJob = trpc.providerHealth.resumeProviderUnavailableJob.useMutation({
+    onSuccess: () => {
+      refetchStalled();
+      refetchJobs();
+      setResumingJobId(null);
+      toast.success("Job resumed — will retry on next heartbeat");
+    },
+    onError: (e) => { setResumingJobId(null); toast.error(e.message); },
+  });
 
-  const refetchAll = () => { refetchSummary(); refetchStats(); refetchJobs(); };
+  const refetchAll = () => { refetchSummary(); refetchStats(); refetchJobs(); refetchStalled(); };
+
+  const stalledCount = stalledJobs?.length ?? 0;
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
@@ -122,16 +178,83 @@ export default function ProviderDashboard() {
             <Shield className="w-6 h-6 text-amber-400" />
             <div>
               <h1 className="text-xl font-bold text-white">Provider Reliability Dashboard</h1>
-              <p className="text-zinc-400 text-sm">Monitor render costs, provider health, and wasted spend</p>
+              <p className="text-zinc-400 text-sm">Monitor render costs, provider health, and stalled jobs</p>
             </div>
           </div>
-          <Button variant="outline" size="sm" className="border-zinc-600 text-zinc-300 hover:text-white" onClick={refetchAll}>
-            <RefreshCw className="w-4 h-4 mr-2" /> Refresh
-          </Button>
+          <div className="flex items-center gap-3">
+            {stalledCount > 0 && (
+              <Badge className="bg-red-500/20 text-red-300 border-red-500/30 text-sm px-3 py-1">
+                <AlertTriangle className="w-3.5 h-3.5 mr-1.5" />
+                {stalledCount} stalled job{stalledCount !== 1 ? "s" : ""}
+              </Badge>
+            )}
+            <Button variant="outline" size="sm" className="border-zinc-600 text-zinc-300 hover:text-white" onClick={refetchAll}>
+              <RefreshCw className="w-4 h-4 mr-2" /> Refresh
+            </Button>
+          </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+
+        {/* Stalled Jobs Alert Panel */}
+        {stalledCount > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <AlertTriangle className="w-5 h-5 text-red-400" />
+              <h2 className="text-lg font-semibold text-red-300">Stalled Jobs — Provider Unavailable</h2>
+            </div>
+            <Card className="bg-red-950/20 border-red-500/30">
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-red-500/20">
+                        <th className="text-left text-zinc-400 font-medium px-4 py-3">Job</th>
+                        <th className="text-left text-zinc-400 font-medium px-4 py-3">Subscriber</th>
+                        <th className="text-right text-zinc-400 font-medium px-4 py-3">Scenes</th>
+                        <th className="text-right text-zinc-400 font-medium px-4 py-3">Stalled</th>
+                        <th className="text-right text-zinc-400 font-medium px-4 py-3">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {stalledJobs!.map((j: any) => (
+                        <tr key={j.id} className="border-b border-red-500/10">
+                          <td className="px-4 py-3">
+                            <p className="text-white font-medium truncate max-w-[200px]">{j.title ?? `Job #${j.id}`}</p>
+                            <p className="text-zinc-500 text-xs">ID: {j.id}</p>
+                          </td>
+                          <td className="px-4 py-3">
+                            <p className="text-zinc-300">{j.userName ?? "Unknown"}</p>
+                            <p className="text-zinc-500 text-xs">{j.userEmail ?? "—"}</p>
+                          </td>
+                          <td className="px-4 py-3 text-right text-zinc-300">
+                            {j.completedScenes ?? 0}/{j.totalScenes ?? 0}
+                          </td>
+                          <td className="px-4 py-3 text-right text-red-300 text-xs">
+                            {timeAgo(j.updatedAt)}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <Button
+                              size="sm"
+                              className="h-7 bg-amber-600 hover:bg-amber-500 text-white text-xs"
+                              disabled={resumingJobId === j.id}
+                              onClick={() => { setResumingJobId(j.id); resumeJob.mutate({ jobId: j.id }); }}
+                            >
+                              <Play className="w-3 h-3 mr-1" />
+                              {resumingJobId === j.id ? "Resuming…" : "Resume"}
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Top-level spend stats */}
         {spendStats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -225,8 +348,9 @@ export default function ProviderDashboard() {
                         </td>
                         <td className="px-4 py-3">
                           <Badge className={
-                            j.status === "completed" ? "bg-emerald-500/20 text-emerald-300" :
-                            j.status === "failed" ? "bg-red-500/20 text-red-300" :
+                            j.status === "done" ? "bg-emerald-500/20 text-emerald-300" :
+                            j.status === "provider_unavailable" ? "bg-red-500/20 text-red-300" :
+                            j.status === "error" ? "bg-red-500/20 text-red-300" :
                             "bg-amber-500/20 text-amber-300"
                           }>{j.status}</Badge>
                         </td>

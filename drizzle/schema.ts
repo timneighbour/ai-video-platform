@@ -151,7 +151,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   captionHighlightColour: varchar("captionHighlightColour", { length: 7 }).default("#FFD700"), // Hex colour for karaoke highlight
   captionKaraokeMode: boolean("captionKaraokeMode").default(false).notNull(), // Word-by-word highlight mode
   captionSafeArea: varchar("captionSafeArea", { length: 32 }).default("bottom_center"), // bottom_center | top_center | custom
-  status: mysqlEnum("status", ["draft", "storyboard_ready", "rendering", "assembling", "completed", "failed", "paused", "cancelled"]).default("draft").notNull(),
+  status: mysqlEnum("status", ["draft", "storyboard_ready", "rendering", "assembling", "completed", "failed", "paused", "cancelled", "provider_unavailable"]).default("draft").notNull(),
   totalScenes: int("totalScenes").default(0).notNull(),
   completedScenes: int("completedScenes").default(0).notNull(),
   finalVideoUrl: varchar("finalVideoUrl", { length: 1024 }),
@@ -280,7 +280,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   prompt: text("prompt").notNull(),
   lyrics: text("lyrics"), // Transcribed lyrics for this scene's time window
   visualStyle: varchar("visualStyle", { length: 255 }),
-  status: mysqlEnum("mvSceneStatus", ["pending", "generating", "completed", "failed"]).default("pending").notNull(),
+  status: mysqlEnum("mvSceneStatus", ["pending", "generating", "completed", "failed", "failed_retryable"]).default("pending").notNull(),
   taskId: varchar("taskId", { length: 255 }),
   videoUrl: varchar("videoUrl", { length: 1024 }),
   videoKey: varchar("videoKey", { length: 512 }),
@@ -307,7 +307,9 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   // --- Cost Protection Fields -------------------------------------------
   providerSpendUsd: decimal("providerSpendUsd", { precision: 6, scale: 4 }).notNull().default("0"), // Provider cost for this scene
   retryCount: int("retryCount").notNull().default(0), // Number of times this scene has been retried
-  providerUsed: varchar("providerUsed", { length: 64 }), // Which provider generated this scene
+  providerUsed: varchar("providerUsed", { length: 64 }),
+  providerErrorCode: varchar("providerErrorCode", { length: 64 }), // Error code from last provider failure: INSUFFICIENT_BALANCE | UNAUTHORIZED | TIMEOUT | UNKNOWN
+  providerErrorAt: timestamp("providerErrorAt"), // Timestamp of last provider failure
   // --- Per-scene Lip Sync (Sync Labs applied to each scene individually for preview) ---
   lipSyncVideoUrl: varchar("lipSyncVideoUrl", { length: 1024 }), // Sync Labs output URL for this scene's lip-synced preview
   lipSyncVideoKey: varchar("lipSyncVideoKey", { length: 512 }), // S3 key for the lip-synced preview video

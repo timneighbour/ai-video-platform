@@ -105,6 +105,7 @@ function StatusBadge({ status }: { status: string }) {
     assembling: { label: "Assembling", cls: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30" },
     storyboard_ready: { label: "Ready", cls: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30" },
     failed: { label: "Failed", cls: "bg-red-500/15 text-red-400 border-red-500/20" },
+    provider_unavailable: { label: "Paused — Resuming Soon", cls: "bg-amber-500/15 text-amber-400 border-amber-500/20" },
     draft: { label: "Draft", cls: "bg-zinc-500/15 text-zinc-400 border-zinc-500/20" },
   };
   const { label, cls } = map[status] ?? { label: status, cls: "bg-zinc-500/15 text-zinc-400 border-zinc-500/20" };

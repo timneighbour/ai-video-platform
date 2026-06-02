@@ -8680,3 +8680,14 @@
 - [ ] Scenario B — AI character: run end-to-end flow, document identity gate, lip-sync gate, probe workflow
 - [x] Scenario A — real selfie upload, Air Studios music video
 - [ ] Compile Scenario A/B/C evidence report (PDF)
+
+## Subscriber Failure Recovery Hardening (Priority 1)
+
+- [ ] Add PROVIDER_UNAVAILABLE job status and FAILED_RETRYABLE scene status to schema
+- [ ] Update sceneDispatchHeartbeat to mark scenes FAILED_RETRYABLE on dispatch error
+- [ ] Update sceneDispatchHeartbeat to set job status PROVIDER_UNAVAILABLE when all providers fail
+- [ ] Add subscriber-facing error message for PROVIDER_UNAVAILABLE state
+- [ ] Store provider, error code, and timestamp on FAILED_RETRYABLE scenes
+- [ ] Build admin Provider Health Dashboard (auth, balance, last render, availability)
+- [ ] Investigate WaveSpeed 401 — expired/revoked/misconfigured key
+- [ ] Write tests for all failure-recovery changes

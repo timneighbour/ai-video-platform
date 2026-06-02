@@ -53,6 +53,7 @@ import { getDb } from "../db";
 import {
   musicVideoScenes,
   musicVideoJobs,
+  users,
 } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import { acquireJobLock, releaseJobLock } from "../queue-lock";
@@ -372,11 +373,45 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             const isBalanceError = errMsg.toLowerCase().includes('insufficient') ||
               errMsg.toLowerCase().includes('balance') ||
               errMsg.toLowerCase().includes('402');
+
+            // Mark scene as failed_retryable with error metadata
+            try {
+              await db.update(musicVideoScenes)
+                .set({
+                  status: 'failed_retryable' as any,
+                  providerErrorCode: isBalanceError ? 'PROVIDER_BALANCE_EXHAUSTED' : 'DISPATCH_ERROR',
+                  providerErrorAt: new Date(),
+                  errorMessage: errMsg.slice(0, 200),
+                  updatedAt: new Date(),
+                })
+                .where(eq(musicVideoScenes.id, scene.id));
+            } catch { /* ignore db update errors */ }
+
             if (isBalanceError) {
-              console.error(`[SceneDispatch] ⚠️ PROVIDER BALANCE EXHAUSTED — Job ${job.id} scenes will retry when credits are topped up.`);
+              console.error(`[SceneDispatch] ⚠️ PROVIDER BALANCE EXHAUSTED — Job ${job.id} scene ${scene.id} marked failed_retryable.`);
               try {
                 const { notifyAtlasExhausted } = await import('../provider-health');
                 await notifyAtlasExhausted();
+              } catch { /* non-fatal */ }
+
+              // Mark job as provider_unavailable and notify subscriber
+              try {
+                await db.update(musicVideoJobs)
+                  .set({ status: 'provider_unavailable' as any, updatedAt: new Date() })
+                  .where(eq(musicVideoJobs.id, job.id));
+
+                // Notify subscriber — fetch user details for the email
+                const userRows = await db.select().from(users).where(eq(users.id, job.userId)).limit(1).catch(() => []);
+                const userRow = userRows[0] ?? null;
+                if (userRow?.email) {
+                  const { emailProviderUnavailable } = await import('../email');
+                  await emailProviderUnavailable({
+                    name: userRow.name || 'there',
+                    email: userRow.email,
+                    jobId: String(job.id),
+                    jobTitle: job.title || undefined,
+                  }).catch(() => { /* non-fatal */ });
+                }
               } catch { /* non-fatal */ }
             }
 
@@ -903,22 +938,31 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         }
 
         // ── 8. Never mark job as failed — if all scenes are stuck, reset them ──
+        // Exception: if job is provider_unavailable, do NOT reset — wait for credits
         if (allVideosDone && allCompositeReady && nowCompleted.length === 0 && nowFailed.length > 0) {
-          console.warn(`[SceneDispatch] Job ${job.id} — all scenes in failed state. Resetting all to pending for retry.`);
-          await db
-            .update(musicVideoScenes)
-            .set({
-              status: "pending",
-              taskId: null,
-              errorMessage: null,
-              lipSyncStatus: "pending",
-              lipSyncTaskId: null,
-              lipSyncVideoUrl: null,
-              compositeStatus: "skipped", // compositing removed — always skipped
-              compositeVideoUrl: null,
-              updatedAt: new Date(),
-            })
-            .where(eq(musicVideoScenes.jobId, job.id));
+          const freshJobRows = await db.select().from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id)).limit(1).catch(() => []);
+          const freshJob = freshJobRows[0] ?? null;
+          if (freshJob?.status === 'provider_unavailable') {
+            console.warn(`[SceneDispatch] Job ${job.id} — provider_unavailable, NOT resetting scenes. Waiting for credits.`);
+          } else {
+            console.warn(`[SceneDispatch] Job ${job.id} — all scenes in failed state. Resetting all to pending for retry.`);
+            await db
+              .update(musicVideoScenes)
+              .set({
+                status: "pending",
+                taskId: null,
+                errorMessage: null,
+                providerErrorCode: null,
+                providerErrorAt: null,
+                lipSyncStatus: "pending",
+                lipSyncTaskId: null,
+                lipSyncVideoUrl: null,
+                compositeStatus: "skipped", // compositing removed — always skipped
+                compositeVideoUrl: null,
+                updatedAt: new Date(),
+              })
+              .where(eq(musicVideoScenes.jobId, job.id));
+          }
         }
       } catch (jobErr: any) {
         console.error(`[SceneDispatch] Error processing job ${job.id}:`, String(jobErr?.message ?? jobErr).slice(0, 300));

@@ -125,6 +125,43 @@ export const providerHealthRouter = router({
       return { success: true };
     }),
 
+  // Get jobs currently stalled in provider_unavailable state
+  getProviderUnavailableJobs: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const { users } = await import("../../drizzle/schema");
+    const stalledJobs = await db
+      .select({
+        id: musicVideoJobs.id,
+        title: musicVideoJobs.title,
+        userId: musicVideoJobs.userId,
+        createdAt: musicVideoJobs.createdAt,
+        updatedAt: musicVideoJobs.updatedAt,
+        totalScenes: musicVideoJobs.totalScenes,
+        completedScenes: musicVideoJobs.completedScenes,
+        userName: users.name,
+        userEmail: users.email,
+      })
+      .from(musicVideoJobs)
+      .leftJoin(users, eq(users.id, musicVideoJobs.userId))
+      .where(eq(musicVideoJobs.status, 'provider_unavailable' as any))
+      .orderBy(desc(musicVideoJobs.updatedAt))
+      .limit(50);
+    return stalledJobs;
+  }),
+
+  // Resume a provider_unavailable job by resetting it to rendering
+  resumeProviderUnavailableJob: adminProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      await db.update(musicVideoJobs)
+        .set({ status: 'rendering' as any, updatedAt: new Date() })
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.status, 'provider_unavailable' as any)));
+      return { success: true };
+    }),
+
   // ── WizAdora Phase 1: Queue Health Monitor ─────────────────────────────────
   // Returns full queue health snapshot including circuit breaker states,
   // provider spirals, stale scenes, and overall health assessment.

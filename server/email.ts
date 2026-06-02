@@ -620,3 +620,88 @@ export async function emailProbeReminder(data: {
     console.error("[Email] Failed to send probe reminder email:", err);
   }
 }
+
+/**
+ * emailProviderUnavailable — Sent to a subscriber when all rendering providers
+ * are exhausted and their job has been paused with status=provider_unavailable.
+ * Reassures them that their job is saved and will resume automatically.
+ */
+export async function emailProviderUnavailable(data: {
+  name: string;
+  email: string;
+  jobId: string;
+  jobTitle?: string;
+  origin?: string;
+}): Promise<void> {
+  const jobLink = data.origin
+    ? `${data.origin}/music-video/${data.jobId}`
+    : `https://www.wiz-ai.io/music-video/${data.jobId}`;
+
+  // 1. Notify owner
+  await sendOwnerEmail({
+    subject: `⚠️ Provider Unavailable — Job #${data.jobId} — ${data.name}`,
+    html: template("Provider Unavailable", [
+      ["Customer", data.name || "Unknown"],
+      ["Email", data.email || "—"],
+      ["Job ID", data.jobId],
+      ["Job Title", data.jobTitle || "—"],
+      ["Action Required", "Top up Atlas Cloud or WaveSpeed to resume rendering"],
+      ["Time", new Date().toUTCString()],
+    ]),
+  });
+
+  // 2. Notify the subscriber
+  if (!data.email) return;
+  const client = getResend();
+  if (!client) return;
+  try {
+    await client.emails.send({
+      from: FROM_EMAIL,
+      to: data.email,
+      subject: `– Your WIZ AI video is saved and will resume shortly`,
+      html: `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8" /></head>
+<body style="margin:0;padding:0;background:#0f0f17;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:40px auto;">
+    <tr>
+      <td style="background:#1a1a2e;border-radius:12px;overflow:hidden;border:1px solid #2d2d4e;">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="padding:24px 24px 20px;background:linear-gradient(135deg,#1e1b4b,#312e81);">
+              <span style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;">WIZ AI</span>
+              <span style="display:block;font-size:13px;color:#a5b4fc;margin-top:4px;">Rendering update</span>
+            </td>
+          </tr>
+        </table>
+        <table width="100%" cellpadding="0" cellspacing="0" style="padding:20px 24px;">
+          <tr><td style="color:#f3f4f6;font-size:15px;padding-bottom:12px;">Hi ${data.name || "there"},</td></tr>
+          <tr><td style="color:#d1d5db;font-size:14px;padding-bottom:16px;">
+            We're temporarily unable to generate your video because rendering capacity is currently unavailable.
+          </td></tr>
+          <tr><td style="color:#d1d5db;font-size:14px;padding-bottom:20px;">
+            <strong style="color:#f3f4f6;">Your job has been saved and will automatically resume when capacity is restored.</strong> You don't need to do anything — we'll email you as soon as your video is ready.
+          </td></tr>
+          <tr>
+            <td style="padding-bottom:24px;">
+              <a href="${jobLink}" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:15px;">
+                View Your Job →
+              </a>
+            </td>
+          </tr>
+          <tr><td style="color:#6b7280;font-size:12px;border-top:1px solid #2d2d4e;padding-top:16px;">
+            We apologise for the delay. Your credits have not been charged for this job.
+          </td></tr>
+        </table>
+      </td>
+    </tr>
+    <tr><td style="padding:16px;text-align:center;color:#4b5563;font-size:11px;">WIZ AI · wiz-ai.io · Automated notification</td></tr>
+  </table>
+</body>
+</html>`,
+    });
+    console.log(`[Email] Provider unavailable email sent to subscriber: ${data.email}`);
+  } catch (err) {
+    console.error("[Email] Failed to send provider unavailable email:", err);
+  }
+}
