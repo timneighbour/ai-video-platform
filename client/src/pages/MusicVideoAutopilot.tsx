@@ -21,6 +21,7 @@ import { RenderPaywallModal } from "@/components/RenderPaywallModal";
 import { WizGenesisModal } from "@/components/WizGenesisModal";
 import { PostRenderRetentionScreen } from "@/components/PostRenderRetentionScreen";
 import { LyricsIntelligencePanel } from "@/components/LyricsIntelligencePanel";
+import { LyricsReviewModal } from "@/components/LyricsReviewModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -124,6 +125,7 @@ interface SceneCard {
   characterAssignments?: string[] | null; // Names of characters in this scene e.g. ["Tim", "Greg"]
   faceValidationStatus?: "matched" | "warning" | "regenerated" | "skipped" | null;
   faceValidationScores?: string | null; // JSON string of { characterName: score }
+  sceneType?: string | null; // e.g. "performance", "cinematic", "narrative"
 }
 
 function formatTime(seconds: number): string {
@@ -1049,6 +1051,7 @@ export default function MusicVideoAutopilot() {
   const { data: subData } = trpc.billing.getSubscription.useQuery(undefined, { enabled: isAuthenticated, staleTime: 60_000 });
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [showRenderPaywall, setShowRenderPaywall] = useState(false);
+  const [showLyricsReview, setShowLyricsReview] = useState(false);
   const [showLyricsIntelligence, setShowLyricsIntelligence] = useState(false);
   const [isUpgradingCinematic, setIsUpgradingCinematic] = useState(false);
   const cinematicUpgradeMutation = trpc.musicVideo.cinematicUpgrade.useMutation();
@@ -1943,6 +1946,7 @@ export default function MusicVideoAutopilot() {
           : null,
         faceValidationStatus: s.faceValidationStatus ?? null,
         faceValidationScores: s.faceValidationScores ?? null,
+        sceneType: s.sceneType ?? null,
       }));
       setScenes(mappedScenes);
       // V2: Trigger image generation sequentially so each scene can use the previous scene
@@ -2086,7 +2090,23 @@ export default function MusicVideoAutopilot() {
       );
       return;
     }
+    // ── LYRICS REVIEW GATE ────────────────────────────────────────────────────────────
+    // Show lyrics review before paywall so users can verify/edit lyrics for
+    // Seedance r2v phoneme-level lip sync. Only shown when there are scenes with lyrics
+    // or performance scenes (lip sync scenes). Skipped if no lyrics at all.
+    const hasAnyLyricsOrPerformance = scenes.some((s) => s.lyrics?.trim() || s.sceneType === "performance");
+    if (hasAnyLyricsOrPerformance) {
+      setShowLyricsReview(true);
+      return;
+    }
     // Show render paywall modal — user chooses quality/audio and pays (or uses free render)
+    mp.upgradePromptShown("render_paywall", "music_video_autopilot");
+    setShowRenderPaywall(true);
+  };
+
+  /** Called when user confirms lyrics in LyricsReviewModal — proceed to paywall */
+  const handleLyricsConfirmed = () => {
+    setShowLyricsReview(false);
     mp.upgradePromptShown("render_paywall", "music_video_autopilot");
     setShowRenderPaywall(true);
   };
@@ -2398,6 +2418,27 @@ export default function MusicVideoAutopilot() {
         canReduceQuality={false}
       />
       {/* WizGenesis™ — Premium render upgrade experience (primary) */}
+      {/* Lyrics Review Gate — shown before render paywall to verify/edit per-scene lyrics for Seedance r2v lip sync */}
+      {jobId && showLyricsReview && (
+        <LyricsReviewModal
+          open={showLyricsReview}
+          onClose={() => setShowLyricsReview(false)}
+          onConfirm={handleLyricsConfirmed}
+          scenes={scenes.map((s) => ({
+            id: s.id,
+            sceneIndex: s.sceneIndex,
+            startTime: s.startTime,
+            duration: s.duration,
+            lyrics: s.lyrics,
+            prompt: s.prompt,
+            sceneType: s.sceneType,
+          }))}
+          jobId={jobId}
+          onLyricsUpdated={(sceneId, newLyrics) => {
+            setScenes((prev) => prev.map((sc) => sc.id === sceneId ? { ...sc, lyrics: newLyrics } : sc));
+          }}
+        />
+      )}
       {jobId && (
         <WizGenesisModal
           open={showRenderPaywall}

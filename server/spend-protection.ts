@@ -280,7 +280,11 @@ export function classifyFailure(errorMessage: string): FailureCategory {
     msg.includes("safety") ||
     msg.includes("nsfw") ||
     msg.includes("violat") ||
-    msg.includes("inappropriate")
+    msg.includes("inappropriate") ||
+    msg.includes("real person") ||
+    msg.includes("real_person") ||
+    msg.includes("output audio may contain") ||
+    msg.includes("sensitive information")
   ) return "moderation";
   if (
     msg.includes("invalid prompt") ||

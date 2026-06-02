@@ -8790,3 +8790,126 @@
 - [x] Phase 1D: Subtitle timing data structures (SubtitlePhrase, SubtitleTimingData) — ready for lyric alignment
 - [x] Phase 1E: Validation output (section breakdown, stem availability, classification quality, energy peaks, build regions)
 - [x] Write 26 vitest tests for stem intelligence service — all passing
+
+## Priority 4 — End-to-End Platform Validation (Zara / Air Studios Benchmark)
+
+### Pre-Flight Audit
+- [ ] Verify Demucs trigger is wired in startRender and fires automatically
+- [ ] Verify character auto-prep Stage 1 fires on character approval
+- [ ] Verify character auto-prep Stage 2 fires on scene style selection
+- [ ] Verify storyboard generator reads stemSections/energyMaps from job record
+- [ ] Verify scene dispatch uses selectReferenceForScene (not always masterPortraitUrl)
+- [ ] Verify HeyGen v3 receives stemVocalsUrl (not full mix) as audio input
+- [ ] Verify assembly heartbeat is wired and produces final video
+- [ ] Verify validation gates exist for lip-sync quality and scene identity
+
+### Pipeline Validation
+- [ ] Demucs runs automatically on render start
+- [ ] 8 stems generated and stored on S3
+- [ ] Section classification JSON stored on job record
+- [ ] Energy maps JSON stored on job record
+- [ ] Character auto-prep Stage 1 generates all 3 references (performance, mediumShot, cinematic)
+- [ ] Character auto-prep Stage 2 generates environment-aware reference
+- [ ] Storyboard consumed classification data (vocal sections → performance scenes)
+- [ ] Scene dispatch selected correct reference types per scene classification
+- [ ] HeyGen received vocal stem URL as audio input
+- [ ] Assembly completed and final video URL stored
+
+### Creative Validation
+- [ ] Zara identity consistent across all scenes
+- [ ] Black hair retained in all scenes
+- [ ] Wardrobe consistent across all scenes
+- [ ] Air Studios / Lyndhurst Hall atmosphere retained
+- [ ] No grey backgrounds in any scene
+- [ ] No cutout/composite appearance
+- [ ] No duplicate conductors
+- [ ] No duplicate musicians
+- [ ] No duplicate Zara compositions
+
+### Lip-Sync Validation
+- [ ] Lip-sync scenes occur only where vocals exist (stem classification confirms)
+- [ ] Face occupies sufficient frame area in all lip-sync scenes
+- [ ] Articulation is visible
+- [ ] Vocal timing feels natural
+- [ ] No obvious drift
+
+### Cinematic Validation
+- [ ] Front angle represented
+- [ ] Profile angle represented
+- [ ] Side-tracking angle represented
+- [ ] Elevated angle represented
+- [ ] Emotional close-up represented
+
+### Orchestra Validation
+- [ ] Active musicians visible
+- [ ] Bow movement visible
+- [ ] Conductor movement visible
+- [ ] Visible performance energy
+- [ ] No frozen musicians
+- [ ] No empty orchestra
+- [ ] No static atmosphere
+
+### Final Deliverables
+- [ ] Validation report
+- [ ] Classification summary
+- [ ] Energy-map summary
+- [ ] Scene-by-scene breakdown
+- [ ] Contact sheet of all scenes
+- [ ] Best Zara frames
+- [ ] Best cinematic frames
+- [ ] Final render link
+
+## Priority 4 Benchmark — Full Workflow Validation (Job 870022)
+- [ ] Add silent/near-silent audio guard to stem-intelligence-service.ts — mark stemAnalysisStatus='skipped_invalid_audio', show clear validation message, do not attempt lip-sync
+- [ ] Source a real vocal track (30-90s, clear vocals, instrumental intro, dynamic build) for benchmark
+- [ ] Upload real vocal track to S3 and update Job 870022 audioUrl
+- [ ] Reset Job 870022 scenes and re-trigger startRender with real audio
+- [ ] Monitor probe scene render (Atlas Cloud t2v → HeyGen lip sync)
+- [ ] Surface probe video for Tim's approval in app
+- [ ] Monitor full 12-scene render after probe approval
+- [ ] Produce benchmark validation report
+
+## Priority 4 Benchmark — Prompt Sanitisation & Copyright Guard
+
+- [ ] Build venue-name safety mapper (server/prompt-sanitiser.ts) with real→safe phrase mapping
+- [ ] Update storyboard generator to store both userSelectedStyleLabel and providerSafeScenePrompt
+- [ ] Add provider_rejected_copyright status + auto-retry with sanitised prompt in sceneDispatchHeartbeat
+- [ ] Sanitise scene 780014 prompt (remove Lyndhurst Hall / Air Studios references) and retry
+- [ ] Add "output video may be related to copyright" to pollAtlasVideo content-policy detection
+- [ ] Write vitest tests for prompt sanitisation and copyright rejection handling
+- [ ] Monitor full 12-scene render after probe approval
+
+## Pipeline Redesign: Environment-First Character Generation + Native Seedance Lip Sync
+
+- [ ] Character generation UI: add "Select Environment" step before portrait lock-in (Air Studios, Abbey Road, custom, etc.)
+- [ ] Character generation: when environment is selected, regenerate/composite portrait with character inside that environment using Seedream/WizImage
+- [ ] DB migration: add `environmentPortraitUrl` column to videoCharacters table to store the environment-locked portrait separately from the plain portrait
+- [ ] Update fal-seedance.ts: add `reference-to-video` endpoint support (image_urls + audio_urls + lyrics in prompt using @Image1/@Audio1 syntax)
+- [ ] Update heartbeat: for each performance scene, slice vocal stem to scene duration and pass as audio_url to Seedance reference-to-video
+- [ ] Update heartbeat: extract scene lyrics from storyboard and embed in Seedance prompt using "@Image1 sings @Audio1" syntax
+- [ ] Update storyboard generator: embed environment name in all scene prompts for visual consistency
+- [ ] Remove SyncLabs dependency for scenes that use Seedance reference-to-video (native lip sync replaces it)
+- [ ] Update probe scene dispatch to use reference-to-video when both environmentPortraitUrl and vocal stem are available
+- [ ] Write vitest tests for reference-to-video dispatch path
+- [ ] Save checkpoint after pipeline redesign is complete
+
+## Session: Seedance R2V + Lyrics Review Gate (Jun 2 2026)
+- [x] Add submitFalSeedanceR2V to fal-seedance.ts (reference-to-video with image_urls + audio_urls)
+- [x] Export FAL_R2V_MODEL_ID, FAL_I2V_MODEL_ID, FAL_T2V_MODEL_ID constants
+- [x] Add FAL_R2V_PREFIX constant and routing in pollSceneStatus
+- [x] Update pollSceneStatusFalSeedance to handle r2v model type
+- [x] Update startSceneRenderFalSeedance to use r2v when audioUrl + characterImageUrl are available
+- [x] Update FAL_SEEDANCE DIRECT dispatch block to pass audioUrl and sceneStartTime
+- [x] Fix getVocalStemForCharacter to check stemVocalsUrl as fallback
+- [x] Fix ProbeGate stuck state: reset probePassed when probeSceneId is null
+- [x] Add Zara age lock to characterPrompt (young woman, early 20s, youthful appearance)
+- [x] Update heartbeat to use environmentRefUrl for performance scenes (CHARACTER LOCK)
+- [x] Add updateSceneLyrics tRPC procedure (lyrics-only update, no prompt reset)
+- [x] Create LyricsReviewModal component (pre-render gate for per-scene lyrics verification)
+- [x] Add showLyricsReview state and handleLyricsConfirmed handler to MusicVideoAutopilot
+- [x] Wire LyricsReviewModal into handleStartRender flow (shown before render paywall)
+- [x] Add sceneType field to SceneCard interface and scene mapping in MusicVideoAutopilot
+- [ ] Add "Select Environment" step to character generation UI before portrait lock-in
+- [ ] DB migration: add environmentPortraitUrl column to videoCharacters
+- [ ] Update heartbeat to slice vocal stem per-scene and pass as audio_url to r2v
+- [ ] Write vitest tests for r2v dispatch path and LyricsReviewModal

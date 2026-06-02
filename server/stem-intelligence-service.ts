@@ -149,6 +149,19 @@ export interface StemIntelligenceResult {
   phraseCount: number;
 }
 
+// ─── Errors ──────────────────────────────────────────────────────────────────
+
+/**
+ * Thrown when uploaded audio is silent, near-silent, or too short for Demucs.
+ * Callers should catch this and set stemAnalysisStatus = 'skipped_invalid_audio'.
+ */
+export class SilentAudioError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "SilentAudioError";
+  }
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function downloadToTemp(url: string, ext = ".mp3"): Promise<string> {
@@ -190,6 +203,47 @@ function randomSuffix(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
+/**
+ * Get audio duration in seconds using ffprobe.
+ * Returns 0 on failure (non-fatal — used for guard only).
+ */
+async function getAudioDurationSeconds(audioPath: string): Promise<number> {
+  try {
+    const { stdout } = await execFileAsync(
+      "ffprobe",
+      ["-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", audioPath],
+      { timeout: 15_000 }
+    );
+    return parseFloat(stdout.trim()) || 0;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Get audio RMS level in dBFS using ffmpeg volumedetect filter.
+ * Returns -Infinity on failure (non-fatal — used for guard only).
+ * A truly silent file returns approximately -91 dBFS or lower.
+ */
+async function getAudioRmsDb(audioPath: string): Promise<number> {
+  try {
+    // ffmpeg volumedetect writes to stderr
+    const { stderr } = await execFileAsync(
+      "ffmpeg",
+      ["-i", audioPath, "-af", "volumedetect", "-vn", "-sn", "-dn", "-f", "null", "/dev/null"],
+      { timeout: 30_000 }
+    );
+    const match = stderr.match(/mean_volume:\s*([\-\d\.]+)\s*dB/);
+    if (match) return parseFloat(match[1]);
+    return -Infinity;
+  } catch (e: any) {
+    // ffmpeg writes to stderr even on success — parse from error output
+    const match = e?.stderr?.match(/mean_volume:\s*([\-\d\.]+)\s*dB/);
+    if (match) return parseFloat(match[1]);
+    return -Infinity;
+  }
+}
+
 // ─── Main Service Function ────────────────────────────────────────────────────
 
 /**
@@ -211,8 +265,32 @@ export async function runStemIntelligence(
     console.log(`[StemIntelligence] Job ${jobId}: Downloading audio...`);
     const audioPath = await downloadToTemp(audioUrl, audioExt);
 
+    // ── Step 1b: Silent / near-silent / too-short audio guard ─────────────────
+    // Demucs crashes with AssertionError on silent or very short audio.
+    // Real music-video audio MUST have audible content. Silent files are only
+    // valid for render-system smoke tests and MUST NOT be used for end-to-end
+    // music-video validation.
+    const audioDurationSec = await getAudioDurationSeconds(audioPath);
+    const audioRmsDb = await getAudioRmsDb(audioPath);
+    const SILENT_THRESHOLD_DB = -60; // dBFS — below this is effectively silent
+    const MIN_DURATION_SEC = 10;     // Demucs needs at least ~10s of audio
+    console.log(`[StemIntelligence] Job ${jobId}: Audio validation — duration: ${audioDurationSec.toFixed(1)}s, RMS: ${audioRmsDb.toFixed(1)} dBFS`);
+    if (audioRmsDb < SILENT_THRESHOLD_DB) {
+      throw new SilentAudioError(
+        `Audio is silent or near-silent (RMS: ${audioRmsDb.toFixed(1)} dBFS, threshold: ${SILENT_THRESHOLD_DB} dBFS). ` +
+        `Please upload a track with audible vocals and music. Silent files cannot be used for music-video generation.`
+      );
+    }
+    if (audioDurationSec > 0 && audioDurationSec < MIN_DURATION_SEC) {
+      throw new SilentAudioError(
+        `Audio is too short (${audioDurationSec.toFixed(1)}s). ` +
+        `Minimum duration for music-video generation is ${MIN_DURATION_SEC} seconds.`
+      );
+    }
+
     // ── Step 2: Run Python stem extraction ─────────────────────────────────
-    const scriptPath = path.join(__dirname, "audio", "stem_extract.py");
+    // Use path.resolve relative to this file's location (ESM-compatible)
+    const scriptPath = path.resolve(path.dirname(new URL(import.meta.url).pathname), "audio", "stem_extract.py");
     console.log(`[StemIntelligence] Job ${jobId}: Running Demucs + envelope analysis...`);
 
     const { stdout, stderr } = await execFileAsync(
@@ -355,6 +433,17 @@ export async function runAndPersistStemIntelligence(jobId: number): Promise<void
 
     console.log(`[StemIntelligence] Job ${jobId}: Persisted — ${result.sectionCount} sections, ${result.phraseCount} phrases`);
   } catch (err) {
+    if (err instanceof SilentAudioError) {
+      // Permanent guard: silent/near-silent/too-short audio cannot be used for music-video generation.
+      // Mark as skipped_invalid_audio so the pipeline knows not to attempt lip-sync.
+      console.warn(`[StemIntelligence] Job ${jobId}: INVALID AUDIO — ${err.message}`);
+      await db
+        .update(musicVideoJobs)
+        .set({ stemAnalysisStatus: "skipped_invalid_audio" })
+        .where(eq(musicVideoJobs.id, jobId));
+      // Re-throw so callers can surface the validation message to the user
+      throw err;
+    }
     console.error(`[StemIntelligence] Job ${jobId}: Failed — ${err}`);
     await db
       .update(musicVideoJobs)

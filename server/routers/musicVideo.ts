@@ -44,7 +44,7 @@ import {
   type CharacterInstrumentAssignment,
 } from "../instrument-analysis";
 import { getCharacterDefaults } from "../../shared/characterDefaults";
-import { runStemIntelligence } from "../stem-intelligence-service";
+import { runStemIntelligence, getStemSections, getSectionTypeAtTime, stemSectionToSceneType } from "../stem-intelligence-service";
 
 export const musicVideoRouter = router({
   // Transcribe audio directly (no job required) — called as soon as user selects a file
@@ -541,6 +541,16 @@ Rules:
         }
       }
 
+      // ── Stem Intelligence: load section classification if available ────────────────
+      // Prefer Demucs stem sections over transcription for vocal detection.
+      // Falls back to lyricsSegments if stem analysis is not yet complete.
+      const stemSections = await getStemSections(input.jobId);
+      if (stemSections) {
+        console.log(`[MusicVideo] Stem intelligence available for job ${input.jobId}: ${stemSections.sections.length} sections (${stemSections.total_duration.toFixed(1)}s total)`);
+      } else {
+        console.log(`[MusicVideo] Stem intelligence not yet available for job ${input.jobId} — using transcription fallback for vocal detection`);
+      }
+
        // Delete existing scenes if regenerating
       await db.delete(musicVideoScenes).where(eq(musicVideoScenes.jobId, input.jobId));
       // Also clear any existing characterScenes rows for this job's scenes (cascade-style)
@@ -558,29 +568,48 @@ Rules:
           : roster.length > 0
             ? [roster.find((c: { isLocked?: boolean }) => c.isLocked)?.name ?? roster[0].name]
             : [];
-        // Smart lip sync assignment — WizSync™ Vocal-Aware Orchestration:
-        // Only enable lip sync when ALL THREE conditions are met:
-        //   1. Close-up character scene (seedance-2.0 model) — face must be visible
-        //   2. Character is assigned to this scene — someone to sync
-        //   3. Scene time window overlaps with actual vocals in the transcription
-        //      (prevents lip sync on instrumental intros, bridges, and outros)
+        // ── WizSync™ Vocal-Aware Orchestration ─────────────────────────────────────
+        // Primary signal: Demucs stem section classification (if available)
+        // Fallback signal: Whisper transcription segment overlap
+        // A scene gets lip sync only when ALL THREE conditions are met:
+        //   1. Close-up character scene (seedance-2.0) — face must be visible
+        //   2. Character assigned to this scene
+        //   3. Scene time window contains vocal content (stem or transcription)
         const sceneEnd = (scene.startTime ?? 0) + (scene.duration ?? 6);
-        const sceneHasVocals = lyricsSegments && lyricsSegments.length > 0
-          ? lyricsSegments.some(seg =>
-              seg.text && seg.text.trim().length > 0 &&
-              seg.start < sceneEnd &&
-              seg.end > (scene.startTime ?? 0)
-            )
-          : true; // if no transcription available, default to enabled (safe fallback)
+        const sceneMidpoint = (scene.startTime ?? 0) + (scene.duration ?? 6) / 2;
+        let sceneHasVocals: boolean;
+        let stemDrivenSceneType: "cinematic" | "performance" | null = null;
+
+        if (stemSections && stemSections.sections.length > 0) {
+          // PRIMARY: use Demucs stem classification
+          const sectionType = getSectionTypeAtTime(stemSections.sections, sceneMidpoint);
+          if (sectionType) {
+            const mappedType = stemSectionToSceneType(sectionType, assignedNames.length > 0);
+            sceneHasVocals = sectionType === "vocal_performance" || sectionType === "climax";
+            stemDrivenSceneType = mappedType === "performance" ? "performance" : "cinematic";
+            console.log(`[MusicVideo] Scene ${scene.sceneIndex} @${sceneMidpoint.toFixed(1)}s: stem=${sectionType} → type=${stemDrivenSceneType}, hasVocals=${sceneHasVocals}`);
+          } else {
+            sceneHasVocals = false;
+            stemDrivenSceneType = "cinematic";
+          }
+        } else {
+          // FALLBACK: use Whisper transcription segments
+          sceneHasVocals = lyricsSegments && lyricsSegments.length > 0
+            ? lyricsSegments.some(seg =>
+                seg.text && seg.text.trim().length > 0 &&
+                seg.start < sceneEnd &&
+                seg.end > (scene.startTime ?? 0)
+              )
+            : true; // if no transcription available, default to enabled (safe fallback)
+        }
+
         const smartLipSync = scene.modelAssignment === "seedance-2.0" && assignedNames.length > 0 && sceneHasVocals;
         if (!sceneHasVocals && scene.modelAssignment === "seedance-2.0") {
-          console.log(`[MusicVideo] Scene ${scene.sceneIndex} (${scene.startTime}s–${sceneEnd}s): no vocals detected — lip sync DISABLED (instrumental window)`);
+          console.log(`[MusicVideo] Scene ${scene.sceneIndex} (${(scene.startTime ?? 0).toFixed(1)}s–${sceneEnd.toFixed(1)}s): no vocals — lip sync DISABLED`);
         }
-        // Classify scene as 'performance' if it's a close-up character scene with lip sync enabled.
-        // Performance Mode scenes will use Hedra Avatar for phoneme-accurate lip sync.
-        // Cinematic Mode scenes use WaveSpeed only (no lip sync required).
+        // Use stem-driven scene type if available, otherwise derive from lip sync flag
         const isPerformanceScene = smartLipSync && scene.modelAssignment === "seedance-2.0" && assignedNames.length > 0;
-        const detectedSceneType: "cinematic" | "performance" = isPerformanceScene ? "performance" : "cinematic";
+        const detectedSceneType: "cinematic" | "performance" = stemDrivenSceneType ?? (isPerformanceScene ? "performance" : "cinematic");
         const [insertedScene] = await db.insert(musicVideoScenes).values({
           jobId: input.jobId,
           sceneIndex: scene.sceneIndex,
@@ -3171,8 +3200,31 @@ Rules:
       // Old failed attempts are marked "cancelled" (not deleted) to preserve audit trail.
       await resetSceneAttempts(input.sceneId);
 
-      console.log(`[MusicVideo] ${new Date().toISOString()} Scene ${input.sceneId} prompt updated by user ${ctx.user.id} — attempt counter reset`);
+            console.log(`[MusicVideo] ${new Date().toISOString()} Scene ${input.sceneId} prompt updated by user ${ctx.user.id} — attempt counter reset`);
       return { success: true, sceneId: input.sceneId, prompt: input.prompt.trim() };
+    }),
+
+  /** Update only the lyrics for a scene (used by LyricsReviewModal pre-render gate) */
+  updateSceneLyrics: protectedProcedure
+    .input(z.object({
+      sceneId: z.number().int(),
+      jobId: z.number().int(),
+      lyrics: z.string().max(5000).nullable(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      const [scene] = await db.select().from(musicVideoScenes)
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+      if (!scene) throw new TRPCError({ code: "NOT_FOUND" });
+      await db.update(musicVideoScenes)
+        .set({ lyrics: input.lyrics?.trim() ?? null, updatedAt: new Date() } as any)
+        .where(eq(musicVideoScenes.id, input.sceneId));
+      console.log(`[MusicVideo] Scene ${input.sceneId} lyrics updated by user ${ctx.user.id}`);
+      return { success: true, sceneId: input.sceneId };
     }),
 
   // ── Scene Approval ────────────────────────────────────────────────────────

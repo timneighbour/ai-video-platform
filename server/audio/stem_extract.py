@@ -471,6 +471,7 @@ def main():
                 "python3", "-m", "demucs",
                 "--two-stems", "vocals",  # Fast: vocals + accompaniment only for initial pass
                 "-n", "htdemucs",
+                "--mp3",  # Use MP3 output to avoid torchaudio WAV save (torchcodec not available)
                 "--out", str(demucs_tmp),
                 str(input_path),
             ],
@@ -483,6 +484,7 @@ def main():
                 [
                     "python3", "-m", "demucs",
                     "-n", DEMUCS_MODEL,
+                    "--mp3",  # Use MP3 output to avoid torchaudio WAV save (torchcodec not available)
                     "--out", str(demucs_tmp),
                     str(input_path),
                 ],
@@ -493,17 +495,25 @@ def main():
                 sys.exit(1)
 
         # Find Demucs output directory (it creates model_name/track_name/)
-        demucs_out_dirs = list(demucs_tmp.rglob("*.wav"))
+        # Support both WAV and MP3 output formats
+        demucs_out_dirs = list(demucs_tmp.rglob("*.wav")) + list(demucs_tmp.rglob("*.mp3"))
         if not demucs_out_dirs:
-            print(f"[WizStem] ERROR: No WAV files found in Demucs output", flush=True)
+            print(f"[WizStem] ERROR: No audio files found in Demucs output", flush=True)
             sys.exit(1)
 
-        # Copy stems to our stems_dir
+        # Copy stems to our stems_dir (convert mp3 to wav using librosa for consistent processing)
         demucs_track_dir = demucs_out_dirs[0].parent
-        for wav_file in demucs_track_dir.glob("*.wav"):
-            stem_name = wav_file.stem.lower()
+        for audio_file in list(demucs_track_dir.glob("*.wav")) + list(demucs_track_dir.glob("*.mp3")):
+            stem_name = audio_file.stem.lower()
             dest = stems_dir / f"{stem_name}.wav"
-            shutil.copy2(wav_file, dest)
+            if audio_file.suffix == ".mp3":
+                # Convert MP3 to WAV using librosa
+                audio_data, sr = librosa.load(str(audio_file), sr=SAMPLE_RATE, mono=False)
+                if audio_data.ndim == 1:
+                    audio_data = audio_data[np.newaxis, :]  # Add channel dim
+                sf.write(str(dest), audio_data.T, SAMPLE_RATE)
+            else:
+                shutil.copy2(audio_file, dest)
             print(f"[WizStem] Stem: {stem_name} → {dest}", flush=True)
 
         # Build accompaniment mix if not already present

@@ -48,6 +48,7 @@ export async function submitAtlasVideo(
       prompt,
       duration: durationSeconds,
       resolution: "720p",
+      generate_audio: false, // Suppress AI-generated audio to prevent ByteDance content-policy rejection on music/performance prompts
     },
     {
       headers: {
@@ -203,8 +204,37 @@ export async function pollAtlasVideo(
         Authorization: `Bearer ${apiKey}`,
       },
       timeout: 15_000,
+      // Allow 5xx so we can inspect the body for content-policy errors vs transient infra errors
+      validateStatus: (s) => s < 600,
     }
   );
+
+  // Atlas Cloud wraps upstream errors (e.g. ByteDance content filter) as HTTP 500.
+  // Parse the body to distinguish content-policy failures from transient infra errors.
+  if (response.status >= 500) {
+    const bodyStr = typeof response.data === 'string'
+      ? response.data
+      : JSON.stringify(response.data ?? '');
+    // Known content-policy patterns from ByteDance Seedance
+    const isCopyrightPolicy = bodyStr.includes('copyright restrictions') || bodyStr.includes('copyright restriction');
+    const isContentPolicy =
+      bodyStr.includes('real person') ||
+      bodyStr.includes('real_person') ||
+      bodyStr.includes('output audio may contain') ||
+      bodyStr.includes('sensitive information') ||
+      bodyStr.includes('content policy') ||
+      bodyStr.includes('content_policy') ||
+      bodyStr.includes('safety filter') ||
+      bodyStr.includes('moderation') ||
+      isCopyrightPolicy;
+    if (isContentPolicy) {
+      const rejectionType = isCopyrightPolicy ? 'copyright_restriction' : 'content_policy';
+      // Treat as a hard failure so the caller can reset the scene and retry with sanitised prompt
+      return { status: 'failed', error: `PROVIDER_REJECTED:${rejectionType}:${bodyStr.slice(0, 400)}` };
+    }
+    // Genuine 5xx infra error — throw so the poll catch block retries next cycle
+    throw new Error(`Atlas Cloud poll HTTP ${response.status}: ${bodyStr.slice(0, 200)}`);
+  }
 
   const data = response.data?.data;
   if (!data) {

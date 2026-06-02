@@ -33,7 +33,7 @@ import { invokeLLM } from "./_core/llm";
 import { buildDirectorModePromptBlock } from "./director-modes";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { initKlingAI } from "./ai-apis/kling";
-import { submitFalSeedanceVideo, pollFalSeedanceVideo } from "./ai-apis/fal-seedance";
+import { submitFalSeedanceVideo, submitFalSeedanceR2V, pollFalSeedanceVideo } from "./ai-apis/fal-seedance";
 import { submitHyperealVideo, pollHyperealVideo, HYPEREAL_MODELS } from "./ai-apis/hypereal";
 import { submitAtlasVideo, submitAtlasReferenceToVideo, submitAtlasImageToVideo, pollAtlasVideo } from "./ai-apis/atlascloud";
 import { extractSceneAudioClip } from "./audio-clip-extractor";
@@ -57,7 +57,10 @@ import {
 const klingClient = initKlingAI();
 
 // Prefix used to distinguish fal.ai request IDs from Kling/Volcengine task IDs
-const FAL_REQUEST_ID_PREFIX = "fal:";
+const FAL_REQUEST_ID_PREFIX = "fal:"; // legacy prefix (t2v)
+const FAL_T2V_PREFIX = "fal:t2v:"; // text-to-video
+const FAL_I2V_PREFIX = "fal:i2v:"; // image-to-video (character portrait as first frame)
+const FAL_R2V_PREFIX = "fal:r2v:"; // reference-to-video (character portrait + audio for native lip sync)
 // Prefix used to distinguish Hypereal job IDs
 const HYPEREAL_JOB_ID_PREFIX = "hypereal:";
 const ATLAS_JOB_ID_PREFIX = "atlas:";
@@ -925,6 +928,41 @@ export async function startSceneRender(
         throw new Error(`WaveSpeed render failed for scene ${sceneId}: ${String(wsDirectErr?.message ?? wsDirectErr).slice(0, 200)}`);
       }
     }
+    // ── FAL_SEEDANCE DIRECT: when renderer is explicitly 'fal_seedance' or 'seedance' ────────────────
+    // Strategy selection (auto):
+    //   r2v (reference-to-video): characterImageUrl + audioUrl + lipSync=true → native lip sync (BEST)
+    //   i2v (image-to-video):     characterImageUrl only → character consistency, no lip sync
+    //   t2v (text-to-video):      no character → text prompt only
+    if (renderer === "fal_seedance" || renderer === "seedance") {
+      console.log(`[MusicVideo] Scene ${sceneId}: FAL_SEEDANCE DIRECT (renderer override)`);
+      try {
+        // For r2v: extract the scene audio clip if we have audioUrl + sceneStartTime + lipSync
+        let sceneAudioClipUrl: string | undefined;
+        if (characterImageUrl && audioUrl && sceneStartTime !== undefined && lipSync) {
+          try {
+            sceneAudioClipUrl = await extractSceneAudioClip(audioUrl, sceneStartTime, duration, sceneId);
+            console.log(`[MusicVideo] Scene ${sceneId} FAL_SEEDANCE: extracted audio clip for r2v: ${sceneAudioClipUrl?.slice(0, 60)}...`);
+          } catch (clipErr: any) {
+            console.warn(`[MusicVideo] Scene ${sceneId} audio clip extraction failed (${String(clipErr?.message ?? clipErr).slice(0, 100)}). Falling back to i2v.`);
+          }
+        }
+        const falResult = await startSceneRenderFalSeedance(
+          sceneId,
+          finalPrompt,
+          duration,
+          aspectRatio,
+          jobId,
+          characterImageUrl ?? storyboardImageUrl ?? undefined,
+          sceneAudioClipUrl,
+          undefined // sceneLyrics injected by heartbeat via prompt already
+        );
+        return falResult;
+      } catch (falErr: any) {
+        const falMsg = String(falErr?.message ?? falErr);
+        console.warn(`[MusicVideo] Scene ${sceneId} fal.ai Seedance failed (${falMsg.slice(0, 150)}). Falling back to Atlas Cloud.`);
+        // Fall through to Atlas Cloud below
+      }
+    }
     // ── Step 1: Atlas Cloud Fast (PRIMARY — $0.64/scene) ─────────────────────────────────────────────
     const atlasCircuit = getCircuitBreaker("atlas_cloud");
     if (atlasCircuit.canRequest()) {
@@ -1077,12 +1115,87 @@ async function startSceneRenderHypereal(sceneId: number, prompt: string, duratio
   return `${HYPEREAL_JOB_ID_PREFIX}${hyperealJobId}`;
 }
 
-async function startSceneRenderFalSeedance(sceneId: number, prompt: string, duration: number, aspectRatio: "16:9" | "9:16" | "1:1" = "16:9", jobId: number = 0): Promise<string> {
+async function startSceneRenderFalSeedance(
+  sceneId: number,
+  prompt: string,
+  duration: number,
+  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9",
+  jobId: number = 0,
+  /** Character portrait URL — when provided, uses i2v (portrait only) or r2v (portrait + audio) */
+  characterImageUrl?: string,
+  /** Pre-extracted audio clip URL for this scene's time window — triggers r2v native lip sync */
+  sceneAudioClipUrl?: string,
+  /** Lyrics text for this scene's time window — embedded in r2v prompt for phoneme-level lip sync */
+  sceneLyrics?: string
+): Promise<string> {
+  // ── STRATEGY SELECTION ───────────────────────────────────────────────────────
+  // r2v (reference-to-video): character portrait + audio clip + lyrics → native lip sync (BEST)
+  // i2v (image-to-video):     character portrait only → character consistency, no lip sync
+  // t2v (text-to-video):      no reference → text prompt only
+  const useR2V = !!(characterImageUrl && sceneAudioClipUrl);
+  const mode = useR2V ? "r2v" : characterImageUrl ? "i2v" : "t2v";
+
   // fal.ai Seedance has a ~500 char prompt limit; truncate if needed
   const MAX_PROMPT_CHARS = 480;
+
+  // ── R2V: reference-to-video with native lip sync ─────────────────────────────
+  if (useR2V) {
+    // Build the @Image1/@Audio1 anchored prompt with lyrics
+    const lyricsBlock = sceneLyrics ? ` Lyrics: '${sceneLyrics.slice(0, 120)}'` : "";
+    const r2vBase = `@Image1 performs @Audio1 in a cinematic music video. ${prompt}`;
+    const r2vWithLyrics = lyricsBlock ? `${r2vBase}${lyricsBlock}` : r2vBase;
+    const safeR2VPrompt = r2vWithLyrics.length > MAX_PROMPT_CHARS
+      ? r2vWithLyrics.slice(0, MAX_PROMPT_CHARS).replace(/[,;.\s]+$/, "") + "."
+      : r2vWithLyrics;
+
+    console.log(`[MusicVideo] Scene ${sceneId} fal.ai Seedance mode=r2v (native lip sync)`);
+    console.log(`[MusicVideo] Scene ${sceneId} r2v @Image1=${characterImageUrl!.slice(0, 70)}...`);
+    console.log(`[MusicVideo] Scene ${sceneId} r2v @Audio1=${sceneAudioClipUrl.slice(0, 70)}...`);
+    if (sceneLyrics) console.log(`[MusicVideo] Scene ${sceneId} r2v lyrics="${sceneLyrics.slice(0, 60)}..."`);
+
+    let requestId: string;
+    try {
+      requestId = await submitFalSeedanceR2V({
+        prompt: safeR2VPrompt,
+        image_urls: [characterImageUrl!],
+        audio_urls: [sceneAudioClipUrl],
+        aspect_ratio: aspectRatio,
+        duration: duration <= 5 ? "5" : duration <= 8 ? "8" : "10",
+        resolution: "720p",
+        generate_audio: true, // r2v with audio: enable native lip sync
+      });
+      if (!requestId) throw new Error(`fal.ai Seedance r2v: no request_id returned for scene ${sceneId}`);
+    } catch (r2vErr: any) {
+      const errMsg = String(r2vErr?.message ?? r2vErr);
+      console.warn(`[MusicVideo] Scene ${sceneId} r2v failed (${errMsg.slice(0, 150)}). Falling back to i2v.`);
+      // Fall through to i2v fallback below
+      return startSceneRenderFalSeedance(sceneId, prompt, duration, aspectRatio, jobId, characterImageUrl);
+    }
+
+    // Spend protection log
+    if (jobId > 0) {
+      const attemptCount = await getSceneAttemptCount(sceneId);
+      const idempotencyKey = makeIdempotencyKey(jobId, sceneId, "fal_seedance", attemptCount + 1);
+      await logProviderSubmission({
+        jobId, sceneId, provider: "fal_seedance", providerJobId: requestId,
+        idempotencyKey, attemptNumber: attemptCount + 1,
+        estimatedCostUsd: PROVIDER_COST_USD.fal_seedance, submissionReason: "scene_render",
+      });
+    }
+    console.log(`[MusicVideo] Scene ${sceneId} → fal.ai Seedance r2v requestId=${requestId}`);
+    return `${FAL_R2V_PREFIX}${requestId}`;
+  }
+
+  // ── I2V / T2V: image-to-video or text-to-video ───────────────────────────────
   const safePrompt = prompt.length > MAX_PROMPT_CHARS
     ? prompt.slice(0, MAX_PROMPT_CHARS).replace(/[,;.\s]+$/, "") + "."
     : prompt;
+
+  if (characterImageUrl) {
+    console.log(`[MusicVideo] Scene ${sceneId} fal.ai Seedance mode=i2v image=${characterImageUrl.slice(0, 60)}...`);
+  } else {
+    console.log(`[MusicVideo] Scene ${sceneId} fal.ai Seedance mode=t2v (no character portrait)`);
+  }
 
   const trySubmit = async (p: string): Promise<string> => {
     const requestId = await submitFalSeedanceVideo({
@@ -1091,6 +1204,7 @@ async function startSceneRenderFalSeedance(sceneId: number, prompt: string, dura
       duration: duration <= 5 ? "5" : "8",
       resolution: "720p",
       generate_audio: false, // music video — audio comes from the track
+      ...(characterImageUrl ? { image_url: characterImageUrl } : {}),
     });
     if (!requestId) throw new Error(`fal.ai Seedance: no request_id returned for scene ${sceneId}`);
     return requestId;
@@ -1103,7 +1217,6 @@ async function startSceneRenderFalSeedance(sceneId: number, prompt: string, dura
     // If the first attempt fails (content policy / prompt too long), retry with a shorter fallback
     const errMsg = String(err?.message ?? err);
     console.warn(`[MusicVideo] Scene ${sceneId} fal.ai first attempt failed (${errMsg}). Retrying with simplified prompt.`);
-    // Simplified fallback: first 200 chars of the original prompt
     const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + ". Cinematic 16:9 video clip.";
     try {
       requestId = await trySubmit(fallbackPrompt);
@@ -1112,24 +1225,19 @@ async function startSceneRenderFalSeedance(sceneId: number, prompt: string, dura
     }
   }
 
-  // ── SPEND PROTECTION: Log successful submission (Items 6 & 7) ─────────────────────
+  // ── SPEND PROTECTION: Log successful submission ───────────────────────────────
   if (jobId > 0) {
     const attemptCount = await getSceneAttemptCount(sceneId);
     const idempotencyKey = makeIdempotencyKey(jobId, sceneId, "fal_seedance", attemptCount + 1);
     await logProviderSubmission({
-      jobId,
-      sceneId,
-      provider: "fal_seedance",
-      providerJobId: requestId,
-      idempotencyKey,
-      attemptNumber: attemptCount + 1,
-      estimatedCostUsd: PROVIDER_COST_USD.fal_seedance,
-      submissionReason: "scene_render",
+      jobId, sceneId, provider: "fal_seedance", providerJobId: requestId,
+      idempotencyKey, attemptNumber: attemptCount + 1,
+      estimatedCostUsd: PROVIDER_COST_USD.fal_seedance, submissionReason: "scene_render",
     });
   }
-  console.log(`[MusicVideo] Scene ${sceneId} → fal.ai Seedance requestId=${requestId}`);
-  // Prefix the ID so pollSceneStatus knows which API to poll
-  return `${FAL_REQUEST_ID_PREFIX}${requestId}`;
+  const prefix = characterImageUrl ? FAL_I2V_PREFIX : FAL_T2V_PREFIX;
+  console.log(`[MusicVideo] Scene ${sceneId} → fal.ai Seedance (${characterImageUrl ? 'i2v' : 't2v'}) requestId=${requestId}`);
+  return `${prefix}${requestId}`;
 }
 
 async function startSceneRenderGrokImagine(
@@ -1505,10 +1613,13 @@ async function pollSceneStatusHypereal(
  */
 async function pollSceneStatusFalSeedance(
   sceneId: number,
-  requestId: string
+  requestId: string,
+  modelType: "t2v" | "i2v" | "r2v" = "t2v"
 ): Promise<{ status: "completed" | "failed" | "processing"; videoUrl?: string }> {
+  const { FAL_T2V_MODEL_ID: T2V, FAL_I2V_MODEL_ID: I2V, FAL_R2V_MODEL_ID: R2V } = await import("./ai-apis/fal-seedance");
+  const modelId = modelType === "i2v" ? I2V : modelType === "r2v" ? R2V : T2V;
   try {
-    const result = await pollFalSeedanceVideo(requestId);
+    const result = await pollFalSeedanceVideo(requestId, modelId);
     if (!result) return { status: "processing" };
 
     // Download and re-upload to S3 for permanent storage
@@ -1582,8 +1693,21 @@ export async function pollSceneStatus(
     return pollSceneStatusAtlasCloud(sceneId, taskId.slice(ATLAS_JOB_ID_PREFIX.length));
   }
 
+  if (taskId.startsWith(FAL_R2V_PREFIX)) {
+    // Reference-to-video (native lip sync): use r2v model ID for polling
+    return pollSceneStatusFalSeedance(sceneId, taskId.slice(FAL_R2V_PREFIX.length), "r2v");
+  }
+  if (taskId.startsWith(FAL_I2V_PREFIX)) {
+    // Image-to-video: use i2v model ID for polling
+    return pollSceneStatusFalSeedance(sceneId, taskId.slice(FAL_I2V_PREFIX.length), "i2v");
+  }
+  if (taskId.startsWith(FAL_T2V_PREFIX)) {
+    // Text-to-video: use t2v model ID for polling
+    return pollSceneStatusFalSeedance(sceneId, taskId.slice(FAL_T2V_PREFIX.length), "t2v");
+  }
   if (taskId.startsWith(FAL_REQUEST_ID_PREFIX)) {
-    return pollSceneStatusFalSeedance(sceneId, taskId.slice(FAL_REQUEST_ID_PREFIX.length));
+    // Legacy fal: prefix (before model-specific prefixes were added) — assume t2v
+    return pollSceneStatusFalSeedance(sceneId, taskId.slice(FAL_REQUEST_ID_PREFIX.length), "t2v");
   }
 
   if (taskId.startsWith(GROK_IMAGINE_PREFIX)) {

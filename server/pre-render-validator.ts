@@ -165,7 +165,11 @@ export async function runPreRenderValidation(jobId: number): Promise<ValidationR
   // Critical checks that MUST pass before any render
   // Note: ffmpeg is NOT a critical check — it is only needed for final assembly, not for scene dispatch.
   // Removing it from critical checks prevents it from blocking probe dispatch in production (Cloud Run has no ffmpeg).
-  const criticalChecks = ["Audio URL", "Scenes exist", "Storyboard images", "Spend cap"];
+  // Note: "Storyboard images" is intentionally NOT a critical check.
+  // Storyboard images are a quality enhancement (first-frame anchor for image-to-video).
+  // When absent, Atlas Cloud falls back to text-to-video — still fully functional.
+  // Blocking the entire render because storyboards are missing is too aggressive.
+  const criticalChecks = ["Audio URL", "Scenes exist", "Spend cap"];
   const criticalFailed = checks.filter(
     (c) => criticalChecks.includes(c.name) && !c.passed
   );
@@ -268,11 +272,14 @@ export async function getProbeDecision(jobId: number): Promise<ProbeDecision> {
         };
       }
     } else {
-      return {
-        mode: "blocked",
-        reason: "Probe scene is rendering — waiting for owner approval before releasing full render",
-        validationResult,
-      };
+      // probeSceneId is null but probePassed=false — inconsistent state.
+      // This can happen when the ProbeGate previously cleared probeSceneId after a dispatch failure
+      // but probePassed was not reset to null. Reset it now so probe selection can restart cleanly.
+      console.warn(`[ProbeGate] Job ${jobId}: probePassed=false but probeSceneId=null — resetting probePassed to null for clean probe re-selection`);
+      await db.update(musicVideoJobs)
+        .set({ probePassed: null, probeSceneId: null, updatedAt: new Date() })
+        .where(eq(musicVideoJobs.id, jobId));
+      // Fall through to probe_only selection below
     }
   }
 

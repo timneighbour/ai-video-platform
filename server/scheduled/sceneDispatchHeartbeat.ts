@@ -284,14 +284,33 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   : null;
                 const bestChar = matchedChar ?? jobChars.find(c => c.masterPortraitUrl) ?? jobChars.find(c => c.previewImageUrl) ?? jobChars[0];
                 if (bestChar) {
-                  // ── Auto-Prep Reference Selection ─────────────────────────────────────
-                  // Use the scene-type-specific reference image if available
-                  // (performance ref, medium-shot ref, cinematic ref, or environment ref).
-                  // Falls back gracefully to masterPortraitUrl if prep hasn't completed yet.
-                  const autoRef = selectReferenceForScene(bestChar, scene.sceneType ?? "cinematic");
+                  // ── Auto-Prep Reference Selection ──────────────────────────────────────
+                  // Priority for performance/lip-sync scenes:
+                  //   1. environmentRefUrl  — character placed in the correct environment (Air Studios)
+                  //                           This is the IDEAL reference for r2v: correct env + correct face
+                  //   2. performanceRefUrl  — head-and-shoulders, optimised for lip-sync
+                  //   3. masterPortraitUrl  — fallback if auto-prep hasn't completed yet
+                  //
+                  // For cinematic/wide scenes, use cinematicRefUrl or mediumShotRefUrl.
+                  const isLipSyncScene = (scene.lipSync ?? false) && scene.sceneType === "performance";
+                  let autoRef: string | null;
+                  if (isLipSyncScene && bestChar.environmentRefUrl) {
+                    // BEST: character already placed in the correct environment
+                    autoRef = bestChar.environmentRefUrl;
+                    console.log(`[SceneDispatch] Scene ${scene.id} ENVIRONMENT REF selected for r2v lip sync: ${autoRef.slice(0, 80)}...`);
+                  } else {
+                    autoRef = selectReferenceForScene(bestChar, scene.sceneType ?? "cinematic");
+                  }
                   resolvedCharacterUrl = autoRef ?? bestChar.masterPortraitUrl ?? bestChar.previewImageUrl ?? resolvedCharacterUrl;
                   resolvedCharacterDescription = bestChar.lockedDescription?.trim() ?? undefined;
                   resolvedCharacterName = bestChar.name ?? undefined;
+                  // ── AGE LOCK: inject character constraints into description to prevent ageing ─────────
+                  // characterPrompt is the locked identity (e.g. "young woman, early 20s, ...").
+                  // Prepend it to the resolved description so every scene generation call
+                  // gets the age anchor, overriding any scene-level character description.
+                  if (bestChar.characterPrompt && !resolvedCharacterDescription?.includes(bestChar.characterPrompt.slice(0, 30))) {
+                    resolvedCharacterDescription = bestChar.characterPrompt + (resolvedCharacterDescription ? `. ${resolvedCharacterDescription}` : "");
+                  }
                   if (autoRef && autoRef !== bestChar.masterPortraitUrl) {
                     console.log(`[SceneDispatch] Scene ${scene.id} using auto-prep ref (${scene.sceneType ?? 'cinematic'}): ${autoRef.slice(0, 80)}...`);
                   }
@@ -302,23 +321,29 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             }
 
             // ── TEXT ANCHOR: Prepend character identity to prompt ──────────────
-            // PERFORMANCE SCENE EXCEPTION: Performance scenes use Seedance to generate an EMPTY
-            // stage background (no person). Zara is composited in via InfiniteTalk chromakey.
-            // Therefore, we MUST NOT prepend the character description to the Seedance prompt —
-            // doing so causes Seedance to generate another AI singer as the background.
+            // NEW ARCHITECTURE: Performance scenes now use Seedance r2v (reference-to-video)
+            // with the character's environmentRefUrl as @Image1 and the vocal stem clip as @Audio1.
+            // The character description IS included in the prompt (as age/appearance anchor),
+            // but the @Image1/@Audio1 syntax is handled inside startSceneRenderFalSeedance.
+            // The scene prompt here provides the camera/environment direction.
             const isPerformanceSceneDispatch = scene.sceneType === "performance";
+            const willUseR2V = isPerformanceSceneDispatch && (scene.lipSync ?? false) && !!job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
             let scenePrompt = scene.prompt ?? "";
-            if (!isPerformanceSceneDispatch && resolvedCharacterDescription && resolvedCharacterName) {
-              const charAnchor = `${resolvedCharacterName}: ${resolvedCharacterDescription.slice(0, 150)}. `;
+            if (resolvedCharacterDescription && resolvedCharacterName) {
+              // Inject character description as a constraint block for ALL scene types.
+              // For r2v scenes, this supplements the @Image1 reference (Seedance uses both).
+              // Keep it concise to stay within the 480-char prompt limit.
+              const charAnchor = `${resolvedCharacterName}: ${resolvedCharacterDescription.slice(0, 120)}. `;
               const MAX_TOTAL = 480;
               const remainingChars = MAX_TOTAL - charAnchor.length;
               const trimmedScene = scenePrompt.length > remainingChars
                 ? scenePrompt.slice(0, remainingChars).replace(/[,;.\s]+$/, "") + "."
                 : scenePrompt;
               scenePrompt = charAnchor + trimmedScene;
-              console.log(`[SceneDispatch] Scene ${scene.id} TEXT ANCHOR injected for ${resolvedCharacterName}`);
-            } else if (isPerformanceSceneDispatch) {
-              console.log(`[SceneDispatch] Scene ${scene.id} PERFORMANCE SCENE — using empty stage prompt for Seedance (character generated inside scene, HeyGen v3 lip-sync to follow)`);
+              console.log(`[SceneDispatch] Scene ${scene.id} TEXT ANCHOR injected for ${resolvedCharacterName} (${willUseR2V ? 'r2v mode' : 'standard mode'})`);
+            }
+            if (willUseR2V) {
+              console.log(`[SceneDispatch] Scene ${scene.id} PERFORMANCE SCENE — r2v mode: environmentRefUrl + vocal stem + lyrics → native lip sync`);
             }
 
             if (resolvedCharacterUrl) {
@@ -342,7 +367,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             // ── PROVIDER OVERRIDE: respect job.fallbackProvider ───────────────
             // If the job has fallbackProvider='wavespeed', force WaveSpeed routing.
             // This survives Cloud Run cold starts (in-memory circuit breaker resets).
-            const forcedRenderer = job.fallbackProvider === "wavespeed" ? "wavespeed" : "atlas_cloud_fast";
+            // PRIMARY: fal.ai Seedance 2.0 — no content filters, no venue/copyright restrictions
+            // FALLBACK: wavespeed (DB-level override when job.fallbackProvider='wavespeed')
+            const forcedRenderer = job.fallbackProvider === "wavespeed" ? "wavespeed" : "fal_seedance";
             console.log(`[SceneDispatch] Scene ${scene.id} renderer: ${forcedRenderer} (fallbackProvider=${job.fallbackProvider ?? 'none'})`);
             const taskId = await startSceneRender(
               scene.id,
@@ -617,20 +644,81 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               } catch { /* non-fatal */ }
               totalPolled++;
             } else if (pollResult?.status === "failed") {
-              await db.update(musicVideoScenes)
-                .set({
-                  status: "pending",
-                  taskId: null,
-                  errorMessage: null,
-                  lipSyncStatus: "pending",
-                  lipSyncTaskId: null,
-                  lipSyncVideoUrl: null,
-                  compositeStatus: "skipped", // compositing removed
-                  compositeVideoUrl: null,
-                  updatedAt: new Date(),
-                })
-                .where(eq(musicVideoScenes.id, scene.id));
-              console.warn(`[SceneDispatch] Scene ${scene.id} provider returned failed — reset to pending for retry`);
+              const failError = (pollResult as any).error ?? "";
+              const isCopyrightRejection = failError.includes("PROVIDER_REJECTED:copyright_restriction");
+              const isContentPolicyRejection = failError.includes("PROVIDER_REJECTED:content_policy");
+
+              if (isCopyrightRejection) {
+                // ── Copyright rejection: sanitise the prompt and retry once ──────────
+                // Import sanitiser lazily to avoid circular deps at module load time
+                const { sanitisePromptForProvider, findVenueReferences } = await import("../prompt-sanitiser");
+                const originalPrompt = scene.prompt ?? "";
+                const sanitisedPrompt = sanitisePromptForProvider(originalPrompt);
+                const venueRefs = findVenueReferences(originalPrompt);
+                const retryCount = ((scene as any).providerRetryCount ?? 0) as number;
+
+                if (retryCount < 1 && sanitisedPrompt !== originalPrompt) {
+                  // First copyright rejection — retry with sanitised prompt
+                  console.warn(`[SceneDispatch] Scene ${scene.id} PROVIDER_REJECTED:copyright_restriction — venue refs found: [${venueRefs.join(", ")}] — retrying with sanitised prompt`);
+                  await db.update(musicVideoScenes)
+                    .set({
+                      status: "pending",
+                      taskId: null,
+                      prompt: sanitisedPrompt,
+                      errorMessage: `provider_rejected_copyright:auto_retry_with_sanitised_prompt:venues=[${venueRefs.join(",")}]`,
+                      lipSyncStatus: "pending",
+                      lipSyncTaskId: null,
+                      lipSyncVideoUrl: null,
+                      compositeStatus: "skipped",
+                      compositeVideoUrl: null,
+                      updatedAt: new Date(),
+                    })
+                    .where(eq(musicVideoScenes.id, scene.id));
+                } else {
+                  // Already retried with sanitised prompt or prompt was already clean — escalate to fallback provider
+                  console.error(`[SceneDispatch] Scene ${scene.id} PROVIDER_REJECTED:copyright_restriction — sanitised prompt still rejected or no venue refs found — marking failed_retryable for fallback provider`);
+                  await db.update(musicVideoScenes)
+                    .set({
+                      status: "failed_retryable" as any,
+                      taskId: null,
+                      errorMessage: `provider_rejected_copyright:sanitised_prompt_also_rejected:${failError.slice(0, 200)}`,
+                      updatedAt: new Date(),
+                    })
+                    .where(eq(musicVideoScenes.id, scene.id));
+                }
+              } else if (isContentPolicyRejection) {
+                // Content policy (real person, audio sensitivity) — reset to pending
+                console.warn(`[SceneDispatch] Scene ${scene.id} PROVIDER_REJECTED:content_policy — reset to pending`);
+                await db.update(musicVideoScenes)
+                  .set({
+                    status: "pending",
+                    taskId: null,
+                    errorMessage: `provider_rejected_content_policy:${failError.slice(0, 200)}`,
+                    lipSyncStatus: "pending",
+                    lipSyncTaskId: null,
+                    lipSyncVideoUrl: null,
+                    compositeStatus: "skipped",
+                    compositeVideoUrl: null,
+                    updatedAt: new Date(),
+                  })
+                  .where(eq(musicVideoScenes.id, scene.id));
+              } else {
+                // Generic failure — reset to pending for retry
+                await db.update(musicVideoScenes)
+                  .set({
+                    status: "pending",
+                    taskId: null,
+                    errorMessage: failError.slice(0, 300) || null,
+                    lipSyncStatus: "pending",
+                    lipSyncTaskId: null,
+                    lipSyncVideoUrl: null,
+                    compositeStatus: "skipped",
+                    compositeVideoUrl: null,
+                    updatedAt: new Date(),
+                  })
+                  .where(eq(musicVideoScenes.id, scene.id));
+                console.warn(`[SceneDispatch] Scene ${scene.id} provider returned failed — reset to pending for retry`);
+              }
             }
             // "processing" — do nothing, poll again next tick
           } catch (pollErr: any) {

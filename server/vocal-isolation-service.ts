@@ -444,12 +444,13 @@ export async function getVocalStemForCharacter(
     .where(eq(musicVideoVocalStems.jobId, jobId));
 
   if (stems.length === 0) {
-    // Fall back to job-level vocalsUrl
+    // Fall back to job-level stemVocalsUrl (Demucs stem intelligence) or vocalsUrl (old pipeline)
     const [job] = await db
-      .select({ vocalsUrl: musicVideoJobs.vocalsUrl })
+      .select({ vocalsUrl: musicVideoJobs.vocalsUrl, stemVocalsUrl: musicVideoJobs.stemVocalsUrl })
       .from(musicVideoJobs)
       .where(eq(musicVideoJobs.id, jobId));
-    return job?.vocalsUrl ?? null;
+    // Prefer stemVocalsUrl (Demucs stem intelligence pipeline) over vocalsUrl (old vocal isolation)
+    return job?.stemVocalsUrl ?? job?.vocalsUrl ?? null;
   }
 
   // Try to find a stem assigned to this character
