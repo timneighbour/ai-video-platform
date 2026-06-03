@@ -1,5 +1,6 @@
 import { eq, and, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import mysql2 from "mysql2/promise";
 import { InsertUser, users, subscriptions, credits, creditTransactions, projects, apiKeys, showcaseItems, musicVideoJobs, enhancementJobs, renderJobs, renderBundles, subscriptionRenderAllowances, blogPosts, creators } from "../drizzle/schema";
 import type { InsertSubscription, InsertProject, InsertApiKey, InsertShowcaseItem, InsertRenderJob, InsertRenderBundle, RenderJob, InsertBlogPost, BlogPost, Creator, InsertCreator } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -26,6 +27,15 @@ export async function getDb() {
  */
 export function resetDb() {
   _db = null;
+}
+
+/**
+ * Get a raw mysql2 connection for operations that need guaranteed writes.
+ * Caller is responsible for calling conn.end() after use.
+ */
+export async function getRawConn() {
+  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL not set");
+  return mysql2.createConnection(process.env.DATABASE_URL);
 }
 
 export async function upsertUser(user: InsertUser): Promise<void> {

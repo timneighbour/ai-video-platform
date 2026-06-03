@@ -50,7 +50,7 @@
  */
 
 import type { Request, Response } from "express";
-import { getDb } from "../db";
+import { getDb, getRawConn } from "../db";
 import {
   musicVideoScenes,
   musicVideoJobs,
@@ -195,9 +195,11 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         );
 
         // ── 2. Auto-recover failed scenes back to pending ──────────────────────
-        const failedScenes = scenes.filter((s) => s.status === "failed");
+        // Also recover failed_retryable scenes — these were blocked by provider issues
+        // (balance exhaustion, copyright rejection) but should be retried on the next tick.
+        const failedScenes = scenes.filter((s) => s.status === "failed" || (s.status as any) === "failed_retryable");
         if (failedScenes.length > 0) {
-          console.log(`[SceneDispatch] Job ${job.id} — resetting ${failedScenes.length} failed scene(s) back to pending for retry`);
+          console.log(`[SceneDispatch] Job ${job.id} — resetting ${failedScenes.length} failed/failed_retryable scene(s) back to pending for retry`);
           for (const fs of failedScenes) {
             // CRITICAL: Cancel providerJobLogs entries so idempotency check doesn't block re-dispatch
             await resetSceneAttempts(fs.id);
@@ -255,9 +257,21 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             console.warn(`[SceneDispatch] Job ${job.id} PROBE MODE — probe scene ${probeDecision.probeSceneId} not found in pending scenes`);
             pendingScenes.length = 0; // Block all dispatches
           }
+        } else if (probeDecision.mode === "one_at_a_time") {
+          // One-at-a-time mode: dispatch only the single next scene identified by the probe gate.
+          // All other pending scenes are held until Tim approves the completed scene.
+          const nextScene = pendingScenes.find(s => s.id === probeDecision.nextSceneId);
+          if (nextScene) {
+            console.log(`[SceneDispatch] Job ${job.id} ONE-AT-A-TIME MODE — dispatching only scene ${nextScene.id} (index ${nextScene.sceneIndex}). Awaiting approval before next.`);
+            pendingScenes.length = 0;
+            pendingScenes.push(nextScene);
+          } else {
+            console.warn(`[SceneDispatch] Job ${job.id} ONE-AT-A-TIME MODE — next scene ${probeDecision.nextSceneId} not found in pending list. Holding all dispatches.`);
+            pendingScenes.length = 0;
+          }
         } else {
-          // full_render — dispatch all pending scenes normally
-          console.log(`[SceneDispatch] Job ${job.id} FULL RENDER MODE — probe approved, dispatching ${pendingScenes.length} pending scene(s)`);
+          // full_render — all scenes approved, dispatch remaining (assembly phase)
+          console.log(`[SceneDispatch] Job ${job.id} FULL RENDER MODE — all scenes approved, dispatching ${pendingScenes.length} remaining scene(s)`);
         }
 
         // ── 4. Dispatch pending scenes (filtered by probe gate above) ──────────
@@ -281,9 +295,19 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               const jobChars = await db.select().from(videoCharacters).where(eqChar(videoCharacters.jobId, job.id));
               if (jobChars.length > 0) {
                 let assignments: string[] = [];
-                try { if (scene.characterAssignments) assignments = JSON.parse(scene.characterAssignments); } catch {}
+                try {
+                  if (scene.characterAssignments) {
+                    const parsed = JSON.parse(scene.characterAssignments);
+                    // Handle both string[] and object[] (e.g. [{name: 'Zara'}] or ['Zara'])
+                    if (Array.isArray(parsed)) {
+                      assignments = parsed.map((a: any) =>
+                        typeof a === 'string' ? a : (a?.name ?? a?.characterName ?? String(a))
+                      ).filter(Boolean);
+                    }
+                  }
+                } catch {}
                 let matchedChar = assignments.length > 0
-                  ? jobChars.find(c => assignments.some(a => a.toLowerCase() === c.name.toLowerCase()))
+                  ? jobChars.find(c => assignments.some(a => typeof a === 'string' && a.toLowerCase() === c.name?.toLowerCase()))
                   : null;
                 const bestChar = matchedChar ?? jobChars.find(c => c.masterPortraitUrl) ?? jobChars.find(c => c.previewImageUrl) ?? jobChars[0];
                 if (bestChar) {
@@ -589,6 +613,30 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               const isPerformanceScene = scene.sceneType === "performance";
               const needsLipSync = (isPerformanceScene || (scene.lipSync ?? false)) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
 
+              // ── SEEDANCE NATIVE LIP SYNC DETECTION ──────────────────────────────────
+              // When Seedance 2.0 was dispatched with reference_audios (native lip sync),
+              // the video already has lip sync baked in. Skip HeyGen/raw-validator entirely.
+              // Detect by checking if the taskId uses the seedance prefix (dispatched via WaveSpeed r2v path).
+              const taskIdStr = scene.taskId ?? "";
+              const isSeedanceNative = taskIdStr.startsWith("wavespeed:seedance:") && isPerformanceScene;
+              if (isSeedanceNative && needsLipSync) {
+                // Seedance native lip sync — video already has lip sync baked in
+                // Mark as completed + lip sync done, skip HeyGen and raw validator
+                await db.update(musicVideoScenes)
+                  .set({
+                    status: "completed",
+                    videoUrl: pollResult.videoUrl,
+                    lipSyncStatus: "done",
+                    lipSyncVideoUrl: pollResult.videoUrl, // same video — lip sync is native
+                    compositeStatus: "skipped",
+                    updatedAt: new Date(),
+                  })
+                  .where(eq(musicVideoScenes.id, scene.id));
+                console.log(`[SceneDispatch] Scene ${scene.id} completed (Seedance native lip sync, compositeStatus=skipped) ✓`);
+                totalPolled++;
+                continue;
+              }
+
               if (needsLipSync) {
                 // Mark scene completed with raw clip, then submit InfiniteTalk
                 // (InfiniteTalk generates a new performance video from portrait + audio;
@@ -854,17 +902,44 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
 
               // RETRY: HeyGen Precision v3 — video-in / video-out (no portrait needed)
               if (!scene.videoUrl) throw new Error(`Scene ${scene.id} RETRY: no videoUrl for HeyGen`);
+
+              // ── AUDIO MUX: Seedance i2v renders have no audio track.
+              // HeyGen Precision v3 requires an audio track in the input video.
+              // Mux the scene audio clip into the video before submitting.
+              let heyGenInputVideoUrl = scene.videoUrl;
+              try {
+                const { muxAudioIntoVideo } = await import("../video-audio-muxer");
+                heyGenInputVideoUrl = await muxAudioIntoVideo({
+                  videoUrl: scene.videoUrl,
+                  audioUrl: sceneAudioUrl,
+                  sceneId: scene.id,
+                });
+                console.log(`[SceneDispatch] Scene ${scene.id} RETRY: audio muxed into video ✓`);
+              } catch (muxErr: any) {
+                console.warn(`[SceneDispatch] Scene ${scene.id} RETRY: audio mux failed (${String(muxErr?.message ?? muxErr).slice(0, 100)}) — using original video`);
+              }
+
               const retryHeyGenTaskId = await submitHeyGenLipSyncV3({
-                videoUrl: scene.videoUrl,   // Seedance scene video (character already inside)
-                audioUrl: sceneAudioUrl,     // Demucs-isolated vocal stem (scene window)
+                videoUrl: heyGenInputVideoUrl, // Muxed video (character + audio track)
+                audioUrl: sceneAudioUrl,       // Demucs-isolated vocal stem (scene window)
                 title: `scene-${scene.id}-job-${job.id}-retry`,
                 mode: "precision",
                 keepSameFormat: true,
                 disableMusicTrack: false,
               });
-              await db.update(musicVideoScenes)
-                .set({ lipSyncStatus: "processing", lipSyncTaskId: retryHeyGenTaskId, updatedAt: new Date() })
-                .where(eq(musicVideoScenes.id, scene.id));
+              // Use raw SQL to guarantee the lipSyncTaskId is persisted.
+              // Drizzle ORM updates have been observed to silently fail for this column.
+              {
+                const rawConn = await getRawConn();
+                try {
+                  await rawConn.execute(
+                    "UPDATE musicVideoScenes SET lipSyncStatus = 'processing', lipSyncTaskId = ?, updatedAt = NOW() WHERE id = ?",
+                    [retryHeyGenTaskId, scene.id]
+                  );
+                } finally {
+                  await rawConn.end();
+                }
+              }
               console.log(`[SceneDispatch] Scene ${scene.id} RETRY → HeyGen Precision v3 task ${retryHeyGenTaskId} submitted ✓`);
               syncLabsSubmittedThisTick++;
               totalLipSyncSubmitted++;

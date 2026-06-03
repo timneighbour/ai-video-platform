@@ -445,12 +445,17 @@ export async function getVocalStemForCharacter(
 
   if (stems.length === 0) {
     // Fall back to job-level stemVocalsUrl (Demucs stem intelligence) or vocalsUrl (old pipeline)
+    // Final fallback: use the original full-mix audioUrl — better than deferring forever
     const [job] = await db
-      .select({ vocalsUrl: musicVideoJobs.vocalsUrl, stemVocalsUrl: musicVideoJobs.stemVocalsUrl })
+      .select({ vocalsUrl: musicVideoJobs.vocalsUrl, stemVocalsUrl: musicVideoJobs.stemVocalsUrl, audioUrl: musicVideoJobs.audioUrl })
       .from(musicVideoJobs)
       .where(eq(musicVideoJobs.id, jobId));
-    // Prefer stemVocalsUrl (Demucs stem intelligence pipeline) over vocalsUrl (old vocal isolation)
-    return job?.stemVocalsUrl ?? job?.vocalsUrl ?? null;
+    // Prefer stemVocalsUrl (Demucs) > vocalsUrl (old pipeline) > audioUrl (full mix fallback)
+    const resolved = job?.stemVocalsUrl ?? job?.vocalsUrl ?? job?.audioUrl ?? null;
+    if (resolved === job?.audioUrl && resolved) {
+      console.log(`[VocalIsolation] Job ${jobId}: no stem found — falling back to full-mix audioUrl for lip sync`);
+    }
+    return resolved;
   }
 
   // Try to find a stem assigned to this character

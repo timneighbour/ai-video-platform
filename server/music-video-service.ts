@@ -915,6 +915,26 @@ export async function startSceneRender(
       // A DB-level override must never be blocked by in-memory state.
       console.log(`[MusicVideo] Scene ${sceneId}: WAVESPEED DIRECT (renderer override — circuit breaker bypassed)`);
       try {
+        // Use pre-sliced audio directly if it's already a WAV clip (heartbeat pre-slices it).
+        // If we re-slice it with extractSceneAudioClip, we'd seek to sceneStartTime (e.g. 12s)
+        // inside a 6-second file → empty output → 45-byte failure.
+        // Detection: if audioUrl ends in .wav or contains 'scene-audio' or 'stem-slice', it's pre-sliced.
+        let wsDirectAudioClip: string | undefined;
+        if (lipSync && audioUrl) {
+          const isPreSliced = audioUrl.includes('.wav') || audioUrl.includes('scene-audio') || audioUrl.includes('stem-slice') || audioUrl.includes('wiz-stem');
+          if (isPreSliced) {
+            // Already a sliced clip — use directly, no re-slicing needed
+            wsDirectAudioClip = audioUrl;
+            console.log(`[MusicVideo] Scene ${sceneId} WaveSpeed DIRECT: using pre-sliced audio clip directly (no re-slice)`);
+          } else if (sceneStartTime !== undefined) {
+            try {
+              wsDirectAudioClip = await extractSceneAudioClip(audioUrl, sceneStartTime, duration, sceneId);
+              console.log(`[MusicVideo] Scene ${sceneId} WaveSpeed DIRECT: audio clip extracted for lip sync`);
+            } catch (clipErr: any) {
+              console.warn(`[MusicVideo] Scene ${sceneId} WaveSpeed DIRECT: audio clip extraction failed (${String(clipErr?.message ?? clipErr).slice(0, 80)}). Proceeding without lip sync audio.`);
+            }
+          }
+        }
         const wsDirectResult = await startSceneRenderWaveSpeed(
           sceneId,
           finalPrompt,
@@ -923,7 +943,9 @@ export async function startSceneRender(
           storyboardImageUrl ?? undefined,
           aspectRatio,
           jobId,
-          characterImageUrl ?? undefined
+          characterImageUrl ?? undefined,
+          wsDirectAudioClip ?? undefined,
+          sceneLyrics ?? undefined
         );
         return wsDirectResult;
       } catch (wsDirectErr: any) {
@@ -938,14 +960,21 @@ export async function startSceneRender(
     if (renderer === "fal_seedance" || renderer === "seedance") {
       console.log(`[MusicVideo] Scene ${sceneId}: FAL_SEEDANCE DIRECT (renderer override)`);
       try {
-        // For r2v: extract the scene audio clip if we have audioUrl + sceneStartTime + lipSync
+        // For r2v: use pre-sliced audio directly if already a WAV clip (heartbeat pre-slices it).
+        // Same double-slicing guard as wavespeed direct path above.
         let sceneAudioClipUrl: string | undefined;
-        if (characterImageUrl && audioUrl && sceneStartTime !== undefined && lipSync) {
-          try {
-            sceneAudioClipUrl = await extractSceneAudioClip(audioUrl, sceneStartTime, duration, sceneId);
-            console.log(`[MusicVideo] Scene ${sceneId} FAL_SEEDANCE: extracted audio clip for r2v: ${sceneAudioClipUrl?.slice(0, 60)}...`);
-          } catch (clipErr: any) {
-            console.warn(`[MusicVideo] Scene ${sceneId} audio clip extraction failed (${String(clipErr?.message ?? clipErr).slice(0, 100)}). Falling back to i2v.`);
+        if (characterImageUrl && audioUrl && lipSync) {
+          const isPreSliced = audioUrl.includes('.wav') || audioUrl.includes('scene-audio') || audioUrl.includes('stem-slice') || audioUrl.includes('wiz-stem');
+          if (isPreSliced) {
+            sceneAudioClipUrl = audioUrl;
+            console.log(`[MusicVideo] Scene ${sceneId} FAL_SEEDANCE: using pre-sliced audio clip directly (no re-slice)`);
+          } else if (sceneStartTime !== undefined) {
+            try {
+              sceneAudioClipUrl = await extractSceneAudioClip(audioUrl, sceneStartTime, duration, sceneId);
+              console.log(`[MusicVideo] Scene ${sceneId} FAL_SEEDANCE: extracted audio clip for r2v: ${sceneAudioClipUrl?.slice(0, 60)}...`);
+            } catch (clipErr: any) {
+              console.warn(`[MusicVideo] Scene ${sceneId} audio clip extraction failed (${String(clipErr?.message ?? clipErr).slice(0, 100)}). Falling back to i2v.`);
+            }
           }
         }
         const falResult = await startSceneRenderFalSeedance(
@@ -995,6 +1024,16 @@ export async function startSceneRender(
     // The in-memory circuit breaker is unreliable across Cloud Run container instances.
     // If Atlas Cloud fails, WaveSpeed is always attempted regardless of circuit state.
     try {
+      // Extract audio clip for native Seedance 2.0 lip sync when lipSync=true
+      let wsFallbackAudioClip: string | undefined;
+      if (lipSync && audioUrl && sceneStartTime !== undefined) {
+        try {
+          wsFallbackAudioClip = await extractSceneAudioClip(audioUrl, sceneStartTime, duration, sceneId);
+          console.log(`[MusicVideo] Scene ${sceneId} WaveSpeed fallback: audio clip extracted for lip sync`);
+        } catch (clipErr: any) {
+          console.warn(`[MusicVideo] Scene ${sceneId} WaveSpeed fallback: audio clip extraction failed (${String(clipErr?.message ?? clipErr).slice(0, 80)}). Proceeding without lip sync audio.`);
+        }
+      }
       const wsResult = await startSceneRenderWaveSpeed(
         sceneId,
         finalPrompt,
@@ -1003,7 +1042,9 @@ export async function startSceneRender(
         storyboardImageUrl ?? undefined,
         aspectRatio,
         jobId,
-        characterImageUrl ?? undefined // ── CHARACTER LOCK™: pass portrait for dual-anchor injection
+        characterImageUrl ?? undefined, // ── CHARACTER LOCK™: pass portrait for dual-anchor injection
+        wsFallbackAudioClip ?? undefined,
+        sceneLyrics ?? undefined
       );
       return wsResult;
     } catch (wsErr: any) {
@@ -2365,7 +2406,11 @@ async function startSceneRenderWaveSpeed(
   /** Music video job ID — required for spend-protection checks */
   jobId: number = 0,
   /** Character Lock™: master portrait URL injected as second reference image for identity consistency */
-  characterPortraitUrl?: string | null
+  characterPortraitUrl?: string | null,
+  /** Audio clip URL for native Seedance 2.0 lip sync via reference_audios (performance scenes only) */
+  audioClipUrl?: string | null,
+  /** Lyrics text for this scene window — embedded in prompt as [Audio1] reference */
+  sceneLyrics?: string | null
 ): Promise<string> {
   // WaveSpeed has a ~500 char prompt limit; truncate if needed
   const MAX_PROMPT_CHARS = 480;
@@ -2392,15 +2437,25 @@ async function startSceneRenderWaveSpeed(
 
   const trySubmit = async (p: string): Promise<string> => {
     if (storyboardImageUrl) {
-      // ── IMAGE-TO-VIDEO: storyboard image anchors the first frame ──────────────
+      // ── IMAGE-TO-VIDEO: storyboard image anchors the first frame ────────────────────
+      // For lip sync scenes: use reference_audios + [Audio1] in prompt for native Seedance 2.0 lip sync
       const i2vModel: WaveSpeedI2VModel = "bytedance/seedance-2.0-fast/image-to-video";
+      // Build the lip-sync enriched prompt if we have an audio clip
+      let i2vPrompt = p;
+      if (audioClipUrl) {
+        // Inject [Audio1] reference and lyrics into prompt for phoneme-accurate lip sync
+        const lyricsHint = sceneLyrics ? ` Singing the words: "${sceneLyrics.slice(0, 120)}".` : "";
+        i2vPrompt = `${p} [Audio1] lip-sync to the provided audio.${lyricsHint}`.slice(0, 480);
+        console.log(`[MusicVideo] Scene ${sceneId} WaveSpeed i2v+audio: injecting [Audio1] lip sync, lyrics: "${sceneLyrics?.slice(0, 60) ?? 'none'}"`);
+      }
       const taskId = await submitWaveSpeedImageToVideo(
         {
-          prompt: p,
+          prompt: i2vPrompt,
           image: storyboardImageUrl,
           duration: wsDuration,
           aspect_ratio: aspectRatio,
           resolution: "720p",
+          reference_audios: audioClipUrl ? [audioClipUrl] : undefined,
         },
         i2vModel
       );

@@ -20,15 +20,16 @@
  *   - Falls back to system ffmpeg if bundled binary fails
  */
 
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import { promisify } from "util";
+const execFileAsync = promisify(execFile);
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import { createRequire } from "module";
 import { storagePut } from "./storage";
 
-const execAsync = promisify(exec);
+// execAsync kept for legacy callers; new code uses execFileAsync with arg arrays
 
 // Resolve ffmpeg binary — bundled binary works in Cloud Run (Node-only runtime)
 const _require = createRequire(import.meta.url);
@@ -118,23 +119,22 @@ export async function extractSceneAudioClip(
 
     // STEP 1: Extract to WAV with accurate seek (-ss AFTER -i)
     // This gives frame-perfect extraction with no encoding delay.
-    // -ss after -i = decode-based seek (slow but exact)
-    // -t = exact duration in seconds
-    const wavCmd = [
-      ffmpeg,
+    // Uses execFileAsync with argument arrays (NOT shell strings) to avoid
+    // path quoting issues that cause silent 0-byte output.
+    const wavArgs = [
       "-y",
-      "-i", `"${inputPath}"`,            // input first
+      "-i", inputPath,                    // raw path — no quoting needed
       "-ss", startSeconds.toString(),    // seek AFTER input = accurate
       "-t", clampedDuration.toString(),  // exact duration
       "-acodec", "pcm_s16le",            // PCM WAV — no frame padding
       "-ar", "44100",
       "-ac", "2",
       "-loglevel", "error",
-      `"${wavPath}"`,
-    ].join(" ");
+      wavPath,                            // raw path — no quoting needed
+    ];
 
     console.log(`[AudioExtractor] Scene ${sceneId}: step 1 — WAV extraction (start=${startSeconds}s, dur=${clampedDuration}s)`);
-    const { stderr: wavStderr } = await execAsync(wavCmd, { timeout: 45_000 });
+    const { stderr: wavStderr } = await execFileAsync(ffmpeg, wavArgs, { timeout: 45_000 });
     if (wavStderr && wavStderr.trim()) {
       console.warn(`[AudioExtractor] Scene ${sceneId} WAV stderr: ${wavStderr.trim().slice(0, 200)}`);
     }
@@ -143,23 +143,26 @@ export async function extractSceneAudioClip(
       throw new Error(`ffmpeg WAV extraction failed for scene ${sceneId}`);
     }
 
-    // STEP 2: Convert WAV → MP3 (SyncLabs requires MP3)
-    // No seeking needed here — WAV is already the exact clip
-    const mp3Cmd = [
-      ffmpeg,
+    // STEP 2: Convert WAV → MP3 with loudness normalisation
+    // Apply EBU R128 loudness normalisation targeting -14 LUFS integrated loudness
+    // and peak normalisation to -1 dBTP. This ensures HeyGen's phoneme detector
+    // receives a consistently loud, clear vocal signal regardless of the source
+    // track's dynamic range. -14 LUFS is the streaming standard (Spotify/Apple Music).
+    const mp3Args = [
       "-y",
-      "-i", `"${wavPath}"`,
+      "-i", wavPath,                    // raw path — no quoting needed
+      "-af", "loudnorm=I=-14:TP=-1:LRA=11",  // EBU R128: -14 LUFS, -1 dBTP peak
       "-acodec", "libmp3lame",
       "-ar", "44100",
       "-ab", "192k",                    // higher bitrate for better quality
       "-ac", "2",
       "-write_xing", "0",              // suppress Xing header (prevents duration inflation)
       "-loglevel", "error",
-      `"${outputPath}"`,
-    ].join(" ");
+      outputPath,                       // raw path — no quoting needed
+    ];
 
     console.log(`[AudioExtractor] Scene ${sceneId}: step 2 — WAV→MP3 conversion`);
-    const { stderr: mp3Stderr } = await execAsync(mp3Cmd, { timeout: 30_000 });
+    const { stderr: mp3Stderr } = await execFileAsync(ffmpeg, mp3Args, { timeout: 30_000 });
     if (mp3Stderr && mp3Stderr.trim()) {
       console.warn(`[AudioExtractor] Scene ${sceneId} MP3 stderr: ${mp3Stderr.trim().slice(0, 200)}`);
     }
@@ -239,21 +242,21 @@ export async function sliceVocalStemForSeedance(
     // Single-pass WAV extraction with decode-based seek (accurate, not keyframe)
     // -ss AFTER -i = frame-perfect start point
     // PCM output = no encoding delay, exact duration
-    const cmd = [
-      ffmpeg,
+    // Uses execFileAsync with arg arrays to avoid shell quoting issues
+    const stemArgs = [
       "-y",
-      "-i", `"${inputPath}"`,
+      "-i", inputPath,                  // raw path — no quoting needed
       "-ss", startSeconds.toString(),
       "-t", clampedDuration.toString(),
       "-acodec", "pcm_s16le",
       "-ar", "44100",
       "-ac", "2",
       "-loglevel", "error",
-      `"${outputPath}"`,
-    ].join(" ");
+      outputPath,                       // raw path — no quoting needed
+    ];
 
     console.log(`[VocalStemSlicer] Scene ${sceneId}: slicing stem start=${startSeconds}s dur=${clampedDuration}s`);
-    const { stderr } = await execAsync(cmd, { timeout: 60_000 });
+    const { stderr } = await execFileAsync(ffmpeg, stemArgs, { timeout: 60_000 });
     if (stderr && stderr.trim()) {
       console.warn(`[VocalStemSlicer] Scene ${sceneId} stderr: ${stderr.trim().slice(0, 200)}`);
     }

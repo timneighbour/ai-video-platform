@@ -32,6 +32,8 @@ export interface WaveSpeedI2VRequest {
   aspect_ratio?: "16:9" | "9:16" | "4:3" | "3:4" | "1:1" | "21:9";
   duration?: 5 | 10 | 15;
   resolution?: "480p" | "720p" | "1080p";
+  /** Audio clip URLs for native Seedance 2.0 lip sync — reference as [Audio1] in prompt */
+  reference_audios?: string[];
 }
 
 export interface WaveSpeedVideoResponse {
@@ -138,6 +140,10 @@ export async function submitWaveSpeedImageToVideo(
     duration: request.duration ?? 5,
     size: resolutionToSize(request.resolution ?? "720p", request.aspect_ratio ?? "16:9"),
   };
+  // Add reference_audios for native Seedance 2.0 lip sync (only when provided)
+  if (request.reference_audios && request.reference_audios.length > 0) {
+    body.reference_audios = request.reference_audios;
+  }
 
   try {
     const response = await axios.post(
