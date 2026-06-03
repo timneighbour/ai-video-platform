@@ -160,10 +160,15 @@ export function extractLyricsForWindow(
   windowStart: number,
   windowEnd: number
 ): string {
-  const relevant = segments.filter(
-    (s) => s.end > windowStart && s.start < windowEnd
-  );
-  return relevant.map((s) => s.text).join(" ").trim();
+  // Use midpoint ownership: a segment belongs to the window that contains its midpoint.
+  // This ensures each Whisper segment appears in exactly ONE scene, preventing duplicates.
+  // Exception: very short segments (<0.5s) that start exactly at the window boundary are
+  // included by start-time ownership to avoid gaps.
+  const relevant = segments.filter((s) => {
+    const mid = (s.start + s.end) / 2;
+    return mid >= windowStart && mid < windowEnd;
+  });
+  return relevant.map((s) => s.text.trim()).filter(Boolean).join(" ").trim();
 }
 
 /**

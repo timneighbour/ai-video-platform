@@ -4540,7 +4540,7 @@ export default function MusicVideoAutopilot() {
                 <React.Fragment key={scene.id}>
                   <Card className="bg-[rgba(10,8,6,0.95)] border-[rgba(184,137,42,0.10)] hover:border-zinc-600 transition-colors overflow-hidden">
                   {/* Scene preview image — dynamic aspect ratio */}
-                  <div className={`relative w-full bg-[rgba(24,20,16,0.9)] ${
+                  <div className={`relative w-full overflow-hidden bg-[rgba(24,20,16,0.9)] ${
                     exportFormat === "9:16" ? "aspect-[9/16]" :
                     exportFormat === "1:1" ? "aspect-square" :
                     exportFormat === "4:3" ? "aspect-[4/3]" :
@@ -4551,7 +4551,7 @@ export default function MusicVideoAutopilot() {
                       <img
                         src={scene.previewImageUrl}
                         alt={`Scene ${scene.sceneIndex + 1} preview`}
-                        className="w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover"
                       />
                     ) : null}
                     {/* Face validation status badge */}
