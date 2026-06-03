@@ -4551,7 +4551,7 @@ export default function MusicVideoAutopilot() {
                       <img
                         src={scene.previewImageUrl}
                         alt={`Scene ${scene.sceneIndex + 1} preview`}
-                        className="absolute inset-0 w-full h-full object-cover object-top"
+                        className="absolute inset-0 w-full h-full object-cover object-center"
                       />
                     ) : null}
                     {/* Loading animation while storyboard is being generated */}
@@ -5209,7 +5209,7 @@ export default function MusicVideoAutopilot() {
                       <img
                         src={fullscreenScene.imageUrl}
                         alt={`Scene ${fullscreenScene.sceneIndex + 1} full preview`}
-                        className="absolute inset-0 w-full h-full object-contain object-top"
+                        className="absolute inset-0 w-full h-full object-cover object-center"
                       />
                     )}
                     {/* Viewfinder corners */}
