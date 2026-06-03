@@ -2373,6 +2373,8 @@ Rules:
 
       // ── Hard people-count prefix (FIRST in prompt for maximum model weight) ──
       // Only injected for character_scene type — non-character shots honour the user's prompt verbatim
+      // For non-character/environmental scenes: inject a strong negative to prevent AI adding figures
+      const noCharacterNames = allJobCharacters.map(c => c.name).join(", ");
       const hardCountPrefix = isCharacterScene
         ? (charCount > 1
           ? `CRITICAL SCENE RULE: ONLY ${charCount} people on stage. ` +
@@ -2383,7 +2385,12 @@ Rules:
             ? `CRITICAL SCENE RULE: ONLY ONE PERSON in this image — ${primaryCharForScene?.name ?? "the character"}. ` +
               `NO other people. NO background musicians. NO silhouettes.`
             : "")
-        : ""      // ── CONTINUITY BLOCK (scenes after the first) ──────────────────────────
+        : (allJobCharacters.length > 0
+            ? `CRITICAL SCENE RULE: This is an ENVIRONMENTAL / ATMOSPHERIC shot — NO main characters appear in this scene. ` +
+              `DO NOT include ${noCharacterNames} or any character resembling them. ` +
+              `NO named performers. NO solo figures standing at a microphone. ` +
+              `Show ONLY the environment, instruments, orchestra, or atmosphere as described.`
+            : "");      // ── CONTINUITY BLOCK (scenes after the first) ──────────────────────────
       // When a previous scene image is provided, instruct the model to maintain
       // visual consistency: same lighting temperature, colour grading, stage setup,
       // and character positioning relative to the previous frame.

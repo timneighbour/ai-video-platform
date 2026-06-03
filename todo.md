@@ -8967,3 +8967,7 @@
 - [x] Integrate mockup into the Video Format selector panels (upload step + storyboard step)
 - [x] Mockup updates live as user clicks a different format
 - [x] Premium CSS-only device frames (no external library needed)
+## Environmental Scene Prompt Fix (Jun 2026)
+- [x] Add hardCountPrefix for non-character/environmental scenes: inject "CRITICAL SCENE RULE: NO main characters" constraint
+- [x] Constraint lists all character names by name so AI cannot add them to atmospheric/orchestra shots
+- [x] TypeScript clean (0 errors) after change
