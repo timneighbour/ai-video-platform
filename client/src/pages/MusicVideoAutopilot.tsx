@@ -5147,6 +5147,7 @@ export default function MusicVideoAutopilot() {
           </div>
         )}
         {/* ===== FULLSCREEN SCENE PREVIEW MODAL ===== */}
+        {/* Helper: detect if a URL is a raw character portrait (not a generated storyboard) */}
         {fullscreenScene && (
           <div
             className="fixed inset-0 z-[9999] flex items-center justify-center"
@@ -5165,36 +5166,51 @@ export default function MusicVideoAutopilot() {
               >
                 <X className="w-4 h-4" />
               </button>
-              {/* Image */}
-              <div
-                className={`relative overflow-hidden rounded-xl border border-[rgba(212,168,67,0.25)] shadow-2xl bg-black ${
-                  exportFormat === "9:16" ? "aspect-[9/16] h-[80vh]" :
-                  exportFormat === "1:1" ? "aspect-square h-[75vh]" :
-                  exportFormat === "4:3" ? "aspect-[4/3] max-w-[80vw]" :
-                  exportFormat === "21:9" ? "aspect-[21/9] w-[90vw]" :
-                  "aspect-video w-[85vw]"
-                }`}
-              >
-                <img
-                  src={fullscreenScene.imageUrl}
-                  alt={`Scene ${fullscreenScene.sceneIndex + 1} full preview`}
-                  className="absolute inset-0 w-full h-full object-contain object-top"
-                />
-                {/* Viewfinder corners */}
-                <div style={{position:'absolute',top:10,left:10,width:18,height:18,borderTop:'2px solid rgba(212,168,67,0.7)',borderLeft:'2px solid rgba(212,168,67,0.7)'}} />
-                <div style={{position:'absolute',top:10,right:10,width:18,height:18,borderTop:'2px solid rgba(212,168,67,0.7)',borderRight:'2px solid rgba(212,168,67,0.7)'}} />
-                <div style={{position:'absolute',bottom:10,left:10,width:18,height:18,borderBottom:'2px solid rgba(212,168,67,0.7)',borderLeft:'2px solid rgba(212,168,67,0.7)'}} />
-                <div style={{position:'absolute',bottom:10,right:10,width:18,height:18,borderBottom:'2px solid rgba(212,168,67,0.7)',borderRight:'2px solid rgba(212,168,67,0.7)'}} />
-                {/* Scene label */}
-                <div style={{position:'absolute',top:14,left:14,zIndex:5}}>
-                  <span style={{fontSize:10,fontWeight:700,letterSpacing:1.5,color:'rgba(212,168,67,0.9)',textShadow:'0 1px 4px rgba(0,0,0,0.9)',fontFamily:"'Courier Prime',monospace"}}>SC {String(fullscreenScene.sceneIndex + 1).padStart(2,'0')}</span>
-                </div>
-                {/* REC dot */}
-                <div style={{position:'absolute',top:14,right:14,display:'flex',alignItems:'center',gap:5,zIndex:5}}>
-                  <span style={{width:7,height:7,borderRadius:'50%',background:'#ef4444',boxShadow:'0 0 8px rgba(239,68,68,0.9)',display:'inline-block'}} />
-                  <span style={{fontSize:9,fontWeight:700,letterSpacing:2,color:'rgba(255,255,255,0.9)',textShadow:'0 1px 4px rgba(0,0,0,0.9)',fontFamily:"'Courier Prime',monospace"}}>REC</span>
-                </div>
-              </div>
+              {/* Image — guard against character portrait being shown as storyboard */}
+              {(() => {
+                const isCharPortrait = /\/video-characters\/|\/music-video-characters\//.test(fullscreenScene.imageUrl);
+                return (
+                  <div
+                    className={`relative overflow-hidden rounded-xl border border-[rgba(212,168,67,0.25)] shadow-2xl bg-black ${
+                      exportFormat === "9:16" ? "aspect-[9/16] h-[80vh]" :
+                      exportFormat === "1:1" ? "aspect-square h-[75vh]" :
+                      exportFormat === "4:3" ? "aspect-[4/3] max-w-[80vw]" :
+                      exportFormat === "21:9" ? "aspect-[21/9] w-[90vw]" :
+                      "aspect-video w-[85vw]"
+                    }`}
+                  >
+                    {isCharPortrait ? (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/80">
+                        <div className="w-12 h-12 rounded-full border-2 border-[rgba(212,168,67,0.4)] flex items-center justify-center">
+                          <span style={{fontSize:22,color:'rgba(212,168,67,0.7)'}}>🎬</span>
+                        </div>
+                        <p className="text-white/60 text-sm font-medium">No storyboard generated yet</p>
+                        <p className="text-white/30 text-xs text-center max-w-[200px]">Click the refresh icon on this scene card to generate a storyboard image</p>
+                      </div>
+                    ) : (
+                      <img
+                        src={fullscreenScene.imageUrl}
+                        alt={`Scene ${fullscreenScene.sceneIndex + 1} full preview`}
+                        className="absolute inset-0 w-full h-full object-contain object-top"
+                      />
+                    )}
+                    {/* Viewfinder corners */}
+                    <div style={{position:'absolute',top:10,left:10,width:18,height:18,borderTop:'2px solid rgba(212,168,67,0.7)',borderLeft:'2px solid rgba(212,168,67,0.7)'}} />
+                    <div style={{position:'absolute',top:10,right:10,width:18,height:18,borderTop:'2px solid rgba(212,168,67,0.7)',borderRight:'2px solid rgba(212,168,67,0.7)'}} />
+                    <div style={{position:'absolute',bottom:10,left:10,width:18,height:18,borderBottom:'2px solid rgba(212,168,67,0.7)',borderLeft:'2px solid rgba(212,168,67,0.7)'}} />
+                    <div style={{position:'absolute',bottom:10,right:10,width:18,height:18,borderBottom:'2px solid rgba(212,168,67,0.7)',borderRight:'2px solid rgba(212,168,67,0.7)'}} />
+                    {/* Scene label */}
+                    <div style={{position:'absolute',top:14,left:14,zIndex:5}}>
+                      <span style={{fontSize:10,fontWeight:700,letterSpacing:1.5,color:'rgba(212,168,67,0.9)',textShadow:'0 1px 4px rgba(0,0,0,0.9)',fontFamily:"'Courier Prime',monospace"}}>SC {String(fullscreenScene.sceneIndex + 1).padStart(2,'0')}</span>
+                    </div>
+                    {/* REC dot */}
+                    <div style={{position:'absolute',top:14,right:14,display:'flex',alignItems:'center',gap:5,zIndex:5}}>
+                      <span style={{width:7,height:7,borderRadius:'50%',background:'#ef4444',boxShadow:'0 0 8px rgba(239,68,68,0.9)',display:'inline-block'}} />
+                      <span style={{fontSize:9,fontWeight:700,letterSpacing:2,color:'rgba(255,255,255,0.9)',textShadow:'0 1px 4px rgba(0,0,0,0.9)',fontFamily:"'Courier Prime',monospace"}}>REC</span>
+                    </div>
+                  </div>
+                );
+              })()}
               {/* Scene info below image */}
               {(fullscreenScene.lyrics || fullscreenScene.prompt) && (
                 <div className="w-full max-w-xl text-center px-2">
