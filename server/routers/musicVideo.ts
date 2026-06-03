@@ -2263,16 +2263,17 @@ Rules:
       ];
       const cameraAngle = CAMERA_ANGLES[scene.sceneIndex % CAMERA_ANGLES.length];
       // For user-edited prompts: label as DIRECTOR'S INSTRUCTION (highest priority)
-      // For non-character scenes: omit character list and face rule
+      // For non-character scenes: honour the scene description's own camera direction verbatim
+      // (do NOT inject a character-focused CAMERA_ANGLES entry — that overrides the wide/establishing shot)
       const sceneBlock = scene.userEditedPrompt
         ? `DIRECTOR'S INSTRUCTION (HIGHEST PRIORITY — USE VERBATIM):\n${cleanScenePrompt}\n\n` +
-          (isCharacterScene ? `CHARACTERS IN SCENE: ${sceneCharNamesStr}\n\nCAMERA: ${cameraAngle}\nRULE: Faces of all characters MUST be clearly visible regardless of shot type` : `CAMERA: ${cameraAngle}`)
+          (isCharacterScene ? `CHARACTERS IN SCENE: ${sceneCharNamesStr}\n\nCAMERA: ${cameraAngle}\nRULE: Faces of all characters MUST be clearly visible regardless of shot type` : ``)
         : isCharacterScene
           ? `SCENE DESCRIPTION:\n${cleanScenePrompt}\n\n` +
             `CHARACTERS IN SCENE: ${sceneCharNamesStr}\n\n` +
             `CAMERA: ${cameraAngle}\n` +
             `RULE: Faces of all characters MUST be clearly visible regardless of shot type`
-          : `SCENE DESCRIPTION:\n${cleanScenePrompt}\n\nCAMERA: ${cameraAngle}`;
+          : `SCENE DESCRIPTION (follow camera direction EXACTLY as written):\n${cleanScenePrompt}`;
 
       // ── Identity Anchor ───────────────────────────────────────────────────────
       // For AI-generated characters without uploaded photos, use previewImageUrl as masterPortraitUrl fallback
