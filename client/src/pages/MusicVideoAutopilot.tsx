@@ -4102,7 +4102,7 @@ export default function MusicVideoAutopilot() {
 
         {/* ===== STEP 2: STORYBOARD ===== */}
         {step === "storyboard" && (
-          <div>
+          <div className="max-w-3xl mx-auto">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-bold text-white">Your Storyboard</h2>
@@ -4521,7 +4521,13 @@ export default function MusicVideoAutopilot() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 gap-5 scene-grid-mobile">
+            <div className={`grid grid-cols-1 gap-5 mx-auto ${
+              exportFormat === "9:16" ? "max-w-xs" :
+              exportFormat === "1:1" ? "max-w-sm" :
+              exportFormat === "4:3" ? "max-w-lg" :
+              exportFormat === "21:9" ? "max-w-3xl" :
+              "max-w-2xl"
+            }`}>
               {scenes.map((scene) => (
                 <React.Fragment key={scene.id}>
                   <Card className="bg-[rgba(10,8,6,0.95)] border-[rgba(184,137,42,0.10)] hover:border-zinc-600 transition-colors overflow-hidden">
