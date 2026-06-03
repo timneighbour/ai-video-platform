@@ -8984,3 +8984,7 @@
 - [x] Fix aspect ratio enforcement: size=1280:720 for i2v, aspect_ratio=16:9 for t2v
 - [x] Mute all scene preview videos in Screening Room lightbox; added 'Preview is muted' notice
 - [x] Add Cancel Render button: extend visibility to assembling/wizsound states; add dedicated cancelled state UI panel with re-render option
+
+## Render Dispatcher Stall Fix
+- [ ] Add server-side RenderDispatchWorker: background worker that re-dispatches pending scenes for stuck rendering jobs (survives page close and server restart)
+- [ ] Fix: kick stuck pending scenes in job 960001 to resume rendering

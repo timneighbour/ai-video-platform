@@ -5667,7 +5667,9 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
         jobAudioUrl: job.audioUrl ?? null,
         scenes: scenes.map((s) => {
           const isPerformance = s.sceneType === "performance";
-          const compositeDone = s.compositeStatus === "done" && !!s.compositeVideoUrl;
+          // compositeDone: either old compositing pipeline (compositeStatus=done) or new direct pipeline (compositeStatus=skipped, lipSyncStatus=done)
+          const compositeDone = (s.compositeStatus === "done" && !!s.compositeVideoUrl) ||
+            (s.compositeStatus === "skipped" && s.lipSyncStatus === "done" && !!s.lipSyncVideoUrl);
           const cinematicReady = !isPerformance && s.status === "completed" && !!s.videoUrl;
 
           let previewUrl: string | null = null;
@@ -5675,7 +5677,9 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
 
           if (isPerformance) {
             if (compositeDone) {
-              previewUrl = s.compositeVideoUrl!;
+              // New pipeline: lipSyncVideoUrl is the final clip (compositeStatus=skipped)
+              // Old pipeline: compositeVideoUrl is the final clip (compositeStatus=done)
+              previewUrl = s.compositeStatus === "skipped" ? s.lipSyncVideoUrl! : s.compositeVideoUrl!;
               previewState = "ready";
             } else if (
               s.status === "completed" ||

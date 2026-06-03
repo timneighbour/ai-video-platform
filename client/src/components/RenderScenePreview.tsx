@@ -290,7 +290,7 @@ function SceneCard({
         ) : isCompositing ? (
           <div className="flex items-center gap-1 bg-black/70 backdrop-blur-sm rounded-full px-2 py-1">
             <Loader2 className="w-3 h-3 text-[--color-gold] animate-spin" />
-            <span className="text-[10px] text-[--color-gold] font-semibold">Compositing</span>
+            <span className="text-[10px] text-[--color-gold] font-semibold">Lip Sync</span>
           </div>
         ) : isWaiting ? (
           <div className="flex items-center gap-1 bg-black/70 backdrop-blur-sm rounded-full px-2 py-1">
@@ -419,7 +419,7 @@ export function RenderScenePreview({ jobId, jobStatus, className }: RenderSceneP
         <div className="flex items-center gap-4 text-[10px] text-white/30">
           <div className="flex items-center gap-1">
             <Mic className="w-3 h-3 text-[--color-gold]/60" />
-            <span>Performance — WizSync™ composited</span>
+            <span>Performance — WizSync™ lip sync</span>
           </div>
           <div className="flex items-center gap-1">
             <Film className="w-3 h-3 text-blue-400/60" />
