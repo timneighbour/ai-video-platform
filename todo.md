@@ -8983,3 +8983,4 @@
 - [x] Fix WaveSpeed submission: set generate_audio=false to prevent AI-generated audio on raw clips
 - [x] Fix aspect ratio enforcement: size=1280:720 for i2v, aspect_ratio=16:9 for t2v
 - [x] Mute all scene preview videos in Screening Room lightbox; added 'Preview is muted' notice
+- [x] Add Cancel Render button: extend visibility to assembling/wizsound states; add dedicated cancelled state UI panel with re-render option

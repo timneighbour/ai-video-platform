@@ -5718,6 +5718,36 @@ export default function MusicVideoAutopilot() {
                     {/* Habit loop — encourage next creation */}
                     <HabitLoopPanel className="mt-4" />
                   </div>
+                ) : renderStatus === "cancelled" ? (
+                  <div className="text-center py-4">
+                    <div className="w-16 h-16 rounded-full bg-red-500/15 flex items-center justify-center mx-auto mb-4">
+                      <X className="w-8 h-8 text-red-400" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-2">Render Cancelled</h2>
+                    <p className="text-white/50 mb-1">Your render was stopped. Credits for unrendered scenes have been refunded to your balance.</p>
+                    {completedScenes > 0 && (
+                      <p className="text-white/40 text-sm mb-6">{completedScenes} of {totalScenes} scene{totalScenes !== 1 ? "s" : ""} had already completed.</p>
+                    )}
+                    {completedScenes === 0 && <div className="mb-6" />}
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                      <Button
+                        className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#c49a35] hover:to-[#5a3a15] text-black font-bold px-6"
+                        onClick={handleStartRender}
+                        disabled={startRender.isPending}
+                      >
+                        {startRender.isPending
+                          ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Starting…</>
+                          : <><Clapperboard className="w-4 h-4 mr-2" /> Re-render from Scratch</>}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="border-[rgba(184,137,42,0.12)] text-white/70 bg-transparent hover:bg-[rgba(24,20,16,0.9)]"
+                        onClick={() => setStep("storyboard")}
+                      >
+                        Back to Storyboard
+                      </Button>
+                    </div>
+                  </div>
                 ) : renderStatus === "failed" ? (
                   <div className="text-center">
                     <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
@@ -5886,51 +5916,59 @@ export default function MusicVideoAutopilot() {
                         )}
                       </div>
 
-                      {/* Pause / Resume / Cancel controls — only show during active rendering or paused */}
-                      {jobId && (renderStatus === "rendering" || renderStatus === "paused") && (
+                      {/* Pause / Resume / Cancel controls — show during active rendering, paused, assembling, or wizsound */}
+                      {jobId && (renderStatus === "rendering" || renderStatus === "paused" || renderStatus === "assembling" || renderStatus === "wizsound") && (
                         <div className="flex items-center justify-center gap-2 mt-3">
-                          {renderStatus === "rendering" ? (
-                            <button
-                              onClick={async () => {
-                                try {
-                                  await pauseRenderMutation.mutateAsync({ jobId });
-                                  setRenderStatus("paused");
-                                  isRenderingRef.current = false;
-                                  toast.success("Render paused", { description: "No new scenes will be dispatched. Resume anytime." });
-                                } catch (err: any) {
-                                  toast.error("Could not pause render", { description: err?.message });
-                                }
-                              }}
-                              disabled={pauseRenderMutation.isPending}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-400 text-xs font-semibold hover:bg-amber-500/25 transition-colors border border-amber-500/30 disabled:opacity-50"
-                            >
-                              {pauseRenderMutation.isPending
-                                ? <><Loader2 className="w-3 h-3 animate-spin" /> Pausing…</>
-                                : <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg> Pause</>}
-                            </button>
-                          ) : (
-                            <button
-                              onClick={async () => {
-                                try {
-                                  await resumeRenderMutation.mutateAsync({ jobId });
-                                  setRenderStatus("rendering");
-                                  isRenderingRef.current = true;
-                                  toast.success("Render resumed", { description: "Scenes are being dispatched again." });
-                                } catch (err: any) {
-                                  toast.error("Could not resume render", { description: err?.message });
-                                }
-                              }}
-                              disabled={resumeRenderMutation.isPending}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[--color-gold]/15 text-[--color-gold] text-xs font-semibold hover:bg-[--color-gold]/25 transition-colors border border-[--color-gold]/30 disabled:opacity-50"
-                            >
-                              {resumeRenderMutation.isPending
-                                ? <><Loader2 className="w-3 h-3 animate-spin" /> Resuming…</>
-                                : <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Resume</>}
-                            </button>
+                          {/* Pause/Resume only available during scene rendering — not during assembly or audio phases */}
+                          {(renderStatus === "rendering" || renderStatus === "paused") && (
+                            renderStatus === "rendering" ? (
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    await pauseRenderMutation.mutateAsync({ jobId });
+                                    setRenderStatus("paused");
+                                    isRenderingRef.current = false;
+                                    toast.success("Render paused", { description: "No new scenes will be dispatched. Resume anytime." });
+                                  } catch (err: any) {
+                                    toast.error("Could not pause render", { description: err?.message });
+                                  }
+                                }}
+                                disabled={pauseRenderMutation.isPending}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 text-amber-400 text-xs font-semibold hover:bg-amber-500/25 transition-colors border border-amber-500/30 disabled:opacity-50"
+                              >
+                                {pauseRenderMutation.isPending
+                                  ? <><Loader2 className="w-3 h-3 animate-spin" /> Pausing…</>
+                                  : <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg> Pause</>}
+                              </button>
+                            ) : (
+                              <button
+                                onClick={async () => {
+                                  try {
+                                    await resumeRenderMutation.mutateAsync({ jobId });
+                                    setRenderStatus("rendering");
+                                    isRenderingRef.current = true;
+                                    toast.success("Render resumed", { description: "Scenes are being dispatched again." });
+                                  } catch (err: any) {
+                                    toast.error("Could not resume render", { description: err?.message });
+                                  }
+                                }}
+                                disabled={resumeRenderMutation.isPending}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[--color-gold]/15 text-[--color-gold] text-xs font-semibold hover:bg-[--color-gold]/25 transition-colors border border-[--color-gold]/30 disabled:opacity-50"
+                              >
+                                {resumeRenderMutation.isPending
+                                  ? <><Loader2 className="w-3 h-3 animate-spin" /> Resuming…</>
+                                  : <><svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Resume</>}
+                              </button>
+                            )
                           )}
+                          {/* Cancel Render — always visible during any active state */}
                           <button
                             onClick={async () => {
-                              if (!confirm("Cancel this render? Credits for unrendered scenes will be refunded.")) return;
+                              const isLateStage = renderStatus === "assembling" || renderStatus === "wizsound";
+                              const msg = isLateStage
+                                ? "Cancel render during final assembly? All scenes are already generated — only the final stitching will be stopped. Credits for unrendered scenes will be refunded."
+                                : "Cancel this render? Credits for unrendered scenes will be refunded.";
+                              if (!confirm(msg)) return;
                               try {
                                 const result = await cancelRenderMutation.mutateAsync({ jobId });
                                 setRenderStatus("cancelled");
