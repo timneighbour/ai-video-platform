@@ -20,6 +20,7 @@ import PostFirstRenderSubscribeModal from "@/components/PostFirstRenderSubscribe
 import { RenderPaywallModal } from "@/components/RenderPaywallModal";
 import { WizGenesisModal } from "@/components/WizGenesisModal";
 import { PostRenderRetentionScreen } from "@/components/PostRenderRetentionScreen";
+import { DeviceMockupPreview } from "@/components/DeviceMockupPreview";
 import { LyricsIntelligencePanel } from "@/components/LyricsIntelligencePanel";
 import { LyricsReviewModal } from "@/components/LyricsReviewModal";
 import { LyricsReviewPanel } from "@/components/LyricsReviewPanel";
@@ -2829,48 +2830,56 @@ export default function MusicVideoAutopilot() {
                   <span className="text-sm font-semibold text-white">Video Format</span>
                   <span className="text-xs text-white/40 ml-1">Screen size &amp; aspect ratio</span>
                 </div>
-                <div className="grid grid-cols-5 gap-2">
-                  {([
-                    { value: "16:9" as const, label: "Widescreen", sub: "16:9", desc: "YouTube · TV", w: 38, h: 22 },
-                    { value: "9:16" as const, label: "Portrait", sub: "9:16", desc: "TikTok · Reels", w: 16, h: 28 },
-                    { value: "1:1" as const, label: "Square", sub: "1:1", desc: "Instagram", w: 24, h: 24 },
-                    { value: "4:3" as const, label: "Classic", sub: "4:3", desc: "Broadcast · TV", w: 32, h: 24 },
-                    { value: "21:9" as const, label: "Cinematic", sub: "21:9", desc: "Cinema · Canvas", w: 38, h: 16 },
-                  ] as const).map((fmt) => (
-                    <button
-                      key={fmt.value}
-                      onClick={() => {
-                        setExportFormat(fmt.value);
-                        if (jobId) updateAspectRatioMutation.mutate({ jobId, aspectRatio: fmt.value });
-                      }}
-                      className={`relative flex flex-col items-center gap-1.5 rounded-xl border p-2.5 transition-all duration-200 ${
-                        exportFormat === fmt.value
-                          ? "border-[--color-gold]/60 bg-[--color-gold]/10 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
-                          : "border-[rgba(184,137,42,0.12)] bg-[rgba(24,20,16,0.9)]/40 hover:border-zinc-600"
-                      }`}
-                    >
-                      <div className="flex items-center justify-center" style={{ width: 40, height: 30 }}>
-                        <div
-                          className="rounded-sm border-2 transition-colors"
-                          style={{
-                            borderColor: exportFormat === fmt.value ? "oklch(0.72 0.14 70)" : "#52525b",
-                            background: exportFormat === fmt.value ? "oklch(0.72 0.14 70 / 0.15)" : "transparent",
-                            width: fmt.w, height: fmt.h,
-                          }}
-                        />
-                      </div>
-                      <div className="text-center">
-                        <div className={`text-[10px] font-bold leading-tight ${ exportFormat === fmt.value ? "text-[--color-gold]" : "text-white" }`}>{fmt.label}</div>
-                        <div className="text-[9px] text-white/50 font-mono">{fmt.sub}</div>
-                        <div className="text-[8px] text-white/30">{fmt.desc}</div>
-                      </div>
-                      {exportFormat === fmt.value && (
-                        <div className="absolute top-1 right-1 w-3 h-3 rounded-full bg-[--color-gold] flex items-center justify-center">
-                          <Check className="w-1.5 h-1.5 text-white" />
+                {/* Two-column layout: format buttons left, device mockup right */}
+                <div className="flex gap-4 items-start">
+                  <div className="grid grid-cols-1 gap-2 flex-1" style={{ minWidth: 0 }}>
+                    {([
+                      { value: "16:9" as const, label: "Widescreen", sub: "16:9", desc: "YouTube · TV", w: 38, h: 22 },
+                      { value: "9:16" as const, label: "Portrait", sub: "9:16", desc: "TikTok · Reels", w: 16, h: 28 },
+                      { value: "1:1" as const, label: "Square", sub: "1:1", desc: "Instagram", w: 24, h: 24 },
+                      { value: "4:3" as const, label: "Classic", sub: "4:3", desc: "Broadcast · TV", w: 32, h: 24 },
+                      { value: "21:9" as const, label: "Cinematic", sub: "21:9", desc: "Cinema · Canvas", w: 38, h: 16 },
+                    ] as const).map((fmt) => (
+                      <button
+                        key={fmt.value}
+                        onClick={() => {
+                          setExportFormat(fmt.value);
+                          if (jobId) updateAspectRatioMutation.mutate({ jobId, aspectRatio: fmt.value });
+                        }}
+                        className={`relative flex items-center gap-3 rounded-xl border px-3 py-2 transition-all duration-200 ${
+                          exportFormat === fmt.value
+                            ? "border-[--color-gold]/60 bg-[--color-gold]/10 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
+                            : "border-[rgba(184,137,42,0.12)] bg-[rgba(24,20,16,0.9)]/40 hover:border-zinc-600"
+                        }`}
+                      >
+                        {/* Ratio shape icon */}
+                        <div className="flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 24 }}>
+                          <div
+                            className="rounded-sm border-2 transition-colors"
+                            style={{
+                              borderColor: exportFormat === fmt.value ? "oklch(0.72 0.14 70)" : "#52525b",
+                              background: exportFormat === fmt.value ? "oklch(0.72 0.14 70 / 0.15)" : "transparent",
+                              width: fmt.w * 0.7, height: fmt.h * 0.7,
+                            }}
+                          />
                         </div>
-                      )}
-                    </button>
-                  ))}
+                        <div className="text-left flex-1 min-w-0">
+                          <div className={`text-xs font-bold ${ exportFormat === fmt.value ? "text-[--color-gold]" : "text-white" }`}>{fmt.label}</div>
+                          <div className="text-[10px] text-white/40">{fmt.desc}</div>
+                        </div>
+                        <div className="text-[10px] font-mono text-white/30 flex-shrink-0">{fmt.sub}</div>
+                        {exportFormat === fmt.value && (
+                          <div className="w-3.5 h-3.5 rounded-full bg-[--color-gold] flex items-center justify-center flex-shrink-0">
+                            <Check className="w-2 h-2 text-white" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  {/* Device mockup preview */}
+                  <div className="flex-shrink-0 flex flex-col items-center justify-center" style={{ width: 240 }}>
+                    <DeviceMockupPreview aspectRatio={exportFormat} />
+                  </div>
                 </div>
               </div>
 
@@ -4240,50 +4249,58 @@ export default function MusicVideoAutopilot() {
                 <span className="text-sm font-semibold text-white">Video Format</span>
                 <span className="text-xs text-white/40 ml-1">Select screen size &amp; aspect ratio</span>
               </div>
-              <div className="grid grid-cols-5 gap-2">
-                {([
-                  { value: "16:9" as const, label: "Widescreen", sub: "16:9", desc: "YouTube · TV", w: 38, h: 22 },
-                  { value: "9:16" as const, label: "Portrait", sub: "9:16", desc: "TikTok · Reels", w: 16, h: 28 },
-                  { value: "1:1" as const, label: "Square", sub: "1:1", desc: "Instagram", w: 24, h: 24 },
-                  { value: "4:3" as const, label: "Classic", sub: "4:3", desc: "Broadcast · TV", w: 32, h: 24 },
-                  { value: "21:9" as const, label: "Cinematic", sub: "21:9", desc: "Cinema · Canvas", w: 38, h: 16 },
-                ] as const).map((fmt) => (
-                  <button
-                    key={fmt.value}
-                    onClick={() => {
-                      setExportFormat(fmt.value);
-                      if (jobId) updateAspectRatioMutation.mutate({ jobId, aspectRatio: fmt.value });
-                    }}
-                    className={`relative flex flex-col items-center gap-2 rounded-xl border p-3 transition-all duration-200 ${
-                      exportFormat === fmt.value
-                        ? "border-[--color-gold]/60 bg-[--color-gold]/10 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
-                        : "border-[rgba(184,137,42,0.12)] bg-[rgba(24,20,16,0.9)]/40 hover:border-zinc-600 hover:bg-[rgba(24,20,16,0.9)]/70"
-                    }`}
-                  >
-                    {/* Aspect ratio visual */}
-                    <div className="flex items-center justify-center" style={{ width: 40, height: 30 }}>
-                      <div
-                        className="rounded-sm border-2 transition-colors"
-                        style={{
-                          borderColor: exportFormat === fmt.value ? "oklch(0.72 0.14 70)" : "#52525b",
-                          background: exportFormat === fmt.value ? "oklch(0.72 0.14 70 / 0.15)" : "transparent",
-                          width: fmt.w,
-                          height: fmt.h,
-                        }}
-                      />
-                    </div>
-                    <div className="text-center">
-                      <div className={`text-[10px] font-bold leading-tight ${exportFormat === fmt.value ? "text-[--color-gold]" : "text-white"}`}>{fmt.label}</div>
-                      <div className="text-[9px] text-white/50 mt-0.5 font-mono">{fmt.sub}</div>
-                      <div className="text-[8px] text-white/30 mt-0.5">{fmt.desc}</div>
-                    </div>
-                    {exportFormat === fmt.value && (
-                      <div className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-[--color-gold] flex items-center justify-center">
-                        <Check className="w-2 h-2 text-white" />
+              {/* Two-column: format list left, device mockup right */}
+              <div className="flex gap-4 items-start">
+                <div className="grid grid-cols-1 gap-2 flex-1" style={{ minWidth: 0 }}>
+                  {([
+                    { value: "16:9" as const, label: "Widescreen", sub: "16:9", desc: "YouTube · TV", w: 38, h: 22 },
+                    { value: "9:16" as const, label: "Portrait", sub: "9:16", desc: "TikTok · Reels", w: 16, h: 28 },
+                    { value: "1:1" as const, label: "Square", sub: "1:1", desc: "Instagram", w: 24, h: 24 },
+                    { value: "4:3" as const, label: "Classic", sub: "4:3", desc: "Broadcast · TV", w: 32, h: 24 },
+                    { value: "21:9" as const, label: "Cinematic", sub: "21:9", desc: "Cinema · Canvas", w: 38, h: 16 },
+                  ] as const).map((fmt) => (
+                    <button
+                      key={fmt.value}
+                      onClick={() => {
+                        setExportFormat(fmt.value);
+                        if (jobId) updateAspectRatioMutation.mutate({ jobId, aspectRatio: fmt.value });
+                      }}
+                      className={`relative flex items-center gap-3 rounded-xl border px-3 py-2 transition-all duration-200 ${
+                        exportFormat === fmt.value
+                          ? "border-[--color-gold]/60 bg-[--color-gold]/10 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
+                          : "border-[rgba(184,137,42,0.12)] bg-[rgba(24,20,16,0.9)]/40 hover:border-zinc-600 hover:bg-[rgba(24,20,16,0.9)]/70"
+                      }`}
+                    >
+                      <div className="flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 24 }}>
+                        <div
+                          className="rounded-sm border-2 transition-colors"
+                          style={{
+                            borderColor: exportFormat === fmt.value ? "oklch(0.72 0.14 70)" : "#52525b",
+                            background: exportFormat === fmt.value ? "oklch(0.72 0.14 70 / 0.15)" : "transparent",
+                            width: fmt.w * 0.7, height: fmt.h * 0.7,
+                          }}
+                        />
                       </div>
-                    )}
-                  </button>
-                ))}
+                      <div className="text-left flex-1 min-w-0">
+                        <div className={`text-xs font-bold ${ exportFormat === fmt.value ? "text-[--color-gold]" : "text-white" }`}>{fmt.label}</div>
+                        <div className="text-[10px] text-white/40">{fmt.desc}</div>
+                      </div>
+                      <div className="text-[10px] font-mono text-white/30 flex-shrink-0">{fmt.sub}</div>
+                      {exportFormat === fmt.value && (
+                        <div className="w-3.5 h-3.5 rounded-full bg-[--color-gold] flex items-center justify-center flex-shrink-0">
+                          <Check className="w-2 h-2 text-white" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+                {/* Device mockup — shows first scene preview image if available */}
+                <div className="flex-shrink-0 flex flex-col items-center justify-center" style={{ width: 240 }}>
+                  <DeviceMockupPreview
+                    aspectRatio={exportFormat}
+                    previewImageUrl={scenes[0]?.previewImageUrl}
+                  />
+                </div>
               </div>
             </div>
 

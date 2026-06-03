@@ -8959,3 +8959,11 @@
 - [x] All server-side type signatures updated to include 4:3 and 21:9
 - [x] Provider fallbacks: Kling and Hypereal map 4:3/21:9 to 16:9; Grok maps 21:9 to 16:9
 - [x] PostRenderRetentionScreen FORMAT_LABELS expanded for all 5 ratios
+
+## Device Mockup Preview (Jun 2026)
+- [x] Build DeviceMockupPreview component with 5 device frames (phone, TV, cinema, tablet, monitor)
+- [x] Each device frame matches its aspect ratio: phone=9:16, TV=16:9, cinema=21:9, tablet=4:3, monitor=1:1
+- [x] Device frame renders the storyboard preview image or a placeholder inside the screen area
+- [x] Integrate mockup into the Video Format selector panels (upload step + storyboard step)
+- [x] Mockup updates live as user clicks a different format
+- [x] Premium CSS-only device frames (no external library needed)
