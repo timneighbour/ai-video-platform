@@ -1893,7 +1893,29 @@ export default function MusicVideoAutopilot() {
         const STORYBOARD_TOAST_ID = "storyboard-generating";
         toast.loading("Generating storyboard...", { id: STORYBOARD_TOAST_ID, description: "Our AI director is crafting your scenes." });
         const storyboard = await generateStoryboardMutation.mutateAsync({ jobId: result.jobId });
-        setScenes(storyboard.scenes.map((s: any) => ({ ...s, id: s.sceneIndex, status: "pending" })));
+        // storyboard.scenes now returns actual DB rows with real IDs (not sceneIndex)
+        setScenes(storyboard.scenes.map((s: any) => ({
+          id: s.id ?? s.sceneIndex,
+          sceneIndex: s.sceneIndex,
+          startTime: s.startTime,
+          duration: s.duration,
+          prompt: s.prompt,
+          lyrics: s.lyrics ?? null,
+          visualStyle: s.visualStyle ?? "",
+          status: "pending",
+          videoUrl: s.videoUrl ?? null,
+          previewImageUrl: s.previewImageUrl ?? null,
+          previewImageLoading: !s.previewImageUrl,
+          lipSync: s.lipSync ?? true,
+          lipSyncStyle: (s.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
+          regenerating: false,
+          characterAssignments: s.characterAssignments
+            ? (() => { try { return JSON.parse(s.characterAssignments); } catch { return null; } })()
+            : null,
+          faceValidationStatus: s.faceValidationStatus ?? null,
+          faceValidationScores: s.faceValidationScores ?? null,
+          sceneType: s.sceneType ?? null,
+        })));
         toast.dismiss(STORYBOARD_TOAST_ID);
         if (storyboardStepTimerRef.current) clearTimeout(storyboardStepTimerRef.current);
         setStoryboardStep(5); // all steps done

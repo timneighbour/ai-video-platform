@@ -654,7 +654,11 @@ Rules:
         })
         .where(eq(musicVideoJobs.id, input.jobId));
 
-      return { scenes };
+      // Fetch the actual DB rows so the frontend gets real scene IDs (not sceneIndex values)
+      const dbScenes = await db.select().from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, input.jobId));
+      dbScenes.sort((a, b) => a.sceneIndex - b.sceneIndex);
+      return { scenes: dbScenes };
     } catch (err: any) {
       // Convert any unhandled error (including 503 JSON parse crashes) into a clean user-facing message
       if (err instanceof TRPCError) throw err;

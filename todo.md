@@ -8974,3 +8974,4 @@
 ## Storyboard Scene Rendering Fixes (Jun 2026 — Session 2)
 - [x] Fix environmental scene camera override: non-character scenes no longer get character-focused CAMERA_ANGLES injected; scene description's own camera direction is used verbatim
 - [x] Fix head cropping: storyboard card images and fullscreen modal changed from object-center to object-top so subject's head is always preserved
+- [x] Fix scene regeneration NOT_FOUND error: generateStoryboard now returns real DB rows with actual IDs; frontend setScenes uses s.id instead of s.sceneIndex
