@@ -108,7 +108,7 @@ function SceneLightbox({
           </button>
         </div>
 
-        {/* Video */}
+        {/* Video — always muted: AI-generated audio is stripped at assembly; master track is applied to the final video */}
         <div className="aspect-video bg-black">
           {scene.previewUrl ? (
             <video
@@ -116,6 +116,7 @@ function SceneLightbox({
               src={scene.previewUrl}
               controls
               autoPlay
+              muted
               loop
               className="w-full h-full object-contain"
               playsInline
@@ -127,9 +128,13 @@ function SceneLightbox({
           )}
         </div>
 
-        {/* Prompt */}
-        <div className="px-4 py-3 bg-black/40 border-t border-white/10">
+        {/* Prompt + muted notice */}
+        <div className="px-4 py-3 bg-black/40 border-t border-white/10 space-y-1.5">
           <p className="text-xs text-white/50 leading-relaxed line-clamp-2">{scene.prompt}</p>
+          <p className="text-[10px] text-white/25 flex items-center gap-1">
+            <span>&#128263;</span>
+            <span>Preview is muted — your original audio track plays in the final assembled video.</span>
+          </p>
         </div>
       </div>
     </div>

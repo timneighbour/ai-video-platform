@@ -8976,3 +8976,10 @@
 - [x] Fix head cropping: storyboard card images and fullscreen modal changed from object-center to object-top so subject's head is always preserved
 - [x] Fix scene regeneration NOT_FOUND error: generateStoryboard now returns real DB rows with actual IDs; frontend setScenes uses s.id instead of s.sceneIndex
 - [x] Add WaveSpeed provider balance indicator to admin panel with low-balance warning
+## Critical Render Pipeline Bugs (Jun 2026)
+- [ ] Fix aspect ratio: scenes rendering in square/portrait format instead of 16:9 widescreen — ensure 16:9 is passed to WaveSpeed Seedance for all scenes
+- [ ] Fix lip sync pipeline: InfiniteTalk not being triggered, AI-generated audio playing instead of master track in rendered scenes
+- [ ] Fix environmental scene: Scene 1 still showing Zara standing in hall instead of orchestra-only wide establishing shot
+- [x] Fix WaveSpeed submission: set generate_audio=false to prevent AI-generated audio on raw clips
+- [x] Fix aspect ratio enforcement: size=1280:720 for i2v, aspect_ratio=16:9 for t2v
+- [x] Mute all scene preview videos in Screening Room lightbox; added 'Preview is muted' notice

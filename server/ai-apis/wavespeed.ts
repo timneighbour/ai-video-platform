@@ -78,6 +78,7 @@ export async function submitWaveSpeedVideo(
     duration: request.duration ?? 5,
     resolution: request.resolution ?? "720p",
     enable_web_search: request.enable_web_search ?? false,
+    generate_audio: false, // CRITICAL: prevent Seedance from generating AI audio — master track is applied at assembly
     reference_images: request.reference_images ?? [],
     reference_videos: request.reference_videos ?? [],
     reference_audios: request.reference_audios ?? [],
@@ -139,6 +140,7 @@ export async function submitWaveSpeedImageToVideo(
     image: request.image,
     duration: request.duration ?? 5,
     size: resolutionToSize(request.resolution ?? "720p", request.aspect_ratio ?? "16:9"),
+    generate_audio: false, // CRITICAL: prevent Seedance from generating AI audio — master track is applied at assembly
   };
   // Add reference_audios for native Seedance 2.0 lip sync (only when provided)
   if (request.reference_audios && request.reference_audios.length > 0) {
