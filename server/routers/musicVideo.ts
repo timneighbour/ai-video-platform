@@ -5634,7 +5634,7 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
 
       // Verify ownership
       const [job] = await db
-        .select({ id: musicVideoJobs.id, status: musicVideoJobs.status })
+        .select({ id: musicVideoJobs.id, status: musicVideoJobs.status, audioUrl: musicVideoJobs.audioUrl, title: musicVideoJobs.title })
         .from(musicVideoJobs)
         .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
       if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
@@ -5661,6 +5661,7 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
 
       return {
         jobStatus: job.status,
+        jobAudioUrl: job.audioUrl ?? null,
         scenes: scenes.map((s) => {
           const isPerformance = s.sceneType === "performance";
           const compositeDone = s.compositeStatus === "done" && !!s.compositeVideoUrl;

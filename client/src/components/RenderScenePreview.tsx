@@ -4,14 +4,13 @@
  * Shows individual scenes as they finish compositing during a music video render.
  * Performance scenes show the WizSync™ composited clip (Zara on stage).
  * Cinematic scenes show the raw Seedance clip.
- * Scenes that are still rendering show a pulsing skeleton card.
- *
- * Polls `musicVideo.getScenePreviews` every 8 seconds while the job is active.
+ * The lightbox plays the master audio track at the correct scene time offset
+ * so users can verify lip sync quality before approving.
  */
 
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
-import { Play, Pause, Film, Mic, Loader2, Clock, CheckCircle2, X } from "lucide-react";
+import { Play, Pause, Film, Mic, Loader2, Clock, CheckCircle2, X, Volume2, VolumeX } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface RenderScenePreviewProps {
@@ -39,13 +38,19 @@ interface ScenePreview {
 // ── Lightbox modal ────────────────────────────────────────────────────────────
 function SceneLightbox({
   scene,
+  jobAudioUrl,
   onClose,
 }: {
   scene: ScenePreview;
+  jobAudioUrl: string | null;
   onClose: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
+  // Close on Escape
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -54,11 +59,50 @@ function SceneLightbox({
     return () => window.removeEventListener("keydown", handleKey);
   }, [onClose]);
 
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
+  // Start playback: seek audio to scene start time, play both in sync
+  const startPlayback = useCallback(() => {
+    const vid = videoRef.current;
+    const aud = audioRef.current;
+    if (!vid) return;
+    vid.currentTime = 0;
+    if (aud && jobAudioUrl) {
+      aud.currentTime = scene.startTime;
+      aud.play().catch(() => {});
     }
+    vid.play().catch(() => {});
+    setIsPlaying(true);
+  }, [jobAudioUrl, scene.startTime]);
+
+  // Auto-start when video is ready
+  useEffect(() => {
+    const vid = videoRef.current;
+    if (!vid) return;
+    const onCanPlay = () => startPlayback();
+    vid.addEventListener("canplay", onCanPlay, { once: true });
+    return () => vid.removeEventListener("canplay", onCanPlay);
+  }, [startPlayback]);
+
+  // When video loops, re-seek audio back to scene start
+  const handleVideoEnded = useCallback(() => {
+    const vid = videoRef.current;
+    const aud = audioRef.current;
+    if (vid) { vid.currentTime = 0; vid.play().catch(() => {}); }
+    if (aud && jobAudioUrl) { aud.currentTime = scene.startTime; }
+  }, [jobAudioUrl, scene.startTime]);
+
+  // Cleanup: stop audio when lightbox closes
+  useEffect(() => {
+    return () => {
+      const aud = audioRef.current;
+      if (aud) { aud.pause(); aud.currentTime = 0; }
+    };
   }, []);
+
+  const toggleMute = () => {
+    const aud = audioRef.current;
+    if (aud) aud.muted = !isMuted;
+    setIsMuted(!isMuted);
+  };
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -71,6 +115,16 @@ function SceneLightbox({
       className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-md p-4"
       onClick={onClose}
     >
+      {/* Hidden audio element — plays master track at scene offset */}
+      {jobAudioUrl && (
+        <audio
+          ref={audioRef}
+          src={jobAudioUrl}
+          preload="auto"
+          style={{ display: "none" }}
+        />
+      )}
+
       <div
         className="relative w-full max-w-3xl rounded-2xl overflow-hidden bg-black border border-white/10 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
@@ -100,26 +154,36 @@ function SceneLightbox({
               {scene.sceneType === "performance" ? "WizSync™" : "Cinematic"}
             </span>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Mute toggle */}
+            {jobAudioUrl && (
+              <button
+                onClick={toggleMute}
+                className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition"
+                title={isMuted ? "Unmute master track" : "Mute master track"}
+              >
+                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        {/* Video — always muted: AI-generated audio is stripped at assembly; master track is applied to the final video */}
+        {/* Video — muted (audio comes from master track via audioRef) */}
         <div className="aspect-video bg-black">
           {scene.previewUrl ? (
             <video
               ref={videoRef}
               src={scene.previewUrl}
-              controls
-              autoPlay
               muted
-              loop
-              className="w-full h-full object-contain"
               playsInline
+              className="w-full h-full object-contain"
+              onEnded={handleVideoEnded}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-white/30">
@@ -128,12 +192,16 @@ function SceneLightbox({
           )}
         </div>
 
-        {/* Prompt + muted notice */}
+        {/* Prompt + audio notice */}
         <div className="px-4 py-3 bg-black/40 border-t border-white/10 space-y-1.5">
           <p className="text-xs text-white/50 leading-relaxed line-clamp-2">{scene.prompt}</p>
-          <p className="text-[10px] text-white/25 flex items-center gap-1">
-            <span>&#128263;</span>
-            <span>Preview is muted — your original audio track plays in the final assembled video.</span>
+          <p className="text-[10px] text-white/30 flex items-center gap-1.5">
+            <Volume2 className="w-3 h-3 text-[--color-gold]/60 flex-shrink-0" />
+            <span>
+              {jobAudioUrl
+                ? "Playing your original master track — verify lip sync quality before approving."
+                : "Audio track not available for this preview."}
+            </span>
           </p>
         </div>
       </div>
@@ -155,7 +223,6 @@ function SceneCard({
   const isReady = scene.previewState === "ready";
   const isCompositing = scene.previewState === "compositing";
   const isWaiting = scene.previewState === "waiting";
-  const isPending = scene.previewState === "pending";
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -182,7 +249,6 @@ function SceneCard({
         isReady
           ? "border-white/15 cursor-pointer hover:border-[--color-gold]/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.15)]"
           : "border-white/8 cursor-default",
-        // Animate in when ready
         isReady && "animate-in fade-in duration-500"
       )}
       style={{ aspectRatio: "16/9", background: "oklch(0.08 0 0)" }}
@@ -294,7 +360,7 @@ export function RenderScenePreview({ jobId, jobStatus, className }: RenderSceneP
   const isActive = jobStatus === "rendering" || jobStatus === "assembling";
   const isDone = jobStatus === "completed";
 
-  const { data, refetch } = trpc.musicVideo.getScenePreviews.useQuery(
+  const { data } = trpc.musicVideo.getScenePreviews.useQuery(
     { jobId },
     {
       refetchInterval: isActive ? 8000 : false,
@@ -303,6 +369,7 @@ export function RenderScenePreview({ jobId, jobStatus, className }: RenderSceneP
   );
 
   const scenes = data?.scenes ?? [];
+  const jobAudioUrl = data?.jobAudioUrl ?? null;
   const readyCount = scenes.filter((s) => s.previewState === "ready").length;
   const totalCount = scenes.length;
 
@@ -311,7 +378,11 @@ export function RenderScenePreview({ jobId, jobStatus, className }: RenderSceneP
   return (
     <>
       {lightboxScene && (
-        <SceneLightbox scene={lightboxScene} onClose={() => setLightboxScene(null)} />
+        <SceneLightbox
+          scene={lightboxScene}
+          jobAudioUrl={jobAudioUrl}
+          onClose={() => setLightboxScene(null)}
+        />
       )}
 
       <div className={cn("space-y-3", className)}>
@@ -326,7 +397,7 @@ export function RenderScenePreview({ jobId, jobStatus, className }: RenderSceneP
             </span>
             {readyCount > 0 && (
               <span className="text-[10px] text-[--color-gold]/70 bg-[--color-gold]/10 border border-[--color-gold]/20 px-2 py-0.5 rounded-full">
-                Click any scene to preview
+                Click any scene to preview with audio
               </span>
             )}
           </div>
