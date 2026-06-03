@@ -99,6 +99,7 @@ import {
   Plus,
   Image as ImageIcon,
   Users,
+  Maximize2,
 } from "@/lib/icons";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
 import { StarterTemplates } from "@/components/StarterTemplates";
@@ -806,6 +807,13 @@ export default function MusicVideoAutopilot() {
   const [quotaError, setQuotaError] = useState<string | null>(null);
   // transcriptionText is now persisted above
   const [lyricsExpanded, setLyricsExpanded] = useState(false);
+  const [fullscreenScene, setFullscreenScene] = useState<{ imageUrl: string; sceneIndex: number; lyrics?: string | null; prompt?: string } | null>(null);
+  // Close fullscreen modal on Escape
+  React.useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setFullscreenScene(null); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
   const [isEditingLyrics, setIsEditingLyrics] = useState(false);
   // Keep segments for later use by storyboard
   const [transcriptionSegments, setTranscriptionSegments] = useState<Array<{ start: number; end: number; text: string }>>([]);
@@ -4679,6 +4687,22 @@ export default function MusicVideoAutopilot() {
                         )}
                       </button>
                     )}
+                    {/* Fullscreen expand button — shown when scene has a preview image */}
+                    {scene.previewImageUrl && (
+                      <button
+                        className="absolute top-2 right-8 flex items-center justify-center w-7 h-7 rounded-full bg-black/60 text-white/70 hover:bg-[rgba(212,168,67,0.25)] hover:text-[--color-gold] backdrop-blur-sm transition-all"
+                        title="View full screen"
+                        style={{ zIndex: 10 }}
+                        onClick={() => setFullscreenScene({
+                          imageUrl: scene.previewImageUrl!,
+                          sceneIndex: scene.sceneIndex,
+                          lyrics: scene.lyrics,
+                          prompt: scene.prompt,
+                        })}
+                      >
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                   <CardContent className="pt-3 pb-4">
                     <div className="flex items-start justify-between mb-2">
@@ -5122,6 +5146,71 @@ export default function MusicVideoAutopilot() {
 
           </div>
         )}
+        {/* ===== FULLSCREEN SCENE PREVIEW MODAL ===== */}
+        {fullscreenScene && (
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center"
+            style={{ background: "rgba(0,0,0,0.92)", backdropFilter: "blur(8px)" }}
+            onClick={() => setFullscreenScene(null)}
+          >
+            <div
+              className="relative flex flex-col items-center gap-4 max-w-[92vw] max-h-[92vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button
+                className="absolute -top-3 -right-3 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-black/80 text-white/70 hover:text-white hover:bg-[rgba(212,168,67,0.3)] transition-all border border-white/10"
+                onClick={() => setFullscreenScene(null)}
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+              {/* Image */}
+              <div
+                className={`relative overflow-hidden rounded-xl border border-[rgba(212,168,67,0.25)] shadow-2xl ${
+                  exportFormat === "9:16" ? "aspect-[9/16] h-[80vh]" :
+                  exportFormat === "1:1" ? "aspect-square h-[75vh]" :
+                  exportFormat === "4:3" ? "aspect-[4/3] max-w-[80vw]" :
+                  exportFormat === "21:9" ? "aspect-[21/9] w-[90vw]" :
+                  "aspect-video w-[85vw]"
+                }`}
+              >
+                <img
+                  src={fullscreenScene.imageUrl}
+                  alt={`Scene ${fullscreenScene.sceneIndex + 1} full preview`}
+                  className="w-full h-full object-cover"
+                />
+                {/* Viewfinder corners */}
+                <div style={{position:'absolute',top:10,left:10,width:18,height:18,borderTop:'2px solid rgba(212,168,67,0.7)',borderLeft:'2px solid rgba(212,168,67,0.7)'}} />
+                <div style={{position:'absolute',top:10,right:10,width:18,height:18,borderTop:'2px solid rgba(212,168,67,0.7)',borderRight:'2px solid rgba(212,168,67,0.7)'}} />
+                <div style={{position:'absolute',bottom:10,left:10,width:18,height:18,borderBottom:'2px solid rgba(212,168,67,0.7)',borderLeft:'2px solid rgba(212,168,67,0.7)'}} />
+                <div style={{position:'absolute',bottom:10,right:10,width:18,height:18,borderBottom:'2px solid rgba(212,168,67,0.7)',borderRight:'2px solid rgba(212,168,67,0.7)'}} />
+                {/* Scene label */}
+                <div style={{position:'absolute',top:14,left:14,zIndex:5}}>
+                  <span style={{fontSize:10,fontWeight:700,letterSpacing:1.5,color:'rgba(212,168,67,0.9)',textShadow:'0 1px 4px rgba(0,0,0,0.9)',fontFamily:"'Courier Prime',monospace"}}>SC {String(fullscreenScene.sceneIndex + 1).padStart(2,'0')}</span>
+                </div>
+                {/* REC dot */}
+                <div style={{position:'absolute',top:14,right:14,display:'flex',alignItems:'center',gap:5,zIndex:5}}>
+                  <span style={{width:7,height:7,borderRadius:'50%',background:'#ef4444',boxShadow:'0 0 8px rgba(239,68,68,0.9)',display:'inline-block'}} />
+                  <span style={{fontSize:9,fontWeight:700,letterSpacing:2,color:'rgba(255,255,255,0.9)',textShadow:'0 1px 4px rgba(0,0,0,0.9)',fontFamily:"'Courier Prime',monospace"}}>REC</span>
+                </div>
+              </div>
+              {/* Scene info below image */}
+              {(fullscreenScene.lyrics || fullscreenScene.prompt) && (
+                <div className="w-full max-w-xl text-center px-2">
+                  {fullscreenScene.lyrics && (
+                    <p className="text-white/80 text-sm italic mb-1">"{fullscreenScene.lyrics}"</p>
+                  )}
+                  {fullscreenScene.prompt && (
+                    <p className="text-white/35 text-xs leading-relaxed line-clamp-2">{fullscreenScene.prompt}</p>
+                  )}
+                </div>
+              )}
+              <p className="text-white/25 text-[10px]">Click outside or press Esc to close</p>
+            </div>
+          </div>
+        )}
+
         {/* ===== STEP 3: RENDER ===== */}
         {step === "render" && (
           <div className="max-w-2xl mx-auto">
