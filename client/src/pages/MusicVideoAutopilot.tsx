@@ -4551,7 +4551,7 @@ export default function MusicVideoAutopilot() {
                       <img
                         src={scene.previewImageUrl}
                         alt={`Scene ${scene.sceneIndex + 1} preview`}
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover object-top"
                       />
                     ) : null}
                     {/* Face validation status badge */}
@@ -5178,7 +5178,7 @@ export default function MusicVideoAutopilot() {
                 <img
                   src={fullscreenScene.imageUrl}
                   alt={`Scene ${fullscreenScene.sceneIndex + 1} full preview`}
-                  className="absolute inset-0 w-full h-full object-contain"
+                  className="absolute inset-0 w-full h-full object-contain object-top"
                 />
                 {/* Viewfinder corners */}
                 <div style={{position:'absolute',top:10,left:10,width:18,height:18,borderTop:'2px solid rgba(212,168,67,0.7)',borderLeft:'2px solid rgba(212,168,67,0.7)'}} />
