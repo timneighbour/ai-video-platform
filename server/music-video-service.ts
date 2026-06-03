@@ -864,7 +864,7 @@ export async function startSceneRender(
   /** URL of the approved storyboard preview image — passed as reference_images to lock visual appearance */
   storyboardImageUrl?: string | null,
   /** Export aspect ratio — defaults to 16:9 (YouTube) */
-  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9",
+  aspectRatio: "16:9" | "9:16" | "1:1" | "4:3" | "21:9" = "16:9",
   /** Music video job ID — required for spend-protection checks */
   jobId: number = 0,
   /** Master portrait URL for character consistency (used by Atlas Cloud reference-to-video) */
@@ -919,8 +919,10 @@ export async function startSceneRender(
         // If we re-slice it with extractSceneAudioClip, we'd seek to sceneStartTime (e.g. 12s)
         // inside a 6-second file → empty output → 45-byte failure.
         // Detection: if audioUrl ends in .wav or contains 'scene-audio' or 'stem-slice', it's pre-sliced.
+        // Always extract audio for every scene — cinematic scenes get audio for atmosphere/pacing,
+        // performance scenes get it for lip sync. lipSync flag controls sync requirement, not audio presence.
         let wsDirectAudioClip: string | undefined;
-        if (lipSync && audioUrl) {
+        if (audioUrl) {
           const isPreSliced = audioUrl.includes('.wav') || audioUrl.includes('scene-audio') || audioUrl.includes('stem-slice') || audioUrl.includes('wiz-stem');
           if (isPreSliced) {
             // Already a sliced clip — use directly, no re-slicing needed
@@ -929,9 +931,9 @@ export async function startSceneRender(
           } else if (sceneStartTime !== undefined) {
             try {
               wsDirectAudioClip = await extractSceneAudioClip(audioUrl, sceneStartTime, duration, sceneId);
-              console.log(`[MusicVideo] Scene ${sceneId} WaveSpeed DIRECT: audio clip extracted for lip sync`);
+              console.log(`[MusicVideo] Scene ${sceneId} WaveSpeed DIRECT: audio clip extracted (${lipSync ? 'lip sync' : 'cinematic pacing'})`);
             } catch (clipErr: any) {
-              console.warn(`[MusicVideo] Scene ${sceneId} WaveSpeed DIRECT: audio clip extraction failed (${String(clipErr?.message ?? clipErr).slice(0, 80)}). Proceeding without lip sync audio.`);
+              console.warn(`[MusicVideo] Scene ${sceneId} WaveSpeed DIRECT: audio clip extraction failed (${String(clipErr?.message ?? clipErr).slice(0, 80)}). Proceeding without audio.`);
             }
           }
         }
@@ -1082,7 +1084,7 @@ export async function startSceneRender(
 async function startSceneRenderKling(
   prompt: string,
   duration: number,
-  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9",
+  aspectRatio: "16:9" | "9:16" | "1:1" | "4:3" | "21:9" = "16:9",
   /** Character portrait URL(s) for Kling 3.0 Subject Binding — locks face identity across all frames */
   characterImageUrls?: string[]
 ): Promise<string> {
@@ -1097,11 +1099,13 @@ async function startSceneRenderKling(
     console.log(`[KlingSubjectBinding] Injecting ${imageReference.length} reference image(s) for character consistency`);
   }
 
+  // Kling only supports 16:9, 9:16, 1:1 — map 4:3 → 16:9, 21:9 → 16:9
+  const klingAspectRatio = (aspectRatio === "4:3" || aspectRatio === "21:9" ? "16:9" : aspectRatio) as "16:9" | "9:16" | "1:1";
   const taskId = await klingClient.createTextToVideo({
     model_name: "kling-v3", // Subject Binding requires kling-v3
     prompt,
     duration: duration <= 5 ? "5" : "10",
-    aspect_ratio: aspectRatio,
+    aspect_ratio: klingAspectRatio,
     mode: "std",
     ...(imageReference ? { image_reference: imageReference } : {}),
   });
@@ -1109,19 +1113,21 @@ async function startSceneRenderKling(
   return taskId;
 }
 
-async function startSceneRenderHypereal(sceneId: number, prompt: string, duration: number, aspectRatio: "16:9" | "9:16" | "1:1" = "16:9", jobId: number = 0): Promise<string> {
+async function startSceneRenderHypereal(sceneId: number, prompt: string, duration: number, aspectRatio: "16:9" | "9:16" | "1:1" | "4:3" | "21:9" = "16:9", jobId: number = 0): Promise<string> {
   // Hypereal Seedance 2.0 has a ~500 char prompt limit; truncate if needed
   const MAX_PROMPT_CHARS = 480;
   const safePrompt = prompt.length > MAX_PROMPT_CHARS
     ? prompt.slice(0, MAX_PROMPT_CHARS).replace(/[,;.\s]+$/, "") + "."
     : prompt;
   const trySubmit = async (p: string): Promise<string> => {
+    // Hypereal only supports 16:9, 9:16, 1:1 — map 4:3 → 16:9, 21:9 → 16:9
+    const hyperealAspectRatio = (aspectRatio === "4:3" || aspectRatio === "21:9" ? "16:9" : aspectRatio) as "16:9" | "9:16" | "1:1";
     const hyperealJobId = await submitHyperealVideo({
       model: HYPEREAL_MODELS.SEEDANCE_2_T2V,
       prompt: p,
       duration: duration <= 5 ? 5 : 8,
       mode: "auto",
-      aspect_ratio: aspectRatio,
+      aspect_ratio: hyperealAspectRatio,
     });
     if (!hyperealJobId) throw new Error(`Hypereal: no jobId returned for scene ${sceneId}`);
     return hyperealJobId;
@@ -1162,7 +1168,7 @@ async function startSceneRenderFalSeedance(
   sceneId: number,
   prompt: string,
   duration: number,
-  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9",
+  aspectRatio: "16:9" | "9:16" | "1:1" | "4:3" | "21:9" = "16:9",
   jobId: number = 0,
   /** Character portrait URL — when provided, uses i2v (portrait only) or r2v (portrait + audio) */
   characterImageUrl?: string,
@@ -1288,16 +1294,18 @@ async function startSceneRenderGrokImagine(
   prompt: string,
   duration: number,
   storyboardImageUrl?: string,
-  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9"
+  aspectRatio: "16:9" | "9:16" | "1:1" | "4:3" | "21:9" = "16:9"
 ): Promise<string> {
   // Grok Imagine supports up to 10s clips; clamp to valid range
   const clampedDuration = Math.max(1, Math.min(10, Math.round(duration)));
 
+  // Map 21:9 (cinematic) to 16:9 for Grok (closest supported ratio)
+  const grokAspectRatio = (aspectRatio === "21:9" ? "16:9" : aspectRatio) as import("./ai-apis/grok-imagine").GrokVideoAspectRatio;
   const requestId = await submitGrokVideo({
     prompt,
     image_url: storyboardImageUrl ?? undefined, // image-to-video if storyboard available
     duration: clampedDuration,
-    aspect_ratio: aspectRatio,
+    aspect_ratio: grokAspectRatio,
     resolution: "720p",
   });
 
@@ -2402,7 +2410,7 @@ async function startSceneRenderWaveSpeed(
   /** Storyboard preview image URL — used as reference_images to lock visual appearance */
   storyboardImageUrl?: string,
   /** Export aspect ratio — defaults to 16:9 (YouTube) */
-  aspectRatio: "16:9" | "9:16" | "1:1" = "16:9",
+  aspectRatio: "16:9" | "9:16" | "1:1" | "4:3" | "21:9" = "16:9",
   /** Music video job ID — required for spend-protection checks */
   jobId: number = 0,
   /** Character Lock™: master portrait URL injected as second reference image for identity consistency */
@@ -2748,7 +2756,7 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
           rendererType,
           (scene.modelAssignment as any) ?? "bytedance/seedance-2.0/text-to-video",
           scene.previewImageUrl ?? undefined,
-          (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1", // Use persisted export format
+          (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "21:9", // Use persisted export format
           musicVideoJobId,       // ── SPEND PROTECTION: pass jobId
           resolveSceneCharacterImageUrl(scene), // ── CHARACTER LOCK: per-scene portrait
           job.audioUrl ?? null,  // ── LIP SYNC: full song URL for audio clip extraction

@@ -8947,3 +8947,15 @@
 - [x] Wire LyricsReviewPanel into storyboard step (between VocalStemAssignmentPanel and Export Format)
 - [x] Add lyricsConfirmed state gate on "Create your video" button
 - [x] 16 vitest tests for confirmation gate, lyrics resolution priority, and r2v prompt construction — all passing
+
+## Aspect Ratio / Screen Size Selection (Jun 2026)
+- [x] Expand aspect ratio options from 3 (16:9, 9:16, 1:1) to 5 (+ 4:3 Classic, 21:9 Cinematic)
+- [x] Add Video Format selector to upload step (before Audio Source) so user picks format early
+- [x] Format selector also on storyboard step with updated 5-column grid
+- [x] Storyboard scene cards dynamically resize to match chosen aspect ratio
+- [x] Format confirmation badge in sticky bottom bar (shows ratio shape + label)
+- [x] updateAspectRatio mutation: saves chosen format to DB immediately on selection
+- [x] Aspect ratio restored from DB on page reload via jobQuery.data.job.aspectRatio
+- [x] All server-side type signatures updated to include 4:3 and 21:9
+- [x] Provider fallbacks: Kling and Hypereal map 4:3/21:9 to 16:9; Grok maps 21:9 to 16:9
+- [x] PostRenderRetentionScreen FORMAT_LABELS expanded for all 5 ratios

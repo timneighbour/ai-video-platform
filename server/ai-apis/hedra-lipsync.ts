@@ -47,7 +47,7 @@ export interface HedraLipSyncOptions {
   /** Scene ID for logging */
   sceneId?: number;
   /** Aspect ratio — default 9:16 for portrait performance shots */
-  aspectRatio?: "9:16" | "16:9" | "1:1";
+  aspectRatio?: "9:16" | "16:9" | "1:1" | "4:3" | "21:9";
   /** Output resolution */
   resolution?: "720p" | "1080p";
   /** Text prompt to guide the animation style */

@@ -23,14 +23,16 @@ interface PostRenderRetentionScreenProps {
   finalVideoUrl: string;
   videoTitle?: string;
   jobId?: number;
-  aspectRatio?: "16:9" | "9:16" | "1:1";
+  aspectRatio?: "16:9" | "9:16" | "1:1" | "4:3" | "21:9";
   onCreateAnother?: () => void;
 }
 
 const FORMAT_LABELS: Record<string, { label: string; platform: string; color: string }> = {
-  "16:9": { label: "16:9", platform: "YouTube", color: "text-red-400 bg-red-900/30 border-red-700/40" },
-  "9:16": { label: "9:16", platform: "TikTok", color: "text-pink-400 bg-pink-900/30 border-pink-700/40" },
-  "1:1": { label: "1:1", platform: "Instagram", color: "text-purple-400 bg-purple-900/30 border-purple-700/40" },
+  "16:9": { label: "16:9 Widescreen", platform: "YouTube · TV", color: "text-red-400 bg-red-900/30 border-red-700/40" },
+  "9:16": { label: "9:16 Portrait", platform: "TikTok · Reels", color: "text-pink-400 bg-pink-900/30 border-pink-700/40" },
+  "1:1": { label: "1:1 Square", platform: "Instagram", color: "text-purple-400 bg-purple-900/30 border-purple-700/40" },
+  "4:3": { label: "4:3 Classic", platform: "Broadcast · TV", color: "text-blue-400 bg-blue-900/30 border-blue-700/40" },
+  "21:9": { label: "21:9 Cinematic", platform: "Cinema · Canvas", color: "text-amber-400 bg-amber-900/30 border-amber-700/40" },
 };
 
 const NEXT_ACTIONS = [

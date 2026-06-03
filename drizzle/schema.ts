@@ -178,7 +178,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   shareSlug: varchar("shareSlug", { length: 64 }), // Unique slug for public watch page e.g. "abc123xyz"
   thumbnailUrl: varchar("thumbnailUrl", { length: 1024 }), // First scene image used as video thumbnail
   errorMessage: text("errorMessage"),
-  aspectRatio: varchar("aspectRatio", { length: 8 }).default("16:9").notNull(), // Export format: "16:9" | "9:16" | "1:1"
+  aspectRatio: varchar("aspectRatio", { length: 8 }).default("16:9").notNull(), // Export format: "16:9" | "9:16" | "1:1" | "4:3" | "21:9"
   contextAssetUrls: text("contextAssetUrls"), // JSON: Array<{url: string, mimeType: string, type: 'image'|'video'}> -- user-uploaded visual references for storyboard generation
   artistType: mysqlEnum("artistType", ["band", "solo_artist", "animated_characters", "solo_animated"]).default("solo_artist"), // Artist type selection from step 1
   storyboardLockedAt: timestamp("storyboardLockedAt"), // Set when render starts -- storyboard is frozen from this point

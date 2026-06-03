@@ -906,7 +906,7 @@ export default function MusicVideoAutopilot() {
   const storyboardStepTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Export format
-  const [exportFormat, setExportFormat] = useState<"16:9" | "9:16" | "1:1">("16:9");
+  const [exportFormat, setExportFormat] = useLocalStorage<"16:9" | "9:16" | "1:1" | "4:3" | "21:9">("musicVideo_exportFormat", "16:9");
   const [includeCaptions, setIncludeCaptions] = useLocalStorage<boolean>("musicVideo_captions", false);
 
   // Step 3: Render state
@@ -1136,6 +1136,7 @@ export default function MusicVideoAutopilot() {
   const [contextAssets, setContextAssets] = React.useState<Array<{ url: string; mimeType: string; type: string }>>([])
   const [artistType, setArtistType] = useLocalStorage<"solo_artist" | "band" | "animated_characters" | "solo_animated">("musicVideo_artistType", "solo_artist");
   const updateArtistTypeMutation = trpc.musicVideo.updateArtistType.useMutation();
+  const updateAspectRatioMutation = trpc.musicVideo.updateAspectRatio.useMutation();
   const [contextAssetUploading, setContextAssetUploading] = React.useState(false);
 
   const sunoGenerateMutation = trpc.suno.generate.useMutation();
@@ -1924,7 +1925,10 @@ export default function MusicVideoAutopilot() {
     if (jobQuery.data?.job?.artistType) {
       setArtistType(jobQuery.data.job.artistType as "solo_artist" | "band" | "animated_characters" | "solo_animated");
     }
-  }, [jobQuery.data?.job?.contextAssetUrls, jobQuery.data?.job?.artistType]);
+    if (jobQuery.data?.job?.aspectRatio) {
+      setExportFormat(jobQuery.data.job.aspectRatio as "16:9" | "9:16" | "1:1" | "4:3" | "21:9");
+    }
+  }, [jobQuery.data?.job?.contextAssetUrls, jobQuery.data?.job?.artistType, jobQuery.data?.job?.aspectRatio]);
 
   useEffect(() => {
     if (jobQuery.data?.scenes) {
@@ -2815,6 +2819,58 @@ export default function MusicVideoAutopilot() {
                       );
                     })}
                   </div>
+                </div>
+              </div>
+
+              {/* ── Video Format (aspect ratio) — shown early so user picks format before audio ── */}
+              <div className="mb-4 rounded-xl border border-[rgba(184,137,42,0.12)] bg-[rgba(10,8,6,0.95)] px-4 py-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Monitor className="w-4 h-4 text-[--color-silver]" />
+                  <span className="text-sm font-semibold text-white">Video Format</span>
+                  <span className="text-xs text-white/40 ml-1">Screen size &amp; aspect ratio</span>
+                </div>
+                <div className="grid grid-cols-5 gap-2">
+                  {([
+                    { value: "16:9" as const, label: "Widescreen", sub: "16:9", desc: "YouTube · TV", w: 38, h: 22 },
+                    { value: "9:16" as const, label: "Portrait", sub: "9:16", desc: "TikTok · Reels", w: 16, h: 28 },
+                    { value: "1:1" as const, label: "Square", sub: "1:1", desc: "Instagram", w: 24, h: 24 },
+                    { value: "4:3" as const, label: "Classic", sub: "4:3", desc: "Broadcast · TV", w: 32, h: 24 },
+                    { value: "21:9" as const, label: "Cinematic", sub: "21:9", desc: "Cinema · Canvas", w: 38, h: 16 },
+                  ] as const).map((fmt) => (
+                    <button
+                      key={fmt.value}
+                      onClick={() => {
+                        setExportFormat(fmt.value);
+                        if (jobId) updateAspectRatioMutation.mutate({ jobId, aspectRatio: fmt.value });
+                      }}
+                      className={`relative flex flex-col items-center gap-1.5 rounded-xl border p-2.5 transition-all duration-200 ${
+                        exportFormat === fmt.value
+                          ? "border-[--color-gold]/60 bg-[--color-gold]/10 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
+                          : "border-[rgba(184,137,42,0.12)] bg-[rgba(24,20,16,0.9)]/40 hover:border-zinc-600"
+                      }`}
+                    >
+                      <div className="flex items-center justify-center" style={{ width: 40, height: 30 }}>
+                        <div
+                          className="rounded-sm border-2 transition-colors"
+                          style={{
+                            borderColor: exportFormat === fmt.value ? "oklch(0.72 0.14 70)" : "#52525b",
+                            background: exportFormat === fmt.value ? "oklch(0.72 0.14 70 / 0.15)" : "transparent",
+                            width: fmt.w, height: fmt.h,
+                          }}
+                        />
+                      </div>
+                      <div className="text-center">
+                        <div className={`text-[10px] font-bold leading-tight ${ exportFormat === fmt.value ? "text-[--color-gold]" : "text-white" }`}>{fmt.label}</div>
+                        <div className="text-[9px] text-white/50 font-mono">{fmt.sub}</div>
+                        <div className="text-[8px] text-white/30">{fmt.desc}</div>
+                      </div>
+                      {exportFormat === fmt.value && (
+                        <div className="absolute top-1 right-1 w-3 h-3 rounded-full bg-[--color-gold] flex items-center justify-center">
+                          <Check className="w-1.5 h-1.5 text-white" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -4181,18 +4237,23 @@ export default function MusicVideoAutopilot() {
             <div className="mb-4 rounded-xl studio-panel px-4 py-4">
               <div className="flex items-center gap-2 mb-3">
                 <Monitor className="w-4 h-4 text-[--color-silver]" />
-                <span className="text-sm font-semibold text-white">Export Format</span>
-                <span className="text-xs text-white/40 ml-1">Choose your target platform</span>
+                <span className="text-sm font-semibold text-white">Video Format</span>
+                <span className="text-xs text-white/40 ml-1">Select screen size &amp; aspect ratio</span>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-5 gap-2">
                 {([
-                  { value: "16:9" as const, label: "YouTube", sub: "16:9 Landscape", icon: "▬", color: "#FF0000" },
-                  { value: "9:16" as const, label: "TikTok", sub: "9:16 Portrait", icon: "▮", color: "#00F2EA" },
-                  { value: "1:1" as const, label: "Instagram", sub: "1:1 Square", icon: "■", color: "#E1306C" },
+                  { value: "16:9" as const, label: "Widescreen", sub: "16:9", desc: "YouTube · TV", w: 38, h: 22 },
+                  { value: "9:16" as const, label: "Portrait", sub: "9:16", desc: "TikTok · Reels", w: 16, h: 28 },
+                  { value: "1:1" as const, label: "Square", sub: "1:1", desc: "Instagram", w: 24, h: 24 },
+                  { value: "4:3" as const, label: "Classic", sub: "4:3", desc: "Broadcast · TV", w: 32, h: 24 },
+                  { value: "21:9" as const, label: "Cinematic", sub: "21:9", desc: "Cinema · Canvas", w: 38, h: 16 },
                 ] as const).map((fmt) => (
                   <button
                     key={fmt.value}
-                    onClick={() => setExportFormat(fmt.value)}
+                    onClick={() => {
+                      setExportFormat(fmt.value);
+                      if (jobId) updateAspectRatioMutation.mutate({ jobId, aspectRatio: fmt.value });
+                    }}
                     className={`relative flex flex-col items-center gap-2 rounded-xl border p-3 transition-all duration-200 ${
                       exportFormat === fmt.value
                         ? "border-[--color-gold]/60 bg-[--color-gold]/10 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
@@ -4200,19 +4261,21 @@ export default function MusicVideoAutopilot() {
                     }`}
                   >
                     {/* Aspect ratio visual */}
-                    <div className="flex items-center justify-center" style={{ width: 40, height: 28 }}>
+                    <div className="flex items-center justify-center" style={{ width: 40, height: 30 }}>
                       <div
                         className="rounded-sm border-2 transition-colors"
                         style={{
                           borderColor: exportFormat === fmt.value ? "oklch(0.72 0.14 70)" : "#52525b",
                           background: exportFormat === fmt.value ? "oklch(0.72 0.14 70 / 0.15)" : "transparent",
-                          ...(fmt.value === "16:9" ? { width: 38, height: 22 } : fmt.value === "9:16" ? { width: 16, height: 28 } : { width: 24, height: 24 }),
+                          width: fmt.w,
+                          height: fmt.h,
                         }}
                       />
                     </div>
                     <div className="text-center">
-                      <div className={`text-xs font-bold ${exportFormat === fmt.value ? "text-[--color-gold]" : "text-white"}`}>{fmt.label}</div>
-                      <div className="text-[10px] text-white/40 mt-0.5">{fmt.sub}</div>
+                      <div className={`text-[10px] font-bold leading-tight ${exportFormat === fmt.value ? "text-[--color-gold]" : "text-white"}`}>{fmt.label}</div>
+                      <div className="text-[9px] text-white/50 mt-0.5 font-mono">{fmt.sub}</div>
+                      <div className="text-[8px] text-white/30 mt-0.5">{fmt.desc}</div>
                     </div>
                     {exportFormat === fmt.value && (
                       <div className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-[--color-gold] flex items-center justify-center">
@@ -4445,8 +4508,14 @@ export default function MusicVideoAutopilot() {
               {scenes.map((scene) => (
                 <React.Fragment key={scene.id}>
                   <Card className="bg-[rgba(10,8,6,0.95)] border-[rgba(184,137,42,0.10)] hover:border-zinc-600 transition-colors overflow-hidden">
-                  {/* Scene preview image — 16:9 widescreen */}
-                  <div className="relative w-full aspect-video bg-[rgba(24,20,16,0.9)]" style={{fontFamily:"'Courier Prime',monospace"}}>
+                  {/* Scene preview image — dynamic aspect ratio */}
+                  <div className={`relative w-full bg-[rgba(24,20,16,0.9)] ${
+                    exportFormat === "9:16" ? "aspect-[9/16]" :
+                    exportFormat === "1:1" ? "aspect-square" :
+                    exportFormat === "4:3" ? "aspect-[4/3]" :
+                    exportFormat === "21:9" ? "aspect-[21/9]" :
+                    "aspect-video"
+                  }`} style={{fontFamily:"'Courier Prime',monospace"}}>
                     {scene.previewImageUrl ? (
                       <img
                         src={scene.previewImageUrl}
@@ -4994,6 +5063,20 @@ export default function MusicVideoAutopilot() {
                       </span>
                     )}
                   </div>
+                  {/* Format confirmation badge */}
+                  <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,flexShrink:0}}>
+                    <span style={{fontSize:8,fontWeight:700,letterSpacing:1.5,color:'rgba(184,137,42,0.6)',textTransform:'uppercase'}}>FORMAT</span>
+                    <div style={{display:'flex',alignItems:'center',gap:4,background:'rgba(184,137,42,0.1)',border:'1px solid rgba(184,137,42,0.25)',borderRadius:4,padding:'3px 8px'}}>
+                      <div style={{
+                        borderRadius:2,
+                        border:'1.5px solid rgba(212,168,67,0.7)',
+                        background:'rgba(212,168,67,0.15)',
+                        flexShrink:0,
+                        ...(exportFormat === '9:16' ? {width:8,height:14} : exportFormat === '1:1' ? {width:11,height:11} : exportFormat === '4:3' ? {width:14,height:11} : exportFormat === '21:9' ? {width:18,height:8} : {width:16,height:9})
+                      }} />
+                      <span style={{fontSize:11,fontWeight:700,color:'rgba(212,168,67,0.9)',fontFamily:'monospace'}}>{exportFormat}</span>
+                    </div>
+                  </div>
                   {/* PROCEED TO RENDER gold CTA — disabled until all scenes approved */}
                   <button
                     type="button"
@@ -5026,7 +5109,7 @@ export default function MusicVideoAutopilot() {
                     finalVideoUrl={finalVideoUrl}
                     videoTitle={title || undefined}
                     jobId={jobId || undefined}
-                    aspectRatio={exportFormat as "16:9" | "9:16" | "1:1"}
+                    aspectRatio={exportFormat as "16:9" | "9:16" | "1:1" | "4:3" | "21:9"}
                     onCreateAnother={() => {
                       setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setSavedCharacterIds({});
                     }}

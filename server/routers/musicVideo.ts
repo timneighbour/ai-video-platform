@@ -706,7 +706,7 @@ Rules:
   startRender: protectedProcedure
     .input(z.object({
       jobId: z.number().int(),
-      aspectRatio: z.enum(["16:9", "9:16", "1:1"]).optional().default("16:9"),
+      aspectRatio: z.enum(["16:9", "9:16", "1:1", "4:3", "21:9"]).optional().default("16:9"),
       includeCaptions: z.boolean().optional().default(false),
     }))
     .mutation(async ({ ctx, input }) => {
@@ -1273,7 +1273,7 @@ Rules:
               "wavespeed" as any, // Route through WaveSpeed primary renderer
               wsModel, // Correctly mapped WaveSpeed model path
               storyboardImageUrl ?? undefined, // STORYBOARD LOCK: pass approved frame as reference
-              (input.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1", // Export format
+              (input.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "21:9", // Export format
               input.jobId, // ── SPEND PROTECTION: pass jobId for spend-cap and idempotency checks
               sceneCharacterImageUrl, // ── CHARACTER LOCK: master portrait for reference-to-video
               job.audioUrl,           // ── LIP SYNC: full song URL for audio clip extraction
@@ -1303,7 +1303,7 @@ Rules:
                     "wavespeed" as any,
                     mapModelAssignmentToWaveSpeed(scene.modelAssignment ?? "seedance-2.0"),
                     storyboardImageUrl ?? undefined,
-                    (input.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1",
+                    (input.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "21:9",
                     input.jobId,
                     sceneCharacterImageUrl,
                     job.audioUrl,
@@ -2937,7 +2937,7 @@ Rules:
           "wavespeed" as any,
           (scene.modelAssignment ?? "bytedance/seedance-2.0/text-to-video") as any,
           storyboardImageUrl,
-          (job.aspectRatio as "16:9" | "9:16" | "1:1") ?? "16:9",
+          (job.aspectRatio as "16:9" | "9:16" | "1:1" | "4:3" | "21:9") ?? "16:9",
           input.jobId // ── SPEND PROTECTION
         );
         if (taskId) {
@@ -4547,9 +4547,25 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
       await db.update(musicVideoJobs)
         .set({ artistType: input.artistType })
         .where(eq(musicVideoJobs.id, input.jobId));
-      return { success: true, artistType: input.artistType };
+            return { success: true, artistType: input.artistType };
     }),
-
+  // Update aspect ratio for a job (called when user selects format on upload step)
+  updateAspectRatio: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      aspectRatio: z.enum(["16:9", "9:16", "1:1", "4:3", "21:9"]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      await db.update(musicVideoJobs)
+        .set({ aspectRatio: input.aspectRatio })
+        .where(eq(musicVideoJobs.id, input.jobId));
+      return { success: true, aspectRatio: input.aspectRatio };
+    }),
   // Add a new blank scene to a job's storyboard
   addScene: protectedProcedure
     .input(z.object({
@@ -5229,7 +5245,7 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
             imageUrl,
             audioUrl: trimmedAudioUrl,
             sceneId: scene.id,
-            aspectRatio: (job.aspectRatio === "9:16" ? "9:16" : job.aspectRatio === "1:1" ? "1:1" : "16:9") as "9:16" | "16:9" | "1:1",
+            aspectRatio: (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "21:9",
             resolution: "720p",
             textPrompt: "A singer performing expressively to the camera, mouth moving naturally with the music, emotional vocal performance",
           });
