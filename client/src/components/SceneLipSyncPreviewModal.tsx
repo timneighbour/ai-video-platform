@@ -239,7 +239,7 @@ export function SceneLipSyncPreviewModal({
               <video
                 ref={videoRef}
                 src={videoSrc}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-cover"
                 playsInline
                 onLoadedData={() => setVideoLoaded(true)}
                 onEnded={handleVideoEnded}

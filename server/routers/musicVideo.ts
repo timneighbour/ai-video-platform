@@ -1631,6 +1631,9 @@ Rules:
         completedScenes: completedCount,
         failedScenes: failedCount,
         finalVideoUrl: finalJob.finalVideoUrl ?? null,
+        // Master audio URL — always returned so the scene preview modal can play it
+        // even if the user navigated directly to the render step (bypassing the restore flow)
+        jobAudioUrl: finalJob.audioUrl ?? null,
         // Timestamp when the job entered 'rendering' — used by the frontend elapsed timer
         // so the timer is accurate even after a page refresh.
         jobStartedAt: finalJob.updatedAt ? new Date(finalJob.updatedAt).getTime() : null,

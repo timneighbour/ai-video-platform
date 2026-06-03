@@ -2201,6 +2201,11 @@ export default function MusicVideoAutopilot() {
             if (!renderStartTime && progress.jobStartedAt) {
               setRenderStartTime(progress.jobStartedAt);
             }
+            // Capture master audio URL from server so scene preview modal always has audio
+            // (covers the case where user navigated directly to render step, bypassing restore flow)
+            if ((progress as any).jobAudioUrl && !restoredAudioUrl) {
+              setRestoredAudioUrl((progress as any).jobAudioUrl);
+            }
             if (progress.sceneStatuses) {
               setPerSceneStatuses((prev) => {
                 // Merge: keep existing prompt/lyrics from storyboard scenes or previous poll
