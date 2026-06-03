@@ -4547,13 +4547,31 @@ export default function MusicVideoAutopilot() {
                     exportFormat === "21:9" ? "aspect-[21/9]" :
                     "aspect-video"
                   }`} style={{fontFamily:"'Courier Prime',monospace"}}>
-                    {scene.previewImageUrl ? (
+                    {scene.previewImageUrl && !scene.regenerating ? (
                       <img
                         src={scene.previewImageUrl}
                         alt={`Scene ${scene.sceneIndex + 1} preview`}
                         className="absolute inset-0 w-full h-full object-cover object-top"
                       />
                     ) : null}
+                    {/* Loading animation while storyboard is being generated */}
+                    {scene.regenerating && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[rgba(10,8,6,0.92)]">
+                        {/* Animated film-strip loader */}
+                        <div className="relative flex items-center justify-center">
+                          <div className="w-14 h-14 rounded-full border-2 border-[rgba(212,168,67,0.15)] border-t-[rgba(212,168,67,0.9)] animate-spin" />
+                          <div className="absolute w-8 h-8 rounded-full border border-[rgba(212,168,67,0.25)] border-b-[rgba(212,168,67,0.6)] animate-spin" style={{animationDirection:'reverse',animationDuration:'0.8s'}} />
+                          <span className="absolute" style={{fontSize:16,color:'rgba(212,168,67,0.8)'}}>🎬</span>
+                        </div>
+                        <p className="text-[rgba(212,168,67,0.8)] text-xs font-medium tracking-widest uppercase" style={{fontFamily:"'Courier Prime',monospace"}}>Generating</p>
+                        {/* Animated dots */}
+                        <div className="flex gap-1">
+                          {[0,1,2].map(i => (
+                            <span key={i} className="w-1.5 h-1.5 rounded-full bg-[rgba(212,168,67,0.6)] animate-bounce" style={{animationDelay:`${i*0.15}s`}} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     {/* Face validation status badge */}
                     {scene.faceValidationStatus && scene.faceValidationStatus !== "skipped" && (
                       <div className={`absolute top-2 right-2 flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${
