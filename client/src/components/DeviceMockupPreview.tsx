@@ -86,7 +86,7 @@ function PhoneMockup({ previewImageUrl }: { previewImageUrl?: string | null }) {
           background: "#000", position: "relative",
         }}>
           {previewImageUrl ? (
-            <img src={previewImageUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img src={previewImageUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           ) : (
             <ScreenPlaceholder ratio="9:16" />
           )}
@@ -132,7 +132,7 @@ function TVMockup({ previewImageUrl }: { previewImageUrl?: string | null }) {
           background: "#000", borderRadius: 4, overflow: "hidden", position: "relative",
         }}>
           {previewImageUrl ? (
-            <img src={previewImageUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img src={previewImageUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           ) : (
             <ScreenPlaceholder ratio="16:9" />
           )}
@@ -192,7 +192,7 @@ function CinemaMockup({ previewImageUrl }: { previewImageUrl?: string | null }) 
           background: "#000", borderRadius: 2, overflow: "hidden", position: "relative",
         }}>
           {previewImageUrl ? (
-            <img src={previewImageUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img src={previewImageUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           ) : (
             <ScreenPlaceholder ratio="21:9" />
           )}
@@ -228,7 +228,7 @@ function TabletMockup({ previewImageUrl }: { previewImageUrl?: string | null }) 
           background: "#000", borderRadius: 4, overflow: "hidden", position: "relative",
         }}>
           {previewImageUrl ? (
-            <img src={previewImageUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img src={previewImageUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           ) : (
             <ScreenPlaceholder ratio="4:3" />
           )}
@@ -262,7 +262,7 @@ function MonitorMockup({ previewImageUrl }: { previewImageUrl?: string | null })
           background: "#000", borderRadius: 3, overflow: "hidden", position: "relative",
         }}>
           {previewImageUrl ? (
-            <img src={previewImageUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img src={previewImageUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
           ) : (
             <ScreenPlaceholder ratio="1:1" />
           )}
