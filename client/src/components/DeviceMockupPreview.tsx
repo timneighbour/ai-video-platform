@@ -13,12 +13,44 @@ const DEVICE_CONFIG: Record<AspectRatio, {
   device: "phone" | "tv" | "cinema" | "tablet" | "monitor";
   label: string;
   platform: string;
+  bestFor: string;
+  tip: string;
 }> = {
-  "9:16": { device: "phone",   label: "Smartphone",    platform: "TikTok · Reels · Shorts" },
-  "16:9": { device: "tv",      label: "Widescreen TV", platform: "YouTube · Television" },
-  "21:9": { device: "cinema",  label: "Cinema Screen", platform: "Cinema · Spotify Canvas" },
-  "4:3":  { device: "tablet",  label: "Tablet / Broadcast", platform: "Broadcast · Classic TV" },
-  "1:1":  { device: "monitor", label: "Square Display", platform: "Instagram · Feed" },
+  "9:16": {
+    device: "phone",
+    label: "Smartphone",
+    platform: "TikTok · Reels · Shorts",
+    bestFor: "Best for TikTok, Reels & Shorts",
+    tip: "Vertical video fills the full phone screen — ideal for social-first releases and viral moments.",
+  },
+  "16:9": {
+    device: "tv",
+    label: "Widescreen TV",
+    platform: "YouTube · Television",
+    bestFor: "Best for YouTube & TV Broadcast",
+    tip: "The universal standard for streaming platforms, music video channels, and home screens worldwide.",
+  },
+  "21:9": {
+    device: "cinema",
+    label: "Cinema Screen",
+    platform: "Cinema · Spotify Canvas",
+    bestFor: "Best for Cinema & Spotify Canvas",
+    tip: "Ultra-wide letterbox gives your video a cinematic, big-screen feel — perfect for Spotify Canvas loops.",
+  },
+  "4:3":  {
+    device: "tablet",
+    label: "Tablet / Broadcast",
+    platform: "Broadcast · Classic TV",
+    bestFor: "Best for Broadcast & Classic TV",
+    tip: "The classic broadcast format — great for retro aesthetics, TV spots, and tablet-first presentations.",
+  },
+  "1:1":  {
+    device: "monitor",
+    label: "Square Display",
+    platform: "Instagram · Feed",
+    bestFor: "Best for Instagram Feed & Stories",
+    tip: "Square format dominates Instagram feeds and works equally well on desktop and mobile screens.",
+  },
 };
 
 // ── Phone mockup (9:16) ──────────────────────────────────────────────────────
@@ -301,9 +333,25 @@ export function DeviceMockupPreview({ aspectRatio, previewImageUrl, className }:
       </div>
 
       {/* Labels */}
-      <div className="text-center">
+      <div className="text-center max-w-[220px]">
         <div className="text-xs font-semibold text-white/80">{config.label}</div>
         <div className="text-[10px] text-white/40 mt-0.5">{config.platform}</div>
+        {/* Best-for badge */}
+        <div
+          className="inline-block mt-2 px-2.5 py-1 rounded-full text-[10px] font-semibold"
+          style={{
+            background: "rgba(212,168,67,0.12)",
+            border: "1px solid rgba(212,168,67,0.3)",
+            color: "oklch(0.72 0.14 70)",
+            letterSpacing: "0.02em",
+          }}
+        >
+          {config.bestFor}
+        </div>
+        {/* Use-case tip */}
+        <p className="text-[10px] text-white/35 mt-1.5 leading-relaxed">
+          {config.tip}
+        </p>
       </div>
     </div>
   );
