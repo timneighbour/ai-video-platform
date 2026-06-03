@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { AlertTriangle, CheckCircle, XCircle, DollarSign, TrendingUp, TrendingDown, RefreshCw, Shield, Activity, Clock, Play } from "lucide-react";
+import { AlertTriangle, CheckCircle, XCircle, DollarSign, TrendingUp, TrendingDown, RefreshCw, Shield, Activity, Clock, Play, Zap } from "lucide-react";
 
 function HealthBadge({ isHealthy, mode }: { isHealthy: boolean; mode: string }) {
   if (mode === "disabled") return <Badge variant="outline" className="text-zinc-400 border-zinc-600">Disabled</Badge>;
@@ -146,6 +146,7 @@ export default function ProviderDashboard() {
   const { data: spendStats, refetch: refetchStats } = trpc.providerHealth.getSpendStats.useQuery();
   const { data: jobCosts, refetch: refetchJobs } = trpc.providerHealth.getJobCostAnalytics.useQuery({ limit: 20 });
   const { data: stalledJobs, refetch: refetchStalled } = trpc.providerHealth.getProviderUnavailableJobs.useQuery();
+  const { data: providerBalances, refetch: refetchBalances } = trpc.providerHealth.getProviderBalances.useQuery(undefined, { refetchInterval: 60000 });
 
   const setMode = trpc.providerHealth.setProviderMode.useMutation({
     onSuccess: () => { refetchSummary(); toast.success("Provider mode updated"); },
@@ -165,7 +166,7 @@ export default function ProviderDashboard() {
     onError: (e) => { setResumingJobId(null); toast.error(e.message); },
   });
 
-  const refetchAll = () => { refetchSummary(); refetchStats(); refetchJobs(); refetchStalled(); };
+  const refetchAll = () => { refetchSummary(); refetchStats(); refetchJobs(); refetchStalled(); refetchBalances(); };
 
   const stalledCount = stalledJobs?.length ?? 0;
 
@@ -252,6 +253,67 @@ export default function ProviderDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        )}
+
+        {/* Provider Account Balances */}
+        {providerBalances && (
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Zap className="w-5 h-5 text-amber-400" />
+              <h2 className="text-lg font-semibold text-white">Provider Account Balances</h2>
+              <span className="text-zinc-500 text-xs ml-1">(live — refreshes every 60s)</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* WaveSpeed Balance */}
+              <Card className={`border ${
+                providerBalances.wavespeed.isCritical ? "bg-red-950/30 border-red-500/50" :
+                providerBalances.wavespeed.isLow ? "bg-amber-950/30 border-amber-500/50" :
+                providerBalances.wavespeed.isUnknown ? "bg-zinc-900 border-zinc-700" :
+                "bg-emerald-950/20 border-emerald-500/30"
+              }`}>
+                <CardContent className="pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-zinc-400" />
+                      <p className="text-zinc-300 text-sm font-medium">WaveSpeed</p>
+                    </div>
+                    {providerBalances.wavespeed.isCritical && (
+                      <Badge className="bg-red-500/20 text-red-300 border-red-500/30 text-xs">
+                        <AlertTriangle className="w-3 h-3 mr-1" /> CRITICAL
+                      </Badge>
+                    )}
+                    {!providerBalances.wavespeed.isCritical && providerBalances.wavespeed.isLow && (
+                      <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs">
+                        <AlertTriangle className="w-3 h-3 mr-1" /> LOW
+                      </Badge>
+                    )}
+                    {!providerBalances.wavespeed.isLow && !providerBalances.wavespeed.isUnknown && (
+                      <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-xs">
+                        <CheckCircle className="w-3 h-3 mr-1" /> OK
+                      </Badge>
+                    )}
+                    {providerBalances.wavespeed.isUnknown && (
+                      <Badge variant="outline" className="text-zinc-400 border-zinc-600 text-xs">Unknown</Badge>
+                    )}
+                  </div>
+                  <p className={`text-3xl font-bold ${
+                    providerBalances.wavespeed.isCritical ? "text-red-400" :
+                    providerBalances.wavespeed.isLow ? "text-amber-400" :
+                    providerBalances.wavespeed.isUnknown ? "text-zinc-500" :
+                    "text-emerald-400"
+                  }`}>
+                    {providerBalances.wavespeed.isUnknown ? "—" : `$${providerBalances.wavespeed.balanceUsd?.toFixed(2)}`}
+                  </p>
+                  <p className="text-zinc-500 text-xs mt-1">
+                    {providerBalances.wavespeed.isCritical ? "⚠️ Top up immediately — renders will fail" :
+                     providerBalances.wavespeed.isLow ? "Top up recommended (threshold: $20)" :
+                     providerBalances.wavespeed.isUnknown ? "Could not fetch balance" :
+                     "Balance healthy (threshold: $20)"}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
 

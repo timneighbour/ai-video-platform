@@ -11,6 +11,7 @@ import { eq, desc, and, gte, sql } from "drizzle-orm";
 import { getProviderHealthSummary, getRecentSpendEvents } from "../provider-health";
 import { getQueueHealth } from "../queue-health";
 import { getAllCircuitBreakerStatuses, resetCircuitBreaker } from "../circuit-breaker";
+import { getWaveSpeedBalance } from "../ai-apis/wavespeed";
 
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN" });
@@ -181,4 +182,18 @@ export const providerHealthRouter = router({
       resetCircuitBreaker(input.provider);
       return { success: true, provider: input.provider };
     }),
+
+  // Get live provider account balances — WaveSpeed etc.
+  // LOW threshold: $20 | CRITICAL threshold: $5
+  getProviderBalances: adminProcedure.query(async () => {
+    const wavespeedBalance = await getWaveSpeedBalance();
+    return {
+      wavespeed: {
+        balanceUsd: wavespeedBalance,
+        isLow: wavespeedBalance !== null && wavespeedBalance < 20,
+        isCritical: wavespeedBalance !== null && wavespeedBalance < 5,
+        isUnknown: wavespeedBalance === null,
+      },
+    };
+  }),
 });
