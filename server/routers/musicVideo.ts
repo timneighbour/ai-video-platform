@@ -721,7 +721,7 @@ Rules:
         .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
 
       if (!job) throw new TRPCError({ code: "NOT_FOUND" });
-      if (job.status !== "storyboard_ready" && job.status !== "failed") {
+      if (job.status !== "storyboard_ready" && job.status !== "failed" && job.status !== "cancelled") {
         // Guard against duplicate render submissions — if already rendering, return gracefully
         if (job.status === "rendering" || job.status === "assembling") {
           console.warn(`[MusicVideo] Duplicate render request for job ${input.jobId} (status: ${job.status}). Ignoring.`);
@@ -729,16 +729,16 @@ Rules:
         }
         throw new TRPCError({ code: "BAD_REQUEST", message: "Job must have a storyboard before rendering" });
       }
-      // If job previously failed, reset it to storyboard_ready so it can be re-rendered
-      if (job.status === "failed") {
-        console.log(`[MusicVideo] Job ${input.jobId} was failed — resetting to storyboard_ready for retry render.`);
+      // If job previously failed or was cancelled, reset it to storyboard_ready so it can be re-rendered
+      if (job.status === "failed" || job.status === "cancelled") {
+        console.log(`[MusicVideo] Job ${input.jobId} was ${job.status} — resetting to storyboard_ready for retry render.`);
         await db.update(musicVideoJobs)
           .set({ status: "storyboard_ready", errorMessage: null, completedScenes: 0, updatedAt: new Date() })
           .where(eq(musicVideoJobs.id, input.jobId));
-        // Reset all failed/generating scenes back to pending so they re-render
+        // Reset all failed/generating/cancelled scenes back to pending so they re-render
         await db.update(musicVideoScenes)
           .set({ status: "pending", errorMessage: null, videoUrl: null, taskId: null, updatedAt: new Date() })
-          .where(and(eq(musicVideoScenes.jobId, input.jobId), inArray(musicVideoScenes.status, ["failed", "generating"])));
+          .where(and(eq(musicVideoScenes.jobId, input.jobId), inArray(musicVideoScenes.status, ["failed", "generating", "cancelled"])));
       }
 
       // ── Per-user concurrent render throttle ──────────────────────────────────

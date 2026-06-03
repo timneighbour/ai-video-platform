@@ -729,6 +729,13 @@
       "when": 1780405139912,
       "tag": "0103_dapper_jackpot",
       "breakpoints": true
+    },
+    {
+      "idx": 104,
+      "version": "5",
+      "when": 1780523828709,
+      "tag": "0104_living_rawhide_kid",
+      "breakpoints": true
     }
   ]
 }

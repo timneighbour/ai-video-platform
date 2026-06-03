@@ -300,7 +300,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   prompt: text("prompt").notNull(),
   lyrics: text("lyrics"), // Transcribed lyrics for this scene's time window
   visualStyle: varchar("visualStyle", { length: 255 }),
-  status: mysqlEnum("mvSceneStatus", ["pending", "generating", "completed", "failed", "failed_retryable"]).default("pending").notNull(),
+  status: mysqlEnum("mvSceneStatus", ["pending", "generating", "completed", "failed", "failed_retryable", "cancelled"]).default("pending").notNull(),
   taskId: varchar("taskId", { length: 255 }),
   videoUrl: varchar("videoUrl", { length: 1024 }),
   videoKey: varchar("videoKey", { length: 512 }),
