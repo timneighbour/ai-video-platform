@@ -5167,7 +5167,7 @@ export default function MusicVideoAutopilot() {
               </button>
               {/* Image */}
               <div
-                className={`relative overflow-hidden rounded-xl border border-[rgba(212,168,67,0.25)] shadow-2xl ${
+                className={`relative overflow-hidden rounded-xl border border-[rgba(212,168,67,0.25)] shadow-2xl bg-black ${
                   exportFormat === "9:16" ? "aspect-[9/16] h-[80vh]" :
                   exportFormat === "1:1" ? "aspect-square h-[75vh]" :
                   exportFormat === "4:3" ? "aspect-[4/3] max-w-[80vw]" :
@@ -5178,7 +5178,7 @@ export default function MusicVideoAutopilot() {
                 <img
                   src={fullscreenScene.imageUrl}
                   alt={`Scene ${fullscreenScene.sceneIndex + 1} full preview`}
-                  className="w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-contain"
                 />
                 {/* Viewfinder corners */}
                 <div style={{position:'absolute',top:10,left:10,width:18,height:18,borderTop:'2px solid rgba(212,168,67,0.7)',borderLeft:'2px solid rgba(212,168,67,0.7)'}} />
