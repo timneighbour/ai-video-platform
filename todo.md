@@ -8997,3 +8997,17 @@
 - [x] Enhance lyrics strip with gold left-border accent and italic font for better readability
 - [x] Add time marker to the section label row for quick reference
 - [x] Section detection uses generic keyword heuristics (works for any song, not hardcoded)
+
+## Vocal Isolation Pipeline (Critical Fix)
+- [x] Implement automatic cloud-based vocal isolation in the music video pipeline (WaveSpeed AI audio-vocal-isolator → S3 stem → gate Sync Labs lip sync on stem readiness)
+- [x] Wire vocal isolation auto-trigger in heartbeat when job starts rendering and vocalsStatus=pending
+- [x] Gate Sync Labs lip sync dispatch on vocalsStatus=done (stem available) — HARD GUARD already in place
+- [x] Ensure isolated vocal stem is trimmed to exact scene window before passing to Sync Labs (extractSceneAudioClip)
+
+## Vocal Isolation Pipeline (Cloud-Based)
+- [x] Research and integrate cloud vocal separation API (WaveSpeed AI audio-vocal-isolator — uses existing WAVESPEED_API_KEY, no separate key needed)
+- [x] Build cloud vocal isolation service: auto-trigger on job start, poll for result, store isolated stem in S3 (server/cloud-vocal-isolation.ts + server/ai-apis/wavespeed-vocal-isolation.ts)
+- [x] Gate Sync Labs lip sync dispatch in heartbeat: wait for vocalsStatus=done before submitting any lip sync scene
+- [x] Pass isolated vocal stem URL (trimmed to scene window) to Sync Labs instead of full mix audio
+- [x] Reset current job 1020003 — vocalsStatus=pending, lalalSourceId=null, lalalTaskId=null — ready for next heartbeat tick
+- [x] Switched vocal isolation provider from Lalal.ai → WaveSpeed AI audio-vocal-isolator (no separate API key needed — uses existing WAVESPEED_API_KEY)

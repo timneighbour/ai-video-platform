@@ -7,5 +7,6 @@ export const ENV = {
   isProduction: process.env.NODE_ENV === "production",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+  lalalAiLicenseKey: process.env.LALAL_AI_LICENSE_KEY ?? "",
 };
 // Build: 2026-04-15T09:16:24Z - Stripe live mode

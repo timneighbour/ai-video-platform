@@ -74,6 +74,7 @@ import { selectReferenceForScene, runStage2EnvironmentPrep } from "../character-
 // compositeCinematicScene removed — compositing is no longer part of the pipeline (2026-05-28)
 // The character is now generated INSIDE the scene by Seedance, not composited on top.
 import { validateRawSceneForLipSync } from "../raw-scene-validator";
+import { triggerCloudVocalIsolation } from "../cloud-vocal-isolation";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
 const SCENE_STUCK_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes — reaper handles beyond this
@@ -126,6 +127,8 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         audioUrl: musicVideoJobs.audioUrl,
         characterImageUrl: musicVideoJobs.characterImageUrl,
         vocalsStatus: musicVideoJobs.vocalsStatus,
+        lalalSourceId: musicVideoJobs.lalalSourceId,
+        lalalTaskId: musicVideoJobs.lalalTaskId,
         updatedAt: musicVideoJobs.updatedAt,
         songBpm: musicVideoJobs.songBpm,
         probeSceneId: musicVideoJobs.probeSceneId,
@@ -178,6 +181,36 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
 
     for (const job of activeJobs) {
       try {
+        // ── 1a. Cloud Vocal Isolation (Lalal.ai) ──────────────────────────────────
+        // Auto-trigger vocal isolation when vocalsStatus is 'pending' or 'processing'.
+        // This runs on every heartbeat tick until vocalsStatus='done' or 'failed'.
+        // Scenes can still be dispatched while isolation is in progress — they will
+        // defer lip sync submission until the stem is ready (see HARD GUARD below).
+        if (job.vocalsStatus === "pending" || job.vocalsStatus === "processing") {
+          try {
+            const isolationResult = await triggerCloudVocalIsolation(
+              job.id,
+              job.audioUrl,
+              job.lalalTaskId,
+            );
+            if (isolationResult.status === "done") {
+              console.log(`[SceneDispatch] Job ${job.id}: ✅ vocal isolation complete — vocalsStatus=done`);
+              // Update local job snapshot so downstream guards see the new status
+              (job as any).vocalsStatus = "done";
+            } else if (isolationResult.status === "no_key") {
+              // No API key configured — skip isolation, allow full-mix fallback
+              console.warn(`[SceneDispatch] Job ${job.id}: vocal isolation skipped (no WAVESPEED_API_KEY)`);
+            } else if (isolationResult.status === "failed") {
+              console.error(`[SceneDispatch] Job ${job.id}: vocal isolation failed — ${isolationResult.message}`);
+            } else {
+              // in_progress — still processing, will poll again next tick
+              console.log(`[SceneDispatch] Job ${job.id}: vocal isolation in progress — ${isolationResult.message ?? ""}`);
+            }
+          } catch (vocalErr: any) {
+            console.error(`[SceneDispatch] Job ${job.id}: vocal isolation error — ${String(vocalErr?.message ?? vocalErr).slice(0, 200)}`);
+          }
+        }
+
         const scenes = await db
           .select()
           .from(musicVideoScenes)
@@ -615,11 +648,13 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               const needsLipSync = (isPerformanceScene || (scene.lipSync ?? false)) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
 
               // ── SEEDANCE NATIVE LIP SYNC DETECTION ──────────────────────────────────
-              // When Seedance 2.0 was dispatched with reference_audios (native lip sync),
-              // the video already has lip sync baked in. Skip HeyGen/raw-validator entirely.
-              // Detect by checking if the taskId uses the seedance prefix (dispatched via WaveSpeed r2v path).
+              // When Seedance 2.0 was dispatched WITH reference_audios (native lip sync),
+              // the video already has lip sync baked in. Skip Sync Labs entirely.
+              // IMPORTANT: Only the "wavespeed:seedance:native:" prefix means native audio.
+              // "wavespeed:seedance:" (without "native") means NO audio was baked in and
+              // the scene MUST go through Sync Labs sync-3.
               const taskIdStr = scene.taskId ?? "";
-              const isSeedanceNative = taskIdStr.startsWith("wavespeed:seedance:") && isPerformanceScene;
+              const isSeedanceNative = taskIdStr.startsWith("wavespeed:seedance:native:") && isPerformanceScene;
               if (isSeedanceNative && needsLipSync) {
                 // Seedance native lip sync — video already has lip sync baked in
                 // Mark as completed + lip sync done, skip HeyGen and raw validator

@@ -66,6 +66,7 @@ const HYPEREAL_JOB_ID_PREFIX = "hypereal:";
 const ATLAS_JOB_ID_PREFIX = "atlas:";
 const WAVESPEED_JOB_ID_PREFIX = "wavespeed:";
 const WAVESPEED_SEEDANCE_PREFIX = "wavespeed:seedance:";
+const WAVESPEED_SEEDANCE_NATIVE_PREFIX = "wavespeed:seedance:native:"; // Has reference_audios baked in — skip Sync Labs
 const WAVESPEED_HAILUO_PREFIX = "wavespeed:hailuo:";
 const GROK_IMAGINE_PREFIX = "grok:";
 
@@ -1733,7 +1734,12 @@ export async function pollSceneStatus(
   sceneId: number,
   taskId: string
 ): Promise<{ status: "completed" | "failed" | "processing"; videoUrl?: string }> {
-  // Route to the correct API based on the task ID prefix
+  // Route to the correct API based on the task ID prefix.
+  // IMPORTANT: Check the more specific "native" prefix FIRST, before the generic seedance prefix,
+  // because "wavespeed:seedance:native:" also starts with "wavespeed:seedance:".
+  if (taskId.startsWith(WAVESPEED_SEEDANCE_NATIVE_PREFIX)) {
+    return pollSceneStatusWaveSpeed(sceneId, taskId.slice(WAVESPEED_SEEDANCE_NATIVE_PREFIX.length));
+  }
   if (taskId.startsWith(WAVESPEED_SEEDANCE_PREFIX)) {
     return pollSceneStatusWaveSpeed(sceneId, taskId.slice(WAVESPEED_SEEDANCE_PREFIX.length));
   }
@@ -2520,10 +2526,19 @@ async function startSceneRenderWaveSpeed(
       submissionReason: "scene_render",
     });
   }
-  // Prefix the task ID with model info for routing during polling
+  // Prefix the task ID with model info for routing during polling.
+  // IMPORTANT: Use the "native" prefix ONLY when reference_audios was actually passed
+  // (audioClipUrl provided) — this tells the heartbeat that lip sync is already baked in
+  // and Sync Labs should be skipped. Without audioClipUrl, use the standard prefix so
+  // the heartbeat correctly routes the scene through Sync Labs sync-3.
   const isFast = model === "bytedance/seedance-2.0-fast/text-to-video";
-  const prefix = isFast ? WAVESPEED_HAILUO_PREFIX : WAVESPEED_SEEDANCE_PREFIX;
-  console.log(`[MusicVideo] Scene ${sceneId} → WaveSpeed ${model} taskId=${taskId}`);
+  const hasNativeAudio = !!audioClipUrl;
+  const prefix = isFast
+    ? WAVESPEED_HAILUO_PREFIX
+    : hasNativeAudio
+      ? WAVESPEED_SEEDANCE_NATIVE_PREFIX  // reference_audios baked in — skip Sync Labs
+      : WAVESPEED_SEEDANCE_PREFIX;         // no audio — must go through Sync Labs
+  console.log(`[MusicVideo] Scene ${sceneId} → WaveSpeed ${model} taskId=${taskId} (native=${hasNativeAudio})`);
   return `${prefix}${taskId}`;
 }
 
