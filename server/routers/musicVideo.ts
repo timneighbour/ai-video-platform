@@ -42,6 +42,7 @@ import {
   buildPerformancePromptBlock,
   type InstrumentAnalysis,
   type CharacterInstrumentAssignment,
+  normaliseBpm,
 } from "../instrument-analysis";
 import { getCharacterDefaults } from "../../shared/characterDefaults";
 import { runStemIntelligence, getStemSections, getSectionTypeAtTime, stemSectionToSceneType } from "../stem-intelligence-service";
@@ -977,7 +978,7 @@ Rules:
           await db!.update(musicVideoJobs)
             .set({
               instrumentAnalysis: JSON.stringify(instrumentAnalysis),
-              songBpm: instrumentAnalysis.tempo ?? job.songBpm ?? null,
+              songBpm: instrumentAnalysis.tempo != null ? normaliseBpm(instrumentAnalysis.tempo, job.genre) : (job.songBpm ?? null),
               updatedAt: new Date(),
             } as any)
             .where(eq(musicVideoJobs.id, input.jobId));

@@ -282,7 +282,11 @@ export async function analyseAudioInstruments(params: {
 
   const systemPrompt =
     "You are a music production expert. Analyse the provided song metadata and determine " +
-    "which instruments are present. Return a JSON object matching the InstrumentAnalysis schema exactly.";
+    "which instruments are present. Return a JSON object matching the InstrumentAnalysis schema exactly. " +
+    "IMPORTANT: For the 'tempo' field, always return the FELT/PERCEPTUAL tempo — the tempo a human would tap their foot to. " +
+    "For orchestral, cinematic, ballad, slow, or dramatic music, this is typically 60–90 BPM. " +
+    "Never return a subdivision or double-time value. If in doubt, halve the value. " +
+    "Example: a slow orchestral piece that feels like 76 BPM should return 76, NOT 152.";
 
   const userPrompt = `Analyse this song and identify all instruments present:
 
@@ -367,11 +371,36 @@ Rules:
     if (!content) throw new Error("Empty LLM response");
     const parsed = typeof content === "string" ? JSON.parse(content) : content;
     parsed.analysedAt = new Date().toISOString();
+    // Apply half-time correction: if the LLM returns a subdivision/double-time value,
+    // normalise it to the felt perceptual tempo (≤ 120 BPM for non-dance/non-EDM genres).
+    parsed.tempo = normaliseBpm(parsed.tempo, genre);
     return parsed as InstrumentAnalysis;
   } catch (err) {
     console.error("[InstrumentAnalysis] LLM analysis failed, using genre-based fallback:", err);
     return buildFallbackAnalysis(genre, mood, audioDuration);
   }
+}
+
+/**
+ * Normalise a raw BPM value to the felt/perceptual tempo.
+ * Beat trackers and LLMs often return double-time (subdivision) values for
+ * orchestral, cinematic, and ballad tracks. For non-dance genres, anything
+ * above 120 BPM is almost certainly a double-time reading — halve it.
+ * For dance/EDM genres (where 128–160 BPM is genuinely correct), skip correction.
+ */
+export function normaliseBpm(rawBpm: number, genre?: string | null): number {
+  if (!rawBpm || rawBpm <= 0) return rawBpm;
+  const g = (genre ?? "").toLowerCase();
+  const isDanceGenre = g.includes("edm") || g.includes("dance") || g.includes("house") ||
+    g.includes("techno") || g.includes("trance") || g.includes("dubstep") ||
+    g.includes("drum and bass") || g.includes("dnb") || g.includes("drum'n'bass");
+  if (isDanceGenre) return rawBpm; // Dance genres genuinely run at 120–180 BPM
+  // For all other genres: halve until ≤ 120 BPM
+  let bpm = rawBpm;
+  while (bpm > 120) {
+    bpm = bpm / 2;
+  }
+  return Math.round(bpm);
 }
 
 function buildFallbackAnalysis(

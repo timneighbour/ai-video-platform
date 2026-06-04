@@ -70,6 +70,7 @@ import { pollSyncLabsLipSync } from "../ai-apis/synclabs-lipsync";
 import { submitHeyGenLipSyncV3, pollHeyGenLipSyncV3 } from "../ai-apis/heygen-lipsync";
 import { getProbeDecision } from "../pre-render-validator";
 import { resetSceneAttempts } from "../spend-protection";
+import { normaliseBpm } from "../instrument-analysis";
 import { getVocalStemForCharacter } from "../vocal-isolation-service";
 import { selectReferenceForScene, runStage2EnvironmentPrep } from "../character-auto-prep";
 // compositeCinematicScene removed — compositing is no longer part of the pipeline (2026-05-28)
@@ -410,8 +411,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
 
             // ── BPM INJECTION: append tempo guidance to every render prompt ────────
             if (job.songBpm) {
-              const tempoDesc = job.songBpm < 90 ? 'slow, graceful, flowing' : job.songBpm < 120 ? 'moderate, natural-paced' : 'energetic, dynamic, fast';
-              scenePrompt += ` Tempo: ${job.songBpm} BPM. All movement must be ${tempoDesc}.`;
+              const feltBpm = normaliseBpm(job.songBpm, (job as any).genre);
+              const tempoDesc = feltBpm < 90 ? 'slow, graceful, flowing' : feltBpm < 120 ? 'moderate, natural-paced' : 'energetic, dynamic, fast';
+              scenePrompt += ` Tempo: ${feltBpm} BPM. All movement must be ${tempoDesc}.`;
             }
 
             // ── PER-SCENE VOCAL STEM SLICING ──────────────────────────────────

@@ -78,6 +78,7 @@ function ffmpegExec(args: string, opts?: { timeout?: number }) {
 
 // IMPORTANT: Import from products.ts — do NOT redefine locally. Single source of truth.
 import { getCreditsPerScene } from "./products";
+import { normaliseBpm } from "./instrument-analysis";
 const SCENE_DURATION_SECONDS = 6; // target 6 seconds per scene for good pacing
 
 export function calculateSceneCount(audioDurationSeconds: number): number {
@@ -678,7 +679,7 @@ Song details:
 - Theme/Concept: ${themePrompt}
 - Genre: ${genre || "not specified"}
 - Mood: ${mood || "not specified"}
-- Number of scenes: ${sceneCount} (one scene every ${SCENE_DURATION_SECONDS} seconds)${songBpm ? `\n- Song BPM: ${songBpm} — ALL movement, gestures, and visual rhythm in every scene MUST match this tempo. For ${songBpm < 90 ? 'slow, graceful, flowing movements' : songBpm < 120 ? 'moderate, natural-paced movements' : 'energetic, dynamic movements'}. Musicians must play at this tempo.` : ''}${sceneSetting ? `\n- Locations/Scene Setting: ${sceneSetting} — USE THESE LOCATIONS as the primary visual environments for scenes. Vary between them naturally across the video.` : ""}
+- Number of scenes: ${sceneCount} (one scene every ${SCENE_DURATION_SECONDS} seconds)${songBpm ? `\n- Song BPM: ${normaliseBpm(songBpm)} — ALL movement, gestures, and visual rhythm in every scene MUST match this tempo. For ${normaliseBpm(songBpm) < 90 ? 'slow, graceful, flowing movements' : normaliseBpm(songBpm) < 120 ? 'moderate, natural-paced movements' : 'energetic, dynamic movements'}. Musicians must play at this tempo.` : ''}${sceneSetting ? `\n- Locations/Scene Setting: ${sceneSetting} — USE THESE LOCATIONS as the primary visual environments for scenes. Vary between them naturally across the video.` : ""}
 
 ${hasLyrics ? `Lyrics by scene (use these to inspire each scene's visuals — make the imagery match what is being sung):
 ${sceneList}
