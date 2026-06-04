@@ -367,6 +367,7 @@ export default function MusicCreator() {
         instrumental: isInstrumental,
         styleWeight: coverStyleWeight,
         audioWeight: coverAudioWeight,
+        origin: window.location.origin,
       });
     } else {
       generateExtendMutation.mutate({
@@ -375,6 +376,7 @@ export default function MusicCreator() {
         style: styleStr || undefined,
         title: title.trim() || undefined,
         instrumental: isInstrumental,
+        origin: window.location.origin,
       });
     }
   };

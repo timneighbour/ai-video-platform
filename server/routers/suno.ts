@@ -566,6 +566,7 @@ Rules:
         /** 0.0-1.0: how much to preserve the original audio (default 0.5) */
         audioWeight: z.number().min(0).max(1).default(0.5),
         model: z.enum(["V4", "V4_5", "V4_5PLUS", "V4_5ALL", "V5", "V5_5"]).default("V4_5"),
+        origin: z.string().url().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -574,6 +575,9 @@ Rules:
 
       const suno = initSuno();
       const customMode = !!(input.style && input.title);
+      const callBackUrl = input.origin
+        ? `${input.origin}/api/suno/callback`
+        : `${process.env.VITE_FRONTEND_FORGE_API_URL ?? "https://api.manus.im"}/api/suno/callback`;
 
       const sunoTaskId = await suno.uploadCover({
         uploadUrl: input.uploadedTrackUrl,
@@ -585,6 +589,7 @@ Rules:
         title: input.title,
         styleWeight: input.styleWeight,
         audioWeight: input.audioWeight,
+        callBackUrl,
       });
 
       const [task] = await db
@@ -619,6 +624,7 @@ Rules:
         title: z.string().max(80).optional(),
         instrumental: z.boolean().default(false),
         model: z.enum(["V4", "V4_5", "V4_5PLUS", "V4_5ALL", "V5", "V5_5"]).default("V4_5"),
+        origin: z.string().url().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -627,6 +633,9 @@ Rules:
 
       const suno = initSuno();
       const customMode = !!(input.style && input.title);
+      const callBackUrl = input.origin
+        ? `${input.origin}/api/suno/callback`
+        : `${process.env.VITE_FRONTEND_FORGE_API_URL ?? "https://api.manus.im"}/api/suno/callback`;
 
       const sunoTaskId = await suno.uploadExtend({
         uploadUrl: input.uploadedTrackUrl,
@@ -636,6 +645,7 @@ Rules:
         prompt: input.prompt,
         style: input.style,
         title: input.title,
+        callBackUrl,
       });
 
       const [task] = await db
