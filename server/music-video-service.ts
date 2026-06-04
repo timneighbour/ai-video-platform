@@ -2744,7 +2744,6 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
               .where(eq(musicVideoScenes.id, scene.id));
             console.log(`[triggerMusicVideoRender] Scene ${scene.sceneIndex + 1} storyboard → ${url.slice(0, 80)}...`);
           }
-<<<<<<< Updated upstream
         } catch (err) {
           console.warn(`[triggerMusicVideoRender] Cinematic storyboard failed for scene ${scene.sceneIndex + 1}, falling back:`, err);
           // Fallback: also use cinematic generator with correct aspect ratio (no silent 1:1 fallback)
@@ -2753,15 +2752,6 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
             const { url } = await gen2({
               prompt: scene.prompt.slice(0, 300),
               aspectRatio: jobAspectRatio,
-=======
-          } catch (err) {
-          console.warn(`[triggerMusicVideoRender] Cinematic preview failed for scene ${scene.sceneIndex + 1}, retrying with cinematic generator:`, err);
-          // Retry with cinematic generator using correct aspect ratio
-          try {
-            const { url } = await generateCinematicStoryboardImage({
-              prompt: scene.prompt,
-              aspectRatio: (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9",
->>>>>>> Stashed changes
               storageKeyPrefix: `music-video-storyboard/${musicVideoJobId}-scene-${scene.id}-fallback`,
             });
             if (url) {
