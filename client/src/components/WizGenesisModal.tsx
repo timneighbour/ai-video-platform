@@ -450,7 +450,7 @@ export function WizGenesisModal({
             className={`flex items-start gap-3 cursor-pointer select-none rounded-xl border px-4 py-3 transition-colors ${
               confirmed
                 ? "border-[#b8892a]/50 bg-[#b8892a]/5"
-                : "border-white/10 bg-white/[0.02] hover:border-white/20"
+                : "border-white/25 bg-white/[0.04] hover:border-white/40 hover:bg-white/[0.07]"
             }`}
           >
             <div className="relative mt-0.5 shrink-0">
@@ -461,13 +461,13 @@ export function WizGenesisModal({
                 className="sr-only"
               />
               <div
-                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all shadow-sm ${
                   confirmed
-                    ? "border-[#b8892a] bg-[#b8892a]"
-                    : "border-white/30 bg-transparent"
+                    ? "border-[#b8892a] bg-[#b8892a] shadow-[0_0_8px_rgba(184,137,42,0.5)]"
+                    : "border-white/70 bg-white/10 hover:border-white hover:bg-white/20"
                 }`}
               >
-                {confirmed && <Check className="w-3 h-3 text-black" style={{ strokeWidth: 3 }} />}
+                {confirmed && <Check className="w-3.5 h-3.5 text-black" style={{ strokeWidth: 3.5 }} />}
               </div>
             </div>
             <span className="text-sm text-zinc-300 leading-snug">
