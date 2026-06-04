@@ -669,6 +669,17 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   })
                   .where(eq(musicVideoScenes.id, scene.id));
                 console.log(`[SceneDispatch] Scene ${scene.id} completed (Seedance native lip sync, compositeStatus=skipped) ✓`);
+                // ── PROBE: write probeVideoUrl for native lip sync scenes (Atlas/Seedance-native) ──
+                try {
+                  const [currentJob] = await db.select({ probeSceneId: musicVideoJobs.probeSceneId, probePassed: musicVideoJobs.probePassed })
+                    .from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
+                  if (currentJob?.probeSceneId === scene.id && (currentJob?.probePassed === false || (currentJob?.probePassed as any) === 0)) {
+                    await db.update(musicVideoJobs)
+                      .set({ probeVideoUrl: pollResult.videoUrl, updatedAt: new Date() })
+                      .where(eq(musicVideoJobs.id, job.id));
+                    console.log(`[SceneDispatch] Job ${job.id} PROBE NATIVE LIP SYNC COMPLETE — video ready for owner review: ${pollResult.videoUrl?.slice(0, 60)}...`);
+                  }
+                } catch { /* non-fatal */ }
                 totalPolled++;
                 continue;
               }
