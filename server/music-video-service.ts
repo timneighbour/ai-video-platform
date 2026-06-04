@@ -2453,7 +2453,7 @@ async function startSceneRenderWaveSpeed(
     if (storyboardImageUrl) {
       // ── IMAGE-TO-VIDEO: storyboard image anchors the first frame ────────────────────
       // For lip sync scenes: use reference_audios + [Audio1] in prompt for native Seedance 2.0 lip sync
-      const i2vModel: WaveSpeedI2VModel = "bytedance/seedance-2.0-fast/image-to-video";
+      const i2vModel: WaveSpeedI2VModel = "bytedance/seedance-2.0/image-to-video"; // Standard (not fast) — better framing/head retention
       // Build the lip-sync enriched prompt if we have an audio clip
       let i2vPrompt = p;
       if (audioClipUrl) {
@@ -2705,38 +2705,62 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
     console.warn(`[triggerMusicVideoRender] No character portraits found for job ${musicVideoJobId} — scenes without assignments will use text-to-video`);
   }
 
-  // Auto-generate missing previews — use cinematic aspect-ratio-aware image generation
-  // so WaveSpeed i2v inherits the correct frame dimensions natively
-  const scenesWithoutPreview = scenes.filter(s => !s.previewImageUrl);
-  if (scenesWithoutPreview.length > 0) {
-    console.log(`[triggerMusicVideoRender] Auto-generating ${scenesWithoutPreview.length} cinematic previews for job ${musicVideoJobId} (${job.aspectRatio ?? "16:9"})`);
+  // Auto-generate storyboard images — use cinematic aspect-ratio-aware image generation
+  // so WaveSpeed i2v inherits the correct frame dimensions natively.
+  //
+  // IMPORTANT: We check not just whether a previewImageUrl exists, but whether it was
+  // generated in the correct aspect ratio for this job. A square portrait (1:1) used as
+  // a reference for a 16:9 render will cause Seedance to crop the top of the frame.
+  // We detect this by checking if the URL contains a known square-format indicator, or
+  // if the scene has no previewImageUrl at all.
+  const jobAspectRatio = (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
+
+  // Scenes that need a (re)generated storyboard image:
+  // 1. No previewImageUrl at all
+  // 2. previewImageUrl exists but appears to be a square portrait (from character upload, not a generated storyboard)
+  //    — detected by checking if the URL contains "-cinematic" (our storyboard key prefix) or not
+  const scenesNeedingStoryboard = scenes.filter(s => {
+    if (!s.previewImageUrl) return true; // missing entirely
+    // If the URL contains our storyboard key prefix, it was already generated correctly
+    if (s.previewImageUrl.includes("-cinematic") || s.previewImageUrl.includes("music-video-storyboard")) return false;
+    // Otherwise it's a character portrait or other non-storyboard image — regenerate
+    return true;
+  });
+
+  if (scenesNeedingStoryboard.length > 0) {
+    console.log(`[triggerMusicVideoRender] Generating ${scenesNeedingStoryboard.length} cinematic storyboard images for job ${musicVideoJobId} (aspect: ${jobAspectRatio})`);
     const { generateCinematicStoryboardImage } = await import("./ai-apis/fal-image-gen");
     await Promise.allSettled(
-      scenesWithoutPreview.map(async (scene) => {
+      scenesNeedingStoryboard.map(async (scene) => {
         try {
           const { url } = await generateCinematicStoryboardImage({
             prompt: scene.prompt,
-            aspectRatio: (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9",
+            aspectRatio: jobAspectRatio,
             storageKeyPrefix: `music-video-storyboard/${musicVideoJobId}-scene-${scene.id}-cinematic`,
           });
           if (url) {
             await db!.update(musicVideoScenes)
               .set({ previewImageUrl: url })
               .where(eq(musicVideoScenes.id, scene.id));
+            console.log(`[triggerMusicVideoRender] Scene ${scene.sceneIndex + 1} storyboard → ${url.slice(0, 80)}...`);
           }
         } catch (err) {
-          console.warn(`[triggerMusicVideoRender] Cinematic preview failed for scene ${scene.sceneIndex + 1}, falling back to generic:`, err);
-          // Fallback to generic image generation if fal.ai fails
+          console.warn(`[triggerMusicVideoRender] Cinematic storyboard failed for scene ${scene.sceneIndex + 1}, falling back:`, err);
+          // Fallback: also use cinematic generator with correct aspect ratio (no silent 1:1 fallback)
           try {
-            const { generateImage } = await import("./_core/imageGeneration");
-            const { url } = await generateImage({ prompt: scene.prompt });
+            const { generateCinematicStoryboardImage: gen2 } = await import("./ai-apis/fal-image-gen");
+            const { url } = await gen2({
+              prompt: scene.prompt.slice(0, 300),
+              aspectRatio: jobAspectRatio,
+              storageKeyPrefix: `music-video-storyboard/${musicVideoJobId}-scene-${scene.id}-fallback`,
+            });
             if (url) {
               await db!.update(musicVideoScenes)
                 .set({ previewImageUrl: url })
                 .where(eq(musicVideoScenes.id, scene.id));
             }
           } catch (fallbackErr) {
-            console.warn(`[triggerMusicVideoRender] Fallback preview also failed for scene ${scene.sceneIndex + 1}:`, fallbackErr);
+            console.warn(`[triggerMusicVideoRender] Storyboard fallback also failed for scene ${scene.sceneIndex + 1}:`, fallbackErr);
           }
         }
       })
