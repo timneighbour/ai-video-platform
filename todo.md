@@ -8988,3 +8988,4 @@
 ## Render Dispatcher Stall Fix
 - [ ] Add server-side RenderDispatchWorker: background worker that re-dispatches pending scenes for stuck rendering jobs (survives page close and server restart)
 - [ ] Fix: kick stuck pending scenes in job 960001 to resume rendering
+- [x] Switch lip sync provider from HeyGen to Sync Labs sync-3 in sceneDispatchHeartbeat.ts (submit, retry, and poll paths)

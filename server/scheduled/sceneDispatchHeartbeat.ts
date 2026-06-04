@@ -18,18 +18,18 @@
  *   NO grey backgrounds. NO compositing. The character IS the scene.
  *
  * STAGE 1b — RAW SCENE VALIDATION GATE (new 2026-05-28)
- *   Before submitting to HeyGen, visually validate the raw Seedance clip.
+ *   Before submitting to Sync Labs, visually validate the raw Seedance clip.
  *   If the clip shows a grey background or no real environment → reset to pending.
  *   If the clip looks like a real music video shot → proceed to Stage 2.
  *   This gate prevents wasting HeyGen API cost on bad Seedance outputs.
  *
- * STAGE 2 — LIP-SYNC CORRECTION PASS (HeyGen Precision v3 — PRIMARY, locked 2026-06-02)
+ * STAGE 2 — LIP-SYNC CORRECTION PASS (Sync Labs sync-3 — PRIMARY, switched 2026-06-04)
  *   Improve lip sync on the already-coherent Seedance performance clip.
  *   Input: Seedance scene video URL + isolated Demucs vocal stem URL.
  *   Output: lip-synced performance video (lipSyncVideoUrl).
  *   This is the FINAL performance scene clip used in assembly.
  *   Video-in / video-out architecture — NO portrait compositing, NO chromakey.
- *   WaveSpeed InfiniteTalk retained for legacy polling of in-flight jobs ONLY.
+ *   HeyGen retained for legacy polling of in-flight jobs ONLY.
  *
  * STAGE 3 — FINAL AUDIO RESTORATION (assembly worker)
  *   Assembly uses original mastered full mix (never vocal stem).
@@ -62,12 +62,10 @@ import { assessLipSyncQuality, shouldProceedToAssembly, shouldRetryLipSync } fro
 import { sdk } from "../_core/sdk";
 import { startSceneRender, pollSceneStatus, extractLyricsForWindow } from "../music-video-service";
 import { extractSceneAudioClip, sliceVocalStemForSeedance } from "../audio-clip-extractor";
-// WaveSpeed InfiniteTalk import removed — all in-flight jobs have completed or been reset.
-// pollWaveSpeedInfiniteTalk is no longer called; HeyGen Precision v3 is the sole lip-sync provider.
-// SyncLabs — retained for legacy polling of in-flight jobs ONLY. NOT used for new submissions.
-import { pollSyncLabsLipSync } from "../ai-apis/synclabs-lipsync";
-// HeyGen Precision v3 — PRIMARY lip-sync provider (video-in / video-out, locked 2026-06-02)
-import { submitHeyGenLipSyncV3, pollHeyGenLipSyncV3 } from "../ai-apis/heygen-lipsync";
+// Sync Labs sync-3 — PRIMARY lip-sync provider (switched from HeyGen 2026-06-04)
+import { submitSyncLabsLipSync, pollSyncLabsLipSync } from "../ai-apis/synclabs-lipsync";
+// HeyGen — retained for legacy polling of in-flight jobs ONLY. NOT used for new submissions.
+import { pollHeyGenLipSyncV3 } from "../ai-apis/heygen-lipsync";
 import { getProbeDecision } from "../pre-render-validator";
 import { resetSceneAttempts } from "../spend-protection";
 import { normaliseBpm } from "../instrument-analysis";
@@ -80,7 +78,8 @@ import { validateRawSceneForLipSync } from "../raw-scene-validator";
 
 const SCENE_STUCK_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes — reaper handles beyond this
 const SYNC_LABS_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes max for legacy Sync Labs jobs
-const HEYGEN_STUCK_TIMEOUT_MS = 12 * 60 * 1000; // 12 minutes max for HeyGen Precision v3
+const HEYGEN_STUCK_TIMEOUT_MS = 12 * 60 * 1000; // 12 minutes max for legacy HeyGen jobs
+const SYNCLABS_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes max for Sync Labs sync-3
 const INFINITETALK_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes max — legacy InfiniteTalk polling only
 // Compositing removed from pipeline (2026-05-28) — constants kept for legacy polling only
 const COMPOSITE_STUCK_TIMEOUT_MS = 10 * 60 * 1000;
@@ -646,7 +645,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 try {
                   const rawStartTime = scene.startTime ?? 0;
                   const startTimeSec = rawStartTime > 300 ? rawStartTime / 1000 : rawStartTime;
-                  console.log(`[SceneDispatch] Scene ${scene.id} clip ready — submitting to HeyGen Precision v3 (startTime=${startTimeSec}s, raw=${scene.startTime})`);
+                  console.log(`[SceneDispatch] Scene ${scene.id} clip ready — submitting to Sync Labs sync-3 (startTime=${startTimeSec}s, raw=${scene.startTime})`);
 
                   // HARD GUARD: isolated vocals MUST be used when available
                   const characterName = (scene as any).characterName ?? undefined;
@@ -708,38 +707,38 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                         .where(eq(musicVideoScenes.id, scene.id));
                       continue; // Skip HeyGen submission for this scene
                     }
-                    console.log(`[SceneDispatch] Scene ${scene.id} PASSED raw validation (${rawValidation.confidence} confidence) — proceeding to HeyGen Precision v3`);
+                    console.log(`[SceneDispatch] Scene ${scene.id} PASSED raw validation (${rawValidation.confidence} confidence) — proceeding to Sync Labs sync-3`);
 
-                    // ── STAGE 2: HeyGen Precision v3 lip-sync (video-in / video-out) ──
-                    // Architecture: Seedance scene video + isolated vocal stem → HeyGen → lip-synced video
-                    // No portrait required. No chromakey. HeyGen output IS the final performance clip.
-                    const heyGenTaskId = await submitHeyGenLipSyncV3({
+                    // ── STAGE 2: Sync Labs sync-3 lip-sync (video-in / video-out) ──
+                    // Architecture: Seedance scene video + isolated vocal stem → Sync Labs → lip-synced video
+                    // No portrait required. No chromakey. Sync Labs output IS the final performance clip.
+                    const syncLabsTaskId = await submitSyncLabsLipSync({
                       videoUrl: pollResult.videoUrl,   // Seedance scene video (character already inside)
                       audioUrl: sceneAudioUrl,          // Demucs-isolated vocal stem (scene window)
-                      title: `scene-${scene.id}-job-${job.id}`,
-                      mode: "precision",
-                      keepSameFormat: true,
-                      disableMusicTrack: false,         // Seedance clip has no separate audio track
+                      outputFileName: `scene-${scene.id}-job-${job.id}`,
+                      temperature: 1.0,                 // Maximum expressiveness for singing
+                      occlusionDetection: true,         // Handle mics, hands, hair over mouth
+                      syncMode: "cut_off",              // Trim to shorter of video/audio
                     });
 
-                    // Mark scene completed (raw Seedance clip) + lip sync processing (HeyGen)
+                    // Mark scene completed (raw Seedance clip) + lip sync processing (Sync Labs)
                     await db.update(musicVideoScenes)
                       .set({
                         status: "completed",
                         videoUrl: pollResult.videoUrl,
                         lipSyncStatus: "processing",
-                        lipSyncTaskId: heyGenTaskId,
+                        lipSyncTaskId: syncLabsTaskId,
                         updatedAt: new Date(),
                       })
                       .where(eq(musicVideoScenes.id, scene.id));
-                    console.log(`[SceneDispatch] Scene ${scene.id} → HeyGen Precision v3 task ${heyGenTaskId} submitted ✓`);
+                    console.log(`[SceneDispatch] Scene ${scene.id} → Sync Labs sync-3 task ${syncLabsTaskId} submitted ✓`);
                     totalLipSyncSubmitted++;
-                    syncLabsSubmittedThisTick++; // reuse counter for rate limiting
+                    syncLabsSubmittedThisTick++;
                   }
                 } catch (heyGenSubmitErr: any) {
-                  // HeyGen submission failed — reset lipSyncStatus to pending for retry.
+                  // Sync Labs submission failed — reset lipSyncStatus to pending for retry.
                   // Under the premium policy, 'error' blocks assembly permanently — never use it here.
-                  console.error(`[SceneDispatch] Scene ${scene.id} HeyGen Precision v3 submission FAILED: ${String(heyGenSubmitErr?.message ?? heyGenSubmitErr).slice(0, 300)}`);
+                  console.error(`[SceneDispatch] Scene ${scene.id} Sync Labs sync-3 submission FAILED: ${String(heyGenSubmitErr?.message ?? heyGenSubmitErr).slice(0, 300)}`);
                   await db.update(musicVideoScenes)
                     .set({
                       status: "completed",
@@ -902,32 +901,16 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               );
               console.log(`[SceneDispatch] Scene ${scene.id} RETRY: isolated vocals stem cut ✓`);
 
-              // RETRY: HeyGen Precision v3 — video-in / video-out (no portrait needed)
-              if (!scene.videoUrl) throw new Error(`Scene ${scene.id} RETRY: no videoUrl for HeyGen`);
+              // RETRY: Sync Labs sync-3 — video-in / video-out (no portrait needed)
+              if (!scene.videoUrl) throw new Error(`Scene ${scene.id} RETRY: no videoUrl for Sync Labs`);
 
-              // ── AUDIO MUX: Seedance i2v renders have no audio track.
-              // HeyGen Precision v3 requires an audio track in the input video.
-              // Mux the scene audio clip into the video before submitting.
-              let heyGenInputVideoUrl = scene.videoUrl;
-              try {
-                const { muxAudioIntoVideo } = await import("../video-audio-muxer");
-                heyGenInputVideoUrl = await muxAudioIntoVideo({
-                  videoUrl: scene.videoUrl,
-                  audioUrl: sceneAudioUrl,
-                  sceneId: scene.id,
-                });
-                console.log(`[SceneDispatch] Scene ${scene.id} RETRY: audio muxed into video ✓`);
-              } catch (muxErr: any) {
-                console.warn(`[SceneDispatch] Scene ${scene.id} RETRY: audio mux failed (${String(muxErr?.message ?? muxErr).slice(0, 100)}) — using original video`);
-              }
-
-              const retryHeyGenTaskId = await submitHeyGenLipSyncV3({
-                videoUrl: heyGenInputVideoUrl, // Muxed video (character + audio track)
-                audioUrl: sceneAudioUrl,       // Demucs-isolated vocal stem (scene window)
-                title: `scene-${scene.id}-job-${job.id}-retry`,
-                mode: "precision",
-                keepSameFormat: true,
-                disableMusicTrack: false,
+              const retrySyncLabsTaskId = await submitSyncLabsLipSync({
+                videoUrl: scene.videoUrl,      // Seedance scene video (character already inside)
+                audioUrl: sceneAudioUrl,        // Demucs-isolated vocal stem (scene window)
+                outputFileName: `scene-${scene.id}-job-${job.id}-retry`,
+                temperature: 1.0,
+                occlusionDetection: true,
+                syncMode: "cut_off",
               });
               // Use raw SQL to guarantee the lipSyncTaskId is persisted.
               // Drizzle ORM updates have been observed to silently fail for this column.
@@ -936,24 +919,24 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 try {
                   await rawConn.execute(
                     "UPDATE musicVideoScenes SET lipSyncStatus = 'processing', lipSyncTaskId = ?, updatedAt = NOW() WHERE id = ?",
-                    [retryHeyGenTaskId, scene.id]
+                    [retrySyncLabsTaskId, scene.id]
                   );
                 } finally {
                   await rawConn.end();
                 }
               }
-              console.log(`[SceneDispatch] Scene ${scene.id} RETRY → HeyGen Precision v3 task ${retryHeyGenTaskId} submitted ✓`);
+              console.log(`[SceneDispatch] Scene ${scene.id} RETRY → Sync Labs sync-3 task ${retrySyncLabsTaskId} submitted ✓`);
               syncLabsSubmittedThisTick++;
               totalLipSyncSubmitted++;
             } catch (retryErr: any) {
-              console.error(`[SceneDispatch] Scene ${scene.id} RETRY HeyGen Precision v3 failed: ${String(retryErr?.message ?? retryErr).slice(0, 200)} — will retry next tick`);
+              console.error(`[SceneDispatch] Scene ${scene.id} RETRY Sync Labs sync-3 failed: ${String(retryErr?.message ?? retryErr).slice(0, 200)} — will retry next tick`);
               // Do NOT set lipSyncStatus=error — that permanently blocks assembly.
               // Leave as pending so the next heartbeat tick retries submission.
             }
           }
         }
 
-        // ── 5. Poll HeyGen Precision v3 lip sync jobs ────────────────────────
+        // ── 5. Poll lip sync jobs (Sync Labs sync-3 PRIMARY; legacy HeyGen for in-flight) ──
         const lipSyncProcessingScenes = scenes.filter(
           (s) => s.status === "completed" && s.lipSyncStatus === "processing" && s.lipSyncTaskId
         );
@@ -963,8 +946,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             try {
               const sceneAge = Date.now() - new Date(scene.updatedAt).getTime();
 
-              if (sceneAge > HEYGEN_STUCK_TIMEOUT_MS) {
-                console.warn(`[SceneDispatch] Scene ${scene.id} HeyGen Precision v3 job stuck for ${Math.round(sceneAge / 60000)}min — resetting to pending for retry`);
+              const stuckTimeout = SYNCLABS_STUCK_TIMEOUT_MS;
+              if (sceneAge > stuckTimeout) {
+                console.warn(`[SceneDispatch] Scene ${scene.id} lip sync job stuck for ${Math.round(sceneAge / 60000)}min — resetting to pending for retry`);
                 // Reset to pending so the heartbeat re-submits on the next tick.
                 // Under the premium policy, 'error' blocks assembly permanently — never use it here.
                 await db.update(musicVideoScenes)
@@ -973,14 +957,32 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 continue;
               }
 
-              const pollResult = await pollHeyGenLipSyncV3(scene.lipSyncTaskId!);
+              // Detect provider from task ID format:
+              // HeyGen task IDs are short alphanumeric strings (no hyphens, <20 chars)
+              // Sync Labs task IDs are UUIDs (36 chars with hyphens, e.g. xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+              const taskIdStr = scene.lipSyncTaskId!;
+              const isLegacyHeyGen = taskIdStr.length < 30 && !taskIdStr.match(/^[0-9a-f]{8}-[0-9a-f]{4}-/i);
+              let pollResult: { status: string; videoUrl?: string };
+              if (isLegacyHeyGen) {
+                console.log(`[SceneDispatch] Scene ${scene.id} — legacy HeyGen task ${taskIdStr}, polling HeyGen`);
+                const heyGenPoll = await pollHeyGenLipSyncV3(taskIdStr);
+                pollResult = { status: heyGenPoll.status, videoUrl: heyGenPoll.videoUrl };
+              } else {
+                // Sync Labs sync-3 polling
+                const { SyncClient } = await import("@sync.so/sdk");
+                const sync = new SyncClient({ apiKey: process.env.SYNC_LABS_API_KEY! });
+                const gen = await sync.generations.get(taskIdStr);
+                const syncStatus = gen.status === "COMPLETED" ? "completed" : gen.status === "FAILED" || gen.status === "REJECTED" ? "failed" : "processing";
+                const syncOutputUrl = (gen as any).outputUrl ?? (gen as any).output_url;
+                pollResult = { status: syncStatus, videoUrl: syncOutputUrl };
+              }
 
               if (pollResult.status === "completed" && pollResult.videoUrl) {
                 // Download and re-upload to S3 for permanent storage
                 const { storagePut } = await import("../storage");
                 const resp = await fetch(pollResult.videoUrl);
                 const buf = Buffer.from(await resp.arrayBuffer());
-                const key = `music-video-scenes/${scene.id}-heygen-v3-${Date.now()}.mp4`;
+                const key = `music-video-scenes/${scene.id}-synclabs-${Date.now()}.mp4`;
                 const { url } = await storagePut(key, buf, "video/mp4");
 
                 // ── LSE-D / LSE-C lip-sync gate ──────────────────────────────────────────────────
@@ -1028,7 +1030,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                       updatedAt: new Date(),
                     })
                     .where(eq(musicVideoScenes.id, scene.id));
-                  console.log(`[SceneDispatch] Scene ${scene.id} HeyGen Precision v3 lip sync DONE ✓ (gate: ${lipSyncGateResult.gate}) → compositeStatus=skipped`);
+                  console.log(`[SceneDispatch] Scene ${scene.id} Sync Labs sync-3 lip sync DONE ✓ (gate: ${lipSyncGateResult.gate}) → compositeStatus=skipped`);
                   totalLipSyncPolled++;
                 }
 
@@ -1040,22 +1042,22 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                     await db.update(musicVideoJobs)
                       .set({ probeVideoUrl: url, updatedAt: new Date() })
                       .where(eq(musicVideoJobs.id, job.id));
-                    console.log(`[SceneDispatch] Job ${job.id} PROBE HEYGEN COMPLETE — lip-synced video ready for owner review: ${url.slice(0, 60)}...`);
+                    console.log(`[SceneDispatch] Job ${job.id} PROBE LIP SYNC COMPLETE — lip-synced video ready for owner review: ${url.slice(0, 60)}...`);
                   }
                 } catch { /* non-fatal */ }
 
               } else if (pollResult.status === "failed") {
-                console.error(`[SceneDispatch] Scene ${scene.id} HeyGen Precision v3 job ${scene.lipSyncTaskId} FAILED — resetting to pending for retry`);
+                console.error(`[SceneDispatch] Scene ${scene.id} lip sync job ${scene.lipSyncTaskId} FAILED — resetting to pending for retry`);
                 // Reset to pending so the heartbeat re-submits on the next tick.
                 // Under the premium policy, 'error' permanently blocks assembly — never use it here.
                 await db.update(musicVideoScenes)
                   .set({ lipSyncStatus: "pending", lipSyncTaskId: null, updatedAt: new Date() })
                   .where(eq(musicVideoScenes.id, scene.id));
               } else {
-                console.log(`[SceneDispatch] Scene ${scene.id} HeyGen Precision v3 status: ${pollResult.status} — polling next tick`);
+                console.log(`[SceneDispatch] Scene ${scene.id} lip sync status: ${pollResult.status} — polling next tick`);
               }
             } catch (pollHeyGenErr: any) {
-              console.error(`[SceneDispatch] HeyGen Precision v3 poll error for scene ${scene.id}: ${String(pollHeyGenErr?.message ?? pollHeyGenErr).slice(0, 200)}`);
+              console.error(`[SceneDispatch] Lip sync poll error for scene ${scene.id}: ${String(pollHeyGenErr?.message ?? pollHeyGenErr).slice(0, 200)}`);
             }
           }
         }
@@ -1063,7 +1065,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         // ── 5b. COMPOSITING REMOVED (2026-05-28) ─────────────────────────────────────────────
         // The compositing stage (ffmpeg chromakey + overlay) has been removed from the pipeline.
         // Zara is now generated INSIDE the scene by Seedance — no cutout, no grey background.
-        // HeyGen Precision v3 output (lipSyncVideoUrl) is the final performance clip for assembly.
+        // Sync Labs sync-3 output (lipSyncVideoUrl) is the final performance clip for assembly.
         // compositeStatus is set to 'skipped' for ALL scenes.
 
         // ── 6. Re-check completion after polling ───────────────────────────────
@@ -1082,7 +1084,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         const nowGenerating = freshScenes.filter((s) => s.status === "generating");
 
         // Lip sync readiness: a scene is "lip sync ready" ONLY if lipSyncStatus='done'.
-        // 'error' is NOT acceptable under the premium policy — it means HeyGen Precision v3 failed
+        // 'error' is NOT acceptable under the premium policy — it means Sync Labs sync-3 failed
         // and the scene has no lip-synced clip. The pipeline retries until 'done'.
         // nowLipSyncReady and nowLipSyncProcessing are now handled by nowCompositeReady/nowCompositeProcessing
         // (which are based on lipSyncStatus in the 3-stage pipeline)
