@@ -275,6 +275,32 @@ function ScenePreviewGrid({
   const allApproved = completedCount > 0 && approvedCount === completedCount;
   const totalCount = scenes.length;
 
+  // ── Vocal awareness: pre-compute per-scene vocal metadata ──────────────────
+  // Detect the first scene where vocals are active (lipSync=true) — this is the
+  // "VOCALS START" moment that users need to see at a glance.
+  const firstVocalSceneId = scenes.find((s) => s.sceneType === "performance" && s.lyrics?.trim())?.id ?? null;
+
+  /** Derive a section label from position + lyrics content */
+  function deriveSectionLabel(scene: SceneReviewItem, idx: number): string | null {
+    const lyr = (scene.lyrics ?? "").toLowerCase();
+    const isVocal = scene.sceneType === "performance" && !!scene.lyrics?.trim();
+    // Cinematic scenes: label by position
+    if (scene.sceneType !== "performance") return idx === 0 ? "INTRO" : idx === scenes.length - 1 ? "OUTRO" : "CINEMATIC";
+    // Performance with no lyrics
+    if (!isVocal) return null;
+    // Generic section detection by common structural keywords
+    const chorusWords = ["chorus", "i am", "let the", "we are", "you are", "rise", "fly", "open", "free", "yeah", "oh oh", "na na"];
+    const bridgeWords = ["bridge", "giving", "everything", "behind", "lies", "truth", "middle", "break"];
+    const preChorusWords = ["building", "tidal", "edges", "almost", "ready", "about to", "feel it"];
+    if (bridgeWords.some(w => lyr.includes(w)) && idx > Math.floor(scenes.length * 0.4) && idx < Math.floor(scenes.length * 0.85)) return "BRIDGE";
+    if (preChorusWords.some(w => lyr.includes(w))) return "PRE-CHORUS";
+    if (chorusWords.some(w => lyr.includes(w))) return "CHORUS";
+    // First vocal scene = verse 1, subsequent vocal scenes = verse
+    const vocalScenes = scenes.filter(s => s.sceneType === "performance" && s.lyrics?.trim());
+    const vocalIdx = vocalScenes.findIndex(s => s.id === scene.id);
+    return vocalIdx <= 1 ? "VERSE 1" : "VERSE";
+  }
+
   return (
     <div className="mb-6">
       {/* Section header */}
@@ -302,7 +328,7 @@ function ScenePreviewGrid({
       )}
 
       <div className="space-y-3">
-        {scenes.map((scene) => {
+        {scenes.map((scene, sceneArrayIdx) => {
           const isPlaying = playingId === scene.id;
           const isEditing = editingSceneId === scene.id;
           const isRegenerating = regeneratingScenes.has(scene.id);
@@ -313,6 +339,23 @@ function ScenePreviewGrid({
           const mins = Math.floor(startTime / 60);
           const secs = Math.floor(startTime % 60);
           const timeLabel = `${mins}:${secs.toString().padStart(2, "0")}`;
+
+          // ── Vocal awareness metadata for this scene ─────────────────────────────────
+          const isVocalsStart = scene.id === firstVocalSceneId;
+          const hasVocals = scene.sceneType === "performance" && !!scene.lyrics?.trim();
+          const sectionLabel = deriveSectionLabel(scene, sceneArrayIdx);
+          // Section label colour map
+          const sectionColors: Record<string, string> = {
+            "INTRO":      "bg-blue-500/15 text-blue-300/80 border-blue-500/20",
+            "OUTRO":      "bg-blue-500/15 text-blue-300/80 border-blue-500/20",
+            "CINEMATIC":  "bg-white/5 text-white/30 border-white/10",
+            "VERSE 1":    "bg-amber-500/10 text-amber-300/70 border-amber-500/20",
+            "VERSE":      "bg-amber-500/10 text-amber-300/70 border-amber-500/20",
+            "PRE-CHORUS": "bg-orange-500/10 text-orange-300/70 border-orange-500/20",
+            "CHORUS":     "bg-[rgba(184,137,42,0.2)] text-[--color-gold] border-[rgba(184,137,42,0.35)]",
+            "BRIDGE":     "bg-purple-500/15 text-purple-300/80 border-purple-500/25",
+          };
+          const sectionColorClass = sectionLabel ? (sectionColors[sectionLabel] ?? "bg-white/5 text-white/30 border-white/10") : "";
 
           // WizSync™ quality logic:
           // - Performance scenes: show compositeVideoUrl when ready (Zara on Air Studios + lip sync)
@@ -328,8 +371,19 @@ function ScenePreviewGrid({
           const canPreview = !!displayVideoUrl;
 
           return (
+            <div key={scene.id}>
+              {/* ── VOCALS START banner — shown on the first scene with active vocals ── */}
+              {isVocalsStart && (
+                <div className="flex items-center gap-2 mb-2 px-1">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[rgba(184,137,42,0.18)] border border-[rgba(184,137,42,0.4)] text-[--color-gold] text-[10px] font-bold tracking-widest uppercase">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3zm7 9a7 7 0 0 1-14 0H3a9 9 0 0 0 8 8.94V22h2v-2.06A9 9 0 0 0 21 11h-2z"/></svg>
+                    Vocals start here
+                  </div>
+                  <div className="flex-1 h-px bg-[rgba(184,137,42,0.2)]" />
+                  <span className="text-[9px] text-[--color-gold]/50 font-mono">{timeLabel}</span>
+                </div>
+              )}
             <div
-              key={scene.id}
               className={`rounded-xl overflow-hidden border transition-colors ${
                 compositeDone || (!isPerformance && scene.status === "completed")
                   ? "border-[rgba(184,137,42,0.25)] bg-[rgba(14,11,7,0.95)]"
@@ -409,17 +463,48 @@ function ScenePreviewGrid({
 
                 {/* ── Right: Details + edit ── */}
                 <div className="flex-1 min-w-0 p-3 flex flex-col gap-2">
-                  {/* Lyrics strip */}
+
+                  {/* ── Section label + vocal status row ── */}
+                  {!isEditing && (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      {/* Section label pill */}
+                      {sectionLabel && (
+                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold tracking-widest uppercase border ${sectionColorClass}`}>
+                          {sectionLabel}
+                        </span>
+                      )}
+                      {/* Vocal status indicator */}
+                      {hasVocals ? (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-medium bg-emerald-500/10 text-emerald-400/80 border border-emerald-500/20">
+                          <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3zm7 9a7 7 0 0 1-14 0H3a9 9 0 0 0 8 8.94V22h2v-2.06A9 9 0 0 0 21 11h-2z"/></svg>
+                          Vocals
+                        </span>
+                      ) : scene.sceneType === "performance" ? (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-medium bg-white/5 text-white/25 border border-white/10">
+                          <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3zm7 9a7 7 0 0 1-14 0H3a9 9 0 0 0 8 8.94V22h2v-2.06A9 9 0 0 0 21 11h-2z"/></svg>
+                          Instrumental
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-medium bg-white/5 text-white/25 border border-white/10">
+                          <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                          Cinematic
+                        </span>
+                      )}
+                      {/* Time marker */}
+                      <span className="ml-auto text-[9px] font-mono text-white/25">{timeLabel}</span>
+                    </div>
+                  )}
+
+                  {/* Enhanced lyrics strip with gold left-border accent */}
                   {scene.lyrics && !isEditing && (
-                    <div className="flex items-start gap-1.5">
-                      <svg className="w-3 h-3 text-[--color-gold]/50 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-                      <p className="text-[11px] text-white/60 leading-relaxed line-clamp-2 font-mono whitespace-pre-wrap">{scene.lyrics.trim()}</p>
+                    <div className="flex items-start gap-2 pl-2 border-l-2 border-[rgba(184,137,42,0.4)]">
+                      <p className="text-[11px] text-white/70 leading-relaxed line-clamp-2 font-mono whitespace-pre-wrap italic">{scene.lyrics.trim()}</p>
                     </div>
                   )}
 
                   {/* Prompt (collapsed unless editing) */}
                   {!isEditing && scene.prompt && (
-                    <p className="text-[11px] text-white/40 leading-relaxed line-clamp-2">{scene.prompt}</p>
+                    <p className="text-[11px] text-white/35 leading-relaxed line-clamp-2">{scene.prompt}</p>
                   )}
 
                   {/* Inline edit form */}
@@ -537,6 +622,7 @@ function ScenePreviewGrid({
                   </div>
                 </div>
               </div>
+            </div>
             </div>
           );
         })}

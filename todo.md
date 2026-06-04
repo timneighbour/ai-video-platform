@@ -8989,3 +8989,11 @@
 - [ ] Add server-side RenderDispatchWorker: background worker that re-dispatches pending scenes for stuck rendering jobs (survives page close and server restart)
 - [ ] Fix: kick stuck pending scenes in job 960001 to resume rendering
 - [x] Switch lip sync provider from HeyGen to Sync Labs sync-3 in sceneDispatchHeartbeat.ts (submit, retry, and poll paths)
+
+## Vocal Awareness in Storyboard Scene Cards
+- [x] Add "VOCALS START HERE" banner with gold mic icon above the first scene with active vocals
+- [x] Add section label pills (INTRO, VERSE 1, VERSE, PRE-CHORUS, CHORUS, BRIDGE, OUTRO, CINEMATIC) per scene
+- [x] Add vocal status indicator (green "Vocals" / grey "Instrumental" / grey "Cinematic") per scene
+- [x] Enhance lyrics strip with gold left-border accent and italic font for better readability
+- [x] Add time marker to the section label row for quick reference
+- [x] Section detection uses generic keyword heuristics (works for any song, not hardcoded)
