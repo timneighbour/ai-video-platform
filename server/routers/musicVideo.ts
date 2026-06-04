@@ -5649,6 +5649,7 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
           sceneIndex: musicVideoScenes.sceneIndex,
           sceneType: musicVideoScenes.sceneType,
           status: musicVideoScenes.status,
+          lipSync: musicVideoScenes.lipSync,
           lipSyncStatus: musicVideoScenes.lipSyncStatus,
           compositeStatus: musicVideoScenes.compositeStatus,
           compositeVideoUrl: musicVideoScenes.compositeVideoUrl,
@@ -5668,9 +5669,19 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
         jobAudioUrl: job.audioUrl ?? null,
         scenes: scenes.map((s) => {
           const isPerformance = s.sceneType === "performance";
-          // compositeDone: either old compositing pipeline (compositeStatus=done) or new direct pipeline (compositeStatus=skipped, lipSyncStatus=done)
-          const compositeDone = (s.compositeStatus === "done" && !!s.compositeVideoUrl) ||
-            (s.compositeStatus === "skipped" && s.lipSyncStatus === "done" && !!s.lipSyncVideoUrl);
+          // needsLipSync: performance scene that has lipSync enabled (lipSync column or inferred from sceneType)
+          // For performance scenes with lipSync=off, the raw Seedance videoUrl IS the final clip.
+          const needsLipSync = isPerformance && !!s.lipSync;
+
+          // compositeDone:
+          // - Old compositing pipeline: compositeStatus=done + compositeVideoUrl present
+          // - New direct pipeline (lipSync on): compositeStatus=skipped + lipSyncStatus=done + lipSyncVideoUrl present
+          // - New direct pipeline (lipSync off): compositeStatus=skipped + status=completed + videoUrl present
+          const compositeDone =
+            (s.compositeStatus === "done" && !!s.compositeVideoUrl) ||
+            (s.compositeStatus === "skipped" && needsLipSync && s.lipSyncStatus === "done" && !!s.lipSyncVideoUrl) ||
+            (s.compositeStatus === "skipped" && !needsLipSync && s.status === "completed" && !!s.videoUrl);
+
           const cinematicReady = !isPerformance && s.status === "completed" && !!s.videoUrl;
 
           let previewUrl: string | null = null;
@@ -5678,19 +5689,26 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
 
           if (isPerformance) {
             if (compositeDone) {
-              // New pipeline: lipSyncVideoUrl is the final clip (compositeStatus=skipped)
-              // Old pipeline: compositeVideoUrl is the final clip (compositeStatus=done)
-              previewUrl = s.compositeStatus === "skipped" ? s.lipSyncVideoUrl! : s.compositeVideoUrl!;
+              // New pipeline (lipSync on): lipSyncVideoUrl is the final clip
+              // New pipeline (lipSync off): videoUrl is the final clip
+              // Old pipeline: compositeVideoUrl is the final clip
+              if (s.compositeStatus === "skipped") {
+                previewUrl = needsLipSync ? s.lipSyncVideoUrl! : s.videoUrl!;
+              } else {
+                previewUrl = s.compositeVideoUrl!;
+              }
               previewState = "ready";
             } else if (
-              s.status === "completed" ||
               s.lipSyncStatus === "processing" ||
               s.compositeStatus === "processing" ||
-              s.compositeStatus === "pending"
+              (s.status === "completed" && needsLipSync && s.lipSyncStatus !== "done") ||
+              (s.compositeStatus === "pending" && s.status === "completed")
             ) {
               previewState = "compositing";
             } else if (s.status === "pending") {
               previewState = "pending";
+            } else if (s.status === "generating") {
+              previewState = "waiting";
             }
           } else {
             if (cinematicReady) {
