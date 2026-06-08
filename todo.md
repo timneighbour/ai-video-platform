@@ -9011,3 +9011,10 @@
 - [x] Pass isolated vocal stem URL (trimmed to scene window) to Sync Labs instead of full mix audio
 - [x] Reset current job 1020003 — vocalsStatus=pending, lalalSourceId=null, lalalTaskId=null — ready for next heartbeat tick
 - [x] Switched vocal isolation provider from Lalal.ai → WaveSpeed AI audio-vocal-isolator (no separate API key needed — uses existing WAVESPEED_API_KEY)
+
+## Scene Prompt Quality — Instrument Playing Constraints
+- [ ] Fix scene prompt generation: pianist must always be seated at piano with hands on keys, never standing
+- [ ] Add hard instrument-playing constraints for all instruments (piano=seated, cello=seated with bow, violin=chin rest, guitar=held, drums=seated behind kit)
+- [ ] Regenerate scene 1 on job 1020003 with corrected prompt (pianist standing up — unacceptable)
+- [ ] Fix job serialisation: give dispatch slot to most-progressed job, not lowest ID
+- [ ] Approve scene 0 on job 960001 so its one-at-a-time gate releases scene 1

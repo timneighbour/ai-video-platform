@@ -158,10 +158,25 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
     // ── JOB SERIALISATION GUARD ────────────────────────────────────────────────
     // Only ONE job may dispatch new scenes at a time to prevent concurrent jobs
     // from competing for provider credits (WaveSpeed, Fal.ai, etc.).
-    // The job with the LOWEST id (oldest) gets the dispatch slot.
+    // The job with the MOST COMPLETED SCENES gets the dispatch slot (most-progressed first).
+    // Ties are broken by highest job ID (most recent job wins).
     // All other jobs still poll for completions and run assembly — they just
     // cannot submit NEW scene tasks until the active job finishes.
-    const sortedJobs = [...activeJobs].sort((a, b) => a.id - b.id);
+    const jobCompletionCounts = await Promise.all(
+      activeJobs.map(async (j) => {
+        const jobScenes = await db.select({ status: musicVideoScenes.status })
+          .from(musicVideoScenes).where(eq(musicVideoScenes.jobId, j.id));
+        const completedCount = jobScenes.filter(s => s.status === 'completed').length;
+        return { id: j.id, completedCount };
+      })
+    );
+    // Sort: most completed first, then highest ID as tiebreaker
+    const sortedJobs = [...activeJobs].sort((a, b) => {
+      const aCompleted = jobCompletionCounts.find(c => c.id === a.id)?.completedCount ?? 0;
+      const bCompleted = jobCompletionCounts.find(c => c.id === b.id)?.completedCount ?? 0;
+      if (bCompleted !== aCompleted) return bCompleted - aCompleted; // most completed first
+      return b.id - a.id; // highest ID as tiebreaker
+    });
     const dispatchSlotJobId = sortedJobs[0].id;
     if (activeJobs.length > 1) {
       console.log(`[SceneDispatch] SERIALISATION: ${activeJobs.length} active jobs — only job ${dispatchSlotJobId} may dispatch new scenes this tick. Others will poll only.`);

@@ -630,6 +630,16 @@ RULE 7 — FORBIDDEN TOKENS (NEVER USE THESE IN ANY PROMPT):
   ❌ "duplicate singer" or "two versions of"
   ❌ "performs on stage" (too vague — always specify the exact environment)
   ❌ "singing in front of" (implies a flat background — use "inside" or "within" instead)
+
+RULE 8 — INSTRUMENT PLAYING POSTURE (NON-NEGOTIABLE):
+  Musicians MUST always be shown in the correct physical posture for their instrument:
+  ❌ NEVER show a pianist standing up next to a piano — pianists are ALWAYS seated at the piano bench, hands on keys, actively playing
+  ❌ NEVER show a cellist standing — cellists are ALWAYS seated with the cello between their knees, bow on strings
+  ❌ NEVER show a violinist without the instrument under their chin, bow on strings
+  ❌ NEVER show a guitarist holding the guitar at their side — guitarists are ALWAYS holding the guitar in playing position, fingers on frets
+  ❌ NEVER show a drummer standing — drummers are ALWAYS seated behind the full kit, sticks in hand
+  ✅ ALWAYS specify the playing posture explicitly: "seated at the grand piano, hands moving across the keys", "cellist seated, drawing the bow across the strings", "guitarist fingers moving on the frets"
+  This is a HARD RULE. A musician standing idle next to their instrument is a critical scene failure.
 ═══════════════════════════════════════════════════════════════` : "";
 
   const systemPrompt = `You are a premium cinematic music video director — not an AI avatar generator.
