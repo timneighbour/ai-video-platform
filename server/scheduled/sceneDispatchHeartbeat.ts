@@ -182,6 +182,20 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
       console.log(`[SceneDispatch] SERIALISATION: ${activeJobs.length} active jobs — only job ${dispatchSlotJobId} may dispatch new scenes this tick. Others will poll only.`);
     }
 
+    // ── GLOBAL ONE-SCENE-AT-A-TIME GUARD ─────────────────────────────────────────
+    // Block ALL new scene video generation dispatches if ANY scene across ANY job
+    // is currently in-flight (status='generating'). This prevents concurrent credit
+    // burns across multiple jobs and ensures Tim can review each scene before the
+    // next one is submitted. Lip sync polling and assembly are NOT blocked.
+    const globalGeneratingScenes = await db
+      .select({ id: musicVideoScenes.id, jobId: musicVideoScenes.jobId, sceneIndex: musicVideoScenes.sceneIndex })
+      .from(musicVideoScenes)
+      .where(eq(musicVideoScenes.status, "generating"));
+    const globallyBlocked = globalGeneratingScenes.length > 0;
+    if (globallyBlocked) {
+      console.log(`[SceneDispatch] GLOBAL GUARD: ${globalGeneratingScenes.length} scene(s) currently generating across all jobs — no new dispatches this tick. Polling only.`);
+    }
+
     let totalDispatched = 0;
     let totalPolled = 0;
     let totalLipSyncSubmitted = 0;
@@ -233,11 +247,12 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
 
         // Note: schema uses 'status' as the TypeScript field name (DB column is 'mvSceneStatus')
         // SERIALISATION: if this job does not hold the dispatch slot, suppress new dispatches.
+        // GLOBAL GUARD: also suppress if any scene is generating globally (one-at-a-time across all jobs).
         // It will still poll generating scenes and trigger assembly.
         const holdsDispatchSlot = job.id === dispatchSlotJobId;
-        const pendingScenes = holdsDispatchSlot
+        const pendingScenes = (holdsDispatchSlot && !globallyBlocked)
           ? scenes.filter((s) => s.status === "pending" && !s.taskId)
-          : []; // Non-priority jobs: poll only, no new dispatches
+          : []; // Non-priority jobs OR globally blocked: poll only, no new dispatches
         const generatingScenes = scenes.filter(
           (s) => s.status === "generating" && s.taskId
         );

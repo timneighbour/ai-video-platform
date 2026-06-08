@@ -9013,8 +9013,24 @@
 - [x] Switched vocal isolation provider from Lalal.ai → WaveSpeed AI audio-vocal-isolator (no separate API key needed — uses existing WAVESPEED_API_KEY)
 
 ## Scene Prompt Quality — Instrument Playing Constraints
-- [ ] Fix scene prompt generation: pianist must always be seated at piano with hands on keys, never standing
-- [ ] Add hard instrument-playing constraints for all instruments (piano=seated, cello=seated with bow, violin=chin rest, guitar=held, drums=seated behind kit)
-- [ ] Regenerate scene 1 on job 1020003 with corrected prompt (pianist standing up — unacceptable)
-- [ ] Fix job serialisation: give dispatch slot to most-progressed job, not lowest ID
-- [ ] Approve scene 0 on job 960001 so its one-at-a-time gate releases scene 1
+- [x] Fix scene prompt generation: pianist must always be seated at piano with hands on keys, never standing (Rule 8 added to prompt system)
+- [x] Add hard instrument-playing constraints for all instruments (piano=seated, cello=seated with bow, violin=chin rest, guitar=held, drums=seated behind kit)
+- [x] Regenerate scene 1 on job 1020003 with corrected prompt (removed 'standing', added 'facing the camera, lips parted mid-lyric')
+- [x] Fix job serialisation: give dispatch slot to most-progressed job (most completed scenes), not lowest ID
+- [x] Approve scene 0 on job 960001 so its one-at-a-time gate releases scene 1
+
+## Pipeline Safety — One Scene At A Time + Vocal Isolation Gate
+- [ ] Enforce global one-scene-at-a-time dispatch: block new scene video generation if ANY scene across ALL jobs is currently in-flight (status=rendering/processing)
+- [ ] Require explicit owner approval before next scene dispatches (already per-job, now enforce globally)
+- [ ] Hard gate: vocalsStatus must be 'done' before ANY lip sync is submitted for any job
+- [ ] Verify vocal isolation stem URL is always passed to lip sync provider (never full mix audio)
+- [ ] Add vocal isolation auto-trigger for job 960001 (check if vocalsStatus=pending and trigger WaveSpeed)
+
+## Pipeline Safety — One Scene At A Time (Global)
+- [x] Add global one-scene-at-a-time guard: block ALL new scene dispatches if any scene is generating across any job
+- [x] Wire globallyBlocked flag into pendingScenes filter so no new dispatches fire during in-flight generation
+- [x] Confirmed vocal stems in musicVideoVocalStems table for both jobs 960001 and 1020003 (WaveSpeed CloudFront URLs)
+- [x] Confirmed vocalsStatus=done for both active jobs — lip sync will use isolated stem, not full mix
+- [x] Deferred lip sync retry path verified (completed+lipSyncStatus=pending scenes picked up each heartbeat tick)
+- [x] Job serialisation fixed: dispatch slot goes to most-progressed job (most completed scenes), not lowest ID
+- [x] Scene 0 on job 960001 approved so its one-at-a-time gate releases scene 1
