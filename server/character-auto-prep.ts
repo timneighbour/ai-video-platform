@@ -37,6 +37,7 @@ import { videoCharacters } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { generateImage } from "./_core/imageGeneration";
 import { storagePut } from "./storage";
+import { resolveVenueReferenceUrl } from "./music-video-service";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -207,20 +208,48 @@ async function generateAndUploadRef(
   prompt: string,
   characterId: number,
   refType: "performance" | "mediumshot" | "cinematic" | "environment",
-  masterPortraitUrl?: string | null
+  masterPortraitUrl?: string | null,
+  venueReferenceUrl?: string | null
 ): Promise<string | null> {
   try {
-    const result = await generateImage({
-      prompt,
-      originalImages: masterPortraitUrl
-        ? [{ url: masterPortraitUrl, mimeType: "image/jpeg" }]
-        : undefined,
-    });
+    let generatedUrl: string | undefined;
 
-    if (!result.url) {
+    // For environment refs with a known venue, use Flux Pro img2img to anchor the real venue
+    if (refType === "environment" && venueReferenceUrl) {
+      try {
+        const { generateCinematicStoryboardImage } = await import("./ai-apis/fal-image-gen");
+        const { url } = await generateCinematicStoryboardImage({
+          prompt,
+          aspectRatio: "16:9",
+          storageKeyPrefix: `character-refs/${characterId}/environment-venue`,
+          venueReferenceUrl,
+        });
+        generatedUrl = url;
+        console.log(`[AutoPrep] ✓ Environment ref generated with venue anchor for char ${characterId}`);
+      } catch (venueErr: any) {
+        console.warn(`[AutoPrep] Venue-anchored env ref failed, falling back to portrait edit: ${venueErr?.message?.slice(0, 100)}`);
+      }
+    }
+
+    // Fallback: use generateImage (portrait edit mode) for all other ref types or if venue anchor failed
+    if (!generatedUrl) {
+      const result = await generateImage({
+        prompt,
+        originalImages: masterPortraitUrl
+          ? [{ url: masterPortraitUrl, mimeType: "image/jpeg" }]
+          : undefined,
+      });
+      generatedUrl = result.url;
+    }
+
+    if (!generatedUrl) {
       console.error(`[AutoPrep] No URL returned for ${refType} ref (char ${characterId})`);
       return null;
     }
+
+    // For venue-anchored environment refs, the image is already uploaded to S3 by generateCinematicStoryboardImage
+    // For portrait-edit refs, we need to fetch and re-upload
+    const result = { url: generatedUrl };
 
     // Fetch the generated image and re-upload to our own S3 bucket
     // so we have a stable URL that doesn't expire
@@ -397,11 +426,18 @@ export async function runStage2EnvironmentPrep(
     .where(eq(videoCharacters.id, characterId));
 
   try {
+    // Resolve real venue reference image (e.g. Air Studios Lyndhurst Hall)
+    const venueRefUrl = resolveVenueReferenceUrl(sceneStyle);
+    if (venueRefUrl) {
+      console.log(`[AutoPrep] Stage 2 venue reference resolved for char ${characterId}: ${venueRefUrl.slice(0, 80)}...`);
+    }
+
     const envUrl = await generateAndUploadRef(
       buildEnvironmentPrompt(identityBrief, sceneStyle, characterName),
       characterId,
       "environment",
-      masterPortraitUrl
+      masterPortraitUrl,
+      venueRefUrl
     );
 
     const dbForUpdate = await getDb();

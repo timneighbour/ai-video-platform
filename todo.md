@@ -9046,3 +9046,12 @@
 - [ ] TypeScript check: 0 errors
 - [ ] Save checkpoint
 - [x] Migrate lip-sync from Sync Labs sync-3 to WaveSpeed InfiniteTalk hybrid pipeline (performance scenes skip Seedance → InfiniteTalk direct; cinematic scenes use Seedance only)
+
+## Air Studios Venue Reference & Storyboard Quality Fix
+- [x] Fix storyboard image generation to use 16:9 aspect ratio (already correct via job.aspectRatio → landscape_16_9)
+- [x] Add automatic venue reference image resolution — detects venue name in sceneSetting and uses real reference photo as Flux Pro img2img anchor
+- [x] Upload Air Studios Lyndhurst Hall reference images to CDN
+- [x] Update fal-image-gen.ts to support optional venueReferenceUrl parameter for img2img storyboard generation
+- [x] Update character Stage 2 environment portrait generation to use venue reference image anchor
+- [x] Reset job 1020003 storyboard images and environment refs for regeneration with Air Studios reference
+- [x] Set job 1020003 back to storyboard_ready to trigger regeneration with Air Studios anchor

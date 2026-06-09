@@ -32,6 +32,12 @@ export interface CinematicImageOptions {
   aspectRatio?: "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
   /** S3 key prefix for storage (e.g. "music-video-storyboard/660001-scene-1") */
   storageKeyPrefix?: string;
+  /**
+   * Optional venue/environment reference image URL.
+   * When provided, uses fal-ai/flux-pro/v1.1-ultra with image_prompt_strength
+   * to anchor the background to the real venue while keeping character freedom.
+   */
+  venueReferenceUrl?: string;
 }
 
 export interface CinematicImageResult {
@@ -60,11 +66,39 @@ export async function generateCinematicStoryboardImage(
 
   let imageUrl: string | undefined;
 
+  // If a venue reference image is provided, use flux-pro img2img to anchor the environment
+  if (options.venueReferenceUrl) {
+    try {
+      const result = await fal.subscribe("fal-ai/flux-pro/v1.1-ultra", {
+        input: {
+          prompt: cinematicPrompt,
+          image_url: options.venueReferenceUrl,
+          image_prompt_strength: 0.35, // 35% venue anchor, 65% creative freedom for characters
+          aspect_ratio: imageSize === "landscape_16_9" ? "16:9" : imageSize === "portrait_16_9" ? "9:16" : "1:1",
+          num_images: 1,
+          enable_safety_checker: false,
+          safety_tolerance: "5",
+          output_format: "jpeg",
+        },
+        logs: false,
+        pollInterval: 3000,
+      }) as any;
+      const images = result?.data?.images ?? result?.images;
+      if (images?.[0]?.url) {
+        imageUrl = images[0].url;
+        console.log(`[CinematicImageGen] Used venue reference (flux-pro-ultra img2img) → ${(imageUrl ?? "").slice(0, 80)}...`);
+      }
+    } catch (refErr: any) {
+      console.warn(`[CinematicImageGen] Venue reference img2img failed, falling back to text-only: ${refErr?.message?.slice(0, 100)}`);
+    }
+  }
+
   // Try Flux Pro first, fall back to Flux Dev
   const models = ["fal-ai/flux-pro/v1.1", "fal-ai/flux/dev"] as const;
   let lastError: Error | null = null;
 
   for (const modelId of models) {
+    if (imageUrl) break; // already got one from venue reference
     try {
       const result = await fal.subscribe(modelId, {
         input: {

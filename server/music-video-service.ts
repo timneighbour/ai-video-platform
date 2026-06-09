@@ -82,6 +82,37 @@ import { getCreditsPerScene } from "./products";
 import { normaliseBpm } from "./instrument-analysis";
 const SCENE_DURATION_SECONDS = 6; // target 6 seconds per scene for good pacing
 
+// ─────────────────────────────────────────────────────────────────────────────
+// VENUE REFERENCE RESOLVER
+// Maps well-known venue names in sceneSetting to real reference photo URLs.
+// These photos are uploaded to the CDN and used as img2img anchors in Flux Pro
+// so storyboard images show the actual venue, not an AI hallucination.
+// ─────────────────────────────────────────────────────────────────────────────
+const CDN = process.env.VITE_CDN_URL ?? "https://wiz-ai.b-cdn.net";
+
+const VENUE_REFERENCE_MAP: Array<{ keywords: string[]; url: string }> = [
+  {
+    // Air Studios Lyndhurst Hall — primary reference (full colour, orchestra setup)
+    keywords: ["air studios", "lyndhurst hall", "lyndhurst", "air lyndhurst"],
+    url: `${CDN}/manus-storage/air-studios-lyndhurst-hall-ref2_43dda11a.jpg`,
+  },
+];
+
+/**
+ * Given a sceneSetting string, return the best matching venue reference image URL.
+ * Returns undefined if no known venue is detected.
+ */
+export function resolveVenueReferenceUrl(sceneSetting?: string | null): string | undefined {
+  if (!sceneSetting) return undefined;
+  const lower = sceneSetting.toLowerCase();
+  for (const entry of VENUE_REFERENCE_MAP) {
+    if (entry.keywords.some(kw => lower.includes(kw))) {
+      return entry.url;
+    }
+  }
+  return undefined;
+}
+
 export function calculateSceneCount(audioDurationSeconds: number): number {
   // Target 6 seconds per scene for natural music video pacing.
   // Short tracks (<= 90s): cap at 15 scenes so it doesn't feel choppy.
@@ -2753,7 +2784,12 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
   });
 
   if (scenesNeedingStoryboard.length > 0) {
-    console.log(`[triggerMusicVideoRender] Generating ${scenesNeedingStoryboard.length} cinematic storyboard images for job ${musicVideoJobId} (aspect: ${jobAspectRatio})`);
+    // Resolve venue reference image for img2img anchoring (e.g. Air Studios Lyndhurst Hall)
+    const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
+    if (venueRefUrl) {
+      console.log(`[triggerMusicVideoRender] Venue reference resolved for job ${musicVideoJobId}: ${venueRefUrl.slice(0, 80)}...`);
+    }
+    console.log(`[triggerMusicVideoRender] Generating ${scenesNeedingStoryboard.length} cinematic storyboard images for job ${musicVideoJobId} (aspect: ${jobAspectRatio}${venueRefUrl ? ", venue-anchored" : ""})`);
     const { generateCinematicStoryboardImage } = await import("./ai-apis/fal-image-gen");
     await Promise.allSettled(
       scenesNeedingStoryboard.map(async (scene) => {
@@ -2762,6 +2798,7 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
             prompt: scene.prompt,
             aspectRatio: jobAspectRatio,
             storageKeyPrefix: `music-video-storyboard/${musicVideoJobId}-scene-${scene.id}-cinematic`,
+            venueReferenceUrl: venueRefUrl,
           });
           if (url) {
             await db!.update(musicVideoScenes)
@@ -2778,6 +2815,7 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
               prompt: scene.prompt.slice(0, 300),
               aspectRatio: jobAspectRatio,
               storageKeyPrefix: `music-video-storyboard/${musicVideoJobId}-scene-${scene.id}-fallback`,
+              venueReferenceUrl: venueRefUrl,
             });
             if (url) {
               await db!.update(musicVideoScenes)
