@@ -23,12 +23,13 @@
  *   If the clip looks like a real music video shot → proceed to Stage 2.
  *   This gate prevents wasting HeyGen API cost on bad Seedance outputs.
  *
- * STAGE 2 — LIP-SYNC CORRECTION PASS (Sync Labs sync-3 — PRIMARY, switched 2026-06-04)
- *   Improve lip sync on the already-coherent Seedance performance clip.
- *   Input: Seedance scene video URL + isolated Demucs vocal stem URL.
- *   Output: lip-synced performance video (lipSyncVideoUrl).
- *   This is the FINAL performance scene clip used in assembly.
- *   Video-in / video-out architecture — NO portrait compositing, NO chromakey.
+ * STAGE 2 — LIP-SYNC (WaveSpeed InfiniteTalk — PRIMARY, switched 2026-06-09)
+ *   HYBRID PIPELINE:
+ *   Performance scenes: SKIP Seedance entirely. Go directly from character image +
+ *     isolated vocal stem → InfiniteTalk → lip-synced video. Saves Seedance cost.
+ *   Cinematic scenes: Seedance only. No lip sync. compositeStatus=skipped.
+ *   InfiniteTalk input: character portrait URL + isolated vocal stem URL.
+ *   InfiniteTalk output: lip-synced performance video (lipSyncVideoUrl).
  *   HeyGen retained for legacy polling of in-flight jobs ONLY.
  *
  * STAGE 3 — FINAL AUDIO RESTORATION (assembly worker)
@@ -36,8 +37,8 @@
  *   Handled by assemblyWorker.ts (not here).
  *
  * SCENE TYPE ROUTING:
- *   performance (lipSync=true):  Stages 1 + 1b + 2. compositeStatus=skipped.
- *   cinematic (lipSync=false):   Stage 1 only. compositeStatus=skipped.
+ *   performance (lipSync=true):  Stage 2 only (InfiniteTalk direct). Skips Seedance. compositeStatus=skipped.
+ *   cinematic (lipSync=false):   Stage 1 only (Seedance). compositeStatus=skipped.
  *
  * ASSEMBLY GATE:
  *   All performance scenes must have lipSyncStatus=done.
@@ -62,8 +63,10 @@ import { assessLipSyncQuality, shouldProceedToAssembly, shouldRetryLipSync } fro
 import { sdk } from "../_core/sdk";
 import { startSceneRender, pollSceneStatus, extractLyricsForWindow } from "../music-video-service";
 import { extractSceneAudioClip, sliceVocalStemForSeedance } from "../audio-clip-extractor";
-// Sync Labs sync-3 — PRIMARY lip-sync provider (switched from HeyGen 2026-06-04)
-import { submitSyncLabsLipSync, pollSyncLabsLipSync } from "../ai-apis/synclabs-lipsync";
+// WaveSpeed InfiniteTalk — PRIMARY lip-sync provider (switched from Sync Labs 2026-06-09)
+// Performance scenes: character image + isolated vocal stem → InfiniteTalk → lip-synced video
+// Cinematic scenes: Seedance only (no lip sync)
+import { submitInfiniteTalkLipSync, pollInfiniteTalkLipSync } from "../ai-apis/infinitetalk-lipsync";
 // HeyGen — retained for legacy polling of in-flight jobs ONLY. NOT used for new submissions.
 import { pollHeyGenLipSyncV3 } from "../ai-apis/heygen-lipsync";
 import { getProbeDecision } from "../pre-render-validator";
@@ -78,10 +81,8 @@ import { triggerCloudVocalIsolation } from "../cloud-vocal-isolation";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
 const SCENE_STUCK_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes — reaper handles beyond this
-const SYNC_LABS_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes max for legacy Sync Labs jobs
 const HEYGEN_STUCK_TIMEOUT_MS = 12 * 60 * 1000; // 12 minutes max for legacy HeyGen jobs
-const SYNCLABS_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes max for Sync Labs sync-3
-const INFINITETALK_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes max — legacy InfiniteTalk polling only
+const INFINITETALK_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes max for InfiniteTalk lip sync
 // Compositing removed from pipeline (2026-05-28) — constants kept for legacy polling only
 const COMPOSITE_STUCK_TIMEOUT_MS = 10 * 60 * 1000;
 const MAX_COMPOSITE_ATTEMPTS = 3;
@@ -204,9 +205,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
     const totalCompositeStarted = 0;
     const totalCompositeCompleted = 0;
     let totalAssembled = 0;
-    // SyncLabs concurrency guard: max 2 submissions per heartbeat tick to avoid 429 rate limit errors
-    let syncLabsSubmittedThisTick = 0;
-    const SYNC_LABS_MAX_PER_TICK = 2;
+    // InfiniteTalk concurrency guard: max 2 submissions per heartbeat tick
+    let infiniteTalkSubmittedThisTick = 0;
+    const INFINITETALK_MAX_PER_TICK = 2;
 
     for (const job of activeJobs) {
       try {
@@ -535,58 +536,122 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               console.log(`[SceneDispatch] Scene ${scene.id} no lyrics available — r2v will use audio-only lip sync`);
             }
 
-            // ── STRATEGY DISPATCH ─────────────────────────────────────────────
-            // Pass scene.lipSync, sceneAudioUrlForR2V (sliced vocal stem), and scene.startTime
-            // so startSceneRender can select the correct strategy:
-            //   Strategy 1: lipSync=true + audioUrl + startTime → reference-to-video (r2v)
-            //     audioUrl is now the pre-sliced vocal stem WAV for this scene window
-            //   Strategy 2: lipSync=false or no audio → image-to-video
-            //   Strategy 3: no character image → text-to-video
-            // ── PROVIDER OVERRIDE: respect job.fallbackProvider ───────────────
-            // If the job has fallbackProvider='wavespeed', force WaveSpeed routing.
-            // This survives Cloud Run cold starts (in-memory circuit breaker resets).
-            // PRIMARY: fal.ai Seedance 2.0 — no content filters, no venue/copyright restrictions
-            // FALLBACK: wavespeed (DB-level override when job.fallbackProvider='wavespeed')
-            const forcedRenderer = job.fallbackProvider === "wavespeed" ? "wavespeed" : "fal_seedance";
-            console.log(`[SceneDispatch] Scene ${scene.id} renderer: ${forcedRenderer} (fallbackProvider=${job.fallbackProvider ?? 'none'})`);
-            const taskId = await startSceneRender(
-              scene.id,
-              scenePrompt,
-              scene.duration ?? 5,
-              scene.lipSync ?? false,         // ✅ per-scene lip sync flag (Strategy 1 trigger)
-              scene.lipSyncStyle ?? "natural",
-              forcedRenderer as any,
-              undefined as any,
-              scene.previewImageUrl ?? undefined,
-              (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1",
-              job.id,
-              resolvedCharacterUrl,
-              // ✅ For r2v: use the pre-sliced vocal stem WAV for this scene window
-              // ✅ For i2v/t2v: pass full audioUrl (not used by Seedance in those modes)
-              sceneAudioUrlForR2V ?? job.audioUrl ?? undefined,
-              scene.startTime ?? undefined,   // ✅ scene start time in seconds (already correct unit)
-              sceneLyrics                     // ✅ per-scene lyrics for phoneme-accurate lip sync
-            );
-
-            // Mark cinematic scenes as compositeStatus=skipped immediately
-            // (they don't need compositing — Seedance clip is used directly)
+            // ── HYBRID PIPELINE ROUTING ──────────────────────────────────────────────────────────────
+            // Performance scenes (lipSync=true): SKIP Seedance. Go directly to InfiniteTalk.
+            //   character image + isolated vocal stem → InfiniteTalk → lip-synced video
+            // Cinematic scenes (lipSync=false): Seedance image-to-video as before.
             const isPerformanceScene = scene.sceneType === "performance";
-            const initialCompositeStatus = isPerformanceScene ? "pending" : "skipped";
+            const willUseInfiniteTalk = isPerformanceScene && (scene.lipSync ?? false) && !!job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
 
-            await db
-              .update(musicVideoScenes)
-              .set({ status: "generating", taskId, compositeStatus: initialCompositeStatus as any, updatedAt: new Date() })
-              .where(eq(musicVideoScenes.id, scene.id));
+            if (willUseInfiniteTalk) {
+              // ── PERFORMANCE SCENE: InfiniteTalk direct (skip Seedance) ────────────────────────────────
+              if (infiniteTalkSubmittedThisTick >= INFINITETALK_MAX_PER_TICK) {
+                console.log(`[SceneDispatch] Scene ${scene.id} InfiniteTalk rate limit (${INFINITETALK_MAX_PER_TICK}/tick) — deferring to next tick`);
+                continue;
+              }
 
-            if (pendingProbeSceneId === scene.id) {
-              await db.update(musicVideoJobs)
-                .set({ probePassed: false, probeSceneId: scene.id, updatedAt: new Date() })
-                .where(eq(musicVideoJobs.id, job.id));
-              console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — marked scene ${scene.id} in progress after taskId persisted`);
+              // HARD GUARD: isolated vocals MUST be used when available
+              const characterNameIT = (scene as any).characterName ?? undefined;
+              const isolatedVocalsUrlIT = await getVocalStemForCharacter(job.id, characterNameIT);
+
+              if (!isolatedVocalsUrlIT && job.vocalsStatus === "done") {
+                throw new Error(`[HARD GUARD] Scene ${scene.id}: vocalsStatus=done but no stem found for character '${characterNameIT ?? 'lead'}' — refusing full-mix fallback`);
+              }
+
+              if (!isolatedVocalsUrlIT) {
+                // No vocals isolated yet — defer, will retry next tick
+                console.log(`[SceneDispatch] Scene ${scene.id}: no vocal stem yet — InfiniteTalk deferred until vocal isolation completes`);
+                continue;
+              }
+
+              if (!resolvedCharacterUrl) {
+                console.warn(`[SceneDispatch] Scene ${scene.id}: no character image URL — cannot submit to InfiniteTalk, deferring`);
+                continue;
+              }
+
+              // Cut the scene's time window from the isolated vocals stem
+              const rawStartTimeIT = scene.startTime ?? 0;
+              const startTimeSecIT = rawStartTimeIT > 300 ? rawStartTimeIT / 1000 : rawStartTimeIT;
+              const sceneAudioUrlIT = await extractSceneAudioClip(
+                isolatedVocalsUrlIT,
+                startTimeSecIT,
+                scene.duration ?? 5,
+                scene.id
+              );
+              console.log(`[SceneDispatch] Scene ${scene.id}: vocal stem cut ✓ (window: ${startTimeSecIT}–${startTimeSecIT + (scene.duration ?? 5)}s)`);
+
+              // Submit to InfiniteTalk: character image + vocal stem → lip-synced video
+              console.log(`[SceneDispatch] Scene ${scene.id} PERFORMANCE → InfiniteTalk direct (image: ${resolvedCharacterUrl.slice(0, 60)}...)`);
+              const itTaskId = await submitInfiniteTalkLipSync({
+                imageUrl: resolvedCharacterUrl,
+                audioUrl: sceneAudioUrlIT,
+                prompt: scene.prompt ?? undefined,
+                resolution: "720p",
+              });
+
+              // Mark scene as completed (no raw Seedance clip) + lip sync processing
+              // videoUrl is null — InfiniteTalk output will be stored in lipSyncVideoUrl
+              await db.update(musicVideoScenes)
+                .set({
+                  status: "completed",
+                  videoUrl: null,                    // No Seedance clip for performance scenes
+                  lipSyncStatus: "processing",
+                  lipSyncTaskId: itTaskId.taskId,
+                  compositeStatus: "skipped",        // No compositing needed
+                  updatedAt: new Date(),
+                })
+                .where(eq(musicVideoScenes.id, scene.id));
+
+              if (pendingProbeSceneId === scene.id) {
+                await db.update(musicVideoJobs)
+                  .set({ probePassed: false, probeSceneId: scene.id, updatedAt: new Date() })
+                  .where(eq(musicVideoJobs.id, job.id));
+                console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — marked scene ${scene.id} in progress (InfiniteTalk)`);
+              }
+
+              console.log(`[SceneDispatch] Scene ${scene.id} → InfiniteTalk task ${itTaskId} submitted ✓ (skipped Seedance)`);
+              infiniteTalkSubmittedThisTick++;
+              totalLipSyncSubmitted++;
+              totalDispatched++;
+
+            } else {
+              // ── CINEMATIC SCENE: Seedance image-to-video ──────────────────────────────────────────────
+              // Pass lipSync=false so startSceneRender uses image-to-video strategy.
+              // ── PROVIDER OVERRIDE: respect job.fallbackProvider ───────────────
+              const forcedRenderer = job.fallbackProvider === "wavespeed" ? "wavespeed" : "fal_seedance";
+              console.log(`[SceneDispatch] Scene ${scene.id} CINEMATIC → Seedance renderer: ${forcedRenderer}`);
+              const taskId = await startSceneRender(
+                scene.id,
+                scenePrompt,
+                scene.duration ?? 5,
+                false,                            // lipSync=false for cinematic scenes (Seedance i2v)
+                scene.lipSyncStyle ?? "natural",
+                forcedRenderer as any,
+                undefined as any,
+                scene.previewImageUrl ?? undefined,
+                (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1",
+                job.id,
+                resolvedCharacterUrl,
+                job.audioUrl ?? undefined,        // Full audio (not used for i2v)
+                scene.startTime ?? undefined,
+                sceneLyrics
+              );
+
+              await db
+                .update(musicVideoScenes)
+                .set({ status: "generating", taskId, compositeStatus: "skipped", updatedAt: new Date() })
+                .where(eq(musicVideoScenes.id, scene.id));
+
+              if (pendingProbeSceneId === scene.id) {
+                await db.update(musicVideoJobs)
+                  .set({ probePassed: false, probeSceneId: scene.id, updatedAt: new Date() })
+                  .where(eq(musicVideoJobs.id, job.id));
+                console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — marked scene ${scene.id} in progress (Seedance cinematic)`);
+              }
+
+              console.log(`[SceneDispatch] Scene ${scene.id} dispatched → taskId: ${taskId}, compositeStatus: skipped (cinematic)`);
+              totalDispatched++;
             }
-
-            console.log(`[SceneDispatch] Scene ${scene.id} dispatched → taskId: ${taskId}, compositeStatus: ${initialCompositeStatus}`);
-            totalDispatched++;
           } catch (dispatchErr: any) {
             const errMsg = String(dispatchErr?.message ?? dispatchErr).slice(0, 300);
             console.error(`[SceneDispatch] Failed to dispatch scene ${scene.id}: ${errMsg}`);
@@ -714,117 +779,24 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 continue;
               }
 
+              // ── HYBRID PIPELINE NOTE ──────────────────────────────────────────────────────────────
+              // In the hybrid pipeline, performance scenes (lipSync=true) SKIP Seedance entirely
+              // and go directly to InfiniteTalk in the dispatch loop above.
+              // If a scene reaches here with needsLipSync=true, it's a legacy scene that was
+              // dispatched to Seedance before the pipeline switch. Handle it by deferring
+              // to the InfiniteTalk retry path (lipSyncStatus=pending, no taskId).
               if (needsLipSync) {
-                // Mark scene completed with raw clip, then submit InfiniteTalk
-                // (InfiniteTalk generates a new performance video from portrait + audio;
-                //  the raw Seedance clip is stored as videoUrl for cinematic reference)
-                try {
-                  const rawStartTime = scene.startTime ?? 0;
-                  const startTimeSec = rawStartTime > 300 ? rawStartTime / 1000 : rawStartTime;
-                  console.log(`[SceneDispatch] Scene ${scene.id} clip ready — submitting to Sync Labs sync-3 (startTime=${startTimeSec}s, raw=${scene.startTime})`);
-
-                  // HARD GUARD: isolated vocals MUST be used when available
-                  const characterName = (scene as any).characterName ?? undefined;
-                  const isolatedVocalsUrl = await getVocalStemForCharacter(job.id, characterName);
-
-                  if (!isolatedVocalsUrl && job.vocalsStatus === "done") {
-                    // vocalsStatus=done but stem lookup failed — this is a data integrity error
-                    throw new Error(`[HARD GUARD] Scene ${scene.id}: vocalsStatus=done but no stem found for character '${characterName ?? 'lead'}' — refusing full-mix fallback`);
-                  }
-
-                  if (!isolatedVocalsUrl) {
-                    // No vocals isolated yet — defer lip sync, mark raw clip complete
-                    await db.update(musicVideoScenes)
-                      .set({ status: "completed", videoUrl: pollResult.videoUrl, lipSyncStatus: "pending", updatedAt: new Date() })
-                      .where(eq(musicVideoScenes.id, scene.id));
-                    console.log(`[SceneDispatch] Scene ${scene.id}: no vocal stem yet — raw clip saved, lip sync deferred`);
-                  } else {
-                    // Cut the scene's time window from the isolated vocals stem
-                    const sceneAudioUrl = await extractSceneAudioClip(
-                      isolatedVocalsUrl,
-                      startTimeSec,
-                      scene.duration ?? 5,
-                      scene.id
-                    );
-                    console.log(`[SceneDispatch] Scene ${scene.id}: isolated vocals stem cut ✓ (character: ${characterName ?? 'lead'}, window: ${startTimeSec}–${startTimeSec + (scene.duration ?? 5)}s)`);
-
-                    // ── STAGE 1b: RAW SCENE VALIDATION GATE ──────────────────────────────
-                    // Before submitting to HeyGen, validate the raw Seedance clip.
-                    // Checks: real background, face presence, population, framing, environment.
-                    // If any check fails, reset to pending for re-generation.
-                    // This prevents wasting HeyGen API cost on bad Seedance outputs.
-                    const scenePromptLower = (scene.prompt ?? "").toLowerCase();
-                    const requiresPopulation = (
-                      scenePromptLower.includes("orchestra") ||
-                      scenePromptLower.includes("audience") ||
-                      scenePromptLower.includes("session musician") ||
-                      scenePromptLower.includes("musicians") ||
-                      scenePromptLower.includes("lyndhurst hall") ||
-                      scenePromptLower.includes("air studios") ||
-                      scenePromptLower.includes("concert hall")
-                    );
-                    const rawValidation = await validateRawSceneForLipSync(
-                      pollResult.videoUrl,
-                      scene.id,
-                      scene.sceneIndex ?? 0,
-                      requiresPopulation
-                    );
-                    if (!rawValidation.passed) {
-                      console.warn(`[SceneDispatch] Scene ${scene.id} FAILED raw validation [${rawValidation.failureCategory ?? "unknown"}] — resetting to pending for re-generation. Reason: ${rawValidation.reason}`);
-                      await db.update(musicVideoScenes)
-                        .set({
-                          status: "pending",
-                          taskId: null,
-                          errorMessage: `Raw scene validation failed: ${rawValidation.reason}`,
-                          lipSyncStatus: "pending",
-                          compositeStatus: "skipped",
-                          updatedAt: new Date(),
-                        })
-                        .where(eq(musicVideoScenes.id, scene.id));
-                      continue; // Skip HeyGen submission for this scene
-                    }
-                    console.log(`[SceneDispatch] Scene ${scene.id} PASSED raw validation (${rawValidation.confidence} confidence) — proceeding to Sync Labs sync-3`);
-
-                    // ── STAGE 2: Sync Labs sync-3 lip-sync (video-in / video-out) ──
-                    // Architecture: Seedance scene video + isolated vocal stem → Sync Labs → lip-synced video
-                    // No portrait required. No chromakey. Sync Labs output IS the final performance clip.
-                    const syncLabsTaskId = await submitSyncLabsLipSync({
-                      videoUrl: pollResult.videoUrl,   // Seedance scene video (character already inside)
-                      audioUrl: sceneAudioUrl,          // Demucs-isolated vocal stem (scene window)
-                      outputFileName: `scene-${scene.id}-job-${job.id}`,
-                      temperature: 1.0,                 // Maximum expressiveness for singing
-                      occlusionDetection: true,         // Handle mics, hands, hair over mouth
-                      syncMode: "cut_off",              // Trim to shorter of video/audio
-                    });
-
-                    // Mark scene completed (raw Seedance clip) + lip sync processing (Sync Labs)
-                    await db.update(musicVideoScenes)
-                      .set({
-                        status: "completed",
-                        videoUrl: pollResult.videoUrl,
-                        lipSyncStatus: "processing",
-                        lipSyncTaskId: syncLabsTaskId,
-                        updatedAt: new Date(),
-                      })
-                      .where(eq(musicVideoScenes.id, scene.id));
-                    console.log(`[SceneDispatch] Scene ${scene.id} → Sync Labs sync-3 task ${syncLabsTaskId} submitted ✓`);
-                    totalLipSyncSubmitted++;
-                    syncLabsSubmittedThisTick++;
-                  }
-                } catch (heyGenSubmitErr: any) {
-                  // Sync Labs submission failed — reset lipSyncStatus to pending for retry.
-                  // Under the premium policy, 'error' blocks assembly permanently — never use it here.
-                  console.error(`[SceneDispatch] Scene ${scene.id} Sync Labs sync-3 submission FAILED: ${String(heyGenSubmitErr?.message ?? heyGenSubmitErr).slice(0, 300)}`);
-                  await db.update(musicVideoScenes)
-                    .set({
-                      status: "completed",
-                      videoUrl: pollResult.videoUrl,
-                      lipSyncStatus: "pending",
-                      lipSyncTaskId: null,
-                      updatedAt: new Date(),
-                    })
-                    .where(eq(musicVideoScenes.id, scene.id));
-                }
+                // Legacy performance scene that went through Seedance — defer to InfiniteTalk retry
+                console.log(`[SceneDispatch] Scene ${scene.id} legacy Seedance performance scene — deferring lip sync to InfiniteTalk retry path`);
+                await db.update(musicVideoScenes)
+                  .set({
+                    status: "completed",
+                    videoUrl: pollResult.videoUrl,
+                    lipSyncStatus: "pending",   // Will be picked up by InfiniteTalk retry (section 4b)
+                    lipSyncTaskId: null,
+                    updatedAt: new Date(),
+                  })
+                  .where(eq(musicVideoScenes.id, scene.id));
               } else { // needsLipSync is false — cinematic scene
                 // No lip sync needed — mark as completed with raw clip
                 // compositeStatus=skipped for cinematic scenes (Seedance clip used directly in assembly)
@@ -945,19 +917,21 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         }
 
         // ── 4b. Re-submit completed scenes whose lip sync is still pending ─────
-        // These are scenes that completed WaveSpeed generation but SyncLabs submission
-        // was deferred (rate limit) or failed and needs retry.
+        // These are scenes where InfiniteTalk submission was deferred (rate limit)
+        // or failed and needs retry. Also handles scenes that completed Seedance
+        // but were queued before the hybrid pipeline switch (videoUrl set, lipSync pending).
         const lipSyncPendingScenes = scenes.filter(
           (s) => s.status === "completed" && s.lipSyncStatus === "pending" && !s.lipSyncTaskId
         );
 
         if (lipSyncPendingScenes.length > 0) {
-          // RETRY: scenes that completed Seedance but InfiniteTalk submission was deferred
+          // RETRY: scenes where InfiniteTalk submission was deferred or failed
           for (const scene of lipSyncPendingScenes) {
-            if (syncLabsSubmittedThisTick >= SYNC_LABS_MAX_PER_TICK) break;
+            if (infiniteTalkSubmittedThisTick >= INFINITETALK_MAX_PER_TICK) break;
             const isPerformanceScene = scene.sceneType === "performance";
             const needsLipSync = (isPerformanceScene || (scene.lipSync ?? false)) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
-            if (!needsLipSync || !scene.videoUrl) continue;
+            if (!needsLipSync) continue;
+            // Note: videoUrl may be null for InfiniteTalk performance scenes (no Seedance clip)
             try {
               const retryRawStartTime = scene.startTime ?? 0;
               const startTimeSec = retryRawStartTime > 300 ? retryRawStartTime / 1000 : retryRawStartTime;
@@ -975,18 +949,19 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 scene.duration ?? 5,
                 scene.id
               );
-              console.log(`[SceneDispatch] Scene ${scene.id} RETRY: isolated vocals stem cut ✓`);
+              console.log(`[SceneDispatch] Scene ${scene.id} RETRY: vocal stem cut ✓`);
 
-              // RETRY: Sync Labs sync-3 — video-in / video-out (no portrait needed)
-              if (!scene.videoUrl) throw new Error(`Scene ${scene.id} RETRY: no videoUrl for Sync Labs`);
+              // RETRY: InfiniteTalk — character image + vocal stem → lip-synced video
+              // resolvedCharacterUrl is not in scope in the retry section — look it up from job
+              const retryCharacterUrl = job.characterImageUrl ?? null;
+              if (!retryCharacterUrl) throw new Error(`Scene ${scene.id} RETRY: no character image URL for InfiniteTalk`);
+              const retryImageUrl = retryCharacterUrl;
 
-              const retrySyncLabsTaskId = await submitSyncLabsLipSync({
-                videoUrl: scene.videoUrl,      // Seedance scene video (character already inside)
+              const retryItTaskId = await submitInfiniteTalkLipSync({
+                imageUrl: retryImageUrl,
                 audioUrl: sceneAudioUrl,        // Demucs-isolated vocal stem (scene window)
-                outputFileName: `scene-${scene.id}-job-${job.id}-retry`,
-                temperature: 1.0,
-                occlusionDetection: true,
-                syncMode: "cut_off",
+                prompt: scene.prompt ?? undefined,
+                resolution: "720p",
               });
               // Use raw SQL to guarantee the lipSyncTaskId is persisted.
               // Drizzle ORM updates have been observed to silently fail for this column.
@@ -995,24 +970,24 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 try {
                   await rawConn.execute(
                     "UPDATE musicVideoScenes SET lipSyncStatus = 'processing', lipSyncTaskId = ?, updatedAt = NOW() WHERE id = ?",
-                    [retrySyncLabsTaskId, scene.id]
+                    [retryItTaskId.taskId, scene.id]
                   );
                 } finally {
                   await rawConn.end();
                 }
               }
-              console.log(`[SceneDispatch] Scene ${scene.id} RETRY → Sync Labs sync-3 task ${retrySyncLabsTaskId} submitted ✓`);
-              syncLabsSubmittedThisTick++;
+              console.log(`[SceneDispatch] Scene ${scene.id} RETRY → InfiniteTalk task ${retryItTaskId.taskId} submitted ✓`);
+              infiniteTalkSubmittedThisTick++;
               totalLipSyncSubmitted++;
             } catch (retryErr: any) {
-              console.error(`[SceneDispatch] Scene ${scene.id} RETRY Sync Labs sync-3 failed: ${String(retryErr?.message ?? retryErr).slice(0, 200)} — will retry next tick`);
+              console.error(`[SceneDispatch] Scene ${scene.id} RETRY InfiniteTalk failed: ${String(retryErr?.message ?? retryErr).slice(0, 200)} — will retry next tick`);
               // Do NOT set lipSyncStatus=error — that permanently blocks assembly.
               // Leave as pending so the next heartbeat tick retries submission.
             }
           }
         }
 
-        // ── 5. Poll lip sync jobs (Sync Labs sync-3 PRIMARY; legacy HeyGen for in-flight) ──
+        // ── 5. Poll lip sync jobs (InfiniteTalk PRIMARY; legacy HeyGen for in-flight) ──
         const lipSyncProcessingScenes = scenes.filter(
           (s) => s.status === "completed" && s.lipSyncStatus === "processing" && s.lipSyncTaskId
         );
@@ -1022,7 +997,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             try {
               const sceneAge = Date.now() - new Date(scene.updatedAt).getTime();
 
-              const stuckTimeout = SYNCLABS_STUCK_TIMEOUT_MS;
+              const stuckTimeout = INFINITETALK_STUCK_TIMEOUT_MS;
               if (sceneAge > stuckTimeout) {
                 console.warn(`[SceneDispatch] Scene ${scene.id} lip sync job stuck for ${Math.round(sceneAge / 60000)}min — resetting to pending for retry`);
                 // Reset to pending so the heartbeat re-submits on the next tick.
@@ -1035,22 +1010,19 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
 
               // Detect provider from task ID format:
               // HeyGen task IDs are short alphanumeric strings (no hyphens, <20 chars)
-              // Sync Labs task IDs are UUIDs (36 chars with hyphens, e.g. xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+              // InfiniteTalk task IDs are longer alphanumeric strings (WaveSpeed prediction IDs)
               const taskIdStr = scene.lipSyncTaskId!;
-              const isLegacyHeyGen = taskIdStr.length < 30 && !taskIdStr.match(/^[0-9a-f]{8}-[0-9a-f]{4}-/i);
+              const isLegacyHeyGen = taskIdStr.length < 30 && !taskIdStr.match(/^[0-9a-f]{8}-[0-9a-f]{4}-/i) && !taskIdStr.match(/^[0-9a-f]{20,}/i);
               let pollResult: { status: string; videoUrl?: string };
               if (isLegacyHeyGen) {
                 console.log(`[SceneDispatch] Scene ${scene.id} — legacy HeyGen task ${taskIdStr}, polling HeyGen`);
                 const heyGenPoll = await pollHeyGenLipSyncV3(taskIdStr);
                 pollResult = { status: heyGenPoll.status, videoUrl: heyGenPoll.videoUrl };
               } else {
-                // Sync Labs sync-3 polling
-                const { SyncClient } = await import("@sync.so/sdk");
-                const sync = new SyncClient({ apiKey: process.env.SYNC_LABS_API_KEY! });
-                const gen = await sync.generations.get(taskIdStr);
-                const syncStatus = gen.status === "COMPLETED" ? "completed" : gen.status === "FAILED" || gen.status === "REJECTED" ? "failed" : "processing";
-                const syncOutputUrl = (gen as any).outputUrl ?? (gen as any).output_url;
-                pollResult = { status: syncStatus, videoUrl: syncOutputUrl };
+                // InfiniteTalk (WaveSpeed) polling — PRIMARY provider
+                console.log(`[SceneDispatch] Scene ${scene.id} — InfiniteTalk task ${taskIdStr}, polling WaveSpeed`);
+                const itPoll = await pollInfiniteTalkLipSync(taskIdStr);
+                pollResult = { status: itPoll.status, videoUrl: itPoll.videoUrl };
               }
 
               if (pollResult.status === "completed" && pollResult.videoUrl) {
@@ -1058,7 +1030,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 const { storagePut } = await import("../storage");
                 const resp = await fetch(pollResult.videoUrl);
                 const buf = Buffer.from(await resp.arrayBuffer());
-                const key = `music-video-scenes/${scene.id}-synclabs-${Date.now()}.mp4`;
+                const key = `music-video-scenes/${scene.id}-infinitetalk-${Date.now()}.mp4`;
                 const { url } = await storagePut(key, buf, "video/mp4");
 
                 // ── LSE-D / LSE-C lip-sync gate ──────────────────────────────────────────────────
@@ -1106,7 +1078,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                       updatedAt: new Date(),
                     })
                     .where(eq(musicVideoScenes.id, scene.id));
-                  console.log(`[SceneDispatch] Scene ${scene.id} Sync Labs sync-3 lip sync DONE ✓ (gate: ${lipSyncGateResult.gate}) → compositeStatus=skipped`);
+                  console.log(`[SceneDispatch] Scene ${scene.id} InfiniteTalk lip sync DONE ✓ (gate: ${lipSyncGateResult.gate}) → compositeStatus=skipped`);
                   totalLipSyncPolled++;
                 }
 
@@ -1140,8 +1112,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
 
         // ── 5b. COMPOSITING REMOVED (2026-05-28) ─────────────────────────────────────────────
         // The compositing stage (ffmpeg chromakey + overlay) has been removed from the pipeline.
-        // Zara is now generated INSIDE the scene by Seedance — no cutout, no grey background.
-        // Sync Labs sync-3 output (lipSyncVideoUrl) is the final performance clip for assembly.
+        // InfiniteTalk output (lipSyncVideoUrl) is the final performance clip for assembly.
         // compositeStatus is set to 'skipped' for ALL scenes.
 
         // ── 6. Re-check completion after polling ───────────────────────────────
@@ -1160,7 +1131,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         const nowGenerating = freshScenes.filter((s) => s.status === "generating");
 
         // Lip sync readiness: a scene is "lip sync ready" ONLY if lipSyncStatus='done'.
-        // 'error' is NOT acceptable under the premium policy — it means Sync Labs sync-3 failed
+        // 'error' is NOT acceptable under the premium policy — it means InfiniteTalk failed
         // and the scene has no lip-synced clip. The pipeline retries until 'done'.
         // nowLipSyncReady and nowLipSyncProcessing are now handled by nowCompositeReady/nowCompositeProcessing
         // (which are based on lipSyncStatus in the 3-stage pipeline)

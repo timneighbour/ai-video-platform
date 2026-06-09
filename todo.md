@@ -9034,3 +9034,15 @@
 - [x] Deferred lip sync retry path verified (completed+lipSyncStatus=pending scenes picked up each heartbeat tick)
 - [x] Job serialisation fixed: dispatch slot goes to most-progressed job (most completed scenes), not lowest ID
 - [x] Scene 0 on job 960001 approved so its one-at-a-time gate releases scene 1
+
+## Replace Sync Labs with WaveSpeed InfiniteTalk
+- [ ] Research InfiniteTalk API endpoint, parameters, polling format
+- [ ] Build server/ai-apis/infinitetalk-lipsync.ts client
+- [ ] Update heartbeat: replace Sync Labs submission with InfiniteTalk
+- [ ] Update heartbeat: replace Sync Labs polling with InfiniteTalk polling
+- [ ] Update DB schema if new fields needed for InfiniteTalk task tracking
+- [ ] Remove Sync Labs references from pipeline (keep SYNC_LABS_API_KEY in env for legacy)
+- [ ] Reset active jobs (960001, 1020003) lip sync scenes to pending for re-dispatch with InfiniteTalk
+- [ ] TypeScript check: 0 errors
+- [ ] Save checkpoint
+- [x] Migrate lip-sync from Sync Labs sync-3 to WaveSpeed InfiniteTalk hybrid pipeline (performance scenes skip Seedance → InfiniteTalk direct; cinematic scenes use Seedance only)
