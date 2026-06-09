@@ -2246,106 +2246,7 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       .every(s => s.lipSyncStatus === "done" && s.lipSyncVideoUrl);
 
     if (allLipSyncScenesHaveVideo && hasLipSyncCharacter) {
-      console.log(`[WizSync] Job ${jobId}: ALL lip-sync scenes already have per-scene SyncLabs lip sync (isolated vocals). Skipping whole-video pass — per-scene is superior.`);
-    } else if (hasLipSyncCharacter && !audioTooLongForSyncLabs && isSyncLabsConfigured() && job.audioUrl) {
-      // Whole-video fallback: only runs when per-scene lip sync was NOT fully applied.
-      // CRITICAL: Use ISOLATED VOCALS (job.vocalsUrl) for the whole-video pass, NOT the full mix.
-      // If isolated vocals are not available, fall back to full mix (worse quality but better than nothing).
-      const wholeVideoAudioUrl = (job as any).vocalsUrl || job.audioUrl;
-      const usingIsolatedVocals = !!(job as any).vocalsUrl;
-      console.log(`[WizSync] Job ${jobId}: per-scene lip sync incomplete — running whole-video fallback pass with ${usingIsolatedVocals ? 'ISOLATED VOCALS ✓' : '⚠ FULL MIX (no isolated vocals available)'}`);
-
-      // Sync Labs sync-3: one pass on the final assembled video.
-      // Hard timeout: 12 minutes. Occlusion detection adds ~2-3 min processing time.
-      // syncLabsJobId is persisted to DB so polling can resume after server restart
-      // instead of re-submitting a new job.
-      const SYNC_LABS_HARD_TIMEOUT_MS = 12 * 60 * 1000; // 12 minutes (occlusion detection enabled)
-
-      // Re-read the job to get any syncLabsJobId saved by a previous assembly attempt
-      const [freshJob] = await dbConn.select({
-        syncLabsJobId: musicVideoJobs.syncLabsJobId,
-        assemblyStartedAt: musicVideoJobs.assemblyStartedAt,
-      }).from(musicVideoJobs).where(eq(musicVideoJobs.id, jobId));
-
-      const existingSyncJobId = freshJob?.syncLabsJobId;
-      const assemblyStartedAt = freshJob?.assemblyStartedAt;
-
-      // Only skip lip sync if a Sync Labs job was actually submitted AND has been
-      // running for more than 15 minutes (meaning it's definitely dead/timed out).
-      // Do NOT skip just because the overall job has been rendering for a long time —
-      // that would cause lip sync to be silently skipped on jobs that were stuck in
-      // pending for hours before assembly finally ran.
-      const assemblyAgeMs = assemblyStartedAt
-        ? Date.now() - new Date(assemblyStartedAt).getTime()
-        : 0;
-      const syncJobIsStale = existingSyncJobId && assemblyAgeMs > 15 * 60 * 1000;
-      if (syncJobIsStale) {
-        console.warn(`[WizSync] Job ${jobId}: Sync Labs job ${existingSyncJobId} submitted ${Math.round(assemblyAgeMs / 60000)}min ago — stale, skipping lip sync, delivering cinematic version.`);
-      } else {
-        console.log(`[WizSync] sync-3 premium lip sync enabled for job ${jobId}. ${existingSyncJobId ? `Resuming job ${existingSyncJobId}` : 'Submitting new job'}...`);
-        await dbConn.update(musicVideoJobs)
-          .set({
-            errorMessage: "Applying WizSync™ premium lip sync (sync-3)...",
-            assemblyStartedAt: assemblyStartedAt ?? new Date(),
-            updatedAt: new Date(),
-          })
-          .where(eq(musicVideoJobs.id, jobId));
-
-        try {
-          const { submitSyncLabsLipSync, pollSyncLabsLipSync } = await import("./ai-apis/synclabs-lipsync");
-
-          let syncJobId = existingSyncJobId;
-
-          if (!syncJobId) {
-            // Upload assembled video to S3 first (Sync Labs needs a public URL)
-            const preSyncKey = `music-videos/job-${jobId}-pre-synclabs-${Date.now()}.mp4`;
-            const preSyncBuf = fs.readFileSync(finalVideo);
-            const { url: preSyncUrl } = await storagePut(preSyncKey, preSyncBuf, "video/mp4");
-
-            // Submit to sync-3 and save the job ID immediately
-            syncJobId = await submitSyncLabsLipSync({
-              videoUrl: preSyncUrl,
-              audioUrl: wholeVideoAudioUrl, // ISOLATED VOCALS when available, full mix as fallback
-              syncMode: "cut_off",
-              outputFileName: `wizsync-job-${jobId}`,
-              temperature: 1.0,
-              occlusionDetection: true,
-            });
-
-            // Persist the Sync Labs job ID so we can resume polling after a server restart
-            await dbConn.update(musicVideoJobs)
-              .set({ syncLabsJobId: syncJobId, updatedAt: new Date() })
-              .where(eq(musicVideoJobs.id, jobId));
-            console.log(`[WizSync] Job ${jobId}: Sync Labs job ${syncJobId} submitted and saved to DB.`);
-          } else {
-            console.log(`[WizSync] Job ${jobId}: Resuming existing Sync Labs job ${syncJobId} (skipping re-submit).`);
-          }
-
-          // Poll with hard 8-minute timeout
-          const outputUrl = await pollSyncLabsLipSync(syncJobId, SYNC_LABS_HARD_TIMEOUT_MS);
-
-          // Download sync-3 output and save to disk
-          const syncResp = await fetch(outputUrl);
-          const syncBuf = Buffer.from(await syncResp.arrayBuffer());
-          const syncFile = path.join(tmpDir, "final-synclabs-lipsync.mp4");
-          fs.writeFileSync(syncFile, syncBuf);
-          finalVideoPath = syncFile;
-          console.log(`[WizSync] sync-3 premium lip sync complete for job ${jobId}`);
-
-          // Clear the syncLabsJobId now that it's done
-          await dbConn.update(musicVideoJobs)
-            .set({ errorMessage: null, syncLabsJobId: null, updatedAt: new Date() })
-            .where(eq(musicVideoJobs.id, jobId));
-        } catch (syncErr: any) {
-          // Sync Labs failed or timed out — deliver cinematic version without lip sync.
-          // A failed lip sync must NEVER block video delivery.
-          console.warn(`[WizSync] sync-3 lip sync failed for job ${jobId}: ${syncErr?.message ?? syncErr}. Delivering cinematic version.`);
-          await dbConn.update(musicVideoJobs)
-            .set({ errorMessage: null, syncLabsJobId: null, updatedAt: new Date() })
-            .where(eq(musicVideoJobs.id, jobId));
-          // finalVideoPath remains = finalVideo (assembled video without lip sync)
-        }
-      }
+      console.log(`[WizSync] Job ${jobId}: ALL lip-sync scenes have InfiniteTalk lip sync applied. Skipping whole-video Sync Labs pass — per-scene InfiniteTalk is superior.`);
     } else {
       if (hasLipSyncCharacter && !isSyncLabsConfigured()) {
         console.warn(`[WizSync] Job ${jobId}: lip sync character found but SYNC_LABS_API_KEY not configured. Delivering cinematic version.`);
@@ -2629,12 +2530,9 @@ async function pollSceneStatusWaveSpeed(
       }
 
 
-      // Trigger per-scene lip sync asynchronously (non-blocking)
-      // Submits scene video to Sync Labs so user can verify lip sync in Screening Room
-      triggerPerSceneLipSync(sceneId, url).catch((e) =>
-        console.warn(`[WaveSpeed] Per-scene lip sync trigger failed for scene ${sceneId}:`, e)
-      );
-
+      // NOTE: Per-scene lip sync is handled by the sceneDispatchHeartbeat via InfiniteTalk.
+      // Performance scenes go directly: character portrait + vocal stem → InfiniteTalk (no Seedance needed).
+      // Cinematic scenes don't need lip sync. triggerPerSceneLipSync (Sync Labs) removed.
       return { status: "completed", videoUrl: url };
     }
 
