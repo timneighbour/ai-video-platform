@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoJobs` MODIFY COLUMN `status` enum('draft','storyboard_ready','rendering','awaiting_probe_approval','assembling','completed','failed','paused','cancelled','provider_unavailable') NOT NULL DEFAULT 'draft';

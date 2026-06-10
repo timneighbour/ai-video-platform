@@ -5111,9 +5111,9 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
         throw new TRPCError({ code: "BAD_REQUEST", message: "No probe pending approval" });
       }
       await db.update(musicVideoJobs)
-        .set({ probePassed: true, probeApprovedAt: new Date(), updatedAt: new Date() })
+        .set({ probePassed: true, probeApprovedAt: new Date(), status: "rendering" as any, updatedAt: new Date() })
         .where(eq(musicVideoJobs.id, input.jobId));
-      console.log(`[MusicVideo] Job ${input.jobId} probe APPROVED by user ${ctx.user.id} — full render released`);
+      console.log(`[MusicVideo] Job ${input.jobId} probe APPROVED by user ${ctx.user.id} — status → rendering, full render released`);
       return { success: true, message: "Probe approved. Full render will begin on the next heartbeat tick." };
     }),
 
@@ -5147,10 +5147,11 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
           probePassed: null,
           probeSceneId: null,
           probeVideoUrl: null,
+          status: "rendering" as any,  // Resume so heartbeat re-dispatches the probe scene
           updatedAt: new Date(),
         })
         .where(eq(musicVideoJobs.id, input.jobId));
-      console.log(`[MusicVideo] Job ${input.jobId} probe REJECTED by user ${ctx.user.id}. Reason: ${input.reason ?? "not specified"}. Probe will re-run on next heartbeat.`);
+      console.log(`[MusicVideo] Job ${input.jobId} probe REJECTED by user ${ctx.user.id}. Reason: ${input.reason ?? "not specified"}. Status → rendering. Probe will re-run on next heartbeat.`);
       return { success: true, message: "Probe rejected. A new probe scene will be dispatched on the next heartbeat tick." };
     }),
 

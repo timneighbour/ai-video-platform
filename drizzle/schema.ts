@@ -151,7 +151,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   captionHighlightColour: varchar("captionHighlightColour", { length: 7 }).default("#FFD700"), // Hex colour for karaoke highlight
   captionKaraokeMode: boolean("captionKaraokeMode").default(false).notNull(), // Word-by-word highlight mode
   captionSafeArea: varchar("captionSafeArea", { length: 32 }).default("bottom_center"), // bottom_center | top_center | custom
-  status: mysqlEnum("status", ["draft", "storyboard_ready", "rendering", "assembling", "completed", "failed", "paused", "cancelled", "provider_unavailable"]).default("draft").notNull(),
+  status: mysqlEnum("status", ["draft", "storyboard_ready", "rendering", "awaiting_probe_approval", "assembling", "completed", "failed", "paused", "cancelled", "provider_unavailable"]).default("draft").notNull(),
   totalScenes: int("totalScenes").default(0).notNull(),
   completedScenes: int("completedScenes").default(0).notNull(),
   finalVideoUrl: varchar("finalVideoUrl", { length: 1024 }),
@@ -365,6 +365,19 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   compositeVideoKey: varchar("compositeVideoKey", { length: 512 }), // S3 key for composited clip
   compositeAttempts: int("compositeAttempts").notNull().default(0), // Number of compositing attempts
   compositeJobId: varchar("compositeJobId", { length: 255 }), // Orchestration server jobId (for async composite tracking)
+  // --- Pipeline v2: Source/Output Preservation & Provider Metadata ---
+  originalVideoUrl: varchar("originalVideoUrl", { length: 1024 }), // Seedance render output — NEVER overwritten
+  lipsyncedVideoUrl: varchar("lipsyncedVideoUrl", { length: 1024 }), // HeyGen Precision output — final lip-synced clip
+  renderProvider: varchar("renderProvider", { length: 64 }), // Provider used for video render: seedance | hailuo | fal | kling
+  lipSyncProvider: varchar("lipSyncProvider", { length: 64 }), // Provider used for lip sync: heygen | latentsync | infinitetalk
+  renderDurationMs: int("renderDurationMs"), // Time taken for video render in milliseconds
+  lipSyncDurationMs: int("lipSyncDurationMs"), // Time taken for lip sync in milliseconds
+  // --- Quality Scoring (Pipeline v2) ---
+  lipSyncQualityScore: decimal("lipSyncQualityScore", { precision: 4, scale: 3 }), // 0.000–1.000 lip sync accuracy
+  faceConsistencyScore: decimal("faceConsistencyScore", { precision: 4, scale: 3 }), // 0.000–1.000 face/character consistency
+  mouthVisibilityScore: decimal("mouthVisibilityScore", { precision: 4, scale: 3 }), // 0.000–1.000 mouth visibility/clarity
+  overallSceneScore: decimal("overallSceneScore", { precision: 4, scale: 3 }), // 0.000–1.000 composite quality score
+  qualityScoredAt: timestamp("qualityScoredAt"), // When quality scoring was last run
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

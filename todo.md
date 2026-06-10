@@ -9055,3 +9055,25 @@
 - [x] Update character Stage 2 environment portrait generation to use venue reference image anchor
 - [x] Reset job 1020003 storyboard images and environment refs for regeneration with Air Studios reference
 - [x] Set job 1020003 back to storyboard_ready to trigger regeneration with Air Studios anchor
+
+## Pipeline Upgrade v2 (2026-06-10)
+- [ ] Step 1: Probe hard pause — set job status to `awaiting_probe_approval` when probe scene submitted, block all remaining scenes until owner approves
+- [ ] Step 1: Add `awaiting_probe_approval` to job status enum in schema
+- [ ] Step 1: Update heartbeat to skip scene dispatch when job is in `awaiting_probe_approval`
+- [ ] Step 1: Update `approveProbe` procedure to transition job from `awaiting_probe_approval` back to `rendering`
+- [ ] Step 2: Schema — add `originalVideoUrl` field to musicVideoScenes
+- [ ] Step 2: Schema — add `lipsyncedVideoUrl` field to musicVideoScenes
+- [ ] Step 2: Schema — add `renderProvider` field to musicVideoScenes
+- [ ] Step 2: Schema — add `lipSyncProvider` field to musicVideoScenes
+- [ ] Step 2: Schema — add `renderDurationMs` field to musicVideoScenes
+- [ ] Step 2: Schema — add `lipSyncDurationMs` field to musicVideoScenes
+- [ ] Step 2: Schema — add `lipSyncRetryCount` field to musicVideoScenes
+- [ ] Step 2: Run migration and update heartbeat to populate new fields
+- [ ] Step 3: Create `server/ai-apis/lipsync-provider.ts` abstraction layer
+- [ ] Step 3: Add `WIZ_LIPSYNC_PROVIDER` env var support (heygen / latentsync / infinitetalk)
+- [ ] Step 3: Add LatentSync stub in fallback chain (placeholder, not yet integrated)
+- [ ] Step 4: Add singing/speech mode detection — use `precision` for performance/singing, `standard` for speech/narration
+- [ ] Step 4: Add audio duration validation after stem extraction — reject if >250ms drift from scene duration
+- [ ] Step 5: Extend quality scoring to store lipSyncQualityScore, faceConsistencyScore, mouthVisibilityScore, overallSceneScore in DB
+- [ ] Step 5: Implement 4-attempt retry chain: HeyGen Precision → HeyGen alt settings → LatentSync → InfiniteTalk
+- [ ] Step 5: Block assembly if overallSceneScore < 0.75 after all retry attempts

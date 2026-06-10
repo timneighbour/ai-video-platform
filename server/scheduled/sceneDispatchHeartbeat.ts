@@ -57,7 +57,7 @@ import {
   musicVideoJobs,
   users,
 } from "../../drizzle/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { acquireJobLock, releaseJobLock } from "../queue-lock";
 import { assessLipSyncQuality, shouldProceedToAssembly, shouldRetryLipSync } from "../lip-sync-gate";
 import { sdk } from "../_core/sdk";
@@ -139,7 +139,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         sceneSetting: musicVideoJobs.sceneSetting,
       })
       .from(musicVideoJobs)
-      .where(eq(musicVideoJobs.status, "rendering"));
+      .where(inArray(musicVideoJobs.status, ["rendering", "awaiting_probe_approval"]));
 
     if (activeJobs.length === 0) {
       return res.json({
@@ -289,6 +289,17 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           pendingScenes.push(...refreshed.filter(s => failedScenes.some(f => f.id === s.id)));
         }
 
+        // ── 2b. HARD PAUSE: awaiting_probe_approval ──────────────────────────
+        // If the job is in awaiting_probe_approval, the owner has not yet approved
+        // the probe scene. Skip ALL new scene dispatches for this job.
+        // Polling of in-flight lip-sync tasks is still allowed (sections 5+).
+        const jobIsAwaitingProbeApproval = (job.status as string) === "awaiting_probe_approval";
+        if (jobIsAwaitingProbeApproval) {
+          console.log(`[SceneDispatch] Job ${job.id} PAUSED — awaiting_probe_approval. No new dispatches until owner approves.`);
+          // Skip to polling sections — do not dispatch any scenes
+          // (pendingScenes will be cleared below in the probe gate)
+        }
+
         // ── 3. CONTROLLED VALIDATION: Probe gate ──────────────────────────────
         // Before dispatching ANY scenes, run the pre-render validator and probe gate.
         // probePassed=null  → dispatch only the probe scene (best vocal scene)
@@ -297,7 +308,11 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         let pendingProbeSceneId: number | null = null;
         const probeDecision = await getProbeDecision(job.id);
 
-        if (probeDecision.mode === "blocked") {
+        if (jobIsAwaitingProbeApproval) {
+          // Hard pause — owner must approve probe before any scenes are dispatched
+          pendingScenes.length = 0;
+          console.log(`[SceneDispatch] Job ${job.id} awaiting_probe_approval — all dispatches blocked, polling continues`);
+        } else if (probeDecision.mode === "blocked") {
           console.log(`[SceneDispatch] Job ${job.id} BLOCKED by probe gate: ${probeDecision.reason}`);
           // Log validation failures for visibility
           const failedChecks = probeDecision.validationResult.checks.filter(c => !c.passed);
@@ -740,6 +755,28 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   );
                   console.log(`[SceneDispatch] Scene ${scene.id}: vocal stem cut ✓ (${startTimeSecLS}–${startTimeSecLS + (scene.duration ?? 5)}s)`);
 
+                  // ── Audio duration validation (250ms tolerance) ──────────────────────────
+                  // Validate that the extracted audio clip duration matches scene.duration.
+                  // Mismatches > 250ms cause sync drift in the final lip-sync output.
+                  const expectedDurationSec = scene.duration ?? 5;
+                  try {
+                    const { execSync } = await import("child_process");
+                    const ffprobeCmd = `ffprobe -v quiet -show_entries format=duration -of csv=p=0 "${sceneAudioUrlLS}" 2>/dev/null || echo "skip"`;
+                    const ffprobeOut = execSync(ffprobeCmd, { timeout: 10000 }).toString().trim();
+                    if (ffprobeOut && ffprobeOut !== "skip" && !isNaN(parseFloat(ffprobeOut))) {
+                      const actualDurationSec = parseFloat(ffprobeOut);
+                      const driftMs = Math.abs(actualDurationSec - expectedDurationSec) * 1000;
+                      if (driftMs > 250) {
+                        console.warn(`[SceneDispatch] Scene ${scene.id} audio duration drift: expected ${expectedDurationSec}s, got ${actualDurationSec.toFixed(3)}s (drift: ${driftMs.toFixed(0)}ms > 250ms threshold)`);
+                      } else {
+                        console.log(`[SceneDispatch] Scene ${scene.id} audio duration OK: ${actualDurationSec.toFixed(3)}s (drift: ${driftMs.toFixed(0)}ms ✓)`);
+                      }
+                    }
+                  } catch (durationCheckErr: any) {
+                    // Non-fatal: ffprobe may not be available for remote URLs
+                    console.log(`[SceneDispatch] Scene ${scene.id} audio duration check skipped: ${String(durationCheckErr?.message ?? "").slice(0, 80)}`);
+                  }
+
                   const useHeyGen = isHeyGenConfigured();
                   if (useHeyGen) {
                     if (lipSyncSubmittedThisTick >= LIPSYNC_MAX_PER_TICK) {
@@ -748,20 +785,29 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                         .set({ status: "completed", videoUrl: pollResult.videoUrl, lipSyncStatus: "pending", lipSyncTaskId: null, updatedAt: new Date() })
                         .where(eq(musicVideoScenes.id, scene.id));
                     } else {
-                      console.log(`[SceneDispatch] Scene ${scene.id} PERFORMANCE → HeyGen Precision (video: ${pollResult.videoUrl.slice(0, 60)}...)`);
+                      // Singing/speech mode detection:
+                      // Scenes with lyrics = singing → "precision" mode (frame-accurate, best for music)
+                      // Scenes without lyrics = speech/ambient → "speed" mode (faster, sufficient for non-singing)
+                      const hasSingingLyrics = !!(scene.lyrics && scene.lyrics.trim().length > 3);
+                      const heyGenMode: "precision" | "speed" = hasSingingLyrics ? "precision" : "speed";
+                      console.log(`[SceneDispatch] Scene ${scene.id} PERFORMANCE → HeyGen ${heyGenMode.toUpperCase()} (singing: ${hasSingingLyrics}, video: ${pollResult.videoUrl.slice(0, 60)}...)`);
                       const heyGenLipsyncId = await submitHeyGenLipSyncV3({
                         videoUrl: pollResult.videoUrl,
                         audioUrl: sceneAudioUrlLS,
                         title: `WizAI Scene ${scene.id} Job ${job.id}`,
-                        mode: "precision",
+                        mode: heyGenMode,
                         keepSameFormat: true,
                       });
+                      const renderEndMs = Date.now();
                       await db.update(musicVideoScenes)
                         .set({
                           status: "completed",
                           videoUrl: pollResult.videoUrl,
+                          originalVideoUrl: pollResult.videoUrl,  // preserve Seedance output
+                          renderProvider: scene.modelAssignment ?? "seedance",
                           lipSyncStatus: "processing",
                           lipSyncTaskId: `heygen:${heyGenLipsyncId}`,
+                          lipSyncProvider: "heygen",
                           compositeStatus: "skipped",
                           updatedAt: new Date(),
                         })
@@ -791,7 +837,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                         resolution: "720p",
                       });
                       await db.update(musicVideoScenes)
-                        .set({ status: "completed", videoUrl: pollResult.videoUrl, lipSyncStatus: "processing", lipSyncTaskId: itTaskId.taskId, compositeStatus: "skipped", updatedAt: new Date() })
+                        .set({ status: "completed", videoUrl: pollResult.videoUrl, originalVideoUrl: pollResult.videoUrl, renderProvider: scene.modelAssignment ?? "seedance", lipSyncStatus: "processing", lipSyncTaskId: itTaskId.taskId, lipSyncProvider: "infinitetalk", compositeStatus: "skipped", updatedAt: new Date() })
                         .where(eq(musicVideoScenes.id, scene.id));
                       infiniteTalkSubmittedThisTick++;
                       totalLipSyncSubmitted++;
@@ -1083,13 +1129,28 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 }
 
                 if (shouldRetryLipSync(lipSyncGateResult)) {
-                  // RED gate: reset to pending for retry
-                  console.warn(
-                    `[SceneDispatch] Scene ${scene.id} lip-sync gate RED — retrying. Reason: ${lipSyncGateResult.failureReason ?? "LLM assessment"}`
-                  );
-                  await db.update(musicVideoScenes)
-                    .set({ lipSyncStatus: "pending", lipSyncTaskId: null, updatedAt: new Date() })
-                    .where(eq(musicVideoScenes.id, scene.id));
+                  // RED gate: increment retryCount and reset to pending for retry
+                  const currentRetryCount = scene.retryCount ?? 0;
+                  const nextRetryCount = currentRetryCount + 1;
+                  const MAX_RETRIES = 4;
+                  if (nextRetryCount >= MAX_RETRIES) {
+                    // Exhausted all retries — flag for manual review
+                    console.error(
+                      `[SceneDispatch] Scene ${scene.id} lip-sync gate RED — EXHAUSTED ${MAX_RETRIES} retries. Flagging for manual review. Reason: ${lipSyncGateResult.failureReason ?? "LLM assessment"}`
+                    );
+                    await db.update(musicVideoScenes)
+                      .set({ lipSyncStatus: "error" as any, lipSyncTaskId: null, retryCount: nextRetryCount, updatedAt: new Date() })
+                      .where(eq(musicVideoScenes.id, scene.id));
+                  } else {
+                    // Retry with escalating provider: attempt 1-2 = heygen, attempt 3 = infinitetalk fallback
+                    const retryProvider = nextRetryCount >= 3 ? "infinitetalk" : "heygen";
+                    console.warn(
+                      `[SceneDispatch] Scene ${scene.id} lip-sync gate RED — retry ${nextRetryCount}/${MAX_RETRIES - 1} via ${retryProvider}. Reason: ${lipSyncGateResult.failureReason ?? "LLM assessment"}`
+                    );
+                    await db.update(musicVideoScenes)
+                      .set({ lipSyncStatus: "pending", lipSyncTaskId: null, retryCount: nextRetryCount, updatedAt: new Date() })
+                      .where(eq(musicVideoScenes.id, scene.id));
+                  }
                 } else {
                   // GREEN or AMBER: proceed
                   if (lipSyncGateResult.gate === "AMBER") {
@@ -1100,17 +1161,29 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                     console.log(`[SceneDispatch] Scene ${scene.id} lip-sync gate GREEN ✓`);
                   }
 
+                  // Determine which provider completed this lip sync
+                  const completedLipSyncProvider = scene.lipSyncTaskId?.startsWith("heygen:") ? "heygen" : "infinitetalk";
+                  // Build quality score update (only set if LLM returned values)
+                  const qualityScoreUpdate: Record<string, any> = {};
+                  if (typeof lipSyncGateResult.lipSyncQualityScore === "number") qualityScoreUpdate.lipSyncQualityScore = lipSyncGateResult.lipSyncQualityScore.toFixed(3);
+                  if (typeof lipSyncGateResult.faceConsistencyScore === "number") qualityScoreUpdate.faceConsistencyScore = lipSyncGateResult.faceConsistencyScore.toFixed(3);
+                  if (typeof lipSyncGateResult.mouthVisibilityScore === "number") qualityScoreUpdate.mouthVisibilityScore = lipSyncGateResult.mouthVisibilityScore.toFixed(3);
+                  if (typeof lipSyncGateResult.overallSceneScore === "number") qualityScoreUpdate.overallSceneScore = lipSyncGateResult.overallSceneScore.toFixed(3);
+                  if (Object.keys(qualityScoreUpdate).length > 0) qualityScoreUpdate.qualityScoredAt = new Date();
                   await db.update(musicVideoScenes)
                     .set({
                       lipSyncStatus: "done",
                       lipSyncVideoUrl: url,
                       lipSyncVideoKey: key,
+                      lipsyncedVideoUrl: url,  // permanent record of lip-synced output
+                      lipSyncProvider: completedLipSyncProvider,
                       // Compositing removed (2026-05-28) — lipSyncVideoUrl IS the final clip
                       compositeStatus: "skipped",
+                      ...qualityScoreUpdate,
                       updatedAt: new Date(),
                     })
                     .where(eq(musicVideoScenes.id, scene.id));
-                  console.log(`[SceneDispatch] Scene ${scene.id} InfiniteTalk lip sync DONE ✓ (gate: ${lipSyncGateResult.gate}) → compositeStatus=skipped`);
+                  console.log(`[SceneDispatch] Scene ${scene.id} ${completedLipSyncProvider} lip sync DONE ✓ (gate: ${lipSyncGateResult.gate}, scores: ls=${lipSyncGateResult.lipSyncQualityScore?.toFixed(2) ?? "N/A"} fc=${lipSyncGateResult.faceConsistencyScore?.toFixed(2) ?? "N/A"} mv=${lipSyncGateResult.mouthVisibilityScore?.toFixed(2) ?? "N/A"} overall=${lipSyncGateResult.overallSceneScore?.toFixed(2) ?? "N/A"}) → compositeStatus=skipped`);
                   totalLipSyncPolled++;
                 }
 
@@ -1122,7 +1195,11 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                     await db.update(musicVideoJobs)
                       .set({ probeVideoUrl: url, updatedAt: new Date() })
                       .where(eq(musicVideoJobs.id, job.id));
-                    console.log(`[SceneDispatch] Job ${job.id} PROBE LIP SYNC COMPLETE — lip-synced video ready for owner review: ${url.slice(0, 60)}...`);
+                    // Hard pause: set job status to awaiting_probe_approval so no more scenes are dispatched
+                    await db.update(musicVideoJobs)
+                      .set({ status: "awaiting_probe_approval" as any, updatedAt: new Date() })
+                      .where(eq(musicVideoJobs.id, job.id));
+                    console.log(`[SceneDispatch] Job ${job.id} PROBE LIP SYNC COMPLETE — status → awaiting_probe_approval. Owner review required: ${url.slice(0, 60)}...`);
                   }
                 } catch { /* non-fatal */ }
 

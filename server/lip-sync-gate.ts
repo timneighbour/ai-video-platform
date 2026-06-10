@@ -69,6 +69,15 @@ export interface LipSyncAssessmentResult {
   usedSyncNetMetrics: boolean;
   /** Confidence in the assessment (0–1) */
   confidence: number;
+  // ── 4 Quality Scores (0.000–1.000) ──
+  /** Lip-sync accuracy score (0–1): how well mouth movement matches audio */
+  lipSyncQualityScore?: number;
+  /** Face/character consistency score (0–1): how consistent the character looks */
+  faceConsistencyScore?: number;
+  /** Mouth visibility score (0–1): how clearly the mouth is visible and framed */
+  mouthVisibilityScore?: number;
+  /** Overall composite scene quality score (0–1) */
+  overallSceneScore?: number;
 }
 
 // ─── Numeric Gate (SyncNet metrics) ──────────────────────────────────────────
@@ -134,7 +143,7 @@ export function applyNumericLipSyncGate(
 async function assessLipSyncWithLLM(
   videoUrl: string,
   scenePrompt?: string
-): Promise<{ gate: LipSyncGate; assessment: string; confidence: number; failureReason?: string; mouthOpenFrames?: number; articulationVisible?: boolean }> {
+): Promise<{ gate: LipSyncGate; assessment: string; confidence: number; failureReason?: string; mouthOpenFrames?: number; articulationVisible?: boolean; lipSyncQualityScore?: number; faceConsistencyScore?: number; mouthVisibilityScore?: number; overallSceneScore?: number }> {
   try {
     const contextNote = scenePrompt
       ? `The scene prompt was: "${scenePrompt.slice(0, 200)}"`
@@ -164,7 +173,11 @@ Return a JSON object with:
 - confidence: 0.0-1.0 (how confident you are in this assessment)
 - failureReason: specific issue if gate is RED or AMBER (e.g. "mouth closed throughout clip", "static expression with no articulation"), null if GREEN
 - mouthOpenFrames: estimated percentage of clip where mouth appears open (0-100)
-- articulationVisible: boolean — true only if clear open/close mouth cycles are visible`,
+- articulationVisible: boolean — true only if clear open/close mouth cycles are visible
+- lipSyncQualityScore: 0.0-1.0 — how accurately mouth movement matches the audio timing (1.0 = perfect sync)
+- faceConsistencyScore: 0.0-1.0 — how consistent and natural the character's face looks throughout (1.0 = perfect)
+- mouthVisibilityScore: 0.0-1.0 — how clearly the mouth is visible and well-framed (1.0 = fully visible, well-lit, close-up)
+- overallSceneScore: 0.0-1.0 — composite quality score for the whole scene (1.0 = broadcast quality)`,
         },
         {
           role: "user",
@@ -173,7 +186,7 @@ Return a JSON object with:
               type: "text",
               text: `Please assess the lip-sync quality of this music video clip. Evaluate mouth movement ACROSS THE ENTIRE CLIP, not just a single frame. ${contextNote}
 
-Return your assessment as JSON with keys: gate, assessment, confidence, failureReason, mouthOpenFrames, articulationVisible.`,
+Return your assessment as JSON with keys: gate, assessment, confidence, failureReason, mouthOpenFrames, articulationVisible, lipSyncQualityScore, faceConsistencyScore, mouthVisibilityScore, overallSceneScore.`,
             },
             {
               type: "file_url",
@@ -218,8 +231,24 @@ Return your assessment as JSON with keys: gate, assessment, confidence, failureR
                 type: "boolean",
                 description: "True only if clear open/close mouth cycles are visible across the clip",
               },
+              lipSyncQualityScore: {
+                type: "number",
+                description: "0.0-1.0 — lip-sync accuracy (how well mouth movement matches audio timing)",
+              },
+              faceConsistencyScore: {
+                type: "number",
+                description: "0.0-1.0 — face/character consistency throughout the clip",
+              },
+              mouthVisibilityScore: {
+                type: "number",
+                description: "0.0-1.0 — mouth visibility and framing quality",
+              },
+              overallSceneScore: {
+                type: "number",
+                description: "0.0-1.0 — composite overall scene quality score",
+              },
             },
-            required: ["gate", "assessment", "confidence", "failureReason", "mouthOpenFrames", "articulationVisible"],
+            required: ["gate", "assessment", "confidence", "failureReason", "mouthOpenFrames", "articulationVisible", "lipSyncQualityScore", "faceConsistencyScore", "mouthVisibilityScore", "overallSceneScore"],
             additionalProperties: false,
           },
         },
@@ -249,6 +278,7 @@ Return your assessment as JSON with keys: gate, assessment, confidence, failureR
       };
     }
 
+    const clamp = (v: unknown) => typeof v === "number" ? Math.min(1, Math.max(0, v)) : undefined;
     return {
       gate,
       assessment: parsed.assessment ?? "No assessment",
@@ -256,6 +286,10 @@ Return your assessment as JSON with keys: gate, assessment, confidence, failureR
       failureReason: parsed.failureReason ?? undefined,
       mouthOpenFrames: mouthOpenFrames ?? undefined,
       articulationVisible: articulationVisible ?? undefined,
+      lipSyncQualityScore: clamp(parsed.lipSyncQualityScore),
+      faceConsistencyScore: clamp(parsed.faceConsistencyScore),
+      mouthVisibilityScore: clamp(parsed.mouthVisibilityScore),
+      overallSceneScore: clamp(parsed.overallSceneScore),
     };
   } catch (err: any) {
     console.error(`[LipSyncGate] LLM assessment failed: ${err.message}`);
@@ -315,6 +349,10 @@ export async function assessLipSyncQuality(
     failureReason: llmResult.failureReason,
     usedSyncNetMetrics: false,
     confidence: llmResult.confidence,
+    lipSyncQualityScore: llmResult.lipSyncQualityScore,
+    faceConsistencyScore: llmResult.faceConsistencyScore,
+    mouthVisibilityScore: llmResult.mouthVisibilityScore,
+    overallSceneScore: llmResult.overallSceneScore,
   };
 }
 
