@@ -215,6 +215,7 @@ interface ScenePreviewGridProps {
   onUnapproveScene?: (sceneId: number) => Promise<void>;
   regeneratingScenes?: Set<number>;
   approvingScenes?: Set<number>;
+  onRegenerateAll?: (newDirection?: string) => Promise<void>;
 }
 function ScenePreviewGrid({
   scenes,
@@ -228,6 +229,7 @@ function ScenePreviewGrid({
   onUnapproveScene,
   regeneratingScenes = new Set(),
   approvingScenes = new Set(),
+  onRegenerateAll,
 }: ScenePreviewGridProps) {
   const [playingId, setPlayingId] = React.useState<number | null>(null);
   const [previewModalOpen, setPreviewModalOpen] = React.useState(false);
@@ -237,6 +239,27 @@ function ScenePreviewGrid({
   const [editLyrics, setEditLyrics] = React.useState("");
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
+
+  // ── Rewrite Scene modal state ──────────────────────────────────────────────
+  const [regenAllOpen, setRegenAllOpen] = React.useState(false);
+  const [regenAllDirection, setRegenAllDirection] = React.useState("");
+  const [regenAllLoading, setRegenAllLoading] = React.useState(false);
+
+  const [rewriteSceneId, setRewriteSceneId] = React.useState<number | null>(null);
+  const [rewriteDirection, setRewriteDirection] = React.useState("");
+  const [rewritePreview, setRewritePreview] = React.useState<string | null>(null);
+  const [rewriteLoading, setRewriteLoading] = React.useState(false);
+  const [rewriteApplying, setRewriteApplying] = React.useState(false);
+
+  // ── Replace Scene modal state ──────────────────────────────────────────────
+  const [replaceSceneId, setReplaceSceneId] = React.useState<number | null>(null);
+  const [replaceText, setReplaceText] = React.useState("");
+  const [replaceEnhanced, setReplaceEnhanced] = React.useState<string | null>(null);
+  const [replaceEnhancing, setReplaceEnhancing] = React.useState(false);
+  const [replaceApplying, setReplaceApplying] = React.useState(false);
+
+  const rewriteMutation = trpc.musicVideo.rewriteSceneWithAI.useMutation();
+  const enhancePromptMutation = trpc.musicVideo.enhancePrompt.useMutation();
 
   const stopAll = React.useCallback(() => {
     if (videoRef.current) { videoRef.current.pause(); videoRef.current.currentTime = 0; }
@@ -266,6 +289,83 @@ function ScenePreviewGrid({
     await onRegenerateScene(scene.id, editPrompt.trim() || undefined, editLyrics.trim() || undefined);
     setEditingSceneId(null);
   }, [onRegenerateScene, editPrompt, editLyrics]);
+
+  // ── Rewrite + Replace handlers (after stopAll) ─────────────────────────────
+  const handleOpenRewrite = React.useCallback((scene: SceneReviewItem) => {
+    setRewriteSceneId(scene.id);
+    setRewriteDirection("");
+    setRewritePreview(null);
+    setPlayingId(null);
+    stopAll();
+  }, [stopAll]);
+
+  const handleRewriteGenerate = React.useCallback(async () => {
+    if (!rewriteSceneId || !rewriteDirection.trim() || !jobId) return;
+    setRewriteLoading(true);
+    try {
+      const result = await rewriteMutation.mutateAsync({
+        sceneId: rewriteSceneId,
+        jobId,
+        direction: rewriteDirection.trim(),
+      });
+      setRewritePreview(result.rewritten);
+    } catch (err: any) {
+      console.error("Rewrite failed:", err);
+    } finally {
+      setRewriteLoading(false);
+    }
+  }, [rewriteSceneId, rewriteDirection, jobId, rewriteMutation]);
+
+  const handleRewriteApply = React.useCallback(async () => {
+    if (!rewriteSceneId || !rewritePreview || !onRegenerateScene) return;
+    setRewriteApplying(true);
+    try {
+      await onRegenerateScene(rewriteSceneId, rewritePreview);
+      setRewriteSceneId(null);
+      setRewritePreview(null);
+    } finally {
+      setRewriteApplying(false);
+    }
+  }, [rewriteSceneId, rewritePreview, onRegenerateScene]);
+
+  const handleOpenReplace = React.useCallback((scene: SceneReviewItem) => {
+    setReplaceSceneId(scene.id);
+    setReplaceText("");
+    setReplaceEnhanced(null);
+    setPlayingId(null);
+    stopAll();
+  }, [stopAll]);
+
+  const handleReplaceEnhance = React.useCallback(async () => {
+    if (!replaceText.trim()) return;
+    setReplaceEnhancing(true);
+    try {
+      const result = await enhancePromptMutation.mutateAsync({
+        prompt: replaceText.trim(),
+        productType: "music_video",
+      });
+      setReplaceEnhanced(result.enhanced);
+    } catch (err: any) {
+      console.error("Enhance failed:", err);
+    } finally {
+      setReplaceEnhancing(false);
+    }
+  }, [replaceText, enhancePromptMutation]);
+
+  const handleReplaceApply = React.useCallback(async () => {
+    if (!replaceSceneId || !onRegenerateScene) return;
+    const finalPrompt = replaceEnhanced || replaceText.trim();
+    if (!finalPrompt) return;
+    setReplaceApplying(true);
+    try {
+      await onRegenerateScene(replaceSceneId, finalPrompt);
+      setReplaceSceneId(null);
+      setReplaceEnhanced(null);
+      setReplaceText("");
+    } finally {
+      setReplaceApplying(false);
+    }
+  }, [replaceSceneId, replaceEnhanced, replaceText, onRegenerateScene]);
 
   const hasAny = scenes.some((s) => s.status === "completed" || s.status === "generating" || s.status === "pending" || s.status === "failed");
   if (!hasAny) return null;
@@ -319,7 +419,19 @@ function ScenePreviewGrid({
             </span>
           )}
         </div>
-        <p className="text-[10px] text-white/30">Play to verify lip sync · Edit to tweak · Approve to lock in</p>
+        <div className="flex items-center gap-2">
+          <p className="text-[10px] text-white/30 hidden sm:block">Play to verify lip sync · Edit to tweak · Approve to lock in</p>
+          {onRegenerateAll && (
+            <button
+              onClick={() => setRegenAllOpen(true)}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-500/10 text-red-300/70 text-[11px] font-medium hover:bg-red-500/20 hover:text-red-300 transition-colors border border-red-500/20"
+              title="Regenerate the entire storyboard with a new direction"
+            >
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              Regenerate All
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Hidden shared audio element — seeked to scene startTime on play */}
@@ -565,6 +677,24 @@ function ScenePreviewGrid({
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                           Edit
                         </button>
+                        {/* Rewrite Scene with AI */}
+                        <button
+                          onClick={() => handleOpenRewrite(scene)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-md bg-purple-500/10 text-purple-300/70 text-[11px] font-medium hover:bg-purple-500/20 hover:text-purple-300 transition-colors border border-purple-500/20"
+                          title="Rewrite this scene with AI assistance"
+                        >
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                          Rewrite
+                        </button>
+                        {/* Replace Scene completely */}
+                        <button
+                          onClick={() => handleOpenReplace(scene)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-md bg-orange-500/10 text-orange-300/70 text-[11px] font-medium hover:bg-orange-500/20 hover:text-orange-300 transition-colors border border-orange-500/20"
+                          title="Replace this scene with a completely new description"
+                        >
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                          Replace
+                        </button>
                         <button
                           onClick={() => onRegenerateScene?.(scene.id)}
                           className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 text-white/40 text-[11px] font-medium hover:bg-white/10 hover:text-white/70 transition-colors border border-white/10"
@@ -659,6 +789,149 @@ function ScenePreviewGrid({
         onRerender={onRegenerateScene ? (id) => onRegenerateScene(id) : undefined}
         jobAudioUrl={audioUrl ?? undefined}
       />
+
+      {/* ── Rewrite Scene Modal ───────────────────────────────────────────── */}
+      {rewriteSceneId !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-[#1a1a2e] border border-purple-500/30 rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+            <div className="flex items-center gap-2 mb-4">
+              <svg className="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+              <h3 className="text-white font-semibold text-sm">Rewrite Scene with AI</h3>
+              <span className="ml-auto text-[10px] text-purple-300/60 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">Scene {scenes.findIndex(s => s.id === rewriteSceneId) + 1}</span>
+            </div>
+            <p className="text-white/50 text-xs mb-3">Describe what you want to change — the AI will rewrite the full scene prompt while keeping your character and setting.</p>
+            <textarea
+              value={rewriteDirection}
+              onChange={e => setRewriteDirection(e.target.value)}
+              placeholder="e.g. Make it more dramatic, add rain, change to a close-up of her face with tears..."
+              rows={3}
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white/80 text-sm placeholder-white/25 resize-none focus:outline-none focus:border-purple-500/50 mb-3"
+            />
+            {!rewritePreview && (
+              <button
+                onClick={handleRewriteGenerate}
+                disabled={!rewriteDirection.trim() || rewriteLoading}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-semibold hover:bg-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-2"
+              >
+                {rewriteLoading ? <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Generating rewrite…</> : "Generate Rewrite"}
+              </button>
+            )}
+            {rewritePreview && (
+              <div className="mb-3">
+                <p className="text-[10px] text-purple-300/70 uppercase tracking-widest mb-1.5">AI Rewritten Prompt</p>
+                <div className="bg-purple-500/10 border border-purple-500/25 rounded-lg px-3 py-2 text-white/80 text-xs leading-relaxed max-h-32 overflow-y-auto">{rewritePreview}</div>
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={handleRewriteApply}
+                    disabled={rewriteApplying}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-semibold hover:bg-purple-500 transition-colors disabled:opacity-50"
+                  >
+                    {rewriteApplying ? <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Applying…</> : "Apply & Re-render"}
+                  </button>
+                  <button
+                    onClick={() => setRewritePreview(null)}
+                    className="px-4 py-2 rounded-lg bg-white/5 text-white/50 text-sm hover:bg-white/10 transition-colors border border-white/10"
+                  >Try Again</button>
+                </div>
+              </div>
+            )}
+            <button
+              onClick={() => { setRewriteSceneId(null); setRewritePreview(null); setRewriteDirection(""); }}
+              className="w-full px-4 py-2 rounded-lg bg-white/5 text-white/40 text-sm hover:bg-white/10 transition-colors border border-white/10"
+            >Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Regenerate All Modal ──────────────────────────────────────────── */}
+      {regenAllOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-[#1a1a2e] border border-red-500/30 rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+            <div className="flex items-center gap-2 mb-4">
+              <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <h3 className="text-white font-semibold text-sm">Regenerate All Scenes</h3>
+            </div>
+            <p className="text-white/50 text-xs mb-3">This will regenerate the entire storyboard. All current scenes will be replaced. Optionally describe a new direction or theme below.</p>
+            <textarea
+              value={regenAllDirection}
+              onChange={e => setRegenAllDirection(e.target.value)}
+              placeholder="Optional: describe a new direction, theme, or style change for the whole video..."
+              rows={3}
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white/80 text-sm placeholder-white/25 resize-none focus:outline-none focus:border-red-500/50 mb-3"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={async () => {
+                  if (!onRegenerateAll) return;
+                  setRegenAllLoading(true);
+                  try {
+                    await onRegenerateAll(regenAllDirection.trim() || undefined);
+                    setRegenAllOpen(false);
+                    setRegenAllDirection("");
+                  } finally {
+                    setRegenAllLoading(false);
+                  }
+                }}
+                disabled={regenAllLoading}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-500 transition-colors disabled:opacity-50"
+              >
+                {regenAllLoading ? <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Regenerating…</> : "Yes, Regenerate All Scenes"}
+              </button>
+              <button
+                onClick={() => { setRegenAllOpen(false); setRegenAllDirection(""); }}
+                className="px-4 py-2 rounded-lg bg-white/5 text-white/40 text-sm hover:bg-white/10 transition-colors border border-white/10"
+              >Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Replace Scene Modal ────────────────────────────────────────────── */}
+      {replaceSceneId !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-[#1a1a2e] border border-orange-500/30 rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+            <div className="flex items-center gap-2 mb-4">
+              <svg className="w-5 h-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <h3 className="text-white font-semibold text-sm">Replace Scene Completely</h3>
+              <span className="ml-auto text-[10px] text-orange-300/60 bg-orange-500/10 px-2 py-0.5 rounded-full border border-orange-500/20">Scene {scenes.findIndex(s => s.id === replaceSceneId) + 1}</span>
+            </div>
+            <p className="text-white/50 text-xs mb-3">Describe a completely new scene from scratch. Use the AI Enhance button to turn your idea into a detailed cinematic prompt.</p>
+            <textarea
+              value={replaceText}
+              onChange={e => { setReplaceText(e.target.value); setReplaceEnhanced(null); }}
+              placeholder="e.g. Zara standing alone in a spotlight, looking up at the sky, white dress flowing..."
+              rows={3}
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white/80 text-sm placeholder-white/25 resize-none focus:outline-none focus:border-orange-500/50 mb-2"
+            />
+            <button
+              onClick={handleReplaceEnhance}
+              disabled={!replaceText.trim() || replaceEnhancing}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-orange-500/20 text-orange-300 text-sm font-medium hover:bg-orange-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-orange-500/25 mb-3"
+            >
+              {replaceEnhancing ? <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Enhancing with AI…</> : <><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg> AI Enhance Prompt</> }
+            </button>
+            {replaceEnhanced && (
+              <div className="mb-3">
+                <p className="text-[10px] text-orange-300/70 uppercase tracking-widest mb-1.5">AI Enhanced Prompt</p>
+                <div className="bg-orange-500/10 border border-orange-500/25 rounded-lg px-3 py-2 text-white/80 text-xs leading-relaxed max-h-32 overflow-y-auto">{replaceEnhanced}</div>
+              </div>
+            )}
+            <div className="flex gap-2">
+              <button
+                onClick={handleReplaceApply}
+                disabled={replaceApplying || (!replaceText.trim() && !replaceEnhanced)}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-orange-600 text-white text-sm font-semibold hover:bg-orange-500 transition-colors disabled:opacity-50"
+              >
+                {replaceApplying ? <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg> Applying…</> : "Apply & Re-render"}
+              </button>
+              <button
+                onClick={() => { setReplaceSceneId(null); setReplaceText(""); setReplaceEnhanced(null); }}
+                className="px-4 py-2 rounded-lg bg-white/5 text-white/40 text-sm hover:bg-white/10 transition-colors border border-white/10"
+              >Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1172,6 +1445,7 @@ export default function MusicVideoAutopilot() {
   const cancelSceneMutation = trpc.musicVideo.cancelScene.useMutation();
   const retryAllFailedScenesMutation = trpc.musicVideo.retryAllFailedScenes.useMutation();
   const updateScenePromptMutation = trpc.musicVideo.updateScenePrompt.useMutation();
+  const regenerateAllScenesMutation = trpc.musicVideo.regenerateAllScenes.useMutation();
   // Hedra Performance Mode mutations
   const runHedraLipSyncMutation = trpc.musicVideo.runHedraLipSync.useMutation({
     onSuccess: () => toast.success("Hedra lip sync started — this takes 1–3 minutes"),
@@ -6538,6 +6812,19 @@ export default function MusicVideoAutopilot() {
                               toast.error("Could not unapprove scene", { description: err?.message });
                             } finally {
                               setApprovingScenes((prev) => { const n = new Set(prev); n.delete(sceneId); return n; });
+                            }
+                          }}
+                          onRegenerateAll={async (newDirection) => {
+                            if (!jobId) return;
+                            try {
+                              await regenerateAllScenesMutation.mutateAsync({ jobId, newDirection });
+                              toast.success("Regenerating all scenes", { description: newDirection ? `New direction: "${newDirection.slice(0, 60)}…"` : "All scenes will be re-rendered with the current storyboard." });
+                              isRenderingRef.current = true;
+                              setRenderStatus("rendering");
+                              // Reset all scene statuses optimistically
+                              setPerSceneStatuses((prev) => prev.map((s) => ({ ...s, status: "pending" as const, videoUrl: null, errorMessage: null, isApproved: false })));
+                            } catch (err: any) {
+                              toast.error("Could not regenerate all scenes", { description: err?.message });
                             }
                           }}
                           onRegenerateScene={async (sceneId, newPrompt, newLyrics) => {

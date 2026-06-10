@@ -5822,6 +5822,123 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
 
       return { success: true, charactersQueued: approvedChars.length };
     }),
+
+  // ── Rewrite a scene prompt with AI assistance ─────────────────────────────
+  // Takes the existing prompt + a plain-language direction and rewrites the
+  // full scene prompt to incorporate the new direction while preserving context.
+  rewriteSceneWithAI: protectedProcedure
+    .input(z.object({
+      sceneId: z.number().int(),
+      jobId: z.number().int(),
+      direction: z.string().min(3).max(1000), // e.g. "make it more dramatic", "change to outdoor"
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+
+      const [scene] = await db.select().from(musicVideoScenes)
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+      if (!scene) throw new TRPCError({ code: "NOT_FOUND", message: "Scene not found" });
+
+      const { invokeLLM } = await import("../_core/llm");
+
+      const systemPrompt = `You are WizGenesis™ — the cinematic intelligence layer of WIZ AI.
+You are helping a user rewrite a scene prompt for an AI music video generator.
+
+Your task:
+1. Take the EXISTING scene prompt and the user's DIRECTION for change
+2. Rewrite the scene prompt to incorporate the direction while preserving the core context (character, venue, song section, timing)
+3. Make the result more cinematic, detailed, and AI-friendly
+4. Keep it under 400 words — concise but rich
+5. Write in present tense, descriptive prose
+6. Do NOT add music/audio instructions
+7. Do NOT mention AI, generation, or rendering
+8. Return ONLY the rewritten prompt text. No explanations, no preamble, no quotes.`;
+
+      const userContent = [
+        `Existing scene prompt: "${scene.prompt}"`,
+        scene.lyrics ? `Lyrics for this scene: "${scene.lyrics}"` : "",
+        `User's direction: "${input.direction}"`,
+        `Rewrite the scene prompt to incorporate this direction.`,
+      ].filter(Boolean).join("\n");
+
+      const response = await invokeLLM({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userContent },
+        ],
+      });
+      const rawContent = response.choices?.[0]?.message?.content;
+      const rewritten = (typeof rawContent === "string" ? rawContent.trim() : "") || scene.prompt;
+      return { rewritten, originalPrompt: scene.prompt };
+    }),
+
+  // ── Regenerate all scenes with optional new direction ─────────────────────
+  // Regenerates the full storyboard for a job. Only allowed before rendering starts
+  // (status = storyboard or awaiting_probe_approval with no completed scenes).
+  regenerateAllScenes: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      newDirection: z.string().max(2000).optional(), // optional new theme/direction
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Verify ownership
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+
+      // Only allow regeneration if no scenes have completed rendering
+      const completedScenes = await db.select({ id: musicVideoScenes.id })
+        .from(musicVideoScenes)
+        .where(and(
+          eq(musicVideoScenes.jobId, input.jobId),
+          eq(musicVideoScenes.status, "completed" as any)
+        ));
+
+      if (completedScenes.length > 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Cannot regenerate storyboard — ${completedScenes.length} scene(s) have already been rendered. Use per-scene editing instead.`,
+        });
+      }
+
+      // Reset all scenes to pending
+      await db.update(musicVideoScenes)
+        .set({
+          status: "pending" as any,
+          taskId: null,
+          videoUrl: null,
+          videoKey: null,
+          errorMessage: null,
+          retryCount: 0,
+          updatedAt: new Date(),
+        })
+        .where(eq(musicVideoScenes.jobId, input.jobId));
+
+      // If a new direction is provided, update the job's themePrompt
+      if (input.newDirection?.trim()) {
+        const updatedTheme = input.newDirection.trim();
+        await db.update(musicVideoJobs)
+          .set({ themePrompt: updatedTheme, updatedAt: new Date() })
+          .where(eq(musicVideoJobs.id, input.jobId));
+      }
+
+      // Reset job to storyboard status so storyboard regeneration is triggered
+      await db.update(musicVideoJobs)
+        .set({ status: "storyboard" as any, probePassed: null, probeSceneId: null, updatedAt: new Date() })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      console.log(`[MusicVideo] Storyboard regeneration triggered for job ${input.jobId} by user ${ctx.user.id}`);
+      return { success: true, scenesReset: completedScenes.length === 0 };
+    }),
 });
 
 /** Translate internal error codes to user-friendly messages. */
