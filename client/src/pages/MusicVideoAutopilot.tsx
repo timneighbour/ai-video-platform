@@ -5240,13 +5240,20 @@ export default function MusicVideoAutopilot() {
                           <Pencil className="w-3 h-3 text-white/40" />
                           <span className="text-white/40 text-xs font-medium">Scene description</span>
                         </div>
-                        <EnhancePromptButton
-                          prompt={editingSceneId === scene.id ? editPrompt : scene.prompt}
-                          productType="music_video"
-                          genre={genre}
-                          mood={mood}
-                          onEnhanced={(text) => { setEditingSceneId(scene.id); setEditPrompt(text); }}
-                        />
+                        <div className="flex items-center gap-1.5">
+                          <VoicePromptButton
+                            toolContext="scene direction and cinematography"
+                            onPromptReady={(refined) => { setEditingSceneId(scene.id); setEditPrompt(refined); }}
+                            showWaveform
+                          />
+                          <EnhancePromptButton
+                            prompt={editingSceneId === scene.id ? editPrompt : scene.prompt}
+                            productType="music_video"
+                            genre={genre}
+                            mood={mood}
+                            onEnhanced={(text) => { setEditingSceneId(scene.id); setEditPrompt(text); }}
+                          />
+                        </div>
                       </div>
                       <Textarea
                         value={editingSceneId === scene.id ? editPrompt : scene.prompt}
