@@ -101,6 +101,7 @@ import {
   Image as ImageIcon,
   Users,
   Maximize2,
+  RotateCcw,
 } from "@/lib/icons";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
 import { StarterTemplates } from "@/components/StarterTemplates";
@@ -1519,6 +1520,7 @@ export default function MusicVideoAutopilot() {
   const pauseRenderMutation = trpc.musicVideo.pauseRender.useMutation();
   const resumeRenderMutation = trpc.musicVideo.resumeRender.useMutation();
   const cancelRenderMutation = trpc.musicVideo.cancelRender.useMutation();
+  const resetRenderMutation = trpc.musicVideo.resetRender.useMutation();
   const deleteSceneMutation = trpc.musicVideo.deleteScene.useMutation();
   const addSceneMutation = trpc.musicVideo.addScene.useMutation();
   const reorderSceneMutation = trpc.musicVideo.reorderScene.useMutation();
@@ -6391,14 +6393,39 @@ export default function MusicVideoAutopilot() {
                             disabled={cancelRenderMutation.isPending}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-xs font-semibold hover:bg-red-500/20 transition-colors border border-red-500/20 disabled:opacity-50"
                           >
-                            {cancelRenderMutation.isPending
+                                                        {cancelRenderMutation.isPending
                               ? <><Loader2 className="w-3 h-3 animate-spin" /> Cancelling…</>
                               : <><X className="w-3 h-3" /> Cancel Render</>}
                           </button>
                         </div>
                       )}
+                      {/* Reset Screening Room — visible when not actively rendering */}
+                      {jobId && renderStatus !== "rendering" && renderStatus !== "assembling" && renderStatus !== "wizsound" && (
+                        <div className="flex justify-center mt-2">
+                          <button
+                            onClick={async () => {
+                              if (!confirm("Reset the Screening Room? This will clear all rendered scene videos and the final video so you can start a fresh render. Your storyboard prompts and settings will NOT be changed.")) return;
+                              try {
+                                await resetRenderMutation.mutateAsync({ jobId });
+                                setRenderStatus("idle");
+                                setFinalVideoUrl(null);
+                                setCompletedScenes(0);
+                                isRenderingRef.current = false;
+                                toast.success("Screening Room reset", { description: "All render outputs cleared. Your storyboard is intact — start a fresh render whenever you\'re ready." });
+                              } catch (err: any) {
+                                toast.error("Could not reset", { description: err?.message });
+                              }
+                            }}
+                            disabled={resetRenderMutation.isPending}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 text-white/40 text-xs font-medium hover:bg-white/10 hover:text-white/60 transition-colors border border-white/10 disabled:opacity-50"
+                          >
+                            {resetRenderMutation.isPending
+                              ? <><Loader2 className="w-3 h-3 animate-spin" /> Resetting…</>
+                              : <><RotateCcw className="w-3 h-3" /> Reset Screening Room</>}
+                          </button>
+                        </div>
+                      )}
                     </div>
-
                     {/* Progress Dashboard */}
                     <div className="mb-5">
                       {(() => {

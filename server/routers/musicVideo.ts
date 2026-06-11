@@ -5961,11 +5961,80 @@ Your task:
         .set({ status: "storyboard" as any, probePassed: null, probeSceneId: null, updatedAt: new Date() })
         .where(eq(musicVideoJobs.id, input.jobId));
 
-      console.log(`[MusicVideo] Storyboard regeneration triggered for job ${input.jobId} by user ${ctx.user.id}`);
+            console.log(`[MusicVideo] Storyboard regeneration triggered for job ${input.jobId} by user ${ctx.user.id}`);
       return { success: true, scenesReset: completedScenes.length === 0 };
     }),
-});
 
+  /**
+   * resetRender — clears all scene video outputs and resets the job back to
+   * "storyboard_ready" so the user can start a fresh render after editing
+   * the storyboard. Does NOT touch the storyboard prompts themselves.
+   */
+  resetRender: protectedProcedure
+    .input(z.object({ jobId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+
+      // Block reset if a render is actively in progress
+      if (job.status === "rendering" || job.status === "assembling") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cannot reset while a render is in progress. Please wait for it to finish or cancel it first.",
+        });
+      }
+
+      // Reset all scenes: clear video outputs, lip sync, hedra results
+      await db.update(musicVideoScenes)
+        .set({
+          status: "pending",
+          taskId: null,
+          videoUrl: null,
+          videoKey: null,
+          errorMessage: null,
+          retryCount: 0,
+          lipSyncStatus: "pending",
+          lipSyncVideoUrl: null,
+          lipSyncVideoKey: null,
+          lipSyncTaskId: null,
+          hedraStatus: "pending",
+          hedraVideoUrl: null,
+          hedraVideoKey: null,
+          hedraGenerationId: null,
+          isApproved: false,
+          approvedAt: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(musicVideoScenes.jobId, input.jobId));
+
+      // Reset job render state back to storyboard_ready
+      await db.update(musicVideoJobs)
+        .set({
+          status: "storyboard_ready",
+          finalVideoUrl: null,
+          finalVideoKey: null,
+          errorMessage: null,
+          completedScenes: 0,
+          qualityStatus: "pending",
+          downloadedAt: null,
+          probePassed: null,
+          probeSceneId: null,
+          probeVideoUrl: null,
+          probeApprovedAt: null,
+          finalVideoProduced: false,
+          storyboardLockedAt: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      console.log(`[MusicVideo] Screening room reset for job ${input.jobId} by user ${ctx.user.id}`);
+      return { success: true };
+    }),
+});
 /** Translate internal error codes to user-friendly messages. */
 function translateErrorMessage(errorMessage: string): string {
   if (!errorMessage) return "Something went wrong. Please try again.";
