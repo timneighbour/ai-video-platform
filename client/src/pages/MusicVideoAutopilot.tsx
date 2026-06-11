@@ -7311,11 +7311,21 @@ export default function MusicVideoAutopilot() {
       </div>
       </div>
       {/* ── Floating Mini Player — visible on Storyboard and Screening Room ── */}
+      {/* Dedicated hidden audio element owned by the main component for the floating player */}
+      {(step === "storyboard" || step === "render") && (restoredAudioUrl || sunoGeneratedAudioUrl) && (
+        <audio
+          ref={audioRef}
+          src={(restoredAudioUrl || sunoGeneratedAudioUrl) as string}
+          preload="auto"
+          style={{ display: "none" }}
+          crossOrigin="anonymous"
+        />
+      )}
       {(step === "storyboard" || step === "render") && (restoredAudioUrl || sunoGeneratedAudioUrl) && (
         <FloatingMiniPlayer
           audioRef={audioRef}
           title={restoredAudioTitle || title || "Your Track"}
-          audioUrl={(restoredAudioUrl || sunoGeneratedAudioUrl)!}
+          audioUrl={(restoredAudioUrl || sunoGeneratedAudioUrl) as string}
           visible
         />
       )}
