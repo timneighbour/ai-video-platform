@@ -126,9 +126,12 @@ export async function transcribeAudio(
     // Step 3: Create FormData for multipart upload to Whisper API
     const formData = new FormData();
     
-    // Create a Blob from the buffer and append to form
-    const filename = `audio.${getFileExtension(mimeType)}`;
-    const audioBlob = new Blob([new Uint8Array(audioBuffer)], { type: mimeType });
+    // Normalise MIME type — strip codec params (e.g. "audio/webm;codecs=opus" → "audio/webm")
+    // Whisper accepts the base type; codec suffixes can confuse some parsers.
+    const baseMimeType = mimeType.split(";")[0].trim();
+    const ext = getFileExtension(baseMimeType);
+    const filename = `audio.${ext}`;
+    const audioBlob = new Blob([new Uint8Array(audioBuffer)], { type: baseMimeType });
     formData.append("file", audioBlob, filename);
     
     formData.append("model", "whisper-1");
@@ -205,9 +208,12 @@ export async function transcribeAudio(
 }
 
 /**
- * Helper function to get file extension from MIME type
+ * Helper function to get file extension from MIME type.
+ * Always pass the BASE mime type (no codec params) — e.g. "audio/webm" not "audio/webm;codecs=opus".
  */
 function getFileExtension(mimeType: string): string {
+  // Strip any codec parameters before lookup
+  const base = mimeType.split(";")[0].trim().toLowerCase();
   const mimeToExt: Record<string, string> = {
     'audio/webm': 'webm',
     'audio/mp3': 'mp3',
@@ -217,9 +223,13 @@ function getFileExtension(mimeType: string): string {
     'audio/ogg': 'ogg',
     'audio/m4a': 'm4a',
     'audio/mp4': 'm4a',
+    'audio/aac': 'aac',
+    'audio/flac': 'flac',
+    'video/webm': 'webm',  // Some browsers record as video/webm
+    'video/mp4': 'mp4',
   };
   
-  return mimeToExt[mimeType] || 'audio';
+  return mimeToExt[base] || 'webm'; // Default to webm (most common browser recording format)
 }
 
 /**

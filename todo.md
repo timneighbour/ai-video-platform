@@ -9117,3 +9117,9 @@
 - [x] Fix Scene 2 (930003, 12s) job 1080001: change from cinematic Pianist to Zara performance/lipSync, regenerate 16:9 storyboard
 - [ ] Verify HeyGen v3/lipsyncs endpoint routes as true lipsync (not video_translate)
 - [ ] Dispatch Scene 2 (930003) as single probe to validate all fixes
+
+## Voice Transcription Bug Fix (Jun 2026)
+- [x] Fix voice transcription MIME type bug: getFileExtension() in voiceTranscription.ts did not handle "audio/webm;codecs=opus" — returned "audio" extension instead of "webm", causing Whisper API to reject the file
+- [x] Fix: normalise MIME type by stripping codec params before filename/blob creation (e.g. "audio/webm;codecs=opus" → "audio/webm" → "audio.webm")
+- [x] Fix: getFileExtension() default fallback changed from "audio" to "webm" (most common browser recording format)
+- [x] Add server-side logging to voice.ts transcribeAndRefine mutation for easier future debugging

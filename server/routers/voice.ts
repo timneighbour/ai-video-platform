@@ -83,14 +83,33 @@ export const voiceRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      // Step 1: Transcribe the audio (with quota guard for rate-limit errors)
-      const transcriptionResult = await withQuotaGuard(() => transcribeAudio({
+      console.log("[Voice] transcribeAndRefine called:", {
         audioUrl: input.audioUrl,
+        toolContext: input.toolContext,
         language: input.language,
-        prompt: `Transcribe the user's creative brief for ${input.toolContext}`,
-      }));
+      });
+
+      // Step 1: Transcribe the audio (with quota guard for rate-limit errors)
+      let transcriptionResult;
+      try {
+        transcriptionResult = await withQuotaGuard(() => transcribeAudio({
+          audioUrl: input.audioUrl,
+          language: input.language,
+          prompt: `Transcribe the user's creative brief for ${input.toolContext}`,
+        }));
+      } catch (err) {
+        console.error("[Voice] transcribeAudio threw unexpected error:", err);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Voice transcription service error. Please try again.",
+          cause: err,
+        });
+      }
+
+      console.log("[Voice] transcription result:", JSON.stringify(transcriptionResult).slice(0, 300));
 
       if ("error" in transcriptionResult) {
+        console.error("[Voice] transcription error:", transcriptionResult);
         // Surface quota/rate-limit errors with a friendly message
         const details = (transcriptionResult as any).details ?? "";
         if (/412|usage exhausted|quota|rate limit/i.test(details)) {
