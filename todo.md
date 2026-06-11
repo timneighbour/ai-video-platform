@@ -9129,3 +9129,4 @@
 - [x] Wire FloatingMiniPlayer into MusicVideoAutopilot storyboard step (step === "storyboard")
 - [x] Wire FloatingMiniPlayer into MusicVideoAutopilot screening room step (step === "render")
 - [x] Ensure FloatingMiniPlayer shares the same audio element ref as the inline WizAudioPlayer (no duplicate audio)
+- [x] Fix intermittent voice transcription failures — add exponential-backoff retry to audio download (3×, 1.5s/3s) and Whisper API call (3×, 3s/6s) for 429/503/502/412 transient errors
