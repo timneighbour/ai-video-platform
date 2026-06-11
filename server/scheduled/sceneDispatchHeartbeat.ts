@@ -82,8 +82,8 @@ import { triggerCloudVocalIsolation } from "../cloud-vocal-isolation";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
 const SCENE_STUCK_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes — reaper handles beyond this
-const HEYGEN_STUCK_TIMEOUT_MS = 12 * 60 * 1000; // 12 minutes max for HeyGen Precision jobs
-const INFINITETALK_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes max for InfiniteTalk fallback lip sync
+const HEYGEN_STUCK_TIMEOUT_MS = 25 * 60 * 1000; // 25 minutes max for HeyGen Precision jobs (can take 15-20min)
+const INFINITETALK_STUCK_TIMEOUT_MS = 20 * 60 * 1000; // 20 minutes max for InfiniteTalk fallback lip sync
 // Compositing removed from pipeline (2026-05-28) — constants kept for legacy polling only
 const COMPOSITE_STUCK_TIMEOUT_MS = 10 * 60 * 1000;
 const MAX_COMPOSITE_ATTEMPTS = 3;
@@ -1101,7 +1101,8 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             try {
               const sceneAge = Date.now() - new Date(scene.updatedAt).getTime();
 
-              const stuckTimeout = INFINITETALK_STUCK_TIMEOUT_MS;
+              const isHeyGenTaskForTimeout = (scene.lipSyncTaskId ?? "").startsWith("heygen:");
+              const stuckTimeout = isHeyGenTaskForTimeout ? HEYGEN_STUCK_TIMEOUT_MS : INFINITETALK_STUCK_TIMEOUT_MS;
               if (sceneAge > stuckTimeout) {
                 console.warn(`[SceneDispatch] Scene ${scene.id} lip sync job stuck for ${Math.round(sceneAge / 60000)}min — resetting to pending for retry`);
                 // Reset to pending so the heartbeat re-submits on the next tick.
