@@ -320,3 +320,159 @@ export async function extractAllSceneAudioClips(
 
   return results;
 }
+
+/**
+ * Mux an audio clip into a silent video file.
+ *
+ * HeyGen Precision lip sync requires the input video to have an audio track —
+ * it uses the existing audio as a timing reference for lip movement alignment.
+ * Atlas Cloud renders are silent (no audio track), so we must mux the vocal
+ * stem clip into the video before sending to HeyGen.
+ *
+ * Strategy:
+ *   - Download the silent video and the audio clip to temp files
+ *   - Use ffmpeg to combine them: copy video stream, encode audio as AAC
+ *   - Upload the muxed video to S3 and return the URL
+ *
+ * @param videoUrl   S3/CDN URL of the silent rendered video (mp4)
+ * @param audioUrl   S3/CDN URL of the vocal stem audio clip (mp3/wav)
+ * @param sceneId    Used for S3 key naming and logging
+ * @returns S3 URL of the muxed video (mp4 with audio track)
+ */
+export async function muxAudioIntoVideo(
+  videoUrl: string,
+  audioUrl: string,
+  sceneId: number
+): Promise<string> {
+  const ffmpeg = getFFmpegBin();
+
+  let videoPath: string | null = null;
+  let audioPath: string | null = null;
+  let outputPath: string | null = null;
+
+  try {
+    // Download video
+    videoPath = path.join(os.tmpdir(), `wiz-mux-video-${sceneId}-${Date.now()}.mp4`);
+    const videoResp = await fetch(videoUrl);
+    if (!videoResp.ok) throw new Error(`Failed to download video: HTTP ${videoResp.status}`);
+    fs.writeFileSync(videoPath, Buffer.from(await videoResp.arrayBuffer()));
+
+    // Download audio
+    const audioExt = audioUrl.split(".").pop()?.split("?")[0] ?? "mp3";
+    audioPath = path.join(os.tmpdir(), `wiz-mux-audio-${sceneId}-${Date.now()}.${audioExt}`);
+    const audioResp = await fetch(audioUrl);
+    if (!audioResp.ok) throw new Error(`Failed to download audio: HTTP ${audioResp.status}`);
+    fs.writeFileSync(audioPath, Buffer.from(await audioResp.arrayBuffer()));
+
+    // Output muxed video
+    outputPath = path.join(os.tmpdir(), `wiz-muxed-${sceneId}-${Date.now()}.mp4`);
+
+    // ffmpeg: copy video stream, encode audio as AAC, shortest duration wins
+    const muxArgs = [
+      "-y",
+      "-i", videoPath,
+      "-i", audioPath,
+      "-c:v", "copy",           // copy video stream — no re-encode
+      "-c:a", "aac",            // encode audio as AAC (HeyGen compatible)
+      "-b:a", "192k",
+      "-ar", "44100",
+      "-ac", "2",
+      "-shortest",              // trim to shortest stream (video duration)
+      "-movflags", "+faststart", // web-optimised MP4
+      "-loglevel", "error",
+      outputPath,
+    ];
+
+    console.log(`[AudioMuxer] Scene ${sceneId}: muxing audio into video`);
+    const { stderr } = await execFileAsync(ffmpeg, muxArgs, { timeout: 60_000 });
+    if (stderr && stderr.trim()) {
+      console.warn(`[AudioMuxer] Scene ${sceneId} stderr: ${stderr.trim().slice(0, 200)}`);
+    }
+
+    if (!fs.existsSync(outputPath)) {
+      throw new Error(`ffmpeg did not produce muxed output for scene ${sceneId}`);
+    }
+    const stats = fs.statSync(outputPath);
+    if (stats.size < 10_000) {
+      throw new Error(`Muxed video too small (${stats.size} bytes) for scene ${sceneId}`);
+    }
+
+    // Upload to S3
+    const buffer = fs.readFileSync(outputPath);
+    const s3Key = `music-video-scenes/${sceneId}-muxed-${Date.now()}.mp4`;
+    const { url } = await storagePut(s3Key, buffer, "video/mp4");
+
+    console.log(`[AudioMuxer] Scene ${sceneId}: muxed video → S3 (${Math.round(stats.size / 1024)}KB)`);
+    return url;
+  } catch (err: any) {
+    console.error(`[AudioMuxer] Scene ${sceneId} FAILED: ${err.message}`);
+    throw err;
+  } finally {
+    if (videoPath && fs.existsSync(videoPath)) { try { fs.unlinkSync(videoPath); } catch {} }
+    if (audioPath && fs.existsSync(audioPath)) { try { fs.unlinkSync(audioPath); } catch {} }
+    if (outputPath && fs.existsSync(outputPath)) { try { fs.unlinkSync(outputPath); } catch {} }
+  }
+}
+
+/**
+ * Trim the first N seconds from a video to remove artifact frames
+ * (e.g. black/white desaturated frames at the start of Atlas Cloud renders).
+ *
+ * Downloads the video, trims with ffmpeg, uploads the result to S3,
+ * and returns the CDN URL of the trimmed video.
+ *
+ * @param videoUrl   Public URL of the source video
+ * @param sceneId    Scene ID for logging and S3 key naming
+ * @param trimSecs   Seconds to cut from the start (default: 0.1s = ~3 frames at 30fps)
+ */
+export async function trimVideoStart(
+  videoUrl: string,
+  sceneId: number,
+  trimSecs: number = 0.1
+): Promise<string> {
+  const ffmpeg = getFFmpegBin();
+  const tmpDir = os.tmpdir();
+  const videoPath = path.join(tmpDir, `wiz-trim-in-${sceneId}-${Date.now()}.mp4`);
+  const outputPath = path.join(tmpDir, `wiz-trim-out-${sceneId}-${Date.now()}.mp4`);
+
+  try {
+    // Download source video
+    const response = await fetch(videoUrl);
+    if (!response.ok) throw new Error(`Failed to download video: HTTP ${response.status}`);
+    fs.writeFileSync(videoPath, Buffer.from(await response.arrayBuffer()));
+
+    // Trim: skip first trimSecs, keep the rest, re-encode for clean keyframes
+    const trimArgs = [
+      "-y",
+      "-ss", trimSecs.toString(),
+      "-i", videoPath,
+      "-c:v", "libx264",
+      "-c:a", "aac",
+      "-movflags", "+faststart",
+      "-loglevel", "error",
+      outputPath,
+    ];
+
+    const { execFile } = await import("child_process");
+    const { promisify } = await import("util");
+    const execFileAsync = promisify(execFile);
+    await execFileAsync(ffmpeg, trimArgs, { timeout: 120_000 });
+
+    const stats = fs.statSync(outputPath);
+    if (stats.size < 10_000) {
+      throw new Error(`Trimmed video too small (${stats.size} bytes) for scene ${sceneId}`);
+    }
+
+    const buffer = fs.readFileSync(outputPath);
+    const s3Key = `music-video-scenes/${sceneId}-trimmed-${Date.now()}.mp4`;
+    const { url } = await storagePut(s3Key, buffer, "video/mp4");
+    console.log(`[VideoTrim] Scene ${sceneId}: trimmed first ${trimSecs}s → S3 (${Math.round(stats.size / 1024)}KB)`);
+    return url;
+  } catch (err: any) {
+    console.error(`[VideoTrim] Scene ${sceneId} FAILED: ${err.message}`);
+    throw err;
+  } finally {
+    if (fs.existsSync(videoPath)) { try { fs.unlinkSync(videoPath); } catch {} }
+    if (fs.existsSync(outputPath)) { try { fs.unlinkSync(outputPath); } catch {} }
+  }
+}

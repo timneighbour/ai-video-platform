@@ -9084,3 +9084,8 @@
 - [x] Fix needsLipSync check: lipSync flag is now authoritative even for performance scenes (lipSync=0 skips HeyGen even if sceneType=performance)
 - [x] Fix DB state for job 1020003: Scenes 0 and 11 marked lipSyncStatus=done (no vocals), Scene 1 submitted to HeyGen Precision
 - [x] Dispatch 9 remaining scenes (2-10) to Atlas Cloud after probe gate unblock
+- [x] Add audio mux step before HeyGen submission (HeyGen requires audio track in video)
+- [x] Add first-frame trim (0.1s) to remove black/white artifact frames from Atlas Cloud renders
+- [x] Use Lyndhurst Hall reference image as visual anchor for Atlas Cloud renders (image-to-video mode)
+- [x] Fix provider-safe prompt for venue scenes (no real venue names in prompts)
+- [x] Force-dispatch 7 pending scenes (2-7, 10) with Lyndhurst Hall reference image

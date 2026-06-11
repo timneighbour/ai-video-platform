@@ -73,6 +73,7 @@ import { getProbeDecision } from "../pre-render-validator";
 import { resetSceneAttempts } from "../spend-protection";
 import { normaliseBpm } from "../instrument-analysis";
 import { getVocalStemForCharacter } from "../vocal-isolation-service";
+import { muxAudioIntoVideo, trimVideoStart } from "../audio-clip-extractor";
 import { selectReferenceForScene, runStage2EnvironmentPrep } from "../character-auto-prep";
 // compositeCinematicScene removed — compositing is no longer part of the pipeline (2026-05-28)
 // The character is now generated INSIDE the scene by Seedance, not composited on top.
@@ -791,8 +792,25 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                       const hasSingingLyrics = !!(scene.lyrics && scene.lyrics.trim().length > 3);
                       const heyGenMode: "precision" | "speed" = hasSingingLyrics ? "precision" : "speed";
                       console.log(`[SceneDispatch] Scene ${scene.id} PERFORMANCE → HeyGen ${heyGenMode.toUpperCase()} (singing: ${hasSingingLyrics}, video: ${pollResult.videoUrl.slice(0, 60)}...)`);
+                      // HeyGen requires the input video to have an audio track for timing reference.
+                      // Atlas Cloud renders are silent — mux the vocal stem into the video first.
+                      // Trim first 0.1s to remove black/white artifact frames from Atlas Cloud renders
+                      let trimmedVideoUrl = pollResult.videoUrl;
+                      try {
+                        trimmedVideoUrl = await trimVideoStart(pollResult.videoUrl, scene.id, 0.1);
+                        console.log(`[SceneDispatch] Scene ${scene.id} trimmed first-frame artifacts ✓`);
+                      } catch (trimErr: any) {
+                        console.warn(`[SceneDispatch] Scene ${scene.id} trim failed (using original): ${(trimErr as any).message}`);
+                      }
+                      let heyGenVideoUrl = trimmedVideoUrl;
+                      try {
+                        heyGenVideoUrl = await muxAudioIntoVideo(trimmedVideoUrl, sceneAudioUrlLS, scene.id);
+                        console.log(`[SceneDispatch] Scene ${scene.id} muxed audio into video for HeyGen ✓`);
+                      } catch (muxErr: any) {
+                        console.warn(`[SceneDispatch] Scene ${scene.id} audio mux failed (using silent video): ${muxErr.message}`);
+                      }
                       const heyGenLipsyncId = await submitHeyGenLipSyncV3({
-                        videoUrl: pollResult.videoUrl,
+                        videoUrl: heyGenVideoUrl,
                         audioUrl: sceneAudioUrlLS,
                         title: `WizAI Scene ${scene.id} Job ${job.id}`,
                         mode: heyGenMode,
@@ -1007,8 +1025,16 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               const useHeyGenRetry = isHeyGenConfigured() && lipSyncSubmittedThisTick < LIPSYNC_MAX_PER_TICK;
               if (useHeyGenRetry) {
                 // RETRY: HeyGen Precision — rendered video + vocal stem → lip-synced video
+                // Mux audio into video first — HeyGen requires an audio track for timing reference
+                let retryHeyGenVideoUrl = scene.videoUrl;
+                try {
+                  retryHeyGenVideoUrl = await muxAudioIntoVideo(scene.videoUrl, sceneAudioUrl, scene.id);
+                  console.log(`[SceneDispatch] Scene ${scene.id} RETRY: muxed audio into video for HeyGen ✓`);
+                } catch (muxErr: any) {
+                  console.warn(`[SceneDispatch] Scene ${scene.id} RETRY: audio mux failed (using silent video): ${muxErr.message}`);
+                }
                 const retryHeyGenId = await submitHeyGenLipSyncV3({
-                  videoUrl: scene.videoUrl,
+                  videoUrl: retryHeyGenVideoUrl,
                   audioUrl: sceneAudioUrl,
                   title: `WizAI Scene ${scene.id} Job ${job.id} Retry`,
                   mode: "precision",
