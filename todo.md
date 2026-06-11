@@ -9110,10 +9110,10 @@
 - [ ] Verify final video for job 1080001 is widescreen (1280x720) with working lip sync
 
 ## Audio Player & Storyboard/Screening Room Fixes (Jun 2026)
-- [ ] Add persistent audio player (play/pause/seek/volume) to Storyboard page — plays full track so user can hear song while reviewing scenes
-- [ ] Add persistent audio player (play/pause/seek/volume) to Screening Room — plays full track so user can verify audio/video alignment before final render
-- [ ] Fix storyboard image generation: always output in job's requested aspect ratio (16:9 = 1344×768, not 1024×1024 square) — aspect ratio guard added to fal-image-gen.ts
-- [ ] Fix lipSync/sceneType assignment: use real transcription timestamps — no lip sync on scenes before vocals start (vocals at 12s for job 1080001)
-- [ ] Fix Scene 2 (930003, 12s) job 1080001: change from cinematic Pianist to Zara performance/lipSync, regenerate 16:9 storyboard
+- [x] Add persistent audio player (play/pause/seek/volume) to Storyboard page — plays full track so user can hear song while reviewing scenes
+- [x] Add persistent audio player (play/pause/seek/volume) to Screening Room — plays full track so user can verify audio/video alignment before final render
+- [x] Fix storyboard image generation: always output in job's requested aspect ratio (16:9 = 1344×768, not 1024×1024 square) — aspect ratio guard added to fal-image-gen.ts
+- [x] Fix lipSync/sceneType assignment: use real transcription timestamps — no lip sync on scenes before vocals start (vocals at 12s for job 1080001)
+- [x] Fix Scene 2 (930003, 12s) job 1080001: change from cinematic Pianist to Zara performance/lipSync, regenerate 16:9 storyboard
 - [ ] Verify HeyGen v3/lipsyncs endpoint routes as true lipsync (not video_translate)
 - [ ] Dispatch Scene 2 (930003) as single probe to validate all fixes

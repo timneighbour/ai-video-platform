@@ -496,7 +496,9 @@ Rules:
         undefined, // existingContentAnalysis
         job.enableLipSync ?? false,
         job.songBpm ?? null,
-        job.performanceShotRatio ?? 75
+        job.performanceShotRatio ?? 75,
+        undefined, // directorMode
+        vocalOnsetTime // precise vocal start time — prevents lyric misassignment on instrumental intros
       ));
 
       console.log(`[MusicVideo] Roster for job ${input.jobId}: ${roster.map(c => c.name).join(", ")}`);

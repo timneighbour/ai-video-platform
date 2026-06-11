@@ -245,15 +245,24 @@ export async function transcribeJobAudio(
 export function extractLyricsForWindow(
   segments: Array<{ start: number; end: number; text: string }>,
   windowStart: number,
-  windowEnd: number
+  windowEnd: number,
+  vocalOnsetTime?: number | null
 ): string {
   // Use midpoint ownership: a segment belongs to the window that contains its midpoint.
   // This ensures each Whisper segment appears in exactly ONE scene, preventing duplicates.
-  // Exception: very short segments (<0.5s) that start exactly at the window boundary are
-  // included by start-time ownership to avoid gaps.
+  //
+  // Vocal onset gate: if vocalOnsetTime is provided, segments whose midpoint falls before
+  // the vocal onset are treated as if they start at vocalOnsetTime for midpoint calculation.
+  // This prevents Whisper hallucinations over instrumental intros from being assigned to
+  // pre-vocal scenes. The first post-onset scene gets the lyric instead.
   const relevant = segments.filter((s) => {
-    const mid = (s.start + s.end) / 2;
-    return mid >= windowStart && mid < windowEnd;
+    const rawMid = (s.start + s.end) / 2;
+    // If this segment's midpoint is before the vocal onset, clamp it to vocalOnsetTime
+    // so it falls into the first vocal scene instead of a pre-vocal scene.
+    const effectiveMid = (vocalOnsetTime != null && rawMid < vocalOnsetTime)
+      ? vocalOnsetTime
+      : rawMid;
+    return effectiveMid >= windowStart && effectiveMid < windowEnd;
   });
   return relevant.map((s) => s.text.trim()).filter(Boolean).join(" ").trim();
 }
@@ -299,7 +308,8 @@ export async function generateStoryboard(
   enableLipSync?: boolean,
   songBpm?: number | null,
   performanceShotRatio: number = 80,
-  directorMode?: string | null
+  directorMode?: string | null,
+  vocalOnsetTime?: number | null
 ): Promise<StoryboardResult> {
   const sceneCount = calculateSceneCount(audioDurationSeconds);
 
@@ -336,7 +346,7 @@ export async function generateStoryboard(
     const endTime = Math.min(startTime + SCENE_DURATION_SECONDS, audioDurationSeconds);
     const duration = endTime - startTime;
     const lyrics = lyricsSegments
-      ? extractLyricsForWindow(lyricsSegments, startTime, endTime)
+      ? extractLyricsForWindow(lyricsSegments, startTime, endTime, vocalOnsetTime)
       : "";
     return { sceneIndex: i, startTime, duration, lyrics };
   });

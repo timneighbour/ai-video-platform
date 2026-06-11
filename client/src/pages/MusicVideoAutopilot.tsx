@@ -4598,7 +4598,7 @@ export default function MusicVideoAutopilot() {
             {scenes.length > 0 && (
               <div className="mb-5 rounded-xl studio-panel px-4 py-4">
                 <LyricTimelineBar
-                  scenes={scenes.map((s) => ({ id: s.id, index: s.id, lyrics: s.lyrics, prompt: s.prompt, status: s.status }))}
+                  scenes={scenes.map((s) => ({ id: s.id, index: s.sceneIndex, lyrics: s.lyrics, prompt: s.prompt, status: s.status }))}
                   onSceneClick={(sceneId) => {
                     const el = document.getElementById(`scene-card-${sceneId}`);
 
@@ -6516,7 +6516,7 @@ export default function MusicVideoAutopilot() {
                         <LyricTimelineBar
                           scenes={scenes.map((s) => {
                             const liveStatus = perSceneStatuses.find((ps) => ps.id === s.id);
-                            return { id: s.id, index: s.id, lyrics: s.lyrics, prompt: s.prompt, status: liveStatus?.status ?? s.status };
+                            return { id: s.id, index: s.sceneIndex, lyrics: s.lyrics, prompt: s.prompt, status: liveStatus?.status ?? s.status };
                           })}
                           activeSceneId={perSceneStatuses.find((ps) => ps.status === "generating")?.id ?? null}
                         />
