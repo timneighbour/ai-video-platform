@@ -78,6 +78,8 @@ const AI_LONG_RUNNING_PROCEDURES = [
   // WizShorts: pollProgress downloads scene clips; assembleJob triggers background ffmpeg
   "wizShorts.pollProgress",
   "wizShorts.assembleJob",
+  // Voice transcription calls Whisper + LLM — can take 15-45s, must not be batched or timed out
+  "voice.transcribeAndRefine",
 ];
 
 const fetchWithCredentials = (input: RequestInfo | URL, init?: RequestInit) =>

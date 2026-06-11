@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Mic, MicOff, Loader2, CheckCircle2, Edit3, RotateCcw, Check, X } from "lucide-react";
+import { Mic, MicOff, Loader2, CheckCircle2, Copy, RotateCcw, ChevronRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,7 @@ export type VoiceToolContext =
   | "scene direction and cinematography";
 
 interface VoicePromptButtonProps {
-  /** Called with the refined AI prompt once the user confirms it */
+  /** Called with the refined AI prompt only when the user explicitly clicks "Use this" */
   onPromptReady: (refinedPrompt: string, rawTranscript: string) => void;
   /** Which tool this prompt is for — used to guide GPT-4 refinement */
   toolContext: VoiceToolContext;
@@ -30,7 +30,7 @@ interface VoicePromptButtonProps {
   showWaveform?: boolean;
 }
 
-type RecordingState = "idle" | "recording" | "processing" | "review" | "done" | "error";
+type RecordingState = "idle" | "recording" | "processing" | "ready" | "done" | "error";
 
 const MAX_RECORDING_SECONDS = 60;
 const WAVEFORM_BARS = 32;
@@ -67,7 +67,6 @@ function WaveformCanvas({ analyser }: { analyser: AnalyserNode | null }) {
         const x = i * (barWidth + gap);
         const y = (H - barH) / 2;
 
-        // Gold gradient bar
         const grad = ctx.createLinearGradient(0, y, 0, y + barH);
         grad.addColorStop(0, "rgba(251,191,36,0.9)");
         grad.addColorStop(0.5, "rgba(184,137,42,1)");
@@ -95,146 +94,141 @@ function WaveformCanvas({ analyser }: { analyser: AnalyserNode | null }) {
 }
 
 /**
- * Review panel shown after transcription completes.
- * Displays both the raw transcript and the AI-refined prompt,
- * lets the user edit the refined text, then confirm or discard.
+ * Transcription output box — shown after transcription completes.
+ * Displays both the raw transcript and the AI-refined prompt as separate
+ * read-only text areas. The user can copy either, or click "Use this" to
+ * apply the refined prompt (or the raw one) to the scene description.
  */
-function ReviewPanel({
+function TranscriptionBox({
   rawTranscript,
   refinedPrompt,
-  onConfirm,
-  onDiscard,
+  onUse,
+  onDismiss,
 }: {
   rawTranscript: string;
   refinedPrompt: string;
-  onConfirm: (text: string) => void;
-  onDiscard: () => void;
+  onUse: (text: string, source: "refined" | "raw") => void;
+  onDismiss: () => void;
 }) {
-  const [editedPrompt, setEditedPrompt] = useState(refinedPrompt);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Auto-focus and select all text when panel opens
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-      textareaRef.current.select();
-    }
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      onConfirm(editedPrompt.trim());
-    }
-    if (e.key === "Escape") {
-      e.preventDefault();
-      onDiscard();
-    }
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success(`${label} copied to clipboard`);
+    });
   };
 
+  const showBoth = rawTranscript && rawTranscript !== refinedPrompt && rawTranscript.length > 0;
+
   return (
-    <div className="mt-2 w-full rounded-xl border border-amber-500/30 bg-zinc-950/95 shadow-[0_0_24px_rgba(184,137,42,0.15)] overflow-hidden">
+    <div className="mt-3 w-full rounded-xl border border-zinc-700/60 bg-zinc-950/95 shadow-[0_4px_24px_rgba(0,0,0,0.4)] overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-zinc-800/60 bg-zinc-900/60">
         <div className="flex items-center gap-1.5">
-          <Edit3 className="w-3.5 h-3.5 text-amber-400" />
-          <span className="text-[11px] font-semibold text-amber-300 uppercase tracking-wider">
-            Review &amp; Edit
+          <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
+          <span className="text-[11px] font-semibold text-zinc-300 uppercase tracking-wider">
+            Transcription
           </span>
         </div>
         <button
           type="button"
-          onClick={onDiscard}
-          className="text-zinc-500 hover:text-zinc-300 transition-colors p-0.5 rounded"
-          title="Discard (Esc)"
+          onClick={onDismiss}
+          className="text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors px-1.5 py-0.5 rounded hover:bg-zinc-800/60"
         >
-          <X className="w-3.5 h-3.5" />
+          Dismiss
         </button>
       </div>
 
       <div className="p-3 space-y-3">
-        {/* Raw transcript (read-only reference) */}
-        {rawTranscript && rawTranscript !== refinedPrompt && (
+        {/* Raw transcript */}
+        {showBoth && (
           <div>
-            <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider mb-1">
-              What you said
-            </p>
-            <p className="text-[11px] text-zinc-400 italic leading-relaxed line-clamp-2">
-              "{rawTranscript}"
-            </p>
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">
+                What you said
+              </p>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(rawTranscript, "Transcript")}
+                  className="flex items-center gap-1 text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors"
+                  title="Copy to clipboard"
+                >
+                  <Copy className="w-3 h-3" />
+                  Copy
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUse(rawTranscript, "raw")}
+                  className="flex items-center gap-1 text-[10px] text-zinc-500 hover:text-amber-400 transition-colors font-medium"
+                >
+                  Use this
+                  <ChevronRight className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+            <div className="relative">
+              <textarea
+                readOnly
+                value={rawTranscript}
+                rows={2}
+                className={cn(
+                  "w-full resize-none rounded-lg px-3 py-2 text-[12px] leading-relaxed",
+                  "bg-zinc-900/60 border border-zinc-800/60 text-zinc-400",
+                  "focus:outline-none cursor-text select-all"
+                )}
+                onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+              />
+            </div>
           </div>
         )}
 
-        {/* Editable refined prompt */}
+        {/* AI-refined prompt */}
         <div>
-          <p className="text-[10px] font-medium text-zinc-400 uppercase tracking-wider mb-1.5">
-            AI-refined prompt — edit before applying
-          </p>
-          <textarea
-            ref={textareaRef}
-            value={editedPrompt}
-            onChange={(e) => setEditedPrompt(e.target.value)}
-            onKeyDown={handleKeyDown}
-            rows={4}
-            className={cn(
-              "w-full resize-none rounded-lg px-3 py-2.5 text-[12px] leading-relaxed",
-              "bg-zinc-900 border border-zinc-700/60 text-zinc-100 placeholder-zinc-600",
-              "focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20",
-              "transition-colors"
-            )}
-            placeholder="Edit the prompt here…"
-          />
-          <p className="text-[10px] text-zinc-600 mt-1">
-            ⌘↵ to apply · Esc to discard
-          </p>
+          <div className="flex items-center justify-between mb-1.5">
+            <p className="text-[10px] font-medium text-amber-500/80 uppercase tracking-wider">
+              {showBoth ? "AI-refined prompt" : "Transcription"}
+            </p>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => copyToClipboard(refinedPrompt, "Refined prompt")}
+                className="flex items-center gap-1 text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors"
+                title="Copy to clipboard"
+              >
+                <Copy className="w-3 h-3" />
+                Copy
+              </button>
+              <button
+                type="button"
+                onClick={() => onUse(refinedPrompt, "refined")}
+                className={cn(
+                  "flex items-center gap-1 text-[11px] font-semibold transition-colors",
+                  "text-amber-400 hover:text-amber-300"
+                )}
+              >
+                Use this
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+          <div className="relative">
+            <textarea
+              readOnly
+              value={refinedPrompt}
+              rows={3}
+              className={cn(
+                "w-full resize-none rounded-lg px-3 py-2.5 text-[12px] leading-relaxed",
+                "bg-zinc-900/80 border border-amber-500/20 text-zinc-200",
+                "focus:outline-none cursor-text"
+              )}
+              onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+            />
+          </div>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex items-center gap-2 pt-0.5">
-          <button
-            type="button"
-            onClick={() => onConfirm(editedPrompt.trim())}
-            disabled={!editedPrompt.trim()}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all",
-              "bg-amber-500/20 border border-amber-500/40 text-amber-300",
-              "hover:bg-amber-500/30 hover:border-amber-400/60 hover:text-amber-200",
-              "disabled:opacity-40 disabled:cursor-not-allowed",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50"
-            )}
-          >
-            <Check className="w-3.5 h-3.5" />
-            Apply to scene
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setEditedPrompt(rawTranscript)}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] transition-all",
-              "bg-zinc-800/60 border border-zinc-700/50 text-zinc-400",
-              "hover:bg-zinc-700/60 hover:text-zinc-300",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/50"
-            )}
-            title="Use raw transcript instead of AI-refined version"
-          >
-            <RotateCcw className="w-3 h-3" />
-            Use original
-          </button>
-
-          <button
-            type="button"
-            onClick={onDiscard}
-            className={cn(
-              "ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] transition-all",
-              "bg-zinc-800/40 border border-zinc-700/40 text-zinc-500",
-              "hover:bg-zinc-700/40 hover:text-zinc-400",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/50"
-            )}
-          >
-            Discard
-          </button>
-        </div>
+        {/* Footer hint */}
+        <p className="text-[10px] text-zinc-600 text-center">
+          Click a text box to select all · Copy or click "Use this" to apply to the scene
+        </p>
       </div>
     </div>
   );
@@ -251,8 +245,8 @@ export function VoicePromptButton({
   const [secondsLeft, setSecondsLeft] = useState(MAX_RECORDING_SECONDS);
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
 
-  // Review state — holds transcription result while user edits
-  const [reviewData, setReviewData] = useState<{
+  // Transcription result — persists until dismissed or used
+  const [transcriptionData, setTranscriptionData] = useState<{
     rawTranscript: string;
     refinedPrompt: string;
   } | null>(null);
@@ -265,9 +259,8 @@ export function VoicePromptButton({
 
   const transcribeMutation = trpc.voice.transcribeAndRefine.useMutation({
     onSuccess: (data) => {
-      // Instead of immediately calling onPromptReady, enter review state
-      setState("review");
-      setReviewData({
+      setState("ready");
+      setTranscriptionData({
         rawTranscript: data.rawTranscript,
         refinedPrompt: data.refinedPrompt,
       });
@@ -275,22 +268,23 @@ export function VoicePromptButton({
     onError: (err) => {
       setState("error");
       const rawMsg = err.message || "";
+      console.error("[Voice] transcribeAndRefine error:", rawMsg);
       let description: string;
       if (rawMsg.includes("quota") || rawMsg.includes("rate limit") || rawMsg.includes("429")) {
         description = "Voice service is busy — please wait a moment and try again.";
       } else if (rawMsg.includes("too large") || rawMsg.includes("16MB") || rawMsg.includes("size")) {
         description = "Recording is too long. Please keep voice briefs under 60 seconds.";
-      } else if (rawMsg.includes("network") || rawMsg.includes("fetch") || rawMsg.includes("ECONNREFUSED")) {
-        description = "Network error — check your connection and try again.";
-      } else if (rawMsg.includes("Transcription service") || rawMsg.includes("transcrib")) {
-        description = "The transcription service is temporarily unavailable. Please try again.";
       } else if (rawMsg.includes("UNAUTHORIZED") || rawMsg.includes("401") || rawMsg.includes("sign in")) {
         description = "Please sign in to use voice input.";
+      } else if (rawMsg.includes("Transcription service") || rawMsg.includes("transcrib")) {
+        description = "The transcription service is temporarily unavailable. Please try again.";
+      } else if (rawMsg.includes("Failed to fetch") || rawMsg.includes("NetworkError") || rawMsg.includes("ECONNREFUSED")) {
+        description = "Connection error — the transcription request timed out. Please try again.";
       } else {
-        description = "Voice processing failed — please try again.";
+        description = `Voice processing failed: ${rawMsg.slice(0, 80)}`;
       }
       toast.error("Voice input failed", { description });
-      setTimeout(() => setState("idle"), 2500);
+      setTimeout(() => setState("idle"), 3000);
     },
   });
 
@@ -316,13 +310,14 @@ export function VoicePromptButton({
 
   const startRecording = useCallback(async () => {
     if (state !== "idle") return;
+    // Clear any previous transcription when starting a new recording
+    setTranscriptionData(null);
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       chunksRef.current = [];
 
-      // Set up Web Audio analyser for waveform
       const audioCtx = new AudioContext();
       audioCtxRef.current = audioCtx;
       const source = audioCtx.createMediaStreamSource(stream);
@@ -357,7 +352,7 @@ export function VoicePromptButton({
 
           const uploadRes = await fetch(
             `/api/video/upload?key=${encodeURIComponent(key)}&type=${encodeURIComponent(mimeType)}`,
-            { method: "POST", body: formData }
+            { method: "POST", body: formData, credentials: "include" }
           );
 
           if (!uploadRes.ok) {
@@ -365,7 +360,7 @@ export function VoicePromptButton({
             if (status === 413) throw new Error("Recording is too large. Please keep voice briefs under 60 seconds.");
             if (status === 401 || status === 403) throw new Error("Please sign in to use voice input.");
             if (status === 429) throw new Error("Voice service is busy — please wait a moment and try again.");
-            throw new Error("Audio upload failed — please try again.");
+            throw new Error(`Audio upload failed (HTTP ${status}) — please try again.`);
           }
           const { url: audioUrl } = await uploadRes.json();
           transcribeMutation.mutate({ audioUrl, toolContext });
@@ -374,7 +369,7 @@ export function VoicePromptButton({
           toast.error("Voice input failed", {
             description: err instanceof Error ? err.message : "Could not upload audio — please try again.",
           });
-          setTimeout(() => setState("idle"), 2500);
+          setTimeout(() => setState("idle"), 3000);
         }
       };
 
@@ -402,55 +397,55 @@ export function VoicePromptButton({
     if (disabled) return;
     if (state === "recording") {
       stopRecording();
-    } else if (state === "idle") {
+    } else if (state === "idle" || state === "ready") {
+      // Allow re-recording even when transcription is visible
       startRecording();
     }
   };
 
-  const handleConfirm = (text: string) => {
-    if (!reviewData) return;
+  const handleUse = (text: string, _source: "refined" | "raw") => {
+    if (!transcriptionData) return;
     setState("done");
-    onPromptReady(text, reviewData.rawTranscript);
-    setReviewData(null);
-    toast.success("Voice direction applied", {
-      description: "Your direction has been added to the scene.",
-    });
+    onPromptReady(text, transcriptionData.rawTranscript);
+    setTranscriptionData(null);
+    toast.success("Direction applied to scene");
     setTimeout(() => setState("idle"), 2000);
   };
 
-  const handleDiscard = () => {
+  const handleDismiss = () => {
     setState("idle");
-    setReviewData(null);
+    setTranscriptionData(null);
   };
 
   const isRecording = state === "recording";
   const isProcessing = state === "processing";
   const isDone = state === "done";
-  const isReview = state === "review";
+  const isReady = state === "ready";
 
   return (
     <div className="flex flex-col gap-0 w-full">
+      {/* Button row */}
       <div className="flex items-center gap-2">
         {/* Mic button */}
         <button
           type="button"
           onClick={handleClick}
-          disabled={disabled || isProcessing || isDone || isReview}
+          disabled={disabled || isProcessing || isDone}
           title={
             isRecording
               ? `Recording… tap to stop (${secondsLeft}s left)`
               : isProcessing
               ? "Processing your voice brief…"
               : isDone
-              ? "Prompt ready!"
-              : isReview
-              ? "Review your transcription below"
+              ? "Direction applied!"
+              : isReady
+              ? "Tap to record again"
               : "Tap to speak your direction"
           }
           className={cn(
             "relative flex items-center justify-center rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60",
             "w-10 h-10 shrink-0",
-            state === "idle" && !disabled &&
+            (state === "idle" || state === "ready") && !disabled &&
               "bg-zinc-800/80 border border-zinc-600/50 text-zinc-400 hover:border-amber-500/60 hover:text-amber-400 hover:bg-zinc-700/80 hover:shadow-[0_0_12px_rgba(184,137,42,0.25)]",
             isRecording &&
               "bg-red-900/40 border border-red-500/70 text-red-400 shadow-[0_0_16px_rgba(220,38,38,0.45)]",
@@ -458,13 +453,10 @@ export function VoicePromptButton({
               "bg-amber-900/30 border border-amber-500/50 text-amber-400 cursor-wait",
             isDone &&
               "bg-green-900/30 border border-green-500/50 text-green-400",
-            isReview &&
-              "bg-amber-900/20 border border-amber-500/40 text-amber-400 cursor-default",
             disabled && "opacity-40 cursor-not-allowed",
             className
           )}
         >
-          {/* ON AIR ping ring */}
           {isRecording && (
             <span className="absolute inset-0 rounded-full border-2 border-red-500/60 animate-ping" />
           )}
@@ -473,15 +465,14 @@ export function VoicePromptButton({
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : isDone ? (
             <CheckCircle2 className="w-4 h-4" />
-          ) : isReview ? (
-            <Edit3 className="w-4 h-4" />
           ) : isRecording ? (
             <MicOff className="w-4 h-4" />
+          ) : isReady ? (
+            <RotateCcw className="w-4 h-4" />
           ) : (
             <Mic className="w-4 h-4" />
           )}
 
-          {/* Countdown badge */}
           {isRecording && (
             <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-5 h-5 rounded-full bg-red-600 text-white text-[9px] font-bold leading-none border border-red-400/60 shadow">
               {secondsLeft}
@@ -489,7 +480,7 @@ export function VoicePromptButton({
           )}
         </button>
 
-        {/* Live waveform — only shown while recording */}
+        {/* Live waveform */}
         {showWaveform && isRecording && (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900/80 border border-red-500/30 shadow-[0_0_12px_rgba(220,38,38,0.15)]">
             <span className="flex items-center gap-1 text-[10px] font-semibold text-red-400 uppercase tracking-widest shrink-0">
@@ -505,17 +496,19 @@ export function VoicePromptButton({
         {isProcessing && (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900/80 border border-amber-500/30">
             <Loader2 className="w-3 h-3 text-amber-400 animate-spin shrink-0" />
-            <span className="text-[11px] text-amber-300">Transcribing your direction…</span>
+            <span className="text-[11px] text-amber-300">Transcribing…</span>
           </div>
         )}
 
-        {/* Review hint */}
-        {isReview && (
-          <span className="text-[11px] text-amber-400 font-medium">Review your transcription below ↓</span>
+        {/* Ready hint */}
+        {isReady && (
+          <span className="text-[11px] text-zinc-400">
+            Transcription ready — copy or click "Use this" below
+          </span>
         )}
 
         {/* Idle hint */}
-        {!isRecording && !isProcessing && !isDone && !isReview && !disabled && (
+        {state === "idle" && !disabled && (
           <span className="text-[11px] text-zinc-500 italic">or speak your direction</span>
         )}
 
@@ -525,13 +518,13 @@ export function VoicePromptButton({
         )}
       </div>
 
-      {/* Review/edit panel — shown inline below the button row */}
-      {isReview && reviewData && (
-        <ReviewPanel
-          rawTranscript={reviewData.rawTranscript}
-          refinedPrompt={reviewData.refinedPrompt}
-          onConfirm={handleConfirm}
-          onDiscard={handleDiscard}
+      {/* Transcription output box — shown below the button row */}
+      {isReady && transcriptionData && (
+        <TranscriptionBox
+          rawTranscript={transcriptionData.rawTranscript}
+          refinedPrompt={transcriptionData.refinedPrompt}
+          onUse={handleUse}
+          onDismiss={handleDismiss}
         />
       )}
     </div>
