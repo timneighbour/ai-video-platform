@@ -14,20 +14,11 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import {
   Play, Pause, SkipBack, SkipForward, ChevronDown, ChevronUp,
-  Music2, Volume2, VolumeX,
+  Music2, Volume2, VolumeX, Volume1,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const WIZSOUND_LOGO = "/manus-storage/wizsound-logo-new_c5cced65_d334a3bb.png";
-
-function resolveAudioUrl(url: string): string {
-  if (!url) return url;
-  if (url.includes("manus-storage-check") || url.startsWith("/")) return url;
-  if (url.includes("suno.ai") || url.includes("audiopipe") || url.includes("aiquickdraw.com")) {
-    return `/api/audio/proxy?url=${encodeURIComponent(url)}`;
-  }
-  return url;
-}
 
 function fmt(s: number) {
   if (!isFinite(s)) return "--:--";
@@ -70,7 +61,6 @@ function MiniEQ({ audioRef, isPlaying }: { audioRef: React.RefObject<HTMLAudioEl
     }
 
     const data = analyser ? new Uint8Array(analyser.frequencyBinCount) : null;
-
     let idlePhase = 0;
 
     const draw = () => {
@@ -89,7 +79,6 @@ function MiniEQ({ audioRef, isPlaying }: { audioRef: React.RefObject<HTMLAudioEl
           const step = Math.floor(data.length / BARS);
           value = data[i * step] / 255;
         } else {
-          // Idle: gentle sine wave animation
           value = 0.08 + 0.06 * Math.sin(idlePhase + i * 0.5);
         }
 
@@ -97,13 +86,11 @@ function MiniEQ({ audioRef, isPlaying }: { audioRef: React.RefObject<HTMLAudioEl
         const x = i * (barW + gap);
         const y = (H - barH) / 2;
 
-        // Gold gradient
         const grad = ctx2d.createLinearGradient(0, y, 0, y + barH);
         grad.addColorStop(0, isPlaying ? "rgba(251,191,36,0.95)" : "rgba(251,191,36,0.30)");
         grad.addColorStop(0.5, isPlaying ? "rgba(184,137,42,1)" : "rgba(184,137,42,0.35)");
         grad.addColorStop(1, isPlaying ? "rgba(251,191,36,0.95)" : "rgba(251,191,36,0.30)");
         ctx2d.fillStyle = grad;
-        // roundRect is not available in all browsers — use fillRect as safe fallback
         if (typeof ctx2d.roundRect === "function") {
           ctx2d.beginPath();
           ctx2d.roundRect(x, y, barW, barH, 1.5);
@@ -117,9 +104,7 @@ function MiniEQ({ audioRef, isPlaying }: { audioRef: React.RefObject<HTMLAudioEl
     };
 
     draw();
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-    };
+    return () => { cancelAnimationFrame(rafRef.current); };
   }, [audioRef, isPlaying]);
 
   return (
@@ -133,16 +118,102 @@ function MiniEQ({ audioRef, isPlaying }: { audioRef: React.RefObject<HTMLAudioEl
   );
 }
 
+/** Gold-styled volume slider with icon that changes at 0 / low / high */
+function VolumeControl({
+  volume,
+  muted,
+  onVolumeChange,
+  onToggleMute,
+}: {
+  volume: number;
+  muted: boolean;
+  onVolumeChange: (v: number) => void;
+  onToggleMute: () => void;
+}) {
+  const effectiveVolume = muted ? 0 : volume;
+
+  const VolumeIcon = muted || effectiveVolume === 0
+    ? VolumeX
+    : effectiveVolume < 0.5
+    ? Volume1
+    : Volume2;
+
+  return (
+    <div className="flex items-center gap-1.5 shrink-0">
+      {/* Volume icon — click to mute/unmute */}
+      <button
+        onClick={onToggleMute}
+        className="w-6 h-6 flex items-center justify-center rounded-full transition-colors hover:bg-white/10 shrink-0"
+        aria-label={muted ? "Unmute" : "Mute"}
+        title={muted ? "Unmute" : "Mute"}
+      >
+        <VolumeIcon
+          className="w-3.5 h-3.5 transition-colors"
+          style={{ color: muted ? "rgba(255,255,255,0.25)" : "rgba(184,137,42,0.75)" }}
+        />
+      </button>
+
+      {/* Slider track */}
+      <div className="relative w-20 h-5 flex items-center group">
+        {/* Track background */}
+        <div
+          className="absolute inset-y-0 my-auto h-1 w-full rounded-full"
+          style={{ background: "rgba(255,255,255,0.10)" }}
+        />
+        {/* Filled portion */}
+        <div
+          className="absolute inset-y-0 my-auto h-1 left-0 rounded-full transition-all"
+          style={{
+            width: `${effectiveVolume * 100}%`,
+            background: muted
+              ? "rgba(255,255,255,0.15)"
+              : "linear-gradient(90deg, #8a6420, #b8892a, #f5c842)",
+            boxShadow: muted ? "none" : "0 0 4px rgba(184,137,42,0.5)",
+          }}
+        />
+        {/* Thumb — always visible */}
+        <div
+          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full transition-all"
+          style={{
+            left: `calc(${effectiveVolume * 100}% - 6px)`,
+            background: muted ? "rgba(255,255,255,0.3)" : "#f5c842",
+            boxShadow: muted ? "none" : "0 0 6px rgba(245,200,66,0.7)",
+            border: "1px solid rgba(255,255,255,0.2)",
+          }}
+        />
+        {/* Native range input (invisible, sits on top for interaction) */}
+        <input
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={muted ? 0 : volume}
+          onChange={(e) => {
+            const v = parseFloat(e.target.value);
+            onVolumeChange(v);
+          }}
+          className="absolute inset-0 w-full opacity-0 cursor-pointer"
+          aria-label="Volume"
+          title={`Volume: ${Math.round(effectiveVolume * 100)}%`}
+        />
+      </div>
+
+      {/* Percentage label */}
+      <span
+        className="text-[9px] tabular-nums w-6 text-right shrink-0"
+        style={{ color: muted ? "rgba(255,255,255,0.2)" : "rgba(184,137,42,0.55)" }}
+      >
+        {muted ? "0%" : `${Math.round(volume * 100)}%`}
+      </span>
+    </div>
+  );
+}
+
 interface FloatingMiniPlayerProps {
-  /** The shared audio element ref — same one WizAudioPlayer uses */
   audioRef: React.RefObject<HTMLAudioElement | null>;
-  /** Track title */
   title: string;
-  /** Optional album art */
   imageUrl?: string;
-  /** Audio URL — needed for the hidden <audio> when audioRef.current is null */
   audioUrl: string;
-  /** Whether to show the island at all */
   visible: boolean;
 }
 
@@ -150,13 +221,13 @@ export default function FloatingMiniPlayer({
   audioRef,
   title,
   imageUrl,
-  audioUrl,
   visible,
 }: FloatingMiniPlayerProps) {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
+  const [volume, setVolume] = useState(1);
   const [collapsed, setCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
   const seekBarRef = useRef<HTMLDivElement>(null);
@@ -177,26 +248,27 @@ export default function FloatingMiniPlayer({
     const audio = audioRef.current;
     if (!audio) return;
 
-    const onTime = () => {
-      if (!draggingRef.current) setCurrentTime(audio.currentTime);
-    };
+    const onTime = () => { if (!draggingRef.current) setCurrentTime(audio.currentTime); };
     const onMeta = () => setDuration(audio.duration || 0);
     const onPlay = () => setPlaying(true);
     const onPause = () => setPlaying(false);
-    const onMuteChange = () => setMuted(audio.muted);
+    const onVolumeChange = () => {
+      setMuted(audio.muted);
+      setVolume(audio.volume);
+    };
 
     audio.addEventListener("timeupdate", onTime);
     audio.addEventListener("loadedmetadata", onMeta);
     audio.addEventListener("durationchange", onMeta);
     audio.addEventListener("play", onPlay);
     audio.addEventListener("pause", onPause);
-    audio.addEventListener("volumechange", onMuteChange);
+    audio.addEventListener("volumechange", onVolumeChange);
 
-    // Sync initial state
     setPlaying(!audio.paused);
     setCurrentTime(audio.currentTime);
     setDuration(audio.duration || 0);
     setMuted(audio.muted);
+    setVolume(audio.volume);
 
     return () => {
       audio.removeEventListener("timeupdate", onTime);
@@ -204,7 +276,7 @@ export default function FloatingMiniPlayer({
       audio.removeEventListener("durationchange", onMeta);
       audio.removeEventListener("play", onPlay);
       audio.removeEventListener("pause", onPause);
-      audio.removeEventListener("volumechange", onMuteChange);
+      audio.removeEventListener("volumechange", onVolumeChange);
     };
   }, [audioRef, visible]);
 
@@ -219,6 +291,15 @@ export default function FloatingMiniPlayer({
     const audio = audioRef.current;
     if (!audio) return;
     audio.currentTime = Math.max(0, Math.min(audio.duration || 0, audio.currentTime + secs));
+  }, [audioRef]);
+
+  const handleVolumeChange = useCallback((v: number) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.volume = v;
+    audio.muted = v === 0;
+    setVolume(v);
+    setMuted(v === 0);
   }, [audioRef]);
 
   const toggleMute = useCallback(() => {
@@ -251,7 +332,6 @@ export default function FloatingMiniPlayer({
     window.addEventListener("mouseup", onUp);
   };
 
-  // Touch seek
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     draggingRef.current = true;
     seekTo(e.touches[0].clientX);
@@ -275,7 +355,7 @@ export default function FloatingMiniPlayer({
         "fixed bottom-6 left-1/2 z-50 transition-all duration-500 ease-out",
         mounted ? "translate-y-0 opacity-100 -translate-x-1/2" : "translate-y-24 opacity-0 -translate-x-1/2"
       )}
-      style={{ width: collapsed ? "auto" : "min(560px, calc(100vw - 32px))" }}
+      style={{ width: collapsed ? "auto" : "min(600px, calc(100vw - 32px))" }}
     >
       {/* ── ISLAND SHELL ─────────────────────────────────────────────────────── */}
       <div
@@ -305,7 +385,6 @@ export default function FloatingMiniPlayer({
         {/* ── COLLAPSED PILL ──────────────────────────────────────────────── */}
         {collapsed ? (
           <div className="flex items-center gap-3 px-4 py-3">
-            {/* Album art */}
             <div
               className="w-8 h-8 rounded-lg overflow-hidden shrink-0 flex items-center justify-center"
               style={{ background: "rgba(184,137,42,0.15)", border: "1px solid rgba(184,137,42,0.3)" }}
@@ -317,32 +396,18 @@ export default function FloatingMiniPlayer({
               )}
             </div>
 
-            {/* Play/pause */}
             <button
               onClick={togglePlay}
               className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
-              style={{
-                background: "linear-gradient(135deg, #b8892a, #8a6420)",
-                boxShadow: "0 2px 8px rgba(184,137,42,0.4)",
-              }}
+              style={{ background: "linear-gradient(135deg, #b8892a, #8a6420)", boxShadow: "0 2px 8px rgba(184,137,42,0.4)" }}
               aria-label={playing ? "Pause" : "Play"}
             >
-              {playing ? (
-                <Pause className="w-3.5 h-3.5 text-black" />
-              ) : (
-                <Play className="w-3.5 h-3.5 text-black ml-0.5" />
-              )}
+              {playing ? <Pause className="w-3.5 h-3.5 text-black" /> : <Play className="w-3.5 h-3.5 text-black ml-0.5" />}
             </button>
 
-            {/* Title */}
             <span className="text-xs font-semibold text-white/80 truncate max-w-[120px]">{title}</span>
+            <span className="text-[10px] tabular-nums" style={{ color: "rgba(184,137,42,0.7)" }}>{fmt(currentTime)}</span>
 
-            {/* Time */}
-            <span className="text-[10px] tabular-nums" style={{ color: "rgba(184,137,42,0.7)" }}>
-              {fmt(currentTime)}
-            </span>
-
-            {/* Expand */}
             <button
               onClick={() => setCollapsed(false)}
               className="w-6 h-6 rounded-full flex items-center justify-center transition-colors hover:bg-white/10"
@@ -377,10 +442,7 @@ export default function FloatingMiniPlayer({
                 <p className="text-sm font-semibold text-white truncate leading-tight">{title}</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <img src={WIZSOUND_LOGO} alt="WizSound" className="h-2.5 w-auto opacity-70" />
-                  <span
-                    className="text-[9px] font-bold uppercase tracking-widest"
-                    style={{ color: "rgba(184,137,42,0.6)" }}
-                  >
+                  <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "rgba(184,137,42,0.6)" }}>
                     Now Playing
                   </span>
                 </div>
@@ -388,19 +450,6 @@ export default function FloatingMiniPlayer({
 
               {/* Live EQ bars */}
               <MiniEQ audioRef={audioRef} isPlaying={playing} />
-
-              {/* Mute */}
-              <button
-                onClick={toggleMute}
-                className="w-7 h-7 rounded-full flex items-center justify-center transition-colors hover:bg-white/10 shrink-0"
-                aria-label={muted ? "Unmute" : "Mute"}
-              >
-                {muted ? (
-                  <VolumeX className="w-3.5 h-3.5 text-white/40" />
-                ) : (
-                  <Volume2 className="w-3.5 h-3.5 text-white/50" />
-                )}
-              </button>
 
               {/* Collapse */}
               <button
@@ -426,7 +475,6 @@ export default function FloatingMiniPlayer({
                 aria-valuenow={Math.round(progress)}
                 aria-label="Seek"
               >
-                {/* Played */}
                 <div
                   className="absolute inset-y-0 left-0 rounded-full transition-all"
                   style={{
@@ -435,7 +483,6 @@ export default function FloatingMiniPlayer({
                     boxShadow: "0 0 6px rgba(184,137,42,0.5)",
                   }}
                 />
-                {/* Thumb */}
                 <div
                   className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                   style={{
@@ -445,17 +492,14 @@ export default function FloatingMiniPlayer({
                   }}
                 />
               </div>
-              {/* Time labels */}
               <div className="flex justify-between mt-1">
-                <span className="text-[10px] tabular-nums" style={{ color: "rgba(184,137,42,0.6)" }}>
-                  {fmt(currentTime)}
-                </span>
+                <span className="text-[10px] tabular-nums" style={{ color: "rgba(184,137,42,0.6)" }}>{fmt(currentTime)}</span>
                 <span className="text-[10px] tabular-nums text-white/25">{fmt(duration)}</span>
               </div>
             </div>
 
-            {/* Controls row */}
-            <div className="flex items-center justify-center gap-3">
+            {/* Controls row — skip / play / skip + volume */}
+            <div className="flex items-center gap-3">
               {/* Skip back */}
               <button
                 onClick={() => skip(-10)}
@@ -466,14 +510,12 @@ export default function FloatingMiniPlayer({
                 <SkipBack className="w-3.5 h-3.5 text-white/40 group-hover:text-white/70 transition-colors" />
               </button>
 
-              {/* Play / Pause — main CTA */}
+              {/* Play / Pause */}
               <button
                 onClick={togglePlay}
                 className="w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-90"
                 style={{
-                  background: playing
-                    ? "linear-gradient(135deg, #b8892a 0%, #7a5c1e 100%)"
-                    : "linear-gradient(135deg, #b8892a 0%, #7a5c1e 100%)",
+                  background: "linear-gradient(135deg, #b8892a 0%, #7a5c1e 100%)",
                   boxShadow: playing
                     ? "0 0 20px rgba(184,137,42,0.55), 0 4px 12px rgba(0,0,0,0.4)"
                     : "0 0 12px rgba(184,137,42,0.25), 0 4px 12px rgba(0,0,0,0.4)",
@@ -481,11 +523,7 @@ export default function FloatingMiniPlayer({
                 }}
                 aria-label={playing ? "Pause" : "Play"}
               >
-                {playing ? (
-                  <Pause className="w-5 h-5 text-black" />
-                ) : (
-                  <Play className="w-5 h-5 text-black ml-0.5" />
-                )}
+                {playing ? <Pause className="w-5 h-5 text-black" /> : <Play className="w-5 h-5 text-black ml-0.5" />}
               </button>
 
               {/* Skip forward */}
@@ -497,6 +535,17 @@ export default function FloatingMiniPlayer({
               >
                 <SkipForward className="w-3.5 h-3.5 text-white/40 group-hover:text-white/70 transition-colors" />
               </button>
+
+              {/* Spacer */}
+              <div className="flex-1" />
+
+              {/* Volume control */}
+              <VolumeControl
+                volume={volume}
+                muted={muted}
+                onVolumeChange={handleVolumeChange}
+                onToggleMute={toggleMute}
+              />
             </div>
           </div>
         )}
