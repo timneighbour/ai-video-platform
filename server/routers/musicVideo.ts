@@ -45,7 +45,7 @@ import {
   normaliseBpm,
 } from "../instrument-analysis";
 import { getCharacterDefaults } from "../../shared/characterDefaults";
-import { runStemIntelligence, getStemSections, getSectionTypeAtTime, stemSectionToSceneType } from "../stem-intelligence-service";
+import { runStemIntelligence, getStemSections, getSectionTypeAtTime, stemSectionToSceneType, getVocalOnsetTime } from "../stem-intelligence-service";
 
 export const musicVideoRouter = router({
   // Transcribe audio directly (no job required) — called as soon as user selects a file
@@ -552,6 +552,16 @@ Rules:
         console.log(`[MusicVideo] Stem intelligence not yet available for job ${input.jobId} — using transcription fallback for vocal detection`);
       }
 
+      // ── Vocal Onset Time: hard gate for lip sync assignment ──────────────────
+      // detectVocalOnset() uses ffmpeg silencedetect on the isolated vocal stem
+      // to find the EXACT second when singing starts. Any scene whose midpoint
+      // falls before this time will NEVER receive lipSync=true, regardless of
+      // what Whisper transcription says (Whisper hallucinates lyrics over instruments).
+      const vocalOnsetTime = await getVocalOnsetTime(input.jobId);
+      if (vocalOnsetTime !== null) {
+        console.log(`[MusicVideo] Vocal onset gate for job ${input.jobId}: lipSync disabled for scenes before ${vocalOnsetTime.toFixed(2)}s`);
+      }
+
        // Delete existing scenes if regenerating
       await db.delete(musicVideoScenes).where(eq(musicVideoScenes.jobId, input.jobId));
       // Also clear any existing characterScenes rows for this job's scenes (cascade-style)
@@ -604,7 +614,13 @@ Rules:
             : true; // if no transcription available, default to enabled (safe fallback)
         }
 
-        const smartLipSync = scene.modelAssignment === "seedance-2.0" && assignedNames.length > 0 && sceneHasVocals;
+        // Apply vocal onset gate: if we have a precise vocal onset time, scenes whose
+        // midpoint falls before it are in the instrumental intro and must not have lip sync.
+        const sceneBeforeVocalOnset = vocalOnsetTime !== null && sceneMidpoint < vocalOnsetTime;
+        if (sceneBeforeVocalOnset) {
+          console.log(`[MusicVideo] Scene ${scene.sceneIndex} @${sceneMidpoint.toFixed(1)}s: before vocal onset (${vocalOnsetTime!.toFixed(2)}s) — lip sync DISABLED`);
+        }
+        const smartLipSync = scene.modelAssignment === "seedance-2.0" && assignedNames.length > 0 && sceneHasVocals && !sceneBeforeVocalOnset;
         if (!sceneHasVocals && scene.modelAssignment === "seedance-2.0") {
           console.log(`[MusicVideo] Scene ${scene.sceneIndex} (${(scene.startTime ?? 0).toFixed(1)}s–${sceneEnd.toFixed(1)}s): no vocals — lip sync DISABLED`);
         }

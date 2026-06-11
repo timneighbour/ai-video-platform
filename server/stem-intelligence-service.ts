@@ -584,3 +584,100 @@ export async function getValidationSummary(jobId: number): Promise<ValidationDat
     return null;
   }
 }
+
+/**
+ * Detect the precise vocal onset time (seconds) from an isolated vocal stem.
+ *
+ * Uses ffmpeg silencedetect on the vocal stem to find the first non-silent moment.
+ * This is the authoritative source for lipSync scene assignment — scenes that start
+ * before this time should never have lipSync=true.
+ *
+ * @param vocalStemUrl - S3/CDN URL of the isolated vocal stem (Demucs output)
+ * @param silenceThresholdDb - dB threshold below which audio is considered silent (default: -35dB)
+ * @param minSilenceDuration - minimum silence duration in seconds (default: 0.3s)
+ * @returns vocal onset time in seconds, or null if detection fails
+ */
+export async function detectVocalOnset(
+  vocalStemUrl: string,
+  silenceThresholdDb = -35,
+  minSilenceDuration = 0.3
+): Promise<number | null> {
+  const tmpFile = path.join(os.tmpdir(), `vocal-onset-${Date.now()}.mp3`);
+  try {
+    // Download the vocal stem
+    await new Promise<void>((resolve, reject) => {
+      const protocol = vocalStemUrl.startsWith("https") ? https : http;
+      const file = fs.createWriteStream(tmpFile);
+      protocol.get(vocalStemUrl, (res) => {
+        res.pipe(file);
+        file.on("finish", () => { file.close(); resolve(); });
+      }).on("error", reject);
+    });
+
+    // Run ffmpeg silencedetect to find the first silence_end (= vocal onset)
+    const { stderr } = await execFileAsync("ffmpeg", [
+      "-i", tmpFile,
+      "-af", `silencedetect=noise=${silenceThresholdDb}dB:d=${minSilenceDuration}`,
+      "-f", "null",
+      "/dev/null",
+    ], { timeout: 60000 });
+
+    // Parse the first silence_end line — that's when vocals start
+    const match = stderr.match(/silence_end:\s*([\d.]+)/);
+    if (match) {
+      const onsetTime = parseFloat(match[1]);
+      console.log(`[VocalOnset] Detected vocal onset at ${onsetTime.toFixed(2)}s`);
+      return onsetTime;
+    }
+
+    // If no silence_end found, vocals start from the very beginning
+    console.log(`[VocalOnset] No leading silence detected — vocals start at 0s`);
+    return 0;
+  } catch (err) {
+    console.warn(`[VocalOnset] Detection failed:`, err);
+    return null;
+  } finally {
+    try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+  }
+}
+
+/**
+ * Get the vocal onset time for a job.
+ * First checks the DB for a cached value, then detects it from the vocal stem if available.
+ * Returns null if no vocal stem is available.
+ */
+export async function getVocalOnsetTime(jobId: number): Promise<number | null> {
+  const db = (await getDb())!;
+  const [job] = await db
+    .select({
+      vocalOnsetTime: musicVideoJobs.vocalOnsetTime,
+      vocalsUrl: musicVideoJobs.vocalsUrl,
+      stemVocalsUrl: musicVideoJobs.stemVocalsUrl,
+      stemAnalysisStatus: musicVideoJobs.stemAnalysisStatus,
+    })
+    .from(musicVideoJobs)
+    .where(eq(musicVideoJobs.id, jobId));
+
+  if (!job) return null;
+
+  // Return cached value if already computed
+  if (job.vocalOnsetTime !== null && job.vocalOnsetTime !== undefined) {
+    return job.vocalOnsetTime;
+  }
+
+  // Prefer Demucs stem vocals (cleaner isolation), fall back to Lalal/WaveSpeed vocals
+  const vocalUrl = (job.stemAnalysisStatus === "done" && job.stemVocalsUrl)
+    ? job.stemVocalsUrl
+    : job.vocalsUrl;
+
+  if (!vocalUrl) return null;
+
+  const onset = await detectVocalOnset(vocalUrl);
+  if (onset !== null) {
+    // Cache the result in the DB
+    await db.update(musicVideoJobs)
+      .set({ vocalOnsetTime: onset, updatedAt: new Date() })
+      .where(eq(musicVideoJobs.id, jobId));
+  }
+  return onset;
+}

@@ -4581,6 +4581,19 @@ export default function MusicVideoAutopilot() {
               </div>
             </div>
 
+            {/* ── Track Audio Player — review the song while checking the storyboard ── */}
+            {(restoredAudioUrl || sunoGeneratedAudioUrl) && (
+              <div className="mb-5">
+                <WizAudioPlayer
+                  audioUrl={(restoredAudioUrl || sunoGeneratedAudioUrl)!}
+                  title={title || "Your Track"}
+                  subtitle="Review your song while checking each scene"
+                  showBadge={false}
+                  className="rounded-xl"
+                />
+              </div>
+            )}
+
             {/* Lyric Timeline Bar — song structure at a glance */}
             {scenes.length > 0 && (
               <div className="mb-5 rounded-xl studio-panel px-4 py-4">
@@ -6769,6 +6782,19 @@ export default function MusicVideoAutopilot() {
                                 </div>
                               </div>
                             )}
+                          </div>
+                        )}
+
+                        {/* ===== TRACK AUDIO PLAYER — Screening Room ===== */}
+                        {(restoredAudioUrl || sunoGeneratedAudioUrl) && (
+                          <div className="mb-5">
+                            <WizAudioPlayer
+                              audioUrl={(restoredAudioUrl || sunoGeneratedAudioUrl)!}
+                              title={title || "Your Track"}
+                              subtitle="Listen while reviewing your rendered scenes"
+                              showBadge={false}
+                              className="rounded-xl"
+                            />
                           </div>
                         )}
 

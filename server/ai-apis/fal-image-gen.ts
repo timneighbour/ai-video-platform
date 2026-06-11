@@ -93,7 +93,18 @@ export async function generateCinematicStoryboardImage(
     }
   }
 
+  // Dimension map — used both for aspect ratio guard and return value
+  const dimensionMap: Record<string, { width: number; height: number }> = {
+    "landscape_16_9": { width: 1344, height: 768 },
+    "portrait_16_9":  { width: 768, height: 1344 },
+    "square_hd":      { width: 1024, height: 1024 },
+    "landscape_4_3":  { width: 1365, height: 1024 },
+    "portrait_4_3":   { width: 1024, height: 1365 },
+  };
+
   // Try Flux Pro first, fall back to Flux Dev
+  // IMPORTANT: Both models MUST receive the correct image_size so WaveSpeed i2v
+  // inherits the right aspect ratio. Flux Dev supports image_size identically.
   const models = ["fal-ai/flux-pro/v1.1", "fal-ai/flux/dev"] as const;
   let lastError: Error | null = null;
 
@@ -103,7 +114,7 @@ export async function generateCinematicStoryboardImage(
       const result = await fal.subscribe(modelId, {
         input: {
           prompt: cinematicPrompt,
-          image_size: imageSize as any,
+          image_size: imageSize as any,  // MUST match job aspectRatio — e.g. "landscape_16_9" for 16:9
           num_images: 1,
           enable_safety_checker: false,
           safety_tolerance: "5",
@@ -115,7 +126,23 @@ export async function generateCinematicStoryboardImage(
 
       const images = result?.data?.images ?? result?.images;
       if (images?.[0]?.url) {
+        // ── ASPECT RATIO GUARD: verify the returned image matches the target ──────
+        // Flux Dev sometimes ignores image_size and returns 1024×1024.
+        // If the returned image dimensions don't match, skip and try next model.
+        const returnedW = images[0].width ?? 0;
+        const returnedH = images[0].height ?? 0;
+        const expectedDims = dimensionMap[imageSize];
+        if (returnedW > 0 && returnedH > 0 && expectedDims) {
+          const expectedRatio = expectedDims.width / expectedDims.height;
+          const actualRatio = returnedW / returnedH;
+          const ratioDiff = Math.abs(actualRatio - expectedRatio) / expectedRatio;
+          if (ratioDiff > 0.05) {
+            console.warn(`[CinematicImageGen] ${modelId} returned wrong aspect ratio: ${returnedW}×${returnedH} (expected ~${expectedDims.width}×${expectedDims.height} for ${imageSize}). Trying next model.`);
+            continue; // skip this result, try next model
+          }
+        }
         imageUrl = images[0].url;
+        console.log(`[CinematicImageGen] ${modelId} returned ${returnedW}×${returnedH} for ${imageSize} ✓`);
         break;
       }
     } catch (err: any) {
@@ -135,14 +162,6 @@ export async function generateCinematicStoryboardImage(
   const keyPrefix = options.storageKeyPrefix ?? `music-video-storyboard/${Date.now()}`;
   const { url: s3Url } = await storagePut(`${keyPrefix}.jpg`, buffer, "image/jpeg");
 
-  // Determine actual dimensions from the imageSize string
-  const dimensionMap: Record<string, { width: number; height: number }> = {
-    "landscape_16_9": { width: 1344, height: 768 },
-    "portrait_16_9":  { width: 768, height: 1344 },
-    "square_hd":      { width: 1024, height: 1024 },
-    "landscape_4_3":  { width: 1365, height: 1024 },
-    "portrait_4_3":   { width: 1024, height: 1365 },
-  };
   const dims = dimensionMap[imageSize] ?? { width: 1344, height: 768 };
 
   console.log(`[CinematicImageGen] Generated ${imageSize} storyboard image → ${s3Url.slice(0, 80)}...`);

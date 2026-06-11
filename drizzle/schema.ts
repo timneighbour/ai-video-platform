@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, longtext, json, bigint, tinyint } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, longtext, json, bigint, tinyint, double } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -240,6 +240,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   // --- Sync Labs Lip Sync Tracking -------------------------------------------
   syncLabsJobId: varchar("syncLabsJobId", { length: 128 }), // Sync Labs job ID -- used to resume polling after server restart
   assemblyStartedAt: timestamp("assemblyStartedAt"),         // When assembly began -- used to detect truly stuck jobs
+  vocalOnsetTime: double("vocalOnsetTime"),                  // Precise vocal start time in seconds (from silencedetect on vocal stem)
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -9089,3 +9089,31 @@
 - [x] Use Lyndhurst Hall reference image as visual anchor for Atlas Cloud renders (image-to-video mode)
 - [x] Fix provider-safe prompt for venue scenes (no real venue names in prompts)
 - [x] Force-dispatch 7 pending scenes (2-7, 10) with Lyndhurst Hall reference image
+
+## URGENT: Pipeline Audit & Fix (Job 1020003 - Broken Final Video)
+- [ ] Audit all 12 scenes in final video: identify still-image scenes, wrong environment references, B&W vs color, missing lip-sync
+- [ ] Diagnose root cause: Air Studios reference photos being used as literal scene outputs instead of style guides
+- [ ] Diagnose root cause: scene type classification routing cinematic/environment shots to lip-sync incorrectly
+- [ ] Diagnose root cause: Seedance/Kling rendering still images instead of dynamic video for performance scenes
+- [ ] Fix pipeline: Air Studios reference images must ONLY guide environment/lighting style, never become the literal video output
+- [ ] Fix pipeline: all performance scenes with vocals must show Zara (black hair, Air Studios environment) with dynamic camera movement
+- [ ] Fix pipeline: ensure lip-sync only applied to scenes where Zara's face is clearly visible and forward-facing
+- [ ] Fix pipeline: ensure consistent color grading (no B&W scenes unless explicitly requested)
+- [ ] Re-render all 12 scenes for job 1020003 with corrected pipeline
+- [ ] Re-assemble final video and verify quality before reporting to Tim
+
+## Pipeline Fix: Vocal Energy Gate & Lip Sync Accuracy (Critical)
+- [ ] Fix vocal detection: use Demucs vocal stem RMS energy per scene window (not just Whisper timestamps) to set lipSync=true/false — character must NOT open mouth if vocal energy is below -40 dB threshold
+- [ ] Fix storyboard character roster: when locked character (Zara) is vocalist, do NOT add orchestra members as separate characters — they are background elements only
+- [ ] Fix job 1080001: re-check each scene's vocal energy at 6-second windows and correct lipSync flags (Zara doesn't sing until 12s, scenes 0-1 should be lipSync=false)
+- [ ] Ensure all scenes use Zara's close-up portrait (environmentRefUrl) for rendering
+- [ ] Verify final video for job 1080001 is widescreen (1280x720) with working lip sync
+
+## Audio Player & Storyboard/Screening Room Fixes (Jun 2026)
+- [ ] Add persistent audio player (play/pause/seek/volume) to Storyboard page — plays full track so user can hear song while reviewing scenes
+- [ ] Add persistent audio player (play/pause/seek/volume) to Screening Room — plays full track so user can verify audio/video alignment before final render
+- [ ] Fix storyboard image generation: always output in job's requested aspect ratio (16:9 = 1344×768, not 1024×1024 square) — aspect ratio guard added to fal-image-gen.ts
+- [ ] Fix lipSync/sceneType assignment: use real transcription timestamps — no lip sync on scenes before vocals start (vocals at 12s for job 1080001)
+- [ ] Fix Scene 2 (930003, 12s) job 1080001: change from cinematic Pianist to Zara performance/lipSync, regenerate 16:9 storyboard
+- [ ] Verify HeyGen v3/lipsyncs endpoint routes as true lipsync (not video_translate)
+- [ ] Dispatch Scene 2 (930003) as single probe to validate all fixes

@@ -2204,8 +2204,9 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       // Detect clip dimensions to choose the right scaling strategy:
       //   Square (e.g. 960x960 from InfiniteTalk) → centre-crop to fill 1280x720 (no black bars)
       //   Near-16:9 (e.g. 1280x720 from Seedance)  → simple scale
-      //   Other aspect ratios                       → scale-down + pad (safe fallback)
-      let vfFilter = 'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,fps=24';
+      //   Other aspect ratios (portrait, etc.)       → scale-up + centre-crop (no black bars)
+      // Default: scale-up to fill 1280x720 with centre-crop (NO black bars ever)
+      let vfFilter = 'scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,fps=24';
       try {
         const probeOut = await execAsync(
           `"${FFPROBE_BIN}" -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "${src}"`,
@@ -2223,7 +2224,9 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
             vfFilter = 'scale=1280:720,fps=24';
             console.log(`[Assembly] Clip ${i + 1}: 16:9 ${pw}x${ph} → scale to 1280x720`);
           } else {
-            console.log(`[Assembly] Clip ${i + 1}: other ${pw}x${ph} → pad to 1280x720`);
+            // Portrait or other: scale to fill width/height (whichever is larger), then centre-crop
+            vfFilter = 'scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,fps=24';
+            console.log(`[Assembly] Clip ${i + 1}: other ${pw}x${ph} → crop-to-fill 1280x720`);
           }
         }
       } catch (probeErr: any) {
