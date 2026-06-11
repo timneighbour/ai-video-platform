@@ -75,6 +75,8 @@ export const voiceRouter = router({
             "orchestral score and music composition",
             "audio-video synchronisation",
             "video enhancement and colour grading",
+            "scene direction and cinematography",
+            "character description and appearance",
           ])
           .default("text-to-video generation"),
         language: z.string().optional(),
