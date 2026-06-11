@@ -5113,6 +5113,13 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
       await db.update(musicVideoJobs)
         .set({ probePassed: true, probeApprovedAt: new Date(), status: "rendering" as any, updatedAt: new Date() })
         .where(eq(musicVideoJobs.id, input.jobId));
+      // Also mark the probe scene itself as approved so the probe gate doesn't block on it
+      if (job.probeSceneId) {
+        await db.update(musicVideoScenes)
+          .set({ isApproved: true, approvedAt: new Date(), updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, job.probeSceneId));
+        console.log(`[MusicVideo] Job ${input.jobId} probe scene ${job.probeSceneId} marked isApproved=true`);
+      }
       console.log(`[MusicVideo] Job ${input.jobId} probe APPROVED by user ${ctx.user.id} — status → rendering, full render released`);
       return { success: true, message: "Probe approved. Full render will begin on the next heartbeat tick." };
     }),

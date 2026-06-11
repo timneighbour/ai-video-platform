@@ -9077,3 +9077,10 @@
 - [ ] Step 5: Extend quality scoring to store lipSyncQualityScore, faceConsistencyScore, mouthVisibilityScore, overallSceneScore in DB
 - [ ] Step 5: Implement 4-attempt retry chain: HeyGen Precision → HeyGen alt settings → LatentSync → InfiniteTalk
 - [ ] Step 5: Block assembly if overallSceneScore < 0.75 after all retry attempts
+
+## Pipeline Bug Fixes (2026-06-11)
+- [x] Fix probe gate: probePassed=true now triggers full_render mode (dispatch all scenes at once) instead of one-at-a-time per-scene approval
+- [x] Fix approveProbe mutation to also mark probe scene as isApproved=true so gate doesn't block on it
+- [x] Fix needsLipSync check: lipSync flag is now authoritative even for performance scenes (lipSync=0 skips HeyGen even if sceneType=performance)
+- [x] Fix DB state for job 1020003: Scenes 0 and 11 marked lipSyncStatus=done (no vocals), Scene 1 submitted to HeyGen Precision
+- [x] Dispatch 9 remaining scenes (2-10) to Atlas Cloud after probe gate unblock

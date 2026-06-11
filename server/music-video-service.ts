@@ -90,24 +90,78 @@ const SCENE_DURATION_SECONDS = 6; // target 6 seconds per scene for good pacing
 // ─────────────────────────────────────────────────────────────────────────────
 const CDN = process.env.VITE_CDN_URL ?? "https://wiz-ai.b-cdn.net";
 
-const VENUE_REFERENCE_MAP: Array<{ keywords: string[]; url: string }> = [
+// ─────────────────────────────────────────────────────────────────────────────
+// LYNDHURST HALL VISUAL DESCRIPTION
+// Extracted from 12 reference photographs of the actual venue.
+// Used in scene prompts to ensure AI generates the REAL hall, not a hallucination.
+// ─────────────────────────────────────────────────────────────────────────────
+export const LYNDHURST_HALL_VISUAL_DESCRIPTION = `Air Studios Lyndhurst Hall, London — a converted Victorian Gothic church (Lyndhurst Road Congregational Church, Hampstead). The hall has a roughly octagonal/hexagonal floor plan, 17m × 20m × 14m high. The most distinctive feature is the large suspended hexagonal wooden acoustic canopy with a geometric triangular lattice of dark warm mahogany beams, hanging centrally from the ceiling and adjustable in height. Additional smaller rectangular dark mauve/purple-brown acoustic baffles hang on cables at the perimeter. The vaulted Gothic ceiling above the canopy is painted pale periwinkle blue/lavender between white plaster fan-vault ribs that radiate from central points — a cathedral-like ceiling. Multiple tall Gothic-arched windows with decorative tracery line all walls in two tiers (clerestory and lower level), letting in cool blue-white diffused daylight through frosted/leaded glass. A continuous curved wooden balcony/gallery runs around the perimeter at mid-height, with warm honey/oak wood panelling and ornate carved decorative arches with small cutout balusters below the rail. The lower walls feature light maple/oak modern acoustic treatment panels. At the far end stands a large classical pipe organ in dark mahogany wood housing with rows of silver-grey metal pipes. The floor is a beautiful warm honey-brown herringbone parquet wood floor, highly polished, reflecting the warm amber light. Lighting is warm golden/amber tungsten spotlights from the balcony rail and walls, contrasting with the cool blue-white natural light from the Gothic windows — creating a dramatic, intimate warmth. When in use for recording: full symphony orchestra arranged in traditional formation with dozens of music stands, a conductor's podium, black metal microphone stands with boom arms forming a forest of mics, a Steinway concert grand piano (black lacquer) to one side, and professional audio cables running across the floor.`;
+
+const VENUE_REFERENCE_MAP: Array<{ keywords: string[]; urls: string[]; description: string }> = [
   {
-    // Air Studios Lyndhurst Hall — primary reference (full colour, orchestra setup)
+    // Air Studios Lyndhurst Hall — 6 reference images from different angles
+    // Image 1: Wide angle from balcony showing full hall with orchestra setup and acoustic canopy
+    // Image 2: Front-facing view showing Gothic arched windows, balcony, acoustic baffles, parquet floor
+    // Image 3: Panoramic view showing fan-vaulted ceiling, pipe organ, full orchestra
+    // Image 4: Large acoustic canopy close-up, Gothic windows, empty hall
+    // Image 5: Orchestra session from above — warm amber lighting, herringbone floor
+    // Image 6: Night/warm lighting — grand piano, Gothic windows, pipe organ visible
     keywords: ["air studios", "lyndhurst hall", "lyndhurst", "air lyndhurst"],
-    url: `${CDN}/manus-storage/air-studios-lyndhurst-hall-ref2_43dda11a.jpg`,
+    urls: [
+      `${CDN}/manus-storage/60876673_10158452132427589_7481294393488441344_n_ebd48c54.jpg`,
+      `${CDN}/manus-storage/fESaZwK9iZtizehEZjogvQ_a931560a.webp`,
+      `${CDN}/manus-storage/meta_eyJzcmNCdWNrZXQiOiJiemdsZmlsZXMifQ==_35287add.webp`,
+      `${CDN}/manus-storage/83304-27558187cc6a2f3c7f5bd9197d19182e_b7eeddf9.jpg`,
+      `${CDN}/manus-storage/DSC05433_1cfc31c4.webp`,
+      `${CDN}/manus-storage/maxresdefault_583a25e5.jpg`,
+    ],
+    description: LYNDHURST_HALL_VISUAL_DESCRIPTION,
   },
 ];
 
 /**
  * Given a sceneSetting string, return the best matching venue reference image URL.
+ * Rotates through available reference images for variety.
  * Returns undefined if no known venue is detected.
  */
-export function resolveVenueReferenceUrl(sceneSetting?: string | null): string | undefined {
+export function resolveVenueReferenceUrl(sceneSetting?: string | null, index: number = 0): string | undefined {
   if (!sceneSetting) return undefined;
   const lower = sceneSetting.toLowerCase();
   for (const entry of VENUE_REFERENCE_MAP) {
     if (entry.keywords.some(kw => lower.includes(kw))) {
-      return entry.url;
+      // Rotate through available reference images for variety
+      const urls = entry.urls;
+      return urls[index % urls.length];
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Given a sceneSetting string, return all available venue reference image URLs.
+ * Returns empty array if no known venue is detected.
+ */
+export function resolveAllVenueReferenceUrls(sceneSetting?: string | null): string[] {
+  if (!sceneSetting) return [];
+  const lower = sceneSetting.toLowerCase();
+  for (const entry of VENUE_REFERENCE_MAP) {
+    if (entry.keywords.some(kw => lower.includes(kw))) {
+      return entry.urls;
+    }
+  }
+  return [];
+}
+
+/**
+ * Given a sceneSetting string, return the detailed visual description for the matched venue.
+ * Returns undefined if no known venue is detected.
+ */
+export function resolveVenueDescription(sceneSetting?: string | null): string | undefined {
+  if (!sceneSetting) return undefined;
+  const lower = sceneSetting.toLowerCase();
+  for (const entry of VENUE_REFERENCE_MAP) {
+    if (entry.keywords.some(kw => lower.includes(kw))) {
+      return entry.description;
     }
   }
   return undefined;
@@ -482,6 +536,9 @@ CHARACTER ASSIGNMENT RULES — STRICTLY ENFORCED:
 8. Each character must appear in at least 2 scenes
 9. Prefer solo scenes (one character) — they produce the most consistent results`;
 
+  // Inject venue description if the setting matches a known venue (e.g. Air Studios Lyndhurst Hall)
+  const venueDesc = resolveVenueDescription(sceneSetting);
+
   const sceneSettingConstraint = sceneSetting
     ? `
 ⚠️ USER-SPECIFIED SETTING — THIS IS NON-NEGOTIABLE:
@@ -494,7 +551,28 @@ Examples of correct behaviour:
   - User says "underwater" → scenes are submerged, with light refracting through water
   - User says "dark forest" → dense woodland, tree canopy, dappled light
 The setting is the VISUAL WORLD of this music video. It MUST be present in every scene prompt.
+${venueDesc ? `
+🏛️ VENUE VISUAL REFERENCE — MEMORISE THIS DESCRIPTION:
+This is the ACTUAL appearance of the venue based on real reference photographs. Your scene prompts MUST reflect these specific visual details — do NOT invent generic alternatives.
 
+${venueDesc}
+
+KEY VISUAL ELEMENTS TO INCLUDE IN EVERY LYNDHURST HALL SCENE:
+• The large suspended hexagonal wooden acoustic canopy with triangular lattice (dark mahogany) — this is the MOST DISTINCTIVE element
+• Fan-vaulted Gothic ceiling painted pale periwinkle blue/lavender between white plaster ribs
+• Tall Gothic-arched windows with tracery — cool blue-white diffused daylight
+• Continuous curved wooden balcony/gallery with ornate carved arched panels
+• Warm honey-brown herringbone parquet floor
+• Warm golden/amber tungsten spotlights contrasting with cool window light
+• Classical pipe organ in dark mahogany at the far end
+• When orchestra is present: full symphony formation, forest of microphone stands, music stands, conductor's podium
+
+DO NOT describe:
+❌ Chandeliers (there are none — the hall uses spotlights and the acoustic canopy has recessed lights)
+❌ Tiered audience seating (this is a RECORDING STUDIO, not a concert hall — there is a balcony gallery but no audience seating tiers)
+❌ Dark wood panelling on the UPPER walls (upper walls are cream/white plaster with Gothic windows)
+❌ Warm amber/golden ceiling (the ceiling is pale blue/lavender — the warmth comes from floor-level spotlights)
+` : ""}
 ⚠️ MUSIC VIDEO PERFORMANCE RULE — ALWAYS APPLIES:
 Even within the user-specified setting, this is a MUSIC VIDEO. Characters MUST be performing:
 - Singers must be at a microphone, singing, or performing expressively

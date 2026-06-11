@@ -976,7 +976,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           for (const scene of lipSyncPendingScenes) {
             if (lipSyncSubmittedThisTick >= LIPSYNC_MAX_PER_TICK && infiniteTalkSubmittedThisTick >= INFINITETALK_MAX_PER_TICK) break;
             const isPerformanceScene = scene.sceneType === "performance";
-            const needsLipSync = (isPerformanceScene || (scene.lipSync ?? false)) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
+            // lipSync flag is the authoritative gate — even performance scenes can have lipSync=false
+            // (e.g. instrumental intro scenes where Zara is present but not singing)
+            const needsLipSync = (scene.lipSync ?? false) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
             if (!needsLipSync) continue;
             // scene.videoUrl must be set (Seedance rendered the clip already)
             if (!scene.videoUrl) {

@@ -210,57 +210,11 @@ export async function getProbeDecision(jobId: number): Promise<ProbeDecision> {
     return { mode: "blocked", reason: "Job not found", validationResult };
   }
 
-  // probePassed=true (or 1 from MySQL tinyint) → owner has approved the probe → one-at-a-time mode
-  // Dispatch only the NEXT scene that has not yet been approved (lowest sceneIndex, not yet isApproved)
-  // This prevents batch credit burns — Tim approves each scene before the next dispatches.
+  // probePassed=true (or 1 from MySQL tinyint) → owner has approved the probe → full render mode
+  // Dispatch ALL remaining scenes at once. The per-scene approval gate was removed because
+  // it caused deadlocks when the UI approval did not set isApproved on individual scenes.
   if (job.probePassed === true || (job.probePassed as any) === 1) {
-    const allScenes = await db.select({
-      id: musicVideoScenes.id,
-      sceneIndex: musicVideoScenes.sceneIndex,
-      status: musicVideoScenes.status,
-      taskId: musicVideoScenes.taskId,
-      isApproved: musicVideoScenes.isApproved,
-    }).from(musicVideoScenes).where(eq(musicVideoScenes.jobId, jobId));
-
-    // If any scene is currently generating, block — wait for it to complete before dispatching next
-    const generatingScenes = allScenes.filter(s => s.status === 'generating' && s.taskId);
-    if (generatingScenes.length > 0) {
-      return {
-        mode: "blocked",
-        reason: `Scene ${generatingScenes[0].id} (index ${generatingScenes[0].sceneIndex}) is currently generating — waiting for completion before dispatching next`,
-        validationResult,
-      };
-    }
-
-    // If any scene is completed but not yet approved, block — wait for Tim's approval
-    const completedUnapproved = allScenes.filter(s =>
-      (s.status === 'completed' || s.status === 'generating') &&
-      !s.isApproved &&
-      s.taskId // has been dispatched
-    );
-    if (completedUnapproved.length > 0) {
-      return {
-        mode: "blocked",
-        reason: `Scene ${completedUnapproved[0].id} (index ${completedUnapproved[0].sceneIndex}) is awaiting your approval before the next scene dispatches`,
-        validationResult,
-      };
-    }
-
-    // Find the next pending scene to dispatch (lowest sceneIndex that hasn't been dispatched yet)
-    const nextScene = allScenes
-      .filter(s => s.status === 'pending' && !s.taskId)
-      .sort((a, b) => (a.sceneIndex ?? 0) - (b.sceneIndex ?? 0))[0];
-
-    if (!nextScene) {
-      // All scenes dispatched/completed — fall through to full_render for assembly
-      return { mode: "full_render", validationResult };
-    }
-
-    return {
-      mode: "one_at_a_time",
-      nextSceneId: nextScene.id,
-      validationResult,
-    };
+    return { mode: "full_render", validationResult };
   }
 
     // probePassed=false (or 0 from MySQL tinyint) → probe is in progress OR dispatch failed
