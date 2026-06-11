@@ -63,6 +63,7 @@ function CommaInput({
   );
 }
 import WizPerformerConsentModal, { hasGivenConsent, persistConsent } from "@/components/WizPerformerConsentModal";
+import { VoicePromptButton } from "@/components/VoicePromptButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -832,7 +833,15 @@ export function CharacterManager({
 
                   {/* Description input */}
                   <div>
-                    <Label className="text-zinc-400 text-xs mb-1 block">Describe Your Character *</Label>
+                    <div className="flex items-center justify-between mb-1">
+                      <Label className="text-zinc-400 text-xs">Describe Your Character *</Label>
+                      <VoicePromptButton
+                        toolContext="character description and appearance"
+                        showWaveform={true}
+                        disabled={disabled || isGenerating}
+                        onPromptReady={(refined) => updateCharacter(char.slotIndex, { aiDescription: refined })}
+                      />
+                    </div>
                     <Textarea
                       value={char.aiDescription}
                       onChange={(e) => updateCharacter(char.slotIndex, { aiDescription: e.target.value })}

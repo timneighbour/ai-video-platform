@@ -623,14 +623,21 @@ function ScenePreviewGrid({
                   {isEditing && (
                     <div className="space-y-2">
                       <div>
-                        <label className="text-[10px] text-white/40 font-medium uppercase tracking-wide block mb-1">Visual Prompt</label>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="text-[10px] text-white/40 font-medium uppercase tracking-wide">Visual Prompt</label>
+                          <VoicePromptButton
+                            toolContext="scene direction and cinematography"
+                            showWaveform={true}
+                            onPromptReady={(refined) => setEditPrompt(refined)}
+                          />
+                        </div>
                         <textarea
                           value={editPrompt}
                           onChange={(e) => setEditPrompt(e.target.value)}
                           rows={3}
                           maxLength={2000}
                           className="w-full text-xs bg-[rgba(24,20,16,0.9)] border border-[rgba(184,137,42,0.2)] text-zinc-200 rounded-lg px-2.5 py-2 resize-none focus:outline-none focus:border-[--color-gold] placeholder:text-white/20"
-                          placeholder="Describe the visual scene…"
+                          placeholder="Describe the visual scene… or tap the mic to speak your direction"
                         />
                       </div>
                       <div>
@@ -800,10 +807,18 @@ function ScenePreviewGrid({
               <span className="ml-auto text-[10px] text-purple-300/60 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">Scene {scenes.findIndex(s => s.id === rewriteSceneId) + 1}</span>
             </div>
             <p className="text-white/50 text-xs mb-3">Describe what you want to change — the AI will rewrite the full scene prompt while keeping your character and setting.</p>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] text-white/40 uppercase tracking-wide font-medium">Your Direction</span>
+              <VoicePromptButton
+                toolContext="scene direction and cinematography"
+                showWaveform={true}
+                onPromptReady={(refined) => setRewriteDirection(refined)}
+              />
+            </div>
             <textarea
               value={rewriteDirection}
               onChange={e => setRewriteDirection(e.target.value)}
-              placeholder="e.g. Make it more dramatic, add rain, change to a close-up of her face with tears..."
+              placeholder="e.g. Make it more dramatic, add rain, change to a close-up of her face with tears... or tap the mic to speak"
               rows={3}
               className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white/80 text-sm placeholder-white/25 resize-none focus:outline-none focus:border-purple-500/50 mb-3"
             />
@@ -896,10 +911,18 @@ function ScenePreviewGrid({
               <span className="ml-auto text-[10px] text-orange-300/60 bg-orange-500/10 px-2 py-0.5 rounded-full border border-orange-500/20">Scene {scenes.findIndex(s => s.id === replaceSceneId) + 1}</span>
             </div>
             <p className="text-white/50 text-xs mb-3">Describe a completely new scene from scratch. Use the AI Enhance button to turn your idea into a detailed cinematic prompt.</p>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] text-white/40 uppercase tracking-wide font-medium">Scene Description</span>
+              <VoicePromptButton
+                toolContext="scene direction and cinematography"
+                showWaveform={true}
+                onPromptReady={(refined) => { setReplaceText(refined); setReplaceEnhanced(null); }}
+              />
+            </div>
             <textarea
               value={replaceText}
               onChange={e => { setReplaceText(e.target.value); setReplaceEnhanced(null); }}
-              placeholder="e.g. Zara standing alone in a spotlight, looking up at the sky, white dress flowing..."
+              placeholder="e.g. Zara standing alone in a spotlight, looking up at the sky, white dress flowing... or tap the mic to speak"
               rows={3}
               className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white/80 text-sm placeholder-white/25 resize-none focus:outline-none focus:border-orange-500/50 mb-2"
             />
@@ -3844,6 +3867,7 @@ export default function MusicVideoAutopilot() {
                   <div className="flex items-center gap-2">
                     <VoicePromptButton
                       toolContext="music video creation and visual storytelling"
+                      showWaveform={true}
                       onPromptReady={(refined) => setThemePrompt(refined)}
                     />
                     <EnhancePromptButton
