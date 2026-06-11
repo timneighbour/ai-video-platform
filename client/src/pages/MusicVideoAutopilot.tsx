@@ -34,6 +34,7 @@ import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
 import WizAudioPlayer from "@/components/WizAudioPlayer";
+import FloatingMiniPlayer from "@/components/FloatingMiniPlayer";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
@@ -7309,6 +7310,15 @@ export default function MusicVideoAutopilot() {
         )}
       </div>
       </div>
+      {/* ── Floating Mini Player — visible on Storyboard and Screening Room ── */}
+      {(step === "storyboard" || step === "render") && (restoredAudioUrl || sunoGeneratedAudioUrl) && (
+        <FloatingMiniPlayer
+          audioRef={audioRef}
+          title={restoredAudioTitle || title || "Your Track"}
+          audioUrl={(restoredAudioUrl || sunoGeneratedAudioUrl)!}
+          visible
+        />
+      )}
       <LandscapeHint />
       <QuickTopUpModal
         open={topUpOpen}

@@ -9123,3 +9123,9 @@
 - [x] Fix: normalise MIME type by stripping codec params before filename/blob creation (e.g. "audio/webm;codecs=opus" → "audio/webm" → "audio.webm")
 - [x] Fix: getFileExtension() default fallback changed from "audio" to "webm" (most common browser recording format)
 - [x] Add server-side logging to voice.ts transcribeAndRefine mutation for easier future debugging
+
+## Floating Mini Audio Player Island
+- [x] Create FloatingMiniPlayer component — fixed bottom island with play/pause, seek bar, time, track name, collapse toggle
+- [x] Wire FloatingMiniPlayer into MusicVideoAutopilot storyboard step (step === "storyboard")
+- [x] Wire FloatingMiniPlayer into MusicVideoAutopilot screening room step (step === "render")
+- [x] Ensure FloatingMiniPlayer shares the same audio element ref as the inline WizAudioPlayer (no duplicate audio)
