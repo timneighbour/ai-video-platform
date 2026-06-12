@@ -9187,3 +9187,9 @@
 - [x] Fix probe gate (getProbeDecision): preserve user-selected probeSceneId when scene is pending with no taskId — do not reset it, dispatch immediately
 - [x] Add generateMissingStoryboardImages tRPC procedure — generates cinematic storyboard images for all scenes missing a previewImageUrl
 - [x] Add "Fix Previews (N)" button in storyboard step header — visible when any scenes lack preview images, triggers generateMissingStoryboardImages
+
+## HeyGen Lip Sync Fix (2026-06-12)
+- [x] Fix HeyGen lip sync "audio missing or corrupted" error — root cause: HeyGen cannot access external CDN URLs (CloudFront, Manus CDN)
+- [x] Update submitHeyGenLipSyncV3 to upload video and audio assets to HeyGen's own storage (/v3/assets) before submitting lip sync jobs
+- [x] Manually re-submit probe scene 990015 (job 1080001) with HeyGen asset upload approach — completed successfully
+- [x] Update DB: job 1080001 status=awaiting_probe_approval, probeVideoUrl set, scene 990015 lipSyncStatus=done

@@ -28,9 +28,59 @@
  */
 
 import axios from "axios";
+import FormData from "form-data";
 
 const HEYGEN_API_BASE = "https://api.heygen.com";
 const HEYGEN_API_KEY = process.env.HEYGEN_API_KEY;
+
+// ── Asset Upload ──────────────────────────────────────────────────────────────
+
+/**
+ * Upload a file (video or audio) to HeyGen's asset storage.
+ * HeyGen cannot access external CDN URLs (CloudFront, etc.) — all media must
+ * be uploaded to HeyGen's own storage before submitting lip sync jobs.
+ *
+ * Returns the asset_id for use in lip sync job submission.
+ */
+async function uploadAssetToHeyGen(
+  url: string,
+  mimeType: "video/mp4" | "audio/mpeg",
+  label: string
+): Promise<string> {
+  if (!HEYGEN_API_KEY) throw new Error("HEYGEN_API_KEY not configured");
+
+  console.log(`[HeyGenLipSyncV3] Uploading ${label} to HeyGen asset storage: ${url.slice(0, 80)}...`);
+
+  // Download the file
+  const dlResp = await fetch(url);
+  if (!dlResp.ok) throw new Error(`Failed to download ${label}: HTTP ${dlResp.status} from ${url}`);
+  const buffer = Buffer.from(await dlResp.arrayBuffer());
+
+  // Upload to HeyGen /v3/assets
+  const form = new FormData();
+  const ext = mimeType === "video/mp4" ? "mp4" : "mp3";
+  form.append("file", buffer, { filename: `asset.${ext}`, contentType: mimeType });
+
+  const uploadResp = await axios.post(
+    `${HEYGEN_API_BASE}/v3/assets`,
+    form,
+    {
+      headers: {
+        "X-Api-Key": HEYGEN_API_KEY,
+        ...form.getHeaders(),
+      },
+      timeout: 120_000, // 2 min for large files
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
+    }
+  );
+
+  const assetId: string = uploadResp.data?.data?.asset_id;
+  if (!assetId) throw new Error(`HeyGen asset upload failed: ${JSON.stringify(uploadResp.data)}`);
+
+  console.log(`[HeyGenLipSyncV3] ${label} uploaded → asset_id: ${assetId}`);
+  return assetId;
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -92,9 +142,15 @@ export async function submitHeyGenLipSyncV3(
     throw new Error("HEYGEN_API_KEY is not configured. Cannot submit HeyGen lip sync job.");
   }
 
+  // Upload video and audio to HeyGen's own asset storage.
+  // HeyGen cannot access external CDN URLs (CloudFront, Manus CDN, etc.) —
+  // all media must be hosted on HeyGen's servers for lip sync to work.
+  const videoAssetId = await uploadAssetToHeyGen(request.videoUrl, "video/mp4", "video");
+  const audioAssetId = await uploadAssetToHeyGen(request.audioUrl, "audio/mpeg", "audio");
+
   const payload: Record<string, unknown> = {
-    video: { type: "url", url: request.videoUrl },
-    audio: { type: "url", url: request.audioUrl },
+    video: { type: "asset_id", asset_id: videoAssetId },
+    audio: { type: "asset_id", asset_id: audioAssetId },
     mode: request.mode ?? "precision",
     title: request.title ?? `WizAI LipSync ${Date.now()}`,
     enable_watermark: false,
