@@ -139,7 +139,10 @@ export async function submitWaveSpeedImageToVideo(
     prompt: request.prompt,
     image: request.image,
     duration: request.duration ?? 5,
-    size: resolutionToSize(request.resolution ?? "720p", request.aspect_ratio ?? "16:9"),
+    // CRITICAL FIX: Seedance i2v uses 'aspect_ratio' NOT 'size' — sending 'size' is silently ignored
+    // and Seedance defaults to 1:1 (960x960 square). Always send aspect_ratio explicitly.
+    aspect_ratio: request.aspect_ratio ?? "16:9",
+    resolution: request.resolution ?? "720p",
     generate_audio: false, // CRITICAL: prevent Seedance from generating AI audio — master track is applied at assembly
   };
   // Add reference_audios for native Seedance 2.0 lip sync (only when provided)

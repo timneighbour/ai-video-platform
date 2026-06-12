@@ -9193,3 +9193,8 @@
 - [x] Update submitHeyGenLipSyncV3 to upload video and audio assets to HeyGen's own storage (/v3/assets) before submitting lip sync jobs
 - [x] Manually re-submit probe scene 990015 (job 1080001) with HeyGen asset upload approach — completed successfully
 - [x] Update DB: job 1080001 status=awaiting_probe_approval, probeVideoUrl set, scene 990015 lipSyncStatus=done
+
+## Critical Pipeline Fixes (2026-06-12)
+- [x] Fix Seedance image-to-video aspect ratio: replace incorrect `size` param with `aspect_ratio: "16:9"` in wavespeed.ts — was causing all scenes to render as 960x960 square
+- [x] Fix HeyGen Precision lip sync: upload video/audio assets to HeyGen storage before submitting job — was causing "couldn't process your video" failures because HeyGen cannot access Manus CDN URLs
+- [ ] Verify probe scene 990015 re-renders in 16:9 with working HeyGen Precision lip sync
