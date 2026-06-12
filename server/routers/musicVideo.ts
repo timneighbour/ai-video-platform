@@ -484,6 +484,15 @@ Rules:
         } catch { /* ignore malformed JSON */ }
       }
 
+      // ── Vocal Onset Time: fetch BEFORE generateStoryboard so it can be passed in ──
+      // detectVocalOnset() uses ffmpeg silencedetect on the isolated vocal stem
+      // to find the EXACT second when singing starts. Any scene whose midpoint
+      // falls before this time will NEVER receive lipSync=true.
+      const vocalOnsetTime = await getVocalOnsetTime(input.jobId);
+      if (vocalOnsetTime !== null) {
+        console.log(`[MusicVideo] Vocal onset gate for job ${input.jobId}: lipSync disabled for scenes before ${vocalOnsetTime.toFixed(2)}s`);
+      }
+
       const { scenes, roster } = await withQuotaGuard(() => generateStoryboard(
         enrichedThemePrompt,
         job.genre,
@@ -554,15 +563,7 @@ Rules:
         console.log(`[MusicVideo] Stem intelligence not yet available for job ${input.jobId} — using transcription fallback for vocal detection`);
       }
 
-      // ── Vocal Onset Time: hard gate for lip sync assignment ──────────────────
-      // detectVocalOnset() uses ffmpeg silencedetect on the isolated vocal stem
-      // to find the EXACT second when singing starts. Any scene whose midpoint
-      // falls before this time will NEVER receive lipSync=true, regardless of
-      // what Whisper transcription says (Whisper hallucinates lyrics over instruments).
-      const vocalOnsetTime = await getVocalOnsetTime(input.jobId);
-      if (vocalOnsetTime !== null) {
-        console.log(`[MusicVideo] Vocal onset gate for job ${input.jobId}: lipSync disabled for scenes before ${vocalOnsetTime.toFixed(2)}s`);
-      }
+      // vocalOnsetTime already fetched above before generateStoryboard
 
        // Delete existing scenes if regenerating
       await db.delete(musicVideoScenes).where(eq(musicVideoScenes.jobId, input.jobId));
