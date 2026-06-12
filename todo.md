@@ -9130,3 +9130,11 @@
 - [x] Wire FloatingMiniPlayer into MusicVideoAutopilot screening room step (step === "render")
 - [x] Ensure FloatingMiniPlayer shares the same audio element ref as the inline WizAudioPlayer (no duplicate audio)
 - [x] Fix intermittent voice transcription failures — add exponential-backoff retry to audio download (3×, 1.5s/3s) and Whisper API call (3×, 3s/6s) for 429/503/502/412 transient errors
+
+## Storyboard Save Auto-Clear + Probe Render
+- [ ] Auto-clear all scene render outputs when storyboard is saved with changes (add clearRenderOutputs call inside saveStoryboard/updateScene backend flow)
+- [ ] Show confirmation dialog before auto-clearing if renders already exist ("You have existing renders — saving will clear them. Continue?")
+- [ ] Add probe render UI in Screening Room — scene picker to select a single scene to test-render
+- [ ] Add launchProbeRender tRPC procedure — renders only the selected scene with full lip sync and compositing pipeline
+- [ ] Show probe result in Screening Room with "Looks good — start full render" CTA
+- [x] Auto-clear stale render outputs before new render — handleStartRenderInternal now calls resetRender if any scene has a videoUrl before calling startRender

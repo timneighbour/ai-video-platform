@@ -2569,6 +2569,28 @@ export default function MusicVideoAutopilot() {
     } catch { /* silent */ }
 
     try {
+      // ── Auto-clear stale render outputs ──────────────────────────────────────
+      // If any scene already has a videoUrl from a previous render, silently reset
+      // all render outputs before starting the new render. This ensures the
+      // Screening Room always shows fresh results after a storyboard edit.
+      const hasStaleRenderOutputs = scenes.some((s) => s.videoUrl) ||
+        perSceneStatuses.some((s) => s.videoUrl || s.lipSyncVideoUrl || s.compositeVideoUrl);
+      if (hasStaleRenderOutputs) {
+        console.log("[MusicVideo] Stale render outputs detected — auto-clearing before new render");
+        try {
+          await resetRenderMutation.mutateAsync({ jobId });
+          // Clear local state immediately so the UI doesn't flash old data
+          setPerSceneStatuses([]);
+          setScenes((prev) => prev.map((s) => ({ ...s, videoUrl: null, status: "pending" as const, isApproved: false })));
+          setCompletedScenes(0);
+          setFailedScenes(0);
+          console.log("[MusicVideo] Stale render outputs cleared successfully");
+        } catch (resetErr: any) {
+          console.warn("[MusicVideo] Auto-clear failed (non-fatal):", resetErr?.message);
+          // Non-fatal — proceed with render anyway; startRender will handle it
+        }
+      }
+      // ─────────────────────────────────────────────────────────────────────────
       const result = await startRender.mutateAsync({ jobId: jobId, aspectRatio: exportFormat, includeCaptions });
       mp.buildStarted("WizVideo");
       setRenderStatus("rendering"); // Set BEFORE setStep so the auto-resume useEffect sees renderStatus="rendering" and skips the double-fire
