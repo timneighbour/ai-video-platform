@@ -9155,3 +9155,17 @@
 - [ ] Admin job detail page: edit scene prompt, toggle lipSync, change sceneType, trigger re-render of individual scene from admin side
 - [ ] Admin scene re-render: calls existing startRender/resetScene procedures but scoped to a single scene, pushes result back to user's Screening Room
 - [ ] Admin panel: show provider spend, error codes, retry count per scene for diagnostics
+
+## Pipeline Fixes & Quality Lock (Jun 2026)
+- [x] Fix renderer: change fal_seedance to atlas_cloud as default in sceneDispatchHeartbeat
+- [x] Fix job 1080001: copy vocalsUrl → stemVocalsUrl, clear fallbackProvider, reset status to rendering
+- [x] Fix scene 930003: reset to pending with previewImageUrl confirmed
+- [x] Verify HeyGen v3 /lipsyncs endpoint wiring (confirmed correct, 761 credits available)
+- [x] Build WIZ Quality Lock service (server/wiz-quality-lock.ts): Gate 1 pre-flight + Gate 2 post-render AI vision validation
+- [x] Wire Quality Lock Gate 2 into sceneDispatchHeartbeat after video URL confirmed
+- [x] Remove all provider/API names from user-facing pages (Seedance, HeyGen, WaveSpeed, SyncLabs, Hedra, MuseTalk, InfiniteTalk)
+- [x] Add WIZ-XXXXXX job reference with copy-to-clipboard to storyboard header
+- [x] Add S-XXXXXX scene reference with copy-to-clipboard to each scene card
+- [x] Add admin job management procedures to pipelineOps router (adminListJobs, adminGetJobDetail, adminResetScene, adminResetJob)
+- [x] Build /admin/jobs page: searchable job list + per-scene detail with provider spend, error codes, reset controls
+- [x] Add Job Management link to AdminPanel

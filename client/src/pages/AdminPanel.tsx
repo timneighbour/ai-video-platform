@@ -247,6 +247,9 @@ export default function AdminPanel() {
             <Link href="/admin/pipeline">
               <Button size="sm" className="bg-blue-900/60 hover:bg-blue-800/70 text-blue-200 border border-blue-700/50">🔬 Pipeline Ops</Button>
             </Link>
+            <Link href="/admin/jobs">
+              <Button size="sm" className="bg-violet-900/60 hover:bg-violet-800/70 text-violet-200 border border-violet-700/50">🎬 Job Management</Button>
+            </Link>
             <Link href="/admin/launch">
               <Button size="sm" className="bg-emerald-900/60 hover:bg-emerald-800/70 text-emerald-200 border border-emerald-700/50">🚀 Launch Readiness</Button>
             </Link>

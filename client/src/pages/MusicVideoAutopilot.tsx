@@ -606,8 +606,17 @@ function ScenePreviewGrid({
                           Cinematic
                         </span>
                       )}
-                      {/* Time marker */}
+                      {/* Time marker + Scene ref */}
                       <span className="ml-auto text-[9px] font-mono text-white/25">{timeLabel}</span>
+                      {scene.id && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); navigator.clipboard.writeText(`S-${String(scene.id).padStart(6, '0')}`); }}
+                          title="Copy scene reference"
+                          className="inline-flex items-center px-1 py-0.5 rounded bg-transparent border border-white/10 text-white/20 text-[8px] font-mono hover:text-white/50 hover:border-white/25 transition-colors cursor-pointer"
+                        >
+                          S-{String(scene.id).padStart(6, '0')}
+                        </button>
+                      )}
                     </div>
                   )}
 
@@ -4577,7 +4586,19 @@ export default function MusicVideoAutopilot() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-bold text-white">Your Storyboard</h2>
-                <p className="text-white/50 text-sm mt-1">{scenes.length} scenes · Review and edit any scene before building</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <p className="text-white/50 text-sm">{scenes.length} scenes · Review and edit any scene before building</p>
+                  {jobId && (
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(`WIZ-${String(jobId).padStart(6, '0')}`); toast.success('Reference copied', { description: `WIZ-${String(jobId).padStart(6, '0')} copied to clipboard` }); }}
+                      title="Copy project reference"
+                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[rgba(184,137,42,0.12)] border border-[rgba(184,137,42,0.25)] text-[--color-gold]/60 text-[9px] font-mono hover:text-[--color-gold] hover:border-[rgba(184,137,42,0.5)] transition-colors cursor-pointer"
+                    >
+                      WIZ-{String(jobId).padStart(6, '0')}
+                      <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-3">
                 {/* Credit balance badge */}

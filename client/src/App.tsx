@@ -111,6 +111,7 @@ const ProviderDashboard = lazy(() => import("@/pages/ProviderDashboard"));
 const AnalyticsDashboard = lazy(() => import("@/pages/AnalyticsDashboard"));
 const WizadoraAdmin = lazy(() => import("@/pages/admin/WizadoraAdmin"));
 const PipelineOpsDashboard = lazy(() => import("@/pages/admin/PipelineOpsDashboard"));
+const AdminJobsPanel = lazy(() => import("@/pages/admin/AdminJobsPanel"));
 const LaunchReadinessDashboard = lazy(() => import("@/pages/LaunchReadinessDashboard"));
 const GoldenBenchmarkLibrary = lazy(() => import("@/pages/GoldenBenchmarkLibrary"));
 const MyProjects = lazy(() => import("@/pages/MyProjects"));
@@ -338,6 +339,7 @@ function Router() {
         <Route path={"/admin/benchmarks"} component={GoldenBenchmarkLibrary} />
         <Route path={"/admin/email"} component={AdminEmail} />
         <Route path={"/admin/providers"} component={ProviderDashboard} />
+        <Route path={"/admin/jobs"} component={AdminJobsPanel} />
         <Route path={"/render/success"} component={RenderSuccess} />
         <Route path={"/discover"} component={Discover} />
         <Route path={"/creators"} component={Discover} />

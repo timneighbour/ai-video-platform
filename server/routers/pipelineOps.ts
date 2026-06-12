@@ -9,10 +9,10 @@
  */
 
 import { z } from "zod";
-import { desc, eq, and, gte, sql } from "drizzle-orm";
+import { desc, eq, and, gte, sql, like, or } from "drizzle-orm";
 import { router, adminProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { validationRuns, renderAttempts, musicVideoJobs, musicVideoScenes } from "../../drizzle/schema";
+import { validationRuns, renderAttempts, musicVideoJobs, musicVideoScenes, users } from "../../drizzle/schema";
 import { musicVideoVocalStems } from "../../drizzle/schema";
 
 export const pipelineOpsRouter = router({
@@ -290,6 +290,191 @@ export const pipelineOpsRouter = router({
       }));
 
       return { jobs: result };
+    }),
+
+  /**
+   * Admin: list all music video jobs across all users (paginated, searchable).
+   */
+  adminListJobs: adminProcedure
+    .input(z.object({
+      limit: z.number().min(1).max(100).default(50),
+      offset: z.number().min(0).default(0),
+      search: z.string().optional(),
+      statusFilter: z.string().optional(), // e.g. 'rendering', 'completed', 'failed'
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return { jobs: [], total: 0 };
+
+      const whereConditions = [];
+      if (input.statusFilter && input.statusFilter !== 'all') {
+        whereConditions.push(eq(musicVideoJobs.status, input.statusFilter as any));
+      }
+      if (input.search) {
+        whereConditions.push(
+          or(
+            like(musicVideoJobs.title, `%${input.search}%`),
+            like(users.name, `%${input.search}%`),
+            like(users.email, `%${input.search}%`),
+          )
+        );
+      }
+      const whereClause = whereConditions.length > 0 ? and(...whereConditions) : undefined;
+
+      const [jobs, countResult] = await Promise.all([
+        db.select({
+          id: musicVideoJobs.id,
+          title: musicVideoJobs.title,
+          status: musicVideoJobs.status,
+          totalScenes: musicVideoJobs.totalScenes,
+          completedScenes: musicVideoJobs.completedScenes,
+          creditCost: musicVideoJobs.creditCost,
+          audioDuration: musicVideoJobs.audioDuration,
+          aspectRatio: musicVideoJobs.aspectRatio,
+          genre: musicVideoJobs.genre,
+          fallbackProvider: musicVideoJobs.fallbackProvider,
+          vocalsStatus: musicVideoJobs.vocalsStatus,
+          finalVideoUrl: musicVideoJobs.finalVideoUrl,
+          thumbnailUrl: musicVideoJobs.thumbnailUrl,
+          createdAt: musicVideoJobs.createdAt,
+          updatedAt: musicVideoJobs.updatedAt,
+          userId: musicVideoJobs.userId,
+          userName: users.name,
+          userEmail: users.email,
+        })
+          .from(musicVideoJobs)
+          .leftJoin(users, eq(musicVideoJobs.userId, users.id))
+          .where(whereClause)
+          .orderBy(desc(musicVideoJobs.createdAt))
+          .limit(input.limit)
+          .offset(input.offset),
+        db.select({ count: sql<number>`COUNT(*)` })
+          .from(musicVideoJobs)
+          .leftJoin(users, eq(musicVideoJobs.userId, users.id))
+          .where(whereClause),
+      ]);
+
+      return {
+        jobs,
+        total: Number(countResult[0]?.count ?? 0),
+      };
+    }),
+
+  /**
+   * Admin: get full detail for a single job including all scenes.
+   */
+  adminGetJobDetail: adminProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB unavailable");
+
+      const [job] = await db.select({
+        id: musicVideoJobs.id,
+        title: musicVideoJobs.title,
+        status: musicVideoJobs.status,
+        totalScenes: musicVideoJobs.totalScenes,
+        completedScenes: musicVideoJobs.completedScenes,
+        creditCost: musicVideoJobs.creditCost,
+        audioDuration: musicVideoJobs.audioDuration,
+        aspectRatio: musicVideoJobs.aspectRatio,
+        genre: musicVideoJobs.genre,
+        mood: musicVideoJobs.mood,
+        themePrompt: musicVideoJobs.themePrompt,
+        fallbackProvider: musicVideoJobs.fallbackProvider,
+        vocalsStatus: musicVideoJobs.vocalsStatus,
+        stemVocalsUrl: musicVideoJobs.stemVocalsUrl,
+        audioUrl: musicVideoJobs.audioUrl,
+        finalVideoUrl: musicVideoJobs.finalVideoUrl,
+        thumbnailUrl: musicVideoJobs.thumbnailUrl,
+        probePassed: musicVideoJobs.probePassed,
+        createdAt: musicVideoJobs.createdAt,
+        updatedAt: musicVideoJobs.updatedAt,
+        userId: musicVideoJobs.userId,
+        userName: users.name,
+        userEmail: users.email,
+      })
+        .from(musicVideoJobs)
+        .leftJoin(users, eq(musicVideoJobs.userId, users.id))
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      if (!job) throw new Error("Job not found");
+
+      const scenes = await db.select({
+        id: musicVideoScenes.id,
+        sceneIndex: musicVideoScenes.sceneIndex,
+        status: musicVideoScenes.status,
+        sceneType: musicVideoScenes.sceneType,
+        lipSync: musicVideoScenes.lipSync,
+        lipSyncStatus: musicVideoScenes.lipSyncStatus,
+        lipSyncTaskId: musicVideoScenes.lipSyncTaskId,
+        lipSyncVideoUrl: musicVideoScenes.lipSyncVideoUrl,
+        compositeStatus: musicVideoScenes.compositeStatus,
+        compositeVideoUrl: musicVideoScenes.compositeVideoUrl,
+        compositeAttempts: musicVideoScenes.compositeAttempts,
+        videoUrl: musicVideoScenes.videoUrl,
+        previewImageUrl: musicVideoScenes.previewImageUrl,
+        prompt: musicVideoScenes.prompt,
+        lyrics: musicVideoScenes.lyrics,
+        startTime: musicVideoScenes.startTime,
+        duration: musicVideoScenes.duration,
+        renderProvider: musicVideoScenes.renderProvider,
+        lipSyncProvider: musicVideoScenes.lipSyncProvider,
+        renderDurationMs: musicVideoScenes.renderDurationMs,
+        lipSyncDurationMs: musicVideoScenes.lipSyncDurationMs,
+        overallSceneScore: musicVideoScenes.overallSceneScore,
+        errorMessage: musicVideoScenes.errorMessage,
+        retryCount: musicVideoScenes.retryCount,
+        updatedAt: musicVideoScenes.updatedAt,
+      })
+        .from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, input.jobId))
+        .orderBy(musicVideoScenes.sceneIndex);
+
+      return { job, scenes };
+    }),
+
+  /**
+   * Admin: reset a scene to pending so it re-renders.
+   */
+  adminResetScene: adminProcedure
+    .input(z.object({ sceneId: z.number().int() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB unavailable");
+      await db.update(musicVideoScenes)
+        .set({
+          status: "pending",
+          videoUrl: null,
+          lipSyncStatus: "pending",
+          lipSyncVideoUrl: null,
+          lipSyncTaskId: null,
+          compositeStatus: "pending",
+          compositeVideoUrl: null,
+          errorMessage: null,
+          retryCount: 0,
+        } as any)
+        .where(eq(musicVideoScenes.id, input.sceneId));
+      return { success: true, sceneId: input.sceneId };
+    }),
+
+  /**
+   * Admin: reset a job status to allow re-rendering.
+   */
+  adminResetJob: adminProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      clearFallbackProvider: z.boolean().default(false),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB unavailable");
+      const updates: Record<string, any> = { status: "rendering" };
+      if (input.clearFallbackProvider) updates.fallbackProvider = null;
+      await db.update(musicVideoJobs)
+        .set(updates)
+        .where(eq(musicVideoJobs.id, input.jobId));
+      return { success: true, jobId: input.jobId };
     }),
 
   triggerGoldenValidation: adminProcedure
