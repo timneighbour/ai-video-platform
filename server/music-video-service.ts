@@ -1275,7 +1275,7 @@ async function startSceneRenderHypereal(sceneId: number, prompt: string, duratio
   } catch (err: any) {
     const errMsg = String(err?.message ?? err);
     console.warn(`[MusicVideo] Scene ${sceneId} Hypereal first attempt failed (${errMsg}). Retrying with simplified prompt.`);
-    const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + ". Cinematic 16:9 video clip.";
+    const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + `. Cinematic ${aspectRatio} video clip.`;
     try {
       hyperealJobId = await trySubmit(fallbackPrompt);
     } catch (retryErr: any) {
@@ -1403,7 +1403,7 @@ async function startSceneRenderFalSeedance(
     // If the first attempt fails (content policy / prompt too long), retry with a shorter fallback
     const errMsg = String(err?.message ?? err);
     console.warn(`[MusicVideo] Scene ${sceneId} fal.ai first attempt failed (${errMsg}). Retrying with simplified prompt.`);
-    const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + ". Cinematic 16:9 video clip.";
+    const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + `. Cinematic ${aspectRatio} video clip.`;
     try {
       requestId = await trySubmit(fallbackPrompt);
     } catch (retryErr: any) {
@@ -2555,7 +2555,7 @@ async function startSceneRenderWaveSpeed(
   } catch (err: any) {
     const errMsg = String(err?.message ?? err);
     console.warn(`[MusicVideo] Scene ${sceneId} WaveSpeed ${model} first attempt failed (${errMsg}). Retrying with simplified prompt.`);
-    const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + ". Cinematic 16:9 video clip.";
+    const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + `. Cinematic ${aspectRatio} video clip.`;
     try {
       taskId = await trySubmit(fallbackPrompt);
     } catch (retryErr: any) {

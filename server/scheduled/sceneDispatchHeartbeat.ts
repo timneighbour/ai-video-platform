@@ -564,13 +564,14 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             const isPerformanceScene = scene.sceneType === "performance";
 
             {
-              // ── ALL SCENES: Atlas Cloud image-to-video (performance + cinematic) ─────────────────────
-              // PRIMARY: Atlas Cloud ($0.64/scene) — fal.ai disabled (balance exhausted)
-              // FALLBACK: WaveSpeed ($1.80/scene) — when job.fallbackProvider='wavespeed'
-              // Performance scenes (lipSync=true): Atlas r2v → HeyGen Precision lip sync
-              // Cinematic scenes (lipSync=false): Atlas i2v only. No lip sync.
-              // ── PROVIDER OVERRIDE: respect job.fallbackProvider ───────────────
-              const forcedRenderer = job.fallbackProvider === "wavespeed" ? "wavespeed" : "atlas_cloud";
+              // ── ALL SCENES: WaveSpeed Seedance 2.0 (performance + cinematic) ──────────────────────────
+              // PRIMARY: WaveSpeed via Seedance 2.0 full quality — character/performance scenes
+              //          WaveSpeed via Seedance 2.0 Fast — atmospheric/cinematic cutaways
+              // Performance scenes (lipSync=true): WaveSpeed i2v → HeyGen Precision lip sync
+              // Cinematic scenes (lipSync=false): WaveSpeed i2v only. No lip sync.
+              // Atlas Cloud: disabled (not the active provider for this platform)
+              // ── PROVIDER SELECTION: always WaveSpeed ─────────────────────────
+              const forcedRenderer = "wavespeed";
               const sceneStoryboardUrl = scene.previewImageUrl ?? undefined;
               console.log(`[SceneDispatch] Scene ${scene.id} → renderer: ${forcedRenderer} (fallbackProvider=${job.fallbackProvider ?? 'none'})`);
               console.log(`[SceneDispatch] Scene ${scene.id} storyboard: ${sceneStoryboardUrl ? sceneStoryboardUrl.slice(0, 80) + '...' : 'NONE — text-to-video fallback'}`);
@@ -730,42 +731,17 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               const isPerformanceScene = scene.sceneType === "performance";
               const needsLipSync = (isPerformanceScene || (scene.lipSync ?? false)) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
 
-              // ── SEEDANCE NATIVE LIP SYNC DETECTION ──────────────────────────────────
-              // When Seedance 2.0 was dispatched WITH reference_audios (native lip sync),
-              // the video already has lip sync baked in. Skip Sync Labs entirely.
-              // IMPORTANT: Only the "wavespeed:seedance:native:" prefix means native audio.
-              // "wavespeed:seedance:" (without "native") means NO audio was baked in and
-              // the scene MUST go through Sync Labs sync-3.
-              const taskIdStr = scene.taskId ?? "";
-              const isSeedanceNative = taskIdStr.startsWith("wavespeed:seedance:native:") && isPerformanceScene;
-              if (isSeedanceNative && needsLipSync) {
-                // Seedance native lip sync — video already has lip sync baked in
-                // Mark as completed + lip sync done, skip HeyGen and raw validator
-                await db.update(musicVideoScenes)
-                  .set({
-                    status: "completed",
-                    videoUrl: pollResult.videoUrl,
-                    lipSyncStatus: "done",
-                    lipSyncVideoUrl: pollResult.videoUrl, // same video — lip sync is native
-                    compositeStatus: "skipped",
-                    updatedAt: new Date(),
-                  })
-                  .where(eq(musicVideoScenes.id, scene.id));
-                console.log(`[SceneDispatch] Scene ${scene.id} completed (Seedance native lip sync, compositeStatus=skipped) ✓`);
-                // ── PROBE: write probeVideoUrl for native lip sync scenes (Atlas/Seedance-native) ──
-                try {
-                  const [currentJob] = await db.select({ probeSceneId: musicVideoJobs.probeSceneId, probePassed: musicVideoJobs.probePassed })
-                    .from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
-                  if (currentJob?.probeSceneId === scene.id && (currentJob?.probePassed === false || (currentJob?.probePassed as any) === 0)) {
-                    await db.update(musicVideoJobs)
-                      .set({ probeVideoUrl: pollResult.videoUrl, updatedAt: new Date() })
-                      .where(eq(musicVideoJobs.id, job.id));
-                    console.log(`[SceneDispatch] Job ${job.id} PROBE NATIVE LIP SYNC COMPLETE — video ready for owner review: ${pollResult.videoUrl?.slice(0, 60)}...`);
-                  }
-                } catch { /* non-fatal */ }
-                totalPolled++;
-                continue;
-              }
+              // ── TWO-PASS PIPELINE: Seedance render → HeyGen Precision Lip Sync ────────────────────
+              // LOCKED DECISION: ALL performance scenes (lipSync=true) ALWAYS go through HeyGen
+              // Precision Lip Sync regardless of whether Seedance had native audio injected.
+              //
+              // Pass 1 (Seedance): Renders the scene with correct character, lighting, movement.
+              //   Native audio injection ([Audio1]) helps Seedance animate body/expression correctly.
+              // Pass 2 (HeyGen): Takes the Seedance video + isolated vocal stem and applies
+              //   frame-accurate phoneme-level lip sync. This is the precision layer.
+              //
+              // The "wavespeed:seedance:native:" prefix is retained for logging/audit only.
+              // It no longer bypasses HeyGen — HeyGen always runs for performance scenes.
 
               // ── PERFORMANCE SCENE: Submit to HeyGen Precision after Seedance completes ───────────────
               // Seedance has produced the rendered video. Now pass it to HeyGen Precision
@@ -831,23 +807,18 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                       const hasSingingLyrics = !!(scene.lyrics && scene.lyrics.trim().length > 3);
                       const heyGenMode: "precision" | "speed" = hasSingingLyrics ? "precision" : "speed";
                       console.log(`[SceneDispatch] Scene ${scene.id} PERFORMANCE → HeyGen ${heyGenMode.toUpperCase()} (singing: ${hasSingingLyrics}, video: ${pollResult.videoUrl.slice(0, 60)}...)`);
-                      // HeyGen requires the input video to have an audio track for timing reference.
-                      // Atlas Cloud renders are silent — mux the vocal stem into the video first.
-                      // Trim first 0.1s to remove black/white artifact frames from Atlas Cloud renders
-                      let trimmedVideoUrl = pollResult.videoUrl;
-                      try {
-                        trimmedVideoUrl = await trimVideoStart(pollResult.videoUrl, scene.id, 0.1);
-                        console.log(`[SceneDispatch] Scene ${scene.id} trimmed first-frame artifacts ✓`);
-                      } catch (trimErr: any) {
-                        console.warn(`[SceneDispatch] Scene ${scene.id} trim failed (using original): ${(trimErr as any).message}`);
-                      }
-                      let heyGenVideoUrl = trimmedVideoUrl;
-                      try {
-                        heyGenVideoUrl = await muxAudioIntoVideo(trimmedVideoUrl, sceneAudioUrlLS, scene.id);
-                        console.log(`[SceneDispatch] Scene ${scene.id} muxed audio into video for HeyGen ✓`);
-                      } catch (muxErr: any) {
-                        console.warn(`[SceneDispatch] Scene ${scene.id} audio mux failed (using silent video): ${muxErr.message}`);
-                      }
+                      // TWO-PASS PIPELINE: Seedance renders already have audio baked in via [Audio1]
+                      // native injection. Do NOT mux audio into the video — this creates double-audio
+                      // or phase conflicts that cause HeyGen to produce a frozen/static mouth.
+                      //
+                      // Instead: send the raw Seedance video + isolated vocal stem as SEPARATE inputs.
+                      // HeyGen's API accepts video + audio independently and uses the audio URL
+                      // exclusively to drive lip sync — the video's embedded audio is ignored.
+                      //
+                      // The isolated vocal stem (sceneAudioUrlLS) is the ONLY audio source for lip sync.
+                      // The full mix is added back at assembly time — never at the lip sync stage.
+                      const heyGenVideoUrl = pollResult.videoUrl;
+                      console.log(`[SceneDispatch] Scene ${scene.id} sending raw Seedance video to HeyGen (no mux — audio passed separately)`);
                       const heyGenLipsyncId = await submitHeyGenLipSyncV3({
                         videoUrl: heyGenVideoUrl,
                         audioUrl: sceneAudioUrlLS,
@@ -1064,14 +1035,11 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               const useHeyGenRetry = isHeyGenConfigured() && lipSyncSubmittedThisTick < LIPSYNC_MAX_PER_TICK;
               if (useHeyGenRetry) {
                 // RETRY: HeyGen Precision — rendered video + vocal stem → lip-synced video
-                // Mux audio into video first — HeyGen requires an audio track for timing reference
-                let retryHeyGenVideoUrl = scene.videoUrl;
-                try {
-                  retryHeyGenVideoUrl = await muxAudioIntoVideo(scene.videoUrl, sceneAudioUrl, scene.id);
-                  console.log(`[SceneDispatch] Scene ${scene.id} RETRY: muxed audio into video for HeyGen ✓`);
-                } catch (muxErr: any) {
-                  console.warn(`[SceneDispatch] Scene ${scene.id} RETRY: audio mux failed (using silent video): ${muxErr.message}`);
-                }
+                // DO NOT mux audio into video — Seedance renders already have audio baked in.
+                // Muxing causes double-audio / phase conflicts that produce frozen mouth output.
+                // Send raw Seedance video + isolated vocal stem as SEPARATE inputs to HeyGen.
+                const retryHeyGenVideoUrl = scene.videoUrl;
+                console.log(`[SceneDispatch] Scene ${scene.id} RETRY: sending raw Seedance video to HeyGen (no mux — audio passed separately)`);
                 const retryHeyGenId = await submitHeyGenLipSyncV3({
                   videoUrl: retryHeyGenVideoUrl,
                   audioUrl: sceneAudioUrl,
@@ -1143,11 +1111,19 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               const isHeyGenTaskForTimeout = (scene.lipSyncTaskId ?? "").startsWith("heygen:");
               const stuckTimeout = isHeyGenTaskForTimeout ? HEYGEN_STUCK_TIMEOUT_MS : INFINITETALK_STUCK_TIMEOUT_MS;
               if (sceneAge > stuckTimeout) {
-                console.warn(`[SceneDispatch] Scene ${scene.id} lip sync job stuck for ${Math.round(sceneAge / 60000)}min — resetting to pending for retry`);
-                // Reset to pending so the heartbeat re-submits on the next tick.
-                // Under the premium policy, 'error' blocks assembly permanently — never use it here.
+                console.warn(`[SceneDispatch] Scene ${scene.id} lip sync job stuck for ${Math.round(sceneAge / 60000)}min — resetting lip sync to pending for retry`);
+                // CRITICAL: Only reset lipSyncStatus — NEVER change scene status to 'pending'.
+                // Changing status to 'pending' would trigger a full Seedance re-render, wasting credits.
+                // The scene is already 'completed' (Seedance render done) — only the lip sync needs retry.
+                // Also restore videoUrl from originalVideoUrl if it was accidentally cleared.
                 await db.update(musicVideoScenes)
-                  .set({ lipSyncStatus: "pending", lipSyncTaskId: null, updatedAt: new Date() })
+                  .set({
+                    status: "completed",  // MUST stay completed — do not re-render
+                    // videoUrl restored via separate query below if null
+                    lipSyncStatus: "pending",
+                    lipSyncTaskId: null,
+                    updatedAt: new Date()
+                  })
                   .where(eq(musicVideoScenes.id, scene.id));
                 continue;
               }

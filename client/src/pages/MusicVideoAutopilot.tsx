@@ -219,6 +219,8 @@ interface ScenePreviewGridProps {
   regeneratingScenes?: Set<number>;
   approvingScenes?: Set<number>;
   onRegenerateAll?: (newDirection?: string) => Promise<void>;
+  /** User-selected export aspect ratio — controls thumbnail container shape */
+  aspectRatio?: "16:9" | "9:16" | "1:1" | "4:3" | "21:9";
 }
 function ScenePreviewGrid({
   scenes,
@@ -234,6 +236,7 @@ function ScenePreviewGrid({
   regeneratingScenes = new Set(),
   approvingScenes = new Set(),
   onRegenerateAll,
+  aspectRatio = "16:9",
 }: ScenePreviewGridProps) {
   const [playingId, setPlayingId] = React.useState<number | null>(null);
   const [previewModalOpen, setPreviewModalOpen] = React.useState(false);
@@ -516,7 +519,7 @@ function ScenePreviewGrid({
                 {/* ── Left: Video thumbnail ── */}
                 <div
                   className="relative flex-shrink-0 cursor-pointer"
-                  style={{ width: 160, aspectRatio: "16/9" }}
+                  style={{ width: 160, aspectRatio: aspectRatio === "9:16" ? "9/16" : aspectRatio === "1:1" ? "1/1" : aspectRatio === "4:3" ? "4/3" : aspectRatio === "21:9" ? "21/9" : "16/9" }}
                   onClick={() => {
                     if (canPreview) {
                       const idx = scenes.findIndex(s => s.id === scene.id);
@@ -539,7 +542,7 @@ function ScenePreviewGrid({
                       <div className="relative w-full h-full group">
                         <video
                           src={displayVideoUrl!}
-                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                          className="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
                           muted
                           preload="metadata"
                         />
@@ -1035,7 +1038,7 @@ function SceneVideoPlayer({ videoUrl, audioRef, startTime, duration, videoRef, o
         muted  // ← always muted — audio comes from the job track via audioEl
         loop
         playsInline
-        className="w-full h-full object-cover"
+        className="w-full h-full object-contain"
         onCanPlay={() => { if (!isReady) { setIsReady(true); startSync(); } }}
         onSeeked={() => { if (isReady) startSync(); }}
         onEnded={handleLoop}
@@ -5042,7 +5045,7 @@ export default function MusicVideoAutopilot() {
                       <img
                         src={scene.previewImageUrl}
                         alt={`Scene ${scene.sceneIndex + 1} preview`}
-                        className="absolute inset-0 w-full h-full object-cover object-top"
+                        className="absolute inset-0 w-full h-full object-contain"
                       />
                     ) : null}
                     {/* Loading animation while storyboard is being generated */}
@@ -5707,7 +5710,7 @@ export default function MusicVideoAutopilot() {
                       <img
                         src={fullscreenScene.imageUrl}
                         alt={`Scene ${fullscreenScene.sceneIndex + 1} full preview`}
-                        className="absolute inset-0 w-full h-full object-cover object-top"
+                        className="absolute inset-0 w-full h-full object-contain"
                       />
                     )}
                     {/* Viewfinder corners */}
@@ -6923,6 +6926,7 @@ export default function MusicVideoAutopilot() {
 
                         {/* ===== LIVE SCENE PREVIEW GRID ===== */}
                         <ScenePreviewGrid
+                          aspectRatio={exportFormat}
                           scenes={perSceneStatuses}
                           audioUrl={restoredAudioUrl ?? sunoGeneratedAudioUrl ?? null}
                           startTimeMap={new Map(scenes.map((s) => [s.id, s.startTime]))}
