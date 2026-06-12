@@ -2520,13 +2520,44 @@ export default function MusicVideoAutopilot() {
       storyboardStepTimerRef.current = setTimeout(advanceStepRegen, STEP_DELAYS_REGEN[0]);
       toast.loading("Regenerating storyboard...", { id: REGEN_TOAST_ID, description: "Our AI director is crafting your scenes." });
       const storyboard = await generateStoryboardMutation.mutateAsync({ jobId });
-      setScenes(storyboard.scenes.map((s: any) => ({ ...s, id: s.sceneIndex, status: "pending" })));
+      // Use real DB ids (not sceneIndex) so generateScenePreview calls use correct scene IDs
+      const newScenes = storyboard.scenes.map((s: any) => ({ ...s, id: s.id, status: "pending", previewImageUrl: null, previewImageLoading: true }));
+      setScenes(newScenes);
       toast.dismiss(REGEN_TOAST_ID);
       if (storyboardStepTimerRef.current) clearTimeout(storyboardStepTimerRef.current);
       setStoryboardStep(5);
       setStoryboardGenerating(false);
       mp.storyboardRegenerated(storyboard.scenes.length);
       toast.success("Storyboard regenerated!", { description: `${storyboard.scenes.length} scenes ready.` });
+      // Trigger sequential preview image generation for all new scenes
+      if (jobId && newScenes.length > 0) {
+        (async () => {
+          let previousSceneImageUrl: string | undefined = undefined;
+          for (const scene of newScenes) {
+            try {
+              const { imageUrl } = await generateScenePreviewMutation.mutateAsync({
+                sceneId: scene.id,
+                jobId,
+                previousSceneImageUrl,
+              });
+              if (imageUrl) {
+                setScenes(prev => prev.map(s =>
+                  s.id === scene.id ? { ...s, previewImageUrl: imageUrl, previewImageLoading: false } : s
+                ));
+                previousSceneImageUrl = imageUrl;
+              } else {
+                setScenes(prev => prev.map(s =>
+                  s.id === scene.id ? { ...s, previewImageLoading: false } : s
+                ));
+              }
+            } catch {
+              setScenes(prev => prev.map(s =>
+                s.id === scene.id ? { ...s, previewImageLoading: false } : s
+              ));
+            }
+          }
+        })();
+      }
     } catch (err: any) {
       toast.dismiss(REGEN_TOAST_ID);
       setStoryboardGenerating(false);
@@ -4574,7 +4605,9 @@ export default function MusicVideoAutopilot() {
               toast.loading("Generating storyboard...", { id: STORYBOARD_TOAST_ID, description: "Our AI director is crafting your scenes." });
               generateStoryboardMutation.mutateAsync({ jobId: jobId! })
                 .then((storyboard) => {
-                  setScenes(storyboard.scenes.map((s: any) => ({ ...s, id: s.sceneIndex, status: "pending" })));
+                  // Use real DB ids so generateScenePreview calls use correct scene IDs
+                  const initialScenes = storyboard.scenes.map((s: any) => ({ ...s, id: s.id, status: "pending", previewImageUrl: null, previewImageLoading: true }));
+                  setScenes(initialScenes);
                   toast.dismiss(STORYBOARD_TOAST_ID);
                   setStoryboardGenerating(false);
                   setStep("storyboard");
