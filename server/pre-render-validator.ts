@@ -226,12 +226,16 @@ export async function getProbeDecision(jobId: number): Promise<ProbeDecision> {
         .from(musicVideoScenes)
         .where(eq(musicVideoScenes.id, job.probeSceneId));
       if (probeScene && !probeScene.taskId && probeScene.status === "pending") {
-        // Dispatch failed silently — reset probePassed to null so the heartbeat retries
-        console.warn(`[ProbeGate] Probe scene ${job.probeSceneId} has no taskId (dispatch failed) — resetting probePassed to null for retry`);
-        await db.update(musicVideoJobs)
-          .set({ probePassed: null, probeSceneId: null, updatedAt: new Date() })
-          .where(eq(musicVideoJobs.id, jobId));
-        // Fall through to probe_only selection below
+        // Scene is pending with no taskId — this means launchProbeRender queued it
+        // but the heartbeat hasn't dispatched it yet (or a previous attempt failed and was reset).
+        // DO NOT reset probeSceneId — just return probe_only with the existing scene.
+        // This preserves the user's explicit scene selection.
+        console.log(`[ProbeGate] Probe scene ${job.probeSceneId} is pending (no taskId yet) — dispatching now`);
+        return {
+          mode: "probe_only",
+          probeSceneId: job.probeSceneId,
+          validationResult,
+        };
       } else {
         // Scene is genuinely rendering (has taskId) or completed.
         // Check if the probe video is ready and the subscriber has not acted within the timeout.

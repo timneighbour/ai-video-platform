@@ -6203,6 +6203,77 @@ Your task:
       console.log(`[ProbeRender] Scene ${scene.id} queued for probe render — heartbeat will dispatch on next tick`);
       return { success: true, sceneId: scene.id };
     }),
+
+  /**
+   * Generate missing storyboard preview images for all scenes in a job that lack one.
+   * Runs the cinematic image generation pipeline for each scene without a previewImageUrl.
+   */
+  generateMissingStoryboardImages: protectedProcedure
+    .input(z.object({ jobId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const scenes = await db.select().from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, input.jobId));
+
+      // Only scenes missing a storyboard image (or with a non-cinematic image)
+      const scenesNeedingImage = scenes.filter(s => {
+        if (!s.previewImageUrl) return true;
+        if (s.previewImageUrl.includes("-cinematic") || s.previewImageUrl.includes("music-video-storyboard")) return false;
+        return true; // non-storyboard image (e.g. character portrait)
+      });
+
+      if (scenesNeedingImage.length === 0) {
+        return { success: true, generated: 0, message: "All scenes already have storyboard images" };
+      }
+
+      const jobAspectRatio = (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
+      const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
+      const { resolveVenueReferenceUrl } = await import("../music-video-service");
+      const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
+
+      console.log(`[GenerateMissingPreviews] Generating ${scenesNeedingImage.length} missing storyboard images for job ${input.jobId}`);
+
+      let generated = 0;
+      const errors: string[] = [];
+
+      await Promise.allSettled(
+        scenesNeedingImage.map(async (scene) => {
+          try {
+            const { url } = await generateCinematicStoryboardImage({
+              prompt: scene.prompt,
+              aspectRatio: jobAspectRatio,
+              storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${scene.id}-cinematic`,
+              venueReferenceUrl: venueRefUrl ?? undefined,
+            });
+            if (url) {
+              await db!.update(musicVideoScenes)
+                .set({ previewImageUrl: url, updatedAt: new Date() })
+                .where(eq(musicVideoScenes.id, scene.id));
+              generated++;
+              console.log(`[GenerateMissingPreviews] Scene ${scene.id} (index ${scene.sceneIndex}) → ${url.slice(0, 80)}...`);
+            }
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            errors.push(`Scene ${scene.id}: ${msg.slice(0, 80)}`);
+            console.warn(`[GenerateMissingPreviews] Scene ${scene.id} failed:`, msg);
+          }
+        })
+      );
+
+      return {
+        success: errors.length === 0,
+        generated,
+        total: scenesNeedingImage.length,
+        errors,
+        message: `Generated ${generated}/${scenesNeedingImage.length} storyboard images${errors.length > 0 ? ` (${errors.length} failed)` : ""}`,
+      };
+    }),
 });
 /** Translate internal error codes to user-friendly messages. */
 function translateErrorMessage(errorMessage: string): string {

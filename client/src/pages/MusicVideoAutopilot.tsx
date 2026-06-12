@@ -1580,6 +1580,13 @@ export default function MusicVideoAutopilot() {
   const resumeRenderMutation = trpc.musicVideo.resumeRender.useMutation();
   const cancelRenderMutation = trpc.musicVideo.cancelRender.useMutation();
   const trpcUtils = trpc.useUtils();
+  const generateMissingPreviewsMutation = trpc.musicVideo.generateMissingStoryboardImages.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Preview images generated`, { description: data.message });
+      trpcUtils.musicVideo.getJob.invalidate();
+    },
+    onError: (e) => toast.error(`Failed to generate previews: ${e.message}`),
+  });
   const resetRenderMutation = trpc.musicVideo.resetRender.useMutation();
   const resetSceneMutation = trpc.musicVideo.resetScene.useMutation();
   const deleteSceneMutation = trpc.musicVideo.deleteScene.useMutation();
@@ -4794,6 +4801,24 @@ export default function MusicVideoAutopilot() {
                   <BookmarkCheck className="w-4 h-4 mr-2" />
                   Save &amp; Return Later
                 </Button>
+                {/* Regenerate missing preview images — only shown when some scenes lack storyboard images */}
+                {jobId && scenes.some(sc => !sc.previewImageUrl) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-teal-500/40 text-teal-400 hover:bg-teal-500/10 bg-transparent text-xs"
+                    onClick={() => jobId && generateMissingPreviewsMutation.mutate({ jobId })}
+                    disabled={generateMissingPreviewsMutation.isPending}
+                    title={`Generate storyboard images for ${scenes.filter(sc => !sc.previewImageUrl).length} scene(s) missing previews`}
+                  >
+                    {generateMissingPreviewsMutation.isPending ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <ImageIcon className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    Fix Previews ({scenes.filter(sc => !sc.previewImageUrl).length})
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   className="border-[rgba(184,137,42,0.12)] text-white/70 hover:bg-[rgba(24,20,16,0.9)] bg-transparent"
