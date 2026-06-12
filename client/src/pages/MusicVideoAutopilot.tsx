@@ -102,6 +102,7 @@ import {
   Users,
   Maximize2,
   RotateCcw,
+  PlayCircle,
 } from "@/lib/icons";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
 import { StarterTemplates } from "@/components/StarterTemplates";
@@ -1552,6 +1553,21 @@ export default function MusicVideoAutopilot() {
     setHedraStatus("processing");
   }
 
+  // Probe scene picker state
+  const [showProbeScenePicker, setShowProbeScenePicker] = useState(false);
+  const [selectedProbeSceneIdx, setSelectedProbeSceneIdx] = useState<number>(0);
+  const [showClearRendersConfirm, setShowClearRendersConfirm] = useState(false);
+  const [pendingEditSceneId, setPendingEditSceneId] = useState<number | null>(null);
+
+  const launchProbeRenderMutation = trpc.musicVideo.launchProbeRender.useMutation({
+    onSuccess: () => {
+      setProbeState("rendering");
+      setShowProbeScenePicker(false);
+      toast.success("Test render started", { description: "One scene is rendering so you can check quality before the full render." });
+    },
+    onError: (e) => toast.error(`Test render failed: ${e.message}`),
+  });
+
   const approveProbe = trpc.musicVideo.approveProbe.useMutation({
     onSuccess: () => { setProbeState("approved"); toast.success("Probe approved — full render starting!"); },
     onError: (e) => toast.error(`Failed to approve probe: ${e.message}`),
@@ -2455,6 +2471,17 @@ export default function MusicVideoAutopilot() {
   }, [jobQuery.data]);
 
   const handleSaveEdit = async (sceneId: number) => {
+    // If renders already exist, ask for confirmation before clearing them
+    const hasRenderedScenes = scenes.some((s) => s.videoUrl || s.status === "completed");
+    if (hasRenderedScenes && jobId) {
+      setPendingEditSceneId(sceneId);
+      setShowClearRendersConfirm(true);
+      return;
+    }
+    await _doSaveEdit(sceneId);
+  };
+
+  const _doSaveEdit = async (sceneId: number) => {
     try {
       await updateScene.mutateAsync({ sceneId, prompt: editPrompt });
       // Clear the old preview so a fresh one is generated from the new prompt
@@ -3070,6 +3097,88 @@ export default function MusicVideoAutopilot() {
           }
         }}
       />
+      {/* ===== PROBE SCENE PICKER MODAL ===== */}
+      {showProbeScenePicker && jobId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={() => setShowProbeScenePicker(false)}>
+          <div className="w-full max-w-md mx-4 rounded-2xl border border-[rgba(20,184,166,0.25)] bg-gradient-to-br from-[rgba(10,8,6,0.99)] to-[rgba(18,14,8,0.99)] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-2 mb-1">
+              <PlayCircle className="w-5 h-5 text-[#14b8a6]" />
+              <h3 className="text-lg font-bold text-white">Test Render a Scene</h3>
+            </div>
+            <p className="text-sm text-white/50 mb-5">Pick one scene to render first. Review the result before committing credits to the full render.</p>
+            <div className="space-y-2 mb-5 max-h-64 overflow-y-auto pr-1">
+              {scenes.map((scene, idx) => (
+                <button
+                  key={scene.id}
+                  type="button"
+                  onClick={() => setSelectedProbeSceneIdx(idx)}
+                  className={`w-full text-left px-3 py-2.5 rounded-xl border transition-all duration-150 flex items-start gap-3 ${
+                    selectedProbeSceneIdx === idx
+                      ? "border-[#14b8a6]/60 bg-[rgba(20,184,166,0.12)]"
+                      : "border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.15)]"
+                  }`}
+                >
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-bold ${
+                    selectedProbeSceneIdx === idx ? "bg-[#14b8a6] text-black" : "bg-[rgba(255,255,255,0.08)] text-white/50"
+                  }`}>{idx + 1}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-white/80 mb-0.5">Scene {idx + 1}</p>
+                    <p className="text-xs text-white/40 truncate">{scene.prompt || "No prompt"}</p>
+                    {scene.lyrics && <p className="text-xs text-[#14b8a6]/60 truncate mt-0.5">{scene.lyrics}</p>}
+                  </div>
+                  {selectedProbeSceneIdx === idx && <Check className="w-4 h-4 text-[#14b8a6] flex-shrink-0 mt-1" />}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <Button
+                className="flex-1 bg-[#14b8a6] hover:bg-[#0d9488] text-black font-bold"
+                disabled={launchProbeRenderMutation.isPending}
+                onClick={() => {
+                  const scene = scenes[selectedProbeSceneIdx];
+                  if (!scene || !jobId) return;
+                  launchProbeRenderMutation.mutate({ jobId, sceneId: scene.id });
+                }}
+              >
+                {launchProbeRenderMutation.isPending
+                  ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Starting…</>
+                  : <><PlayCircle className="w-4 h-4 mr-2" /> Test Render Scene {selectedProbeSceneIdx + 1}</>}
+              </Button>
+              <Button variant="outline" className="border-[rgba(255,255,255,0.12)] text-white/60 bg-transparent" onClick={() => setShowProbeScenePicker(false)}>Cancel</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== CLEAR RENDERS CONFIRMATION DIALOG ===== */}
+      {showClearRendersConfirm && pendingEditSceneId !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={() => setShowClearRendersConfirm(false)}>
+          <div className="w-full max-w-sm mx-4 rounded-2xl border border-amber-500/30 bg-gradient-to-br from-[rgba(20,12,4,0.99)] to-[rgba(30,18,6,0.99)] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-2 mb-2">
+              <AlertCircle className="w-5 h-5 text-amber-400" />
+              <h3 className="text-base font-bold text-white">Clear Existing Renders?</h3>
+            </div>
+            <p className="text-sm text-white/60 mb-5">Saving this edit will clear the rendered video for this scene. You'll need to re-render it. Your other scenes are unaffected.</p>
+            <div className="flex gap-2">
+              <Button
+                className="flex-1 bg-amber-500 hover:bg-amber-400 text-black font-bold"
+                disabled={updateScene.isPending}
+                onClick={async () => {
+                  setShowClearRendersConfirm(false);
+                  if (pendingEditSceneId !== null) {
+                    await _doSaveEdit(pendingEditSceneId);
+                    setPendingEditSceneId(null);
+                  }
+                }}
+              >
+                {updateScene.isPending ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving…</> : "Save & Clear Render"}
+              </Button>
+              <Button variant="outline" className="border-[rgba(255,255,255,0.12)] text-white/60 bg-transparent" onClick={() => { setShowClearRendersConfirm(false); setPendingEditSceneId(null); }}>Cancel</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Lyrics Intelligence Panel — shown when user clicks Lyrics Intelligence button */}
       {showLyricsIntelligence && transcriptionText && (
         <LyricsIntelligencePanel
@@ -5689,6 +5798,16 @@ export default function MusicVideoAutopilot() {
                       <span style={{fontSize:11,fontWeight:700,color:'rgba(212,168,67,0.9)',fontFamily:'monospace'}}>{exportFormat}</span>
                     </div>
                   </div>
+                  {/* TEST RENDER (probe) — renders one scene first */}
+                  {jobId && scenes.length > 0 && probeState === "not_started" && (
+                    <button
+                      type="button"
+                      onClick={() => { setSelectedProbeSceneIdx(0); setShowProbeScenePicker(true); }}
+                      style={{background:'rgba(20,184,166,0.12)',border:'1px solid rgba(20,184,166,0.35)',color:'#14b8a6',padding:'12px 16px',fontSize:11,fontWeight:700,letterSpacing:1.5,borderRadius:3,cursor:'pointer',display:'flex',alignItems:'center',gap:8,transition:'all 0.2s',whiteSpace:'nowrap',flexShrink:0}}
+                    >
+                      <PlayCircle style={{width:13,height:13}} /> TEST RENDER
+                    </button>
+                  )}
                   {/* PROCEED TO RENDER gold CTA — disabled until all scenes approved */}
                   <button
                     type="button"
