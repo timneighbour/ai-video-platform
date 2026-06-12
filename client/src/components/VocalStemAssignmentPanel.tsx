@@ -161,7 +161,7 @@ export function VocalStemAssignmentPanel({
           <p className="text-xs text-white/40 mt-0.5">
             {multiVocal
               ? `${stems.length} vocal tracks detected — assign each to a character for perfect per-performer lip sync`
-              : "Lead vocals isolated from the full mix — only this track is fed to SyncLabs for lip sync"}
+              : "Lead vocals isolated from the full mix — only this track is used for lip sync"}
           </p>
         </div>
       </div>
@@ -293,7 +293,7 @@ export function VocalStemAssignmentPanel({
         <Music className="w-3.5 h-3.5 text-white/30 flex-shrink-0 mt-0.5" />
         <p className="text-[11px] text-white/30 leading-relaxed">
           The original full mix is always used as the final audio track. Isolated vocals are only
-          fed to SyncLabs for lip sync accuracy — your listeners hear the complete song.
+          used for lip sync accuracy — your listeners hear the complete song.
         </p>
       </div>
     </div>

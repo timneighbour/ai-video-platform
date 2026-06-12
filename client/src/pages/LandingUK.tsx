@@ -25,7 +25,7 @@ const BRAND = {
 const FEATURES = [
   { icon: "", title: "Director-level control", desc: "Set the scene, direct every shot, control lip sync and character consistency — scene by scene." },
     { icon: "", title: "Preview before you pay", desc: "Watch your full video, re-direct any scene for free, then confirm download when you're happy." },
-    { icon: "", title: "Phoneme-accurate lip sync", desc: "Character sings directly to camera, mouth synced to every word — powered by Seedance 2.0." },
+    { icon: "", title: "Phoneme-accurate lip sync", desc: "Character sings directly to camera, mouth synced to every word — frame-perfect accuracy." },
   { icon: "", title: "Under 5 minutes", desc: "From idea to finished video faster than making a cup of tea." },
 ];
 

@@ -78,6 +78,7 @@ import { selectReferenceForScene, runStage2EnvironmentPrep } from "../character-
 // compositeCinematicScene removed — compositing is no longer part of the pipeline (2026-05-28)
 // The character is now generated INSIDE the scene by Seedance, not composited on top.
 import { validateRawSceneForLipSync } from "../raw-scene-validator";
+import { runPostRenderCheck, formatQualityLockRejection } from "../wiz-quality-lock";
 import { triggerCloudVocalIsolation } from "../cloud-vocal-isolation";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
@@ -563,25 +564,30 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             const isPerformanceScene = scene.sceneType === "performance";
 
             {
-              // ── ALL SCENES: Seedance image-to-video (performance + cinematic) ───────────────────────
-              // Performance scenes will have HeyGen Precision applied after Seedance completes.
-              // Pass lipSync=false so startSceneRender uses image-to-video strategy.
+              // ── ALL SCENES: Atlas Cloud image-to-video (performance + cinematic) ─────────────────────
+              // PRIMARY: Atlas Cloud ($0.64/scene) — fal.ai disabled (balance exhausted)
+              // FALLBACK: WaveSpeed ($1.80/scene) — when job.fallbackProvider='wavespeed'
+              // Performance scenes (lipSync=true): Atlas r2v → HeyGen Precision lip sync
+              // Cinematic scenes (lipSync=false): Atlas i2v only. No lip sync.
               // ── PROVIDER OVERRIDE: respect job.fallbackProvider ───────────────
-              const forcedRenderer = job.fallbackProvider === "wavespeed" ? "wavespeed" : "fal_seedance";
-              console.log(`[SceneDispatch] Scene ${scene.id} CINEMATIC → Seedance renderer: ${forcedRenderer}`);
+              const forcedRenderer = job.fallbackProvider === "wavespeed" ? "wavespeed" : "atlas_cloud";
+              const sceneStoryboardUrl = scene.previewImageUrl ?? undefined;
+              console.log(`[SceneDispatch] Scene ${scene.id} → renderer: ${forcedRenderer} (fallbackProvider=${job.fallbackProvider ?? 'none'})`);
+              console.log(`[SceneDispatch] Scene ${scene.id} storyboard: ${sceneStoryboardUrl ? sceneStoryboardUrl.slice(0, 80) + '...' : 'NONE — text-to-video fallback'}`);
+              console.log(`[SceneDispatch] Scene ${scene.id} character: ${resolvedCharacterUrl ? resolvedCharacterUrl.slice(0, 80) + '...' : 'NONE'}`);
               const taskId = await startSceneRender(
                 scene.id,
                 scenePrompt,
                 scene.duration ?? 5,
-                false,                            // lipSync=false for cinematic scenes (Seedance i2v)
+                scene.lipSync ?? false,           // pass actual lipSync flag (true for performance scenes)
                 scene.lipSyncStyle ?? "natural",
                 forcedRenderer as any,
                 undefined as any,
-                scene.previewImageUrl ?? undefined,
+                sceneStoryboardUrl,               // CHARACTER LOCK™: approved storyboard image as i2v starting frame
                 (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1",
                 job.id,
                 resolvedCharacterUrl,
-                job.audioUrl ?? undefined,        // Full audio (not used for i2v)
+                job.audioUrl ?? undefined,        // Full audio for Atlas r2v lip sync
                 scene.startTime ?? undefined,
                 sceneLyrics
               );
@@ -672,9 +678,43 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
 
             const pollResult = await pollSceneStatus(scene.id, scene.taskId!);
 
-            if (pollResult?.status === "completed" && pollResult.videoUrl) {
-              // Scene clip is ready.
-
+                        if (pollResult?.status === "completed" && pollResult.videoUrl) {
+              // ── WIZ QUALITY LOCK: GATE 2 (POST-RENDER) ──────────────────────────────
+              // Validate the returned video before proceeding to lip sync.
+              // If rejected, reset to pending for a free retry (saves lip sync cost).
+              const isPerformanceSceneForLock = scene.sceneType === "performance";
+              try {
+                const qualityCheck = await runPostRenderCheck({
+                  sceneId: scene.id,
+                  sceneIndex: scene.sceneIndex ?? 0,
+                  videoUrl: pollResult.videoUrl,
+                  isPerformanceScene: isPerformanceSceneForLock,
+                  requiresPopulation: false,
+                  storyboardImageUrl: scene.previewImageUrl,
+                  skipAiVision: !isPerformanceSceneForLock,
+                });
+                if (!qualityCheck.passed) {
+                  const currentRetryCount = (scene as any).retryCount ?? 0;
+                  const MAX_QUALITY_LOCK_RETRIES = 3;
+                  if (currentRetryCount >= MAX_QUALITY_LOCK_RETRIES) {
+                    console.error(`[QualityLock] Scene ${scene.id} ESCALATED after ${currentRetryCount} quality lock rejections — marking failed_retryable`);
+                    await db.update(musicVideoScenes)
+                      .set({ status: "failed_retryable", taskId: null, errorMessage: formatQualityLockRejection(qualityCheck) + ` (after ${currentRetryCount} retries)`, updatedAt: new Date() })
+                      .where(eq(musicVideoScenes.id, scene.id));
+                  } else {
+                    console.warn(`[QualityLock] Scene ${scene.id} RESET to pending (retry ${currentRetryCount + 1}/${MAX_QUALITY_LOCK_RETRIES}): ${qualityCheck.rejectedReason}`);
+                    await db.update(musicVideoScenes)
+                      .set({ status: "pending", taskId: null, videoUrl: null, videoKey: null, retryCount: currentRetryCount + 1, errorMessage: formatQualityLockRejection(qualityCheck), updatedAt: new Date() })
+                      .where(eq(musicVideoScenes.id, scene.id));
+                  }
+                  totalPolled++;
+                  continue;
+                }
+              } catch (qlErr: any) {
+                // Quality Lock error — default to PASS (fail-safe, never block on error)
+                console.warn(`[QualityLock] Scene ${scene.id} Gate 2 error (defaulting to PASS): ${String(qlErr?.message ?? qlErr).slice(0, 120)}`);
+              }
+              // Quality Lock passed — proceed to lip sync
               // ── LIP SYNC PROVIDER: WaveSpeed InfiniteTalk (LOCKED — canonical engine) ──
               // DECISION (2026-05-22): InfiniteTalk is the ONLY approved lip sync engine.
               // It takes a character portrait + isolated vocal stem and generates a
@@ -687,7 +727,6 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               //
               // HARD GUARD: If vocalsStatus='done' (isolated stem exists), the system
               // MUST use the isolated stem. Full-mix fallback is a production failure.
-
               const isPerformanceScene = scene.sceneType === "performance";
               const needsLipSync = (isPerformanceScene || (scene.lipSync ?? false)) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
 

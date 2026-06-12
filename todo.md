@@ -9147,3 +9147,11 @@
 - [ ] Enforce storyboard image as visual anchor for every scene across all providers (no random characters)
 - [ ] Verify InfiniteTalk receives correctly sliced vocal stem (not full mix) at exact scene timestamps
 - [ ] Audit and confirm aspect ratio flows through from user settings → storyboard generation → video generation → assembly
+
+## Support Reference Display & Admin Panel
+- [ ] Add "Project Ref: WIZ-XXXXXX" label to MusicVideoAutopilot header (job title area) with copy-to-clipboard icon and "Copy for support" tooltip
+- [ ] Add scene ref "S-XXXXXX" to each scene card in Storyboard and Screening Room with copy icon
+- [ ] Build admin panel at /admin/jobs (owner-only, protected by role=admin check): list all jobs with search by title/ref, click into job to see all scenes
+- [ ] Admin job detail page: edit scene prompt, toggle lipSync, change sceneType, trigger re-render of individual scene from admin side
+- [ ] Admin scene re-render: calls existing startRender/resetScene procedures but scoped to a single scene, pushes result back to user's Screening Room
+- [ ] Admin panel: show provider spend, error codes, retry count per scene for diagnostics

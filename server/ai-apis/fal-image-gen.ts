@@ -22,7 +22,7 @@ function aspectRatioToFluxSize(
     case "1:1":   return "square_hd";        // 1024×1024
     case "4:3":   return "landscape_4_3";    // 1365×1024
     case "3:4":   return "portrait_4_3";     // 1024×1365
-    case "21:9":  return "landscape_16_9";   // closest available
+    case "21:9":  return "custom_21_9";      // 2048×877 ultra-wide cinematic
     default:      return "landscape_16_9";
   }
 }
@@ -100,6 +100,7 @@ export async function generateCinematicStoryboardImage(
     "square_hd":      { width: 1024, height: 1024 },
     "landscape_4_3":  { width: 1365, height: 1024 },
     "portrait_4_3":   { width: 1024, height: 1365 },
+    "custom_21_9":    { width: 2048, height: 877 },  // True 21:9 cinematic ultra-wide
   };
 
   // Try Flux Pro first, fall back to Flux Dev
@@ -111,10 +112,16 @@ export async function generateCinematicStoryboardImage(
   for (const modelId of models) {
     if (imageUrl) break; // already got one from venue reference
     try {
+      // For custom_21_9, Flux doesn't have a native size — use explicit width/height instead
+      const isCustomSize = imageSize === "custom_21_9";
+      const customDims = isCustomSize ? dimensionMap["custom_21_9"] : null;
       const result = await fal.subscribe(modelId, {
         input: {
           prompt: cinematicPrompt,
-          image_size: imageSize as any,  // MUST match job aspectRatio — e.g. "landscape_16_9" for 16:9
+          ...(isCustomSize && customDims
+            ? { image_size: { width: customDims.width, height: customDims.height } }
+            : { image_size: imageSize as any }  // MUST match job aspectRatio — e.g. "landscape_16_9" for 16:9
+          ),
           num_images: 1,
           enable_safety_checker: false,
           safety_tolerance: "5",

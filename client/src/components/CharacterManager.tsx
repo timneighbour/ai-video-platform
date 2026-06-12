@@ -955,9 +955,9 @@ export function CharacterManager({
                       <div className="mt-2 flex items-center gap-1.5 flex-wrap">
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">Portrait → Animation</span>
                         <span className="text-[10px] text-zinc-600">→</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">Seedance i2v</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">WIZ Scene Engine</span>
                         <span className="text-[10px] text-zinc-600">→</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[--color-gold]/20 text-[--color-gold] border border-[--color-gold]/30">MuseTalk Sync</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-[--color-gold]/20 text-[--color-gold] border border-[--color-gold]/30">WIZ Lip Sync</span>
                       </div>
                     </div>
 

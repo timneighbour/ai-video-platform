@@ -576,7 +576,7 @@ const WIZVIDEO_CONTENT: RichProductContent = {
     { title: "Quality guarantee included", desc: "Every render includes 1 free scene re-render per scene before download. Your satisfaction is built into the product." },
   ],
   keyFeatures: [
-    { icon: "mic", title: "Phoneme-Accurate Lip Sync", desc: "The Seedance 2.0 Reference-to-Video model receives the exact 8-second audio clip for each scene — mouth movements match the actual words sung at that moment." },
+    { icon: "mic", title: "Phoneme-Accurate Lip Sync", desc: "WIZ AI's engine receives the exact 8-second audio clip for each scene — mouth movements match the actual words sung at that moment." },
     { icon: "user", title: "Canonical Character Consistency", desc: "A single reference portrait is generated before rendering begins and used as the visual anchor for every scene. The same face, every frame." },
     { icon: "music", title: "Lyric-Aware Scene Direction", desc: "WizVideo™ analyses your full lyrics and emotional arc before generating any scene. Visuals reflect what the song is about — not generic stock footage." },
     { icon: "clapperboard", title: "Scene-Level Director Controls", desc: "Edit any scene's prompt, camera angle (close-up, wide, tracking, aerial), setting, and lip sync toggle. Re-render just that scene for free." },

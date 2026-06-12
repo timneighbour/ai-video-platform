@@ -2655,7 +2655,8 @@ Rules:
                 referenceImageUrl: aiPortraitUrl,
                 idWeight: 1.2,           // Strong face preservation without ignoring scene prompt
                 guidanceScale: 5,        // Slightly above default for better scene adherence
-                imageSize: "landscape_16_9", // Widescreen for music video storyboards
+                // Use the job's actual aspect ratio — never hardcode. Music videos are widescreen.
+                exportAspectRatio: (job.aspectRatio as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9") ?? "16:9",
                 numInferenceSteps: 25,   // Slightly above default for better quality
                 negativePrompt: [
                   "different person", "different face", "different hair colour", "different eye colour",
@@ -2675,14 +2676,26 @@ Rules:
               url = genericUrl;
             }
           } else {
-            // No portrait available or no FAL_AI_API_KEY — generic generation
+            // No portrait available or no FAL_AI_API_KEY — use Flux for aspect-ratio-correct generation
             if (!aiPortraitUrl) console.warn(`[generateScenePreview] Scene ${input.sceneId}: AI character has no portrait — face will not be locked`);
             if (!process.env.FAL_AI_API_KEY) console.warn(`[generateScenePreview] Scene ${input.sceneId}: FAL_AI_API_KEY not set — cannot use Flux PuLID`);
-            const { url: genericUrl } = await withQuotaGuard(() => generateImage({
-              prompt: finalImagePrompt,
-              originalImages: referenceImages.length > 0 ? referenceImages : undefined,
-            }));
-            url = genericUrl;
+            if (referenceImages.length > 0) {
+              // Has reference photos — use Forge (supports reference images; aspect ratio enforced by Forge defaults)
+              const { url: genericUrl } = await withQuotaGuard(() => generateImage({
+                prompt: finalImagePrompt,
+                originalImages: referenceImages,
+              }));
+              url = genericUrl;
+            } else {
+              // No reference images — use Flux for correct aspect ratio (no cropping)
+              const { generateCinematicStoryboardImage: genCinematic } = await import("../ai-apis/fal-image-gen");
+              const cinematicResult = await withQuotaGuard(() => genCinematic({
+                prompt: finalImagePrompt,
+                aspectRatio: (job.aspectRatio as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9") ?? "16:9",
+                storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${input.sceneId}`,
+              }));
+              url = cinematicResult.url;
+            }
           }
         }
 

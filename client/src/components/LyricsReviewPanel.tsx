@@ -305,7 +305,7 @@ export function LyricsReviewPanel({
     setExpanded(false);
     onConfirmed?.();
     toast.success("Lyrics confirmed", {
-      description: "Your lyrics are locked in for Seedance lip sync.",
+      description: "Your lyrics are locked in for WIZ lip sync.",
     });
   }, [onConfirmed]);
 
@@ -357,7 +357,7 @@ export function LyricsReviewPanel({
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white">Review Lyrics</p>
           <p className="text-xs text-white/40">
-            Verify and edit per-scene lyrics before rendering — used for Seedance lip sync
+            Verify and edit per-scene lyrics before rendering — used for WIZ lip sync
           </p>
         </div>
 
@@ -396,7 +396,7 @@ export function LyricsReviewPanel({
           >
             <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: "oklch(0.72 0.14 70)" }} />
             <span>
-              <strong className="text-white/75">Seedance 2.0</strong> uses these lyrics for phoneme-level lip sync —
+              <strong className="text-white/75">WIZ AI</strong> uses these lyrics for phoneme-level lip sync —
               matching exact mouth shapes to each word. Scenes marked{" "}
               <span
                 className="inline-flex items-center gap-1 px-1.5 py-0 rounded text-[9px] font-semibold"
@@ -421,7 +421,7 @@ export function LyricsReviewPanel({
               <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
               <span>
                 <strong>{perfScenesWithoutLyrics.length} lip-sync scene{perfScenesWithoutLyrics.length > 1 ? "s" : ""}</strong> have no lyrics.
-                Seedance will still animate from the audio, but adding lyrics significantly improves accuracy.
+                WIZ AI will still animate from the audio, but adding lyrics significantly improves accuracy.
                 Scenes: {perfScenesWithoutLyrics.map((s) => `#${s.sceneIndex + 1}`).join(", ")}
               </span>
             </div>

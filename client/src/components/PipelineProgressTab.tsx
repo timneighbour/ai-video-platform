@@ -269,8 +269,8 @@ function JobPipelineCard({ jobData }: { jobData: any }) {
                     <TableHeader>
                       <TableRow className="hover:bg-transparent border-border/40">
                         <TableHead className="text-[10px] h-7 py-1">Scene</TableHead>
-                        <TableHead className="text-[10px] h-7 py-1">S1 Seedance</TableHead>
-                        <TableHead className="text-[10px] h-7 py-1">S2 InfiniteTalk</TableHead>
+                        <TableHead className="text-[10px] h-7 py-1">S1 Scene Render</TableHead>
+                        <TableHead className="text-[10px] h-7 py-1">S2 Lip Sync</TableHead>
                         <TableHead className="text-[10px] h-7 py-1">S3/4 Composite</TableHead>
                         <TableHead className="text-[10px] h-7 py-1">Attempts</TableHead>
                         <TableHead className="text-[10px] h-7 py-1">Updated</TableHead>
@@ -304,7 +304,7 @@ function JobPipelineCard({ jobData }: { jobData: any }) {
                     <TableHeader>
                       <TableRow className="hover:bg-transparent border-border/40">
                         <TableHead className="text-[10px] h-7 py-1">Scene</TableHead>
-                        <TableHead className="text-[10px] h-7 py-1">S1 Seedance</TableHead>
+                        <TableHead className="text-[10px] h-7 py-1">S1 Scene Render</TableHead>
                         <TableHead className="text-[10px] h-7 py-1">Composite</TableHead>
                         <TableHead className="text-[10px] h-7 py-1">Updated</TableHead>
                       </TableRow>
@@ -378,8 +378,8 @@ export function PipelineProgressTab() {
       {/* Stage legend */}
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-muted-foreground border border-border/30 rounded-lg px-3 py-2 bg-muted/10">
         <span className="font-semibold text-foreground/60 mr-1">Stages:</span>
-        <span><Film className="w-3 h-3 inline mr-0.5" />S1 Cinematic World (Seedance)</span>
-        <span><Mic className="w-3 h-3 inline mr-0.5" />S2 Performance Plate (InfiniteTalk)</span>
+        <span><Film className="w-3 h-3 inline mr-0.5" />S1 Cinematic World</span>
+        <span><Mic className="w-3 h-3 inline mr-0.5" />S2 Performance Plate</span>
         <span><Layers className="w-3 h-3 inline mr-0.5" />S3/4 Matte + Composite (ffmpeg)</span>
         <span><Music className="w-3 h-3 inline mr-0.5" />S5 Final Audio Restoration</span>
       </div>

@@ -25,6 +25,8 @@ export interface FluxPuLIDOptions {
   guidanceScale?: number;
   /** Image size: square_hd, square, portrait_4_3, portrait_16_9, landscape_4_3, landscape_16_9 */
   imageSize?: "square_hd" | "square" | "portrait_4_3" | "portrait_16_9" | "landscape_4_3" | "landscape_16_9";
+  /** Export aspect ratio — when provided, overrides imageSize with the correct dimensions for that ratio */
+  exportAspectRatio?: "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
   /** Number of inference steps (higher = better quality but slower) */
   numInferenceSteps?: number;
   /** Random seed for reproducibility */
@@ -53,12 +55,28 @@ export async function generateFaceConsistentImage(
   // Configure fal client with the API key
   fal.config({ credentials: apiKey });
 
+  // Resolve imageSize from exportAspectRatio if provided — ensures storyboard images
+  // are generated at the correct dimensions matching the user's chosen export format.
+  const _aspectRatioToSize: Record<string, string> = {
+    "16:9": "landscape_16_9",  // 1344×768
+    "9:16": "portrait_16_9",   // 768×1344
+    "1:1":  "square_hd",       // 1024×1024
+    "4:3":  "landscape_4_3",   // 1365×1024
+    "3:4":  "portrait_4_3",    // 1024×1365
+    "21:9": "landscape_16_9",  // PuLID has no native 21:9; 16:9 is closest available
+  };
+  const resolvedImageSize: string = options.exportAspectRatio
+    ? (_aspectRatioToSize[options.exportAspectRatio] ?? "landscape_16_9")
+    : (options.imageSize || "landscape_4_3");
+
+
   try {
     const result = await fal.subscribe("fal-ai/flux-pulid", {
       input: {
         prompt: options.prompt,
         reference_image_url: options.referenceImageUrl,
-        image_size: options.imageSize || "landscape_4_3",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        image_size: resolvedImageSize as any,
         num_inference_steps: options.numInferenceSteps || 20,
         guidance_scale: options.guidanceScale || 4,
         id_weight: options.idWeight ?? 1.0,

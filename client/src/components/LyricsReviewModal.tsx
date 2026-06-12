@@ -5,7 +5,7 @@
  * in a scrollable list so the user can verify they are correct before the
  * render starts. Users can edit lyrics inline and confirm or go back.
  *
- * This is a critical step for Seedance reference-to-video (r2v) because
+ * This is a critical step for WIZ AI lip sync because
  * the lyrics are embedded in the prompt for phoneme-level lip sync.
  */
 import React, { useState, useCallback } from "react";
@@ -98,7 +98,7 @@ export function LyricsReviewModal({
             Review Lyrics Before Rendering
           </DialogTitle>
           <DialogDescription className="text-white/50 text-sm leading-relaxed">
-            Seedance 2.0 uses your lyrics for <strong className="text-white/70">phoneme-level lip sync</strong> — the AI matches exact mouth shapes to each word.
+            WIZ AI uses your lyrics for <strong className="text-white/70">phoneme-level lip sync</strong> — the AI matches exact mouth shapes to each word.
             Make sure the lyrics for each scene are correct before starting the render.
           </DialogDescription>
         </DialogHeader>
@@ -111,7 +111,7 @@ export function LyricsReviewModal({
               <span className="font-semibold">
                 {performanceScenesWithoutLyrics.length} performance scene{performanceScenesWithoutLyrics.length > 1 ? "s" : ""} have no lyrics.
               </span>{" "}
-              Seedance will still generate lip sync from the audio, but adding lyrics improves accuracy significantly.
+              WIZ AI will still generate lip sync from the audio, but adding lyrics improves accuracy significantly.
             </div>
           </div>
         )}
