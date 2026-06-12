@@ -133,6 +133,20 @@ interface SceneCard {
   sceneType?: string | null; // e.g. "performance", "cinematic", "narrative"
 }
 
+/** Returns an inline style object with the correct aspectRatio for the user's selected export format.
+ * Using inline style instead of Tailwind classes ensures the ratio is never overridden by
+ * the Card's flex layout (which can collapse aspect-ratio CSS utility classes).
+ */
+function getAspectRatioStyle(exportFormat: "16:9" | "9:16" | "1:1" | "4:3" | "21:9"): React.CSSProperties {
+  const map: Record<string, string> = {
+    "16:9": "16 / 9",
+    "9:16": "9 / 16",
+    "1:1": "1 / 1",
+    "4:3": "4 / 3",
+    "21:9": "21 / 9",
+  };
+  return { aspectRatio: map[exportFormat] ?? "16 / 9", width: "100%" };
+}
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
@@ -519,7 +533,7 @@ function ScenePreviewGrid({
                 {/* ── Left: Video thumbnail ── */}
                 <div
                   className="relative flex-shrink-0 cursor-pointer"
-                  style={{ width: 160, aspectRatio: aspectRatio === "9:16" ? "9/16" : aspectRatio === "1:1" ? "1/1" : aspectRatio === "4:3" ? "4/3" : aspectRatio === "21:9" ? "21/9" : "16/9" }}
+                  style={{ width: 160, aspectRatio: aspectRatio === "9:16" ? "9/16" : aspectRatio === "1:1" ? "1/1" : aspectRatio === "4:3" ? "4/3" : aspectRatio === "21:9" ? "21/9" : "16/9", overflow: "hidden" }}
                   onClick={() => {
                     if (canPreview) {
                       const idx = scenes.findIndex(s => s.id === scene.id);
@@ -5032,20 +5046,19 @@ export default function MusicVideoAutopilot() {
             <div className="grid grid-cols-1 gap-5">
               {scenes.map((scene) => (
                 <React.Fragment key={scene.id}>
-                  <Card className="bg-[rgba(10,8,6,0.95)] border-[rgba(184,137,42,0.10)] hover:border-zinc-600 transition-colors overflow-hidden">
-                  {/* Scene preview image — dynamic aspect ratio */}
-                  <div className={`relative w-full overflow-hidden bg-[rgba(24,20,16,0.9)] ${
-                    exportFormat === "9:16" ? "aspect-[9/16]" :
-                    exportFormat === "1:1" ? "aspect-square" :
-                    exportFormat === "4:3" ? "aspect-[4/3]" :
-                    exportFormat === "21:9" ? "aspect-[21/9]" :
-                    "aspect-video"
-                  }`} style={{fontFamily:"'Courier Prime',monospace"}}>
+                  <Card className="bg-[rgba(10,8,6,0.95)] border-[rgba(184,137,42,0.10)] hover:border-zinc-600 transition-colors overflow-hidden p-0 gap-0">
+                  {/* Scene preview image — fills the container edge-to-edge like a TV screen.
+                       Container is locked to the user's selected aspect ratio (e.g. 16:9).
+                       Image is generated at the same ratio so object-cover fills it perfectly with no cropping and no black bars. */}
+                  <div
+                    className="relative w-full flex-shrink-0"
+                    style={{ aspectRatio: exportFormat === "9:16" ? "9/16" : exportFormat === "1:1" ? "1/1" : exportFormat === "4:3" ? "4/3" : exportFormat === "21:9" ? "21/9" : "16/9", overflow: "hidden", fontFamily: "'Courier Prime',monospace" }}
+                  >
                     {scene.previewImageUrl && !scene.regenerating ? (
                       <img
                         src={scene.previewImageUrl}
                         alt={`Scene ${scene.sceneIndex + 1} preview`}
-                        className="absolute inset-0 w-full h-full object-contain"
+                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", display: "block" }}
                       />
                     ) : null}
                     {/* Loading animation while storyboard is being generated */}
@@ -5216,7 +5229,7 @@ export default function MusicVideoAutopilot() {
                       </button>
                     )}
                   </div>
-                  <CardContent className="pt-3 pb-4">
+                  <CardContent className="pt-3 pb-4 px-4">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
                         {scene.visualStyle && (

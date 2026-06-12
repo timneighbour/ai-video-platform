@@ -2668,24 +2668,34 @@ Rules:
               console.log(`[generateScenePreview] Flux PuLID success for scene ${input.sceneId}: ${url?.slice(0, 80)}...`);
             } catch (pulidErr) {
               const pulidMsg = pulidErr instanceof Error ? pulidErr.message : String(pulidErr);
-              console.warn(`[generateScenePreview] Flux PuLID failed for scene ${input.sceneId}, falling back to generic: ${pulidMsg}`);
-              const { url: genericUrl } = await withQuotaGuard(() => generateImage({
+              console.warn(`[generateScenePreview] Flux PuLID failed for scene ${input.sceneId}, falling back to Flux cinematic (aspect-ratio-correct): ${pulidMsg}`);
+              // CRITICAL: use generateCinematicStoryboardImage so the fallback is also at the correct
+              // aspect ratio (e.g. 16:9 = 1344×768). Forge generateImage does not enforce aspect ratio.
+              const { generateCinematicStoryboardImage: genCinematicFallback } = await import("../ai-apis/fal-image-gen");
+              const fallbackResult = await withQuotaGuard(() => genCinematicFallback({
                 prompt: finalImagePrompt,
-                originalImages: referenceImages.length > 0 ? referenceImages : undefined,
+                aspectRatio: (job.aspectRatio as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9") ?? "16:9",
+                storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${input.sceneId}-pulid-fallback`,
+                venueReferenceUrl: referenceImages[0]?.url,
               }));
-              url = genericUrl;
+              url = fallbackResult.url;
             }
           } else {
             // No portrait available or no FAL_AI_API_KEY — use Flux for aspect-ratio-correct generation
             if (!aiPortraitUrl) console.warn(`[generateScenePreview] Scene ${input.sceneId}: AI character has no portrait — face will not be locked`);
             if (!process.env.FAL_AI_API_KEY) console.warn(`[generateScenePreview] Scene ${input.sceneId}: FAL_AI_API_KEY not set — cannot use Flux PuLID`);
             if (referenceImages.length > 0) {
-              // Has reference photos — use Forge (supports reference images; aspect ratio enforced by Forge defaults)
-              const { url: genericUrl } = await withQuotaGuard(() => generateImage({
+              // Has reference photos — use Flux with the first reference as a visual anchor.
+              // CRITICAL: must use generateCinematicStoryboardImage so the output is at the
+              // correct aspect ratio (e.g. 16:9 = 1344×768). Forge does not enforce aspect ratio.
+              const { generateCinematicStoryboardImage: genCinematic } = await import("../ai-apis/fal-image-gen");
+              const cinematicResult = await withQuotaGuard(() => genCinematic({
                 prompt: finalImagePrompt,
-                originalImages: referenceImages,
+                aspectRatio: (job.aspectRatio as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9") ?? "16:9",
+                storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${input.sceneId}-cinematic`,
+                venueReferenceUrl: referenceImages[0]?.url, // anchor to first character reference
               }));
-              url = genericUrl;
+              url = cinematicResult.url;
             } else {
               // No reference images — use Flux for correct aspect ratio (no cropping)
               const { generateCinematicStoryboardImage: genCinematic } = await import("../ai-apis/fal-image-gen");
@@ -2766,19 +2776,19 @@ Rules:
               }).join("\n");
               const retryPrompt = `${outfitEnforcementPrefix}\n\n${finalImagePrompt}`;
               try {
-                if (hasFaceReference) {
-                  const { url: retryUrl } = await withQuotaGuard(() => generateImage({
-                    prompt: retryPrompt,
-                    originalImages: hoistedForgeRefs.length > 0 ? hoistedForgeRefs : undefined,
-                  }));
-                  if (retryUrl) { currentUrl = retryUrl; url = retryUrl; }
-                } else {
-                  const { url: retryUrl } = await withQuotaGuard(() => generateImage({
-                    prompt: retryPrompt,
-                    originalImages: referenceImages.length > 0 ? referenceImages : undefined,
-                  }));
-                  if (retryUrl) { currentUrl = retryUrl; url = retryUrl; }
-                }
+                // CRITICAL: use generateCinematicStoryboardImage for outfit retries too —
+                // Forge does not enforce aspect ratio, causing square/portrait images for 16:9 jobs.
+                const { generateCinematicStoryboardImage: genOutfitRetry } = await import("../ai-apis/fal-image-gen");
+                const refUrl = hasFaceReference
+                  ? (hoistedForgeRefs[0]?.url ?? referenceImages[0]?.url)
+                  : referenceImages[0]?.url;
+                const { url: retryUrl } = await withQuotaGuard(() => genOutfitRetry({
+                  prompt: retryPrompt,
+                  aspectRatio: (job.aspectRatio as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9") ?? "16:9",
+                  storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${input.sceneId}-outfit-retry`,
+                  venueReferenceUrl: refUrl,
+                }));
+                if (retryUrl) { currentUrl = retryUrl; url = retryUrl; }
               } catch (retryErr) {
                 console.warn(`[generateScenePreview] Scene ${input.sceneId}: outfit retry ${outfitAttempt + 1} generation failed:`, retryErr);
                 break;

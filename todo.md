@@ -9169,3 +9169,12 @@
 - [x] Add admin job management procedures to pipelineOps router (adminListJobs, adminGetJobDetail, adminResetScene, adminResetJob)
 - [x] Build /admin/jobs page: searchable job list + per-scene detail with provider spend, error codes, reset controls
 - [x] Add Job Management link to AdminPanel
+
+## Aspect Ratio Pipeline Fix (Jun 2026)
+- [x] Storyboard scene card images: changed object-cover to object-contain — no cropping of 16:9 images
+- [x] Fullscreen storyboard modal: changed object-cover to object-contain
+- [x] ScenePreviewGrid: added aspectRatio prop, render step thumbnail container now uses dynamic aspect ratio from exportFormat
+- [x] SceneVideoPlayer: changed object-cover to object-contain for rendered video clips
+- [x] WaveSpeed fallback prompt: fixed hardcoded "16:9" text to use actual aspectRatio variable
+- [x] Confirmed storyboard generation (fal-image-gen.ts) correctly maps job.aspectRatio to Flux image dimensions
+- [x] Confirmed WaveSpeed startSceneRenderWaveSpeed correctly passes aspectRatio to both i2v and t2v API calls
