@@ -62,7 +62,9 @@ export async function generateCinematicStoryboardImage(
   const imageSize = aspectRatioToFluxSize(options.aspectRatio ?? "16:9");
 
   // Enhance the prompt for cinematic quality
-  const cinematicPrompt = `${options.prompt}, cinematic widescreen composition, professional film lighting, photorealistic, 8K quality, dramatic depth of field, movie still`;
+  // CRITICAL FRAMING RULE: always include full head with headroom — never cut off the top of the head.
+  // This prevents the AI from generating subjects that overflow the top of the frame.
+  const cinematicPrompt = `${options.prompt}, full head and body visible within frame, generous headroom above subject, subject fully contained within shot, cinematic widescreen composition, professional film lighting, photorealistic, 8K quality, dramatic depth of field, movie still`;
 
   let imageUrl: string | undefined;
 

@@ -2367,6 +2367,9 @@ Rules:
         extraPeopleNegative,
         "nsfw", "lowres", "bad anatomy", "extra limbs", "blurry", "low quality", "cartoon", "anime",
         "deformed", "ugly", "disfigured",
+        "cropped head", "cut off head", "missing top of head", "head out of frame",
+        "head cropped at top", "partial head", "truncated head", "forehead cut off",
+        "top of skull missing", "hair cut off at top",
         "static pose", "standing still", "no expression", "posed photo", "stiff pose", "lifeless", "mannequin",
         "bored expression", "neutral expression", "arms at sides", "hands in pockets",
         "text", "words", "caption", "subtitle", "lyrics text", "text overlay", "words in frame",
@@ -2446,6 +2449,7 @@ Rules:
         styleLockSuffix ? `STYLE LOCK: ${styleLockSuffix}` : "",
         moodContext ? `Mood: ${moodContext}` : "",
         "16:9 widescreen, high quality, professional photography, concert photography",
+        "FRAMING: full head and body visible within frame, generous headroom above subject, subject fully contained within shot, no cropped heads",
       ].filter(Boolean).join("\n\n");  console.log(`[generateScenePreview] Scene ${input.sceneId}: ${referenceImages.length} ref photos, masterPortrait=${!!masterPortraitUrl}, seed=${masterSeed}, prompt length: ${finalImagePrompt.length}`);
 
       // V2: Choose face reference: master portrait > primary reference photo > none
@@ -2662,6 +2666,8 @@ Rules:
                   "different person", "different face", "different hair colour", "different eye colour",
                   "inconsistent character", "face swap", "multiple people", "blurry face",
                   "distorted face", "low quality", "watermark", "text", "logo",
+                  "cropped head", "cut off head", "missing top of head", "head out of frame",
+                  "head cropped", "partial head", "truncated",
                 ].join(", "),
               });
               url = pulidResult.url;
