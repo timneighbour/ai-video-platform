@@ -213,6 +213,7 @@ interface ScenePreviewGridProps {
   jobId?: number | null;
   jobCharacters?: Array<{ id: number; name: string; primaryPhotoUrl?: string | null; aiGeneratedImageUrl?: string | null; isLocked?: boolean | null }>;
   onRegenerateScene?: (sceneId: number, newPrompt?: string, newLyrics?: string) => Promise<void>;
+  onResetScene?: (sceneId: number) => Promise<void>;
   onApproveScene?: (sceneId: number) => Promise<void>;
   onUnapproveScene?: (sceneId: number) => Promise<void>;
   regeneratingScenes?: Set<number>;
@@ -227,6 +228,7 @@ function ScenePreviewGrid({
   jobId,
   jobCharacters = [],
   onRegenerateScene,
+  onResetScene,
   onApproveScene,
   onUnapproveScene,
   regeneratingScenes = new Set(),
@@ -712,6 +714,21 @@ function ScenePreviewGrid({
                           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                           Re-render
                         </button>
+                        {/* Reset Scene — clear outputs without re-rendering */}
+                        {onResetScene && (
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`Reset Scene ${(scene.index ?? 0) + 1}? This will clear its render output so it can be re-rendered fresh. Your storyboard prompt is untouched.`)) {
+                                onResetScene(scene.id);
+                              }
+                            }}
+                            className="flex items-center gap-1 px-2 py-1 rounded-md bg-red-500/10 text-red-300/60 text-[11px] font-medium hover:bg-red-500/20 hover:text-red-300 transition-colors border border-red-500/20"
+                            title="Clear this scene's render output so it can be re-rendered fresh"
+                          >
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            Reset
+                          </button>
+                        )}
                         {/* Approve toggle */}
                         <button
                           onClick={() => scene.isApproved ? onUnapproveScene?.(scene.id) : onApproveScene?.(scene.id)}
@@ -1521,6 +1538,7 @@ export default function MusicVideoAutopilot() {
   const resumeRenderMutation = trpc.musicVideo.resumeRender.useMutation();
   const cancelRenderMutation = trpc.musicVideo.cancelRender.useMutation();
   const resetRenderMutation = trpc.musicVideo.resetRender.useMutation();
+  const resetSceneMutation = trpc.musicVideo.resetScene.useMutation();
   const deleteSceneMutation = trpc.musicVideo.deleteScene.useMutation();
   const addSceneMutation = trpc.musicVideo.addScene.useMutation();
   const reorderSceneMutation = trpc.musicVideo.reorderScene.useMutation();
@@ -6910,6 +6928,22 @@ export default function MusicVideoAutopilot() {
                               setPerSceneStatuses((prev) => prev.map((s) => ({ ...s, status: "pending" as const, videoUrl: null, errorMessage: null, isApproved: false })));
                             } catch (err: any) {
                               toast.error("Could not regenerate all scenes", { description: err?.message });
+                            }
+                          }}
+                          onResetScene={async (sceneId) => {
+                            if (!jobId) return;
+                            try {
+                              await resetSceneMutation.mutateAsync({ sceneId, jobId });
+                              setPerSceneStatuses((prev) =>
+                                prev.map((s) => s.id === sceneId
+                                  ? { ...s, status: "pending" as const, videoUrl: null, errorMessage: null, isApproved: false }
+                                  : s
+                                )
+                              );
+                              const sceneIdx = (perSceneStatuses.find((s) => s.id === sceneId)?.index ?? 0) + 1;
+                              toast.success(`Scene ${sceneIdx} reset`, { description: "Render output cleared. Re-render when ready." });
+                            } catch (err: any) {
+                              toast.error("Could not reset scene", { description: err?.message });
                             }
                           }}
                           onRegenerateScene={async (sceneId, newPrompt, newLyrics) => {

@@ -6034,6 +6034,61 @@ Your task:
       console.log(`[MusicVideo] Screening room reset for job ${input.jobId} by user ${ctx.user.id}`);
       return { success: true };
     }),
+
+  /**
+   * resetScene — clears a single scene's render output so it can be re-rendered
+   * without touching the rest of the job.
+   */
+  resetScene: protectedProcedure
+    .input(z.object({ jobId: z.number(), sceneId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+      if (job.status === "rendering" || job.status === "assembling") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Cannot reset a scene while a render is in progress. Please wait or cancel first.",
+        });
+      }
+      const [scene] = await db.select().from(musicVideoScenes)
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+      if (!scene) throw new TRPCError({ code: "NOT_FOUND", message: "Scene not found" });
+      await db.update(musicVideoScenes)
+        .set({
+          status: "pending",
+          taskId: null,
+          videoUrl: null,
+          videoKey: null,
+          errorMessage: null,
+          retryCount: 0,
+          lipSyncStatus: "pending",
+          lipSyncVideoUrl: null,
+          lipSyncVideoKey: null,
+          lipSyncTaskId: null,
+          hedraStatus: "pending",
+          hedraVideoUrl: null,
+          hedraVideoKey: null,
+          hedraGenerationId: null,
+          compositeVideoUrl: null,
+          compositeVideoKey: null,
+          compositeStatus: "pending",
+          isApproved: false,
+          approvedAt: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(musicVideoScenes.id, input.sceneId));
+      // If job was completed, bump it back so it can be re-rendered
+      if (job.status === "completed") {
+        await db.update(musicVideoJobs)
+          .set({ status: "storyboard_ready", updatedAt: new Date() })
+          .where(eq(musicVideoJobs.id, input.jobId));
+      }
+      console.log(`[MusicVideo] Scene ${input.sceneId} reset for job ${input.jobId} by user ${ctx.user.id}`);
+      return { success: true };
+    }),
 });
 /** Translate internal error codes to user-friendly messages. */
 function translateErrorMessage(errorMessage: string): string {
