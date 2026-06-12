@@ -37,9 +37,12 @@ export interface AtlasVideoResult {
  */
 export async function submitAtlasVideo(
   prompt: string,
-  durationSeconds: number = 5
+  durationSeconds: number = 5,
+  aspectRatio: "16:9" | "9:16" | "1:1" | "4:3" | "21:9" = "16:9"
 ): Promise<AtlasVideoJob> {
   const apiKey = getApiKey();
+  // Map 4:3 and 21:9 to nearest supported Atlas ratio
+  const atlasAspectRatio = (aspectRatio === "4:3" || aspectRatio === "21:9") ? "16:9" : aspectRatio;
 
   const response = await axios.post(
     `${ATLAS_BASE}/model/generateVideo`,
@@ -48,6 +51,7 @@ export async function submitAtlasVideo(
       prompt,
       duration: durationSeconds,
       resolution: "720p",
+      aspect_ratio: atlasAspectRatio,
       generate_audio: false, // Suppress AI-generated audio to prevent ByteDance content-policy rejection on music/performance prompts
     },
     {
@@ -78,9 +82,11 @@ export async function submitAtlasVideo(
 export async function submitAtlasImageToVideo(
   prompt: string,
   imageUrl: string,
-  durationSeconds: number = 5
+  durationSeconds: number = 5,
+  aspectRatio: "16:9" | "9:16" | "1:1" | "4:3" | "21:9" = "16:9"
 ): Promise<AtlasVideoJob> {
   const apiKey = getApiKey();
+  const atlasAspectRatio = (aspectRatio === "4:3" || aspectRatio === "21:9") ? "16:9" : aspectRatio;
 
   const response = await axios.post(
     `${ATLAS_BASE}/model/generateVideo`,
@@ -90,6 +96,7 @@ export async function submitAtlasImageToVideo(
       image: imageUrl,
       duration: durationSeconds,
       resolution: "720p",
+      aspect_ratio: atlasAspectRatio,
       generate_audio: false,
     },
     {
@@ -131,9 +138,11 @@ export async function submitAtlasReferenceToVideo(
   prompt: string,
   referenceImages: string[],
   referenceAudios: string[],
-  durationSeconds: number = 8
+  durationSeconds: number = 8,
+  aspectRatio: "16:9" | "9:16" | "1:1" | "4:3" | "21:9" = "16:9"
 ): Promise<AtlasVideoJob> {
   const apiKey = getApiKey();
+  const atlasAspectRatio = (aspectRatio === "4:3" || aspectRatio === "21:9") ? "16:9" : aspectRatio;
 
   // Validate constraints
   if (referenceImages.length === 0) {
@@ -152,6 +161,7 @@ export async function submitAtlasReferenceToVideo(
     reference_images: referenceImages,
     duration: durationSeconds,
     resolution: "720p",
+    aspect_ratio: atlasAspectRatio,
     // NOTE: Do NOT set generate_audio: false when passing reference_audios.
     // The model needs audio processing enabled to drive lip sync from the audio waveform.
     // We only suppress audio generation when there is NO reference audio (image-only mode).

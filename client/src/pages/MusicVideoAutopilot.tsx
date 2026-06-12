@@ -1537,6 +1537,7 @@ export default function MusicVideoAutopilot() {
   const pauseRenderMutation = trpc.musicVideo.pauseRender.useMutation();
   const resumeRenderMutation = trpc.musicVideo.resumeRender.useMutation();
   const cancelRenderMutation = trpc.musicVideo.cancelRender.useMutation();
+  const trpcUtils = trpc.useUtils();
   const resetRenderMutation = trpc.musicVideo.resetRender.useMutation();
   const resetSceneMutation = trpc.musicVideo.resetScene.useMutation();
   const deleteSceneMutation = trpc.musicVideo.deleteScene.useMutation();
@@ -2584,6 +2585,8 @@ export default function MusicVideoAutopilot() {
           setScenes((prev) => prev.map((s) => ({ ...s, videoUrl: null, status: "pending" as const, isApproved: false })));
           setCompletedScenes(0);
           setFailedScenes(0);
+          // Invalidate the jobQuery cache so stale videoUrls are not re-loaded from the server cache
+          void trpcUtils.musicVideo.getJob.invalidate({ jobId });
           console.log("[MusicVideo] Stale render outputs cleared successfully");
         } catch (resetErr: any) {
           console.warn("[MusicVideo] Auto-clear failed (non-fatal):", resetErr?.message);

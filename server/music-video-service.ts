@@ -1145,7 +1145,8 @@ export async function startSceneRender(
           audioUrl ?? undefined,          // ── WizSync™: pass audio for reference-to-video lip sync
           sceneStartTime ?? undefined,    // ── WizSync™: scene start time for audio segment extraction
           lipSync,                        // ── WizSync™: use per-scene lip sync flag (Strategy 1 when true)
-          storyboardImageUrl ?? undefined // ── CHARACTER LOCK™: storyboard image as starting frame for i2v
+          storyboardImageUrl ?? undefined, // ── CHARACTER LOCK™: storyboard image as starting frame for i2v
+          aspectRatio                     // ── ASPECT RATIO: enforce user-selected format on every clip
         );
         atlasCircuit.recordSuccess();
         return atlasResult;
@@ -1539,7 +1540,8 @@ async function startSceneRenderAtlasCloud(
   audioUrl?: string | null,
   sceneStartTime?: number,
   enableLipSync: boolean = true,
-  storyboardImageUrl?: string | null
+  storyboardImageUrl?: string | null,
+  aspectRatio: "16:9" | "9:16" | "1:1" | "4:3" | "21:9" = "16:9"
 ): Promise<string> {
   const MAX_PROMPT_CHARS = 480;
 
@@ -1577,7 +1579,8 @@ async function startSceneRenderAtlasCloud(
         safePrompt,
         [characterImageUrl],
         [sceneAudioUrl],
-        clipDuration
+        clipDuration,
+        aspectRatio
       );
       predictionId = pid;
       console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud REFERENCE-TO-VIDEO (lip sync) predictionId=${predictionId}`);
@@ -1587,18 +1590,18 @@ async function startSceneRenderAtlasCloud(
       // Fall through to strategy 2 — use storyboard image as starting frame if available
       if (imageForI2V) {
         try {
-          const { predictionId: pid } = await submitAtlasImageToVideo(safePrompt, imageForI2V, clipDuration);
+          const { predictionId: pid } = await submitAtlasImageToVideo(safePrompt, imageForI2V, clipDuration, aspectRatio);
           predictionId = pid;
           console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud IMAGE-TO-VIDEO (fallback, ${storyboardImageUrl ? 'storyboard' : 'portrait'}) predictionId=${predictionId}`);
         } catch (i2vErr: any) {
           const i2vMsg = String(i2vErr?.message ?? i2vErr);
           console.warn(`[MusicVideo] Scene ${sceneId} image-to-video also failed (${i2vMsg.slice(0, 150)}). Falling back to text-to-video.`);
-          const { predictionId: pid } = await submitAtlasVideo(safePrompt, clipDuration);
+          const { predictionId: pid } = await submitAtlasVideo(safePrompt, clipDuration, aspectRatio);
           predictionId = pid;
           console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud TEXT-TO-VIDEO (fallback) predictionId=${predictionId}`);
         }
       } else {
-        const { predictionId: pid } = await submitAtlasVideo(safePrompt, clipDuration);
+        const { predictionId: pid } = await submitAtlasVideo(safePrompt, clipDuration, aspectRatio);
         predictionId = pid;
         console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud TEXT-TO-VIDEO (fallback, no image) predictionId=${predictionId}`);
       }
@@ -1609,13 +1612,13 @@ async function startSceneRenderAtlasCloud(
   // it guarantees Zara looks exactly like the storyboard in every rendered clip.
   else if (imageForI2V) {
     try {
-      const { predictionId: pid } = await submitAtlasImageToVideo(safePrompt, imageForI2V, clipDuration);
+      const { predictionId: pid } = await submitAtlasImageToVideo(safePrompt, imageForI2V, clipDuration, aspectRatio);
       predictionId = pid;
       console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud IMAGE-TO-VIDEO (${storyboardImageUrl ? 'storyboard' : 'portrait'}) predictionId=${predictionId}`);
     } catch (i2vErr: any) {
       const i2vMsg = String(i2vErr?.message ?? i2vErr);
       console.warn(`[MusicVideo] Scene ${sceneId} image-to-video failed (${i2vMsg.slice(0, 150)}). Falling back to text-to-video.`);
-      const { predictionId: pid } = await submitAtlasVideo(safePrompt, clipDuration);
+      const { predictionId: pid } = await submitAtlasVideo(safePrompt, clipDuration, aspectRatio);
       predictionId = pid;
       console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud TEXT-TO-VIDEO (fallback) predictionId=${predictionId}`);
     }
@@ -1623,14 +1626,14 @@ async function startSceneRenderAtlasCloud(
   // ── STRATEGY 3: text-to-video (no character image available) ─────────────────
   else {
     try {
-      const { predictionId: pid } = await submitAtlasVideo(safePrompt, clipDuration);
+      const { predictionId: pid } = await submitAtlasVideo(safePrompt, clipDuration, aspectRatio);
       predictionId = pid;
       console.log(`[MusicVideo] Scene ${sceneId} → Atlas Cloud TEXT-TO-VIDEO predictionId=${predictionId}`);
     } catch (err: any) {
       const errMsg = String(err?.message ?? err);
       console.warn(`[MusicVideo] Scene ${sceneId} Atlas Cloud first attempt failed (${errMsg.slice(0, 150)}). Retrying with simplified prompt.`);
-      const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + ". Cinematic 16:9 video clip.";
-      const { predictionId: pid } = await submitAtlasVideo(fallbackPrompt, clipDuration);
+      const fallbackPrompt = prompt.slice(0, 200).replace(/[,;.\s]+$/, "") + ". Cinematic video clip.";
+      const { predictionId: pid } = await submitAtlasVideo(fallbackPrompt, clipDuration, aspectRatio);
       predictionId = pid;
     }
   }
@@ -2199,9 +2202,21 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     // SyncLabs sync-3 and WaveSpeed Seedance produce clips with different H.264
     // profiles, frame rates, and container formats. Direct concat-demux fails with
     // "No start code found" / "Invalid data" errors when mixing these sources.
-    // Fix: re-encode every clip to a uniform 1280×720 H.264 baseline, 24fps,
+    // Fix: re-encode every clip to a uniform target resolution H.264 baseline, 24fps,
     // yuv420p before concatenation. Audio is stripped here (-an) and the original
     // music track is overlaid in the final mix step.
+    // ── Dynamic target resolution from job.aspectRatio ───────────────────────────
+    // 16:9 → 1280×720  (landscape, default)
+    // 9:16 → 720×1280  (portrait / Reels / TikTok)
+    // 1:1  → 720×720   (square / Instagram)
+    const jobAspectRatio = (job.aspectRatio ?? "16:9") as string;
+    const ASPECT_TARGET_DIMS: Record<string, { w: number; h: number }> = {
+      "16:9": { w: 1280, h: 720 },
+      "9:16": { w: 720, h: 1280 },
+      "1:1":  { w: 720, h: 720 },
+    };
+    const { w: TW, h: TH } = ASPECT_TARGET_DIMS[jobAspectRatio] ?? ASPECT_TARGET_DIMS["16:9"];
+    console.log(`[Assembly] Job ${jobId}: target resolution ${TW}×${TH} (aspectRatio=${jobAspectRatio})`);
     console.log(`[Assembly] Job ${jobId}: normalizing ${sceneFiles.length} clips to uniform H.264 format...`);
     const normalizedFiles: string[] = [];
     for (let i = 0; i < sceneFiles.length; i++) {
@@ -2212,11 +2227,11 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       const sceneDurSec = scenes[i]?.duration ? scenes[i].duration : null;
       const durFlag = sceneDurSec ? `-t ${sceneDurSec}` : "";
       // Detect clip dimensions to choose the right scaling strategy:
-      //   Square (e.g. 960x960 from InfiniteTalk) → centre-crop to fill 1280x720 (no black bars)
-      //   Near-16:9 (e.g. 1280x720 from Seedance)  → simple scale
-      //   Other aspect ratios (portrait, etc.)       → scale-up + centre-crop (no black bars)
-      // Default: scale-up to fill 1280x720 with centre-crop (NO black bars ever)
-      let vfFilter = 'scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,fps=24';
+      //   Exact match → simple scale (no crop needed)
+      //   Near-target ratio → simple scale
+      //   Square clip → scale to fill larger dimension, centre-crop to target
+      //   Any other   → scale-to-fill + centre-crop (NO black bars ever)
+      let vfFilter = `scale=${TW}:${TH}:force_original_aspect_ratio=increase,crop=${TW}:${TH},fps=24`;
       try {
         const probeOut = await execAsync(
           `"${FFPROBE_BIN}" -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0 "${src}"`,
@@ -2224,23 +2239,27 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
         );
         const [pw, ph] = probeOut.stdout.trim().split(',').map(Number);
         if (pw > 0 && ph > 0) {
+          const isExactMatch = pw === TW && ph === TH;
           const isSquare = Math.abs(pw - ph) < 20;
-          const isNear16x9 = Math.abs(pw / ph - 16 / 9) < 0.1;
-          if (isSquare) {
-            // Square clip (InfiniteTalk outputs 960x960): scale to fill width, centre-crop height
-            vfFilter = 'scale=1280:-1,crop=1280:720,fps=24';
-            console.log(`[Assembly] Clip ${i + 1}: square ${pw}x${ph} → centre-crop to 1280x720`);
-          } else if (isNear16x9) {
-            vfFilter = 'scale=1280:720,fps=24';
-            console.log(`[Assembly] Clip ${i + 1}: 16:9 ${pw}x${ph} → scale to 1280x720`);
+          const targetRatio = TW / TH;
+          const clipRatio = pw / ph;
+          const isNearTargetRatio = Math.abs(clipRatio - targetRatio) < 0.1;
+          if (isExactMatch || isNearTargetRatio) {
+            vfFilter = `scale=${TW}:${TH},fps=24`;
+            console.log(`[Assembly] Clip ${i + 1}: ${pw}x${ph} → scale to ${TW}x${TH}`);
+          } else if (isSquare) {
+            // Square clip (e.g. InfiniteTalk 960x960): scale to fill larger target dimension, centre-crop
+            const fillDim = Math.max(TW, TH);
+            vfFilter = `scale=${fillDim}:-1,crop=${TW}:${TH},fps=24`;
+            console.log(`[Assembly] Clip ${i + 1}: square ${pw}x${ph} → centre-crop to ${TW}x${TH}`);
           } else {
-            // Portrait or other: scale to fill width/height (whichever is larger), then centre-crop
-            vfFilter = 'scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,fps=24';
-            console.log(`[Assembly] Clip ${i + 1}: other ${pw}x${ph} → crop-to-fill 1280x720`);
+            // Portrait, landscape, or other: scale-to-fill + centre-crop (no black bars)
+            vfFilter = `scale=${TW}:${TH}:force_original_aspect_ratio=increase,crop=${TW}:${TH},fps=24`;
+            console.log(`[Assembly] Clip ${i + 1}: other ${pw}x${ph} → crop-to-fill ${TW}x${TH}`);
           }
         }
       } catch (probeErr: any) {
-        console.warn(`[Assembly] Clip ${i + 1}: probe failed (${probeErr?.message?.slice(0,60)}), using pad fallback`);
+        console.warn(`[Assembly] Clip ${i + 1}: probe failed (${probeErr?.message?.slice(0,60)}), using default filter`);
       }
       await execAsync(
         `"${FFMPEG_BIN}" -y -i "${src}" ${durFlag} -an -c:v libx264 -preset fast -crf 22 -vf "${vfFilter}" -vsync cfr -r 24 -pix_fmt yuv420p "${dst}"`,

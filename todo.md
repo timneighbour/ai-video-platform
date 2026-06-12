@@ -9138,3 +9138,12 @@
 - [ ] Add launchProbeRender tRPC procedure — renders only the selected scene with full lip sync and compositing pipeline
 - [ ] Show probe result in Screening Room with "Looks good — start full render" CTA
 - [x] Auto-clear stale render outputs before new render — handleStartRenderInternal now calls resetRender if any scene has a videoUrl before calling startRender
+
+## Pipeline Quality Overhaul (June 2026)
+- [ ] Fix aspect ratio: pass job.aspectRatio to Atlas Cloud, WaveSpeed, and InfiniteTalk — no hardcoded 16:9
+- [ ] Fix assembly normalisation: replace pad-to-1280x720 with crop-to-fill for all non-standard clip dimensions (no black bars ever)
+- [ ] Switch primary lip sync to HeyGen — confirm HeyGen API is wired and active as the primary lip sync engine
+- [ ] Pass full audio context to every provider: scene startTime, duration, vocal onset time, lyrics, total track duration
+- [ ] Enforce storyboard image as visual anchor for every scene across all providers (no random characters)
+- [ ] Verify InfiniteTalk receives correctly sliced vocal stem (not full mix) at exact scene timestamps
+- [ ] Audit and confirm aspect ratio flows through from user settings → storyboard generation → video generation → assembly
