@@ -9178,3 +9178,8 @@
 - [x] WaveSpeed fallback prompt: fixed hardcoded "16:9" text to use actual aspectRatio variable
 - [x] Confirmed storyboard generation (fal-image-gen.ts) correctly maps job.aspectRatio to Flux image dimensions
 - [x] Confirmed WaveSpeed startSceneRenderWaveSpeed correctly passes aspectRatio to both i2v and t2v API calls
+
+## Bug Fixes & UX (Jun 12 2026)
+
+- [x] Fix Regenerate All Scenes: clear existing previewImageUrl from all scenes so heartbeat re-generates fresh images
+- [x] Mobile audio player: add collapse/expand toggle (mobile-only) so the player can be minimised to avoid blocking the storyboard UI

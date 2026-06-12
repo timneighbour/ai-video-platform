@@ -5965,12 +5965,16 @@ Your task:
       }
 
       // Reset all scenes to pending
+      // CRITICAL: also clear previewImageUrl so the heartbeat's storyboard-generation
+      // logic does not skip scenes that already have a URL. Without this, the filter
+      // at triggerMusicVideoRender sees existing URLs and skips regeneration entirely.
       await db.update(musicVideoScenes)
         .set({
           status: "pending" as any,
           taskId: null,
           videoUrl: null,
           videoKey: null,
+          previewImageUrl: null,  // ← force fresh storyboard image generation
           errorMessage: null,
           retryCount: 0,
           updatedAt: new Date(),
