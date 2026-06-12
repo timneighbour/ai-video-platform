@@ -9183,3 +9183,4 @@
 
 - [x] Fix Regenerate All Scenes: clear existing previewImageUrl from all scenes so heartbeat re-generates fresh images
 - [x] Mobile audio player: add collapse/expand toggle (mobile-only) so the player can be minimised to avoid blocking the storyboard UI
+- [x] Fix launchProbeRender: refactored to async queue (reset scene to pending + set job to rendering, let heartbeat dispatch) — eliminates Cloud Run cold-start timeout on deployed site

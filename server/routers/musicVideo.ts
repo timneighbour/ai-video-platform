@@ -6156,16 +6156,17 @@ Your task:
         .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
       if (!scene) throw new TRPCError({ code: "NOT_FOUND", message: "Scene not found" });
 
-      // Check provider availability
-      const providerAvailable = await isAnyProviderAvailable();
-      if (!providerAvailable) {
-        throw new TRPCError({
-          code: "SERVICE_UNAVAILABLE",
-          message: "Video generation service is temporarily unavailable. Please try again in a few minutes.",
-        });
-      }
+      // ── ASYNC QUEUE: Reset scene to pending and let the heartbeat dispatch it ──────────
+      // We do NOT call startSceneRender synchronously here — that call takes 5-30s
+      // (audio extraction + WaveSpeed API) and causes Cloud Run cold-start timeouts.
+      // Instead: reset the scene to pending, mark the job as rendering, and return
+      // immediately. The sceneDispatchHeartbeat will pick it up on its next tick (~30s).
+      // The heartbeat's probe gate (probePassed=false) ensures only this scene is dispatched.
 
-      // Reset the scene so it can be re-rendered
+      // Clear any previous idempotency records so the heartbeat can re-dispatch
+      await resetSceneAttempts(input.sceneId);
+
+      // Reset the scene to pending so the heartbeat dispatches it
       await db.update(musicVideoScenes)
         .set({
           status: "pending",
@@ -6185,138 +6186,22 @@ Your task:
         })
         .where(eq(musicVideoScenes.id, input.sceneId));
 
-      // Load all characters for this job (needed for prompt enrichment)
-      const allJobChars = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
+      // Mark the job as rendering with this scene as the probe scene.
+      // The heartbeat's probe gate (probePassed=false) will ensure only this scene
+      // is dispatched — all other scenes remain blocked until the probe is approved.
+      await db.update(musicVideoJobs)
+        .set({
+          status: "rendering",
+          completedScenes: 0,
+          aspectRatio: input.aspectRatio,
+          probeSceneId: input.sceneId,
+          probePassed: false,
+          updatedAt: new Date(),
+        })
+        .where(eq(musicVideoJobs.id, input.jobId));
 
-      // Build character map
-      const charMap = new Map<string, { name: string; role: string; brief: string }>();
-      if (job.characterRoster) {
-        try {
-          const roster: Array<{ name: string; role: string; isLocked: boolean; description: string }> = JSON.parse(job.characterRoster);
-          for (const c of roster) {
-            charMap.set(c.name.toLowerCase(), { name: c.name, role: c.role, brief: c.description });
-          }
-        } catch {}
-      }
-      for (const c of allJobChars) {
-        if (c.isLocked && c.lockedDescription) {
-          charMap.set(c.name.toLowerCase(), { name: c.name, role: c.role ?? "", brief: c.lockedDescription });
-        }
-      }
-
-      // Parse character assignments for this scene
-      let assignedNames: string[] = [];
-      try {
-        if (scene.characterAssignments) assignedNames = JSON.parse(scene.characterAssignments);
-      } catch {}
-
-      // Build compact character tags
-      const buildTag = (brief: string, name: string, role: string): string => {
-        const sentences = brief.split(/(?<=[.!?])\s+/);
-        const compact = sentences.slice(0, 2).join(" ");
-        const truncated = compact.length > 200 ? compact.slice(0, 197) + "..." : compact;
-        return `[${name}${role ? `, ${role}` : ""}: ${truncated}]`;
-      };
-
-      const sceneBriefs: string[] = [];
-      if (assignedNames.length > 0) {
-        for (const name of assignedNames) {
-          const cd = charMap.get(name.toLowerCase());
-          if (cd) sceneBriefs.push(`${cd.name}${cd.role ? ` (${cd.role})` : ""}: ${cd.brief}`);
-        }
-      } else if (charMap.size > 0) {
-        charMap.forEach((c) => sceneBriefs.push(`${c.name}${c.role ? ` (${c.role})` : ""}: ${c.brief}`));
-      }
-
-      const compactTags = sceneBriefs.map(brief => {
-        const colonIdx = brief.indexOf(": ");
-        const nameRole = colonIdx > 0 ? brief.slice(0, colonIdx) : "";
-        const description = colonIdx > 0 ? brief.slice(colonIdx + 2) : brief;
-        const parenIdx = nameRole.indexOf(" (");
-        const charName = parenIdx > 0 ? nameRole.slice(0, parenIdx) : nameRole;
-        const charRole = parenIdx > 0 ? nameRole.slice(parenIdx + 2, -1) : "";
-        return buildTag(description, charName, charRole);
-      });
-
-      // Determine primary vocalist
-      let primaryVocalistName: string | null = null;
-      for (const name of assignedNames) {
-        const cd = charMap.get(name.toLowerCase());
-        if (cd) {
-          const roleLower = (cd.role ?? "").toLowerCase();
-          if (roleLower.includes("singer") || roleLower.includes("vocalist") || roleLower.includes("lead")) {
-            primaryVocalistName = cd.name;
-            break;
-          }
-        }
-      }
-      if (!primaryVocalistName && assignedNames.length > 0) {
-        const firstCd = charMap.get(assignedNames[0].toLowerCase());
-        if (firstCd) primaryVocalistName = firstCd.name;
-      }
-
-      // Build lyric context block
-      let lyricContextBlock = "";
-      if (scene.lyrics?.trim()) {
-        const cleanLyrics = scene.lyrics.trim().replace(/\n+/g, " ").slice(0, 200);
-        if (primaryVocalistName && scene.lipSync !== false) {
-          lyricContextBlock = `AUDIO SYNC: ${primaryVocalistName} is singing: "${cleanLyrics}". Lip sync ACTIVE.`;
-        } else if (scene.lipSync !== false) {
-          lyricContextBlock = `AUDIO SYNC: Vocalist singing: "${cleanLyrics}". Lip sync active.`;
-        }
-      }
-
-      const styleBlock = scene.visualStyle ? `Visual style: ${scene.visualStyle}.` : "";
-      const enrichedPrompt = compactTags.length > 0
-        ? [compactTags.join(" "), scene.prompt, styleBlock, lyricContextBlock].filter(Boolean).join(" ")
-        : [scene.prompt, styleBlock, lyricContextBlock].filter(Boolean).join(" ");
-
-      // Get character image URL for face lock
-      let sceneCharImageUrl: string | null = null;
-      if (primaryVocalistName) {
-        const vocChar = allJobChars.find(c => c.name.toLowerCase() === primaryVocalistName!.toLowerCase());
-        if (vocChar) sceneCharImageUrl = vocChar.masterPortraitUrl ?? vocChar.previewImageUrl ?? null;
-      }
-      if (!sceneCharImageUrl && job.characterImageUrl) sceneCharImageUrl = job.characterImageUrl;
-
-      const storyboardImageUrl = scene.previewImageUrl ?? null;
-      const wsModel = mapModelAssignmentToWaveSpeed(scene.modelAssignment ?? "seedance-2.0");
-
-      // Dispatch the single scene render
-      try {
-        const taskId = await startSceneRender(
-          scene.id,
-          enrichedPrompt,
-          scene.duration,
-          scene.lipSync ?? true,
-          (scene.lipSyncStyle ?? "natural") as "natural" | "expressive" | "subtle" | "dramatic" | "anime",
-          "wavespeed" as any,
-          wsModel,
-          storyboardImageUrl ?? undefined,
-          (input.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "21:9",
-          input.jobId,
-          sceneCharImageUrl,
-          job.audioUrl,
-          scene.startTime
-        );
-        await db.update(musicVideoScenes)
-          .set({ status: "generating", taskId, updatedAt: new Date() })
-          .where(eq(musicVideoScenes.id, scene.id));
-        // Mark job as rendering (probe mode) so the heartbeat picks it up
-        await db.update(musicVideoJobs)
-          .set({ status: "rendering", completedScenes: 0, aspectRatio: input.aspectRatio, updatedAt: new Date() })
-          .where(eq(musicVideoJobs.id, input.jobId));
-        console.log(`[ProbeRender] Scene ${scene.id} probe dispatched via WaveSpeed: ${taskId}`);
-        return { success: true, taskId, sceneId: scene.id };
-      } catch (err: unknown) {
-        const errMsg = String((err as any)?.message ?? err);
-        console.error(`[ProbeRender] Scene ${scene.id} probe dispatch failed:`, errMsg.slice(0, 300));
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: `Probe render failed to start: ${errMsg.slice(0, 200)}`,
-        });
-      }
+      console.log(`[ProbeRender] Scene ${scene.id} queued for probe render — heartbeat will dispatch on next tick`);
+      return { success: true, sceneId: scene.id };
     }),
 });
 /** Translate internal error codes to user-friendly messages. */
