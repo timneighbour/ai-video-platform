@@ -30,6 +30,7 @@ export const PROVIDER_COST_USD: Record<string, number> = {
   atlas_cloud_fast: 0.64,  // PRIMARY — Atlas Cloud Fast (~$0.101/sec × 5s + overhead)
   atlas_cloud:      0.80,  // Atlas Cloud Standard (higher quality, slower)
   hypereal:         0.50,  // Disabled — no silent fallback during launch
+  byteplus_seedance: 0.25,  // BytePlus ModelArk Seedance 2.0 — Official ByteDance international API
   wavespeed:        1.80,  // WaveSpeed Seedance 2.0 Fast 720p — MEASURED $1.80/clip (was wrong at $0.80)
   kling_standard:   0.60,
   kling_pro:        1.20,

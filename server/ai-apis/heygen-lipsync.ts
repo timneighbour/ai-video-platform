@@ -29,9 +29,78 @@
 
 import axios from "axios";
 import FormData from "form-data";
+import { execFile } from "child_process";
+import { promisify } from "util";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+import ffmpegStatic from "ffmpeg-static";
+import { existsSync } from "fs";
+
+const execFileAsync = promisify(execFile);
+
+// ffmpeg-static ships a static binary that works in Cloud Run.
+// Fall back to the system ffmpeg binary if the static binary is absent (dev sandbox).
+const _staticPath = ffmpegStatic as string | null;
+const ffmpegPath: string = (_staticPath && existsSync(_staticPath))
+  ? _staticPath
+  : "/usr/bin/ffmpeg";
 
 const HEYGEN_API_BASE = "https://api.heygen.com";
 const HEYGEN_API_KEY = process.env.HEYGEN_API_KEY;
+
+// ── Audio Mux Helper ─────────────────────────────────────────────────────────
+
+/**
+ * Mix an audio clip into a silent video file so HeyGen Precision has an audio
+ * track to replace. HeyGen requires the input video to have an audio track —
+ * silent videos cause "audio missing or corrupted" errors.
+ *
+ * Downloads both files, muxes them with ffmpeg-static, returns the muxed buffer.
+ */
+async function muxAudioIntoVideoBuffer(
+  videoUrl: string,
+  audioUrl: string,
+  sceneId: number | string
+): Promise<Buffer> {
+  const tmpDir = os.tmpdir();
+  const videoPath = path.join(tmpDir, `heygen_vid_${sceneId}_${Date.now()}.mp4`);
+  const audioPath = path.join(tmpDir, `heygen_aud_${sceneId}_${Date.now()}.mp3`);
+  const outPath   = path.join(tmpDir, `heygen_mux_${sceneId}_${Date.now()}.mp4`);
+
+  try {
+    // Download video
+    const vResp = await fetch(videoUrl);
+    if (!vResp.ok) throw new Error(`Failed to download video: HTTP ${vResp.status}`);
+    fs.writeFileSync(videoPath, Buffer.from(await vResp.arrayBuffer()));
+
+    // Download audio
+    const aResp = await fetch(audioUrl);
+    if (!aResp.ok) throw new Error(`Failed to download audio: HTTP ${aResp.status}`);
+    fs.writeFileSync(audioPath, Buffer.from(await aResp.arrayBuffer()));
+
+    // Mux: copy video stream, encode audio as AAC, trim to shortest stream
+    await execFileAsync(ffmpegPath, [
+      "-y",
+      "-i", videoPath,
+      "-i", audioPath,
+      "-c:v", "copy",
+      "-c:a", "aac",
+      "-b:a", "128k",
+      "-shortest",
+      outPath,
+    ]);
+
+    const muxedBuffer = fs.readFileSync(outPath);
+    console.log(`[HeyGenLipSyncV3] Muxed video+audio → ${muxedBuffer.length} bytes`);
+    return muxedBuffer;
+  } finally {
+    // Clean up temp files
+    for (const p of [videoPath, audioPath, outPath]) {
+      try { fs.unlinkSync(p); } catch { /* ignore */ }
+    }
+  }
+}
 
 // ── Asset Upload ──────────────────────────────────────────────────────────────
 
@@ -43,18 +112,32 @@ const HEYGEN_API_KEY = process.env.HEYGEN_API_KEY;
  * Returns the asset_id for use in lip sync job submission.
  */
 async function uploadAssetToHeyGen(
+  buffer: Buffer,
+  mimeType: "video/mp4" | "audio/mpeg",
+  label: string
+): Promise<string>;
+async function uploadAssetToHeyGen(
   url: string,
+  mimeType: "video/mp4" | "audio/mpeg",
+  label: string
+): Promise<string>;
+async function uploadAssetToHeyGen(
+  urlOrBuffer: string | Buffer,
   mimeType: "video/mp4" | "audio/mpeg",
   label: string
 ): Promise<string> {
   if (!HEYGEN_API_KEY) throw new Error("HEYGEN_API_KEY not configured");
 
-  console.log(`[HeyGenLipSyncV3] Uploading ${label} to HeyGen asset storage: ${url.slice(0, 80)}...`);
-
-  // Download the file
-  const dlResp = await fetch(url);
-  if (!dlResp.ok) throw new Error(`Failed to download ${label}: HTTP ${dlResp.status} from ${url}`);
-  const buffer = Buffer.from(await dlResp.arrayBuffer());
+  let buffer: Buffer;
+  if (typeof urlOrBuffer === "string") {
+    console.log(`[HeyGenLipSyncV3] Uploading ${label} to HeyGen asset storage: ${urlOrBuffer.slice(0, 80)}...`);
+    const dlResp = await fetch(urlOrBuffer);
+    if (!dlResp.ok) throw new Error(`Failed to download ${label}: HTTP ${dlResp.status} from ${urlOrBuffer}`);
+    buffer = Buffer.from(await dlResp.arrayBuffer());
+  } else {
+    console.log(`[HeyGenLipSyncV3] Uploading ${label} buffer (${urlOrBuffer.length} bytes) to HeyGen asset storage...`);
+    buffer = urlOrBuffer;
+  }
 
   // Upload to HeyGen /v3/assets
   const form = new FormData();
@@ -142,10 +225,21 @@ export async function submitHeyGenLipSyncV3(
     throw new Error("HEYGEN_API_KEY is not configured. Cannot submit HeyGen lip sync job.");
   }
 
-  // Upload video and audio to HeyGen's own asset storage.
-  // HeyGen cannot access external CDN URLs (CloudFront, Manus CDN, etc.) —
-  // all media must be hosted on HeyGen's servers for lip sync to work.
-  const videoAssetId = await uploadAssetToHeyGen(request.videoUrl, "video/mp4", "video");
+  // HeyGen Precision requires the input video to have an audio track.
+  // Silent Seedance videos cause "audio missing or corrupted" errors.
+  // Fix: mux the vocal stem audio into the video before uploading to HeyGen.
+  // HeyGen Precision then replaces that audio with the lip-synced output.
+  const sceneLabel = request.title ?? `scene_${Date.now()}`;
+  console.log(`[HeyGenLipSyncV3] Muxing audio into video for HeyGen Precision...`);
+  const muxedVideoBuffer = await muxAudioIntoVideoBuffer(
+    request.videoUrl,
+    request.audioUrl,
+    sceneLabel
+  );
+
+  // Upload muxed video (with audio track) and the audio clip separately.
+  // HeyGen cannot access external CDN URLs — all media must be uploaded to HeyGen's storage.
+  const videoAssetId = await uploadAssetToHeyGen(muxedVideoBuffer, "video/mp4", "muxed-video");
   const audioAssetId = await uploadAssetToHeyGen(request.audioUrl, "audio/mpeg", "audio");
 
   const payload: Record<string, unknown> = {

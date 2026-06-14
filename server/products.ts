@@ -165,6 +165,8 @@ export const RENDERER_COSTS = {
   fal_seedance: 1.91,
   /** Hypereal — estimated (~$0.10/sec × 8s = $0.80 = £0.63) ← TERTIARY */
   hypereal: 0.63,
+  /** BytePlus ModelArk Seedance 2.0 — Official ByteDance international API (~$0.15–0.25/scene = £0.12–0.20) ← ACTIVE */
+  byteplus_seedance: 0.20,
   /** WaveSpeed Seedance 2.0 — DISABLED. Too expensive ($0.15–0.24/sec) and unreliable. */
   wavespeed_seedance: 1.51,
   // Legacy key — maps to Atlas Cloud Fast (primary provider, cheapest)

@@ -9198,3 +9198,17 @@
 - [x] Fix Seedance image-to-video aspect ratio: replace incorrect `size` param with `aspect_ratio: "16:9"` in wavespeed.ts — was causing all scenes to render as 960x960 square
 - [x] Fix HeyGen Precision lip sync: upload video/audio assets to HeyGen storage before submitting job — was causing "couldn't process your video" failures because HeyGen cannot access Manus CDN URLs
 - [ ] Verify probe scene 990015 re-renders in 16:9 with working HeyGen Precision lip sync
+
+## CRITICAL BUG FIX: Credit Exhaustion Retry Loop (13 Jun 2026)
+- [ ] Fix heartbeat: immediately halt ALL retries when provider returns 400 Insufficient Credits
+- [ ] Mark provider unavailable INSTANTLY on credit exhaustion (not after N failures)
+- [ ] Prevent failed_retryable scenes from auto-retrying more than once per 30 minutes
+- [ ] Add hard circuit breaker: if credit error detected, pause entire job and notify owner
+- [ ] Add admin UI button to manually resume a paused job after top-up
+
+## Provider Research & Evaluation (13 Jun 2026)
+- [ ] Switch scene 990015 to Atlas Cloud provider (bypass WaveSpeed payment delays)
+- [ ] Research Seedance Direct API access (vs WaveSpeed intermediary)
+- [ ] Research alternative premium video generation providers (Runway Gen-3, Pika, others)
+- [ ] Compile provider comparison: reliability, payment processing, support, pricing
+- [ ] Recommend replacement for WaveSpeed based on reliability and support

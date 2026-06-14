@@ -61,7 +61,7 @@ import { eq, and, inArray } from "drizzle-orm";
 import { acquireJobLock, releaseJobLock } from "../queue-lock";
 import { assessLipSyncQuality, shouldProceedToAssembly, shouldRetryLipSync } from "../lip-sync-gate";
 import { sdk } from "../_core/sdk";
-import { startSceneRender, pollSceneStatus, extractLyricsForWindow } from "../music-video-service";
+import { startSceneRender, pollSceneStatus, extractLyricsForWindow, resolveVenueReferenceUrl } from "../music-video-service";
 import { extractSceneAudioClip, sliceVocalStemForSeedance } from "../audio-clip-extractor";
 // HeyGen Precision — PRIMARY lip-sync provider (switched from InfiniteTalk 2026-06-10)
 // Performance scenes: Seedance generates video → HeyGen Precision re-lips with isolated vocal stem
@@ -266,29 +266,41 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         // ── 2. Auto-recover failed scenes back to pending ──────────────────────
         // Also recover failed_retryable scenes — these were blocked by provider issues
         // (balance exhaustion, copyright rejection) but should be retried on the next tick.
+        //
+        // CRITICAL GUARD: Do NOT reset failed_retryable scenes if:
+        //   a) The job is provider_unavailable (credits exhausted — wait for manual resume)
+        //   b) The provider health record shows isHealthy=false (circuit breaker active)
+        // This prevents the credit-burning retry loop where the heartbeat keeps
+        // re-submitting scenes that will immediately fail with "Insufficient credits".
+        const jobIsProviderUnavailable = (job.status as string) === "provider_unavailable";
         const failedScenes = scenes.filter((s) => s.status === "failed" || (s.status as any) === "failed_retryable");
         if (failedScenes.length > 0) {
-          console.log(`[SceneDispatch] Job ${job.id} — resetting ${failedScenes.length} failed/failed_retryable scene(s) back to pending for retry`);
-          for (const fs of failedScenes) {
-            // CRITICAL: Cancel providerJobLogs entries so idempotency check doesn't block re-dispatch
-            await resetSceneAttempts(fs.id);
-            await db.update(musicVideoScenes)
-              .set({
-                status: "pending",
-                taskId: null,
-                errorMessage: null,
-                lipSyncStatus: "pending",
-                lipSyncTaskId: null,
-                lipSyncVideoUrl: null,
-                compositeStatus: "skipped", // compositing removed
-                compositeVideoUrl: null,
-                updatedAt: new Date(),
-              })
-              .where(eq(musicVideoScenes.id, fs.id));
+          if (jobIsProviderUnavailable) {
+            // HARD STOP: do not retry while provider is unavailable — avoids credit burn loop
+            console.warn(`[SceneDispatch] Job ${job.id} — SKIPPING retry of ${failedScenes.length} failed_retryable scene(s): job is provider_unavailable. Waiting for manual resume.`);
+          } else {
+            console.log(`[SceneDispatch] Job ${job.id} — resetting ${failedScenes.length} failed/failed_retryable scene(s) back to pending for retry`);
+            for (const fs of failedScenes) {
+              // CRITICAL: Cancel providerJobLogs entries so idempotency check doesn't block re-dispatch
+              await resetSceneAttempts(fs.id);
+              await db.update(musicVideoScenes)
+                .set({
+                  status: "pending",
+                  taskId: null,
+                  errorMessage: null,
+                  lipSyncStatus: "pending",
+                  lipSyncTaskId: null,
+                  lipSyncVideoUrl: null,
+                  compositeStatus: "skipped", // compositing removed
+                  compositeVideoUrl: null,
+                  updatedAt: new Date(),
+                })
+                .where(eq(musicVideoScenes.id, fs.id));
+            }
+            // Re-fetch scenes after reset so pending list is accurate
+            const refreshed = await db.select().from(musicVideoScenes).where(eq(musicVideoScenes.jobId, job.id));
+            pendingScenes.push(...refreshed.filter(s => failedScenes.some(f => f.id === s.id)));
           }
-          // Re-fetch scenes after reset so pending list is accurate
-          const refreshed = await db.select().from(musicVideoScenes).where(eq(musicVideoScenes.jobId, job.id));
-          pendingScenes.push(...refreshed.filter(s => failedScenes.some(f => f.id === s.id)));
         }
 
         // ── 2b. HARD PAUSE: awaiting_probe_approval ──────────────────────────
@@ -556,56 +568,87 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               console.log(`[SceneDispatch] Scene ${scene.id} no lyrics available — r2v will use audio-only lip sync`);
             }
 
-            // ── PIPELINE ROUTING ──────────────────────────────────────────────────────────────────────
-            // ALL scenes (performance + cinematic) now go through Seedance first to generate a video.
-            // Performance scenes (lipSync=true): Seedance → HeyGen Precision (video + vocal stem → lip-synced video)
-            // Cinematic scenes (lipSync=false): Seedance only. No lip sync.
-            // HeyGen Precision is PRIMARY. InfiniteTalk (WaveSpeed) is FALLBACK if HeyGen is unavailable.
+            // ── PIPELINE ROUTING (2026-06-13) ──────────────────────────────────────────────────────────────────────
+            // Performance scenes (lipSync=true) + character + vocal stem:
+            //   → OmniHuman 1.5 (BytePlus Vision AI) — single call: image + audio → lip-synced video
+            //   No Seedance. No HeyGen. No ffmpeg mux. One API call.
+            //
+            // All other scenes (cinematic, or performance without audio/character):
+            //   → BytePlus Seedance 2.0 (ModelArk) — image-to-video
+            //   (Fal.ai: out of credits. WaveSpeed: out of credits. Atlas Cloud: content policy.)
             const isPerformanceScene = scene.sceneType === "performance";
+            // slicedVocalStemUrl: use the already-sliced vocal stem from the R2V prep above,
+            // or fall back to the full stem/audio URL if slicing wasn't attempted.
+            const slicedVocalStemUrl = sceneAudioUrlForR2V ?? (job.stemVocalsUrl ?? job.audioUrl ?? undefined);
+// OmniHuman disabled until BytePlus Vision AI model is activated on the account.
+            // Once activated, change this back to:
+            //   isPerformanceScene && (scene.lipSync ?? false) && !!resolvedCharacterUrl && !!slicedVocalStemUrl
+            const useOmniHuman = false;
 
-            {
-              // ── ALL SCENES: WaveSpeed Seedance 2.0 (performance + cinematic) ──────────────────────────
-              // PRIMARY: WaveSpeed via Seedance 2.0 full quality — character/performance scenes
-              //          WaveSpeed via Seedance 2.0 Fast — atmospheric/cinematic cutaways
-              // Performance scenes (lipSync=true): WaveSpeed i2v → HeyGen Precision lip sync
-              // Cinematic scenes (lipSync=false): WaveSpeed i2v only. No lip sync.
-              // Atlas Cloud: disabled (not the active provider for this platform)
-              // ── PROVIDER SELECTION: always WaveSpeed ─────────────────────────
-              const forcedRenderer = "wavespeed";
-              const sceneStoryboardUrl = scene.previewImageUrl ?? undefined;
-              console.log(`[SceneDispatch] Scene ${scene.id} → renderer: ${forcedRenderer} (fallbackProvider=${job.fallbackProvider ?? 'none'})`);
-              console.log(`[SceneDispatch] Scene ${scene.id} storyboard: ${sceneStoryboardUrl ? sceneStoryboardUrl.slice(0, 80) + '...' : 'NONE — text-to-video fallback'}`);
+            if (useOmniHuman) {
+              // ── OMNIHUMAN PATH: performance + lipSync + character + vocal stem ────────────────────
+              console.log(`[SceneDispatch] Scene ${scene.id} → OmniHuman 1.5 (performance lip sync)`);
+              console.log(`[SceneDispatch] Scene ${scene.id} character: ${resolvedCharacterUrl!.slice(0, 80)}...`);
+              console.log(`[SceneDispatch] Scene ${scene.id} vocal stem: ${slicedVocalStemUrl!.slice(0, 80)}...`);
+              const { startSceneRenderOmniHuman: renderOmniHuman } = await import("../music-video-service");
+              const taskId = await renderOmniHuman(
+                scene.id,
+                scenePrompt,
+                resolvedCharacterUrl!,
+                slicedVocalStemUrl!
+              );
+              await db
+                .update(musicVideoScenes)
+                .set({ status: "generating", taskId, compositeStatus: "skipped", lipSyncStatus: "pending", updatedAt: new Date() })
+                .where(eq(musicVideoScenes.id, scene.id));
+              if (pendingProbeSceneId === scene.id) {
+                await db.update(musicVideoJobs)
+                  .set({ probePassed: false, probeSceneId: scene.id, updatedAt: new Date() })
+                  .where(eq(musicVideoJobs.id, job.id));
+                console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — OmniHuman scene ${scene.id} in progress`);
+              }
+              console.log(`[SceneDispatch] Scene ${scene.id} dispatched → OmniHuman taskId: ${taskId}`);
+              totalDispatched++;
+            } else {
+              // ── BYTEPLUS SEEDANCE PATH: cinematic or performance without audio/character ──────────
+              const forcedRenderer = "byteplus_seedance";
+              // IMPORTANT: BytePlus Seedance 2.0 blocks any image containing a real person face
+              // (InputImageSensitiveContentDetected.PrivacyInformation). The scene storyboard image
+              // (previewImageUrl) contains Zara's portrait and will be blocked. Instead, use the
+              // venue reference image (Air Studios / Lyndhurst Hall real photo) which is a pure
+              // environment shot with no face. Falls back to text-to-video if no venue match.
+              const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting, scene.sceneIndex ?? 0);
+              const sceneStoryboardUrl = venueRefUrl ?? undefined; // venue reference, NOT scene storyboard
+              console.log(`[SceneDispatch] Scene ${scene.id} → BytePlus Seedance 2.0 (${isPerformanceScene ? 'performance-no-audio' : 'cinematic'})`);
+              console.log(`[SceneDispatch] Scene ${scene.id} venue-ref: ${sceneStoryboardUrl ? sceneStoryboardUrl.slice(0, 80) + '...' : 'NONE — text-to-video fallback'} (storyboard withheld — contains face)`);
               console.log(`[SceneDispatch] Scene ${scene.id} character: ${resolvedCharacterUrl ? resolvedCharacterUrl.slice(0, 80) + '...' : 'NONE'}`);
               const taskId = await startSceneRender(
                 scene.id,
                 scenePrompt,
                 scene.duration ?? 5,
-                scene.lipSync ?? false,           // pass actual lipSync flag (true for performance scenes)
+                scene.lipSync ?? false,
                 scene.lipSyncStyle ?? "natural",
                 forcedRenderer as any,
                 undefined as any,
-                sceneStoryboardUrl,               // CHARACTER LOCK™: approved storyboard image as i2v starting frame
+                sceneStoryboardUrl,
                 (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1",
                 job.id,
                 resolvedCharacterUrl,
-                job.audioUrl ?? undefined,        // Full audio for Atlas r2v lip sync
+                job.audioUrl ?? undefined,
                 scene.startTime ?? undefined,
                 sceneLyrics
               );
-
               await db
                 .update(musicVideoScenes)
                 .set({ status: "generating", taskId, compositeStatus: "skipped", updatedAt: new Date() })
                 .where(eq(musicVideoScenes.id, scene.id));
-
               if (pendingProbeSceneId === scene.id) {
                 await db.update(musicVideoJobs)
                   .set({ probePassed: false, probeSceneId: scene.id, updatedAt: new Date() })
                   .where(eq(musicVideoJobs.id, job.id));
-                console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — marked scene ${scene.id} in progress (Seedance cinematic)`);
+                console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — BytePlus Seedance scene ${scene.id} in progress`);
               }
-
-              console.log(`[SceneDispatch] Scene ${scene.id} dispatched → taskId: ${taskId}, compositeStatus: skipped (cinematic)`);
+              console.log(`[SceneDispatch] Scene ${scene.id} dispatched → BytePlus Seedance taskId: ${taskId}, compositeStatus: skipped`);
               totalDispatched++;
             }
           } catch (dispatchErr: any) {

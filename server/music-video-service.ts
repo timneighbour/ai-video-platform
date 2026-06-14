@@ -39,6 +39,8 @@ import { submitAtlasVideo, submitAtlasReferenceToVideo, submitAtlasImageToVideo,
 import { extractSceneAudioClip } from "./audio-clip-extractor";
 import { submitWaveSpeedVideo, submitWaveSpeedImageToVideo, pollWaveSpeedVideo, type WaveSpeedModel, type WaveSpeedI2VModel } from "./ai-apis/wavespeed";
 import { submitGrokVideo, pollGrokVideo } from "./ai-apis/grok-imagine";
+import { submitBytePlusSeedanceVideo, pollBytePlusSeedanceTask } from "./ai-apis/byteplus-seedance";
+import { submitOmniHumanTask, pollOmniHumanTask } from "./ai-apis/byteplus-omnihuman";
 import type { RendererType } from "./products";
 import { RENDERER_COSTS } from "./products";
 import { applyWizSound, type AudioTier } from "./wizsound";
@@ -69,6 +71,8 @@ const WAVESPEED_SEEDANCE_PREFIX = "wavespeed:seedance:";
 const WAVESPEED_SEEDANCE_NATIVE_PREFIX = "wavespeed:seedance:native:"; // Has reference_audios baked in — skip Sync Labs
 const WAVESPEED_HAILUO_PREFIX = "wavespeed:hailuo:";
 const GROK_IMAGINE_PREFIX = "grok:";
+const BYTEPLUS_I2V_PREFIX = "byteplus:i2v:";
+const BYTEPLUS_T2V_PREFIX = "byteplus:t2v:";
 
 
 const execAsync = promisify(exec);
@@ -1018,6 +1022,7 @@ export async function startSceneRender(
   const primaryProvider =
     (renderer === "fal_seedance" || renderer === "seedance") ? "fal_seedance" :
     (renderer === "atlas_cloud" || renderer === "atlas_cloud_fast") ? "atlas_cloud" :
+    renderer === "byteplus_seedance" ? "byteplus_seedance" :
     renderer;
   if (jobId > 0) {
     const blockReason = await checkSubmissionAllowed({ jobId, sceneId, provider: primaryProvider, attempt: 1 });
@@ -1040,6 +1045,30 @@ export async function startSceneRender(
   // FALLBACK:  WaveSpeed Seedance 2.0 Fast ($1.80/scene) — if Atlas circuit opens
   // DISABLED:  fal.ai — unreliable, watermarks on free tier
   // DISABLED:  Hypereal — not vetted for production
+  // ── BYTEPLUS DIRECT: BytePlus ModelArk Seedance 2.0 ─────────────────────────────────────────────
+  if (renderer === "byteplus_seedance") {
+    console.log(`[MusicVideo] Scene ${sceneId}: BYTEPLUS DIRECT (renderer override)`);
+    try {
+      // IMPORTANT: BytePlus Seedance 2.0 blocks real-person face images via content policy
+      // (InputImageSensitiveContentDetected.PrivacyInformation). We MUST NOT pass the character
+      // portrait here. Instead, pass ONLY the storyboard/environment image (Air Studios venue etc.)
+      // to generate the cinematic background. Character lip-sync is handled separately by
+      // HeyGen Precision v3 (WizSync) in the lip-sync phase, which takes the cinematic video
+      // output from this step + the isolated vocal audio → final lip-synced scene.
+      const bytePlusImageUrl = storyboardImageUrl ?? undefined;
+      console.log(`[MusicVideo] Scene ${sceneId} BytePlus: storyboard=${bytePlusImageUrl ? bytePlusImageUrl.slice(0,60)+'...' : 'NONE (text-to-video)'} (character portrait withheld — handled by WizSync)`);
+      const taskId = await startSceneRenderBytePlusSeedance(
+        sceneId, finalPrompt, duration, aspectRatio, jobId,
+        bytePlusImageUrl
+      );
+      return taskId;
+    } catch (bpErr: any) {
+      const bpMsg = String(bpErr?.message ?? bpErr);
+      console.error(`[MusicVideo] Scene ${sceneId} BytePlus DIRECT failed: ${bpMsg.slice(0, 200)}`);
+      throw new Error(`BytePlus render failed for scene ${sceneId}: ${bpMsg.slice(0, 200)}`);
+    }
+  }
+
   if (renderer === "wavespeed" || renderer === "fal_seedance" || renderer === "seedance" || renderer === "atlas_cloud" || renderer === "atlas_cloud_fast") {
     // ── WAVESPEED DIRECT: skip Atlas entirely when renderer is explicitly 'wavespeed' ──────
     // Used when job.fallbackProvider='wavespeed' is set (Atlas known-bad).
@@ -1215,6 +1244,165 @@ export async function startSceneRender(
     // No silent fallback to Hypereal — surface the error cleanly
     console.error(`[MusicVideo] Scene ${sceneId} Kling failed. No fallback active (safe launch mode).`, (err as Error).message?.slice(0, 200));
     throw new Error(`Video generation failed for scene ${sceneId}. Please try again in a moment.`);
+  }
+}
+
+// ── BYTEPLUS SEEDANCE: ModelArk Seedance 2.0 ────────────────────────────────────────────────────
+async function startSceneRenderBytePlusSeedance(
+  sceneId: number,
+  prompt: string,
+  duration: number,
+  aspectRatio: "16:9" | "9:16" | "1:1" | "4:3" | "21:9" = "16:9",
+  _jobId: number = 0,
+  characterImageUrl?: string
+): Promise<string> {
+  const clampedDuration = Math.max(5, Math.min(10, Math.round(duration))) as 5 | 10;
+  const safeRatio = (aspectRatio === "21:9" ? "16:9" : aspectRatio) as "16:9" | "9:16" | "1:1" | "4:3";
+  const taskId = await submitBytePlusSeedanceVideo({
+    prompt,
+    imageUrl: characterImageUrl,
+    ratio: safeRatio,
+    duration: clampedDuration,
+    resolution: "720p",
+    generateAudio: false,
+  });
+  console.log(`[MusicVideo] Scene ${sceneId} → BytePlus Seedance taskId=${taskId} (${characterImageUrl ? 'i2v' : 't2v'})`);
+  const prefix = characterImageUrl ? BYTEPLUS_I2V_PREFIX : BYTEPLUS_T2V_PREFIX;
+  return `${prefix}${taskId}`;
+}
+
+async function pollSceneStatusBytePlusSeedance(
+  sceneId: number,
+  taskId: string
+): Promise<{ status: "completed" | "failed" | "processing"; videoUrl?: string }> {
+  try {
+    const result = await pollBytePlusSeedanceTask(taskId);
+    const videoUrl = result.content?.video_url;
+    if (result.status === "succeeded" && videoUrl) {
+      let buffer: Buffer | null = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const response = await fetch(videoUrl);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          buffer = Buffer.from(await response.arrayBuffer());
+          break;
+        } catch (fetchErr) {
+          console.warn(`[BytePlusSeedance] Scene ${sceneId} video download attempt ${attempt}/3 failed:`, fetchErr);
+          if (attempt < 3) await new Promise((r) => setTimeout(r, 2000 * attempt));
+        }
+      }
+      if (!buffer) {
+        const db2 = await getDb();
+        if (db2) {
+          await db2.update(musicVideoScenes)
+            .set({ status: "failed", errorMessage: "Failed to download BytePlus Seedance video after 3 attempts", updatedAt: new Date() })
+            .where(eq(musicVideoScenes.id, sceneId));
+        }
+        return { status: "failed" };
+      }
+      const key = `music-video-scenes/${sceneId}-byteplus-${Date.now()}.mp4`;
+      const { url } = await storagePut(key, buffer, "video/mp4");
+      const db2 = await getDb();
+      if (db2) {
+        await db2.update(musicVideoScenes)
+          .set({ status: "completed", videoUrl: url, videoKey: key, updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+      console.log(`[BytePlusSeedance] Scene ${sceneId} completed → S3: ${url.slice(0, 80)}...`);
+      return { status: "completed", videoUrl: url };
+    }
+    if (result.status === "failed" || result.status === "cancelled") {
+      const db2 = await getDb();
+      if (db2) {
+        await db2.update(musicVideoScenes)
+          .set({ status: "failed", errorMessage: result.error?.message ?? "BytePlus Seedance generation failed", updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+      return { status: "failed" };
+    }
+    return { status: "processing" };
+  } catch (err: any) {
+    const db2 = await getDb();
+    if (db2) {
+      await db2.update(musicVideoScenes)
+        .set({ status: "failed", errorMessage: String(err?.message ?? err), updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, sceneId));
+    }
+    return { status: "failed" };
+  }
+}
+
+// ── OMNIHUMAN: BytePlus Vision AI OmniHuman 1.5 ──────────────────────────────────────────────────
+const OMNIHUMAN_PREFIX = "omnihuman:";
+
+export async function startSceneRenderOmniHuman(
+  sceneId: number,
+  prompt: string,
+  imageUrl: string,
+  audioUrl: string
+): Promise<string> {
+  const taskId = await submitOmniHumanTask({ imageUrl, audioUrl, prompt });
+  console.log(`[MusicVideo] Scene ${sceneId} → OmniHuman 1.5 taskId=${taskId}`);
+  return `${OMNIHUMAN_PREFIX}${taskId}`;
+}
+
+async function pollSceneStatusOmniHuman(
+  sceneId: number,
+  taskId: string
+): Promise<{ status: "completed" | "failed" | "processing"; videoUrl?: string }> {
+  try {
+    const result = await pollOmniHumanTask(taskId);
+    if (result.status === "done" && result.videoUrl) {
+      let buffer: Buffer | null = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const response = await fetch(result.videoUrl);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          buffer = Buffer.from(await response.arrayBuffer());
+          break;
+        } catch (fetchErr) {
+          console.warn(`[OmniHuman] Scene ${sceneId} video download attempt ${attempt}/3 failed:`, fetchErr);
+          if (attempt < 3) await new Promise((r) => setTimeout(r, 2000 * attempt));
+        }
+      }
+      if (!buffer) {
+        const db2 = await getDb();
+        if (db2) {
+          await db2.update(musicVideoScenes)
+            .set({ status: "failed", errorMessage: "Failed to download OmniHuman video after 3 attempts", updatedAt: new Date() })
+            .where(eq(musicVideoScenes.id, sceneId));
+        }
+        return { status: "failed" };
+      }
+      const key = `music-video-scenes/${sceneId}-omnihuman-${Date.now()}.mp4`;
+      const { url } = await storagePut(key, buffer, "video/mp4");
+      const db2 = await getDb();
+      if (db2) {
+        await db2.update(musicVideoScenes)
+          .set({ status: "completed", videoUrl: url, videoKey: key, updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+      console.log(`[OmniHuman] Scene ${sceneId} completed → S3: ${url.slice(0, 80)}...`);
+      return { status: "completed", videoUrl: url };
+    }
+    if (result.status === "failed") {
+      const db2 = await getDb();
+      if (db2) {
+        await db2.update(musicVideoScenes)
+          .set({ status: "failed", errorMessage: result.errorMessage ?? "OmniHuman generation failed", updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, sceneId));
+      }
+      return { status: "failed" };
+    }
+    return { status: "processing" };
+  } catch (err: any) {
+    const db2 = await getDb();
+    if (db2) {
+      await db2.update(musicVideoScenes)
+        .set({ status: "failed", errorMessage: String(err?.message ?? err), updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, sceneId));
+    }
+    return { status: "failed" };
   }
 }
 
@@ -1907,6 +2095,19 @@ export async function pollSceneStatus(
 
   if (taskId.startsWith(GROK_IMAGINE_PREFIX)) {
     return pollSceneStatusGrokImagine(sceneId, taskId.slice(GROK_IMAGINE_PREFIX.length));
+  }
+
+  // OmniHuman 1.5 (BytePlus Vision AI) — performance lip-sync scenes
+  if (taskId.startsWith(OMNIHUMAN_PREFIX)) {
+    return pollSceneStatusOmniHuman(sceneId, taskId.slice(OMNIHUMAN_PREFIX.length));
+  }
+
+  // BytePlus Seedance 2.0 (ModelArk) — cinematic scenes
+  if (taskId.startsWith(BYTEPLUS_I2V_PREFIX)) {
+    return pollSceneStatusBytePlusSeedance(sceneId, taskId.slice(BYTEPLUS_I2V_PREFIX.length));
+  }
+  if (taskId.startsWith(BYTEPLUS_T2V_PREFIX)) {
+    return pollSceneStatusBytePlusSeedance(sceneId, taskId.slice(BYTEPLUS_T2V_PREFIX.length));
   }
 
   // Legacy: Volcengine Seedance task IDs are handled by klingClient (wrong but kept for backward compat)
