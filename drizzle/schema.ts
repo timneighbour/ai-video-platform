@@ -34,7 +34,7 @@ export type InsertUser = typeof users.$inferInsert;
 // Subscription plans table
 export const subscriptions = mysqlTable("subscriptions", {
   id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(),
+  userId: int("userId").notNull().unique(), // ISS-028: one active subscription per user
   plan: mysqlEnum("plan", ["starter", "basic", "pro", "business", "creator", "studio"]).notNull(),
   stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 255 }).unique(),
   status: mysqlEnum("status", ["active", "canceled", "past_due", "unpaid"]).default("active").notNull(),
@@ -241,6 +241,16 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   syncLabsJobId: varchar("syncLabsJobId", { length: 128 }), // Sync Labs job ID -- used to resume polling after server restart
   assemblyStartedAt: timestamp("assemblyStartedAt"),         // When assembly began -- used to detect truly stuck jobs
   vocalOnsetTime: double("vocalOnsetTime"),                  // Precise vocal start time in seconds (from silencedetect on vocal stem)
+  // --- Upsell Delivery (ISS-002) -------------------------------------------
+  // Flags set by Stripe webhook when user purchases post-completion add-ons.
+  // The upsell delivery worker picks these up and triggers re-processing.
+  upsellCinematicScenes: boolean("upsellCinematicScenes").default(false).notNull(),
+  upsellUpgrade4K: boolean("upsellUpgrade4K").default(false).notNull(),
+  upsellRemoveWatermark: boolean("upsellRemoveWatermark").default(false).notNull(),
+  upsellStatus: mysqlEnum("upsellStatus", ["none", "pending", "processing", "completed", "failed"]).default("none").notNull(),
+  upsellVideoUrl: varchar("upsellVideoUrl", { length: 1024 }),  // S3 URL of the upsell-processed video
+  upsellVideoKey: varchar("upsellVideoKey", { length: 512 }),   // S3 key of the upsell-processed video
+  upsellProcessedAt: timestamp("upsellProcessedAt"),            // When upsell processing completed
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -304,7 +314,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   prompt: text("prompt").notNull(),
   lyrics: text("lyrics"), // Transcribed lyrics for this scene's time window
   visualStyle: varchar("visualStyle", { length: 255 }),
-  status: mysqlEnum("mvSceneStatus", ["pending", "generating", "completed", "failed", "failed_retryable", "cancelled"]).default("pending").notNull(),
+  status: mysqlEnum("mvSceneStatus", ["pending", "generating", "completed", "failed", "failed_retryable", "cancelled", "dlq"]).default("pending").notNull(), // ISS-009: dlq = dead-letter queue (quarantined after MAX_SCENE_RETRIES)
   taskId: varchar("taskId", { length: 255 }),
   videoUrl: varchar("videoUrl", { length: 1024 }),
   videoKey: varchar("videoKey", { length: 512 }),
@@ -1499,6 +1509,9 @@ export const providerHealth = mysqlTable("providerHealth", {
   mode: mysqlEnum("providerMode", ["full", "probe-only", "disabled"]).notNull().default("full"),
   lastFailureAt: timestamp("lastFailureAt"),
   lastSuccessAt: timestamp("lastSuccessAt"),
+  /** ISS-007: Optimistic locking counter. Incremented on every update.
+   *  recordProviderOutcome uses WHERE version=N to detect concurrent writes. */
+  version: int("version").notNull().default(0),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

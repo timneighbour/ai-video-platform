@@ -705,3 +705,26 @@ export async function emailProviderUnavailable(data: {
     console.error("[Email] Failed to send provider unavailable email:", err);
   }
 }
+
+/** ISS-030: Subscription cancellation — sent to owner when customer.subscription.deleted fires */
+export async function emailSubscriptionCancelled(data: {
+  name?: string;
+  email?: string;
+  plan?: string;
+  stripeSubscriptionId?: string;
+}): Promise<void> {
+  await sendOwnerEmail({
+    subject: `❌ Subscription Cancelled${data.name ? ` — ${data.name}` : ""}`,
+    html: template(
+      "Subscription Cancelled",
+      [
+        ["Customer", data.name || "Unknown"],
+        ["Email", data.email || "—"],
+        ["Plan", data.plan?.toUpperCase() || "—"],
+        ["Stripe Sub ID", data.stripeSubscriptionId || "—"],
+        ["Time", new Date().toUTCString()],
+      ],
+      "The subscription has been marked as canceled in the database."
+    ),
+  });
+}

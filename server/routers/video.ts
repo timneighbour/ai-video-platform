@@ -6,6 +6,7 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { generateVideo, checkVideoStatus, getUserProjects } from "../video-service";
+import { getUserSubscription, mapDbPlanToProductPlan } from "../db";
 import { randomUUID } from "crypto";
 
 export const videoRouter = router({
@@ -56,6 +57,10 @@ export const videoRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
+      // ISS-013: Fetch real subscription from DB instead of hardcoding "free"
+      const sub = await getUserSubscription(ctx.user.id);
+      const userPlan = mapDbPlanToProductPlan(sub?.status === "active" ? sub.plan : null);
+
       const result = await generateVideo({
         userId: ctx.user.id,
         toolType: input.toolType,
@@ -64,7 +69,7 @@ export const videoRouter = router({
         videoUrl: input.videoUrl,
         audioUrl: input.audioUrl,
         options: input.options,
-        userPlan: "free", // TODO: fetch from subscriptions table if needed
+        userPlan,
       });
 
       return {

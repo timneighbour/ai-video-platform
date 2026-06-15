@@ -1,4 +1,7 @@
 import "dotenv/config";
+// ISS-005: Sentry must be imported before all other modules
+import "../sentry";
+import * as Sentry from "@sentry/node";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
@@ -86,6 +89,11 @@ async function startServer() {
   // Trust the first proxy hop (required for accurate IP detection behind load balancers / CDNs)
   app.set("trust proxy", 1);
 
+  // ── ISS-032: Uptime monitoring health endpoint ─────────────────────────────────
+  app.get("/api/healthz", (_req, res) => {
+    res.json({ status: "ok", ts: Date.now(), version: process.env.npm_package_version ?? "unknown" });
+  });
+
   // ── WaveSpeed Webhook (MUST be before express.json() — needs raw body) ─────────
   // WaveSpeed sends a raw body that must be verified with HMAC-SHA256 signature
   app.post("/api/webhooks/wavespeed", express.raw({ type: "application/json" }), handleWaveSpeedWebhook);
@@ -132,6 +140,20 @@ async function startServer() {
       // Still return 200 so Stripe doesn't keep retrying for non-fatal errors
       res.json({ received: true, warning: err.message });
     }
+  });
+
+  // ISS-015: Attach a unique request ID to every incoming request for structured logging
+  // The ID is taken from the upstream x-request-id header (set by load balancers / CDNs)
+  // or generated as a random hex string if absent. It is echoed back in the response header
+  // so that client-side errors can be correlated with server-side logs.
+  app.use((req, res, next) => {
+    const existing = req.headers["x-request-id"] as string | undefined;
+    const reqId = existing || `wiz-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    // Attach to request object for downstream use
+    (req as any).requestId = reqId;
+    // Echo back so clients can correlate
+    res.setHeader("x-request-id", reqId);
+    next();
   });
 
   // Configure body parser with larger size limit for file uploads
@@ -529,6 +551,13 @@ async function startServer() {
       return res.status(500).json({ error: err?.message ?? "unknown" });
     }
   });
+
+  // ISS-005: Sentry error handler — must be registered AFTER all routes, BEFORE Vite/static
+  // Captures unhandled Express errors and sends them to Sentry
+  if (process.env.SENTRY_DSN) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    app.use(Sentry.expressErrorHandler() as any);
+  }
 
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {

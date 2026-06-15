@@ -63,9 +63,21 @@ function getFFmpegBin(): string {
 /**
  * Download a remote audio file to a temp path.
  */
-async function downloadAudioToTemp(audioUrl: string, ext: string = "mp3"): Promise<string> {
+async function downloadAudioToTemp(audioUrl: string, ext: string = "mp3", timeoutMs: number = 90_000): Promise<string> {
   const tmpPath = path.join(os.tmpdir(), `wiz-audio-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`);
-  const response = await fetch(audioUrl);
+  // ISS-010: Add AbortController timeout to prevent indefinite hangs on slow/stalled downloads
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let response: Response;
+  try {
+    response = await fetch(audioUrl, { signal: controller.signal });
+  } catch (err: any) {
+    clearTimeout(timer);
+    if (err?.name === "AbortError") throw new Error(`Audio download timed out after ${timeoutMs / 1000}s: ${audioUrl}`);
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
   if (!response.ok) throw new Error(`Failed to download audio: HTTP ${response.status} from ${audioUrl}`);
   const buffer = Buffer.from(await response.arrayBuffer());
   fs.writeFileSync(tmpPath, buffer);

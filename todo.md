@@ -9212,3 +9212,44 @@
 - [ ] Research alternative premium video generation providers (Runway Gen-3, Pika, others)
 - [ ] Compile provider comparison: reliability, payment processing, support, pricing
 - [ ] Recommend replacement for WaveSpeed based on reliability and support
+
+## WizAI June Audit Fixes
+
+### P0 Critical
+- [x] ISS-001: Remove global one-scene-at-a-time dispatch guard (replace with per-job concurrency limit)
+- [x] ISS-002: Implement upsell delivery pipeline for 4K, watermark removal, cinematic add-ons
+- [x] ISS-004: [N/A or already resolved] Make BunnyCDN re-host a hard blocking step before marking job complete
+- [x] ISS-005: Install Sentry error monitoring (server + client)
+- [x] ISS-006: Make credit deduction atomic (DB transaction with SELECT FOR UPDATE)
+- [x] ISS-007: Add optimistic locking (version counter) to circuit breaker providerHealth updates
+
+### P1 High
+- [ ] ISS-008: Split musicVideo.ts (6,287 lines) into feature sub-routers
+- [x] ISS-009: Add dead-letter queue for scenes that exceed max retry count
+- [x] ISS-010: Add FK constraints to all reference columns in drizzle/schema.ts
+- [ ] ISS-011: Convert longtext JSON columns to proper json() type in schema
+- [x] ISS-012: Remove hardcoded Stripe price ID fallbacks from products.ts
+- [x] ISS-013: Fix video.ts free-plan hardcode — fetch real subscription from DB
+- [x] ISS-014: Fix HeyGen lipsync typo (keep_the_same_format → keep_original_format)
+- [x] ISS-015: Add hard timeout for vocal stem isolation (fail job if stuck >30 min)
+- [x] ISS-017: [N/A or already resolved] Externalise provider selection to DB config table
+- [ ] ISS-018: Add CI/CD pipeline (GitHub Actions)
+- [ ] ISS-019: Add spend alerts at 75% and 90% of per-video budget
+- [ ] ISS-020: Add structured logging with jobId context (pino)
+
+### P2 Medium
+- [x] ISS-023: Add client-side admin route guard in App.tsx
+- [x] ISS-028: Add unique index on subscriptions.userId
+- [ ] ISS-029: Add granular admin role permissions
+- [x] ISS-030: Send cancellation email on subscription.deleted webhook
+- [x] ISS-031: [N/A or already resolved] Auto-approve probe results that pass all validation gates
+- [x] ISS-032: Add uptime monitoring (/api/healthz endpoint)
+- [x] ISS-034: [N/A or already resolved] Move admin debug scripts out of project root into scripts/
+- [x] ISS-035: [N/A or already resolved] Remove nohup.out from repository
+
+### P3 Low
+- [x] ISS-033: Implement time-limited signed URLs for video delivery
+- [x] ISS-036: Add SSRF protection on audio proxy endpoint
+- [ ] ISS-037: Add image dimension validation before provider submission
+- [x] ISS-040: [N/A or already resolved] Clean up .patch files and stale MD files from root
+- [ ] ISS-041: Add weekly automated spend efficiency report

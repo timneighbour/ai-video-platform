@@ -764,6 +764,34 @@
       "when": 1781209950568,
       "tag": "0108_nostalgic_galactus",
       "breakpoints": true
+    },
+    {
+      "idx": 109,
+      "version": "5",
+      "when": 1781545257944,
+      "tag": "0109_gorgeous_thaddeus_ross",
+      "breakpoints": true
+    },
+    {
+      "idx": 110,
+      "version": "5",
+      "when": 1781545516328,
+      "tag": "0110_amused_red_skull",
+      "breakpoints": true
+    },
+    {
+      "idx": 111,
+      "version": "5",
+      "when": 1781546018445,
+      "tag": "0111_fantastic_lockjaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 112,
+      "version": "5",
+      "when": 1781546567185,
+      "tag": "0112_short_may_parker",
+      "breakpoints": true
     }
   ]
 }

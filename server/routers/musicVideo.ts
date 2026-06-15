@@ -32,6 +32,7 @@ import { getVocalStemForCharacter } from "../vocal-isolation-service";
 import { getUserSubscription, mapDbPlanToProductPlan, countVideosThisMonth } from "../db";
 import { SUBSCRIPTION_PLANS, PLAN_COST_TARGETS, PLAN_SCENE_LIMITS, getPlanMaxScenesPerVideo } from "../products";
 import { classifyScenes } from "../scene-classifier";
+import { assertSafeUrl } from "../ssrf-guard";
 import { runStage1AutoPrep, runStage2EnvironmentPrep, selectReferenceForScene, sceneTypeToRefType } from "../character-auto-prep";
 import { buildRoutingPlan, enforceHardStop } from "../renderer-router";
 import { isAnyProviderAvailable, checkAllProviders, getBestProvider, recordProviderOutcome, checkJobSpendLimit, updateJobSpend, PROVIDER_COST_PER_SCENE_USD } from "../provider-health";
@@ -137,6 +138,7 @@ export const musicVideoRouter = router({
       let audioKey: string;
       if (input.audioUrl) {
         // Suno path: fetch from URL and re-upload to our S3 for reliability
+        assertSafeUrl(input.audioUrl); // ISS-033: SSRF guard
         const fetchRes = await fetch(input.audioUrl);
         const arrayBuf = await fetchRes.arrayBuffer();
         const audioBuffer = Buffer.from(arrayBuf);
@@ -2461,6 +2463,7 @@ Rules:
       let previousSceneBase64: string | null = null;
       if (input.previousSceneImageUrl) {
         try {
+          assertSafeUrl(input.previousSceneImageUrl); // ISS-033: SSRF guard
           const prevResp = await fetch(input.previousSceneImageUrl);
           if (prevResp.ok) {
             const prevBuf = Buffer.from(await prevResp.arrayBuffer());
@@ -3124,25 +3127,41 @@ Rules:
 
       if (failedScenes.length === 0) return { success: true, retriedCount: 0 };
 
-      // Reset all failed scenes to pending
-      await db.update(musicVideoScenes)
-        .set({ status: "pending", taskId: null, videoUrl: null, videoKey: null, errorMessage: null, updatedAt: new Date() })
-        .where(and(eq(musicVideoScenes.jobId, input.jobId), eq(musicVideoScenes.status, "failed")));
+      // ISS-009: Dead-letter queue — quarantine scenes that have been retried too many times
+      const MAX_SCENE_RETRIES = 5;
+      const toQuarantine = failedScenes.filter((s) => (s.retryCount ?? 0) >= MAX_SCENE_RETRIES);
+      const toRetry = failedScenes.filter((s) => (s.retryCount ?? 0) < MAX_SCENE_RETRIES);
 
-      // Reset spend-protection attempt counters for all failed scenes
-      await Promise.all(failedScenes.map((s) => resetSceneAttempts(s.id)));
+      if (toQuarantine.length > 0) {
+        await db.update(musicVideoScenes)
+          .set({ status: "dlq", errorMessage: `Quarantined after ${MAX_SCENE_RETRIES} retries`, updatedAt: new Date() })
+          .where(inArray(musicVideoScenes.id, toQuarantine.map((s) => s.id)));
+        console.warn(`[MusicVideo] Job ${input.jobId}: quarantined ${toQuarantine.length} scene(s) to DLQ (exceeded ${MAX_SCENE_RETRIES} retries)`);
+      }
+
+      if (toRetry.length === 0) return { success: true, retriedCount: 0, quarantinedCount: toQuarantine.length };
+
+      // Reset retryable failed scenes to pending and increment retryCount
+      for (const s of toRetry) {
+        await db.update(musicVideoScenes)
+          .set({ status: "pending", taskId: null, videoUrl: null, videoKey: null, errorMessage: null, retryCount: (s.retryCount ?? 0) + 1, updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, s.id));
+      }
+
+      // Reset spend-protection attempt counters for retryable scenes
+      await Promise.all(toRetry.map((s) => resetSceneAttempts(s.id)));
 
       // Ensure job is back in rendering state
       await db.update(musicVideoJobs)
         .set({ status: "rendering", updatedAt: new Date() })
         .where(eq(musicVideoJobs.id, input.jobId));
 
-      // Re-queue each failed scene with 3s stagger
+      // Re-queue each retryable scene with 3s stagger
       // STORYBOARD LOCK: each scene passes its approved preview image as visual anchor
       const STAGGER_MS = 3000;
       (async () => {
-        for (let i = 0; i < failedScenes.length; i++) {
-          const scene = failedScenes[i];
+        for (let i = 0; i < toRetry.length; i++) {
+          const scene = toRetry[i];
           if (i > 0) await new Promise((r) => setTimeout(r, STAGGER_MS));
           const bulkStoryboardUrl = scene.previewImageUrl ?? undefined;
           if (!bulkStoryboardUrl) {
@@ -3164,7 +3183,7 @@ Rules:
             await db!.update(musicVideoScenes)
               .set({ status: "generating", taskId, updatedAt: new Date() })
               .where(eq(musicVideoScenes.id, scene.id));
-            console.log(`[MusicVideo] ${new Date().toISOString()} Bulk retry scene ${scene.id} (${i + 1}/${failedScenes.length}) → taskId ${taskId}`);
+            console.log(`[MusicVideo] ${new Date().toISOString()} Bulk retry scene ${scene.id} (${i + 1}/${toRetry.length}) → taskId ${taskId} (retry #${(scene.retryCount ?? 0) + 1})`);
           } catch (err) {
             console.error(`[MusicVideo] ${new Date().toISOString()} Bulk retry failed for scene ${scene.id}:`, err);
             await db!.update(musicVideoScenes)
@@ -3174,7 +3193,7 @@ Rules:
         }
       })();
 
-      return { success: true, retriedCount: failedScenes.length };
+      return { success: true, retriedCount: toRetry.length, quarantinedCount: toQuarantine.length };
     }),
 
   // Cancel a scene that is currently pending/generating — used by the Undo action in the retry toast.

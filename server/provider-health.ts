@@ -327,48 +327,73 @@ export async function recordProviderOutcome(params: {
     return;
   }
 
-  const record = existing[0];
-  const newSuccessCount = isFailure ? record.successCount : record.successCount + 1;
-  const newFailureCount = isFailure ? record.failureCount + 1 : record.failureCount;
-  const newConsecutiveFailures = isFailure ? record.consecutiveFailures + 1 : 0;
-  const newTotalSpend = parseFloat(record.totalSpendUsd as string) + costUsd;
-  const newWastedSpend = parseFloat(record.wastedSpendUsd as string) + (isFailure ? costUsd : 0);
-  const totalAttempts = newSuccessCount + newFailureCount;
-  const newAvg = params.renderTimeMs
-    ? Math.round((record.avgRenderTimeMs * (totalAttempts - 1) + params.renderTimeMs) / totalAttempts)
-    : record.avgRenderTimeMs;
+  // ISS-007: Optimistic locking — retry up to 3 times if a concurrent write
+  // changes the version between our SELECT and UPDATE.
+  let record = existing[0];
+  const MAX_CAS_RETRIES = 3;
+  for (let attempt = 0; attempt < MAX_CAS_RETRIES; attempt++) {
+    if (attempt > 0) {
+      // Re-read the latest record before retrying
+      const refetch = await db.select().from(providerHealth)
+        .where(eq(providerHealth.provider, params.provider)).limit(1);
+      if (refetch.length === 0) break;
+      record = refetch[0];
+    }
+    const newSuccessCount = isFailure ? record.successCount : record.successCount + 1;
+    const newFailureCount = isFailure ? record.failureCount + 1 : record.failureCount;
+    const newConsecutiveFailures = isFailure ? record.consecutiveFailures + 1 : 0;
+    const newTotalSpend = parseFloat(record.totalSpendUsd as string) + costUsd;
+    const newWastedSpend = parseFloat(record.wastedSpendUsd as string) + (isFailure ? costUsd : 0);
+    const totalAttempts = newSuccessCount + newFailureCount;
+    const newAvg = params.renderTimeMs
+      ? Math.round((record.avgRenderTimeMs * (totalAttempts - 1) + params.renderTimeMs) / totalAttempts)
+      : record.avgRenderTimeMs;
+    const recentFailureRate = totalAttempts >= 5 ? newFailureCount / Math.min(totalAttempts, 20) : 0;
+    const shouldMarkUnhealthy =
+      newConsecutiveFailures >= CONSECUTIVE_FAILURE_LIMIT ||
+      (totalAttempts >= 10 && recentFailureRate >= FAILURE_RATE_LIMIT);
+    const wasHealthy = record.isHealthy;
+    const nowHealthy = !shouldMarkUnhealthy;
+    const currentVersion = (record as any).version ?? 0;
 
-  const recentFailureRate = totalAttempts >= 5 ? newFailureCount / Math.min(totalAttempts, 20) : 0;
-  const shouldMarkUnhealthy =
-    newConsecutiveFailures >= CONSECUTIVE_FAILURE_LIMIT ||
-    (totalAttempts >= 10 && recentFailureRate >= FAILURE_RATE_LIMIT);
-  const wasHealthy = record.isHealthy;
-  const nowHealthy = !shouldMarkUnhealthy;
+    // CAS update: only succeeds if version hasn't changed since we read it
+    const updateResult = await db.update(providerHealth).set({
+      successCount: newSuccessCount,
+      failureCount: newFailureCount,
+      consecutiveFailures: newConsecutiveFailures,
+      totalSpendUsd: newTotalSpend.toFixed(4),
+      wastedSpendUsd: newWastedSpend.toFixed(4),
+      avgRenderTimeMs: newAvg,
+      isHealthy: nowHealthy,
+      lastFailureAt: isFailure ? new Date() : record.lastFailureAt,
+      lastSuccessAt: isFailure ? record.lastSuccessAt : new Date(),
+      version: currentVersion + 1,
+    }).where(
+      // Only update if version matches what we read (optimistic lock)
+      drizzleSql`${providerHealth.provider} = ${params.provider} AND ${providerHealth.version} = ${currentVersion}`
+    );
 
-  await db.update(providerHealth).set({
-    successCount: newSuccessCount,
-    failureCount: newFailureCount,
-    consecutiveFailures: newConsecutiveFailures,
-    totalSpendUsd: newTotalSpend.toFixed(4),
-    wastedSpendUsd: newWastedSpend.toFixed(4),
-    avgRenderTimeMs: newAvg,
-    isHealthy: nowHealthy,
-    lastFailureAt: isFailure ? new Date() : record.lastFailureAt,
-    lastSuccessAt: isFailure ? record.lastSuccessAt : new Date(),
-  }).where(eq(providerHealth.provider, params.provider));
+    const affectedRows = (updateResult as any)?.[0]?.affectedRows ?? (updateResult as any)?.rowsAffected ?? 1;
+    if (affectedRows === 0) {
+      // Another concurrent write won — retry
+      console.warn(`[ProviderHealth] CAS conflict on ${params.provider} (attempt ${attempt + 1}/${MAX_CAS_RETRIES}) — retrying`);
+      continue;
+    }
 
-  if (wasHealthy && !nowHealthy) {
-    const reason = newConsecutiveFailures >= CONSECUTIVE_FAILURE_LIMIT
-      ? `${newConsecutiveFailures} consecutive failures`
-      : `${Math.round(recentFailureRate * 100)}% failure rate`;
-    console.error(`[ProviderHealth] Provider "${params.provider}" marked UNHEALTHY: ${reason}`);
-    try {
-      const { notifyOwner } = await import("./_core/notification");
-      await notifyOwner({
-        title: `Provider Unhealthy: ${params.provider}`,
-        content: `Provider **${params.provider}** has been automatically marked as unhealthy.\n\n**Reason:** ${reason}\n**Wasted spend:** $${newWastedSpend.toFixed(2)}\n\nScenes will be routed to fallback providers. Visit /admin/provider-health to review.`,
-      });
-    } catch (e) { console.error("[ProviderHealth] Failed to send admin alert:", e); }
+    if (wasHealthy && !nowHealthy) {
+      const reason = newConsecutiveFailures >= CONSECUTIVE_FAILURE_LIMIT
+        ? `${newConsecutiveFailures} consecutive failures`
+        : `${Math.round(recentFailureRate * 100)}% failure rate`;
+      console.error(`[ProviderHealth] Provider "${params.provider}" marked UNHEALTHY: ${reason}`);
+      try {
+        const { notifyOwner } = await import("./_core/notification");
+        await notifyOwner({
+          title: `Provider Unhealthy: ${params.provider}`,
+          content: `Provider **${params.provider}** has been automatically marked as unhealthy.\n\n**Reason:** ${reason}\n**Wasted spend:** $${newWastedSpend.toFixed(2)}\n\nScenes will be routed to fallback providers. Visit /admin/provider-health to review.`,
+        });
+      } catch (e) { console.error("[ProviderHealth] Failed to send admin alert:", e); }
+    }
+    break; // success
   }
 }
 

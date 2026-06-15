@@ -22,6 +22,7 @@ import {
   estimateCreditCost,
 } from "../auto-editing-engine";
 import { deductCredits } from "../credit-service";
+import { assertSafeUrl } from "../ssrf-guard";
 import { TRPCError } from "@trpc/server";
 import { exec } from "child_process";
 import { promisify } from "util";
@@ -402,6 +403,7 @@ async function renderVideoAsync(jobId: number): Promise<void> {
 
     // ── Step 1: Download the original input video ─────────────────────────────
     const videoPath = path.join(tmpDir, "input.mp4");
+    assertSafeUrl(job.inputVideoUrl); // ISS-033: SSRF guard
     const videoResp = await fetch(job.inputVideoUrl);
     if (!videoResp.ok) throw new Error(`Failed to download input video: ${videoResp.status}`);
     fs.writeFileSync(videoPath, Buffer.from(await videoResp.arrayBuffer()));

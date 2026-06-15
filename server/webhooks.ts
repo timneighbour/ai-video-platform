@@ -4,7 +4,7 @@
  */
 
 import Stripe from "stripe";
-import { getDb } from "./db";
+import { getDb, getRawConn } from "./db";
 import { eq } from "drizzle-orm";
 import { subscriptions, creditTransactions, credits, topupPurchases, kidsVideoJobs } from "../drizzle/schema";
 import { notifyOwner } from "./_core/notification";
@@ -13,9 +13,11 @@ import {
   emailCreditPurchase,
   emailNewSubscription,
   emailFailedPayment,
+  emailSubscriptionCancelled,
 } from "./email";
 import { trackPurchaseCompleted } from "./mixpanel-server";
 import { triggerKidsVideoRender } from "./kids-video-render-service";
+import { processUpsellDelivery } from "./upsell-delivery";
 
 // Lazy-init Stripe client (avoids crash if key not set at import time)
 function getStripe() {
@@ -104,9 +106,11 @@ async function handleCheckoutSessionCompleted(session: any) {
         content: `User ${metadata.customer_name} (${metadata.customer_email}) purchased upsells for job #${jobId}: ${addons.join(", ")} (\u00a3${(session.amount_total ?? 0) / 100})`,
       }).catch(() => {}); // non-fatal
 
-      // TODO: Trigger actual re-render / enhancement pipeline based on purchased add-ons
-      // For now, the purchase is recorded via Stripe and the owner is notified.
-      // Future: update musicVideoJobs with upsell flags and trigger re-processing.
+      // ISS-002: Trigger the actual upsell delivery pipeline asynchronously
+      // processUpsellDelivery runs in the background — webhook returns immediately
+      processUpsellDelivery({ jobId, cinematicScenes, upgrade4K, removeWatermark }).catch((err) => {
+        console.error(`[Stripe Webhook] Upsell delivery failed for job ${jobId}:`, err.message);
+      });
       // Track purchase in Mixpanel
       await trackPurchaseCompleted({
         userId,
@@ -294,21 +298,22 @@ async function handleCheckoutSessionCompleted(session: any) {
 
       const monthlyCredits = planCredits[planId] || 0;
 
-      // Upsert subscription (ignore duplicate key errors)
+      // ISS-028: True upsert by userId — subscriptions.userId has a unique constraint
+      // so INSERT ... ON DUPLICATE KEY UPDATE is safe and atomic.
+      const conn = await getRawConn();
       try {
-        await db.insert(subscriptions).values({
-          userId,
-          stripeSubscriptionId: session.subscription || null,
-          plan: planId as any,
-          status: "active",
-        });
-      } catch (dupErr: any) {
-        // Subscription already exists — update it
-        if (session.subscription) {
-          await db.update(subscriptions)
-            .set({ plan: planId as any, status: "active", updatedAt: new Date() })
-            .where(eq(subscriptions.stripeSubscriptionId, session.subscription));
-        }
+        await conn.execute(
+          `INSERT INTO subscriptions (userId, stripeSubscriptionId, plan, status)
+           VALUES (?, ?, ?, 'active')
+           ON DUPLICATE KEY UPDATE
+             stripeSubscriptionId = VALUES(stripeSubscriptionId),
+             plan = VALUES(plan),
+             status = 'active',
+             updatedAt = NOW()`,
+          [userId, session.subscription || null, planId]
+        );
+      } finally {
+        await conn.end();
       }
 
       // Grant subscription credits
@@ -379,12 +384,38 @@ async function handleSubscriptionDeleted(subscription: any) {
 
   try {
     // Mark subscription as canceled
+    const [subRow] = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.stripeSubscriptionId, subscription.id))
+      .limit(1);
+
     await db
       .update(subscriptions)
       .set({
         status: "canceled",
+        canceledAt: new Date(),
       })
       .where(eq(subscriptions.stripeSubscriptionId, subscription.id));
+
+    // ISS-030: Send cancellation notification to owner
+    if (subRow) {
+      const { getDb: _getDb } = await import("./db");
+      const db2 = await _getDb();
+      const userRow = db2 ? await db2.select().from((await import("../drizzle/schema")).users)
+        .where((await import("drizzle-orm")).eq((await import("../drizzle/schema")).users.id, subRow.userId)).limit(1)
+        .then((r: any[]) => r[0]) : null;
+      await emailSubscriptionCancelled({
+        name: userRow?.name ?? undefined,
+        email: userRow?.email ?? undefined,
+        plan: subRow.plan,
+        stripeSubscriptionId: subscription.id,
+      }).catch(() => {});
+      await notifyOwner({
+        title: `Subscription Cancelled: ${userRow?.name ?? "Unknown"}`,
+        content: `User ${userRow?.name ?? "Unknown"} (${userRow?.email ?? "—"}) cancelled their ${subRow.plan} subscription.`,
+      }).catch(() => {});
+    }
 
     return { success: true };
   } catch (error) {

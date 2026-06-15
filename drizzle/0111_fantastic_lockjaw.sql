@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoScenes` MODIFY COLUMN `mvSceneStatus` enum('pending','generating','completed','failed','failed_retryable','cancelled','dlq') NOT NULL DEFAULT 'pending';

@@ -7,6 +7,7 @@
  */
 import React, { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -335,6 +336,7 @@ function JobDetailView({ jobId, onBack }: { jobId: number; onBack: () => void })
 // ── Main Panel ────────────────────────────────────────────────────────────────
 
 export default function AdminJobsPanel() {
+  const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -358,6 +360,11 @@ export default function AdminJobsPanel() {
   const jobs = data?.jobs ?? [];
   const total = data?.total ?? 0;
   const totalPages = Math.ceil(total / limit);
+
+  // ISS-023: Client-side admin guard (placed after all hooks to satisfy Rules of Hooks)
+  if (!user || user.role !== "admin") {
+    return <div className="flex items-center justify-center h-screen text-muted-foreground">Access denied.</div>;
+  }
 
   if (selectedJobId !== null) {
     return (

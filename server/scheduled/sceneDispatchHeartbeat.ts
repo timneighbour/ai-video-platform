@@ -63,12 +63,17 @@ import { assessLipSyncQuality, shouldProceedToAssembly, shouldRetryLipSync } fro
 import { sdk } from "../_core/sdk";
 import { startSceneRender, pollSceneStatus, extractLyricsForWindow, resolveVenueReferenceUrl } from "../music-video-service";
 import { extractSceneAudioClip, sliceVocalStemForSeedance } from "../audio-clip-extractor";
-// HeyGen Precision — PRIMARY lip-sync provider (switched from InfiniteTalk 2026-06-10)
-// Performance scenes: Seedance generates video → HeyGen Precision re-lips with isolated vocal stem
-// Cinematic scenes: Seedance only (no lip sync)
+// HeyGen Precision — LEGACY lip-sync provider (video-to-video, kept for in-flight job polling only)
 import { submitHeyGenLipSyncV3, pollHeyGenLipSyncV3, isHeyGenConfigured } from "../ai-apis/heygen-lipsync";
-// WaveSpeed InfiniteTalk — FALLBACK lip-sync provider (used if HeyGen is unavailable/fails)
+// WaveSpeed InfiniteTalk — FALLBACK lip-sync provider (used if HeyGen Direct fails)
 import { submitInfiniteTalkLipSync, pollInfiniteTalkLipSync } from "../ai-apis/infinitetalk-lipsync";
+// ── NEW PRIMARY PIPELINE (2026-06-15) ─────────────────────────────────────────────────────────────
+// HeyGen Direct Photo+Audio — PRIMARY for ALL performance scenes
+// Bypasses Seedance entirely: portrait photo + vocal stem → lip-synced video in ONE API call
+// Eliminates: "No speaker detected", wrong characters, portrait ratio issues
+import { submitHeyGenDirectPhoto, pollHeyGenDirectPhoto, isHeyGenDirectConfigured, estimateHeyGenDirectCost } from "../ai-apis/direct-heygen-photo";
+// Sync Labs Direct — FALLBACK if HeyGen Direct fails
+import { submitSyncLabsDirect, pollSyncLabsDirect, isSyncLabsConfigured } from "../ai-apis/synclabs-direct";
 import { getProbeDecision } from "../pre-render-validator";
 import { resetSceneAttempts } from "../spend-protection";
 import { normaliseBpm } from "../instrument-analysis";
@@ -185,18 +190,22 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
       console.log(`[SceneDispatch] SERIALISATION: ${activeJobs.length} active jobs — only job ${dispatchSlotJobId} may dispatch new scenes this tick. Others will poll only.`);
     }
 
-    // ── GLOBAL ONE-SCENE-AT-A-TIME GUARD ─────────────────────────────────────────
-    // Block ALL new scene video generation dispatches if ANY scene across ANY job
-    // is currently in-flight (status='generating'). This prevents concurrent credit
-    // burns across multiple jobs and ensures Tim can review each scene before the
-    // next one is submitted. Lip sync polling and assembly are NOT blocked.
-    const globalGeneratingScenes = await db
-      .select({ id: musicVideoScenes.id, jobId: musicVideoScenes.jobId, sceneIndex: musicVideoScenes.sceneIndex })
-      .from(musicVideoScenes)
-      .where(eq(musicVideoScenes.status, "generating"));
-    const globallyBlocked = globalGeneratingScenes.length > 0;
-    if (globallyBlocked) {
-      console.log(`[SceneDispatch] GLOBAL GUARD: ${globalGeneratingScenes.length} scene(s) currently generating across all jobs — no new dispatches this tick. Polling only.`);
+    // ── ISS-001: Per-job concurrent scene limit (replaces global one-at-a-time guard) ──────────
+    // Allow up to MAX_CONCURRENT_SCENES_PER_JOB scenes to generate in parallel per job.
+    // This replaces the global block that prevented ANY dispatch while ANY scene was generating
+    // across ALL jobs — which prevented multi-user scaling.
+    // Lip sync polling and assembly are NOT affected.
+    const MAX_CONCURRENT_SCENES_PER_JOB = 3;
+    // Build a map of currently generating scene counts per job
+    const generatingCountByJob = new Map<number, number>();
+    {
+      const allGeneratingScenes = await db
+        .select({ jobId: musicVideoScenes.jobId })
+        .from(musicVideoScenes)
+        .where(eq(musicVideoScenes.status, "generating"));
+      for (const s of allGeneratingScenes) {
+        generatingCountByJob.set(s.jobId, (generatingCountByJob.get(s.jobId) ?? 0) + 1);
+      }
     }
 
     let totalDispatched = 0;
@@ -256,9 +265,15 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         // GLOBAL GUARD: also suppress if any scene is generating globally (one-at-a-time across all jobs).
         // It will still poll generating scenes and trigger assembly.
         const holdsDispatchSlot = job.id === dispatchSlotJobId;
-        const pendingScenes = (holdsDispatchSlot && !globallyBlocked)
+        // ISS-001: Check per-job concurrent scene limit instead of global block
+        const jobGeneratingCount = generatingCountByJob.get(job.id) ?? 0;
+        const jobAtConcurrencyLimit = jobGeneratingCount >= MAX_CONCURRENT_SCENES_PER_JOB;
+        if (jobAtConcurrencyLimit) {
+          console.log(`[SceneDispatch] Job ${job.id}: ${jobGeneratingCount}/${MAX_CONCURRENT_SCENES_PER_JOB} scenes generating — at concurrency limit, polling only.`);
+        }
+        const pendingScenes = (holdsDispatchSlot && !jobAtConcurrencyLimit)
           ? scenes.filter((s) => s.status === "pending" && !s.taskId)
-          : []; // Non-priority jobs OR globally blocked: poll only, no new dispatches
+          : []; // Non-priority jobs OR at concurrency limit: poll only, no new dispatches
         const generatingScenes = scenes.filter(
           (s) => s.status === "generating" && s.taskId
         );
@@ -568,60 +583,71 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               console.log(`[SceneDispatch] Scene ${scene.id} no lyrics available — r2v will use audio-only lip sync`);
             }
 
-            // ── PIPELINE ROUTING (2026-06-13) ──────────────────────────────────────────────────────────────────────
-            // Performance scenes (lipSync=true) + character + vocal stem:
-            //   → OmniHuman 1.5 (BytePlus Vision AI) — single call: image + audio → lip-synced video
-            //   No Seedance. No HeyGen. No ffmpeg mux. One API call.
+            // ── PIPELINE ROUTING (2026-06-15) ──────────────────────────────────────────────────────────────────────
+            // NEW PRIMARY PIPELINE:
+            // Performance scenes (lipSync=true) + character + audio:
+            //   → HeyGen Direct Photo+Audio — ONE API call: portrait image + vocal stem → lip-synced video
+            //   NO Seedance. NO muxing. NO video-to-video HeyGen Precision.
+            //   Eliminates: wrong characters, "No speaker detected", portrait ratio issues.
             //
-            // All other scenes (cinematic, or performance without audio/character):
-            //   → BytePlus Seedance 2.0 (ModelArk) — image-to-video
-            //   (Fal.ai: out of credits. WaveSpeed: out of credits. Atlas Cloud: content policy.)
+            // Cinematic scenes (lipSync=false):
+            //   → BytePlus Seedance 2.0 (venue reference, no face) — image-to-video
+            //   No lip sync needed for these scenes.
             const isPerformanceScene = scene.sceneType === "performance";
             // slicedVocalStemUrl: use the already-sliced vocal stem from the R2V prep above,
             // or fall back to the full stem/audio URL if slicing wasn't attempted.
             const slicedVocalStemUrl = sceneAudioUrlForR2V ?? (job.stemVocalsUrl ?? job.audioUrl ?? undefined);
-// OmniHuman disabled until BytePlus Vision AI model is activated on the account.
-            // Once activated, change this back to:
-            //   isPerformanceScene && (scene.lipSync ?? false) && !!resolvedCharacterUrl && !!slicedVocalStemUrl
-            const useOmniHuman = false;
 
-            if (useOmniHuman) {
-              // ── OMNIHUMAN PATH: performance + lipSync + character + vocal stem ────────────────────
-              console.log(`[SceneDispatch] Scene ${scene.id} → OmniHuman 1.5 (performance lip sync)`);
+            // Use HeyGen Direct for performance scenes with a character image and audio
+            const useHeyGenDirect = isPerformanceScene && (scene.lipSync ?? false) && !!resolvedCharacterUrl && !!slicedVocalStemUrl && isHeyGenDirectConfigured();
+
+            if (useHeyGenDirect) {
+              // ── HEYGEN DIRECT PHOTO+AUDIO PATH (PRIMARY for performance scenes) ──────────────────
+              // One API call: portrait photo + vocal stem → lip-synced video
+              // No Seedance render needed. No muxing. No video-to-video HeyGen Precision.
+              console.log(`[SceneDispatch] Scene ${scene.id} → HeyGen Direct Photo+Audio (performance, direct lip sync)`);
               console.log(`[SceneDispatch] Scene ${scene.id} character: ${resolvedCharacterUrl!.slice(0, 80)}...`);
               console.log(`[SceneDispatch] Scene ${scene.id} vocal stem: ${slicedVocalStemUrl!.slice(0, 80)}...`);
-              const { startSceneRenderOmniHuman: renderOmniHuman } = await import("../music-video-service");
-              const taskId = await renderOmniHuman(
-                scene.id,
-                scenePrompt,
-                resolvedCharacterUrl!,
-                slicedVocalStemUrl!
-              );
+              const estCost = estimateHeyGenDirectCost(scene.duration ?? 5);
+              console.log(`[SceneDispatch] Scene ${scene.id} estimated cost: $${estCost.toFixed(4)} (${scene.duration ?? 5}s)`);
+              const heyGenDirectTaskId = await submitHeyGenDirectPhoto({
+                imageUrl: resolvedCharacterUrl!,
+                audioUrl: slicedVocalStemUrl!,
+                sceneId: scene.id,
+                durationSeconds: scene.duration ?? 5,
+                title: `WizAI Scene ${scene.id} Job ${job.id}`,
+              });
               await db
                 .update(musicVideoScenes)
-                .set({ status: "generating", taskId, compositeStatus: "skipped", lipSyncStatus: "pending", updatedAt: new Date() })
+                .set({
+                  status: "completed",  // No Seedance step — scene goes straight to lip-sync processing
+                  taskId: `heygen_direct:${heyGenDirectTaskId}`,
+                  compositeStatus: "skipped",
+                  lipSyncStatus: "processing",
+                  lipSyncTaskId: `heygen_direct:${heyGenDirectTaskId}`,
+                  lipSyncProvider: "heygen",
+                  updatedAt: new Date(),
+                })
                 .where(eq(musicVideoScenes.id, scene.id));
               if (pendingProbeSceneId === scene.id) {
                 await db.update(musicVideoJobs)
                   .set({ probePassed: false, probeSceneId: scene.id, updatedAt: new Date() })
                   .where(eq(musicVideoJobs.id, job.id));
-                console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — OmniHuman scene ${scene.id} in progress`);
+                console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — HeyGen Direct scene ${scene.id} in progress`);
               }
-              console.log(`[SceneDispatch] Scene ${scene.id} dispatched → OmniHuman taskId: ${taskId}`);
+              console.log(`[SceneDispatch] Scene ${scene.id} dispatched → HeyGen Direct taskId: ${heyGenDirectTaskId}`);
+              lipSyncSubmittedThisTick++;
               totalDispatched++;
+              totalLipSyncSubmitted++;
             } else {
-              // ── BYTEPLUS SEEDANCE PATH: cinematic or performance without audio/character ──────────
+              // ── BYTEPLUS SEEDANCE PATH: cinematic scenes (no face, venue reference only) ──────────
               const forcedRenderer = "byteplus_seedance";
               // IMPORTANT: BytePlus Seedance 2.0 blocks any image containing a real person face
-              // (InputImageSensitiveContentDetected.PrivacyInformation). The scene storyboard image
-              // (previewImageUrl) contains Zara's portrait and will be blocked. Instead, use the
-              // venue reference image (Air Studios / Lyndhurst Hall real photo) which is a pure
-              // environment shot with no face. Falls back to text-to-video if no venue match.
+              // (InputImageSensitiveContentDetected.PrivacyInformation). Use venue reference image only.
               const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting, scene.sceneIndex ?? 0);
-              const sceneStoryboardUrl = venueRefUrl ?? undefined; // venue reference, NOT scene storyboard
-              console.log(`[SceneDispatch] Scene ${scene.id} → BytePlus Seedance 2.0 (${isPerformanceScene ? 'performance-no-audio' : 'cinematic'})`);
-              console.log(`[SceneDispatch] Scene ${scene.id} venue-ref: ${sceneStoryboardUrl ? sceneStoryboardUrl.slice(0, 80) + '...' : 'NONE — text-to-video fallback'} (storyboard withheld — contains face)`);
-              console.log(`[SceneDispatch] Scene ${scene.id} character: ${resolvedCharacterUrl ? resolvedCharacterUrl.slice(0, 80) + '...' : 'NONE'}`);
+              const sceneStoryboardUrl = venueRefUrl ?? undefined;
+              console.log(`[SceneDispatch] Scene ${scene.id} → BytePlus Seedance 2.0 (${isPerformanceScene ? 'performance-no-char/audio' : 'cinematic'})`);
+              console.log(`[SceneDispatch] Scene ${scene.id} venue-ref: ${sceneStoryboardUrl ? sceneStoryboardUrl.slice(0, 80) + '...' : 'NONE — text-to-video fallback'}`);
               const taskId = await startSceneRender(
                 scene.id,
                 scenePrompt,
@@ -1051,10 +1077,20 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             // (e.g. instrumental intro scenes where Zara is present but not singing)
             const needsLipSync = (scene.lipSync ?? false) && job.audioUrl && scene.startTime !== null && scene.startTime !== undefined;
             if (!needsLipSync) continue;
-            // scene.videoUrl must be set (Seedance rendered the clip already)
-            if (!scene.videoUrl) {
-              console.log(`[SceneDispatch] Scene ${scene.id} RETRY: no Seedance video yet — deferring`);
-              continue;
+            // scene.videoUrl is only required for legacy Seedance + HeyGen Precision path.
+            // HeyGen Direct Photo+Audio does NOT need a pre-rendered video — it generates
+            // the lip-synced video directly from the character image + audio.
+            // Only skip if there's no character image AND no videoUrl (truly nothing to work with).
+            if (!scene.videoUrl && !job.characterImageUrl) {
+              // Check if videoCharacters has a portrait before giving up
+              const { videoCharacters: vcCheck } = await import("../../drizzle/schema");
+              const vcRows = await db.select({ id: vcCheck.id, masterPortraitUrl: vcCheck.masterPortraitUrl, environmentRefUrl: vcCheck.environmentRefUrl })
+                .from(vcCheck).where(eq(vcCheck.jobId, job.id));
+              const hasCharPortrait = vcRows.some(r => r.environmentRefUrl || r.masterPortraitUrl);
+              if (!hasCharPortrait) {
+                console.log(`[SceneDispatch] Scene ${scene.id} RETRY: no Seedance video and no character portrait — deferring`);
+                continue;
+              }
             }
             try {
               const retryRawStartTime = scene.startTime ?? 0;
@@ -1075,61 +1111,68 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               );
               console.log(`[SceneDispatch] Scene ${scene.id} RETRY: vocal stem cut ✓`);
 
-              const useHeyGenRetry = isHeyGenConfigured() && lipSyncSubmittedThisTick < LIPSYNC_MAX_PER_TICK;
-              if (useHeyGenRetry) {
-                // RETRY: HeyGen Precision — rendered video + vocal stem → lip-synced video
-                // DO NOT mux audio into video — Seedance renders already have audio baked in.
-                // Muxing causes double-audio / phase conflicts that produce frozen mouth output.
-                // Send raw Seedance video + isolated vocal stem as SEPARATE inputs to HeyGen.
-                const retryHeyGenVideoUrl = scene.videoUrl;
-                console.log(`[SceneDispatch] Scene ${scene.id} RETRY: sending raw Seedance video to HeyGen (no mux — audio passed separately)`);
-                const retryHeyGenId = await submitHeyGenLipSyncV3({
-                  videoUrl: retryHeyGenVideoUrl,
-                  audioUrl: sceneAudioUrl,
-                  title: `WizAI Scene ${scene.id} Job ${job.id} Retry`,
-                  mode: "precision",
-                  keepSameFormat: true,
-                });
-                // Use raw SQL to guarantee the lipSyncTaskId is persisted.
-                {
-                  const rawConn = await getRawConn();
-                  try {
-                    await rawConn.execute(
-                      "UPDATE musicVideoScenes SET lipSyncStatus = 'processing', lipSyncTaskId = ?, updatedAt = NOW() WHERE id = ?",
-                      [`heygen:${retryHeyGenId}`, scene.id]
-                    );
-                  } finally {
-                    await rawConn.end();
-                  }
+              // RETRY: Use HeyGen Direct Photo+Audio (PRIMARY) — same as dispatch path
+              // This replaces the broken HeyGen Precision video-to-video path.
+              // Character image + vocal stem → lip-synced video in one API call.
+              //
+              // Resolve character URL: prefer videoCharacters.environmentRefUrl (character in correct
+              // environment), then performanceRefUrl, then masterPortraitUrl, then job.characterImageUrl.
+              let retryCharacterUrl: string | null = job.characterImageUrl ?? null;
+              try {
+                const { videoCharacters: videoCharsTable } = await import("../../drizzle/schema");
+                const jobCharsRetry = await db.select().from(videoCharsTable).where(eq(videoCharsTable.jobId, job.id));
+                if (jobCharsRetry.length > 0) {
+                  const bestRetryChar = jobCharsRetry.find(c => c.environmentRefUrl) ?? jobCharsRetry.find(c => c.performanceRefUrl) ?? jobCharsRetry.find(c => c.masterPortraitUrl) ?? jobCharsRetry[0];
+                  retryCharacterUrl = bestRetryChar.environmentRefUrl ?? bestRetryChar.performanceRefUrl ?? bestRetryChar.masterPortraitUrl ?? bestRetryChar.previewImageUrl ?? retryCharacterUrl;
                 }
-                console.log(`[SceneDispatch] Scene ${scene.id} RETRY → HeyGen Precision task ${retryHeyGenId} submitted ✓`);
+              } catch (charErr: any) {
+                console.warn(`[SceneDispatch] Scene ${scene.id} RETRY: could not resolve character URL from videoCharacters: ${charErr.message}`);
+              }
+              const useHeyGenDirectRetry = isHeyGenDirectConfigured() && !!retryCharacterUrl && lipSyncSubmittedThisTick < LIPSYNC_MAX_PER_TICK;
+              const useSyncLabsRetry = !useHeyGenDirectRetry && isSyncLabsConfigured() && !!retryCharacterUrl;
+
+              if (useHeyGenDirectRetry) {
+                console.log(`[SceneDispatch] Scene ${scene.id} RETRY → HeyGen Direct Photo+Audio (character: ${retryCharacterUrl!.slice(0, 60)}...)`);
+                const retryHeyGenDirectId = await submitHeyGenDirectPhoto({
+                  imageUrl: retryCharacterUrl!,
+                  audioUrl: sceneAudioUrl,
+                  sceneId: scene.id,
+                  title: `WizAI Scene ${scene.id} Job ${job.id} Retry`,
+                });
+                const rawConn = await getRawConn();
+                try {
+                  await rawConn.execute(
+                    "UPDATE musicVideoScenes SET lipSyncStatus = 'processing', lipSyncTaskId = ?, lipSyncProvider = 'heygen', updatedAt = NOW() WHERE id = ?",
+                    [`heygen_direct:${retryHeyGenDirectId}`, scene.id]
+                  );
+                } finally {
+                  await rawConn.end();
+                }
+                console.log(`[SceneDispatch] Scene ${scene.id} RETRY → HeyGen Direct task ${retryHeyGenDirectId} submitted ✓`);
                 lipSyncSubmittedThisTick++;
                 totalLipSyncSubmitted++;
-              } else if (infiniteTalkSubmittedThisTick < INFINITETALK_MAX_PER_TICK) {
-                // FALLBACK: InfiniteTalk — character image + vocal stem → lip-synced video
-                console.warn(`[SceneDispatch] Scene ${scene.id} RETRY: HeyGen unavailable — falling back to InfiniteTalk`);
-                const retryCharacterUrl = job.characterImageUrl ?? null;
-                if (!retryCharacterUrl) throw new Error(`Scene ${scene.id} RETRY: no character image URL for InfiniteTalk fallback`);
-                const retryItTaskId = await submitInfiniteTalkLipSync({
-                  imageUrl: retryCharacterUrl,
+              } else if (useSyncLabsRetry) {
+                // FALLBACK: Sync Labs — character image + audio → lip-synced video
+                console.warn(`[SceneDispatch] Scene ${scene.id} RETRY: HeyGen Direct unavailable — falling back to Sync Labs`);
+                const syncLabsJobId = await submitSyncLabsDirect({
+                  imageUrl: retryCharacterUrl!,
                   audioUrl: sceneAudioUrl,
-                  prompt: scene.prompt ?? undefined,
-                  resolution: "720p",
+                  sceneId: scene.id,
                 });
-                {
-                  const rawConn = await getRawConn();
-                  try {
-                    await rawConn.execute(
-                      "UPDATE musicVideoScenes SET lipSyncStatus = 'processing', lipSyncTaskId = ?, updatedAt = NOW() WHERE id = ?",
-                      [retryItTaskId.taskId, scene.id]
-                    );
-                  } finally {
-                    await rawConn.end();
-                  }
+                const rawConn = await getRawConn();
+                try {
+                  await rawConn.execute(
+                    "UPDATE musicVideoScenes SET lipSyncStatus = 'processing', lipSyncTaskId = ?, lipSyncProvider = 'synclabs', updatedAt = NOW() WHERE id = ?",
+                    [`synclabs:${syncLabsJobId}`, scene.id]
+                  );
+                } finally {
+                  await rawConn.end();
                 }
-                console.log(`[SceneDispatch] Scene ${scene.id} RETRY → InfiniteTalk task ${retryItTaskId.taskId} submitted ✓`);
-                infiniteTalkSubmittedThisTick++;
+                console.log(`[SceneDispatch] Scene ${scene.id} RETRY → Sync Labs job ${syncLabsJobId} submitted ✓`);
+                lipSyncSubmittedThisTick++;
                 totalLipSyncSubmitted++;
+              } else if (!retryCharacterUrl) {
+                console.warn(`[SceneDispatch] Scene ${scene.id} RETRY: no character image URL — cannot submit lip sync`);
               } else {
                 console.log(`[SceneDispatch] Scene ${scene.id} RETRY: rate limit hit — deferring to next tick`);
               }
@@ -1171,21 +1214,36 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 continue;
               }
 
-              // Detect provider from task ID format:
-              // HeyGen Precision task IDs are prefixed with "heygen:" (new primary)
-              // Legacy HeyGen task IDs are short alphanumeric strings (no hyphens, <20 chars)
-              // InfiniteTalk task IDs are longer alphanumeric strings (WaveSpeed prediction IDs)
+              // Detect provider from task ID prefix:
+              // heygen_direct: → HeyGen Direct Photo+Audio (NEW PRIMARY)
+              // heygen:        → HeyGen Precision video-to-video (legacy, still in-flight)
+              // synclabs:      → Sync Labs (fallback)
+              // other          → InfiniteTalk / WaveSpeed (legacy fallback)
               const taskIdStr = scene.lipSyncTaskId!;
-              const isHeyGenTask = taskIdStr.startsWith("heygen:") || (taskIdStr.length < 30 && !taskIdStr.match(/^[0-9a-f]{8}-[0-9a-f]{4}-/i) && !taskIdStr.match(/^[0-9a-f]{20,}/i));
               let pollResult: { status: string; videoUrl?: string };
-              if (isHeyGenTask) {
-                const heyGenId = taskIdStr.startsWith("heygen:") ? taskIdStr.slice(7) : taskIdStr;
-                console.log(`[SceneDispatch] Scene ${scene.id} — HeyGen Precision task ${heyGenId}, polling HeyGen`);
+              if (taskIdStr.startsWith("heygen_direct:")) {
+                const heyGenDirectId = taskIdStr.slice("heygen_direct:".length);
+                console.log(`[SceneDispatch] Scene ${scene.id} — HeyGen Direct task ${heyGenDirectId}, polling`);
+                const heyGenDirectPoll = await pollHeyGenDirectPhoto(heyGenDirectId, scene.id);
+                pollResult = { status: heyGenDirectPoll.status, videoUrl: heyGenDirectPoll.videoUrl };
+              } else if (taskIdStr.startsWith("heygen:")) {
+                const heyGenId = taskIdStr.slice(7);
+                console.log(`[SceneDispatch] Scene ${scene.id} — HeyGen Precision task ${heyGenId}, polling (legacy)`);
                 const heyGenPoll = await pollHeyGenLipSyncV3(heyGenId);
                 pollResult = { status: heyGenPoll.status, videoUrl: heyGenPoll.videoUrl };
+              } else if (taskIdStr.startsWith("synclabs:")) {
+                const syncLabsId = taskIdStr.slice("synclabs:".length);
+                console.log(`[SceneDispatch] Scene ${scene.id} — Sync Labs job ${syncLabsId}, polling`);
+                const syncLabsPoll = await pollSyncLabsDirect(syncLabsId, scene.id);
+                pollResult = { status: syncLabsPoll.status, videoUrl: syncLabsPoll.videoUrl };
+              } else if (taskIdStr.length < 30 && !taskIdStr.match(/^[0-9a-f]{8}-[0-9a-f]{4}-/i) && !taskIdStr.match(/^[0-9a-f]{20,}/i)) {
+                // Legacy HeyGen Precision (short alphanumeric, no prefix)
+                console.log(`[SceneDispatch] Scene ${scene.id} — HeyGen Precision task ${taskIdStr}, polling (legacy no-prefix)`);
+                const heyGenPoll = await pollHeyGenLipSyncV3(taskIdStr);
+                pollResult = { status: heyGenPoll.status, videoUrl: heyGenPoll.videoUrl };
               } else {
-                // InfiniteTalk (WaveSpeed) polling — FALLBACK provider
-                console.log(`[SceneDispatch] Scene ${scene.id} — InfiniteTalk task ${taskIdStr}, polling WaveSpeed`);
+                // InfiniteTalk (WaveSpeed) polling — legacy fallback
+                console.log(`[SceneDispatch] Scene ${scene.id} — InfiniteTalk task ${taskIdStr}, polling WaveSpeed (legacy)`);
                 const itPoll = await pollInfiniteTalkLipSync(taskIdStr);
                 pollResult = { status: itPoll.status, videoUrl: itPoll.videoUrl };
               }

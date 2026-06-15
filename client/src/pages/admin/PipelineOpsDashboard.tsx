@@ -75,6 +75,11 @@ export default function PipelineOpsDashboard() {
   const [renderPage, setRenderPage] = useState(0);
   const PAGE_SIZE = 25;
 
+  // ISS-023: Client-side admin guard
+  if (!user || user.role !== "admin") {
+    return <div className="flex items-center justify-center h-screen text-muted-foreground">Access denied.</div>;
+  }
+
   // Stem injection form state — pre-filled with the showcase Zara vocal stem
   const SHOWCASE_STEM_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/vocal-stems/showcase-zara-vocals-1779394965563.mp3";
   const SHOWCASE_STEM_KEY = "vocal-stems/showcase-zara-vocals-1779394965563.mp3";

@@ -192,53 +192,73 @@ export async function createUserCredits(userId: number, initialBalance: number =
 }
 
 export async function addCredits(userId: number, amount: number, type: string, description?: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const userCredits = await getUserCredits(userId);
-  if (!userCredits) {
-    await createUserCredits(userId, amount);
-  } else {
-    await db
-      .update(credits)
-      .set({
-        balance: userCredits.balance + amount,
-        totalEarned: userCredits.totalEarned + amount,
-      })
-      .where(eq(credits.userId, userId));
+  // ISS-006: Use raw connection + explicit transaction to prevent concurrent race conditions.
+  // SELECT FOR UPDATE locks the credits row so two concurrent addCredits calls cannot both
+  // read the same stale balance and produce an incorrect result.
+  const conn = await getRawConn();
+  try {
+    await conn.beginTransaction();
+    const [rows] = await conn.execute(
+      "SELECT id, balance, totalEarned FROM credits WHERE userId = ? FOR UPDATE",
+      [userId]
+    ) as any;
+    if (!rows || rows.length === 0) {
+      // First-time credit creation inside the transaction
+      await conn.execute(
+        "INSERT INTO credits (userId, balance, totalEarned, totalSpent) VALUES (?, ?, ?, 0)",
+        [userId, amount, amount]
+      );
+    } else {
+      const row = rows[0];
+      await conn.execute(
+        "UPDATE credits SET balance = ?, totalEarned = ? WHERE userId = ?",
+        [row.balance + amount, row.totalEarned + amount, userId]
+      );
+    }
+    await conn.execute(
+      "INSERT INTO creditTransactions (userId, amount, type, description) VALUES (?, ?, ?, ?)",
+      [userId, amount, type, description ?? null]
+    );
+    await conn.commit();
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    await conn.end();
   }
-  
-  await db.insert(creditTransactions).values({
-    userId,
-    amount,
-    type: type as any,
-    description,
-  });
 }
 
 export async function deductCredits(userId: number, amount: number, description?: string) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  const userCredits = await getUserCredits(userId);
-  if (!userCredits || userCredits.balance < amount) {
-    throw new Error("Insufficient credits");
+  // ISS-006: Use raw connection + explicit transaction to prevent concurrent race conditions.
+  // SELECT FOR UPDATE locks the credits row so two concurrent render requests cannot both
+  // read the same balance and both succeed when only one has enough credits.
+  const conn = await getRawConn();
+  try {
+    await conn.beginTransaction();
+    const [rows] = await conn.execute(
+      "SELECT id, balance, totalSpent FROM credits WHERE userId = ? FOR UPDATE",
+      [userId]
+    ) as any;
+    if (!rows || rows.length === 0 || rows[0].balance < amount) {
+      await conn.rollback();
+      throw new Error("Insufficient credits");
+    }
+    const row = rows[0];
+    await conn.execute(
+      "UPDATE credits SET balance = ?, totalSpent = ? WHERE userId = ?",
+      [row.balance - amount, row.totalSpent + amount, userId]
+    );
+    await conn.execute(
+      "INSERT INTO creditTransactions (userId, amount, type, description) VALUES (?, ?, 'usage', ?)",
+      [userId, -amount, description ?? null]
+    );
+    await conn.commit();
+  } catch (err) {
+    await conn.rollback();
+    throw err;
+  } finally {
+    await conn.end();
   }
-  
-  await db
-    .update(credits)
-    .set({
-      balance: userCredits.balance - amount,
-      totalSpent: userCredits.totalSpent + amount,
-    })
-    .where(eq(credits.userId, userId));
-  
-  await db.insert(creditTransactions).values({
-    userId,
-    amount: -amount,
-    type: "usage",
-    description,
-  });
 }
 
 /**
