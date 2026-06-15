@@ -237,6 +237,8 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   // --- Lalal.ai Cloud Vocal Isolation -------------------------------------------
   lalalSourceId: varchar("lalalSourceId", { length: 128 }),  // Lalal.ai source_id after audio upload
   lalalTaskId: varchar("lalalTaskId", { length: 128 }),      // Lalal.ai task_id after split job started
+  // ISS-010b: Track when vocal isolation was submitted to detect stuck jobs (>20 min = timeout + fallback to full mix)
+  vocalsSubmittedAt: timestamp("vocalsSubmittedAt"),          // When LaLal/WaveSpeed vocal isolation was submitted
   // --- Sync Labs Lip Sync Tracking -------------------------------------------
   syncLabsJobId: varchar("syncLabsJobId", { length: 128 }), // Sync Labs job ID -- used to resume polling after server restart
   assemblyStartedAt: timestamp("assemblyStartedAt"),         // When assembly began -- used to detect truly stuck jobs

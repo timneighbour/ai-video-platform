@@ -9233,9 +9233,9 @@
 - [x] ISS-014: Fix HeyGen lipsync typo (keep_the_same_format → keep_original_format)
 - [x] ISS-015: Add hard timeout for vocal stem isolation (fail job if stuck >30 min)
 - [x] ISS-017: [N/A or already resolved] Externalise provider selection to DB config table
-- [ ] ISS-018: Add CI/CD pipeline (GitHub Actions)
+- [x] ISS-018: Add CI/CD pipeline (GitHub Actions) — .github/workflows/ci.yml (typecheck + test on PR/push)
 - [ ] ISS-019: Add spend alerts at 75% and 90% of per-video budget
-- [ ] ISS-020: Add structured logging with jobId context (pino)
+- [x] ISS-020: Add structured logging with jobId context (pino) — server/logger.ts created
 
 ### P2 Medium
 - [x] ISS-023: Add client-side admin route guard in App.tsx
@@ -9250,19 +9250,19 @@
 ### P3 Low
 - [x] ISS-033: Implement time-limited signed URLs for video delivery
 - [x] ISS-036: Add SSRF protection on audio proxy endpoint
-- [ ] ISS-037: Add image dimension validation before provider submission
+- [x] ISS-037: Add image dimension validation before provider submission (512px minimum in character-photo-validator.ts)
 - [x] ISS-040: [N/A or already resolved] Clean up .patch files and stale MD files from root
 - [ ] ISS-041: Add weekly automated spend efficiency report
 
 ## WizAI Technical Audit (Second Pass) — Remaining Items
 - [x] ISS-003: Per-user tRPC mutation rate limiting (5 render jobs/hour per user)
 - [ ] ISS-008: Assembly failure → send user notification email
-- [ ] ISS-010b: LaLal vocal stem 20-min hard timeout + full-mix fallback
+- [x] ISS-010b: LaLal vocal stem 20-min hard timeout + full-mix fallback (vocalsSubmittedAt column + 20-min check in cloud-vocal-isolation.ts)
 - [ ] ISS-016: Document lip sync quality gate thresholds in code
 - [x] ISS-017: Heartbeat watchdog — alert owner if no tick fires in 3 minutes
 - [x] ISS-019: Progressive spend alerting (warn at 80%, not just hard stop at 100%)
-- [ ] ISS-024: App.tsx route modularisation (80+ routes into domain modules)
-- [ ] ISS-025: DB connection pooling (replace lazy singleton with mysql2 pool)
+- [x] ISS-024: App.tsx route modularisation — routes.tsx extracted, App.tsx slimmed to app-level concerns
+- [x] ISS-025: DB connection pooling — mysql2 pool (connectionLimit=10) in server/db.ts
 - [ ] ISS-031: Probe auto-approve for scenes that pass all validation gates
 - [ ] ISS-032: ffmpeg assembly non-blocking (child_process.spawn)
 - [ ] ISS-034: Move/delete 100+ debugging scripts from project root

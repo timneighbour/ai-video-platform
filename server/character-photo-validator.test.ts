@@ -143,8 +143,9 @@ describe("validateCharacterPhoto", () => {
   });
 
   it("passes resolution check when dimensions are exactly at minimum", async () => {
-    mockInvokeLLM.mockResolvedValue(makeLLMResponse({ estimated_width_px: 200, estimated_height_px: 200 }) as any);
-    const result = await validateCharacterPhoto("https://cdn.example.com/photo.jpg", 200, 200);
+    // ISS-037: minimum raised to 512x512
+    mockInvokeLLM.mockResolvedValue(makeLLMResponse({ estimated_width_px: 512, estimated_height_px: 512 }) as any);
+    const result = await validateCharacterPhoto("https://cdn.example.com/photo.jpg", 512, 512);
     expect(result.passed).toBe(true);
     expect(result.failedChecks).not.toContain("min_resolution");
   });
