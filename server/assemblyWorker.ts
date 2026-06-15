@@ -18,7 +18,7 @@
  */
 import { assembleMusicVideo } from "./music-video-service";
 import { getDb } from "./db";
-import { musicVideoJobs, musicVideoScenes, renderJobs } from "../drizzle/schema";
+import { musicVideoJobs, musicVideoScenes, renderJobs, users } from "../drizzle/schema";
 import { and, eq, isNull, lt, desc } from "drizzle-orm";
 
 const WORKER_INTERVAL_MS = 2 * 60 * 1000; // 2 minutes
@@ -123,20 +123,44 @@ export async function processOrphanedAssemblyJobs(): Promise<void> {
       console.log(`[AssemblyWorker] Re-triggering assembly for job ${job.id} (tier: ${audioTier}, age: ${ageMin}min)`);
 
       // Fire-and-forget — don't await so we can process multiple jobs concurrently
+      // Capture userId for failure notification before fire-and-forget
+      const jobIdForNotify = job.id;
       assembleMusicVideo(job.id, audioTier)
         .then(() => {
-          console.log(`[AssemblyWorker] ✅ Job ${job.id} assembled successfully`);
+          console.log(`[AssemblyWorker] ✅ Job ${jobIdForNotify} assembled successfully`);
         })
-        .catch((err) => {
-          console.error(`[AssemblyWorker] ❌ Job ${job.id} assembly failed:`, err instanceof Error ? err.message : String(err));
+        .catch(async (err) => {
+          const errMsg = err instanceof Error ? err.message : String(err);
+          console.error(`[AssemblyWorker] ❌ Job ${jobIdForNotify} assembly failed:`, errMsg);
           // Reset updatedAt to a past time so the next worker interval can retry
-          getDb().then(db2 => {
-            if (!db2) return;
+          const db2 = await getDb();
+          if (db2) {
+            // ISS-008: Send failure notification email to the user
+            try {
+              const [failedJob] = await db2.select({ userId: musicVideoJobs.userId, title: musicVideoJobs.title })
+                .from(musicVideoJobs).where(eq(musicVideoJobs.id, jobIdForNotify));
+              if (failedJob) {
+                const [user] = await db2.select({ name: users.name, email: users.email })
+                  .from(users).where(eq(users.id, failedJob.userId));
+                if (user?.email) {
+                  const { emailAssemblyFailed } = await import("./email");
+                  await emailAssemblyFailed({
+                    name: user.name || "there",
+                    email: user.email,
+                    jobId: String(jobIdForNotify),
+                    title: failedJob.title || "your music video",
+                    errorMessage: errMsg,
+                  }).catch(() => {});
+                }
+              }
+            } catch (notifyErr) {
+              console.error(`[AssemblyWorker] Failed to send failure notification for job ${jobIdForNotify}:`, notifyErr);
+            }
             db2.update(musicVideoJobs)
               .set({ updatedAt: new Date(Date.now() - STUCK_THRESHOLD_MINUTES * 60 * 1000) })
-              .where(eq(musicVideoJobs.id, job.id))
+              .where(eq(musicVideoJobs.id, jobIdForNotify))
               .catch(() => {});
-          });
+          }
         })
         .finally(() => {
           inFlightAssemblies.delete(job.id);

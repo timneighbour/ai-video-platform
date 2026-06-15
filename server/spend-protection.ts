@@ -207,6 +207,41 @@ export function isSpendProtectionEnabled(): boolean {
   return process.env.SPEND_PROTECTION_ENABLED !== "false";
 }
 
+// ── ISS-019: PROGRESSIVE SPEND ALERTING ──────────────────────────────────────
+// Alert the owner at 50%, 75%, and 90% of the daily cap. Only alert once per
+// threshold per day to avoid spam.
+const SPEND_ALERT_THRESHOLDS = [0.5, 0.75, 0.9] as const;
+const spendAlertsSentToday = new Set<number>(); // tracks which thresholds have been alerted today
+let spendAlertDay: string | null = null; // UTC date string — reset when day changes
+
+export async function checkProgressiveSpendAlerts(): Promise<void> {
+  try {
+    const { notifyOwner } = await import("./_core/notification");
+    const todayUtc = new Date().toISOString().slice(0, 10);
+    if (spendAlertDay !== todayUtc) {
+      spendAlertDay = todayUtc;
+      spendAlertsSentToday.clear();
+    }
+    const dailySpend = await isDailySpendCapReached();
+    const pct = dailySpend.totalUsd / MAX_DAILY_SPEND_USD;
+    for (const threshold of SPEND_ALERT_THRESHOLDS) {
+      const thresholdPct = Math.round(threshold * 100);
+      if (pct >= threshold && !spendAlertsSentToday.has(thresholdPct)) {
+        spendAlertsSentToday.add(thresholdPct);
+        notifyOwner({
+          title: `⚠️ WIZ AI Daily Spend at ${thresholdPct}% of Cap`,
+          content: `Daily API spend has reached $${dailySpend.totalUsd.toFixed(2)} USD ` +
+            `(${thresholdPct}% of the $${MAX_DAILY_SPEND_USD.toFixed(2)} daily cap). ` +
+            `Date: ${todayUtc}. Monitor the pipeline to avoid hitting the hard stop.`,
+        }).catch(() => {});
+        console.warn(`[SpendProtection] ⚠️ Progressive alert: daily spend at ${thresholdPct}% ($${dailySpend.totalUsd.toFixed(2)}/$${MAX_DAILY_SPEND_USD.toFixed(2)})`);
+      }
+    }
+  } catch (err) {
+    console.error("[SpendProtection] Failed to check progressive spend alerts:", err);
+  }
+}
+
 // ── COMPREHENSIVE PRE-SUBMISSION GUARD (combines Items 1–4, 9) ───────────────
 // Call this BEFORE every provider API call. Returns null if safe to proceed,
 // or a string error message if the submission should be blocked.

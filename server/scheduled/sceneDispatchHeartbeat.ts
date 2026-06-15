@@ -75,7 +75,7 @@ import { submitHeyGenDirectPhoto, pollHeyGenDirectPhoto, isHeyGenDirectConfigure
 // Sync Labs Direct — FALLBACK if HeyGen Direct fails
 import { submitSyncLabsDirect, pollSyncLabsDirect, isSyncLabsConfigured } from "../ai-apis/synclabs-direct";
 import { getProbeDecision } from "../pre-render-validator";
-import { resetSceneAttempts } from "../spend-protection";
+import { resetSceneAttempts, checkProgressiveSpendAlerts } from "../spend-protection";
 import { normaliseBpm } from "../instrument-analysis";
 import { getVocalStemForCharacter } from "../vocal-isolation-service";
 import { muxAudioIntoVideo, trimVideoStart } from "../audio-clip-extractor";
@@ -85,7 +85,16 @@ import { selectReferenceForScene, runStage2EnvironmentPrep } from "../character-
 import { validateRawSceneForLipSync } from "../raw-scene-validator";
 import { runPostRenderCheck, formatQualityLockRejection } from "../wiz-quality-lock";
 import { triggerCloudVocalIsolation } from "../cloud-vocal-isolation";
+import { notifyOwner } from "../_core/notification";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
+
+// ── ISS-017: Heartbeat watchdog ────────────────────────────────────────────────
+// Track the last successful tick time. If the heartbeat is silent for > 3 minutes,
+// alert the owner so they can investigate.
+let lastHeartbeatTickAt: number | null = null;
+const WATCHDOG_SILENCE_THRESHOLD_MS = 3 * 60 * 1000; // 3 minutes
+let watchdogAlertSentAt: number | null = null;
+const WATCHDOG_ALERT_COOLDOWN_MS = 10 * 60 * 1000; // only alert once per 10 minutes
 
 const SCENE_STUCK_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes — reaper handles beyond this
 const HEYGEN_STUCK_TIMEOUT_MS = 25 * 60 * 1000; // 25 minutes max for HeyGen Precision jobs (can take 15-20min)
@@ -96,6 +105,28 @@ const MAX_COMPOSITE_ATTEMPTS = 3;
 
 export async function sceneDispatchHeartbeatHandler(req: Request, res: Response) {
   const startedAt = Date.now();
+
+  // ── ISS-017: Watchdog check ──────────────────────────────────────────────────────
+  // If the heartbeat was previously seen but is now firing late, alert the owner.
+  // This catches cases where the cron was paused, the process crashed and restarted,
+  // or the heartbeat endpoint was unreachable for an extended period.
+  if (lastHeartbeatTickAt !== null) {
+    const silenceMs = startedAt - lastHeartbeatTickAt;
+    if (silenceMs > WATCHDOG_SILENCE_THRESHOLD_MS) {
+      const shouldAlert = watchdogAlertSentAt === null || (startedAt - watchdogAlertSentAt) > WATCHDOG_ALERT_COOLDOWN_MS;
+      if (shouldAlert) {
+        watchdogAlertSentAt = startedAt;
+        notifyOwner({
+          title: "⚠️ WIZ AI Heartbeat Gap Detected",
+          content: `The scene dispatch heartbeat was silent for ${Math.round(silenceMs / 1000)}s (expected ≤60s). ` +
+            `Last tick: ${new Date(lastHeartbeatTickAt).toISOString()}. ` +
+            `Current tick: ${new Date(startedAt).toISOString()}. ` +
+            `Check the Manus cron schedule and server health.`,
+        }).catch(() => {});
+        console.warn(`[SceneDispatch] ⚠️ Watchdog: heartbeat gap of ${Math.round(silenceMs / 1000)}s detected`);
+      }
+    }
+  }
 
   // Authenticate via Manus cron session
   // DEV BYPASS: allow local dev calls with X-Dev-Bypass header
@@ -1507,6 +1538,10 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
     };
 
     console.log(`[SceneDispatch] Heartbeat complete:`, summary);
+    // ── ISS-017: Update watchdog timestamp on successful completion ──────────────────────────────────────────────────────
+    lastHeartbeatTickAt = Date.now();
+    // ── ISS-019: Check progressive spend alerts (50%/75%/90% of daily cap) ─────
+    checkProgressiveSpendAlerts().catch(() => {});
     return res.json(summary);
   } catch (err: any) {
     console.error("[SceneDispatch] Fatal error:", err);

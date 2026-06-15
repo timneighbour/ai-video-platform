@@ -1,1 +1,0 @@
-Based on the audio clip provided, there is no singing or vocals present. It is a purely instrumental piece featuring a slow, somewhat melancholic piano melody.

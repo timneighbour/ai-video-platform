@@ -728,3 +728,76 @@ export async function emailSubscriptionCancelled(data: {
     ),
   });
 }
+
+/** ISS-008: Assembly failure — sent to the user when their music video fails to assemble */
+export async function emailAssemblyFailed(data: {
+  name: string;
+  email: string;
+  jobId: string;
+  title: string;
+  errorMessage?: string;
+}): Promise<void> {
+  if (!data.email) return;
+  const client = getResend();
+  if (!client) return;
+
+  const firstName = (data.name || "there").split(" ")[0];
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head>
+<body style="margin:0;padding:0;background:#080808;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#080808;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;background:#0f0f17;border-radius:16px;overflow:hidden;border:1px solid rgba(196,164,100,0.18);">
+          <tr><td style="height:4px;background:linear-gradient(90deg,#c4a464,#e8c97a,#c4a464);">&nbsp;</td></tr>
+          <tr>
+            <td style="padding:28px 40px 20px;background:linear-gradient(135deg,#0f0f17 0%,#1a1508 100%);">
+              <span style="font-size:22px;font-weight:900;letter-spacing:-1px;color:#e8c97a;">WIZ AI</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px 40px 24px;">
+              <h2 style="margin:0 0 12px;font-size:20px;font-weight:800;color:#f5f0e8;">We couldn't assemble your video</h2>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:rgba(255,255,255,0.65);">Hi ${firstName},</p>
+              <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:rgba(255,255,255,0.65);">Unfortunately we ran into a problem assembling your music video <strong style="color:#e8c97a;">${data.title}</strong> (Job #${data.jobId}).</p>
+              <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:rgba(255,255,255,0.65);">Our team has been notified. You can retry the assembly from your dashboard, or contact us if the problem persists.</p>
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="border-radius:10px;background:linear-gradient(135deg,#c4a464,#e8c97a);">
+                    <a href="https://wiz-ai.io/dashboard" style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:800;color:#0a0a0f;text-decoration:none;">Go to Dashboard →</a>
+                  </td>
+                </tr>
+              </table>
+              ${data.errorMessage ? `<p style="margin:24px 0 0;font-size:11px;color:rgba(255,255,255,0.25);">Technical details: ${data.errorMessage}</p>` : ""}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 40px;border-top:1px solid rgba(255,255,255,0.06);">
+              <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.25);">WIZ AI · wiz-ai.io · Automated notification</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  try {
+    const { error } = await client.emails.send({
+      from: FROM_EMAIL,
+      to: data.email,
+      subject: `⚠️ Your WIZ AI video couldn't be assembled — Job #${data.jobId}`,
+      html,
+    });
+    if (error) {
+      console.error("[Email] Assembly failed email error:", error);
+    } else {
+      console.log(`[Email] Assembly failed email sent to: ${data.email}`);
+    }
+  } catch (err) {
+    console.error("[Email] Failed to send assembly failed email:", err);
+  }
+}

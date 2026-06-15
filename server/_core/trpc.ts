@@ -39,6 +39,39 @@ const t = initTRPC.context<TrpcContext>().create({
 export const router = t.router;
 export const publicProcedure = t.procedure;
 
+// ── ISS-003: Per-user render job rate limiter ─────────────────────────────────
+// Tracks how many render-job mutations a user has made in the last hour.
+// Stored in-process memory (sufficient for single-process deployment).
+const renderJobCounts = new Map<string, number[]>(); // userId → array of timestamps
+const RENDER_JOB_LIMIT = 5; // max render jobs per user per hour
+const RENDER_JOB_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
+// Procedures that count against the per-user render job limit
+const RENDER_JOB_PROCEDURES = new Set([
+  "musicVideo.createJob",
+  "kidsVideo.createJob",
+  "wizShorts.createJob",
+  "enhancement.createJob",
+]);
+
+const renderJobRateLimiter = t.middleware(async opts => {
+  const { ctx, path, next } = opts;
+  if (ctx.user && ctx.user.role !== "admin" && RENDER_JOB_PROCEDURES.has(path)) {
+    const now = Date.now();
+    const userId = String(ctx.user.id);
+    const timestamps = (renderJobCounts.get(userId) ?? []).filter(ts => now - ts < RENDER_JOB_WINDOW_MS);
+    if (timestamps.length >= RENDER_JOB_LIMIT) {
+      throw new TRPCError({
+        code: "TOO_MANY_REQUESTS",
+        message: `You have created ${RENDER_JOB_LIMIT} videos in the last hour. Please wait before creating another.`,
+      });
+    }
+    timestamps.push(now);
+    renderJobCounts.set(userId, timestamps);
+  }
+  return next();
+});
+
 const requireUser = t.middleware(async opts => {
   const { ctx, next } = opts;
 
@@ -54,7 +87,7 @@ const requireUser = t.middleware(async opts => {
   });
 });
 
-export const protectedProcedure = t.procedure.use(requireUser);
+export const protectedProcedure = t.procedure.use(renderJobRateLimiter).use(requireUser);
 
 export const adminProcedure = t.procedure.use(
   t.middleware(async opts => {

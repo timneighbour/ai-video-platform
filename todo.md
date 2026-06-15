@@ -9253,3 +9253,20 @@
 - [ ] ISS-037: Add image dimension validation before provider submission
 - [x] ISS-040: [N/A or already resolved] Clean up .patch files and stale MD files from root
 - [ ] ISS-041: Add weekly automated spend efficiency report
+
+## WizAI Technical Audit (Second Pass) — Remaining Items
+- [x] ISS-003: Per-user tRPC mutation rate limiting (5 render jobs/hour per user)
+- [ ] ISS-008: Assembly failure → send user notification email
+- [ ] ISS-010b: LaLal vocal stem 20-min hard timeout + full-mix fallback
+- [ ] ISS-016: Document lip sync quality gate thresholds in code
+- [x] ISS-017: Heartbeat watchdog — alert owner if no tick fires in 3 minutes
+- [x] ISS-019: Progressive spend alerting (warn at 80%, not just hard stop at 100%)
+- [ ] ISS-024: App.tsx route modularisation (80+ routes into domain modules)
+- [ ] ISS-025: DB connection pooling (replace lazy singleton with mysql2 pool)
+- [ ] ISS-031: Probe auto-approve for scenes that pass all validation gates
+- [ ] ISS-032: ffmpeg assembly non-blocking (child_process.spawn)
+- [ ] ISS-034: Move/delete 100+ debugging scripts from project root
+- [ ] ISS-041: Remove suno.ts.patch file from routers directory
+- [ ] ISS-042: Move .md planning files out of project root
+- [ ] ISS-038: Remove nohup.out from project root
+- [ ] CI/CD: Add GitHub Actions workflow (typecheck + test on PR)
