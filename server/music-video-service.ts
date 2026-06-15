@@ -2299,7 +2299,41 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     }
 
     if (identityWarnings > 0) {
-      const warningMsg = `Identity Gate: ${identityWarnings}/${performanceScenes.length} performance scene(s) failed face similarity check. Video delivered but flagged for review.`;
+      // ── AUTO-REGENERATION: reset warning scenes to pending (max 2 retries per scene) ──────
+      // Re-fetch scenes with faceValidationStatus to find which ones need regeneration
+      const warningScenes = await dbConn
+        .select({ id: musicVideoScenes.id, sceneIndex: musicVideoScenes.sceneIndex, retryCount: musicVideoScenes.retryCount })
+        .from(musicVideoScenes)
+        .where(and(eq(musicVideoScenes.jobId, jobId), eq(musicVideoScenes.faceValidationStatus, "warning")));
+      const regenCandidates = warningScenes.filter(s => (s.retryCount ?? 0) < 2);
+      if (regenCandidates.length > 0) {
+        console.warn(`[IdentityGate] Job ${jobId}: auto-regenerating ${regenCandidates.length} scene(s) that failed identity validation (retryCount < 2)`);
+        for (const s of regenCandidates) {
+          await dbConn.update(musicVideoScenes)
+            .set({
+              status: "pending",
+              videoUrl: null,
+              taskId: null,
+              lipSyncStatus: "pending",
+              lipSyncTaskId: null,
+              lipSyncVideoUrl: null,
+              faceValidationStatus: "pending",
+              retryCount: (s.retryCount ?? 0) + 1,
+              errorMessage: "Auto-regenerating: failed identity validation",
+              updatedAt: new Date(),
+            })
+            .where(eq(musicVideoScenes.id, s.id));
+          console.log(`[IdentityGate] Scene ${s.sceneIndex} (id=${s.id}) reset to pending for auto-regeneration (retry ${(s.retryCount ?? 0) + 1}/2)`);
+        }
+        // Reset job status to rendering so heartbeat picks up the pending scenes
+        await dbConn.update(musicVideoJobs)
+          .set({ status: "rendering" as any, updatedAt: new Date() })
+          .where(eq(musicVideoJobs.id, jobId));
+        // Abort assembly — scenes need to be re-rendered first
+        throw new Error(`[IdentityGate] Job ${jobId}: assembly aborted — ${regenCandidates.length} scene(s) queued for auto-regeneration due to identity validation failure`);
+      }
+      // All warning scenes have exhausted retries — deliver with warning flag
+      const warningMsg = `Identity Gate: ${identityWarnings}/${performanceScenes.length} performance scene(s) failed face similarity check (retries exhausted). Video delivered but flagged for review.`;
       console.warn(`[IdentityGate] Job ${jobId}: ${warningMsg}`);
       // Append to existing error message (don't overwrite QC warnings)
       const existingMsg = qcIssues.length > 0 ? `QC Warning: ${qcIssues.join("; ")}; ` : "";
