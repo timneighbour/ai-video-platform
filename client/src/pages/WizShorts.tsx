@@ -973,7 +973,7 @@ export default function WizShorts() {
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-2 py-1.5 text-[10px] text-white/70 focus:outline-none"
                     style={{ ["--tw-ring-color" as any]: FX }}
                   >
-                    {s.options.map((o) => <option key={o} className="bg-[#0d0516]">{o}</option>)}
+                    {s.options.map((o) => <option key={o} className="bg-background">{o}</option>)}
                   </select>
                 </div>
               ))}
@@ -1077,7 +1077,7 @@ export default function WizShorts() {
                   <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
                     {MOCK_SCENES.map((sc) => (
                       <div key={sc.id} className="flex-shrink-0 w-28 rounded-xl border border-white/10 bg-white/5 overflow-hidden">
-                        <div className="relative aspect-[9/16] bg-gradient-to-b from-[#1a0a2e] to-[#07040d] flex items-center justify-center">
+                        <div className="relative aspect-[9/16] bg-gradient-to-b from-background to-[#07040d] flex items-center justify-center">
                           <span className="text-white/60 text-xs font-bold">{sc.id}</span>
                           {sc.badge && (
                             <span

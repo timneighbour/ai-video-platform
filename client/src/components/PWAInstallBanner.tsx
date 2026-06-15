@@ -116,7 +116,7 @@ export function PWAInstallBanner() {
               </span>
               <button
                 onClick={handleDismiss}
-                className="text-zinc-500 hover:text-zinc-300 transition-colors p-1 -mr-1 -mt-1"
+                className="text-muted-foreground/70 hover:text-foreground/80 transition-colors p-1 -mr-1 -mt-1"
                 aria-label="Dismiss"
               >
                 <X size={14} />
@@ -125,17 +125,17 @@ export function PWAInstallBanner() {
 
             {showIOSGuide ? (
               <>
-                <p className="text-xs text-zinc-300 mb-2 leading-relaxed">
+                <p className="text-xs text-foreground/80 mb-2 leading-relaxed">
                   Add WIZ AI to your home screen for the best experience.
                 </p>
-                <p className="text-xs text-zinc-500 leading-relaxed flex items-center gap-1">
-                  Tap <Share size={11} className="inline text-[#c4a464]" /> then{" "}
-                  <strong className="text-zinc-400">"Add to Home Screen"</strong>
+                <p className="text-xs text-muted-foreground/70 leading-relaxed flex items-center gap-1">
+                  Tap <Share size={11} className="inline text-primary/80" /> then{" "}
+                  <strong className="text-muted-foreground">"Add to Home Screen"</strong>
                 </p>
               </>
             ) : (
               <>
-                <p className="text-xs text-zinc-300 mb-3 leading-relaxed">
+                <p className="text-xs text-foreground/80 mb-3 leading-relaxed">
                   Install WIZ AI for instant access — create videos, music &amp; images from your home screen.
                 </p>
                 <button

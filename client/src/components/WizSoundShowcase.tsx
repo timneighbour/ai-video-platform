@@ -52,7 +52,7 @@ const TIERS: {
     label: "WizSound Active",
     price: "+£1",
     tagline: "Polished, fuller sound",
-    colour: "from-[#b8892a] to-[#4a3010]",
+    colour: "from-primary to-primary/40",
     glow: "rgba(184,137,42,0.4)",
     specs: [
       { label: "Stereo Width", value: "×2.5", bar: 72 },

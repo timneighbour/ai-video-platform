@@ -170,7 +170,7 @@ export default function WatchPage() {
 
           {/* Sidebar CTA */}
           <div className="space-y-4">
-            <div className="rounded-xl bg-gradient-to-br from-[#b8892a]/40 to-blue-900/40 border border-[--color-gold]/30 p-6 space-y-4">
+            <div className="rounded-xl bg-gradient-to-br from-primary/40 to-blue-900/40 border border-[--color-gold]/30 p-6 space-y-4">
               <div className="text-center space-y-2">
                 <Sparkles className="w-8 h-8 text-[--color-gold] mx-auto" />
                 <h2 className="text-white font-bold text-lg">Create Your Own Cinematic Music Video</h2>

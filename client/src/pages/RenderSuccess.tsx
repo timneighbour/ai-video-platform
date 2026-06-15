@@ -130,7 +130,7 @@ export default function RenderSuccess() {
             </p>
             <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] rounded-full transition-all duration-1000"
+                className="h-full bg-gradient-to-r from-primary to-primary/40 rounded-full transition-all duration-1000"
                 style={{ width: `${((5 - redirectCountdown) / 5) * 100}%` }}
               />
             </div>
@@ -159,7 +159,7 @@ export default function RenderSuccess() {
             </p>
             <p className="text-white/30 text-xs">This usually takes 2–5 minutes.</p>
             <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] animate-pulse rounded-full" style={{ width: "40%" }} />
+              <div className="h-full bg-gradient-to-r from-primary to-primary/40 animate-pulse rounded-full" style={{ width: "40%" }} />
             </div>
             <Button asChild variant="outline" size="sm">
               <Link href="/dashboard">Go to Dashboard</Link>

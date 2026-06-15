@@ -65,7 +65,7 @@ function AddProjectModal({ profileId, onClose, onSuccess }: { profileId: number;
         <Label className="text-sm text-white/70 mb-1 block">Type</Label>
         <Select value={form.type} onValueChange={v => setForm(f => ({ ...f, type: v }))}>
           <SelectTrigger className="bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
-          <SelectContent className="bg-[#1a1a2e] border-white/10">
+          <SelectContent className="bg-background border-white/10">
             {PROJECT_TYPES.map(t => (
               <SelectItem key={t.value} value={t.value} className="text-white">{t.label}</SelectItem>
             ))}
@@ -85,7 +85,7 @@ function AddProjectModal({ profileId, onClose, onSuccess }: { profileId: number;
       <div className="flex gap-3">
         <Button onClick={() => saveMutation.mutate({ profileId, title: form.title, type: form.type, description: form.description || undefined, outputUrl: form.outputUrl || undefined, source: "manual" })}
           disabled={!form.title.trim() || saveMutation.isPending}
-          className="flex-1 bg-[#b8892a] hover:bg-[#a07820] text-black font-semibold">
+          className="flex-1 bg-primary hover:bg-primary/80 text-black font-semibold">
           {saveMutation.isPending ? "Saving..." : "Save Project"}
         </Button>
         <Button variant="outline" onClick={onClose} className="border-white/20 text-white/70">Cancel</Button>
@@ -118,7 +118,7 @@ function SocialSharePanel({ project, onClose }: { project: any; onClose: () => v
       {project.outputUrl ? (
         <div className="bg-white/5 rounded-lg p-3 flex items-center gap-2">
           <span className="text-white/50 text-xs truncate flex-1">{project.outputUrl}</span>
-          <Button size="sm" variant="ghost" className="text-[#b8892a] hover:bg-[#b8892a]/10 shrink-0"
+          <Button size="sm" variant="ghost" className="text-primary hover:bg-primary/10 shrink-0"
             onClick={() => { navigator.clipboard.writeText(project.outputUrl); toast.success("URL copied!"); }}>
             Copy
           </Button>
@@ -179,7 +179,7 @@ export default function StudioDetail() {
 
   if (!user || isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0a14] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-white/40">{isLoading ? "Loading studio..." : "Sign in to view your studio"}</div>
       </div>
     );
@@ -187,7 +187,7 @@ export default function StudioDetail() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-[#0a0a14] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <p className="text-white/60 mb-4">Studio not found</p>
           <Link href="/studios">
@@ -205,7 +205,7 @@ export default function StudioDetail() {
   })).filter(t => t.count > 0);
 
   return (
-    <div className="min-h-screen bg-[#0a0a14] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Header */}
       <div className="border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 py-6">
@@ -340,7 +340,7 @@ export default function StudioDetail() {
       </div>
 
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent className="bg-[#12122a] border-white/10 text-white max-w-md">
+        <DialogContent className="bg-card border-white/10 text-white max-w-md">
           <DialogHeader><DialogTitle>Add Project to {profile.name}</DialogTitle></DialogHeader>
           <AddProjectModal profileId={profileId} onClose={() => setAddOpen(false)}
             onSuccess={() => { setAddOpen(false); utils.studios.getProfile.invalidate({ id: profileId }); }} />
@@ -348,10 +348,10 @@ export default function StudioDetail() {
       </Dialog>
 
       <Dialog open={!!shareProject} onOpenChange={v => !v && setShareProject(null)}>
-        <DialogContent className="bg-[#12122a] border-white/10 text-white max-w-md">
+        <DialogContent className="bg-card border-white/10 text-white max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Share2 className="w-5 h-5 text-[#b8892a]" /> Share "{shareProject?.title}"
+              <Share2 className="w-5 h-5 text-primary" /> Share "{shareProject?.title}"
             </DialogTitle>
           </DialogHeader>
           {shareProject && <SocialSharePanel project={shareProject} onClose={() => setShareProject(null)} />}
@@ -359,7 +359,7 @@ export default function StudioDetail() {
       </Dialog>
 
       <Dialog open={deleteProjectId !== null} onOpenChange={v => !v && setDeleteProjectId(null)}>
-        <DialogContent className="bg-[#12122a] border-white/10 text-white max-w-sm">
+        <DialogContent className="bg-card border-white/10 text-white max-w-sm">
           <DialogHeader><DialogTitle>Delete Project?</DialogTitle></DialogHeader>
           <p className="text-white/60 text-sm">This will permanently remove this project from your studio.</p>
           <div className="flex gap-3 mt-4">

@@ -176,7 +176,7 @@ const CATEGORIES: Category[] = [
     icon: <Settings className="w-4 h-4" />,
     accent: "bg-slate-500",
     accentText: "text-white",
-    borderColor: "border-slate-400",
+    borderColor: "border-border/40",
     faqs: [
       { q: "Why is my video not generating?", a: "Check that you have sufficient Build Credits and that your audio file meets the format requirements (MP3/WAV, under 50 MB). If the issue persists, try refreshing the page or contact support via Live Chat." },
       { q: "My video quality looks low — what can I do?", a: "Ensure you have selected HD or 4K quality in the render settings. Quality options depend on your plan — Studio plan unlocks 4K. Also check that your source audio is high quality." },
@@ -284,7 +284,7 @@ export default function Help() {
   const totalShown = filtered.reduce((n, c) => n + c.faqs.length, 0);
 
   return (
-    <div className="min-h-screen bg-[#080810] text-white">
+    <div className="min-h-screen bg-background text-white">
       <PublicNavBar />
       <div className="max-w-7xl mx-auto px-4 pt-20 pb-0">
         <BackButton />

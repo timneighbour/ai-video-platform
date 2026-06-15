@@ -1033,7 +1033,7 @@ export default function Autopilot() {
               </div>
               {/* Render time estimate + quality guarantee */}
               <div className="flex flex-wrap items-center gap-3 pt-1">
-                <span className="inline-flex items-center gap-1.5 text-[11px] text-zinc-500">
+                <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground/70">
                   <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><circle cx="8" cy="8" r="6.5" /><path d="M8 5v3.5l2 2" /></svg>
                   ~{Math.max(3, Math.round(storyboard.length * 0.7))} min render
                 </span>

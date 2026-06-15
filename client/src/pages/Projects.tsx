@@ -141,7 +141,7 @@ function StatusBadge({ status }: { status: string }) {
     case "pending": case "queued":
       return <Badge className="bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/25 gap-1 text-[11px] font-semibold"><Clock className="h-3 w-3" /> Queued</Badge>;
     case "draft":
-      return <Badge className="bg-zinc-500/15 text-zinc-400 border-zinc-500/25 gap-1 text-[11px] font-semibold"><Edit3 className="h-3 w-3" /> Draft</Badge>;
+      return <Badge className="bg-muted-foreground/20/15 text-muted-foreground border-border/50/25 gap-1 text-[11px] font-semibold"><Edit3 className="h-3 w-3" /> Draft</Badge>;
     case "failed":
       return <Badge className="bg-red-500/15 text-red-400 border-red-500/25 gap-1 text-[11px] font-semibold"><AlertCircle className="h-3 w-3" /> Failed</Badge>;
     default:
@@ -168,7 +168,7 @@ function PrimaryCTA({
   switch (status) {
     case "completed":
       return (
-        <Button onClick={onWatch} className={`${cls} gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white border-0 shadow-[#b8892a]/30`}>
+        <Button onClick={onWatch} className={`${cls} gap-2 bg-gradient-to-r from-primary to-primary/40 hover:from-primary/80 hover:to-primary text-white border-0 shadow-[#b8892a]/30`}>
           <Play className="h-3.5 w-3.5 fill-current" /> Watch Video
         </Button>
       );
@@ -180,7 +180,7 @@ function PrimaryCTA({
       );
     case "storyboard_ready":
       return (
-        <Button onClick={onRender ?? onContinue} className={`${cls} gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white border-0 shadow-[#b8892a]/30`}>
+        <Button onClick={onRender ?? onContinue} className={`${cls} gap-2 bg-gradient-to-r from-primary to-primary/40 hover:from-primary hover:to-primary/40 text-white border-0 shadow-[#b8892a]/30`}>
           <Zap className="h-3.5 w-3.5" /> Build Now
         </Button>
       );
@@ -192,7 +192,7 @@ function PrimaryCTA({
       );
     default:
       return (
-        <Button onClick={onContinue} className={`${cls} gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white border-0 shadow-[#b8892a]/30`}>
+        <Button onClick={onContinue} className={`${cls} gap-2 bg-gradient-to-r from-primary to-primary/40 hover:from-primary hover:to-primary/40 text-white border-0 shadow-[#b8892a]/30`}>
           <Edit3 className="h-3.5 w-3.5" /> Continue Editing
         </Button>
       );
@@ -374,12 +374,12 @@ export default function Projects() {
       className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
         filter === value
           ? "bg-[--color-gold] text-white shadow-lg shadow-[#b8892a]/30"
-          : "bg-white/5 text-zinc-400 hover:bg-white/8 hover:text-white border border-white/8"
+          : "bg-white/5 text-muted-foreground hover:bg-white/8 hover:text-white border border-white/8"
       }`}
     >
       {label}
       {count !== undefined && count > 0 && (
-        <span className={`text-[10px] rounded-full px-1.5 py-0.5 leading-none font-bold ${filter === value ? "bg-white/20" : "bg-white/10 text-zinc-300"}`}>
+        <span className={`text-[10px] rounded-full px-1.5 py-0.5 leading-none font-bold ${filter === value ? "bg-white/20" : "bg-white/10 text-foreground/80"}`}>
           {count}
         </span>
       )}
@@ -403,31 +403,31 @@ export default function Projects() {
     return (
       <div className={`relative rounded-2xl border overflow-hidden transition-all duration-200 group ${
         isPrimary
-          ? "border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/40 via-[#111118] to-[#4a3010]/20 shadow-xl shadow-[#b8892a]/15"
+          ? "border-[--color-gold]/30 bg-gradient-to-br from-primary/40 via-background to-primary/40/20 shadow-xl shadow-[#b8892a]/15"
           : completed
-          ? "border-[--color-silver]/20 bg-[#111118] hover:border-[--color-silver]/40/35 hover:shadow-lg hover:shadow-emerald-900/10"
+          ? "border-[--color-silver]/20 bg-card hover:border-[--color-silver]/40/35 hover:shadow-lg hover:shadow-emerald-900/10"
           : rendering
-          ? "border-[--color-gold]/30 bg-[#111118] shadow-md shadow-amber-900/10"
-          : "border-white/8 bg-[#111118] hover:border-white/15 hover:shadow-md"
+          ? "border-[--color-gold]/30 bg-card shadow-md shadow-amber-900/10"
+          : "border-white/8 bg-card hover:border-white/15 hover:shadow-md"
       }`}>
-        {rendering && <div className="absolute inset-0 bg-gradient-to-br from-[#b8892a]/5 to-transparent pointer-events-none" />}
-        {completed && <div className="absolute inset-0 bg-gradient-to-br from-[#9090a0]/4 to-transparent pointer-events-none" />}
+        {rendering && <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />}
+        {completed && <div className="absolute inset-0 bg-gradient-to-br from-muted-foreground/4 to-transparent pointer-events-none" />}
 
         <div className="p-5">
           {/* Top row */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <StatusBadge status={job.status} />
-              <span className="text-[10px] text-zinc-600 font-medium bg-white/5 px-2 py-0.5 rounded-full">{studioLabel}</span>
+              <span className="text-[10px] text-muted-foreground/50 font-medium bg-white/5 px-2 py-0.5 rounded-full">{studioLabel}</span>
             </div>
-            <span className="text-[11px] text-zinc-600">{timeAgo(job.createdAt)}</span>
+            <span className="text-[11px] text-muted-foreground/50">{timeAgo(job.createdAt)}</span>
           </div>
 
           {/* Thumbnail + info */}
           <div className="flex gap-4">
             <div className={`relative flex-shrink-0 w-24 h-16 rounded-xl overflow-hidden border ${
               completed ? "border-[--color-silver]/25" : rendering ? "border-[--color-gold]/30" : "border-white/8"
-            } bg-zinc-900`}>
+            } bg-card`}>
               {completed && videoUrl ? (
                 <>
                   {job.thumbnailUrl ? (
@@ -449,7 +449,7 @@ export default function Projects() {
                       <div className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-[--color-gold] animate-pulse" />
                     </div>
                   ) : (
-                    isMusicVideo ? <Music className="h-6 w-6 text-zinc-600" /> : <Wand2 className="h-6 w-6 text-zinc-600" />
+                    isMusicVideo ? <Music className="h-6 w-6 text-muted-foreground/50" /> : <Wand2 className="h-6 w-6 text-muted-foreground/50" />
                   )}
                 </div>
               )}
@@ -457,14 +457,14 @@ export default function Projects() {
 
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-[15px] truncate leading-tight text-white mb-1">{job.title}</h3>
-              <div className="flex flex-wrap gap-x-2 text-[11px] text-zinc-500">
-                {job.genre && <span className="text-zinc-400">{job.genre}</span>}
-                {job.mood && <><span className="text-zinc-600">·</span><span>{job.mood}</span></>}
-                {job.audioDuration ? <><span className="text-zinc-600">·</span><span>{formatDuration(job.audioDuration)}</span></> : null}
+              <div className="flex flex-wrap gap-x-2 text-[11px] text-muted-foreground/70">
+                {job.genre && <span className="text-muted-foreground">{job.genre}</span>}
+                {job.mood && <><span className="text-muted-foreground/50">·</span><span>{job.mood}</span></>}
+                {job.audioDuration ? <><span className="text-muted-foreground/50">·</span><span>{formatDuration(job.audioDuration)}</span></> : null}
                 {isMusicVideo && job.totalScenes != null && job.completedScenes != null && (
-                  <><span className="text-zinc-600">·</span><span>{job.completedScenes}/{job.totalScenes} scenes</span></>
+                  <><span className="text-muted-foreground/50">·</span><span>{job.completedScenes}/{job.totalScenes} scenes</span></>
                 )}
-                {!isMusicVideo && <><span className="text-zinc-600">·</span><span>{job.creditCost} credits</span></>}
+                {!isMusicVideo && <><span className="text-muted-foreground/50">·</span><span>{job.creditCost} credits</span></>}
               </div>
             </div>
           </div>
@@ -481,10 +481,10 @@ export default function Projects() {
                 <span className="text-[--color-gold] font-medium flex items-center gap-1">
                   <Loader2 className="h-3 w-3 animate-spin" /> Rendering your video…
                 </span>
-                <span className="text-zinc-500">{progress}%{(job.totalScenes - (job.completedScenes ?? 0)) > 0 && ` · ~${Math.ceil((job.totalScenes - (job.completedScenes ?? 0)) * 8)}s`}</span>
+                <span className="text-muted-foreground/70">{progress}%{(job.totalScenes - (job.completedScenes ?? 0)) > 0 && ` · ~${Math.ceil((job.totalScenes - (job.completedScenes ?? 0)) * 8)}s`}</span>
               </div>
               <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-[#b8892a] to-orange-500 transition-all duration-700" style={{ width: `${Math.max(progress, 3)}%` }} />
+                <div className="h-full rounded-full bg-gradient-to-r from-primary to-orange-500 transition-all duration-700" style={{ width: `${Math.max(progress, 3)}%` }} />
               </div>
             </div>
           )}
@@ -495,10 +495,10 @@ export default function Projects() {
                 <span className="text-[--color-gold] font-medium flex items-center gap-1">
                   <Loader2 className="h-3 w-3 animate-spin" /> Processing your video…
                 </span>
-                <span className="text-zinc-500">In queue</span>
+                <span className="text-muted-foreground/70">In queue</span>
               </div>
               <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-[#b8892a] to-orange-500 animate-pulse" style={{ width: "55%" }} />
+                <div className="h-full rounded-full bg-gradient-to-r from-primary to-orange-500 animate-pulse" style={{ width: "55%" }} />
               </div>
             </div>
           )}
@@ -512,7 +512,7 @@ export default function Projects() {
               large={isPrimary}
             />
             {completed && videoUrl && (
-              <Button size="sm" variant="outline" onClick={() => handleDownload(job)} className="gap-1.5 border-white/12 text-zinc-400 hover:bg-white/8 hover:text-white h-9 text-xs rounded-lg">
+              <Button size="sm" variant="outline" onClick={() => handleDownload(job)} className="gap-1.5 border-white/12 text-muted-foreground hover:bg-white/8 hover:text-white h-9 text-xs rounded-lg">
                 <Download className="h-3.5 w-3.5" /> Download
               </Button>
             )}
@@ -524,7 +524,7 @@ export default function Projects() {
                 a.target = "_blank"; a.rel = "noopener noreferrer";
                 document.body.appendChild(a); a.click(); document.body.removeChild(a);
                 toast.success("Audio download started!");
-              }} className="gap-1.5 border-white/12 text-zinc-400 hover:bg-white/8 hover:text-white h-9 text-xs rounded-lg">
+              }} className="gap-1.5 border-white/12 text-muted-foreground hover:bg-white/8 hover:text-white h-9 text-xs rounded-lg">
                 <Music className="h-3.5 w-3.5" /> Audio
               </Button>
             )}
@@ -537,7 +537,7 @@ export default function Projects() {
                 className={`gap-1.5 border-white/12 hover:bg-white/8 h-9 text-xs rounded-lg ${
                   job.isPublic
                     ? "text-[--color-silver] border-[--color-silver]/25 hover:text-[--color-silver]"
-                    : "text-zinc-400 hover:text-white"
+                    : "text-muted-foreground hover:text-white"
                 }`}
                 title={job.isPublic ? "Public — click to make private" : "Make public for Google indexing"}
               >
@@ -546,7 +546,7 @@ export default function Projects() {
               </Button>
             )}
             {isMusicVideo && (
-              <button onClick={() => setDeleteMusicJobId(job.id)} className="ml-auto p-2 rounded-lg text-zinc-700 hover:text-red-400 hover:bg-red-500/8 transition-colors" title="Delete">
+              <button onClick={() => setDeleteMusicJobId(job.id)} className="ml-auto p-2 rounded-lg text-muted-foreground/40 hover:text-red-400 hover:bg-red-500/8 transition-colors" title="Delete">
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
             )}
@@ -564,7 +564,7 @@ export default function Projects() {
         <Film className="h-9 w-9 text-[--color-gold]" />
       </div>
       <h3 className="text-2xl font-bold text-white mb-2">Your first creation is one click away</h3>
-      <p className="text-zinc-400 text-sm mb-8 max-w-sm leading-relaxed">
+      <p className="text-muted-foreground text-sm mb-8 max-w-sm leading-relaxed">
         Upload a song, describe a vibe, and WIZ AI builds your entire music video — scenes, visuals, and cinematic effects — in minutes.
       </p>
       {/* Example prompts */}
@@ -582,7 +582,7 @@ export default function Projects() {
           >
             <span className="text-lg">{p.icon}</span>
             <span className="text-white text-xs font-semibold">{p.label}</span>
-            <span className="text-zinc-500 text-xs">{p.sub}</span>
+            <span className="text-muted-foreground/70 text-xs">{p.sub}</span>
           </a>
         ))}
       </div>
@@ -595,7 +595,7 @@ export default function Projects() {
         Start Creating with WizVideo
         <ChevronRight className="h-4 w-4" />
       </a>
-      <p className="text-zinc-600 text-xs mt-4">50 free credits included · No card required</p>
+      <p className="text-muted-foreground/50 text-xs mt-4">50 free credits included · No card required</p>
     </div>
   );
 
@@ -603,11 +603,11 @@ export default function Projects() {
   const primaryJob = filteredJobs[0] ?? null;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f]">
+    <div className="min-h-screen bg-background">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="border-b border-white/6 sticky top-0 z-10 bg-[#0a0a0f]/95 backdrop-blur-xl">
+      <div className="border-b border-white/6 sticky top-0 z-10 bg-background/95 backdrop-blur-xl">
         <div className="max-w-4xl mx-auto flex h-14 items-center justify-between px-4">
-          <a href="/dashboard" className="inline-flex items-center gap-2 text-xs font-medium text-zinc-500 hover:text-white transition-colors px-2 py-2 rounded-lg hover:bg-white/5">
+          <a href="/dashboard" className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground/70 hover:text-white transition-colors px-2 py-2 rounded-lg hover:bg-white/5">
             <ArrowLeft className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Dashboard</span>
           </a>
@@ -617,7 +617,7 @@ export default function Projects() {
           </div>
           <div className="flex items-center gap-2">
             {renderingCount > 0 && (
-              <button onClick={() => { refetchAll(); refetchGenerated(); }} className="flex items-center gap-1.5 text-[11px] text-zinc-500 hover:text-white transition-colors px-2 py-1.5 rounded-lg hover:bg-white/5">
+              <button onClick={() => { refetchAll(); refetchGenerated(); }} className="flex items-center gap-1.5 text-[11px] text-muted-foreground/70 hover:text-white transition-colors px-2 py-1.5 rounded-lg hover:bg-white/5">
                 <RefreshCw className="h-3 w-3" />
                 <span className="hidden sm:inline">Refresh</span>
               </button>
@@ -636,7 +636,7 @@ export default function Projects() {
               <Zap className="h-4 w-4 text-yellow-400" />
             </div>
             <span className="text-sm text-white">
-              <span className="font-bold text-yellow-300">{creditData.balance.toLocaleString()}</span> <span className="text-zinc-400">credits remaining</span>
+              <span className="font-bold text-yellow-300">{creditData.balance.toLocaleString()}</span> <span className="text-muted-foreground">credits remaining</span>
             </span>
             <a href="/credits" className="ml-auto text-xs text-[--color-gold] hover:text-[--color-gold] transition-colors font-medium">Top up</a>
           </div>
@@ -645,7 +645,7 @@ export default function Projects() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <Loader2 className="h-8 w-8 text-[--color-gold] animate-spin" />
-            <p className="text-zinc-500 text-sm">Loading your projects…</p>
+            <p className="text-muted-foreground/70 text-sm">Loading your projects…</p>
           </div>
         ) : totalCount === 0 ? (
           <EmptyState />
@@ -674,7 +674,7 @@ export default function Projects() {
 
             {/* ── Project list ─────────────────────────────────────────────── */}
             {filteredJobs.length === 0 ? (
-              <div className="text-center py-16 text-zinc-500 text-sm">No projects match this filter.</div>
+              <div className="text-center py-16 text-muted-foreground/70 text-sm">No projects match this filter.</div>
             ) : (
               <div className="flex flex-col gap-3">
                 {filteredJobs
@@ -688,7 +688,7 @@ export default function Projects() {
             <div className="mt-10 pt-6 border-t border-white/5 flex justify-center">
               <a
                 href={WIZVIDEO_STUDIO_PAGE}
-                className="inline-flex items-center gap-2 rounded-xl bg-white/5 hover:bg-white/8 border border-white/8 hover:border-[--color-gold]/30 text-zinc-400 hover:text-white font-medium px-6 py-3 transition-all text-sm"
+                className="inline-flex items-center gap-2 rounded-xl bg-white/5 hover:bg-white/8 border border-white/8 hover:border-[--color-gold]/30 text-muted-foreground hover:text-white font-medium px-6 py-3 transition-all text-sm"
               >
                 <Plus className="h-4 w-4 text-[--color-gold]" />
                 Start a new project
@@ -701,10 +701,10 @@ export default function Projects() {
 
       {/* ── Delete Music Video ──────────────────────────────────────────────── */}
       <AlertDialog open={deleteMusicJobId !== null} onOpenChange={(open) => !open && setDeleteMusicJobId(null)}>
-        <AlertDialogContent className="bg-[#111118] border-white/10 rounded-2xl">
+        <AlertDialogContent className="bg-card border-white/10 rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Delete this project?</AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-500">This will permanently delete the project, all scenes, and any generated video. This cannot be undone.</AlertDialogDescription>
+            <AlertDialogDescription className="text-muted-foreground/70">This will permanently delete the project, all scenes, and any generated video. This cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="border-white/15 text-white hover:bg-white/8 bg-transparent rounded-xl">Cancel</AlertDialogCancel>

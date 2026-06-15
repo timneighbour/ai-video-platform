@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { AlertTriangle, CheckCircle, XCircle, DollarSign, TrendingUp, TrendingDown, RefreshCw, Shield, Activity, Clock, Play, Zap } from "lucide-react";
 
 function HealthBadge({ isHealthy, mode }: { isHealthy: boolean; mode: string }) {
-  if (mode === "disabled") return <Badge variant="outline" className="text-zinc-400 border-zinc-600">Disabled</Badge>;
+  if (mode === "disabled") return <Badge variant="outline" className="text-muted-foreground border-border/70">Disabled</Badge>;
   if (mode === "probe-only") return <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30">Probe Only</Badge>;
   if (!isHealthy) return <Badge className="bg-red-500/20 text-red-300 border-red-500/30">Unhealthy</Badge>;
   return <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">Healthy</Badge>;
@@ -38,12 +38,12 @@ function ProviderCard({ provider, onModeChange, onReset }: {
   const neverRendered = provider.successCount + provider.failureCount === 0;
 
   return (
-    <Card className="bg-zinc-900 border-zinc-700">
+    <Card className="bg-card border-border">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-white capitalize text-lg">{provider.provider.replace(/-/g, " ")}</CardTitle>
-            <p className="text-zinc-400 text-sm mt-0.5">{provider.successCount + provider.failureCount} total renders</p>
+            <p className="text-muted-foreground text-sm mt-0.5">{provider.successCount + provider.failureCount} total renders</p>
           </div>
           <HealthBadge isHealthy={provider.isHealthy} mode={provider.mode} />
         </div>
@@ -51,53 +51,53 @@ function ProviderCard({ provider, onModeChange, onReset }: {
       <CardContent className="space-y-4">
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-zinc-800 rounded-lg p-3">
-            <p className="text-zinc-400 text-xs mb-1">Success Rate</p>
-            <p className={`text-2xl font-bold ${neverRendered ? "text-zinc-500" : successColor}`}>
+          <div className="bg-secondary rounded-lg p-3">
+            <p className="text-muted-foreground text-xs mb-1">Success Rate</p>
+            <p className={`text-2xl font-bold ${neverRendered ? "text-muted-foreground/70" : successColor}`}>
               {neverRendered ? "—" : `${provider.successRate}%`}
             </p>
-            <p className="text-zinc-500 text-xs">{provider.successCount} succeeded</p>
+            <p className="text-muted-foreground/70 text-xs">{provider.successCount} succeeded</p>
           </div>
-          <div className="bg-zinc-800 rounded-lg p-3">
-            <p className="text-zinc-400 text-xs mb-1">Failure Rate</p>
-            <p className={`text-2xl font-bold ${neverRendered ? "text-zinc-500" : "text-red-400"}`}>
+          <div className="bg-secondary rounded-lg p-3">
+            <p className="text-muted-foreground text-xs mb-1">Failure Rate</p>
+            <p className={`text-2xl font-bold ${neverRendered ? "text-muted-foreground/70" : "text-red-400"}`}>
               {neverRendered ? "—" : `${provider.failureRate}%`}
             </p>
-            <p className="text-zinc-500 text-xs">{provider.failureCount} failed</p>
+            <p className="text-muted-foreground/70 text-xs">{provider.failureCount} failed</p>
           </div>
-          <div className="bg-zinc-800 rounded-lg p-3">
-            <p className="text-zinc-400 text-xs mb-1">Total Spend</p>
+          <div className="bg-secondary rounded-lg p-3">
+            <p className="text-muted-foreground text-xs mb-1">Total Spend</p>
             <p className="text-2xl font-bold text-white">${provider.totalSpendUsd}</p>
-            <p className="text-zinc-500 text-xs">${provider.costPerSuccessUsd} / success</p>
+            <p className="text-muted-foreground/70 text-xs">${provider.costPerSuccessUsd} / success</p>
           </div>
-          <div className="bg-zinc-800 rounded-lg p-3">
-            <p className="text-zinc-400 text-xs mb-1">Wasted Spend</p>
+          <div className="bg-secondary rounded-lg p-3">
+            <p className="text-muted-foreground text-xs mb-1">Wasted Spend</p>
             <p className="text-2xl font-bold text-amber-400">${provider.wastedSpendUsd}</p>
-            <p className="text-zinc-500 text-xs">${provider.costPerFailureUsd} / failure</p>
+            <p className="text-muted-foreground/70 text-xs">${provider.costPerFailureUsd} / failure</p>
           </div>
         </div>
 
         {/* Last render timestamps */}
-        <div className="bg-zinc-800 rounded-lg p-3 space-y-2">
+        <div className="bg-secondary rounded-lg p-3 space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-zinc-400 flex items-center gap-1.5">
+            <span className="text-muted-foreground flex items-center gap-1.5">
               <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> Last success
             </span>
-            <span className={provider.lastSuccessAt ? "text-emerald-300" : "text-zinc-500"}>
+            <span className={provider.lastSuccessAt ? "text-emerald-300" : "text-muted-foreground/70"}>
               {timeAgo(provider.lastSuccessAt)}
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-zinc-400 flex items-center gap-1.5">
+            <span className="text-muted-foreground flex items-center gap-1.5">
               <XCircle className="w-3.5 h-3.5 text-red-400" /> Last failure
             </span>
-            <span className={provider.lastFailureAt ? "text-red-300" : "text-zinc-500"}>
+            <span className={provider.lastFailureAt ? "text-red-300" : "text-muted-foreground/70"}>
               {timeAgo(provider.lastFailureAt)}
             </span>
           </div>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-zinc-400 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-zinc-400" /> Avg render time
+            <span className="text-muted-foreground flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-muted-foreground" /> Avg render time
             </span>
             <span className="text-white">{provider.avgRenderTimeSec}s</span>
           </div>
@@ -112,18 +112,18 @@ function ProviderCard({ provider, onModeChange, onReset }: {
         )}
 
         {/* Controls */}
-        <div className="flex items-center gap-2 pt-2 border-t border-zinc-700">
+        <div className="flex items-center gap-2 pt-2 border-t border-border">
           <Select defaultValue={provider.mode} onValueChange={(v) => onModeChange(provider.provider, v)}>
-            <SelectTrigger className="flex-1 bg-zinc-800 border-zinc-600 text-white text-sm h-8">
+            <SelectTrigger className="flex-1 bg-secondary border-border/70 text-white text-sm h-8">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-zinc-800 border-zinc-600">
+            <SelectContent className="bg-secondary border-border/70">
               <SelectItem value="full" className="text-white">Full Mode</SelectItem>
               <SelectItem value="probe-only" className="text-amber-300">Probe Only</SelectItem>
-              <SelectItem value="disabled" className="text-zinc-400">Disabled</SelectItem>
+              <SelectItem value="disabled" className="text-muted-foreground">Disabled</SelectItem>
             </SelectContent>
           </Select>
-          <Button size="sm" variant="outline" className="h-8 border-zinc-600 text-zinc-300 hover:text-white" onClick={() => onReset(provider.provider)}>
+          <Button size="sm" variant="outline" className="h-8 border-border/70 text-foreground/80 hover:text-white" onClick={() => onReset(provider.provider)}>
             <RefreshCw className="w-3 h-3 mr-1" /> Reset
           </Button>
         </div>
@@ -171,15 +171,15 @@ export default function ProviderDashboard() {
   const stalledCount = stalledJobs?.length ?? 0;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Header */}
-      <div className="border-b border-zinc-800 px-6 py-4">
+      <div className="border-b border-border px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Shield className="w-6 h-6 text-amber-400" />
             <div>
               <h1 className="text-xl font-bold text-white">Provider Reliability Dashboard</h1>
-              <p className="text-zinc-400 text-sm">Monitor render costs, provider health, and stalled jobs</p>
+              <p className="text-muted-foreground text-sm">Monitor render costs, provider health, and stalled jobs</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -189,7 +189,7 @@ export default function ProviderDashboard() {
                 {stalledCount} stalled job{stalledCount !== 1 ? "s" : ""}
               </Badge>
             )}
-            <Button variant="outline" size="sm" className="border-zinc-600 text-zinc-300 hover:text-white" onClick={refetchAll}>
+            <Button variant="outline" size="sm" className="border-border/70 text-foreground/80 hover:text-white" onClick={refetchAll}>
               <RefreshCw className="w-4 h-4 mr-2" /> Refresh
             </Button>
           </div>
@@ -211,11 +211,11 @@ export default function ProviderDashboard() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-red-500/20">
-                        <th className="text-left text-zinc-400 font-medium px-4 py-3">Job</th>
-                        <th className="text-left text-zinc-400 font-medium px-4 py-3">Subscriber</th>
-                        <th className="text-right text-zinc-400 font-medium px-4 py-3">Scenes</th>
-                        <th className="text-right text-zinc-400 font-medium px-4 py-3">Stalled</th>
-                        <th className="text-right text-zinc-400 font-medium px-4 py-3">Action</th>
+                        <th className="text-left text-muted-foreground font-medium px-4 py-3">Job</th>
+                        <th className="text-left text-muted-foreground font-medium px-4 py-3">Subscriber</th>
+                        <th className="text-right text-muted-foreground font-medium px-4 py-3">Scenes</th>
+                        <th className="text-right text-muted-foreground font-medium px-4 py-3">Stalled</th>
+                        <th className="text-right text-muted-foreground font-medium px-4 py-3">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -223,13 +223,13 @@ export default function ProviderDashboard() {
                         <tr key={j.id} className="border-b border-red-500/10">
                           <td className="px-4 py-3">
                             <p className="text-white font-medium truncate max-w-[200px]">{j.title ?? `Job #${j.id}`}</p>
-                            <p className="text-zinc-500 text-xs">ID: {j.id}</p>
+                            <p className="text-muted-foreground/70 text-xs">ID: {j.id}</p>
                           </td>
                           <td className="px-4 py-3">
-                            <p className="text-zinc-300">{j.userName ?? "Unknown"}</p>
-                            <p className="text-zinc-500 text-xs">{j.userEmail ?? "—"}</p>
+                            <p className="text-foreground/80">{j.userName ?? "Unknown"}</p>
+                            <p className="text-muted-foreground/70 text-xs">{j.userEmail ?? "—"}</p>
                           </td>
-                          <td className="px-4 py-3 text-right text-zinc-300">
+                          <td className="px-4 py-3 text-right text-foreground/80">
                             {j.completedScenes ?? 0}/{j.totalScenes ?? 0}
                           </td>
                           <td className="px-4 py-3 text-right text-red-300 text-xs">
@@ -262,21 +262,21 @@ export default function ProviderDashboard() {
             <div className="flex items-center gap-2 mb-4">
               <Zap className="w-5 h-5 text-amber-400" />
               <h2 className="text-lg font-semibold text-white">Provider Account Balances</h2>
-              <span className="text-zinc-500 text-xs ml-1">(live — refreshes every 60s)</span>
+              <span className="text-muted-foreground/70 text-xs ml-1">(live — refreshes every 60s)</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* WaveSpeed Balance */}
               <Card className={`border ${
                 providerBalances.wavespeed.isCritical ? "bg-red-950/30 border-red-500/50" :
                 providerBalances.wavespeed.isLow ? "bg-amber-950/30 border-amber-500/50" :
-                providerBalances.wavespeed.isUnknown ? "bg-zinc-900 border-zinc-700" :
+                providerBalances.wavespeed.isUnknown ? "bg-card border-border" :
                 "bg-emerald-950/20 border-emerald-500/30"
               }`}>
                 <CardContent className="pt-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-zinc-400" />
-                      <p className="text-zinc-300 text-sm font-medium">WaveSpeed</p>
+                      <Zap className="w-4 h-4 text-muted-foreground" />
+                      <p className="text-foreground/80 text-sm font-medium">WaveSpeed</p>
                     </div>
                     {providerBalances.wavespeed.isCritical && (
                       <Badge className="bg-red-500/20 text-red-300 border-red-500/30 text-xs">
@@ -294,18 +294,18 @@ export default function ProviderDashboard() {
                       </Badge>
                     )}
                     {providerBalances.wavespeed.isUnknown && (
-                      <Badge variant="outline" className="text-zinc-400 border-zinc-600 text-xs">Unknown</Badge>
+                      <Badge variant="outline" className="text-muted-foreground border-border/70 text-xs">Unknown</Badge>
                     )}
                   </div>
                   <p className={`text-3xl font-bold ${
                     providerBalances.wavespeed.isCritical ? "text-red-400" :
                     providerBalances.wavespeed.isLow ? "text-amber-400" :
-                    providerBalances.wavespeed.isUnknown ? "text-zinc-500" :
+                    providerBalances.wavespeed.isUnknown ? "text-muted-foreground/70" :
                     "text-emerald-400"
                   }`}>
                     {providerBalances.wavespeed.isUnknown ? "—" : `$${providerBalances.wavespeed.balanceUsd?.toFixed(2)}`}
                   </p>
-                  <p className="text-zinc-500 text-xs mt-1">
+                  <p className="text-muted-foreground/70 text-xs mt-1">
                     {providerBalances.wavespeed.isCritical ? "⚠️ Top up immediately — renders will fail" :
                      providerBalances.wavespeed.isLow ? "Top up recommended (threshold: $20)" :
                      providerBalances.wavespeed.isUnknown ? "Could not fetch balance" :
@@ -320,44 +320,44 @@ export default function ProviderDashboard() {
         {/* Top-level spend stats */}
         {spendStats && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="bg-zinc-900 border-zinc-700">
+            <Card className="bg-card border-border">
               <CardContent className="pt-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <DollarSign className="w-4 h-4 text-zinc-400" />
-                  <p className="text-zinc-400 text-sm">Total Provider Spend</p>
+                  <DollarSign className="w-4 h-4 text-muted-foreground" />
+                  <p className="text-muted-foreground text-sm">Total Provider Spend</p>
                 </div>
                 <p className="text-3xl font-bold text-white">${spendStats.totalSpendUsd}</p>
-                <p className="text-zinc-500 text-xs mt-1">all time</p>
+                <p className="text-muted-foreground/70 text-xs mt-1">all time</p>
               </CardContent>
             </Card>
-            <Card className="bg-zinc-900 border-zinc-700">
+            <Card className="bg-card border-border">
               <CardContent className="pt-4">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingDown className="w-4 h-4 text-red-400" />
-                  <p className="text-zinc-400 text-sm">Wasted Spend</p>
+                  <p className="text-muted-foreground text-sm">Wasted Spend</p>
                 </div>
                 <p className="text-3xl font-bold text-red-400">${spendStats.totalWastedUsd}</p>
-                <p className="text-zinc-500 text-xs mt-1">{spendStats.wastedPct}% of total</p>
+                <p className="text-muted-foreground/70 text-xs mt-1">{spendStats.wastedPct}% of total</p>
               </CardContent>
             </Card>
-            <Card className="bg-zinc-900 border-zinc-700">
+            <Card className="bg-card border-border">
               <CardContent className="pt-4">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp className="w-4 h-4 text-emerald-400" />
-                  <p className="text-zinc-400 text-sm">Avg Cost / Video</p>
+                  <p className="text-muted-foreground text-sm">Avg Cost / Video</p>
                 </div>
                 <p className="text-3xl font-bold text-emerald-400">${spendStats.avgCostPerCompletedVideo}</p>
-                <p className="text-zinc-500 text-xs mt-1">{spendStats.completedJobs} completed videos</p>
+                <p className="text-muted-foreground/70 text-xs mt-1">{spendStats.completedJobs} completed videos</p>
               </CardContent>
             </Card>
-            <Card className="bg-zinc-900 border-zinc-700">
+            <Card className="bg-card border-border">
               <CardContent className="pt-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Activity className="w-4 h-4 text-amber-400" />
-                  <p className="text-zinc-400 text-sm">Job Success Rate</p>
+                  <p className="text-muted-foreground text-sm">Job Success Rate</p>
                 </div>
                 <p className="text-3xl font-bold text-amber-400">{spendStats.successRate}%</p>
-                <p className="text-zinc-500 text-xs mt-1">{spendStats.completedJobs}/{spendStats.totalJobs} jobs</p>
+                <p className="text-muted-foreground/70 text-xs mt-1">{spendStats.completedJobs}/{spendStats.totalJobs} jobs</p>
               </CardContent>
             </Card>
           </div>
@@ -368,7 +368,7 @@ export default function ProviderDashboard() {
           <h2 className="text-lg font-semibold text-white mb-4">Provider Health</h2>
           {loadingSummary ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[1,2,3].map(i => <div key={i} className="h-64 bg-zinc-900 rounded-xl animate-pulse" />)}
+              {[1,2,3].map(i => <div key={i} className="h-64 bg-card rounded-xl animate-pulse" />)}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -387,26 +387,26 @@ export default function ProviderDashboard() {
         {/* Job cost analytics */}
         <div>
           <h2 className="text-lg font-semibold text-white mb-4">Recent Job Costs</h2>
-          <Card className="bg-zinc-900 border-zinc-700">
+          <Card className="bg-card border-border">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-zinc-700">
-                      <th className="text-left text-zinc-400 font-medium px-4 py-3">Job</th>
-                      <th className="text-left text-zinc-400 font-medium px-4 py-3">Status</th>
-                      <th className="text-right text-zinc-400 font-medium px-4 py-3">Scenes</th>
-                      <th className="text-right text-zinc-400 font-medium px-4 py-3">Provider Spend</th>
-                      <th className="text-right text-zinc-400 font-medium px-4 py-3">Wasted</th>
-                      <th className="text-right text-zinc-400 font-medium px-4 py-3">Output</th>
+                    <tr className="border-b border-border">
+                      <th className="text-left text-muted-foreground font-medium px-4 py-3">Job</th>
+                      <th className="text-left text-muted-foreground font-medium px-4 py-3">Status</th>
+                      <th className="text-right text-muted-foreground font-medium px-4 py-3">Scenes</th>
+                      <th className="text-right text-muted-foreground font-medium px-4 py-3">Provider Spend</th>
+                      <th className="text-right text-muted-foreground font-medium px-4 py-3">Wasted</th>
+                      <th className="text-right text-muted-foreground font-medium px-4 py-3">Output</th>
                     </tr>
                   </thead>
                   <tbody>
                     {(jobCosts ?? []).map((j: any) => (
-                      <tr key={j.id} className="border-b border-zinc-800 hover:bg-zinc-800/50">
+                      <tr key={j.id} className="border-b border-border hover:bg-secondary/50">
                         <td className="px-4 py-3">
                           <p className="text-white font-medium truncate max-w-[180px]">{j.title ?? `Job #${j.id}`}</p>
-                          <p className="text-zinc-500 text-xs">{new Date(j.createdAt).toLocaleDateString()}</p>
+                          <p className="text-muted-foreground/70 text-xs">{new Date(j.createdAt).toLocaleDateString()}</p>
                         </td>
                         <td className="px-4 py-3">
                           <Badge className={
@@ -416,12 +416,12 @@ export default function ProviderDashboard() {
                             "bg-amber-500/20 text-amber-300"
                           }>{j.status}</Badge>
                         </td>
-                        <td className="px-4 py-3 text-right text-zinc-300">
+                        <td className="px-4 py-3 text-right text-foreground/80">
                           {j.completedScenes ?? 0}/{j.totalScenes ?? 0}
                         </td>
                         <td className="px-4 py-3 text-right text-white font-medium">${j.providerSpendUsd}</td>
                         <td className="px-4 py-3 text-right">
-                          <span className={j.wastedPct > 20 ? "text-red-400" : "text-zinc-400"}>
+                          <span className={j.wastedPct > 20 ? "text-red-400" : "text-muted-foreground"}>
                             ${j.wastedSpendUsd} ({j.wastedPct}%)
                           </span>
                         </td>
@@ -436,7 +436,7 @@ export default function ProviderDashboard() {
                   </tbody>
                 </table>
                 {!jobCosts?.length && (
-                  <div className="text-center py-12 text-zinc-500">No job data yet</div>
+                  <div className="text-center py-12 text-muted-foreground/70">No job data yet</div>
                 )}
               </div>
             </CardContent>

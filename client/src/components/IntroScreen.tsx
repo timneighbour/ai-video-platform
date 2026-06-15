@@ -301,12 +301,12 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
                     />
                   ))}
                 </div>
-                <span className="text-[#e8c97a] text-xs tracking-[0.18em] uppercase font-semibold">Tap for Sound</span>
+                <span className="text-primary/90 text-xs tracking-[0.18em] uppercase font-semibold">Tap for Sound</span>
               </>
             ) : (
               <>
-                <Volume2 className="w-4 h-4 text-[#c4a464]" />
-                <span className="text-[#c4a464] text-xs tracking-[0.18em] uppercase font-semibold">Sound On</span>
+                <Volume2 className="w-4 h-4 text-primary/80" />
+                <span className="text-primary/80 text-xs tracking-[0.18em] uppercase font-semibold">Sound On</span>
               </>
             )}
           </button>
@@ -395,7 +395,7 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
                 letterSpacing: "0.22em",
                 overflow: "hidden",
               }}
-              className="group relative flex items-center gap-4 px-12 py-4 rounded-full text-[#0a0a0f] font-black text-base uppercase transition-all duration-200 hover:scale-[1.06] active:scale-[0.98]"
+              className="group relative flex items-center gap-4 px-12 py-4 rounded-full text-background font-black text-base uppercase transition-all duration-200 hover:scale-[1.06] active:scale-[0.98]"
             >
               {/* Continuous light sweep */}
               <span

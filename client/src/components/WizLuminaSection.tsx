@@ -238,7 +238,7 @@ export function WizLuminaSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-24 overflow-hidden bg-[#050508]"
+      className="relative py-24 overflow-hidden bg-background"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(32px)",

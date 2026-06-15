@@ -9270,3 +9270,9 @@
 - [x] ISS-042: Move .md planning files out of project root (moved to docs/, gitignored)
 - [x] ISS-038: Remove nohup.out from project root (not present — already clean)
 - [x] CI/CD: Add GitHub Actions workflow (typecheck + test on PR) — .github/workflows/ci.yml
+
+## Session 4 — SEO, i18n, Light/Dark Mode (Jun 15 2026)
+
+- [x] Light/dark mode refactor: ~1,100 hardcoded hex/zinc/gray colour instances replaced with CSS variable classes across 91 component files; 36 intentional status/brand accent colours retained
+- [x] i18n confirmed fully implemented: EN/ES/PT-BR/FR translations in client/src/lib/i18n.ts, LanguageDetector auto-detect wired in main.tsx, LanguageSelector dropdown added to desktop nav in Home.tsx
+- [x] SEO keyword pages confirmed fully implemented: 50 pages in client/src/data/seoPages.ts, SeoLandingPage.tsx template with H1/H2/JSON-LD/meta, route /seo/:slug registered, all 50 slugs in sitemap.xml

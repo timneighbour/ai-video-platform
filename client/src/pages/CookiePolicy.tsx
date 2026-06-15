@@ -7,7 +7,7 @@ const WIZAI_LOGO = `/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png`;
 
 export default function CookiePolicy() {
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-background text-white">
       <Helmet>
         <title>Cookie Policy — WIZ AI</title>
         <meta name="description" content="WIZ AI Cookie Policy — how we use cookies and how to manage your preferences." />

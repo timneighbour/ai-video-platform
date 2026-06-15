@@ -72,9 +72,9 @@ function TechnologyPageTemplate({
         <meta name="twitter:description" content={ogDesc} />
       </Helmet>
 
-      <div className="min-h-screen bg-[#080808] text-white">
+      <div className="min-h-screen bg-background text-white">
         {/* Nav */}
-        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-[#080808]/90 backdrop-blur-md border-b border-white/[0.06]">
+        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 bg-background/90 backdrop-blur-md border-b border-white/[0.06]">
           <a href="/" className="flex items-center gap-2">
             <img src={WIZAI_LOGO} alt="WIZ AI" className="h-8 w-auto object-contain" />
           </a>
@@ -85,7 +85,7 @@ function TechnologyPageTemplate({
           </div>
           <a
             href={ctaHref}
-            className="px-5 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-[#b8892a] to-[#e8c878] text-white hover:opacity-90 transition-opacity"
+            className="px-5 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-primary to-primary/80 text-white hover:opacity-90 transition-opacity"
           >
             {ctaLabel}
           </a>
@@ -95,11 +95,11 @@ function TechnologyPageTemplate({
         <section className="relative pt-32 pb-24 px-6 overflow-hidden">
           {/* Background glow */}
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-radial from-[#b8892a]/10 via-transparent to-transparent rounded-full blur-3xl" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-radial from-primary/10 via-transparent to-transparent rounded-full blur-3xl" />
           </div>
 
           <div className="relative max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#b8892a]/30 bg-[#b8892a]/10 text-[#e8c878] text-xs font-semibold tracking-widest uppercase mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary/90 text-xs font-semibold tracking-widest uppercase mb-8">
               {badge}
             </div>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 bg-gradient-to-b from-white via-white/90 to-white/60 bg-clip-text text-transparent">
@@ -110,7 +110,7 @@ function TechnologyPageTemplate({
             </p>
             <a
               href={ctaHref}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-[#b8892a] to-[#e8c878] hover:opacity-90 transition-opacity shadow-lg shadow-[#b8892a]/20"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 transition-opacity shadow-lg shadow-[#b8892a]/20"
             >
               {ctaLabel}
               <ArrowRight size={16} />
@@ -134,9 +134,9 @@ function TechnologyPageTemplate({
               {features.map((f, i) => (
                 <div
                   key={i}
-                  className="p-6 rounded-2xl border border-white/[0.08] bg-white/[0.03] hover:border-[#b8892a]/30 hover:bg-[#b8892a]/[0.04] transition-all"
+                  className="p-6 rounded-2xl border border-white/[0.08] bg-white/[0.03] hover:border-primary/30 hover:bg-primary/[0.04] transition-all"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-[#b8892a]/15 flex items-center justify-center text-[#e8c878] mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center text-primary/90 mb-4">
                     {f.icon}
                   </div>
                   <h3 className="text-white font-semibold mb-2">{f.title}</h3>
@@ -154,7 +154,7 @@ function TechnologyPageTemplate({
             <div className="space-y-6">
               {howItWorks.map((step, i) => (
                 <div key={i} className="flex gap-6 items-start">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full border border-[#b8892a]/40 bg-[#b8892a]/10 flex items-center justify-center text-[#e8c878] font-bold text-sm">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full border border-primary/40 bg-primary/10 flex items-center justify-center text-primary/90 font-bold text-sm">
                     {step.num}
                   </div>
                   <div>
@@ -174,7 +174,7 @@ function TechnologyPageTemplate({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {capabilities.map((cap, i) => (
                 <div key={i} className="flex items-start gap-3">
-                  <CheckCircle size={16} className="text-[#e8c878] flex-shrink-0 mt-0.5" />
+                  <CheckCircle size={16} className="text-primary/90 flex-shrink-0 mt-0.5" />
                   <span className="text-white/70 text-sm">{cap}</span>
                 </div>
               ))}
@@ -192,7 +192,7 @@ function TechnologyPageTemplate({
                   <a
                     key={i}
                     href={r.href}
-                    className="px-4 py-2 rounded-lg border border-white/[0.1] bg-white/[0.03] text-white/70 text-sm hover:border-[#b8892a]/40 hover:text-[#e8c878] transition-all"
+                    className="px-4 py-2 rounded-lg border border-white/[0.1] bg-white/[0.03] text-white/70 text-sm hover:border-primary/40 hover:text-primary/90 transition-all"
                   >
                     {r.label}
                   </a>
@@ -213,7 +213,7 @@ function TechnologyPageTemplate({
             </p>
             <a
               href={ctaHref}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-[#b8892a] to-[#e8c878] hover:opacity-90 transition-opacity shadow-lg shadow-[#b8892a]/20"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-white bg-gradient-to-r from-primary to-primary/80 hover:opacity-90 transition-opacity shadow-lg shadow-[#b8892a]/20"
             >
               {ctaLabel}
               <ArrowRight size={16} />

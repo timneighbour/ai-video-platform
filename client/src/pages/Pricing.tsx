@@ -241,7 +241,7 @@ function CurrencySelector({ currency, setCurrency, currencies, isLoading }: {
  <ChevronDown className={`w-3 h-3 text-white/40 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
  </button>
  {open && (
- <div className="absolute right-0 top-full mt-2 w-56 max-h-72 overflow-y-auto rounded-2xl bg-[#0c0c0c]/98 backdrop-blur-2xl border border-[--color-gold]/[0.1] shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-50 py-1.5">
+ <div className="absolute right-0 top-full mt-2 w-56 max-h-72 overflow-y-auto rounded-2xl bg-background/98 backdrop-blur-2xl border border-[--color-gold]/[0.1] shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-50 py-1.5">
  {currencies.map(c => (
  <button
  key={c.code}
@@ -374,7 +374,7 @@ export default function Pricing() {
  }
 
  return (
- <div className="min-h-screen bg-[#040404] text-white overflow-x-hidden">
+ <div className="min-h-screen bg-background text-white overflow-x-hidden">
  <style>{`
  @keyframes priceFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
  @keyframes shimmerSlide { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
@@ -478,7 +478,7 @@ export default function Pricing() {
  </div>
  </div>
  {/* Content */}
- <div className="p-5 bg-[#0a0a0a]">
+ <div className="p-5 bg-background">
  <h3 className="text-sm font-bold text-white mb-1.5">{item.title}</h3>
  <p className="text-xs text-white/40 leading-relaxed">{item.desc}</p>
  </div>
@@ -516,7 +516,7 @@ export default function Pricing() {
  onClick={() => setBillingCycle("monthly")}
  className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
  billingCycle === "monthly"
- ? "text-[#0a0a0a] shadow-[0_2px_12px_rgba(196,164,100,0.3)]"
+ ? "text-background shadow-[0_2px_12px_rgba(196,164,100,0.3)]"
  : "text-white/40 hover:text-white/70"
  }`}
  style={billingCycle === "monthly" ? { background: 'linear-gradient(to right, oklch(0.50 0.13 55), oklch(0.72 0.14 70))' } : {}}
@@ -525,13 +525,13 @@ export default function Pricing() {
  onClick={() => setBillingCycle("annual")}
  className={`flex items-center gap-2 px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
  billingCycle === "annual"
- ? "text-[#0a0a0a] shadow-[0_2px_12px_rgba(196,164,100,0.3)]"
+ ? "text-background shadow-[0_2px_12px_rgba(196,164,100,0.3)]"
  : "text-white/40 hover:text-white/70"
  }`}
  style={billingCycle === "annual" ? { background: 'linear-gradient(to right, oklch(0.50 0.13 55), oklch(0.72 0.14 70))' } : {}}
  >Yearly
  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all duration-300 ${
- billingCycle === "annual" ? "bg-[#0a0a0a]/30 text-[#0a0a0a]" : "bg-[--color-gold]/15 text-[--color-gold]"
+ billingCycle === "annual" ? "bg-background/30 text-background" : "bg-[--color-gold]/15 text-[--color-gold]"
  }`}>Save 20%</span>
  </button>
  </div>
@@ -580,7 +580,7 @@ export default function Pricing() {
  )}
  {plan.badge && (
  <div className="relative z-10 text-center pt-3 pb-1">
- <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-black tracking-wider shadow-lg">
+ <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-background text-[10px] font-black tracking-wider shadow-lg">
  <Star className="w-2.5 h-2.5 fill-current" /> {plan.badge}
  </span>
  </div>
@@ -914,11 +914,11 @@ export default function Pricing() {
  <div className="absolute -top-px left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[--color-gold] to-transparent" />
  )}
  {bundle.popular && (
- <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">MOST POPULAR
+ <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-background text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">MOST POPULAR
  </div>
  )}
  {bundle.bestValue && (
- <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">BEST VALUE
+ <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-background text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">BEST VALUE
  </div>
  )}
 
@@ -939,7 +939,7 @@ export default function Pricing() {
  </div>
 
  {/* Content */}
- <div className="flex-1 flex flex-col p-5 bg-[#0c0c0c]">
+ <div className="flex-1 flex flex-col p-5 bg-background">
  <div className="flex items-center gap-2 mb-1">
  <Package className="w-4 h-4" style={{ color: bundle.popular ? 'var(--color-gold)' : 'rgba(255,255,255,0.4)' }} />
  <span className="text-sm font-bold text-white">{bundle.label}</span>
@@ -1033,7 +1033,7 @@ export default function Pricing() {
  style={{ borderColor: tier.borderColor, boxShadow: tier.badge ? `0 0 40px ${tier.accentColor}` : 'none' }}
  >
  {tier.badge && (
- <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">
+ <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-background text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">
  {tier.badge}
  </div>
  )}
@@ -1048,7 +1048,7 @@ export default function Pricing() {
  </div>
  </div>
  {/* Price + features */}
- <div className="flex-1 p-5 bg-[#0c0c0c]">
+ <div className="flex-1 p-5 bg-background">
  <div className="flex items-baseline gap-1 mb-1">
  <span className="text-4xl font-extrabold text-white" style={{ animation: "priceFadeIn 220ms ease-out" }}>{formatPrice(tier.price)}</span>
  <span className="text-sm text-white/40">per video</span>
@@ -1233,7 +1233,7 @@ export default function Pricing() {
  plan: "Creator Plan",
  },
  ].map((uc) => (
- <div key={uc.title} className="relative p-5 rounded-2xl border border-white/[0.07] bg-[#0a0a0a] flex flex-col gap-3">
+ <div key={uc.title} className="relative p-5 rounded-2xl border border-white/[0.07] bg-background flex flex-col gap-3">
  <span className="text-2xl">{uc.icon}</span>
  <h3 className="text-sm font-bold text-white">{uc.title}</h3>
  <p className="text-xs text-white/55 leading-relaxed flex-1">{uc.desc}</p>
@@ -1271,9 +1271,9 @@ export default function Pricing() {
  color: "oklch(0.70 0.18 260)",
  },
  ].map((t) => (
- <div key={t.name} className="relative p-5 rounded-2xl border border-white/[0.07] bg-[#0a0a0a]">
+ <div key={t.name} className="relative p-5 rounded-2xl border border-white/[0.07] bg-background">
  <div className="flex items-center gap-3 mb-3">
- <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-black text-[#0a0a0a] flex-shrink-0" style={{ background: `linear-gradient(135deg, ${t.color}, oklch(0.90 0.08 75))` }}>{t.initials}</div>
+ <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-black text-background flex-shrink-0" style={{ background: `linear-gradient(135deg, ${t.color}, oklch(0.90 0.08 75))` }}>{t.initials}</div>
  <div>
  <p className="text-[12px] font-bold text-white">{t.name}</p>
  <p className="text-[10px] text-white/40">{t.role}</p>
@@ -1344,7 +1344,7 @@ export default function Pricing() {
  <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-3">Frequently asked questions</h2>
  <p className="text-sm text-white/40">Everything you need to know about pricing and plans</p>
  </div>
- <div className="rounded-2xl border border-white/[0.07] bg-[#0a0a0a] px-6 divide-y divide-white/[0.05]">
+ <div className="rounded-2xl border border-white/[0.07] bg-background px-6 divide-y divide-white/[0.05]">
  {FAQS.map((faq) => (
  <FAQItem key={faq.q} q={faq.q} a={faq.a} />
  ))}

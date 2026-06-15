@@ -70,7 +70,7 @@ export default function CreditBalance({
     return (
       <div
         className={cn(
-          "animate-pulse rounded-full bg-zinc-800 h-7 w-28",
+          "animate-pulse rounded-full bg-secondary h-7 w-28",
           variant === "card" && "h-20 rounded-xl w-full",
           className
         )}
@@ -90,7 +90,7 @@ export default function CreditBalance({
               ? "bg-red-950/60 border-red-800/50 text-red-300"
               : isLow
               ? "bg-[--color-gold]/60 border-amber-700/50 text-amber-300"
-              : "bg-zinc-900 border-zinc-700 text-zinc-200"
+              : "bg-card border-border text-foreground"
           )}
         >
           <Zap
@@ -132,7 +132,7 @@ export default function CreditBalance({
       <span
         className={cn(
           "inline-flex items-center gap-1 text-sm font-medium",
-          isEmpty ? "text-red-400" : isLow ? "text-amber-400" : "text-zinc-300",
+          isEmpty ? "text-red-400" : isLow ? "text-amber-400" : "text-foreground/80",
           className
         )}
       >
@@ -151,7 +151,7 @@ export default function CreditBalance({
           ? "bg-red-950/30 border-red-800/40"
           : isLow
           ? "bg-[--color-gold]/30 border-amber-700/40"
-          : "bg-zinc-900/80 border-zinc-700/60",
+          : "bg-card/80 border-border/60",
         className
       )}
     >
@@ -175,7 +175,7 @@ export default function CreditBalance({
               )}
             />
           </div>
-          <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Your Credits
           </span>
         </div>
@@ -197,11 +197,11 @@ export default function CreditBalance({
         >
           {balance.toLocaleString()}
         </div>
-        <div className="text-xs text-zinc-500 mt-0.5">Credits available</div>
+        <div className="text-xs text-muted-foreground/70 mt-0.5">Credits available</div>
       </div>
 
       {/* Microcopy */}
-      <p className="text-xs text-zinc-600">
+      <p className="text-xs text-muted-foreground/50">
         Credits are only used when you create or upgrade videos
       </p>
 

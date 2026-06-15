@@ -96,7 +96,7 @@ export function CreditCostBanner({
 
         {/* Value proposition */}
         <div className="flex items-start gap-2.5">
-          <Sparkles className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#c9a84c]/60" />
+          <Sparkles className="w-3.5 h-3.5 mt-0.5 shrink-0 text-primary/80/60" />
           <p className="text-xs leading-relaxed text-white/55">
             <span className="text-white/80 font-medium">Longer video. More scenes. More AI compute.</span>{" "}
             Your credits reflect the quality you're getting — WIZ AI delivers every frame.
@@ -171,7 +171,7 @@ export function CreditCostBanner({
           </span>
           <Link
             href="/credits/guide"
-            className="text-xs underline underline-offset-2 shrink-0 whitespace-nowrap transition-colors hover:text-[#c9a84c]"
+            className="text-xs underline underline-offset-2 shrink-0 whitespace-nowrap transition-colors hover:text-primary/80"
             style={{ color: "rgba(201,168,76,0.6)" }}
           >
             Pricing guide ↗

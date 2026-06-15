@@ -317,7 +317,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
 
   return (
     <div
-      className="relative rounded-2xl overflow-hidden border bg-[#0c0c14] transition-all duration-700"
+      className="relative rounded-2xl overflow-hidden border bg-background transition-all duration-700"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(24px)",
@@ -401,7 +401,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
               {[0, 1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="w-0.5 rounded-full bg-[#b8892a]"
+                  className="w-0.5 rounded-full bg-primary"
                   style={{
                     height: `${8 + Math.random() * 8}px`,
                     animation: `spatialBar 0.8s ease-in-out infinite ${i * 0.1}s`,
@@ -409,7 +409,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
                 />
               ))}
             </div>
-            <span className="text-[9px] font-bold text-[#d4aa48] tracking-wider uppercase">Spatial</span>
+            <span className="text-[9px] font-bold text-primary/90 tracking-wider uppercase">Spatial</span>
           </div>
         )}
       </div>
@@ -555,7 +555,7 @@ export default function WizSoundSection() {
   return (
     <section
       ref={sectionRef}
-      className="py-24 px-6 bg-gradient-to-b from-[#0d0d18] via-[#0f0f0f] to-[#0f0f0f] relative overflow-hidden"
+      className="py-24 px-6 bg-gradient-to-b from-background via-background to-background relative overflow-hidden"
     >
       {/* Ambient background glow for spatial feel */}
       <div className="absolute inset-0 pointer-events-none">
@@ -566,13 +566,13 @@ export default function WizSoundSection() {
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-14 reveal" style={{ transitionDelay: "0ms" }}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[rgba(184,137,42,0.3)] bg-[rgba(184,137,42,0.08)] text-[#d4aa48] text-xs font-mono tracking-widest uppercase font-semibold mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#b8892a] animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[rgba(184,137,42,0.3)] bg-[rgba(184,137,42,0.08)] text-primary/90 text-xs font-mono tracking-widest uppercase font-semibold mb-5">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
             WizSound™ Spatial Audio Engine
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
             Hear the{" "}
-            <span className="bg-gradient-to-r from-[#b8892a] via-[#d4aa48] to-[#e8c878] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 bg-clip-text text-transparent">
               spatial difference
             </span>
           </h2>
@@ -616,7 +616,7 @@ export default function WizSoundSection() {
             {/* Spatial depth indicator */}
             <div className="p-4 rounded-xl border border-[rgba(184,137,42,0.2)] bg-gradient-to-br from-[rgba(184,137,42,0.07)] to-[rgba(180,180,200,0.03)]">
               <div className="flex items-center gap-3 mb-3">
-                <Headphones className="w-5 h-5 text-[#b8892a] flex-shrink-0" />
+                <Headphones className="w-5 h-5 text-primary flex-shrink-0" />
                 <div>
                   <p className="text-white/80 text-sm font-semibold">Spatial Sound Experience</p>
                   <p className="text-white/40 text-[11px]">Inspired by Dolby Cinema immersive audio</p>
@@ -643,11 +643,11 @@ export default function WizSoundSection() {
 
             {/* Pricing callout */}
             <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/8 bg-white/[0.03]">
-              <Sparkles className="w-4 h-4 text-[#b8892a] flex-shrink-0" />
+              <Sparkles className="w-4 h-4 text-primary flex-shrink-0" />
               <p className="text-white/45 text-xs leading-relaxed">
                 <span className="text-white/70 font-medium">Standard Audio</span> is free with every build.{" "}
-                <span className="text-[#d4aa48] font-medium">Enhanced</span> +£1 ·{" "}
-                <span className="text-[#d4aa48] font-medium">Cinematic Spatial</span> +£3
+                <span className="text-primary/90 font-medium">Enhanced</span> +£1 ·{" "}
+                <span className="text-primary/90 font-medium">Cinematic Spatial</span> +£3
               </p>
             </div>
           </div>

@@ -135,14 +135,14 @@ export default function Subscribe() {
  key={plan.id}
  className={`relative rounded-2xl border flex flex-col p-4 transition-all duration-300 ${
  plan.highlight
- ? "border-[--color-gold]/60 bg-gradient-to-b from-[#2a1f00]/60 to-background shadow-[0_0_40px_-8px_rgba(184,137,42,0.4)] scale-105 lg:scale-110 z-10"
+ ? "border-[--color-gold]/60 bg-gradient-to-b from-primary/30/60 to-background shadow-[0_0_40px_-8px_rgba(184,137,42,0.4)] scale-105 lg:scale-110 z-10"
  : "border-white/10 bg-white/[0.03] hover:border-white/20"
  }`}
  >
  {plan.badge && (
  <div className={`absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-bold whitespace-nowrap ${
  plan.highlight
- ? "metallic-gold text-[#1a1000] border border-[--color-gold]/40"
+ ? "metallic-gold text-primary/20 border border-[--color-gold]/40"
  : "bg-[--color-silver]/10 text-[--color-silver] border border-[--color-silver]/30"
  }`}>
  {plan.badge}
@@ -160,15 +160,15 @@ export default function Subscribe() {
  {displayPrice > 0 && <span className="text-muted-foreground text-sm mb-1">/mo</span>}
  </div>
  {billing === "annual" && plan.annualSaving > 0 && (
- <p className="text-xs text-[#a1a1aa] mb-1">£{plan.annualTotal}/year <span className="text-[--color-gold] font-semibold">save £{plan.annualSaving}</span></p>
+ <p className="text-xs text-muted-foreground mb-1">£{plan.annualTotal}/year <span className="text-[--color-gold] font-semibold">save £{plan.annualSaving}</span></p>
  )}
  {billing === "monthly" && plan.annualSaving > 0 && (
- <p className="text-xs text-[#a1a1aa] mb-1">or £{plan.annualTotal}/yr <span className="text-[--color-gold] font-semibold">save £{plan.annualSaving}</span></p>
+ <p className="text-xs text-muted-foreground mb-1">or £{plan.annualTotal}/yr <span className="text-[--color-gold] font-semibold">save £{plan.annualSaving}</span></p>
  )}
  <Button
  className={`w-full mt-3 mb-4 font-semibold text-sm ${
  plan.highlight
- ? "btn-primary text-[#1a1000] border-0"
+ ? "btn-primary text-primary/20 border-0"
  : plan.id === "free"
  ? "bg-white/10 hover:bg-white/20 text-white border border-white/20"
  : ""
@@ -240,7 +240,7 @@ export default function Subscribe() {
  {[
  ...WIZSOUND_PAY_PER_VIDEO_TIERS.map(t => ({ tier: t.tier, desc: t.desc, price: t.price, highlight: t.highlight, badge: t.badge })),
  ].map((item) => (
- <div key={item.tier} className={`rounded-2xl border p-5 transition-all ${item.highlight ? "border-[--color-gold]/50 bg-gradient-to-b from-[#2a1f00]/50 to-background shadow-[0_0_30px_-8px_rgba(184,137,42,0.35)]" : "border-white/10 bg-white/[0.03]"}`}>
+ <div key={item.tier} className={`rounded-2xl border p-5 transition-all ${item.highlight ? "border-[--color-gold]/50 bg-gradient-to-b from-primary/30/50 to-background shadow-[0_0_30px_-8px_rgba(184,137,42,0.35)]" : "border-white/10 bg-white/[0.03]"}`}>
  {item.badge && <div className="inline-block rounded-full bg-[--color-gold]/15 text-[--color-gold] text-xs font-bold px-3 py-0.5 mb-3 border border-[--color-gold]/30">{item.badge}</div>}
  <div className="flex items-center gap-2 mb-2">
  <Volume2 className={`h-4 w-4 ${item.highlight ? "text-[--color-gold]" : "text-muted-foreground"}`} />

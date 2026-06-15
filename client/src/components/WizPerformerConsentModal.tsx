@@ -95,7 +95,7 @@ export default function WizPerformerConsentModal({
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-lg bg-[#0f0f0f] border border-[--color-gold]/30 rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-lg bg-background border border-[--color-gold]/30 rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
         {/* Gold top bar */}
         <div className="h-1 w-full bg-gradient-to-r from-[--color-gold]/60 via-[--color-gold] to-[--color-gold]/60" />
 
@@ -109,7 +109,7 @@ export default function WizPerformerConsentModal({
               <h2 className="text-xl font-bold text-white leading-tight">
                 WizPerformer™ Privacy Notice
               </h2>
-              <p className="text-sm text-zinc-400 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Before you upload{characterName ? ` ${characterName}'s` : " a"} photo, please read how we handle your image data.
               </p>
             </div>
@@ -117,41 +117,41 @@ export default function WizPerformerConsentModal({
 
           {/* Key points */}
           <div className="space-y-3 mb-5">
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800">
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-card/60 border border-border">
               <Camera className="w-5 h-5 text-[--color-gold] shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-semibold text-white">What is captured</p>
-                <p className="text-xs text-zinc-400 mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Your uploaded photo is used to generate an AI performer that looks like you. Only the image you upload is processed — no additional biometric data is extracted.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800">
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-card/60 border border-border">
               <Lock className="w-5 h-5 text-sky-400 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-semibold text-white">Why it is captured</p>
-                <p className="text-xs text-zinc-400 mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Your photo is used solely to generate AI performer images and videos for your creative project. It is never used for advertising, sold to third parties, or shared outside WIZ AI.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800">
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-card/60 border border-border">
               <Clock className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-semibold text-white">How long it is stored</p>
-                <p className="text-xs text-zinc-400 mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Your photo and generated AI images are stored for as long as your account is active. You can delete them at any time from your account settings or by contacting us.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800">
+            <div className="flex items-start gap-3 p-3 rounded-xl bg-card/60 border border-border">
               <Trash2 className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-semibold text-white">Your right to delete</p>
-                <p className="text-xs text-zinc-400 mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   You can remove your photo and all generated AI images at any time. Use the "Remove" button on your character card, or email <span className="text-[--color-gold]">privacy@wiz-ai.io</span> for a full data deletion request.
                 </p>
               </div>
@@ -162,25 +162,25 @@ export default function WizPerformerConsentModal({
           <button
             type="button"
             onClick={() => setShowDetails(!showDetails)}
-            className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors mb-4"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground/70 hover:text-foreground/80 transition-colors mb-4"
           >
             {showDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             {showDetails ? "Hide" : "Show"} full privacy details
           </button>
 
           {showDetails && (
-            <div className="mb-5 p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 text-xs text-zinc-400 space-y-2 leading-relaxed">
-              <p><strong className="text-zinc-300">Data controller:</strong> WIZ AI Ltd. Contact: privacy@wiz-ai.io</p>
-              <p><strong className="text-zinc-300">Legal basis:</strong> Your explicit consent (GDPR Art. 6(1)(a) and Art. 9(2)(a) for biometric data).</p>
-              <p><strong className="text-zinc-300">Data transfers:</strong> Your image may be processed by our AI generation infrastructure. All processing is governed by data processing agreements that meet GDPR standards.</p>
-              <p><strong className="text-zinc-300">Your rights:</strong> You have the right to access, rectify, erase, restrict, or port your data. You may also withdraw consent at any time without affecting the lawfulness of prior processing.</p>
-              <p><strong className="text-zinc-300">Full policy:</strong> See our <a href="/privacy" target="_blank" className="text-[--color-gold] hover:underline">Privacy Policy</a> for complete details.</p>
+            <div className="mb-5 p-4 rounded-xl bg-card/40 border border-border text-xs text-muted-foreground space-y-2 leading-relaxed">
+              <p><strong className="text-foreground/80">Data controller:</strong> WIZ AI Ltd. Contact: privacy@wiz-ai.io</p>
+              <p><strong className="text-foreground/80">Legal basis:</strong> Your explicit consent (GDPR Art. 6(1)(a) and Art. 9(2)(a) for biometric data).</p>
+              <p><strong className="text-foreground/80">Data transfers:</strong> Your image may be processed by our AI generation infrastructure. All processing is governed by data processing agreements that meet GDPR standards.</p>
+              <p><strong className="text-foreground/80">Your rights:</strong> You have the right to access, rectify, erase, restrict, or port your data. You may also withdraw consent at any time without affecting the lawfulness of prior processing.</p>
+              <p><strong className="text-foreground/80">Full policy:</strong> See our <a href="/privacy" target="_blank" className="text-[--color-gold] hover:underline">Privacy Policy</a> for complete details.</p>
             </div>
           )}
 
           {/* Four explicit consent checkboxes — all required */}
           <div className="space-y-3 mb-6">
-            <p className="text-xs text-zinc-500 font-medium uppercase tracking-wider mb-2">All four confirmations required</p>
+            <p className="text-xs text-muted-foreground/70 font-medium uppercase tracking-wider mb-2">All four confirmations required</p>
             {[
               {
                 key: "hasRight" as const,
@@ -213,7 +213,7 @@ export default function WizPerformerConsentModal({
                   onCheckedChange={() => toggle(key)}
                   className="mt-0.5 border-[--color-gold]/50 data-[state=checked]:bg-[--color-gold] data-[state=checked]:border-[--color-gold]"
                 />
-                <span className="text-sm text-zinc-300 group-hover:text-white transition-colors leading-snug">
+                <span className="text-sm text-foreground/80 group-hover:text-white transition-colors leading-snug">
                   {label}
                 </span>
               </label>
@@ -224,7 +224,7 @@ export default function WizPerformerConsentModal({
           <div className="flex gap-3">
             <Button
               variant="outline"
-              className="flex-1 border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500"
+              className="flex-1 border-border text-muted-foreground hover:text-white hover:border-border/50"
               onClick={onDecline}
             >
               Cancel

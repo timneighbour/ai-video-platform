@@ -148,10 +148,10 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 export default function WizSoundProductPage() {
  useSEO({ title: "WizSound™ — Cinematic AI Audio Engine | WIZ AI", path: "/products/wizsound", description: "WizSound™ is WIZ AI's proprietary cinematic audio mastering engine. Broadcast-quality spatial audio applied automatically to every AI-generated track." });
  return (
- <div className="bg-[#040404] text-white min-h-screen overflow-x-hidden">
+ <div className="bg-background text-white min-h-screen overflow-x-hidden">
 
  {/* Nav */}
- <nav className="sticky top-0 z-50 border-b border-[--color-gold]/[0.06] bg-[#040404]/90 backdrop-blur-xl px-6 py-4">
+ <nav className="sticky top-0 z-50 border-b border-[--color-gold]/[0.06] bg-background/90 backdrop-blur-xl px-6 py-4">
  <div className="max-w-6xl mx-auto flex items-center justify-between">
  <div className="flex items-center gap-4">
  <BackButton fallback="/" label="Back" />
@@ -265,7 +265,7 @@ export default function WizSoundProductPage() {
  </section>
 
  {/* Audio Demo Player */}
- <section className="py-20 px-6 bg-[#060608] relative overflow-hidden">
+ <section className="py-20 px-6 bg-background relative overflow-hidden">
  <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(16,185,129,0.04) 0%, transparent 65%)" }} />
  <div className="max-w-4xl mx-auto relative">
  <div className="text-center mb-12">
@@ -329,7 +329,7 @@ export default function WizSoundProductPage() {
  </section>
 
  {/* How It Works */}
- <section className="py-20 px-6 bg-[#060608]">
+ <section className="py-20 px-6 bg-background">
  <div className="max-w-5xl mx-auto">
  <div className="text-center mb-14">
  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark] mb-4">How It Works
@@ -356,7 +356,7 @@ export default function WizSoundProductPage() {
  </div>
  </div>
  {/* Content */}
- <div className="p-5 bg-[#0a0a0c]">
+ <div className="p-5 bg-background">
  <h3 className="text-sm font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">{step.title}</h3>
  <p className="text-xs text-white/40 leading-relaxed">{step.desc}</p>
  </div>
@@ -386,7 +386,7 @@ export default function WizSoundProductPage() {
  {KEY_FEATURES.map(feat => (
  <div
  key={feat.title}
- className="group rounded-2xl overflow-hidden border border-white/[0.06] bg-[#0a0a0c] hover:border-emerald-500/25 transition-all duration-300"
+ className="group rounded-2xl overflow-hidden border border-white/[0.06] bg-background hover:border-emerald-500/25 transition-all duration-300"
  >
  {/* Image header */}
  <div className="relative h-36 overflow-hidden">
@@ -415,7 +415,7 @@ export default function WizSoundProductPage() {
  </section>
 
  {/* Key Benefits */}
- <section className="py-20 px-6 bg-[#060608]">
+ <section className="py-20 px-6 bg-background">
  <div className="max-w-5xl mx-auto">
  <div className="text-center mb-14">
  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark] mb-4">Key Benefits
@@ -438,7 +438,7 @@ export default function WizSoundProductPage() {
 
  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
  {BENEFITS.slice(1).map(b => (
- <div key={b.title} className="p-6 rounded-2xl border border-white/[0.06] bg-[#0a0a0c] hover:border-emerald-500/20 transition-colors">
+ <div key={b.title} className="p-6 rounded-2xl border border-white/[0.06] bg-background hover:border-emerald-500/20 transition-colors">
  <div className="w-6 h-6 rounded-full bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center mb-4">
  <Check className="w-3 h-3 text-emerald-400" />
  </div>
@@ -463,7 +463,7 @@ export default function WizSoundProductPage() {
  </section>
 
  {/* FAQ */}
- <section className="py-20 px-6 bg-[#060608]">
+ <section className="py-20 px-6 bg-background">
  <div className="max-w-3xl mx-auto">
  <div className="text-center mb-12">
  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.12] bg-[--color-gold]/[0.03] text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold-dark] mb-4">FAQ
@@ -527,7 +527,7 @@ export default function WizSoundProductPage() {
  </section>
 
  {/* Footer */}
- <footer className="border-t border-[--color-gold]/[0.06] bg-[#030303] py-12 px-6">
+ <footer className="border-t border-[--color-gold]/[0.06] bg-background py-12 px-6">
  <div className="max-w-7xl mx-auto">
  <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-6">
  <NavLink href="/">

@@ -17,7 +17,7 @@ import { trpc } from "./lib/trpc";
 export function PageFallback() {
   return (
     <div
-      className="min-h-screen bg-[#0f0f0f] flex flex-col items-center justify-center"
+      className="min-h-screen bg-background flex flex-col items-center justify-center"
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       <div className="relative mb-8">

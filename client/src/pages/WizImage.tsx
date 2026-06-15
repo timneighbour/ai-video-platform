@@ -374,7 +374,7 @@ export default function WizImage() {
           <div className="w-11 h-11 rounded-xl flex items-center justify-center text-sm flex-shrink-0" style={{ background: "rgba(99,102,241,0.18)", border: "1px solid rgba(99,102,241,0.4)" }}></div>
           <div className="flex-1">
             <div className="text-sm font-bold mb-0.5" style={{ color: "#818cf8", letterSpacing: "0.5px" }}>UPLOAD YOUR REFERENCE IMAGE TO BEGIN</div>
-            <div className="text-xs text-zinc-500">Band photos, artist portraits, album concepts, mood images · JPG, PNG, WEBP, RAW · up to 50MB</div>
+            <div className="text-xs text-muted-foreground/70">Band photos, artist portraits, album concepts, mood images · JPG, PNG, WEBP, RAW · up to 50MB</div>
           </div>
           <div className="text-xs font-bold px-4 py-2 rounded-lg flex-shrink-0" style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.35)", color: "#818cf8" }}>BROWSE & UPLOAD</div>
         </div>
@@ -383,7 +383,7 @@ export default function WizImage() {
           <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: "#4ade80", boxShadow: "0 0 6px #4ade80" }} />
           <span className="text-xs font-bold text-green-400">REFERENCE LOADED — band_promo_shoot.jpg</span>
           <div className="flex-1 h-7 mx-4"><AnimatedEqualiser barCount={32} color="#4ade80" height={28} alwaysAnimate={true} /></div>
-          <button onClick={() => setHasRef(false)} className="text-zinc-600 hover:text-zinc-400 text-sm ml-auto">Replace ×</button>
+          <button onClick={() => setHasRef(false)} className="text-muted-foreground/50 hover:text-muted-foreground text-sm ml-auto">Replace ×</button>
         </div>
       )}
 
@@ -865,7 +865,7 @@ export default function WizImage() {
         {/* Save to Library Modal */}
         {showSaveLibModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-            <div className="relative w-full max-w-md rounded-2xl border border-amber-500/30 bg-[#0e0b07] shadow-2xl p-6">
+            <div className="relative w-full max-w-md rounded-2xl border border-amber-500/30 bg-background shadow-2xl p-6">
               <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
               <h2 className="text-lg font-bold text-amber-300 mb-1">Save to Character Library</h2>
               <p className="text-xs text-amber-200/50 mb-4">This image will be saved as a reusable character across WizAnimate, Music Video, and all Wiz products.</p>

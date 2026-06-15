@@ -368,14 +368,14 @@ export default function AdminJobsPanel() {
 
   if (selectedJobId !== null) {
     return (
-      <div className="min-h-screen bg-[#0e0c0a] text-white p-6">
+      <div className="min-h-screen bg-background text-white p-6">
         <JobDetailView jobId={selectedJobId} onBack={() => setSelectedJobId(null)} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0e0c0a] text-white p-6">
+    <div className="min-h-screen bg-background text-white p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

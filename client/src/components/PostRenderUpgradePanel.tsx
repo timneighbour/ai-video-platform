@@ -89,7 +89,7 @@ export default function PostRenderUpgradePanel({
   );
 
   return (
-    <div className="rounded-2xl border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/30 via-black to-black p-5 mt-6">
+    <div className="rounded-2xl border border-[--color-gold]/30 bg-gradient-to-br from-primary/30 via-black to-black p-5 mt-6">
       {/* Header */}
       <div className="flex items-center gap-2.5 mb-4">
         <div className="w-8 h-8 rounded-lg bg-[--color-gold]/15 flex items-center justify-center flex-shrink-0">
@@ -203,7 +203,7 @@ export default function PostRenderUpgradePanel({
         <Button
           onClick={handleUpgrade}
           disabled={!hasUpgrade || upgradeCheckout.isPending}
-          className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-[0_0_20px_rgba(139,92,246,0.3)] disabled:opacity-40 flex items-center gap-2"
+          className="bg-gradient-to-r from-primary to-primary/40 hover:from-primary hover:to-primary/40 text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-[0_0_20px_rgba(139,92,246,0.3)] disabled:opacity-40 flex items-center gap-2"
         >
           {upgradeCheckout.isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />

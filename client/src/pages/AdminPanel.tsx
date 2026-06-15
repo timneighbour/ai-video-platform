@@ -175,7 +175,7 @@ export default function AdminPanel() {
               <Button
                 onClick={() => reconnect.mutate()}
                 disabled={isReconnecting || statusLoading}
-                className="shrink-0 bg-gradient-to-r from-[#b8892a] to-[#8a6520] hover:from-[#c99a35] hover:to-[#9a7530] text-white font-semibold"
+                className="shrink-0 bg-gradient-to-r from-primary to-primary/50 hover:from-primary/90 hover:to-primary/60 text-white font-semibold"
               >
                 {isReconnecting ? (
                   <>
@@ -233,13 +233,13 @@ export default function AdminPanel() {
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
             <Link href="/admin/credits">
-              <Button size="sm" className="bg-gradient-to-r from-[#b8892a] to-[#8a6520] hover:from-[#c99a35] hover:to-[#9a7530] text-white font-semibold">💳 Credit Management</Button>
+              <Button size="sm" className="bg-gradient-to-r from-primary to-primary/50 hover:from-primary/90 hover:to-primary/60 text-white font-semibold">💳 Credit Management</Button>
             </Link>
             <Link href="/admin/analytics">
-              <Button size="sm" variant="outline" className="border-[#b8892a]/40 text-[#e8c97a] hover:bg-[#b8892a]/10">Analytics Dashboard</Button>
+              <Button size="sm" variant="outline" className="border-primary/40 text-primary/90 hover:bg-primary/10">Analytics Dashboard</Button>
             </Link>
             <Link href="/admin/email">
-              <Button size="sm" variant="outline" className="border-[#b8892a]/40 text-[#e8c97a] hover:bg-[#b8892a]/10">📧 Email Management</Button>
+              <Button size="sm" variant="outline" className="border-primary/40 text-primary/90 hover:bg-primary/10">📧 Email Management</Button>
             </Link>
             <Link href="/admin/providers">
               <Button size="sm" className="bg-red-900/60 hover:bg-red-800/70 text-red-200 border border-red-700/50">🛡️ Provider Dashboard</Button>

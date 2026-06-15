@@ -667,7 +667,7 @@ function ScenePreviewGrid({
                           onChange={(e) => setEditPrompt(e.target.value)}
                           rows={3}
                           maxLength={2000}
-                          className="w-full text-xs bg-[rgba(24,20,16,0.9)] border border-[rgba(184,137,42,0.2)] text-zinc-200 rounded-lg px-2.5 py-2 resize-none focus:outline-none focus:border-[--color-gold] placeholder:text-white/20"
+                          className="w-full text-xs bg-[rgba(24,20,16,0.9)] border border-[rgba(184,137,42,0.2)] text-foreground rounded-lg px-2.5 py-2 resize-none focus:outline-none focus:border-[--color-gold] placeholder:text-white/20"
                           placeholder="Describe the visual scene… or tap the mic to speak your direction"
                         />
                       </div>
@@ -678,7 +678,7 @@ function ScenePreviewGrid({
                           onChange={(e) => setEditLyrics(e.target.value)}
                           rows={2}
                           maxLength={1000}
-                          className="w-full text-xs bg-[rgba(24,20,16,0.9)] border border-[rgba(184,137,42,0.2)] text-zinc-200 rounded-lg px-2.5 py-2 resize-none focus:outline-none focus:border-[--color-gold] placeholder:text-white/20 font-mono"
+                          className="w-full text-xs bg-[rgba(24,20,16,0.9)] border border-[rgba(184,137,42,0.2)] text-foreground rounded-lg px-2.5 py-2 resize-none focus:outline-none focus:border-[--color-gold] placeholder:text-white/20 font-mono"
                           placeholder="Lyrics for this scene window…"
                         />
                       </div>
@@ -846,7 +846,7 @@ function ScenePreviewGrid({
       {/* ── Rewrite Scene Modal ───────────────────────────────────────────── */}
       {rewriteSceneId !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-[#1a1a2e] border border-purple-500/30 rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+          <div className="bg-background border border-purple-500/30 rounded-2xl p-6 w-full max-w-lg shadow-2xl">
             <div className="flex items-center gap-2 mb-4">
               <svg className="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
               <h3 className="text-white font-semibold text-sm">Rewrite Scene with AI</h3>
@@ -907,7 +907,7 @@ function ScenePreviewGrid({
       {/* ── Regenerate All Modal ──────────────────────────────────────────── */}
       {regenAllOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-[#1a1a2e] border border-red-500/30 rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+          <div className="bg-background border border-red-500/30 rounded-2xl p-6 w-full max-w-lg shadow-2xl">
             <div className="flex items-center gap-2 mb-4">
               <svg className="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
               <h3 className="text-white font-semibold text-sm">Regenerate All Scenes</h3>
@@ -950,7 +950,7 @@ function ScenePreviewGrid({
       {/* ── Replace Scene Modal ────────────────────────────────────────────── */}
       {replaceSceneId !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-[#1a1a2e] border border-orange-500/30 rounded-2xl p-6 w-full max-w-lg shadow-2xl">
+          <div className="bg-background border border-orange-500/30 rounded-2xl p-6 w-full max-w-lg shadow-2xl">
             <div className="flex items-center gap-2 mb-4">
               <svg className="w-5 h-5 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
               <h3 className="text-white font-semibold text-sm">Replace Scene Completely</h3>
@@ -2959,7 +2959,7 @@ export default function MusicVideoAutopilot() {
                     ) : isActive ? (
                       <Loader2 className="w-4 h-4 text-[--color-gold] animate-spin shrink-0" />
                     ) : (
-                      <div className="w-4 h-4 rounded-full border border-zinc-600 shrink-0" />
+                      <div className="w-4 h-4 rounded-full border border-border/70 shrink-0" />
                     )}
                     <span className={`text-sm font-medium ${
                       isDone ? "text-[--color-silver]" : isActive ? "text-[--color-gold]" : "text-white/40"
@@ -3109,7 +3109,7 @@ export default function MusicVideoAutopilot() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={() => setShowProbeScenePicker(false)}>
           <div className="w-full max-w-md mx-4 rounded-2xl border border-[rgba(20,184,166,0.25)] bg-gradient-to-br from-[rgba(10,8,6,0.99)] to-[rgba(18,14,8,0.99)] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-2 mb-1">
-              <PlayCircle className="w-5 h-5 text-[#14b8a6]" />
+              <PlayCircle className="w-5 h-5 text-teal-400" />
               <h3 className="text-lg font-bold text-white">Test Render a Scene</h3>
             </div>
             <p className="text-sm text-white/50 mb-5">Pick one scene to render first. Review the result before committing credits to the full render.</p>
@@ -3131,9 +3131,9 @@ export default function MusicVideoAutopilot() {
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-white/80 mb-0.5">Scene {idx + 1}</p>
                     <p className="text-xs text-white/40 truncate">{scene.prompt || "No prompt"}</p>
-                    {scene.lyrics && <p className="text-xs text-[#14b8a6]/60 truncate mt-0.5">{scene.lyrics}</p>}
+                    {scene.lyrics && <p className="text-xs text-teal-400/60 truncate mt-0.5">{scene.lyrics}</p>}
                   </div>
-                  {selectedProbeSceneIdx === idx && <Check className="w-4 h-4 text-[#14b8a6] flex-shrink-0 mt-1" />}
+                  {selectedProbeSceneIdx === idx && <Check className="w-4 h-4 text-teal-400 flex-shrink-0 mt-1" />}
                 </button>
               ))}
             </div>
@@ -3213,7 +3213,7 @@ export default function MusicVideoAutopilot() {
             <img src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png" alt="WIZ AI" className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(20,184,166,0.20)]" loading="eager" decoding="async" />
             <span className="hidden sm:flex items-center gap-1.5">
               <span className="font-bold text-[16px] tracking-[2px] text-white/90" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>WIZVIDEO</span>
-              <span className="text-[8px] font-bold tracking-[2px] text-[#14b8a6] px-1.5 py-0.5 rounded-sm border border-[#14b8a6]/25 uppercase" style={{ background: "rgba(20,184,166,0.08)" }}>DIRECTOR</span>
+              <span className="text-[8px] font-bold tracking-[2px] text-teal-400 px-1.5 py-0.5 rounded-sm border border-[#14b8a6]/25 uppercase" style={{ background: "rgba(20,184,166,0.08)" }}>DIRECTOR</span>
             </span>
           </NavLink>
           <div className="flex items-center gap-3">
@@ -3396,7 +3396,7 @@ export default function MusicVideoAutopilot() {
           <div className="w-11 h-11 rounded-xl flex items-center justify-center text-sm flex-shrink-0" style={{ background: "rgba(20,184,166,0.15)", border: "1px solid rgba(20,184,166,0.35)" }}></div>
           <div className="flex-1">
             <div className="text-sm font-bold mb-0.5" style={{ color: "#2dd4bf", letterSpacing: "0.5px" }}>UPLOAD YOUR SONG TO BEGIN</div>
-            <div className="text-xs text-zinc-300">MP3, WAV, M4A · up to 50MB · WizVideo™ auto-transcribes lyrics, casts characters, and builds your storyboard</div>
+            <div className="text-xs text-foreground/80">MP3, WAV, M4A · up to 50MB · WizVideo™ auto-transcribes lyrics, casts characters, and builds your storyboard</div>
           </div>
           <div className="text-xs font-bold px-4 py-2 rounded-lg flex-shrink-0" style={{ background: "rgba(20,184,166,0.12)", border: "1px solid rgba(20,184,166,0.3)", color: "#2dd4bf" }}>START BELOW ↓</div>
         </div>
@@ -3486,7 +3486,7 @@ export default function MusicVideoAutopilot() {
                         className={`relative flex items-center gap-3 rounded-xl border px-3 py-2 transition-all duration-200 ${
                           exportFormat === fmt.value
                             ? "border-[--color-gold]/60 bg-[--color-gold]/10 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
-                            : "border-[rgba(184,137,42,0.12)] bg-[rgba(24,20,16,0.9)]/40 hover:border-zinc-600"
+                            : "border-[rgba(184,137,42,0.12)] bg-[rgba(24,20,16,0.9)]/40 hover:border-border/70"
                         }`}
                       >
                         {/* Ratio shape icon */}
@@ -3606,7 +3606,7 @@ export default function MusicVideoAutopilot() {
                               className={`rounded-xl border p-3 cursor-pointer transition-all ${
                                 selectedSunoTrack === idx
                                   ? "border-[--color-gold] bg-[--color-gold]/10"
-                                  : "border-[rgba(184,137,42,0.12)] hover:border-zinc-500"
+                                  : "border-[rgba(184,137,42,0.12)] hover:border-border/50"
                               }`}
                             >
                               <div className="flex items-center gap-3">
@@ -3674,7 +3674,7 @@ export default function MusicVideoAutopilot() {
                     className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
                       isDragging ? "border-[--color-gold] bg-[--color-gold]/15" :
                       audioFile ? "border-[--color-gold] bg-[--color-gold]/10" :
-                      "border-[rgba(184,137,42,0.12)] hover:border-zinc-500"
+                      "border-[rgba(184,137,42,0.12)] hover:border-border/50"
                     }`}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
@@ -4010,7 +4010,7 @@ export default function MusicVideoAutopilot() {
                                     </Button>
                                     <Button
                                       size="sm"
-                                      className="flex-1 text-xs bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white"
+                                      className="flex-1 text-xs bg-gradient-to-r from-primary to-secondary hover:from-primary hover:to-secondary text-white"
                                       onClick={() => setShowLyricsIntelligence(true)}
                                     >
                                       <Sparkles className="w-3 h-3 mr-1" />
@@ -4200,7 +4200,7 @@ export default function MusicVideoAutopilot() {
                   <CardTitle className="text-white flex items-center gap-2">
                     <span className="text-xl text-[--color-gold]">&#9679;</span>
                     Locations & Scene Settings
-                    <Badge variant="outline" className="border-zinc-600 text-white/50 text-xs ml-1">Optional</Badge>
+                    <Badge variant="outline" className="border-border/70 text-white/50 text-xs ml-1">Optional</Badge>
                   </CardTitle>
                   <p className="text-white/40 text-xs mt-1">
                     Describe where your video takes place. The AI will use these as the primary visual environments across scenes.
@@ -4271,7 +4271,7 @@ export default function MusicVideoAutopilot() {
                           className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                             isSelected
                               ? "bg-[--color-gold]/15 border-[--color-gold] text-[--color-gold]"
-                              : "bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white/50 hover:border-zinc-500 hover:text-zinc-200"
+                              : "bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white/50 hover:border-border/50 hover:text-foreground"
                           }`}
                         >
                           {loc}
@@ -4288,7 +4288,7 @@ export default function MusicVideoAutopilot() {
                   <CardTitle className="text-white flex items-center gap-2">
                     <span className="text-xl text-[--color-gold]">&#9632;</span>
                     Shot Mix
-                    <Badge variant="outline" className="border-zinc-600 text-white/50 text-xs ml-1">Optional</Badge>
+                    <Badge variant="outline" className="border-border/70 text-white/50 text-xs ml-1">Optional</Badge>
                   </CardTitle>
                   <p className="text-white/40 text-xs mt-1">
                     Control the balance between character performance shots and cinematic intercuts.
@@ -4369,7 +4369,7 @@ export default function MusicVideoAutopilot() {
                   <CardTitle className="text-white flex items-center gap-2">
                     <ImageIcon className="w-5 h-5 text-[--color-gold]" />
                     Visual References
-                    <Badge variant="outline" className="border-zinc-600 text-white/50 text-xs ml-1">Optional · Up to 3</Badge>
+                    <Badge variant="outline" className="border-border/70 text-white/50 text-xs ml-1">Optional · Up to 3</Badge>
                   </CardTitle>
                   <p className="text-white/40 text-xs mt-1">
                     Upload photos or short video clips to guide the AI's visual style. These are used as inspiration for colour palette, mood, and aesthetic — not as source footage.
@@ -4405,7 +4405,7 @@ export default function MusicVideoAutopilot() {
                   )}
                   {/* Upload button */}
                   {contextAssets.length < 3 && (
-                    <label className={`flex items-center justify-center gap-2 w-full border-2 border-dashed border-[rgba(184,137,42,0.12)] rounded-lg py-4 cursor-pointer transition-colors hover:border-zinc-500 hover:bg-[rgba(20,16,12,0.6)] ${
+                    <label className={`flex items-center justify-center gap-2 w-full border-2 border-dashed border-[rgba(184,137,42,0.12)] rounded-lg py-4 cursor-pointer transition-colors hover:border-border/50 hover:bg-[rgba(20,16,12,0.6)] ${
                       contextAssetUploading ? "opacity-50 pointer-events-none" : ""
                     }`}>
                       <input
@@ -4438,7 +4438,7 @@ export default function MusicVideoAutopilot() {
                   <CardTitle className="text-white flex items-center gap-2">
                     <User className="w-5 h-5 text-[--color-gold]" />
                     Characters
-                    <Badge variant="outline" className="border-zinc-600 text-white/50 text-xs ml-1">Optional · Up to 4</Badge>
+                    <Badge variant="outline" className="border-border/70 text-white/50 text-xs ml-1">Optional · Up to 4</Badge>
                   </CardTitle>
                   <p className="text-white/40 text-xs mt-1">
                     Upload photos of real people or describe AI-generated characters. Each will appear consistently across all scenes.
@@ -4541,7 +4541,7 @@ export default function MusicVideoAutopilot() {
                             </div>
                           )}
                           <div className="flex items-center justify-between text-sm">
-                            <span className="text-zinc-200 font-semibold">Total to build</span>
+                            <span className="text-foreground font-semibold">Total to build</span>
                             <span className="text-[--color-gold] font-bold text-base">{tieredBreakdown.total} credits</span>
                           </div>
                         </div>
@@ -4631,7 +4631,7 @@ export default function MusicVideoAutopilot() {
               {/* How it works */}
               <div className="rounded-[10px] overflow-hidden" style={{ background: "linear-gradient(160deg, #13101c, #0c0912)", border: "1px solid rgba(255,255,255,0.07)", boxShadow: "0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03)" }}>
                 <div className="flex items-center gap-2.5 px-4 py-3" style={{ background: "rgba(0,0,0,0.3)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#30d158]" style={{ boxShadow: "0 0 8px #30d158" }} />
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-500" style={{ boxShadow: "0 0 8px #30d158" }} />
                   <span className="text-[9px] font-black tracking-[3px] uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>How it works</span>
                 </div>
                 <div className="p-3 space-y-2">
@@ -4833,7 +4833,7 @@ export default function MusicVideoAutopilot() {
                   Regenerate
                 </Button>
                 <Button
-                  className="bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white font-semibold disabled:opacity-60"
+                  className="bg-gradient-to-r from-primary to-secondary hover:from-primary hover:to-secondary text-white font-semibold disabled:opacity-60"
                   onClick={() => {
                     if (!lyricsConfirmed && scenes.some(sc => sc.sceneType === "performance" || sc.lipSync)) {
                       toast.info("Please review and confirm your lyrics below before starting the render.", {
@@ -4957,7 +4957,7 @@ export default function MusicVideoAutopilot() {
                       className={`relative flex items-center gap-3 rounded-xl border px-3 py-2 transition-all duration-200 ${
                         exportFormat === fmt.value
                           ? "border-[--color-gold]/60 bg-[--color-gold]/10 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
-                          : "border-[rgba(184,137,42,0.12)] bg-[rgba(24,20,16,0.9)]/40 hover:border-zinc-600 hover:bg-[rgba(24,20,16,0.9)]/70"
+                          : "border-[rgba(184,137,42,0.12)] bg-[rgba(24,20,16,0.9)]/40 hover:border-border/70 hover:bg-[rgba(24,20,16,0.9)]/70"
                       }`}
                     >
                       <div className="flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 24 }}>
@@ -4994,7 +4994,7 @@ export default function MusicVideoAutopilot() {
             </div>
 
             {/* Pre-render cinematic upgrade nudge */}
-            <div className="mb-4 flex items-center gap-3 rounded-xl border border-[--color-gold]/30 bg-gradient-to-r from-[#b8892a]/30 to-orange-950/20 px-4 py-3">
+            <div className="mb-4 flex items-center gap-3 rounded-xl border border-[--color-gold]/30 bg-gradient-to-r from-primary/30 to-orange-950/20 px-4 py-3">
               <Sparkles className="w-4 h-4 text-[--color-gold] flex-shrink-0" />
               <p className="text-sm text-[--color-gold] flex-1">
                 <span className="font-semibold">These scenes will render in standard quality.</span>{" "}
@@ -5016,7 +5016,7 @@ export default function MusicVideoAutopilot() {
                   size="sm"
                   variant="outline"
                   className={`text-xs border-[rgba(184,137,42,0.12)] bg-transparent ${
-                    globalLipSync === false ? "border-zinc-500 text-white/70" : "text-white/40"
+                    globalLipSync === false ? "border-border/50 text-white/70" : "text-white/40"
                   } hover:bg-[rgba(24,20,16,0.9)]`}
                   onClick={() => handleGlobalLipSyncToggle(false)}
                   disabled={updateAllScenesLipSyncMutation.isPending}
@@ -5120,7 +5120,7 @@ export default function MusicVideoAutopilot() {
                                   setEditingRoleCharId(null);
                                 }
                               }}
-                              className="text-[10px] bg-[rgba(24,20,16,0.9)] border border-zinc-600 rounded px-2 py-0.5 text-white w-28 focus:outline-none focus:border-emerald-500"
+                              className="text-[10px] bg-[rgba(24,20,16,0.9)] border border-border/70 rounded px-2 py-0.5 text-white w-28 focus:outline-none focus:border-emerald-500"
                               placeholder="e.g. Lead Singer"
                             />
                             <button
@@ -5187,7 +5187,7 @@ export default function MusicVideoAutopilot() {
 
             {/* Style Lock Banner */}
             {lockedStyle?.isLocked && lockedStyle.style && (
-              <div className="mb-4 flex items-center gap-3 rounded-xl border border-[--color-silver]/30 bg-gradient-to-r from-[#9090a0]/40 to-[#2e2e36]/20 px-4 py-3">
+              <div className="mb-4 flex items-center gap-3 rounded-xl border border-[--color-silver]/30 bg-gradient-to-r from-muted-foreground/40 to-secondary/20 px-4 py-3">
                 <Heart className="w-4 h-4 text-[--color-silver] flex-shrink-0 fill-[--color-gold]" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-[--color-silver]">Style Locked</p>
@@ -5213,7 +5213,7 @@ export default function MusicVideoAutopilot() {
             <div className="grid grid-cols-1 gap-5">
               {scenes.map((scene) => (
                 <React.Fragment key={scene.id}>
-                  <Card className="bg-[rgba(10,8,6,0.95)] border-[rgba(184,137,42,0.10)] hover:border-zinc-600 transition-colors overflow-hidden p-0 gap-0">
+                  <Card className="bg-[rgba(10,8,6,0.95)] border-[rgba(184,137,42,0.10)] hover:border-border/70 transition-colors overflow-hidden p-0 gap-0">
                   {/* Scene preview image — fills the container edge-to-edge like a TV screen.
                        Container is locked to the user's selected aspect ratio (e.g. 16:9).
                        Image is generated at the same ratio so object-cover fills it perfectly with no cropping and no black bars. */}
@@ -5596,7 +5596,7 @@ export default function MusicVideoAutopilot() {
                             <button
                               type="button"
                               onClick={() => setCharacterSelectorSceneId(characterSelectorSceneId === scene.id ? null : scene.id)}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(24,20,16,0.9)] text-white/40 border border-[rgba(184,137,42,0.12)] hover:border-zinc-500 hover:text-white/70 transition-colors"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(24,20,16,0.9)] text-white/40 border border-[rgba(184,137,42,0.12)] hover:border-border/50 hover:text-white/70 transition-colors"
                             >
                               <User className="w-2.5 h-2.5" />
                               {(scene.characterAssignments ?? []).length === 0 ? "Add character" : "+"}
@@ -5690,7 +5690,7 @@ export default function MusicVideoAutopilot() {
                                       className={`text-[10px] px-2 py-0.5 h-6 rounded-full border transition-all ${
                                         scene.lipSyncStyle === value
                                           ? "bg-[--color-silver]/10 border-[--color-silver]/40 text-[--color-silver] font-semibold"
-                                          : "bg-[rgba(24,20,16,0.9)]/60 border-[rgba(184,137,42,0.12)] text-white/50 hover:border-zinc-500 hover:text-white/70"
+                                          : "bg-[rgba(24,20,16,0.9)]/60 border-[rgba(184,137,42,0.12)] text-white/50 hover:border-border/50 hover:text-white/70"
                                       }`}
                                     >
                                       {label}
@@ -5956,9 +5956,9 @@ export default function MusicVideoAutopilot() {
                     {/* Celebration animation — fallback */}
                     <div className="relative mb-6">
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-32 h-32 rounded-full bg-gradient-to-r from-[#b8892a]/20 to-[#2e2e36]/20 animate-ping" style={{ animationDuration: '2s' }} />
+                        <div className="w-32 h-32 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 animate-ping" style={{ animationDuration: '2s' }} />
                       </div>
-                      <div className="relative w-20 h-20 rounded-full bg-gradient-to-r from-[#b8892a] to-[#2e2e36] flex items-center justify-center mx-auto shadow-lg shadow-[#b8892a]/30">
+                      <div className="relative w-20 h-20 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center mx-auto shadow-lg shadow-[#b8892a]/30">
                         <Clapperboard className="w-10 h-10 text-white" />
                       </div>
                     </div>
@@ -6001,7 +6001,7 @@ export default function MusicVideoAutopilot() {
                     {/* Primary CTAs */}
                     <div className="flex gap-3 justify-center mb-6 flex-wrap">
                       <Button
-                        className="btn-sheen bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white px-6 h-12 text-base"
+                        className="btn-sheen bg-gradient-to-r from-primary to-secondary hover:from-primary hover:to-secondary text-white px-6 h-12 text-base"
                         onClick={() => {
                           const video = document.querySelector('video');
                           if (video) { video.currentTime = 0; video.play(); }
@@ -6071,7 +6071,7 @@ export default function MusicVideoAutopilot() {
                         Copy Link
                       </Button>
                       <Button
-                        className="btn-sheen bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white px-6 h-12 text-base font-semibold shadow-lg shadow-[#b8892a]/30"
+                        className="btn-sheen bg-gradient-to-r from-primary to-primary/40 hover:from-primary hover:to-primary/40 text-white px-6 h-12 text-base font-semibold shadow-lg shadow-[#b8892a]/30"
                         onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setSavedCharacterIds({}); }}
                       >
                         <Sparkles className="w-5 h-5 mr-2" /> Create Another Video
@@ -6081,7 +6081,7 @@ export default function MusicVideoAutopilot() {
                     {/* Download Confirm Modal */}
                     {showDownloadConfirmModal && (
                       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                        <div className="bg-[#0e0c0a] border border-[--color-gold]/30 rounded-2xl p-8 max-w-md w-full shadow-2xl">
+                        <div className="bg-background border border-[--color-gold]/30 rounded-2xl p-8 max-w-md w-full shadow-2xl">
                           <div className="flex items-center gap-3 mb-4">
                             <div className="w-12 h-12 rounded-full bg-emerald-900/50 border border-emerald-500/30 flex items-center justify-center">
                               <ShieldCheck className="w-6 h-6 text-emerald-400" />
@@ -6131,7 +6131,7 @@ export default function MusicVideoAutopilot() {
                     {/* Scene Director Panel — re-render individual scenes */}
                     {showSceneDirectorPanel && !isDownloadConfirmed && (
                       <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                        <div className="bg-[#0e0c0a] border border-[--color-gold]/30 rounded-2xl p-6 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+                        <div className="bg-background border border-[--color-gold]/30 rounded-2xl p-6 max-w-lg w-full shadow-2xl max-h-[90vh] overflow-y-auto">
                           <div className="flex items-center justify-between mb-5">
                             <div>
                               <h3 className="text-white font-bold text-lg">Re-direct a Scene</h3>
@@ -6240,7 +6240,7 @@ export default function MusicVideoAutopilot() {
                               </div>
 
                               <Button
-                                className="w-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#c9a84c] hover:to-[#5a3a15] text-white font-semibold h-11"
+                                className="w-full bg-gradient-to-r from-primary to-primary/40 hover:from-primary/90 hover:to-primary/35 text-white font-semibold h-11"
                                 disabled={isRequestingReRender || requestSceneReRenderMutation.isPending}
                                 onClick={() => {
                                   if (!jobId || selectedSceneForReRender === null) return;
@@ -6269,7 +6269,7 @@ export default function MusicVideoAutopilot() {
                     )}
 
                     {/* Upsell panel — multi-select with Stripe checkout */}
-                    <div className="rounded-xl border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/20 to-zinc-900 p-6">
+                    <div className="rounded-xl border border-[--color-gold]/30 bg-gradient-to-br from-primary/20 to-zinc-900 p-6">
                       <h3 className="text-lg font-semibold text-[--color-gold] mb-1">Want to upgrade it?</h3>
                       <p className="text-sm text-white/50 mb-4">Select add-ons and checkout — or download as-is</p>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
@@ -6373,7 +6373,7 @@ export default function MusicVideoAutopilot() {
                           <Button
                             size="sm"
                             disabled={upsellTotal === 0 || isUpsellCheckingOut}
-                            className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white text-xs disabled:opacity-50"
+                            className="bg-gradient-to-r from-primary to-primary/40 hover:from-primary hover:to-primary/40 text-white text-xs disabled:opacity-50"
                             onClick={handleUpsellCheckout}
                           >
                             {isUpsellCheckingOut ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : null}
@@ -6400,7 +6400,7 @@ export default function MusicVideoAutopilot() {
                     {completedScenes === 0 && <div className="mb-6" />}
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                       <Button
-                        className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#c49a35] hover:to-[#5a3a15] text-black font-bold px-6"
+                        className="bg-gradient-to-r from-primary to-primary/40 hover:from-primary/85 hover:to-primary/35 text-black font-bold px-6"
                         onClick={handleStartRender}
                         disabled={startRender.isPending}
                       >
@@ -6812,7 +6812,7 @@ export default function MusicVideoAutopilot() {
                     </div>
 
                     {/* Reassurance panel — safe to leave */}
-                    <div className="mb-5 rounded-xl bg-gradient-to-r from-[#b8892a]/20 via-zinc-900 to-[#4a3010]/20 border border-[--color-gold]/30 p-4">
+                    <div className="mb-5 rounded-xl bg-gradient-to-r from-primary/20 via-zinc-900 to-primary/40/20 border border-[--color-gold]/30 p-4">
                       <div className="flex items-start gap-3">
                         <div className="w-8 h-8 rounded-full bg-[--color-gold]/15 flex items-center justify-center shrink-0 mt-0.5">
                           <CheckCircle2 className="w-4 h-4 text-[--color-gold]" />
@@ -6903,7 +6903,7 @@ export default function MusicVideoAutopilot() {
 
                         {/* Legend */}
                         <div className="flex gap-4 text-xs text-white/50 mb-3">
-                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-zinc-700 border border-zinc-600 inline-block" /> Queued</span>
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-muted border border-border/70 inline-block" /> Queued</span>
                           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-[--color-gold]/30 ring-1 ring-[--color-gold] inline-block" /> Generating</span>
                           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-[--color-gold] inline-block" /> Done</span>
                           {failedScenes > 0 && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-amber-500/40 ring-1 ring-amber-400 inline-block" /> Failed</span>}
@@ -7306,7 +7306,7 @@ export default function MusicVideoAutopilot() {
                                           <Button
                                             size="sm"
                                             variant="outline"
-                                            className="h-7 px-2 text-xs border-zinc-600 text-white/70 bg-transparent hover:bg-[rgba(24,20,16,0.9)]"
+                                            className="h-7 px-2 text-xs border-border/70 text-white/70 bg-transparent hover:bg-[rgba(24,20,16,0.9)]"
                                             onClick={() => {
                                               setEditingFailedSceneId(scene.id);
                                               setEditFailedPrompt(scene.prompt ?? "");
@@ -7391,7 +7391,7 @@ export default function MusicVideoAutopilot() {
                                             value={editFailedPrompt}
                                             onChange={(e) => setEditFailedPrompt(e.target.value)}
                                             placeholder="Describe the visual scene..."
-                                            className="text-xs min-h-[80px] bg-[rgba(24,20,16,0.9)]/60 border-[rgba(184,137,42,0.12)] text-zinc-200 resize-none"
+                                            className="text-xs min-h-[80px] bg-[rgba(24,20,16,0.9)]/60 border-[rgba(184,137,42,0.12)] text-foreground resize-none"
                                             maxLength={2000}
                                           />
                                           <p className="text-xs text-white/30 mt-1">Tip: shorter, clearer prompts often render more reliably.</p>
@@ -7409,7 +7409,7 @@ export default function MusicVideoAutopilot() {
                                             value={editFailedLyrics}
                                             onChange={(e) => setEditFailedLyrics(e.target.value)}
                                             placeholder="Lyrics for this scene window (leave blank to keep current)"
-                                            className="text-xs min-h-[50px] bg-[rgba(24,20,16,0.9)]/60 border-[rgba(184,137,42,0.12)] text-zinc-200 resize-none"
+                                            className="text-xs min-h-[50px] bg-[rgba(24,20,16,0.9)]/60 border-[rgba(184,137,42,0.12)] text-foreground resize-none"
                                             maxLength={1000}
                                           />
                                         </div>

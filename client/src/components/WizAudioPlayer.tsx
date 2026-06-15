@@ -185,7 +185,7 @@ export default function WizAudioPlayer({
 
   return (
     <div
-      className={`relative rounded-2xl border border-white/10 bg-gradient-to-br from-[#1a1228] to-[#0f0f18] overflow-hidden focus-within:ring-1 focus-within:ring-violet-500/40 ${className}`}
+      className={`relative rounded-2xl border border-white/10 bg-gradient-to-br from-background to-background overflow-hidden focus-within:ring-1 focus-within:ring-violet-500/40 ${className}`}
       tabIndex={0}
       onKeyDown={handleKeyDown}
       aria-label={`Audio player: ${title}`}

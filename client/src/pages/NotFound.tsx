@@ -11,10 +11,10 @@ export default function NotFound() {
           </div>
         </div>
         <h1 className="text-6xl font-bold text-white mb-2">404</h1>
-        <h2 className="text-xl font-semibold text-zinc-300 mb-4">
+        <h2 className="text-xl font-semibold text-foreground/80 mb-4">
           Page Not Found
         </h2>
-        <p className="text-zinc-500 mb-8 leading-relaxed">
+        <p className="text-muted-foreground/70 mb-8 leading-relaxed">
           Sorry, the page you are looking for doesn't exist.
           <br />
           It may have been moved or deleted.
@@ -29,7 +29,7 @@ export default function NotFound() {
           </a>
           <button
             onClick={() => window.history.back()}
-            className="inline-flex items-center justify-center border border-zinc-700 hover:border-zinc-600 text-zinc-300 hover:text-white px-6 py-2.5 rounded-lg transition-all duration-200 font-medium bg-transparent"
+            className="inline-flex items-center justify-center border border-border hover:border-border/70 text-foreground/80 hover:text-white px-6 py-2.5 rounded-lg transition-all duration-200 font-medium bg-transparent"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Go Back

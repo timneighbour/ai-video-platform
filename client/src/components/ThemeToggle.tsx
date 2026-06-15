@@ -16,7 +16,7 @@ export default function ThemeToggle({ compact = false }: { compact?: boolean }) 
         "focus:outline-none focus:ring-2 focus:ring-[--color-gold]/50",
         theme === "dark"
           ? "text-white/60 hover:text-white hover:bg-white/10"
-          : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-200/60",
+          : "text-muted-foreground/70 hover:text-muted-foreground/30 hover:bg-zinc-200/60",
       ].join(" ")}
     >
       {theme === "dark" ? (

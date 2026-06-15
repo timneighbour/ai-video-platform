@@ -61,7 +61,7 @@ const TIERS: TierConfig[] = [
     sublabel: "ACTIVE",
     price: "+£1",
     tagline: "Polished, fuller sound — professional audio enhancement",
-    colour: "from-[#b8892a] to-[#7c5a1a]",
+    colour: "from-primary to-primary/45",
     glowColour: "rgba(184,137,42,0.45)",
     accentHex: "#c4a464",
     specs: [
@@ -527,7 +527,7 @@ export default function WizSoundDemoPlayer({ compact = false }: { compact?: bool
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
   return (
-    <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#07070a]"
+    <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-background"
       style={{ boxShadow: `0 0 80px ${tier.glowColour}, 0 0 20px rgba(0,0,0,0.8)` }}>
 
       {/* Ambient background glow */}

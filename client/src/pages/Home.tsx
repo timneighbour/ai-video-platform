@@ -29,6 +29,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { StudioLoungeSection } from "@/components/StudioLounge";
+import LanguageSelector from "@/components/LanguageSelector";
 // Lucide icons removed — replaced with inline SVGs and product logos
 const ArrowSVG = ({ className = "w-4 h-4", style }: { className?: string; style?: React.CSSProperties }) => (
  <svg className={className} style={style} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
@@ -178,7 +179,7 @@ function NavDropdown({ open, children, wide, align = "center" }: { open: boolean
  <div className="h-4 w-full" />
  {/* Arrow tip */}
  <div className="flex justify-center mb-[-1px]">
- <div className="w-3 h-3 rotate-45 border-l border-t border-[--color-gold]/[0.18] bg-[#070707]" style={{ marginBottom: -7 }} />
+ <div className="w-3 h-3 rotate-45 border-l border-t border-[--color-gold]/[0.18] bg-background" style={{ marginBottom: -7 }} />
  </div>
  {children}
  </div>
@@ -243,7 +244,7 @@ function Nav() {
  aria-label="Main navigation"
  className={`fixed left-0 right-0 z-50 transition-all duration-500 ${
  scrolled
- ? "bg-[#060606]/96 backdrop-blur-2xl border-b border-[--color-gold]/[0.08] shadow-[0_2px_60px_rgba(0,0,0,0.7)]"
+ ? "bg-background/96 backdrop-blur-2xl border-b border-[--color-gold]/[0.08] shadow-[0_2px_60px_rgba(0,0,0,0.7)]"
  : "bg-gradient-to-b from-black/40 to-transparent backdrop-blur-[2px]"
  }`}
  style={{ top: "var(--founding-banner-h, 0px)" }}
@@ -631,6 +632,7 @@ function Nav() {
 
  {/* Auth CTA */}
  <div className="hidden md:flex items-center gap-2.5">
+ <LanguageSelector />
  {isAuthenticated ? (
  <a
  href="/dashboard"
@@ -677,13 +679,13 @@ function Nav() {
  >
  <div className="relative w-6 h-[18px] flex flex-col justify-between">
  <span className={`block h-[2px] w-full rounded-full transition-all duration-300 origin-center ${
- mobileOpen ? "rotate-45 translate-y-[8px] bg-[#c9a84c]" : "bg-white"
+ mobileOpen ? "rotate-45 translate-y-[8px] bg-primary/90" : "bg-white"
  }`} style={{ opacity: mobileOpen ? 1 : 0.9 }} />
  <span className={`block h-[2px] w-full rounded-full transition-all duration-300 ${
  mobileOpen ? "opacity-0 scale-x-0" : "bg-white"
  }`} style={{ opacity: mobileOpen ? 0 : 0.9 }} />
  <span className={`block h-[2px] w-full rounded-full transition-all duration-300 origin-center ${
- mobileOpen ? "-rotate-45 -translate-y-[8px] bg-[#c9a84c]" : "bg-white"
+ mobileOpen ? "-rotate-45 -translate-y-[8px] bg-primary/90" : "bg-white"
  }`} style={{ opacity: mobileOpen ? 1 : 0.9 }} />
  </div>
  </button>
@@ -923,7 +925,7 @@ function Hero() {
  return (
  <section
  data-section="hero"
- className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-[#030303]"
+ className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-background"
  onMouseMove={handleMouseMove}
  >
  {/* Cinematic motion background — gold dust, waveform, bloom */}
@@ -1015,7 +1017,7 @@ function Hero() {
  background: "linear-gradient(135deg, #c4a464 0%, #e8c97a 100%)",
  boxShadow: "0 0 0 3px rgba(196,164,100,0.20), 0 0 16px rgba(196,164,100,0.55), 0 0 32px rgba(196,164,100,0.25)",
  }}>
- <PlaySVG className="w-4 h-4 text-[#0a0a0f] ml-0.5" />
+ <PlaySVG className="w-4 h-4 text-background ml-0.5" />
  </span>
  {/* Label */}
  <span className="flex flex-col items-start leading-none">
@@ -1089,7 +1091,7 @@ function Hero() {
  <div className="flex items-center gap-3">
  <div className="flex -space-x-2">
  {WHO_IMAGES.map((src, i) => (
- <img key={i} src={src} alt="Creator" className="w-8 h-8 rounded-full border-2 border-[#030303] object-cover" loading="lazy" />
+ <img key={i} src={src} alt="Creator" className="w-8 h-8 rounded-full border-2 border-border/10 object-cover" loading="lazy" />
  ))}
  </div>
  <div>
@@ -1156,7 +1158,7 @@ function HeroDemoSection() {
  setIsMuted(newMuted);
  }, [isMuted]);
  return (
- <section className="relative bg-[#030303] py-20 px-6 overflow-hidden">
+ <section className="relative bg-background py-20 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full opacity-[0.10] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
@@ -1312,7 +1314,7 @@ function WizAIWorldsSection() {
  }, [isMuted]);
 
  return (
- <section className="relative bg-[#030303] py-24 px-6 overflow-hidden">
+ <section className="relative bg-background py-24 px-6 overflow-hidden">
  {/* Deep space ambient glow */}
  <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, oklch(0.20 0.08 260 / 0.18), transparent 70%)" }} />
  <div className="absolute top-0 left-0 right-0 luxury-divider" />
@@ -1724,7 +1726,7 @@ function WorkflowJourney() {
 function WelcomeSection() {
  const [demoOpen, setDemoOpen] = useState(false);
  return (
- <section className="relative bg-[#030303] py-28 px-6 overflow-hidden">
+ <section className="relative bg-background py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full opacity-[0.09] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
@@ -1752,7 +1754,7 @@ function WelcomeSection() {
  <button
         type="button"
         onClick={() => setDemoOpen(true)}
-        className="group relative w-full aspect-video rounded-2xl overflow-hidden border border-[--color-gold]/[0.08] bg-[#080808] hover:border-[--color-gold]/[0.2] transition-all duration-500 shadow-[0_16px_60px_rgba(0,0,0,0.6)] hover:shadow-[0_24px_80px_rgba(0,0,0,0.7),0_0_40px_rgba(196,164,100,0.05)] focus:outline-none cursor-pointer p-0 block"
+        className="group relative w-full aspect-video rounded-2xl overflow-hidden border border-[--color-gold]/[0.08] bg-background hover:border-[--color-gold]/[0.2] transition-all duration-500 shadow-[0_16px_60px_rgba(0,0,0,0.6)] hover:shadow-[0_24px_80px_rgba(0,0,0,0.7),0_0_40px_rgba(196,164,100,0.05)] focus:outline-none cursor-pointer p-0 block"
         style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
         aria-label="Watch WIZ AI demo"
         >
@@ -1858,7 +1860,7 @@ function WizEngines() {
  ];
 
  return (
- <section id="wiz-engines" className="relative bg-[#040404] py-32 px-6">
+ <section id="wiz-engines" className="relative bg-background py-32 px-6">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
 
  {/* Ambient glow */}
@@ -2112,7 +2114,7 @@ function HowItWorks() {
  }, [steps.length]);
 
  return (
- <section ref={sectionRef} id="how-it-works" className="relative bg-[#040404] py-28 px-6">
+ <section ref={sectionRef} id="how-it-works" className="relative bg-background py-28 px-6">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  <div className="max-w-7xl mx-auto">
  <div className="text-center mb-20 reveal">
@@ -2369,7 +2371,7 @@ function WhyWizAI() {
  },
  ];
  return (
- <section className="relative bg-[#030303] py-28 px-6 overflow-hidden">
+ <section className="relative bg-background py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] rounded-full opacity-[0.09] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
@@ -2802,7 +2804,7 @@ function WizLuminaDemo() {
  };
  }, [handleMove]);
  return (
- <section className="relative bg-[#040404] py-28 px-6 overflow-hidden">
+ <section className="relative bg-background py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full opacity-[0.10] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
@@ -2962,7 +2964,7 @@ function Showcase() {
  ];
 
  return (
- <section id="showcase" className="relative bg-[#040404] py-28 px-6 overflow-hidden">
+ <section id="showcase" className="relative bg-background py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] rounded-full opacity-[0.07] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
@@ -2997,7 +2999,7 @@ function FeatureBlock() {
  cta: "Generate a Song",
  href: WIZAUDIO_STUDIO_PAGE,
  badge: "WizSound™",
- gradient: "from-[#1a1408] to-[#0d0d0d]",
+ gradient: "from-background to-background",
  borderGlow: "hover:border-[--color-gold]/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.06)]",
  },
  {
@@ -3007,7 +3009,7 @@ function FeatureBlock() {
  cta: "Create a Music Video",
  href: WIZVIDEO_STUDIO_PAGE,
  badge: "WizCreate™",
- gradient: "from-[#0d1018] to-[#0d0d0d]",
+ gradient: "from-background to-background",
  borderGlow: "hover:border-[--color-gold]/25 hover:shadow-[0_0_40px_rgba(196,164,100,0.06)]",
  },
  {
@@ -3017,12 +3019,12 @@ function FeatureBlock() {
  cta: "Try WizPilot",
  href: WIZPILOT_STUDIO_PAGE,
  badge: "WizPilot™",
- gradient: "from-[#0d0d0d] to-[#080808]",
+ gradient: "from-background to-background",
  borderGlow: "hover:border-[--color-gold]/25 hover:shadow-[0_0_40px_rgba(196,164,100,0.06)]",
  },
   ];
  return (
- <section className="relative bg-[#030303] py-28 px-6 overflow-hidden">
+ <section className="relative bg-background py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] rounded-full opacity-[0.07] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
@@ -3220,7 +3222,7 @@ function SeeTheDifference() {
   const activeTierData = STD_TIERS.find((t) => t.key === activeTier)!;
 
   return (
-    <section className="relative py-24 bg-[#050505] overflow-hidden">
+    <section className="relative py-24 bg-background overflow-hidden">
       {/* Deep ambient glow that shifts per tier */}
       <div
         className="absolute inset-0 pointer-events-none transition-all duration-1000"
@@ -3536,7 +3538,7 @@ function SeeTheDifference() {
 // ─── Music Video USP Section — visible to all new visitors on homepage ───────
 function MusicVideoUSPSection() {
   return (
-    <section className="relative bg-[#050505] py-32 px-6 overflow-hidden">
+    <section className="relative bg-background py-32 px-6 overflow-hidden">
       {/* Ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] rounded-full opacity-[0.12] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
       <div className="luxury-divider absolute top-0 left-0 right-0" />
@@ -3686,7 +3688,7 @@ function FinalCTA() {
  { label: "Cancel anytime" },
  ];
  return (
- <section className="relative bg-[#040404] py-32 px-6 overflow-hidden">
+ <section className="relative bg-background py-32 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient glow */}
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full opacity-[0.20] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
@@ -3797,7 +3799,7 @@ const DEMO_VIDEOS = [
 // Footer 
 function Footer() {
  return (
- <footer className="relative bg-[#030303] py-16 px-6">
+ <footer className="relative bg-background py-16 px-6">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  <div className="max-w-7xl mx-auto">
  <div className="grid md:grid-cols-5 gap-10 mb-12">
@@ -3912,7 +3914,7 @@ function StickyMobileCTA() {
 
  return (
  <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden">
- <div className="bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-[--color-gold]/[0.12] px-4 py-3 flex items-center gap-3 shadow-[0_-8px_32px_rgba(0,0,0,0.6)]">
+ <div className="bg-background/95 backdrop-blur-xl border-t border-[--color-gold]/[0.12] px-4 py-3 flex items-center gap-3 shadow-[0_-8px_32px_rgba(0,0,0,0.6)]">
  <a
  href="/onboarding"
  className="flex-1 btn-primary btn-sheen inline-flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold"
@@ -3943,7 +3945,7 @@ function ContinueProjectBanner() {
  if (!showResume || !resumeData) return null;
  return (
  <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-sm w-full mx-4">
- <div className="bg-[#0a0a0a] border border-[--color-gold]/[0.1] rounded-2xl px-5 py-4 shadow-[0_16px_60px_rgba(0,0,0,0.7)] backdrop-blur-xl flex items-center gap-4">
+ <div className="bg-background border border-[--color-gold]/[0.1] rounded-2xl px-5 py-4 shadow-[0_16px_60px_rgba(0,0,0,0.7)] backdrop-blur-xl flex items-center gap-4">
  <div className="flex-1 min-w-0">
  <p className="text-xs text-[--color-silver-dark]/40 mb-0.5">Continue where you left off</p>
  <p className="text-sm font-semibold text-white truncate">{resumeData.title || "Untitled project"}</p>
@@ -3961,7 +3963,7 @@ export default function Home() {
  useReveal();
  useEffect(() => { mp.homepageViewed(); }, []);
  return (
- <div className="bg-[#030303] text-white min-h-screen overflow-x-hidden">
+ <div className="bg-background text-white min-h-screen overflow-x-hidden">
 
  <a
  href="#main-content"

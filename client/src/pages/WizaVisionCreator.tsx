@@ -20,7 +20,7 @@ export default function WizaVisionCreator() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#070710] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-white/40">Loading creator...</div>
       </div>
     );
@@ -28,7 +28,7 @@ export default function WizaVisionCreator() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-[#070710] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <p className="text-white/60 mb-4">Creator not found</p>
           <Link href="/wizavision">
@@ -42,10 +42,10 @@ export default function WizaVisionCreator() {
   const { channel: creator, videos } = data as any;
 
   return (
-    <div className="min-h-screen bg-[#070710] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Banner */}
-      <div className="relative h-48 bg-gradient-to-br from-[#1a0a3e] to-[#0a1a2e] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-[#070710]/80 to-transparent" />
+      <div className="relative h-48 bg-gradient-to-br from-background to-background overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
       </div>
 
       <div className="max-w-7xl mx-auto px-6">
@@ -60,7 +60,7 @@ export default function WizaVisionCreator() {
 
         {/* Creator profile */}
         <div className="flex items-end gap-5 mb-8 -mt-16">
-          <div className="w-24 h-24 rounded-2xl bg-white/10 border-4 border-[#070710] overflow-hidden flex items-center justify-center text-4xl shrink-0">
+          <div className="w-24 h-24 rounded-2xl bg-white/10 border-4 border-border/20 overflow-hidden flex items-center justify-center text-4xl shrink-0">
             {creator.avatarUrl ? (
               <img src={creator.avatarUrl} alt={creator.displayName} className="w-full h-full object-cover" />
             ) : (
@@ -100,7 +100,7 @@ export default function WizaVisionCreator() {
                     </div>
                   </div>
                   <div className="mt-2">
-                    <h3 className="text-white text-sm font-medium line-clamp-2 group-hover:text-[#b8892a] transition-colors">{v.title}</h3>
+                    <h3 className="text-white text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors">{v.title}</h3>
                     {v.viewCount > 0 && (
                       <p className="text-white/30 text-xs mt-1 flex items-center gap-1">
                         <Eye className="w-3 h-3" /> {formatViews(v.viewCount)} views

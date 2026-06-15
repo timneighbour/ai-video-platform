@@ -42,7 +42,7 @@ const NEXT_ACTIONS = [
     subtitle: "Start a new music video",
     icon: Film,
     href: "/music-video/create",
-    gradient: "from-[#b8892a] to-[#4a3010]",
+    gradient: "from-primary to-primary/40",
   },
   {
     id: "new-song",
@@ -50,7 +50,7 @@ const NEXT_ACTIONS = [
     subtitle: "AI-composed original music",
     icon: Music,
     href: "/music-creator",
-    gradient: "from-[#4a4a5a] to-[#2e2e36]",
+    gradient: "from-secondary to-secondary",
   },
   {
     id: "kids-animation",
@@ -58,7 +58,7 @@ const NEXT_ACTIONS = [
     subtitle: "Fun animated story for children",
     icon: Baby,
     href: WIZANIMATE_PRODUCT_PAGE,
-    gradient: "from-[#9090a0] to-[#2e2e36]",
+    gradient: "from-muted-foreground to-secondary",
   },
   {
     id: "youtube-video",
@@ -195,13 +195,13 @@ export function PostRenderRetentionScreen({
       {/* ── Celebration Header ──────────────────────────────────────── */}
       <div className="screening-room-celebration text-center mb-6">
         <div className="relative w-16 h-16 mx-auto mb-4">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#b8892a]/30 to-[#2e2e36]/30 animate-ping" style={{ animationDuration: "2s" }} />
-          <div className="relative w-16 h-16 rounded-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-lg shadow-[#b8892a]/40">
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary/30 to-secondary/30 animate-ping" style={{ animationDuration: "2s" }} />
+          <div className="relative w-16 h-16 rounded-full bg-gradient-to-r from-primary to-primary/40 flex items-center justify-center shadow-lg shadow-[#b8892a]/40">
             <Sparkles className="w-8 h-8 text-white" />
           </div>
         </div>
         <h2 className="text-2xl font-bold text-white mb-1">Your cinematic video is ready</h2>
-        <p className="text-zinc-400 text-sm">
+        <p className="text-muted-foreground text-sm">
           {videoTitle ? `"${videoTitle}" — ` : ""}Download it, share it, or create something new.
         </p>
       </div>
@@ -316,7 +316,7 @@ export function PostRenderRetentionScreen({
       <div className="flex gap-3 mb-6">
         <Button
           onClick={handleDownload}
-          className="flex-1 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white h-11 font-semibold shadow-lg shadow-[#b8892a]/40"
+          className="flex-1 bg-gradient-to-r from-primary to-primary/40 hover:from-primary hover:to-primary/40 text-white h-11 font-semibold shadow-lg shadow-[#b8892a]/40"
         >
           <Download className="w-4 h-4 mr-2" />
           Download Video
@@ -324,7 +324,7 @@ export function PostRenderRetentionScreen({
         <Button
           onClick={handleShare}
           variant="outline"
-          className={`border-white/15 text-zinc-300 bg-transparent hover:bg-white/5 h-11 px-4 transition-colors ${showSharePanel ? "bg-white/8 border-white/25" : ""}`}
+          className={`border-white/15 text-foreground/80 bg-transparent hover:bg-white/5 h-11 px-4 transition-colors ${showSharePanel ? "bg-white/8 border-white/25" : ""}`}
         >
           <Share2 className="w-4 h-4" />
           <span className="ml-1.5 text-xs hidden sm:inline">Share</span>
@@ -335,11 +335,11 @@ export function PostRenderRetentionScreen({
         <div className="mb-5 rounded-xl border border-white/10 bg-white/4 overflow-hidden">
           <div className="px-4 py-3 border-b border-white/8">
             <p className="text-sm font-semibold text-white mb-0.5">Share your video</p>
-            <p className="text-xs text-zinc-500">Turn your creation into distribution</p>
+            <p className="text-xs text-muted-foreground/70">Turn your creation into distribution</p>
           </div>
           {/* Copy link row */}
           <div className="px-4 py-3 flex items-center gap-2">
-            <div className="flex-1 bg-black/30 border border-white/8 rounded-lg px-3 py-2 text-xs text-zinc-400 truncate font-mono">
+            <div className="flex-1 bg-black/30 border border-white/8 rounded-lg px-3 py-2 text-xs text-muted-foreground truncate font-mono">
               {finalVideoUrl.length > 48 ? finalVideoUrl.slice(0, 48) + "…" : finalVideoUrl}
             </div>
             <button
@@ -354,20 +354,20 @@ export function PostRenderRetentionScreen({
           <div className="px-4 pb-3 flex flex-wrap items-center gap-2">
             <button
               onClick={handleShareTwitter}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-[#0a0a1a] border border-[#1d9bf0]/30 text-[#1d9bf0] hover:bg-[#1d9bf0]/10 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-background border border-[#1d9bf0]/30 text-[#1d9bf0] hover:bg-[#1d9bf0]/10 transition-colors"
             >
               <Twitter className="w-3.5 h-3.5" /> Twitter / X
             </button>
             <button
               onClick={handleShareWhatsApp}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-[#0a1a0a] border border-[#25d366]/30 text-[#25d366] hover:bg-[#25d366]/10 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-background border border-[#25d366]/30 text-[#25d366] hover:bg-[#25d366]/10 transition-colors"
             >
               <Globe className="w-3.5 h-3.5" /> WhatsApp
             </button>
             {typeof navigator.share === "function" && (
               <button
                 onClick={() => { navigator.share({ title: videoTitle || "My Wiz AI video", url: finalVideoUrl }); mp.track("PostRender_NativeShare", { jobId }); }}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-white/5 border border-white/10 text-zinc-400 hover:bg-white/8 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-white/5 border border-white/10 text-muted-foreground hover:bg-white/8 transition-colors"
               >
                 <Share2 className="w-3.5 h-3.5" /> More
               </button>
@@ -376,8 +376,8 @@ export function PostRenderRetentionScreen({
           {/* Watermark toggle */}
           <div className="px-4 pb-3 flex items-center justify-between border-t border-white/6 pt-3">
             <div>
-              <p className="text-xs font-medium text-zinc-300">Include “Created with Wiz AI”</p>
-              <p className="text-[10px] text-zinc-600">Adds a credit line to your shared link text</p>
+              <p className="text-xs font-medium text-foreground/80">Include “Created with Wiz AI”</p>
+              <p className="text-[10px] text-muted-foreground/50">Adds a credit line to your shared link text</p>
             </div>
             <button
               onClick={() => setIncludeWatermark((v) => !v)}
@@ -390,7 +390,7 @@ export function PostRenderRetentionScreen({
       )}
       {/* ── Upgrade Prompt (free/starter users only) ──────────────────── */}
       {showUpgradePrompt && (
-        <div className="mb-5 rounded-xl border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/10 to-[#1a1a1a] overflow-hidden">
+        <div className="mb-5 rounded-xl border border-[--color-gold]/30 bg-gradient-to-br from-primary/10 to-card overflow-hidden">
           <div className="px-4 py-3.5 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-[--color-gold]/15 flex items-center justify-center shrink-0">
@@ -398,7 +398,7 @@ export function PostRenderRetentionScreen({
               </div>
               <div>
                 <p className="text-white text-sm font-semibold">Loved this? Unlock more every month</p>
-                <p className="text-zinc-400 text-xs mt-0.5">Monthly credits, 4K exports, WizLumina™ + WizSound™ cinematic upgrades</p>
+                <p className="text-muted-foreground text-xs mt-0.5">Monthly credits, 4K exports, WizLumina™ + WizSound™ cinematic upgrades</p>
               </div>
             </div>
             <a
@@ -412,7 +412,7 @@ export function PostRenderRetentionScreen({
           </div>
           <div className="px-4 pb-3 flex flex-wrap gap-x-5 gap-y-1">
             {['No credit card required to try', 'Cancel anytime', 'You own all your content', 'Secure checkout via Stripe'].map((t) => (
-              <span key={t} className="text-[10px] text-zinc-600 flex items-center gap-1">
+              <span key={t} className="text-[10px] text-muted-foreground/50 flex items-center gap-1">
                 <span className="text-[--color-gold]/50">✓</span> {t}
               </span>
             ))}
@@ -463,12 +463,12 @@ export function PostRenderRetentionScreen({
                 href={`/music-video/create?resume=${job.id}`}
                 className="flex items-center gap-3 rounded-xl border border-white/8 bg-white/[0.03] hover:border-[--color-gold]/30 hover:bg-white/[0.06] p-3 transition-all group"
               >
-                <div className="w-10 h-10 rounded-lg bg-zinc-800 overflow-hidden flex-shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-secondary overflow-hidden flex-shrink-0">
                   {job.thumbnailUrl ? (
                     <img src={job.thumbnailUrl} alt={job.title} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Film className="w-4 h-4 text-zinc-600" />
+                      <Film className="w-4 h-4 text-muted-foreground/50" />
                     </div>
                   )}
                 </div>
@@ -476,9 +476,9 @@ export function PostRenderRetentionScreen({
                   <p className="text-sm font-medium text-white truncate group-hover:text-[--color-gold] transition-colors">
                     {job.title || `Project #${job.id}`}
                   </p>
-                  <p className="text-[11px] text-zinc-500">{new Date(job.createdAt).toLocaleDateString()}</p>
+                  <p className="text-[11px] text-muted-foreground/70">{new Date(job.createdAt).toLocaleDateString()}</p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-[--color-gold] transition-colors flex-shrink-0" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-[--color-gold] transition-colors flex-shrink-0" />
               </a>
             ))}
           </div>
@@ -490,7 +490,7 @@ export function PostRenderRetentionScreen({
 
       {/* ── Retention message ────────────────────────────────────────── */}
       <div className="text-center py-4 border-t border-white/8">
-        <p className="text-zinc-500 text-xs">Create videos. Get discovered. Grow your audience.</p>
+        <p className="text-muted-foreground/70 text-xs">Create videos. Get discovered. Grow your audience.</p>
         <a href="/music-video/create" className="inline-flex items-center gap-1.5 text-[--color-gold] text-xs font-medium mt-1.5 hover:text-[--color-gold] transition-colors">
           <Sparkles className="w-3 h-3" />
           Start creating now
@@ -552,7 +552,7 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
           <Rocket className="w-5 h-5 text-[--color-silver]" />
         </div>
         <p className="text-sm font-semibold text-[--color-silver] mb-1">You're in the queue!</p>
-        <p className="text-xs text-zinc-400">We'll review your video and reach out if selected for the WIZ AI Creator Network.</p>
+        <p className="text-xs text-muted-foreground">We'll review your video and reach out if selected for the WIZ AI Creator Network.</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-3">
           <a href="/discover" className="inline-flex items-center gap-1.5 text-[--color-gold] text-xs font-medium hover:text-[--color-gold] transition-colors">
             <Users className="w-3 h-3" />
@@ -586,9 +586,9 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
           </div>
           <div className="text-left flex-1">
             <p className="text-sm font-semibold text-white">Want to get featured on WIZ AI?</p>
-            <p className="text-xs text-zinc-400">Create videos. Get discovered. Grow your audience.</p>
+            <p className="text-xs text-muted-foreground">Create videos. Get discovered. Grow your audience.</p>
           </div>
-          <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-[--color-gold] transition-colors" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground/70 group-hover:text-[--color-gold] transition-colors" />
         </button>
       ) : (
         <div className="rounded-xl border border-[--color-gold]/30 bg-[--color-gold]/15 p-4">
@@ -599,20 +599,20 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs text-zinc-400 mb-1 block">Creator name *</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Creator name *</label>
                 <Input
                   value={form.name}
                   onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
                   placeholder="Your name or channel"
-                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-zinc-600"
+                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50"
                 />
               </div>
               <div>
-                <label className="text-xs text-zinc-400 mb-1 block">Creator type</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Creator type</label>
                 <select
                   value={form.creatorType}
                   onChange={(e) => setForm(f => ({ ...f, creatorType: e.target.value as typeof form.creatorType }))}
-                  className="w-full h-8 text-xs bg-zinc-900 border border-white/10 text-white rounded-md px-2"
+                  className="w-full h-8 text-xs bg-card border border-white/10 text-white rounded-md px-2"
                 >
                   {(["music_artist", "youtuber", "animator", "kids_creator", "content_creator"] as const).map(t => (
                     <option key={t} value={t}>{t.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</option>
@@ -622,39 +622,39 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs text-zinc-400 mb-1 block flex items-center gap-1"><Youtube className="w-3 h-3" /> YouTube</label>
+                <label className="text-xs text-muted-foreground mb-1 block flex items-center gap-1"><Youtube className="w-3 h-3" /> YouTube</label>
                 <Input
                   value={form.youtubeUrl}
                   onChange={(e) => setForm(f => ({ ...f, youtubeUrl: e.target.value }))}
                   placeholder="youtube.com/..."
-                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-zinc-600"
+                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50"
                 />
               </div>
               <div>
-                <label className="text-xs text-zinc-400 mb-1 block flex items-center gap-1"><Instagram className="w-3 h-3" /> Instagram</label>
+                <label className="text-xs text-muted-foreground mb-1 block flex items-center gap-1"><Instagram className="w-3 h-3" /> Instagram</label>
                 <Input
                   value={form.instagramUrl}
                   onChange={(e) => setForm(f => ({ ...f, instagramUrl: e.target.value }))}
                   placeholder="@handle"
-                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-zinc-600"
+                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50"
                 />
               </div>
               <div>
-                <label className="text-xs text-zinc-400 mb-1 block flex items-center gap-1"><Twitter className="w-3 h-3" /> TikTok</label>
+                <label className="text-xs text-muted-foreground mb-1 block flex items-center gap-1"><Twitter className="w-3 h-3" /> TikTok</label>
                 <Input
                   value={form.tiktokUrl}
                   onChange={(e) => setForm(f => ({ ...f, tiktokUrl: e.target.value }))}
                   placeholder="@handle"
-                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-zinc-600"
+                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50"
                 />
               </div>
               <div>
-                <label className="text-xs text-zinc-400 mb-1 block flex items-center gap-1"><Globe className="w-3 h-3" /> Website</label>
+                <label className="text-xs text-muted-foreground mb-1 block flex items-center gap-1"><Globe className="w-3 h-3" /> Website</label>
                 <Input
                   value={form.websiteUrl}
                   onChange={(e) => setForm(f => ({ ...f, websiteUrl: e.target.value }))}
                   placeholder="yoursite.com"
-                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-zinc-600"
+                  className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/50"
                 />
               </div>
             </div>
@@ -663,7 +663,7 @@ function FeatureMyVideoSection({ jobId }: { jobId?: number }) {
                 type="button"
                 variant="outline"
                 onClick={() => setIsOpen(false)}
-                className="flex-1 h-8 text-xs border-white/10 text-zinc-400 bg-transparent hover:bg-white/5"
+                className="flex-1 h-8 text-xs border-white/10 text-muted-foreground bg-transparent hover:bg-white/5"
               >
                 Cancel
               </Button>

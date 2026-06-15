@@ -258,7 +258,7 @@ export default function AiAnimationMaker() {
               <NavLink
                 key={link.label}
                 href={link.href}
-                className="px-4 py-2 text-sm text-[#a1a1aa] hover:text-white rounded-lg transition-all duration-200 font-medium hover:scale-105 hover:-translate-y-0.5 inline-block"
+                className="px-4 py-2 text-sm text-muted-foreground hover:text-white rounded-lg transition-all duration-200 font-medium hover:scale-105 hover:-translate-y-0.5 inline-block"
               >
                 {link.label}
               </NavLink>
@@ -287,7 +287,7 @@ export default function AiAnimationMaker() {
 
       {/* ── Hero ───────────────────────────────────────────────────────────── */}
       <section className="relative pt-24 pb-20 px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a0a2e] via-[#0a0a0a] to-[#0a1a0a] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-background pointer-events-none" />
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[--color-gold]/[0.06] rounded-full blur-[120px] pointer-events-none" />
 
         <div className="relative max-w-5xl mx-auto text-center">
@@ -309,7 +309,7 @@ export default function AiAnimationMaker() {
             <span className="text-white">in Minutes</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-[#a1a1aa] max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
             From kids' storybook animation to stylised 3D shorts — describe your idea, choose a style, and WIZ AI generates a full animated video. No animation skills required.
           </p>
 
@@ -328,7 +328,7 @@ export default function AiAnimationMaker() {
             </NavLink>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-[#71717a]">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground/70">
             <span className="flex items-center gap-1.5">
               <span className="text-[--color-gold]">✓</span> Free trial — no credit card
             </span>
@@ -352,7 +352,7 @@ export default function AiAnimationMaker() {
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Six Distinct Animation Styles
             </h2>
-            <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
               Every style is a complete visual world. Pick the one that matches your story.
             </p>
           </div>
@@ -380,7 +380,7 @@ export default function AiAnimationMaker() {
                 )}
                 <div className="absolute bottom-0 left-0 right-0 p-5">
                   <h3 className="text-white font-bold text-lg mb-1">{style.label}</h3>
-                  <p className="text-[#a1a1aa] text-sm">{style.desc}</p>
+                  <p className="text-muted-foreground text-sm">{style.desc}</p>
                 </div>
               </div>
             ))}
@@ -398,13 +398,13 @@ export default function AiAnimationMaker() {
       </section>
 
       {/* ── Use Cases ──────────────────────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-[#0f0f0f]">
+      <section className="py-20 px-6 bg-background">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Built for Every Animation Creator
             </h2>
-            <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
               Whether you're making kids' content, short films, or educational videos — WIZ AI has you covered.
             </p>
           </div>
@@ -413,7 +413,7 @@ export default function AiAnimationMaker() {
             {USE_CASES.map((uc, i) => (
               <div
                 key={i}
-                className="p-7 rounded-2xl border border-white/[0.08] bg-[#141414] hover:border-[--color-gold]/20 transition-all duration-300"
+                className="p-7 rounded-2xl border border-white/[0.08] bg-card hover:border-[--color-gold]/20 transition-all duration-300"
               >
                 <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-4">
                   <svg className="w-6 h-6 text-[--color-gold]" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -424,7 +424,7 @@ export default function AiAnimationMaker() {
                   </svg>
                 </div>
                 <h3 className="text-white font-bold text-xl mb-3">{uc.title}</h3>
-                <p className="text-[#a1a1aa] leading-relaxed mb-5">{uc.desc}</p>
+                <p className="text-muted-foreground leading-relaxed mb-5">{uc.desc}</p>
                 <button
                   onClick={() => handleCTA(`use_case_${i}`)}
                   className="text-[--color-gold] text-sm font-semibold hover:brightness-110 transition-all cursor-pointer flex items-center gap-1.5"
@@ -444,7 +444,7 @@ export default function AiAnimationMaker() {
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               From Idea to Animated Video in 4 Steps
             </h2>
-            <p className="text-[#a1a1aa] text-lg max-w-xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
               No timeline. No keyframes. No editing software. Just describe, preview, and export.
             </p>
           </div>
@@ -465,7 +465,7 @@ export default function AiAnimationMaker() {
                     />
                   </div>
                   <h3 className="text-white font-bold text-lg mb-2">{step.title}</h3>
-                  <p className="text-[#a1a1aa] leading-relaxed">{step.desc}</p>
+                  <p className="text-muted-foreground leading-relaxed">{step.desc}</p>
                 </div>
               </div>
             ))}
@@ -483,7 +483,7 @@ export default function AiAnimationMaker() {
       </section>
 
       {/* ── Feature Highlights ─────────────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-[#0f0f0f]">
+      <section className="py-20 px-6 bg-background">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -495,11 +495,11 @@ export default function AiAnimationMaker() {
             {FEATURES.map((feat, i) => (
               <div
                 key={i}
-                className="p-6 rounded-2xl border border-white/[0.08] bg-[#141414] hover:border-[--color-gold]/20 transition-all duration-300"
+                className="p-6 rounded-2xl border border-white/[0.08] bg-card hover:border-[--color-gold]/20 transition-all duration-300"
               >
                 <img src={feat.logo} alt="" className="h-10 w-10 object-contain mb-4" />
                 <h3 className="text-white font-bold text-base mb-2">{feat.title}</h3>
-                <p className="text-[#a1a1aa] text-sm leading-relaxed">{feat.desc}</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">{feat.desc}</p>
               </div>
             ))}
           </div>
@@ -511,7 +511,7 @@ export default function AiAnimationMaker() {
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               What you can animate with WIZ AI
             </h2>
-            <p className="text-[#a1a1aa] text-sm max-w-lg mx-auto">
+            <p className="text-muted-foreground text-sm max-w-lg mx-auto">
               Example use cases for the AI Animation Maker. Real customer stories will be added once creators begin publishing.
             </p>
           </div>
@@ -520,7 +520,7 @@ export default function AiAnimationMaker() {
             {ANIMATION_USE_CASES.map((uc, i) => (
               <div
                 key={i}
-                className="p-6 rounded-2xl border border-white/[0.08] bg-[#0f0f0f] hover:border-white/15 transition-all"
+                className="p-6 rounded-2xl border border-white/[0.08] bg-background hover:border-white/15 transition-all"
               >
                 <span className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mb-4">
                   <svg className="w-5 h-5 text-[--color-gold]" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -531,18 +531,18 @@ export default function AiAnimationMaker() {
                   </svg>
                 </span>
                 <h3 className="text-white font-bold text-lg mb-2">{uc.title}</h3>
-                <p className="text-[#a1a1aa] text-sm leading-relaxed">{uc.desc}</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">{uc.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>    {/* ── Pricing CTA ────────────────────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-[#0f0f0f]">
+      <section className="py-20 px-6 bg-background">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Start Animating Today
           </h2>
-          <p className="text-[#a1a1aa] text-lg mb-8">
+          <p className="text-muted-foreground text-lg mb-8">
             Free trial included. No credit card required. One free animated video to get started.
           </p>
 
@@ -557,7 +557,7 @@ export default function AiAnimationMaker() {
                 className={`p-5 rounded-xl border transition-all ${
                   plan.popular
                     ? "border-[--color-gold]/50 bg-[--color-gold]/[0.06]"
-                    : "border-white/[0.08] bg-[#141414]"
+                    : "border-white/[0.08] bg-card"
                 }`}
               >
                 {plan.popular && (
@@ -567,7 +567,7 @@ export default function AiAnimationMaker() {
                 )}
                 <div className="text-white font-bold text-base mb-1">{plan.name}</div>
                 <div className="text-[--color-gold] font-bold text-xl mb-1">{plan.price}</div>
-                <div className="text-[#71717a] text-xs">{plan.detail}</div>
+                <div className="text-muted-foreground/70 text-xs">{plan.detail}</div>
               </div>
             ))}
           </div>
@@ -614,7 +614,7 @@ export default function AiAnimationMaker() {
                   </span>
                 </button>
                 {openFaq === i && (
-                  <div className="px-6 pb-5 text-[#a1a1aa] leading-relaxed text-sm border-t border-white/[0.06]">
+                  <div className="px-6 pb-5 text-muted-foreground leading-relaxed text-sm border-t border-white/[0.06]">
                     <div className="pt-4">{faq.a}</div>
                   </div>
                 )}
@@ -626,7 +626,7 @@ export default function AiAnimationMaker() {
 
       {/* ── Final CTA ──────────────────────────────────────────────────────── */}
       <section className="py-24 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a0a2e] via-[#0a0a0a] to-[#0a1a0a] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-background pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[--color-gold]/[0.08] rounded-full blur-[100px] pointer-events-none" />
 
         <div className="relative max-w-3xl mx-auto text-center">
@@ -634,7 +634,7 @@ export default function AiAnimationMaker() {
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Your Animation Starts Here
           </h2>
-          <p className="text-[#a1a1aa] text-lg mb-10">
+          <p className="text-muted-foreground text-lg mb-10">
             Join creators worldwide making animated videos with WIZ AI. Start free — no credit card needed.
           </p>
           <button
@@ -687,7 +687,7 @@ export default function AiAnimationMaker() {
           <NavLink href="/">
             <img src={WIZAI_LOGO} alt="WIZ AI" className="h-16 w-auto object-contain" />
           </NavLink>
-          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-[#71717a]">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground/70">
             <NavLink href="/" className="hover:text-white transition-colors">Home</NavLink>
             <NavLink href={WIZANIMATE_PRODUCT_PAGE} className="hover:text-white transition-colors">WizAnimate</NavLink>
             <NavLink href="/music-video" className="hover:text-white transition-colors">WizVideo</NavLink>
@@ -697,9 +697,9 @@ export default function AiAnimationMaker() {
             <NavLink href="/privacy" className="hover:text-white transition-colors">Privacy</NavLink>
             <NavLink href="/terms" className="hover:text-white transition-colors">Terms</NavLink>
             <NavLink href="/cookie-policy" className="hover:text-white transition-colors">Cookies</NavLink>
-            <button onClick={() => window.dispatchEvent(new CustomEvent('wiz:open-cookie-settings'))} className="hover:text-white transition-colors bg-transparent border-0 p-0 cursor-pointer text-sm text-[#71717a]">Cookie Settings</button>
+            <button onClick={() => window.dispatchEvent(new CustomEvent('wiz:open-cookie-settings'))} className="hover:text-white transition-colors bg-transparent border-0 p-0 cursor-pointer text-sm text-muted-foreground/70">Cookie Settings</button>
           </div>
-          <p className="text-[#52525b] text-xs">© 2026 WIZ AI. All rights reserved.</p>
+          <p className="text-muted-foreground/60 text-xs">© 2026 WIZ AI. All rights reserved.</p>
         </div>
       </footer>
       <LandscapeHint />

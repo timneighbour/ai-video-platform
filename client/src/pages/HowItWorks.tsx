@@ -185,7 +185,7 @@ export default function HowItWorks() {
   const [activeStage, setActiveStage] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-[#060606] text-white">
+    <div className="min-h-screen bg-background text-white">
 
       {/* HERO */}
       <div className="relative overflow-hidden min-h-[520px] flex flex-col">
@@ -261,7 +261,7 @@ export default function HowItWorks() {
           style={{ background: "radial-gradient(ellipse 60% 80% at 50% 50%, rgba(196,164,100,0.05), transparent)" }} />
         <div className="relative z-10 max-w-5xl mx-auto px-6 py-20">
           <div className="text-center mb-14">
-            <p className="text-[10px] font-black tracking-[0.3em] uppercase text-[#c4a464]/45 mb-3">After you click Build</p>
+            <p className="text-[10px] font-black tracking-[0.3em] uppercase text-primary/80/45 mb-3">After you click Build</p>
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4">What happens during the build process?</h2>
             <p className="text-white/38 text-lg max-w-xl mx-auto">Your video goes through four processing stages. You'll be notified when it's ready.</p>
           </div>
@@ -308,7 +308,7 @@ export default function HowItWorks() {
             }}>
             <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
               style={{ background: "rgba(196,164,100,0.10)", border: "1px solid rgba(196,164,100,0.18)" }}>
-              <Bell className="w-5 h-5 text-[#c4a464]" />
+              <Bell className="w-5 h-5 text-primary/80" />
             </div>
             <div>
               <p className="text-sm font-bold text-white/80 mb-1">Email notification</p>

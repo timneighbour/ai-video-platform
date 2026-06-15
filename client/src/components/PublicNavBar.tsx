@@ -159,7 +159,7 @@ function NavDropdown({ open, children, wide, align = "center" }: { open: boolean
       <div className="h-4 w-full" />
       {/* Arrow tip */}
       <div className="flex justify-center mb-[-1px]">
-        <div className="w-3 h-3 rotate-45 border-l border-t border-[--color-gold]/[0.18] bg-[#070707]" style={{ marginBottom: -7 }} />
+        <div className="w-3 h-3 rotate-45 border-l border-t border-[--color-gold]/[0.18] bg-background" style={{ marginBottom: -7 }} />
       </div>
       {children}
     </div>
@@ -225,7 +225,7 @@ function Nav() {
         aria-label="Main navigation"
         className={`fixed left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-[#060606]/96 backdrop-blur-2xl border-b border-[--color-gold]/[0.08] shadow-[0_2px_60px_rgba(0,0,0,0.7)]"
+            ? "bg-background/96 backdrop-blur-2xl border-b border-[--color-gold]/[0.08] shadow-[0_2px_60px_rgba(0,0,0,0.7)]"
             : "bg-gradient-to-b from-black/40 to-transparent backdrop-blur-[2px]"
         }`}
         style={{ top: "var(--founding-banner-h, 0px)" }}
@@ -709,13 +709,13 @@ function Nav() {
           >
             <div className="relative w-6 h-[18px] flex flex-col justify-between">
               <span className={`block h-[2px] w-full rounded-full transition-all duration-300 origin-center ${
-                mobileOpen ? "rotate-45 translate-y-[8px] bg-[#c9a84c]" : "bg-white"
+                mobileOpen ? "rotate-45 translate-y-[8px] bg-primary/90" : "bg-white"
               }`} style={{ opacity: mobileOpen ? 1 : 0.9 }} />
               <span className={`block h-[2px] w-full rounded-full transition-all duration-300 ${
                 mobileOpen ? "opacity-0 scale-x-0" : "bg-white"
               }`} style={{ opacity: mobileOpen ? 0 : 0.9 }} />
               <span className={`block h-[2px] w-full rounded-full transition-all duration-300 origin-center ${
-                mobileOpen ? "-rotate-45 -translate-y-[8px] bg-[#c9a84c]" : "bg-white"
+                mobileOpen ? "-rotate-45 -translate-y-[8px] bg-primary/90" : "bg-white"
               }`} style={{ opacity: mobileOpen ? 1 : 0.9 }} />
             </div>
           </button>

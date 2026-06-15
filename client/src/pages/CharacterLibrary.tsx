@@ -61,7 +61,7 @@ function EditModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-lg rounded-2xl border border-amber-500/30 bg-[#0e0b07] shadow-2xl shadow-amber-900/20 p-6">
+      <div className="relative w-full max-w-lg rounded-2xl border border-amber-500/30 bg-background shadow-2xl shadow-amber-900/20 p-6">
         {/* Gold top bar */}
         <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl bg-gradient-to-r from-transparent via-amber-400 to-transparent" />
 
@@ -187,7 +187,7 @@ function CharacterCard({
         <EditModal char={char} onClose={() => setEditing(false)} onSaved={onEdited} />
       )}
 
-      <div className="group relative rounded-2xl border border-amber-500/20 bg-gradient-to-b from-[#1a1208] to-[#0e0b07] overflow-hidden hover:border-amber-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-900/30">
+      <div className="group relative rounded-2xl border border-amber-500/20 bg-gradient-to-b from-background to-background overflow-hidden hover:border-amber-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-900/30">
         {/* Gold shimmer top border */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
 
@@ -211,7 +211,7 @@ function CharacterCard({
           )}
 
           {/* Overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0e0b07] via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
 
           {/* Style badge */}
           {styleInfo && (
@@ -314,7 +314,7 @@ export default function CharacterLibrary() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#070503]">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center max-w-sm px-6">
           <div className="text-5xl mb-4">🎭</div>
           <h2 className="text-2xl font-bold text-amber-200 mb-3">Character Library</h2>
@@ -336,7 +336,7 @@ export default function CharacterLibrary() {
   );
 
   return (
-    <div className="min-h-screen bg-[#070503] text-amber-100">
+    <div className="min-h-screen bg-background text-amber-100">
       {/* ── Hero header ── */}
       <div className="relative overflow-hidden">
         {/* Studio background */}
@@ -347,8 +347,8 @@ export default function CharacterLibrary() {
           style={{ filter: "brightness(0.25) saturate(0.7)" }}
         />
         {/* Warm amber overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 via-transparent to-[#070503]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#070503]/60 via-transparent to-[#070503]/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 via-transparent to-background" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-background/60" />
 
         <div className="relative z-10 max-w-6xl mx-auto px-6 py-16">
           {/* Breadcrumb */}
@@ -456,7 +456,7 @@ export default function CharacterLibrary() {
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="rounded-2xl border border-amber-500/10 bg-[#1a1208] overflow-hidden animate-pulse">
+              <div key={i} className="rounded-2xl border border-amber-500/10 bg-background overflow-hidden animate-pulse">
                 <div className="h-52 bg-amber-900/10" />
                 <div className="p-4 space-y-2">
                   <div className="h-4 bg-amber-900/20 rounded w-3/4" />
@@ -509,7 +509,7 @@ export default function CharacterLibrary() {
 
       {/* ── Bottom CTA strip ── */}
       {filtered.length > 0 && (
-        <div className="border-t border-amber-900/30 bg-gradient-to-r from-[#0e0b07] via-[#1a1208] to-[#0e0b07]">
+        <div className="border-t border-amber-900/30 bg-gradient-to-r from-background via-background to-background">
           <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <p className="text-sm font-semibold text-amber-200">Ready to animate your characters?</p>

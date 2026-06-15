@@ -442,8 +442,8 @@ function FeaturedCard({ tool }: { tool: Tool }) {
           <div className="flex items-center gap-3 mb-6">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full"
               style={{ backgroundImage: "linear-gradient(135deg, #c4a464, #e8d5a0)", boxShadow: "0 2px 12px rgba(196,164,100,0.4)" }}>
-              <Star className="w-3 h-3 fill-[#0a0a0a] text-[#0a0a0a]" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#0a0a0a]">Most Popular</span>
+              <Star className="w-3 h-3 fill-[#0a0a0a] text-background" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-background">Most Popular</span>
             </div>
           </div>
           <div className="mb-5">
@@ -483,7 +483,7 @@ function FeaturedCard({ tool }: { tool: Tool }) {
           ].map((f) => (
             <div key={f.label} className="flex items-center gap-3 px-4 py-3 rounded-2xl"
               style={{ background: "rgba(196,164,100,0.06)", border: "1px solid rgba(196,164,100,0.14)" }}>
-              <span className="text-[#c4a464] text-sm font-bold w-5 text-center">{f.icon}</span>
+              <span className="text-primary/80 text-sm font-bold w-5 text-center">{f.icon}</span>
               <span className="text-white/60 text-xs font-medium">{f.label}</span>
             </div>
           ))}
@@ -500,10 +500,10 @@ function SectionDivider({ icon, label, sublabel }: { icon: React.ReactNode; labe
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-xl flex items-center justify-center"
           style={{ background: "rgba(196,164,100,0.10)", border: "1px solid rgba(196,164,100,0.20)" }}>
-          <span className="text-[#c4a464]">{icon}</span>
+          <span className="text-primary/80">{icon}</span>
         </div>
         <div>
-          <p className="text-[11px] font-black tracking-[0.25em] uppercase text-[#c4a464]">{label}</p>
+          <p className="text-[11px] font-black tracking-[0.25em] uppercase text-primary/80">{label}</p>
           {sublabel && <p className="text-[10px] text-white/30 mt-0.5">{sublabel}</p>}
         </div>
       </div>
@@ -545,8 +545,8 @@ export default function Create() {
         <div className="max-w-7xl mx-auto px-6 pt-20 pb-12 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8"
             style={{ background: "rgba(196,164,100,0.10)", border: "1px solid rgba(196,164,100,0.22)" }}>
-            <Sparkles className="w-3.5 h-3.5 text-[#c4a464]" />
-            <span className="text-[10px] font-black tracking-[0.25em] uppercase text-[#c4a464]">AI Creator Studio</span>
+            <Sparkles className="w-3.5 h-3.5 text-primary/80" />
+            <span className="text-[10px] font-black tracking-[0.25em] uppercase text-primary/80">AI Creator Studio</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[0.92] mb-6">
             <span className="text-white">Choose Your</span>
@@ -563,7 +563,7 @@ export default function Create() {
           </p>
           {!isAuthenticated && (
             <p className="text-white/28 text-sm">
-              <a href={getLoginUrl()} className="underline underline-offset-2 hover:text-[#c4a464] transition-colors"
+              <a href={getLoginUrl()} className="underline underline-offset-2 hover:text-primary/80 transition-colors"
                 style={{ color: "#c4a464" }}>
                 Sign in free
               </a>{" "}
