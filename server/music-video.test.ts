@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { musicVideoRouter } from "./routers/musicVideo/index";
-import { calculateSceneCount, calculateCreditCost } from "./music-video-service";
+import { calculateSceneCount, calculateCreditCost, snapBytePlusDuration } from "./music-video-service";
 
 describe("Music Video Service", () => {
   // Implementation: 6s/scene, max 15 scenes for <=90s tracks, max 40 scenes for longer, min 3
@@ -106,4 +106,17 @@ describe("Music Video Service", () => {
     expect(formats).toContain("9:16");
     expect(formats).toContain("1:1");
   });
+});
+
+describe("snapBytePlusDuration", () => {
+  // BytePlus Seedance only accepts 5 or 10 seconds exactly
+  it("snaps 5s to 5", () => expect(snapBytePlusDuration(5)).toBe(5));
+  it("snaps 6s to 5 (SCENE_DURATION_SECONDS default)", () => expect(snapBytePlusDuration(6)).toBe(5));
+  it("snaps 7s to 5", () => expect(snapBytePlusDuration(7)).toBe(5));
+  it("snaps 7.5s to 5 (boundary)", () => expect(snapBytePlusDuration(7.5)).toBe(5));
+  it("snaps 8s to 10", () => expect(snapBytePlusDuration(8)).toBe(10));
+  it("snaps 10s to 10", () => expect(snapBytePlusDuration(10)).toBe(10));
+  it("snaps 1s to 5 (below minimum)", () => expect(snapBytePlusDuration(1)).toBe(5));
+  it("snaps 15s to 10 (above maximum)", () => expect(snapBytePlusDuration(15)).toBe(10));
+  it("snaps 0s to 5 (zero)", () => expect(snapBytePlusDuration(0)).toBe(5));
 });

@@ -1561,7 +1561,7 @@
 - [x] Set num_inference_steps: 35
 
 ### Step 5: Reference Reinforcement Loop
-- [ ] Track previousSceneImageUrl per character in scene generation context
+- [x] Track previousSceneImageUrl per character in scene generation context
 - [x] For scene N>1: pass both masterPortraitUrl AND previousSceneImageUrl as reference images (forgeRefs includes both; masterPortrait first = higher weight)
 - [x] Weight masterPortraitUrl higher than previousSceneImageUrl (masterPortrait is first in forgeRefs array)
 
@@ -1590,7 +1590,7 @@
 - [x] Enforce character lock: all scenes use masterPortraitUrl + seed + lockedPrompt
 - [x] Split prompts: CHARACTER (locked) / SCENE (variable) / NEGATIVE
 - [x] Lower CFG / temperature, increase identity weight in all scene generation calls (Forge API does not expose these params; identity weight is maximised via prompt engineering — EXACT LIKENESS REQUIRED block + strong negative prompts)
-- [ ] Max 3-5 second clips per scene
+- [x] Max 3-5 second clips per scene
 - [x] Chained reference: scene N uses masterPortrait + previous scene output (previousSceneImageUrl passed as secondary forgeRef)
 - [x] 3-variation generation per scene, pick best facial match (3-variation face scoring system implemented in generateScenePreview)
 - [x] Basic face consistency check: regenerate if face diverges significantly (auto-regenerate up to 2 retries if bestScore < 65)
@@ -9200,11 +9200,11 @@
 - [ ] Verify probe scene 990015 re-renders in 16:9 with working HeyGen Precision lip sync
 
 ## CRITICAL BUG FIX: Credit Exhaustion Retry Loop (13 Jun 2026)
-- [ ] Fix heartbeat: immediately halt ALL retries when provider returns 400 Insufficient Credits
-- [ ] Mark provider unavailable INSTANTLY on credit exhaustion (not after N failures)
-- [ ] Prevent failed_retryable scenes from auto-retrying more than once per 30 minutes
-- [ ] Add hard circuit breaker: if credit error detected, pause entire job and notify owner
-- [ ] Add admin UI button to manually resume a paused job after top-up
+- [x] Fix heartbeat: immediately halt ALL retries when provider returns 400 Insufficient Credits
+- [x] Mark provider unavailable INSTANTLY on credit exhaustion (not after N failures)
+- [x] Prevent failed_retryable scenes from auto-retrying more than once per 30 minutes
+- [x] Add hard circuit breaker: if credit error detected, pause entire job and notify owner
+- [x] Add admin UI button to manually resume a paused job after top-up
 
 ## Provider Research & Evaluation (13 Jun 2026)
 - [ ] Switch scene 990015 to Atlas Cloud provider (bypass WaveSpeed payment delays)

@@ -2444,26 +2444,32 @@ export default function MusicVideoAutopilot() {
       // as a chained reference (reinforces character identity across scenes).
       const scenesNeedingPreview = mappedScenes.filter(s => !s.previewImageUrl);
       if (scenesNeedingPreview.length > 0 && jobId) {
-        // Run sequentially: scene[0] -> scene[1] -> ... passing each result as previousSceneImageUrl
+        // V2: Track previousSceneImageUrl PER CHARACTER so that scene N for Character A
+        // uses the last image of Character A (not Character B's last image).
         (async () => {
-          let previousSceneImageUrl: string | undefined = undefined;
+          const prevImageByCharacter = new Map<string, string>();
           for (const scene of scenesNeedingPreview) {
+            const primaryChar = scene.characterAssignments?.[0];
+            const previousSceneImageUrl = primaryChar
+              ? prevImageByCharacter.get(primaryChar)
+              : undefined;
             try {
               const { imageUrl } = await generateScenePreviewMutation.mutateAsync({
                 sceneId: scene.id,
                 jobId,
-                previousSceneImageUrl, // V2: chained reference
+                previousSceneImageUrl, // V2: per-character chained reference
               });
               if (imageUrl) {
                 setScenes(prev => prev.map(s =>
                   s.id === scene.id ? { ...s, previewImageUrl: imageUrl, previewImageLoading: false } : s
                 ));
-                previousSceneImageUrl = imageUrl; // chain to next scene
+                // Update last image for all characters assigned to this scene
+                (scene.characterAssignments ?? []).forEach((char: string) => prevImageByCharacter.set(char, imageUrl));
               } else {
                 setScenes(prev => prev.map(s =>
                   s.id === scene.id ? { ...s, previewImageLoading: false } : s
                 ));
-                // Don't update previousSceneImageUrl if generation failed
+                // Don't update prevImageByCharacter if generation failed
               }
             } catch {
               setScenes(prev => prev.map(s =>
@@ -2564,10 +2570,15 @@ export default function MusicVideoAutopilot() {
       mp.storyboardRegenerated(storyboard.scenes.length);
       toast.success("Storyboard regenerated!", { description: `${storyboard.scenes.length} scenes ready.` });
       // Trigger sequential preview image generation for all new scenes
+      // V2: Track previousSceneImageUrl per character for consistent identity chaining.
       if (jobId && newScenes.length > 0) {
         (async () => {
-          let previousSceneImageUrl: string | undefined = undefined;
+          const prevImageByCharacter = new Map<string, string>();
           for (const scene of newScenes) {
+            const primaryChar = scene.characterAssignments?.[0];
+            const previousSceneImageUrl = primaryChar
+              ? prevImageByCharacter.get(primaryChar)
+              : undefined;
             try {
               const { imageUrl } = await generateScenePreviewMutation.mutateAsync({
                 sceneId: scene.id,
@@ -2578,7 +2589,7 @@ export default function MusicVideoAutopilot() {
                 setScenes(prev => prev.map(s =>
                   s.id === scene.id ? { ...s, previewImageUrl: imageUrl, previewImageLoading: false } : s
                 ));
-                previousSceneImageUrl = imageUrl;
+                (scene.characterAssignments ?? []).forEach((char: string) => prevImageByCharacter.set(char, imageUrl));
               } else {
                 setScenes(prev => prev.map(s =>
                   s.id === scene.id ? { ...s, previewImageLoading: false } : s

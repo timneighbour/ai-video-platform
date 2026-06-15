@@ -86,6 +86,7 @@ import { validateRawSceneForLipSync } from "../raw-scene-validator";
 import { runPostRenderCheck, formatQualityLockRejection } from "../wiz-quality-lock";
 import { triggerCloudVocalIsolation } from "../cloud-vocal-isolation";
 import { notifyOwner } from "../_core/notification";
+import { isProviderCreditError } from "../routers/musicVideo/_shared";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
 // ── ISS-017: Heartbeat watchdog ────────────────────────────────────────────────
@@ -730,9 +731,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             const errMsg = String(dispatchErr?.message ?? dispatchErr).slice(0, 300);
             console.error(`[SceneDispatch] Failed to dispatch scene ${scene.id}: ${errMsg}`);
 
-            const isBalanceError = errMsg.toLowerCase().includes('insufficient') ||
-              errMsg.toLowerCase().includes('balance') ||
-              errMsg.toLowerCase().includes('402');
+            // isProviderCreditError covers: 400 Insufficient Credits, 402 Payment Required,
+            // "insufficient balance", "payment required", "credit exhausted", etc.
+            const isBalanceError = isProviderCreditError(errMsg);
 
             // Mark scene as failed_retryable with error metadata
             try {

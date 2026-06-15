@@ -97,3 +97,34 @@ export function translateErrorMessage(errorMessage: string): string {
   if (errorMessage.includes("provider")) return "A generation service was unavailable. Please retry.";
   return "Something went wrong. Please retry or contact support.";
 }
+
+/**
+ * Detect whether an error message indicates a provider credit/balance exhaustion.
+ *
+ * Covers all known patterns from WaveSpeed, Atlas Cloud, fal.ai, Hypereal, and Kling:
+ *   - HTTP 400 "Insufficient Credits" (WaveSpeed)
+ *   - HTTP 402 "Payment Required" (WaveSpeed, fal.ai, Atlas Cloud)
+ *   - "insufficient balance" / "insufficient credits" (Atlas Cloud, Kling)
+ *   - "balance" keyword (generic provider balance errors)
+ *   - "payment_required" / "payment required" (various providers)
+ *   - "credit" keyword combined with 400 status
+ *
+ * Used by the scene dispatch heartbeat and render router to immediately halt
+ * retries and transition the job to provider_unavailable when credits run out.
+ */
+export function isProviderCreditError(errorMessage: string): boolean {
+  const msg = errorMessage.toLowerCase();
+  return (
+    msg.includes('insufficient') ||
+    msg.includes('balance') ||
+    msg.includes('402') ||
+    msg.includes('400 insufficient') ||
+    msg.includes('payment_required') ||
+    msg.includes('payment required') ||
+    msg.includes('credit exhausted') ||
+    msg.includes('out of credits') ||
+    msg.includes('no credits') ||
+    msg.includes('credits remaining') ||
+    (msg.includes('400') && msg.includes('credit'))
+  );
+}

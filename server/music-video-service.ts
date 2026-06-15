@@ -1248,6 +1248,14 @@ export async function startSceneRender(
 }
 
 // ── BYTEPLUS SEEDANCE: ModelArk Seedance 2.0 ────────────────────────────────────────────────────
+/**
+ * Snap an arbitrary duration (seconds) to the nearest value accepted by BytePlus Seedance.
+ * The API only accepts exactly 5 or 10 seconds — any other value (e.g. 6) is rejected.
+ * Threshold: <=7.5 → 5, >7.5 → 10.
+ */
+export function snapBytePlusDuration(duration: number): 5 | 10 {
+  return duration <= 7.5 ? 5 : 10;
+}
 async function startSceneRenderBytePlusSeedance(
   sceneId: number,
   prompt: string,
@@ -1256,7 +1264,8 @@ async function startSceneRenderBytePlusSeedance(
   _jobId: number = 0,
   characterImageUrl?: string
 ): Promise<string> {
-  const clampedDuration = Math.max(5, Math.min(10, Math.round(duration))) as 5 | 10;
+  // BytePlus Seedance only accepts exactly 5 or 10 seconds — snap to nearest valid value.
+  const clampedDuration: 5 | 10 = snapBytePlusDuration(duration);
   const safeRatio = (aspectRatio === "21:9" ? "16:9" : aspectRatio) as "16:9" | "9:16" | "1:1" | "4:3";
   const taskId = await submitBytePlusSeedanceVideo({
     prompt,
