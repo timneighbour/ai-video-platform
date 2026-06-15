@@ -11,7 +11,7 @@ import { resolve } from "path";
 
 // Read the musicVideo.ts source to verify the continuity block is wired correctly
 const musicVideoSrc = readFileSync(
-  resolve(__dirname, "routers/musicVideo.ts"),
+  resolve(__dirname, "routers/musicVideo/character.ts"),
   "utf-8"
 );
 

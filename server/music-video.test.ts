@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { musicVideoRouter } from "./routers/musicVideo";
+import { musicVideoRouter } from "./routers/musicVideo/index";
 import { calculateSceneCount, calculateCreditCost } from "./music-video-service";
 
 describe("Music Video Service", () => {

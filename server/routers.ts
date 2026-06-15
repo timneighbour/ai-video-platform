@@ -3,7 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { billingRouter, renderRouter } from "./routers/billing";
-import { musicVideoRouter } from "./routers/musicVideo";
+import { musicVideoRouter } from "./routers/musicVideo/index";
 import { videoRouter } from "./routers/video";
 import { charactersRouter } from "./routers/characters";
 import { showcaseRouter } from "./routers/showcase";
