@@ -30,6 +30,7 @@ import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { StudioLoungeSection } from "@/components/StudioLounge";
 import LanguageSelector from "@/components/LanguageSelector";
+import { useTranslation } from "react-i18next";
 // Lucide icons removed — replaced with inline SVGs and product logos
 const ArrowSVG = ({ className = "w-4 h-4", style }: { className?: string; style?: React.CSSProperties }) => (
  <svg className={className} style={style} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
@@ -197,6 +198,7 @@ function Nav() {
  const [mobileTechOpen, setMobileTechOpen] = useState(false);
  const [mobileWorkflowOpen, setMobileWorkflowOpen] = useState(false);
  const { isAuthenticated } = useAuth();
+ const { t } = useTranslation();
 
  const toggleProducts = (e: React.MouseEvent) => { e.stopPropagation(); setProductsOpen((v) => { if (!v) { setTechOpen(false); setWorkflowOpen(false); } return !v; }); };
  const toggleTech = (e: React.MouseEvent) => { e.stopPropagation(); setTechOpen((v) => { if (!v) { setProductsOpen(false); setWorkflowOpen(false); } return !v; }); };
@@ -626,7 +628,7 @@ function Nav() {
  </div>
  <a href="/music-videos" className="nav-link" style={{ color: "oklch(0.78 0.11 75 / 0.75)" }} onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.88 0.11 75 / 1)"; }} onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.78 0.11 75 / 0.75)"; }}>WizVideo</a>
  <a href="/wizavision" className="nav-link" style={{ color: "oklch(0.78 0.11 75 / 0.75)" }} onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.88 0.11 75 / 1)"; }} onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.78 0.11 75 / 0.75)"; }}>WizaVision</a>
- <a href="/pricing" className="nav-link">Pricing</a>
+ <a href="/pricing" className="nav-link">{t("nav.pricing")}</a>
  <a href="/help" className="nav-link">Help</a>
  </div>
 
@@ -644,14 +646,14 @@ function Nav() {
  boxShadow: "0 0 20px oklch(0.78 0.11 75 / 0.08), inset 0 1px 0 oklch(0.78 0.11 75 / 0.20)",
  }}
  >
- <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />Dashboard
+ <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />{t("nav.dashboard")}
  </a>
  ) : (
  <>
  <a
  href={getLoginUrl()}
  className="text-[13px] font-medium px-3 py-2 rounded-lg transition-colors text-[--color-silver-dark] hover:text-[--color-silver-light] hover:bg-white/[0.04]"
- >Sign in
+ >{t("nav.signIn")}
  </a>
  <a
  href="/onboarding"
@@ -663,7 +665,7 @@ function Nav() {
  boxShadow: "0 0 24px oklch(0.78 0.11 75 / 0.12), inset 0 1px 0 oklch(0.78 0.11 75 / 0.25)",
  }}
  >
- <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />Start Creating
+ <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />{t("nav.startFree")}
  </a>
  </>
  )}
