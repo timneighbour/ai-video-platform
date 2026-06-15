@@ -27,6 +27,7 @@ import { goldenValidationHandler } from "../scheduled/goldenValidationHandler";
 import { processOrphanedAssemblyJobs } from "../assemblyWorker";
 import { jobResurrectionReaperHandler } from "../scheduled/jobResurrectionReaper";
 import { runProbeReminderHeartbeat } from "../scheduled/probeReminderHeartbeat";
+import { sendWeeklySpendReport } from "../weekly-spend-report";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -459,6 +460,17 @@ async function startServer() {
   // zombie assembling jobs, stuck assembling jobs, permanently blocked composites,
   // dead rendering jobs, and SLA breach alerts.
   app.post("/api/scheduled/jobResurrectionReaper", jobResurrectionReaperHandler);
+
+  // ── Scheduled: weekly spend efficiency report (Mondays 09:00 UTC) ─────────
+  app.post("/api/scheduled/weeklySpendReport", async (_req, res) => {
+    try {
+      await sendWeeklySpendReport();
+      res.json({ ok: true });
+    } catch (err: any) {
+      console.error("[weeklySpendReport route] Error:", err?.message);
+      res.status(500).json({ ok: false, error: err?.message ?? "Unknown error" });
+    }
+  });
 
   // ── Debug: pre-render validation check (owner-only, temporary) ─────────────
   app.get("/api/debug/validate/:jobId", async (req, res) => {
