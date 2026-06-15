@@ -1607,4 +1607,40 @@ Return a JSON array of objects matching the lyric lines provided.`;
    * resetScene — clears a single scene's render output so it can be re-rendered
    * without touching the rest of the job.
    */
+
+  /**
+   * ISS-207: resumeProviderUnavailableJob — admin-only manual resume after top-up.
+   * Transitions job from provider_unavailable back to rendering so the heartbeat
+   * will re-dispatch the failed_retryable scenes.
+   */
+  resumeProviderUnavailableJob: protectedProcedure
+    .input(z.object({ jobId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== 'admin') {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Admin only' });
+      }
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+      // Verify job exists and is in provider_unavailable state
+      const jobRows = await db.select({ id: musicVideoJobs.id, status: musicVideoJobs.status, userId: musicVideoJobs.userId })
+        .from(musicVideoJobs).where(eq(musicVideoJobs.id, input.jobId)).limit(1);
+      const job = jobRows[0];
+      if (!job) throw new TRPCError({ code: 'NOT_FOUND', message: 'Job not found' });
+      if ((job.status as string) !== 'provider_unavailable') {
+        throw new TRPCError({ code: 'BAD_REQUEST', message: `Job is not in provider_unavailable state (current: ${job.status})` });
+      }
+      // Reset job to rendering and clear providerErrorAt on all failed_retryable scenes
+      // so they are eligible for immediate retry (bypass the 30-min throttle on manual resume)
+      await db.update(musicVideoJobs)
+        .set({ status: 'rendering' as any, updatedAt: new Date() })
+        .where(eq(musicVideoJobs.id, input.jobId));
+      await db.update(musicVideoScenes)
+        .set({ providerErrorAt: null, updatedAt: new Date() } as any)
+        .where(and(
+          eq(musicVideoScenes.jobId, input.jobId),
+          inArray(musicVideoScenes.status as any, ['failed_retryable', 'failed'] as any)
+        ));
+      console.log(`[Admin] Job ${input.jobId} manually resumed by admin ${ctx.user.id} after provider_unavailable`);
+      return { success: true };
+    }),
 });

@@ -325,8 +325,25 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             // HARD STOP: do not retry while provider is unavailable — avoids credit burn loop
             console.warn(`[SceneDispatch] Job ${job.id} — SKIPPING retry of ${failedScenes.length} failed_retryable scene(s): job is provider_unavailable. Waiting for manual resume.`);
           } else {
-            console.log(`[SceneDispatch] Job ${job.id} — resetting ${failedScenes.length} failed/failed_retryable scene(s) back to pending for retry`);
-            for (const fs of failedScenes) {
+            // ISS-205: 30-minute retry throttle — skip failed_retryable scenes that errored
+            // less than 30 minutes ago to prevent rapid credit-burn retry loops.
+            const RETRY_THROTTLE_MS = 30 * 60 * 1000; // 30 minutes
+            const now = Date.now();
+            const scenesToRetry = failedScenes.filter((s) => {
+              const errorAt = (s as any).providerErrorAt;
+              if (!errorAt) return true; // no error timestamp → retry immediately
+              const msSinceError = now - new Date(errorAt).getTime();
+              if (msSinceError < RETRY_THROTTLE_MS) {
+                console.log(`[SceneDispatch] Job ${job.id} scene ${s.id} — throttled: ${Math.round((RETRY_THROTTLE_MS - msSinceError) / 60000)}min until next retry`);
+                return false;
+              }
+              return true;
+            });
+            if (scenesToRetry.length === 0) {
+              console.log(`[SceneDispatch] Job ${job.id} — all ${failedScenes.length} failed_retryable scene(s) are throttled (30-min cooldown active)`);
+            } else {
+            console.log(`[SceneDispatch] Job ${job.id} — resetting ${scenesToRetry.length}/${failedScenes.length} failed/failed_retryable scene(s) back to pending for retry`);
+            for (const fs of scenesToRetry) {
               // CRITICAL: Cancel providerJobLogs entries so idempotency check doesn't block re-dispatch
               await resetSceneAttempts(fs.id);
               await db.update(musicVideoScenes)
@@ -346,8 +363,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             // Re-fetch scenes after reset so pending list is accurate
             const refreshed = await db.select().from(musicVideoScenes).where(eq(musicVideoScenes.jobId, job.id));
             pendingScenes.push(...refreshed.filter(s => failedScenes.some(f => f.id === s.id)));
-          }
-        }
+            } // end scenesToRetry.length > 0
+          } // end else (not provider_unavailable)
+        } // end failedScenes.length > 0
 
         // ── 2b. HARD PAUSE: awaiting_probe_approval ──────────────────────────
         // If the job is in awaiting_probe_approval, the owner has not yet approved

@@ -9140,21 +9140,21 @@
 - [x] Auto-clear stale render outputs before new render — handleStartRenderInternal now calls resetRender if any scene has a videoUrl before calling startRender
 
 ## Pipeline Quality Overhaul (June 2026)
-- [ ] Fix aspect ratio: pass job.aspectRatio to Atlas Cloud, WaveSpeed, and InfiniteTalk — no hardcoded 16:9
-- [ ] Fix assembly normalisation: replace pad-to-1280x720 with crop-to-fill for all non-standard clip dimensions (no black bars ever)
-- [ ] Switch primary lip sync to HeyGen — confirm HeyGen API is wired and active as the primary lip sync engine
-- [ ] Pass full audio context to every provider: scene startTime, duration, vocal onset time, lyrics, total track duration
-- [ ] Enforce storyboard image as visual anchor for every scene across all providers (no random characters)
-- [ ] Verify InfiniteTalk receives correctly sliced vocal stem (not full mix) at exact scene timestamps
-- [ ] Audit and confirm aspect ratio flows through from user settings → storyboard generation → video generation → assembly
+- [x] Fix aspect ratio: pass job.aspectRatio to Atlas Cloud, WaveSpeed, and InfiniteTalk — no hardcoded 16:9 — DONE (job.aspectRatio passed to all providers in sceneDispatchHeartbeat.ts)
+- [x] Fix assembly normalisation: replace pad-to-1280x720 with crop-to-fill for all non-standard clip dimensions (no black bars ever) — DONE (crop-to-fill with centre-crop in music-video-service.ts)
+- [x] Switch primary lip sync to HeyGen — confirm HeyGen API is wired and active as the primary lip sync engine — DONE (HeyGen Direct Photo+Audio is primary in sceneDispatchHeartbeat.ts)
+- [x] Pass full audio context to every provider: scene startTime, duration, vocal onset time, lyrics, total track duration — DONE (all context passed in sceneDispatchHeartbeat.ts)
+- [x] Enforce storyboard image as visual anchor for every scene across all providers (no random characters) — DONE (previewImageUrl as storyboardImageUrl, resolvedCharacterUrl as imageUrl)
+- [x] Verify InfiniteTalk receives correctly sliced vocal stem (not full mix) at exact scene timestamps — DONE (sliceVocalStemForSeedance called before InfiniteTalk dispatch)
+- [x] Audit and confirm aspect ratio flows through from user settings → storyboard generation → video generation → assembly — DONE (full end-to-end flow confirmed)
 
 ## Support Reference Display & Admin Panel
-- [ ] Add "Project Ref: WIZ-XXXXXX" label to MusicVideoAutopilot header (job title area) with copy-to-clipboard icon and "Copy for support" tooltip
-- [ ] Add scene ref "S-XXXXXX" to each scene card in Storyboard and Screening Room with copy icon
-- [ ] Build admin panel at /admin/jobs (owner-only, protected by role=admin check): list all jobs with search by title/ref, click into job to see all scenes
-- [ ] Admin job detail page: edit scene prompt, toggle lipSync, change sceneType, trigger re-render of individual scene from admin side
-- [ ] Admin scene re-render: calls existing startRender/resetScene procedures but scoped to a single scene, pushes result back to user's Screening Room
-- [ ] Admin panel: show provider spend, error codes, retry count per scene for diagnostics
+- [x] Add "Project Ref: WIZ-XXXXXX" label to MusicVideoAutopilot header (job title area) with copy-to-clipboard icon and "Copy for support" tooltip — DONE (already in MusicVideoAutopilot.tsx)
+- [x] Add scene ref "S-XXXXXX" to each scene card in Storyboard and Screening Room with copy icon — DONE (already in MusicVideoAutopilot.tsx)
+- [x] Build admin panel at /admin/jobs (owner-only, protected by role=admin check): list all jobs with search by title/ref, click into job to see all scenes — DONE (AdminJobsPanel.tsx)
+- [x] Admin job detail page: edit scene prompt, toggle lipSync, change sceneType, trigger re-render of individual scene from admin side — DONE (AdminJobsPanel.tsx)
+- [x] Admin scene re-render: calls existing startRender/resetScene procedures but scoped to a single scene, pushes result back to user's Screening Room — DONE (AdminJobsPanel.tsx)
+- [x] Admin panel: show provider spend, error codes, retry count per scene for diagnostics — DONE (AdminJobsPanel.tsx)
 
 ## Pipeline Fixes & Quality Lock (Jun 2026)
 - [x] Fix renderer: change fal_seedance to atlas_cloud as default in sceneDispatchHeartbeat
@@ -9224,23 +9224,23 @@
 - [x] ISS-007: Add optimistic locking (version counter) to circuit breaker providerHealth updates
 
 ### P1 High
-- [ ] ISS-008: Split musicVideo.ts (6,287 lines) into feature sub-routers
+- [x] ISS-008: Split musicVideo.ts (6,287 lines) into feature sub-routers — DONE (session 5)
 - [x] ISS-009: Add dead-letter queue for scenes that exceed max retry count
 - [x] ISS-010: Add FK constraints to all reference columns in drizzle/schema.ts
-- [ ] ISS-011: Convert longtext JSON columns to proper json() type in schema
+- [x] ISS-011: Convert longtext JSON columns to proper json() type in schema — DONE (session 5, json-columns.ts helpers)
 - [x] ISS-012: Remove hardcoded Stripe price ID fallbacks from products.ts
 - [x] ISS-013: Fix video.ts free-plan hardcode — fetch real subscription from DB
 - [x] ISS-014: Fix HeyGen lipsync typo (keep_the_same_format → keep_original_format)
 - [x] ISS-015: Add hard timeout for vocal stem isolation (fail job if stuck >30 min)
 - [x] ISS-017: [N/A or already resolved] Externalise provider selection to DB config table
 - [x] ISS-018: Add CI/CD pipeline (GitHub Actions) — .github/workflows/ci.yml (typecheck + test on PR/push)
-- [ ] ISS-019: Add spend alerts at 75% and 90% of per-video budget
+- [x] ISS-019: Add spend alerts at 75% and 90% of per-video budget — DONE (already in spend-protection.ts)
 - [x] ISS-020: Add structured logging with jobId context (pino) — server/logger.ts created
 
 ### P2 Medium
 - [x] ISS-023: Add client-side admin route guard in App.tsx
 - [x] ISS-028: Add unique index on subscriptions.userId
-- [ ] ISS-029: Add granular admin role permissions
+- [x] ISS-029: Add granular admin role permissions — DONE (session 5, permissions.ts + support/ops roles)
 - [x] ISS-030: Send cancellation email on subscription.deleted webhook
 - [x] ISS-031: [N/A or already resolved] Auto-approve probe results that pass all validation gates
 - [x] ISS-032: Add uptime monitoring (/api/healthz endpoint)
@@ -9252,7 +9252,7 @@
 - [x] ISS-036: Add SSRF protection on audio proxy endpoint
 - [x] ISS-037: Add image dimension validation before provider submission (512px minimum in character-photo-validator.ts)
 - [x] ISS-040: [N/A or already resolved] Clean up .patch files and stale MD files from root
-- [ ] ISS-041: Add weekly automated spend efficiency report
+- [x] ISS-041: Add weekly automated spend efficiency report — DONE (session 5, weekly-spend-report.ts)
 
 ## WizAI Technical Audit (Second Pass) — Remaining Items
 - [x] ISS-003: Per-user tRPC mutation rate limiting (5 render jobs/hour per user)
