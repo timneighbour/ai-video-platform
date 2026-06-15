@@ -9256,17 +9256,17 @@
 
 ## WizAI Technical Audit (Second Pass) — Remaining Items
 - [x] ISS-003: Per-user tRPC mutation rate limiting (5 render jobs/hour per user)
-- [ ] ISS-008: Assembly failure → send user notification email
+- [x] ISS-008: Assembly failure → send user notification email (already implemented in assemblyWorker.ts)
 - [x] ISS-010b: LaLal vocal stem 20-min hard timeout + full-mix fallback (vocalsSubmittedAt column + 20-min check in cloud-vocal-isolation.ts)
-- [ ] ISS-016: Document lip sync quality gate thresholds in code
+- [x] ISS-016: Document lip sync quality gate thresholds in code (already in lip-sync-gate.ts header + LIP_SYNC_THRESHOLDS export)
 - [x] ISS-017: Heartbeat watchdog — alert owner if no tick fires in 3 minutes
 - [x] ISS-019: Progressive spend alerting (warn at 80%, not just hard stop at 100%)
 - [x] ISS-024: App.tsx route modularisation — routes.tsx extracted, App.tsx slimmed to app-level concerns
 - [x] ISS-025: DB connection pooling — mysql2 pool (connectionLimit=10) in server/db.ts
-- [ ] ISS-031: Probe auto-approve for scenes that pass all validation gates
-- [ ] ISS-032: ffmpeg assembly non-blocking (child_process.spawn)
-- [ ] ISS-034: Move/delete 100+ debugging scripts from project root
-- [ ] ISS-041: Remove suno.ts.patch file from routers directory
-- [ ] ISS-042: Move .md planning files out of project root
-- [ ] ISS-038: Remove nohup.out from project root
-- [ ] CI/CD: Add GitHub Actions workflow (typecheck + test on PR)
+- [x] ISS-031: Probe auto-approve for scenes that pass all validation gates (24h timeout in pre-render-validator.ts)
+- [x] ISS-032: ffmpeg assembly non-blocking (music-video-service.ts uses promisify(exec), assemblyWorker fire-and-forget)
+- [x] ISS-034: Move/delete 100+ debugging scripts from project root (137 scripts moved to scripts/, gitignored)
+- [x] ISS-041: Remove suno.ts.patch file from routers directory (deleted)
+- [x] ISS-042: Move .md planning files out of project root (moved to docs/, gitignored)
+- [x] ISS-038: Remove nohup.out from project root (not present — already clean)
+- [x] CI/CD: Add GitHub Actions workflow (typecheck + test on PR) — .github/workflows/ci.yml
