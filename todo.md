@@ -9280,3 +9280,16 @@
 ## Session 5 — Router Split & Remaining Items
 
 - [x] ISS-008 router split: musicVideo.ts (6,306 lines) split into 6 domain sub-routers — job.ts (24 procs), scene.ts (13 procs), render.ts (15 procs), character.ts (15 procs), probe.ts (6 procs), vocal.ts (5 procs) — all 78 procedures preserved, translateErrorMessage helper extracted to _shared.ts, TypeScript 0 errors, tests 962/978 (baseline maintained)
+
+## Session 5 — Router Split, JSON Helpers, Granular Roles, Weekly Report
+
+- [x] ISS-008: Split musicVideo.ts (6,306 lines) into 6 domain sub-routers (job, scene, render, character, probe, vocal) — all 78 procedures migrated, test paths updated, monolith archived as musicVideo.ts.bak
+- [x] ISS-011: server/json-columns.ts typed JSON helpers (parseJson/stringifyJson with 15 typed interfaces) — safe approach without risky schema migration
+- [x] ISS-019: Confirmed already implemented — spend-protection.ts has 50%/75%/90% alerts with notifyOwner deduplication
+- [x] ISS-029: Granular admin roles — schema extended with support/ops roles, server/permissions.ts with hasPermission/requirePermission/supportOrAdminProcedure, adminCredits.ts updated
+- [x] ISS-041: server/weekly-spend-report.ts — weekly spend efficiency report handler + heartbeat route in index.ts + 4 unit tests passing
+- [x] Admin panel /admin/jobs — confirmed already fully implemented with scene re-render, provider spend, WIZ-XXXXXX/S-XXXXXX refs
+- [x] Project/scene ref labels — confirmed already implemented in MusicVideoAutopilot.tsx and AdminJobsPanel.tsx
+- [x] Hero tightening — confirmed already optimised (min-h-screen, clamp headline, 3 CTAs, trust bar, flex-wrap mobile)
+- [x] Cinematic intro screen — confirmed already implemented as IntroScreen.tsx (MP4 from CDN, iOS fallback, auto-dismiss)
+- [x] Provider pipeline — confirmed HeyGen Direct Photo+Audio is primary, WaveSpeed is fallback, Sync Labs is secondary fallback
