@@ -14,7 +14,8 @@ import { useEffect, useRef, useState, useCallback, type CSSProperties } from "re
 import { ChevronRight } from "@/lib/icons";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
-const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
+const CDN       = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
+const MUSIC_URL = "/api/audio/lightless-dawn.mp3";
 
 const CLIPS = [
   { url: `${CDN}/showcase-music-video_19324f13.mp4`, product: "WizVideo™",   tagline: "AI Music Videos"  },
@@ -66,19 +67,20 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
   const [muted, setMuted]               = useState(true);
   const [visible, setVisible]           = useState(true);
   const videoRef                        = useRef<HTMLVideoElement>(null);
+  const audioRef                        = useRef<HTMLAudioElement>(null);
   const timersRef                       = useRef<ReturnType<typeof setTimeout>[]>([]);
   const dismissedRef                    = useRef(false);
 
   const clearAll = () => timersRef.current.forEach(clearTimeout);
 
-  useEffect(() => {
-    if (videoRef.current) videoRef.current.muted = muted;
-  }, [muted]);
-
   const toggleMute = useCallback(() => {
     setMuted(m => {
       const next = !m;
-      if (videoRef.current) videoRef.current.muted = next;
+      const aud = audioRef.current;
+      if (aud) {
+        aud.muted = next;
+        if (!next) aud.play().catch(() => {});
+      }
       return next;
     });
   }, []);
@@ -89,6 +91,8 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
     clearAll();
     const vid = videoRef.current;
     if (vid) vid.pause();
+    const aud = audioRef.current;
+    if (aud) { aud.pause(); }
     sessionStorage.setItem(INTRO_SESSION_KEY, "1");
     setVisible(false);
     setTimeout(onComplete, 650);
@@ -114,6 +118,9 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
       setPhase("clips");
       const vid = videoRef.current;
       if (vid) { vid.src = CLIPS[0].url; vid.load(); vid.play().catch(() => {}); }
+      // Start background music muted (browser autoplay policy — user unmutes via toggle)
+      const aud = audioRef.current;
+      if (aud) { aud.muted = true; aud.play().catch(() => {}); }
       setVideoVisible(true);
       setLabelKey(k => k + 1);
       setTimeout(() => setLabelVisible(true), 400);
@@ -199,10 +206,13 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
         }
       `}</style>
 
+      {/* Background music — "Lightless Dawn" by Kevin MacLeod (CC BY 3.0) */}
+      <audio ref={audioRef} src={MUSIC_URL} loop preload="auto" style={{ display: "none" }} />
+
       {/* Full-screen background video */}
       <video
         ref={videoRef}
-        muted={muted}
+        muted
         playsInline
         loop
         preload="none"
