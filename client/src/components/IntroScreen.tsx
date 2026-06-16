@@ -71,7 +71,6 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
 
   const clearAll = () => timersRef.current.forEach(clearTimeout);
 
-  // ── Sync muted state to video DOM element ─────────────────────────────────
   useEffect(() => {
     if (videoRef.current) videoRef.current.muted = muted;
   }, [muted]);
@@ -84,7 +83,6 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
     });
   }, []);
 
-  // ── Dismiss — called by CTA, skip, and auto-timer ─────────────────────────
   const dismiss = useCallback(() => {
     if (dismissedRef.current) return;
     dismissedRef.current = true;
@@ -96,7 +94,6 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
     setTimeout(onComplete, 650);
   }, [onComplete]);
 
-  // ── Advance clip with crossfade ───────────────────────────────────────────
   const advanceClip = useCallback((nextIdx: number) => {
     setLabelVisible(false);
     setVideoVisible(false);
@@ -111,7 +108,6 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
     timersRef.current.push(t);
   }, []);
 
-  // ── Timeline (runs once on mount) ─────────────────────────────────────────
   useEffect(() => {
     const t1 = setTimeout(() => setPhase("ambient"), 400);
     const t2 = setTimeout(() => {
@@ -185,13 +181,13 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
           to   { opacity: 1; transform: translateY(0);    }
         }
         @keyframes wi-sparkle {
-          0%   { transform: translateY(0)    scale(1);   opacity: 1;   }
+          0%   { transform: translateY(0)     scale(1);   opacity: 1;   }
           80%  { transform: translateY(-28px) scale(0.5); opacity: 0.6; }
           100% { transform: translateY(-36px) scale(0);   opacity: 0;   }
         }
       `}</style>
 
-      {/* Showcase video — full-screen background */}
+      {/* Full-screen background video */}
       <video
         ref={videoRef}
         muted={muted}
@@ -225,7 +221,7 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
         ))}
       </div>
 
-      {/* Centre overlay — lower third clears the singer's face */}
+      {/* Centre overlay — lower third clears singer's face */}
       <div style={{ position: "relative", zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center", width: "100%", paddingTop: "36vh" }}>
 
         {/* Logo */}
@@ -245,7 +241,7 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
           />
         </div>
 
-        {/* Product label */}
+        {/* Product label — changes each clip */}
         <div style={{ height: 48, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
           {show("clips","cta") && (
             <div key={labelKey} style={{ textAlign: "center", opacity: labelVisible ? 1 : 0, animation: labelVisible ? "wi-label-in 0.55s ease forwards" : "none" }}>
@@ -264,7 +260,7 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
           )}
         </div>
 
-        {/* Waveform */}
+        {/* Waveform bars */}
         <div style={{ display: "flex", alignItems: "flex-end", gap: "clamp(2px,0.45vw,3px)", height: 40, marginBottom: 24, opacity: show("clips","cta") ? 0.80 : show("ambient") ? 0.30 : 0, transition: "opacity 1s ease" }}>
           {BARS.map((bar, i) => (
             <div key={i} style={{ width: "clamp(2px,0.55vw,4px)", borderRadius: 2, background: i % 4 === 0 ? `linear-gradient(to top,${GOLD_DEEP},${GOLD_LITE})` : i % 4 === 1 ? `linear-gradient(to top,${GOLD_DEEP},${GOLD})` : i % 4 === 2 ? `linear-gradient(to top,${GOLD_DEEP},${GOLD_LITE}aa)` : `linear-gradient(to top,${GOLD_DEEP},#ffffffaa)`, boxShadow: i % 6 === 0 ? `0 0 5px ${GOLD}66` : "none", height: `${bar.baseH}px`, "--bar-base": `${bar.baseH}px`, "--bar-peak": `${bar.peakH}px`, animation: show("clips","cta") ? `wi-bar ${bar.dur}s ${bar.delay}s ease-in-out infinite` : "none" } as CSSProperties} />
