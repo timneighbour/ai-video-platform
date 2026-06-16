@@ -9299,3 +9299,12 @@
 - [x] WizPilot: Add auto-save status chip ("Saved automatically") in the nav bar during upload step
 - [x] WizPilot: Add "What happens next" reassurance strip (Free storyboard / Ready in seconds / You approve first) above Generate Storyboard button
 - [x] ReturnTriggerBanner: Fix stale "Pro plan from £19/mo" copy → "Starter plan from £9/mo"
+
+## SESSION: Jun 16 2026 — Dashboard Hero Banner + Insights Strip Upgrade
+- [x] Dashboard: Replace plain welcome text with cinematic hero banner (background image, gold accent line, greeting, stats)
+- [x] Dashboard: Make Insights Strip cards clickable links to /projects and /credits
+- [x] Dashboard: Verified project resume (storyboard_ready → storyboard step, rendering → render step, draft → upload step with pre-filled form) — already working
+- [x] Dashboard: Verified post-payment redirect goes to /dashboard?success=true — already correct
+- [x] Dashboard: Verified intro only shows on homepage (pathname === "/") — already correct
+- [x] Subscribe.tsx: Verified comparison table plan names (Free/Starter/Basic/Creator/Pro/Studio) — already correct, Pro is a real plan
+- [x] Pricing page: Verified nav uses PublicNavBar with href-based links — already correct

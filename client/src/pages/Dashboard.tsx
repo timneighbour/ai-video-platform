@@ -237,20 +237,56 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-12">
 
-        {/* ── Welcome ────────────────────────────────────────────────────── */}
-        <div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
-            <span className="bg-gradient-to-r from-primary/80 via-primary/60 to-primary bg-clip-text text-transparent">
-              {isNewUser ? `Welcome${user?.name ? `, ${user.name.split(" ")[0]}` : ""}` : "Welcome back"}{!isNewUser && user?.name ? `, ${user.name.split(" ")[0]}` : ""}
-            </span>
-          </h1>
-          <p className="text-muted-foreground mt-2 text-base">
-            {isNewUser
-              ? "Your studio is ready. Director-level control over every scene — your first storyboard is completely free."
-              : `What do you want to create today${user?.name ? `, ${user.name.split(" ")[0]}` : ""}? Consistent characters, cinematic lip sync, and full director control — all in one place.`
-            }
-          </p>
-        </div>
+        {/* ── Cinematic Hero Banner ──────────────────────────────────────── */}
+        <section className="relative rounded-2xl overflow-hidden border border-[--color-gold]/25 shadow-[0_0_60px_rgba(196,164,100,0.08)]" style={{ minHeight: 200 }}>
+          {/* Background image */}
+          <img src={DASH_CINEMATIC_BANNER} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-25" loading="eager" />
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/60 to-black/40 pointer-events-none" />
+          {/* Gold top accent line */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none" style={{ background: "linear-gradient(90deg, transparent, oklch(0.78 0.11 75 / 0.7), oklch(0.65 0.14 70 / 0.5), transparent)" }} />
+          {/* Content */}
+          <div className="relative px-6 sm:px-8 py-7 sm:py-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+              {/* Greeting */}
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <img src={WIZAI_LOGO} alt="WIZ AI" className="w-5 h-5 object-contain opacity-70" loading="eager" />
+                  <span className="text-[10px] font-black tracking-[0.28em] uppercase" style={{ color: "oklch(0.78 0.11 75 / 0.55)" }}>WIZ AI Studio</span>
+                </div>
+                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                  {isNewUser
+                    ? <>{`Welcome`}{user?.name ? <>, <span className="metallic-gold">{user.name.split(" ")[0]}</span></> : ""}</>
+                    : <>{"Welcome back"}{user?.name ? <>, <span className="metallic-gold">{user.name.split(" ")[0]}</span></> : ""}</>
+                  }
+                </h1>
+                <p className="text-white/45 text-sm mt-1.5 max-w-md leading-relaxed">
+                  {isNewUser
+                    ? "Your studio is ready. Director-level control over every scene — your first storyboard is completely free."
+                    : "What do you want to create today? Consistent characters, cinematic lip sync, and full director control."
+                  }
+                </p>
+              </div>
+              {/* Stats row */}
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4">
+                {[
+                  { label: "Videos", value: totalProjects, icon: Film },
+                  { label: "Completed", value: completedProjects, icon: CheckCircle2 },
+                  { label: "Credits", value: creditBalance.toLocaleString(), icon: Zap },
+                ].map((stat) => {
+                  const Icon = stat.icon;
+                  return (
+                    <div key={stat.label} className="flex flex-col items-center px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] backdrop-blur-sm min-w-[72px]">
+                      <Icon className="w-3.5 h-3.5 text-[--color-gold] mb-1" />
+                      <span className="text-xl font-black text-white leading-none">{stat.value}</span>
+                      <span className="text-[10px] text-white/40 mt-0.5 uppercase tracking-wider">{stat.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* ── First-time welcome banner ─────────────────────────────────────── */}
         {isNewUser && (
@@ -341,20 +377,20 @@ export default function Dashboard() {
         {/* ── Insights Strip ───────────────────────────────────────────── */}
         <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: "Total Videos", value: totalProjects, icon: Film, color: "text-[--color-gold]" },
-            { label: "Builds Done", value: completedProjects, icon: CheckCircle2, color: "text-[--color-silver]" },
-            { label: "Renders Left", value: renderBalance, icon: Zap, color: "text-[--color-gold]" },
-            { label: "Credits", value: creditBalance.toLocaleString(), icon: Star, color: "text-[--color-gold]" },
+            { label: "Total Videos", value: totalProjects, icon: Film, href: "/projects" },
+            { label: "Builds Done", value: completedProjects, icon: CheckCircle2, href: "/projects" },
+            { label: "Renders Left", value: renderBalance, icon: Zap, href: "/credits" },
+            { label: "Build Credits", value: creditBalance.toLocaleString(), icon: Star, href: "/credits" },
           ].map((stat) => {
             const Icon = stat.icon;
             return (
-              <div key={stat.label} className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
+              <a key={stat.label} href={stat.href} className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-[--color-gold]/25 hover:bg-white/[0.05] transition-all p-4 cursor-pointer">
                 <div className="flex items-center gap-2 mb-2">
-                  <Icon className={`w-4 h-4 ${stat.color}`} />
+                  <Icon className="w-4 h-4 text-[--color-gold]" />
                   <span className="text-xs text-muted-foreground/70 uppercase tracking-wider">{stat.label}</span>
                 </div>
-                <p className="text-2xl font-bold text-white">{stat.value}</p>
-              </div>
+                <p className="text-2xl font-bold text-white group-hover:text-[--color-gold-light] transition-colors">{stat.value}</p>
+              </a>
             );
           })}
         </section>
