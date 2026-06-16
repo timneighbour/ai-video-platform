@@ -1,680 +1,412 @@
 /**
- * CinematicIntroScreen — Premium Netflix-Style 6-Scene Cinematic Intro
+ * CinematicIntroScreen — Programmatic cinematic intro (no video file required).
  *
- * Pure CSS/canvas implementation — no video file, under 3MB.
+ * Animation sequence:
+ *   0.0s  → black screen
+ *   0.4s  → background glow + particles fade in
+ *   1.0s  → WIZ AI logo scales & fades in with golden halo
+ *   2.4s  → waveform bars animate in + tagline appears
+ *   4.4s  → "Enter WIZ AI" CTA slides up
+ *   8.5s  → auto-dismiss if user hasn't clicked
  *
- * Scenes:
- *   1. Black fade-in, particles, "Your ideas..." text
- *   2. "...come to life" text transition with beat-pulse light
- *   3. Cause→effect USP moment — flames/sparks particle burst
- *   4. Character consistency demo — same face/outfit across 2 quick cuts
- *   5. Use case montage — cinematic / vertical / kids labels
- *   6. Zoom-out to polished final video output
- *
- * Features:
- *   - Seamless loop (Scene 6 → Scene 1 fade)
- *   - Ken Burns slow zoom on CSS gradient backgrounds
- *   - Beat-pulse lighting illusion (visual rhythm, muted-safe)
- *   - Mouse parallax shift on overlay text
- *   - Skip / Enter CTA with smooth zoom transition
- *   - prefers-reduced-motion: static fallback
- *   - SessionStorage gated (shows once per session)
+ * Session-gated via INTRO_SESSION_KEY (once per device via localStorage).
  */
 
-import { useEffect, useRef, useState, useCallback } from "react";
-import { ChevronRight, Volume2, X } from "@/lib/icons";
+import { useEffect, useRef, useState, useCallback, type CSSProperties } from "react";
+import { ChevronRight } from "@/lib/icons";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
-// ── Audio configuration ───────────────────────────────────────────────────
-// WizSound cinematic demo track used as intro sting until a dedicated sting is produced
-const INTRO_AUDIO_URL = "/manus-storage/wizsound-cinematic_73f24d09.mp3";
-// Session key to remember mute preference (shared with IntroScreen)
-const MUTE_SESSION_KEY = "wizai_intro_muted";
+const LOGO_URL = "/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png";
 
-// ── Scene configuration ────────────────────────────────────────────────────
-const SCENE_DURATION_MS = 3200; // each scene visible for 3.2s
-const TRANSITION_MS = 600;      // cross-fade between scenes
-const TOTAL_SCENES = 6;
+const GOLD      = "#c4a464";
+const GOLD_LITE = "#e8c97a";
+const GOLD_DEEP = "#8a6a20";
+const BG        = "#04040e";
 
-interface Scene {
-  id: number;
-  headline: string;
-  subline?: string;
-  bgClass: string;
-  accentClass: string;
-  showParticles?: boolean;
-  showFlames?: boolean;
-  showCharCuts?: boolean;
-  showMontage?: boolean;
-  showOutput?: boolean;
-}
-
-const SCENES: Scene[] = [
-  {
-    id: 1,
-    headline: "Your ideas...",
-    bgClass: "scene-bg-1",
-    accentClass: "accent-gold",
-    showParticles: true,
-  },
-  {
-    id: 2,
-    headline: "...come to life.",
-    subline: "AI-directed. Cinematically produced.",
-    bgClass: "scene-bg-2",
-    accentClass: "accent-blue",
-  },
-  {
-    id: 3,
-    headline: "Walk through fire.",
-    subline: "Your vision. Exactly as you imagined it.",
-    bgClass: "scene-bg-3",
-    accentClass: "accent-orange",
-    showFlames: true,
-  },
-  {
-    id: 4,
-    headline: "Same face. Every scene.",
-    subline: "Character Lock™ — identity preserved across every shot.",
-    bgClass: "scene-bg-4",
-    accentClass: "accent-purple",
-    showCharCuts: true,
-  },
-  {
-    id: 5,
-    headline: "Any creator. Any style.",
-    bgClass: "scene-bg-5",
-    accentClass: "accent-teal",
-    showMontage: true,
-  },
-  {
-    id: 6,
-    headline: "Your finished video.",
-    subline: "Ready to share. In minutes.",
-    bgClass: "scene-bg-6",
-    accentClass: "accent-gold",
-    showOutput: true,
-  },
+const PARTICLES: Array<{
+  x: number; y: number; size: number; opacity: number;
+  dur: number; delay: number; drift: number;
+}> = [
+  { x: 8,  y: 75, size: 3, opacity: 0.55, dur: 7.2, delay: 0.0, drift:  18 },
+  { x: 14, y: 55, size: 2, opacity: 0.40, dur: 9.1, delay: 0.6, drift: -12 },
+  { x: 21, y: 82, size: 4, opacity: 0.65, dur: 6.8, delay: 1.2, drift:  22 },
+  { x: 28, y: 40, size: 2, opacity: 0.35, dur: 8.4, delay: 0.3, drift: -16 },
+  { x: 35, y: 68, size: 3, opacity: 0.50, dur: 7.6, delay: 1.8, drift:  14 },
+  { x: 42, y: 88, size: 2, opacity: 0.45, dur: 9.5, delay: 0.9, drift: -20 },
+  { x: 48, y: 30, size: 5, opacity: 0.70, dur: 6.2, delay: 0.0, drift:  10 },
+  { x: 55, y: 72, size: 2, opacity: 0.38, dur: 8.8, delay: 2.1, drift: -24 },
+  { x: 62, y: 50, size: 3, opacity: 0.55, dur: 7.4, delay: 0.7, drift:  18 },
+  { x: 68, y: 85, size: 4, opacity: 0.60, dur: 6.9, delay: 1.5, drift: -12 },
+  { x: 75, y: 38, size: 2, opacity: 0.42, dur: 9.2, delay: 0.4, drift:  20 },
+  { x: 81, y: 65, size: 3, opacity: 0.50, dur: 7.8, delay: 2.4, drift: -18 },
+  { x: 88, y: 78, size: 2, opacity: 0.38, dur: 8.6, delay: 1.1, drift:  16 },
+  { x: 93, y: 45, size: 4, opacity: 0.62, dur: 6.5, delay: 0.8, drift: -22 },
+  { x: 5,  y: 35, size: 2, opacity: 0.35, dur: 9.0, delay: 1.6, drift:  12 },
+  { x: 18, y: 20, size: 3, opacity: 0.48, dur: 7.3, delay: 2.0, drift: -14 },
+  { x: 32, y: 15, size: 2, opacity: 0.40, dur: 8.2, delay: 0.5, drift:  24 },
+  { x: 50, y: 10, size: 5, opacity: 0.72, dur: 6.4, delay: 0.2, drift: -10 },
+  { x: 65, y: 22, size: 2, opacity: 0.38, dur: 9.3, delay: 1.9, drift:  20 },
+  { x: 78, y: 18, size: 3, opacity: 0.52, dur: 7.1, delay: 0.8, drift: -16 },
+  { x: 90, y: 28, size: 2, opacity: 0.42, dur: 8.7, delay: 2.2, drift:  14 },
+  { x: 25, y: 92, size: 3, opacity: 0.45, dur: 7.5, delay: 1.3, drift: -20 },
+  { x: 58, y: 95, size: 2, opacity: 0.38, dur: 9.4, delay: 0.6, drift:  18 },
+  { x: 85, y: 90, size: 4, opacity: 0.58, dur: 6.7, delay: 1.7, drift: -12 },
 ];
 
-// ── Particle canvas hook ───────────────────────────────────────────────────
-function useParticleCanvas(
-  canvasRef: React.RefObject<HTMLCanvasElement | null>,
-  active: boolean,
-  type: "dust" | "flames" = "dust"
-) {
-  const rafRef = useRef<number>(0);
+const BARS = Array.from({ length: 32 }, (_, i) => {
+  const center = Math.abs(15.5 - i) / 15.5;
+  const baseH  = 8  + (1 - center) * 28;
+  const peakH  = 18 + (1 - center) * 48;
+  const dur    = 0.55 + (i % 5) * 0.09;
+  const delay  = (i % 7) * 0.07;
+  return { baseH, peakH, dur, delay };
+});
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !active) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+type Phase = "black" | "glow" | "logo" | "tagline" | "cta";
 
-    const W = canvas.width = canvas.offsetWidth;
-    const H = canvas.height = canvas.offsetHeight;
-
-    const count = type === "flames" ? 80 : 60;
-    type Particle = {
-      x: number; y: number; vx: number; vy: number;
-      size: number; opacity: number; life: number; maxLife: number;
-      hue: number;
-    };
-
-    const particles: Particle[] = Array.from({ length: count }, () => {
-      const maxLife = 60 + Math.random() * 80;
-      return {
-        x: Math.random() * W,
-        y: type === "flames" ? H * 0.7 + Math.random() * H * 0.3 : Math.random() * H,
-        vx: (Math.random() - 0.5) * (type === "flames" ? 1.5 : 0.4),
-        vy: type === "flames" ? -(1 + Math.random() * 2.5) : -(0.2 + Math.random() * 0.6),
-        size: type === "flames" ? 2 + Math.random() * 4 : 1 + Math.random() * 2,
-        opacity: 0,
-        life: Math.random() * maxLife,
-        maxLife,
-        hue: type === "flames" ? 15 + Math.random() * 30 : 45 + Math.random() * 20,
-      };
-    });
-
-    const draw = () => {
-      ctx.clearRect(0, 0, W, H);
-      for (const p of particles) {
-        p.life += 1;
-        if (p.life > p.maxLife) {
-          p.life = 0;
-          p.x = Math.random() * W;
-          p.y = type === "flames" ? H * 0.7 + Math.random() * H * 0.3 : Math.random() * H;
-        }
-        const progress = p.life / p.maxLife;
-        p.opacity = progress < 0.2
-          ? progress / 0.2
-          : progress > 0.7
-          ? 1 - (progress - 0.7) / 0.3
-          : 1;
-        p.x += p.vx;
-        p.y += p.vy;
-        if (type === "flames") {
-          p.vx += (Math.random() - 0.5) * 0.3;
-        }
-
-        const sat = type === "flames" ? "90%" : "60%";
-        const light = type === "flames" ? `${50 + (1 - progress) * 30}%` : "80%";
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue}, ${sat}, ${light}, ${p.opacity * (type === "flames" ? 0.85 : 0.6)})`;
-        ctx.fill();
-      }
-      rafRef.current = requestAnimationFrame(draw);
-    };
-
-    rafRef.current = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [canvasRef, active, type]);
-}
-
-// ── Scene visual sub-components ────────────────────────────────────────────
-function ParticleLayer({ active, type = "dust" }: { active: boolean; type?: "dust" | "flames" }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  useParticleCanvas(canvasRef, active, type);
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      aria-hidden
-    />
-  );
-}
-
-function CharCuts() {
-  const [cut, setCut] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setCut(c => (c + 1) % 2), 900);
-    return () => clearInterval(t);
-  }, []);
-  return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden>
-      <div className="relative w-48 h-64 sm:w-56 sm:h-72">
-        {/* Cut A */}
-        <div
-          className="absolute inset-0 rounded-xl overflow-hidden transition-opacity duration-300"
-          style={{ opacity: cut === 0 ? 1 : 0 }}
-        >
-          <div className="w-full h-full bg-gradient-to-br from-[#2a1a0a] via-[#4a2a10] to-[#1a0a04]" />
-          {/* Silhouette A */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-20 h-40 bg-gradient-to-t from-[#c49a3c]/30 to-transparent rounded-t-full" />
-          <div className="absolute bottom-32 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-[#c49a3c]/20 border border-[#c49a3c]/30" />
-          <div className="absolute top-3 left-3 text-[10px] text-[#c49a3c]/60 font-mono">SCENE 04</div>
-          <div className="absolute top-3 right-3 text-[10px] text-[#c49a3c]/60 font-mono">CUT A</div>
-        </div>
-        {/* Cut B */}
-        <div
-          className="absolute inset-0 rounded-xl overflow-hidden transition-opacity duration-300"
-          style={{ opacity: cut === 1 ? 1 : 0 }}
-        >
-          <div className="w-full h-full bg-gradient-to-br from-[#0a1a2a] via-[#102a4a] to-[#040a1a]" />
-          {/* Silhouette B — same proportions = same character */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-20 h-40 bg-gradient-to-t from-[#6090c4]/30 to-transparent rounded-t-full" />
-          <div className="absolute bottom-32 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-[#6090c4]/20 border border-[#6090c4]/30" />
-          <div className="absolute top-3 left-3 text-[10px] text-[#6090c4]/60 font-mono">SCENE 12</div>
-          <div className="absolute top-3 right-3 text-[10px] text-[#6090c4]/60 font-mono">CUT B</div>
-        </div>
-        {/* Consistency badge */}
-        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] text-[#c49a3c]/70 font-mono tracking-wider">
-          ✓ IDENTITY PRESERVED
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MontageLabels() {
-  const labels = ["Cinematic", "Vertical / Social", "Kids & Animation"];
-  const [active, setActive] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setActive(a => (a + 1) % labels.length), 900);
-    return () => clearInterval(t);
-  }, []);
-  return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden>
-      <div className="flex flex-col gap-3">
-        {labels.map((label, i) => (
-          <div
-            key={label}
-            className="px-5 py-2 rounded-lg border text-sm font-semibold tracking-wide transition-all duration-400"
-            style={{
-              opacity: active === i ? 1 : 0.25,
-              transform: active === i ? "scale(1.08)" : "scale(1)",
-              borderColor: active === i ? "rgba(196,154,60,0.5)" : "rgba(255,255,255,0.1)",
-              color: active === i ? "#e8c878" : "rgba(255,255,255,0.4)",
-              background: active === i ? "rgba(196,154,60,0.08)" : "transparent",
-            }}
-          >
-            {label}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function OutputFrame() {
-  return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden>
-      <div
-        className="relative w-64 h-36 sm:w-80 sm:h-44 rounded-xl overflow-hidden border border-[#c49a3c]/30"
-        style={{
-          background: "linear-gradient(135deg, #0a0a14 0%, #1a1020 50%, #0a0a14 100%)",
-          boxShadow: "0 0 40px rgba(196,154,60,0.15), 0 0 80px rgba(196,154,60,0.05)",
-        }}
-      >
-        {/* Fake video frame content */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1a0a04]/80 via-transparent to-[#040a1a]/80" />
-        <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2">
-          <div className="w-5 h-5 rounded-full bg-[#c49a3c]/80 flex items-center justify-center">
-            <div className="w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-l-[7px] border-l-[#1a0a04] ml-0.5" />
-          </div>
-          <div className="flex-1 h-1 rounded-full bg-white/10">
-            <div className="h-full w-3/4 rounded-full bg-gradient-to-r from-[#c49a3c] to-[#e8c878]" />
-          </div>
-          <span className="text-[10px] text-white/50 font-mono">3:42</span>
-        </div>
-        {/* WIZ AI watermark */}
-        <div className="absolute top-3 right-3 text-[10px] text-[#c49a3c]/50 font-semibold tracking-widest">
-          WIZ AI
-        </div>
-        {/* Scan line effect */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px)",
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-// ── Beat pulse hook ────────────────────────────────────────────────────────
-function useBeatPulse(bpm = 120) {
-  const [beat, setBeat] = useState(false);
-  useEffect(() => {
-    const interval = (60 / bpm) * 1000;
-    const t = setInterval(() => {
-      setBeat(true);
-      setTimeout(() => setBeat(false), 120);
-    }, interval);
-    return () => clearInterval(t);
-  }, [bpm]);
-  return beat;
-}
-
-// ── Mouse parallax hook ────────────────────────────────────────────────────
-function useMouseParallax(strength = 12) {
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  useEffect(() => {
-    const handle = (e: MouseEvent) => {
-      const cx = window.innerWidth / 2;
-      const cy = window.innerHeight / 2;
-      setOffset({
-        x: ((e.clientX - cx) / cx) * strength,
-        y: ((e.clientY - cy) / cy) * strength,
-      });
-    };
-    window.addEventListener("mousemove", handle, { passive: true });
-    return () => window.removeEventListener("mousemove", handle);
-  }, [strength]);
-  return offset;
-}
-
-// ── Main component ─────────────────────────────────────────────────────────
-interface CinematicIntroScreenProps {
-  onComplete: () => void;
-}
-
-export default function CinematicIntroScreen({ onComplete }: CinematicIntroScreenProps) {
-  const [currentScene, setCurrentScene] = useState(0);
-  const [nextScene, setNextScene] = useState<number | null>(null);
-  const [transitioning, setTransitioning] = useState(false);
+export default function CinematicIntroScreen({ onComplete }: { onComplete: () => void }) {
+  const [phase, setPhase]     = useState<Phase>("black");
   const [visible, setVisible] = useState(true);
-  const [dismissed, setDismissed] = useState(false);
-  // Mute state — starts muted (autoplay policy); persisted in sessionStorage
-  const [isMuted, setIsMuted] = useState(() => {
-    const stored = sessionStorage.getItem(MUTE_SESSION_KEY);
-    // Default to muted unless user explicitly unmuted in this session
-    return stored !== "0";
-  });
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const beat = useBeatPulse(118);
-  const parallax = useMouseParallax(10);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  // ── Sync muted state to audio element ──────────────────────────────────
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.muted = isMuted;
-    if (!isMuted && audio.paused && INTRO_AUDIO_URL) {
-      audio.play().catch(() => setIsMuted(true));
-    }
-  }, [isMuted]);
-
-  const toggleMute = useCallback(() => {
-    setIsMuted((prev) => {
-      const next = !prev;
-      sessionStorage.setItem(MUTE_SESSION_KEY, next ? "1" : "0");
-      return next;
-    });
-  }, []);
+  const dismissedRef          = useRef(false);
+  const autoTimerRef          = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const dismiss = useCallback(() => {
-    if (dismissed) return;
-    setDismissed(true);
+    if (dismissedRef.current) return;
+    dismissedRef.current = true;
+    if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
     localStorage.setItem(INTRO_SESSION_KEY, "1");
-    if (audioRef.current) audioRef.current.pause();
     setVisible(false);
-    setTimeout(() => onComplete(), 600);
-  }, [dismissed, onComplete]);
-
-  // Scene advance loop
-  const advanceScene = useCallback(() => {
-    setTransitioning(true);
-    const next = (currentScene + 1) % TOTAL_SCENES;
-    setNextScene(next);
-    setTimeout(() => {
-      setCurrentScene(next);
-      setNextScene(null);
-      setTransitioning(false);
-    }, TRANSITION_MS);
-  }, [currentScene]);
+    setTimeout(onComplete, 650);
+  }, [onComplete]);
 
   useEffect(() => {
-    if (prefersReducedMotion) return; // static in reduced-motion mode
-    timerRef.current = setTimeout(advanceScene, SCENE_DURATION_MS);
+    const t1 = setTimeout(() => setPhase("glow"),    400);
+    const t2 = setTimeout(() => setPhase("logo"),   1000);
+    const t3 = setTimeout(() => setPhase("tagline"),2400);
+    const t4 = setTimeout(() => setPhase("cta"),    4400);
+    autoTimerRef.current = setTimeout(dismiss,       8500);
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      [t1, t2, t3, t4].forEach(clearTimeout);
+      if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
     };
-  }, [advanceScene, prefersReducedMotion]);
+  }, [dismiss]);
 
-  const scene = SCENES[currentScene];
-  const nScene = nextScene !== null ? SCENES[nextScene] : null;
-
-  if (!visible) return null;
+  const after = (p: Phase, phases: Phase[]) => phases.includes(p);
 
   return (
     <div
-      className="fixed inset-0 z-[10000] overflow-hidden"
       style={{
-        background: "#000",
-        transition: dismissed ? "opacity 0.6s ease" : undefined,
-        opacity: dismissed ? 0 : 1,
+        position: "fixed", inset: 0, zIndex: 10000,
+        background: BG,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        overflow: "hidden",
+        opacity: visible ? 1 : 0,
+        transition: "opacity 0.65s ease-in-out",
+        pointerEvents: visible ? "auto" : "none",
       }}
-      role="dialog"
-      aria-label="WIZ AI cinematic intro"
     >
-      {/* ── Scene backgrounds ─────────────────────────────────────────── */}
-      {/* Current scene */}
-      <SceneBg scene={scene} active={!transitioning} beat={beat} />
-      {/* Next scene (fading in) */}
-      {nScene && (
-        <SceneBg scene={nScene} active={transitioning} beat={beat} fading />
-      )}
+      <style>{`
+        @keyframes intro-particle-rise {
+          0%   { transform: translateY(0) translateX(0) scale(1); opacity: var(--p-op); }
+          50%  { transform: translateY(-38px) translateX(var(--p-drift)) scale(1.2); opacity: calc(var(--p-op) * 1.4); }
+          100% { transform: translateY(-80px) translateX(0) scale(0.7); opacity: 0; }
+        }
+        @keyframes intro-bg-breathe {
+          0%, 100% { opacity: 0.55; transform: scale(1); }
+          50%       { opacity: 0.80; transform: scale(1.08); }
+        }
+        @keyframes intro-logo-halo {
+          0%, 100% { opacity: 0.55; transform: scale(1); }
+          50%       { opacity: 0.85; transform: scale(1.04); }
+        }
+        @keyframes intro-bar {
+          0%, 100% { height: var(--bar-base); }
+          50%       { height: var(--bar-peak); }
+        }
+        @keyframes intro-scanline {
+          0%   { transform: translateY(-100%); opacity: 0; }
+          10%  { opacity: 0.6; }
+          90%  { opacity: 0.6; }
+          100% { transform: translateY(100vh); opacity: 0; }
+        }
+        @keyframes intro-cta-shimmer {
+          0%   { background-position: 0% 50%; }
+          100% { background-position: 200% 50%; }
+        }
+        @keyframes intro-cta-ring-breathe {
+          0%, 100% { transform: scale(1); opacity: 0.55; }
+          50%       { transform: scale(1.06); opacity: 0.90; }
+        }
+        @keyframes intro-cta-ring-pulse {
+          0%   { transform: scale(1); opacity: 0.80; }
+          100% { transform: scale(1.45); opacity: 0; }
+        }
+        @keyframes intro-cta-sweep {
+          0%   { left: -40%; }
+          100% { left: 140%; }
+        }
+        @keyframes enter-btn-sparkle {
+          0%   { transform: translateY(0) scale(1); opacity: 0.9; }
+          60%  { transform: translateY(-28px) scale(1.3); opacity: 0.6; }
+          100% { transform: translateY(-55px) scale(0.5); opacity: 0; }
+        }
+      `}</style>
 
-      {/* ── Grain overlay ─────────────────────────────────────────────── */}
-      <div
-        className="absolute inset-0 pointer-events-none z-10"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")`,
-          backgroundSize: "200px 200px",
-          opacity: 0.35,
-          mixBlendMode: "overlay",
-        }}
-        aria-hidden
-      />
-
-      {/* ── Vignette ──────────────────────────────────────────────────── */}
-      <div
-        className="absolute inset-0 pointer-events-none z-10"
-        style={{
-          background: "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(0,0,0,0.7) 100%)",
-        }}
-        aria-hidden
-      />
-
-      {/* ── Overlay text (with parallax) ──────────────────────────────── */}
-      <div
-        className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-6 pointer-events-none"
-        style={{
-          transform: prefersReducedMotion
-            ? undefined
-            : `translate(${parallax.x * 0.4}px, ${parallax.y * 0.4}px)`,
-          transition: "transform 0.15s ease-out",
-        }}
-      >
-        <div
-          key={scene.id}
-          className="flex flex-col items-center gap-4"
-          style={{ animation: prefersReducedMotion ? undefined : "scene-text-in 0.5s ease-out forwards" }}
-        >
-          <h1
-            className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight"
-            style={{
-              fontFamily: "'Sora', system-ui, sans-serif",
-              background: "linear-gradient(160deg, #f2dfa0 0%, #e8c878 40%, #c49a3c 70%, #7a5820 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              backgroundClip: "text",
-              filter: beat && !prefersReducedMotion
-                ? "drop-shadow(0 0 20px rgba(196,154,60,0.6)) brightness(1.1)"
-                : "drop-shadow(0 0 12px rgba(196,154,60,0.3))",
-              transition: "filter 0.12s ease",
-            }}
-          >
-            {scene.headline}
-          </h1>
-          {scene.subline && (
-            <p
-              className="text-base sm:text-lg text-white/60 max-w-sm"
-              style={{ fontFamily: "'Open Sans', system-ui, sans-serif" }}
-            >
-              {scene.subline}
-            </p>
-          )}
-        </div>
+      {/* Background glow */}
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        opacity: after(phase, ["glow","logo","tagline","cta"]) ? 1 : 0,
+        transition: "opacity 1.8s ease",
+      }}>
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          transform: "translate(-50%,-50%)",
+          width: "70vw", height: "70vw", maxWidth: 700, maxHeight: 700,
+          borderRadius: "50%",
+          background: `radial-gradient(ellipse at center, rgba(196,164,100,0.14) 0%, rgba(196,164,100,0.04) 50%, transparent 75%)`,
+          animation: "intro-bg-breathe 4.5s ease-in-out infinite",
+        }} />
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          transform: "translate(-50%,-50%)",
+          width: "100vw", height: "100vh",
+          background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(80,40,120,0.10) 0%, transparent 70%)",
+        }} />
+        <div style={{
+          position: "absolute", left: 0, right: 0, height: 1,
+          background: `linear-gradient(90deg, transparent 0%, ${GOLD}55 30%, ${GOLD_LITE}88 50%, ${GOLD}55 70%, transparent 100%)`,
+          animation: "intro-scanline 6s ease-in-out infinite",
+          animationDelay: "1.2s",
+        }} />
       </div>
 
-      {/* ── Scene progress dots ───────────────────────────────────────── */}
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-30 flex gap-2" aria-hidden>
-        {SCENES.map((_, i) => (
+      {/* Particles */}
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        opacity: after(phase, ["glow","logo","tagline","cta"]) ? 1 : 0,
+        transition: "opacity 2s ease",
+      }}>
+        {PARTICLES.map((p, i) => (
           <div
             key={i}
-            className="rounded-full transition-all duration-300"
             style={{
-              width: i === currentScene ? 20 : 6,
-              height: 6,
-              background: i === currentScene
-                ? "linear-gradient(90deg, #c49a3c, #e8c878)"
-                : "rgba(255,255,255,0.2)",
-            }}
+              position: "absolute",
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+              width: p.size,
+              height: p.size,
+              borderRadius: "50%",
+              background: i % 3 === 0 ? GOLD_LITE : i % 3 === 1 ? GOLD : "#fff",
+              boxShadow: `0 0 ${p.size * 3}px ${p.size}px ${GOLD}66`,
+              "--p-op": p.opacity,
+              "--p-drift": `${p.drift}px`,
+              animation: `intro-particle-rise ${p.dur}s ${p.delay}s ease-in-out infinite`,
+            } as CSSProperties}
           />
         ))}
       </div>
 
-      {/* ── Optional audio element (plays intro sting when URL is set) ──── */}
-      {INTRO_AUDIO_URL && (
-        <audio
-          ref={audioRef}
-          src={INTRO_AUDIO_URL}
-          muted={isMuted}
-          loop
-          autoPlay
-          preload="auto"
-          aria-hidden
-        />
-      )}
+      {/* Centre stack */}
+      <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
 
-      {/* ── Mute / unmute toggle ──────────────────────────────────────── */}
-      <button
-        onClick={toggleMute}
-        aria-label={isMuted ? "Unmute audio" : "Mute audio"}
-        className="absolute top-5 right-5 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-105"
-        style={{
-          animation: isMuted ? "unmute-pulse 2s ease-in-out infinite" : "none",
-          background: isMuted
-            ? "rgba(196,164,100,0.12)"
-            : "rgba(196,164,100,0.08)",
-          border: isMuted
-            ? "1px solid rgba(196,164,100,0.55)"
-            : "1px solid rgba(196,164,100,0.25)",
-          boxShadow: isMuted
-            ? "0 0 16px rgba(196,164,100,0.30), inset 0 0 8px rgba(196,164,100,0.08)"
-            : "none",
-        }}
-      >
-        {isMuted ? (
-          <>
-            {/* Animated sound wave bars */}
-            <div className="flex items-end gap-[2px] h-4">
-              {[
-                { anim: "sound-bar-1 0.6s 0s ease-in-out infinite" },
-                { anim: "sound-bar-2 0.6s 0.1s ease-in-out infinite" },
-                { anim: "sound-bar-3 0.6s 0.2s ease-in-out infinite" },
-                { anim: "sound-bar-4 0.6s 0.3s ease-in-out infinite" },
-                { anim: "sound-bar-5 0.6s 0.15s ease-in-out infinite" },
-              ].map((b, i) => (
-                <div
-                  key={i}
-                  style={{
-                    animation: b.anim,
-                    width: "3px",
-                    borderRadius: "2px",
-                    background: "#c4a464",
-                    minHeight: "4px",
-                  }}
-                />
-              ))}
-            </div>
-            <span className="text-[#c4a464] text-[10px] tracking-[0.18em] uppercase font-semibold">Tap for Sound</span>
-          </>
-        ) : (
-          <>
-            <Volume2 className="w-4 h-4 text-[#c4a464]/80" />
-            <span className="text-[#c4a464]/80 text-[10px] tracking-[0.18em] uppercase font-semibold">Sound On</span>
-          </>
-        )}
-      </button>
+        {/* Logo */}
+        <div style={{ position: "relative", marginBottom: 28 }}>
+          <div style={{
+            position: "absolute", inset: -24, borderRadius: "50%",
+            background: `radial-gradient(ellipse at center, ${GOLD}22 0%, ${GOLD}08 50%, transparent 75%)`,
+            animation: after(phase, ["logo","tagline","cta"]) ? "intro-logo-halo 3s ease-in-out infinite" : "none",
+            opacity: after(phase, ["logo","tagline","cta"]) ? 1 : 0,
+            transition: "opacity 1s ease",
+          }} />
+          <img
+            src={LOGO_URL}
+            alt="WIZ AI"
+            style={{
+              width: "clamp(120px, 22vw, 220px)",
+              height: "auto",
+              display: "block",
+              filter: after(phase, ["logo","tagline","cta"])
+                ? `drop-shadow(0 0 22px ${GOLD}99) drop-shadow(0 0 50px ${GOLD}44)`
+                : "none",
+              opacity: after(phase, ["logo","tagline","cta"]) ? 1 : 0,
+              transform: after(phase, ["logo","tagline","cta"])
+                ? "scale(1) translateY(0)"
+                : "scale(0.82) translateY(16px)",
+              transition: "opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1), filter 1.2s ease",
+            }}
+          />
+        </div>
 
-      {/* ── Skip button ───────────────────────────────────────────────── */}
+        {/* Waveform */}
+        <div style={{
+          display: "flex", alignItems: "flex-end",
+          gap: "clamp(2px, 0.5vw, 4px)",
+          height: 64, marginBottom: 24,
+          opacity: after(phase, ["tagline","cta"]) ? 1 : 0,
+          transform: after(phase, ["tagline","cta"]) ? "translateY(0)" : "translateY(12px)",
+          transition: "opacity 0.8s ease, transform 0.8s ease",
+        }}>
+          {BARS.map((bar, i) => (
+            <div
+              key={i}
+              style={{
+                width: "clamp(2px, 0.6vw, 5px)",
+                borderRadius: 3,
+                background: i % 4 === 0
+                  ? `linear-gradient(to top, ${GOLD_DEEP}, ${GOLD_LITE})`
+                  : i % 4 === 1
+                  ? `linear-gradient(to top, ${GOLD_DEEP}, ${GOLD})`
+                  : i % 4 === 2
+                  ? `linear-gradient(to top, ${GOLD_DEEP}, ${GOLD_LITE}99)`
+                  : `linear-gradient(to top, ${GOLD_DEEP}, #fff8)`,
+                boxShadow: i % 5 === 0 ? `0 0 6px ${GOLD}88` : "none",
+                "--bar-base": `${bar.baseH}px`,
+                "--bar-peak": `${bar.peakH}px`,
+                height: `${bar.baseH}px`,
+                animation: after(phase, ["tagline","cta"])
+                  ? `intro-bar ${bar.dur}s ${bar.delay}s ease-in-out infinite`
+                  : "none",
+              } as CSSProperties}
+            />
+          ))}
+        </div>
+
+        {/* Tagline */}
+        <p style={{
+          margin: "0 0 48px",
+          color: GOLD,
+          fontSize: "clamp(0.55rem, 1.4vw, 0.82rem)",
+          fontWeight: 600,
+          textTransform: "uppercase",
+          opacity: after(phase, ["tagline","cta"]) ? 1 : 0,
+          letterSpacing: after(phase, ["tagline","cta"]) ? "0.30em" : "0.6em",
+          transition: "opacity 1.1s ease, letter-spacing 1.1s ease",
+          textShadow: `0 0 20px ${GOLD}88`,
+          whiteSpace: "nowrap",
+        }}>
+          The Future of Music Video Creation
+        </p>
+
+        {/* CTA */}
+        <div style={{
+          opacity: after(phase, ["cta"]) ? 1 : 0,
+          transform: after(phase, ["cta"]) ? "translateY(0)" : "translateY(28px)",
+          transition: "opacity 0.75s ease, transform 0.75s ease",
+          pointerEvents: after(phase, ["cta"]) ? "auto" : "none",
+        }}>
+          <div style={{ position: "relative" }}>
+            {/* Sparkle particles */}
+            {[
+              { left: "-55px", delay: "0s",   dur: "2.2s", size: 5, color: GOLD_LITE },
+              { left: "-28px", delay: "0.4s", dur: "1.8s", size: 3, color: "#fff"    },
+              { left:  "10px", delay: "0.8s", dur: "2.5s", size: 4, color: GOLD      },
+              { left:  "42px", delay: "0.2s", dur: "2.0s", size: 3, color: GOLD_LITE },
+              { left:  "68px", delay: "1.1s", dur: "1.9s", size: 5, color: "#fff"    },
+              { left: "-46px", delay: "1.5s", dur: "2.3s", size: 3, color: GOLD      },
+              { left:  "22px", delay: "0.6s", dur: "2.1s", size: 4, color: GOLD_LITE },
+            ].map((s, i) => (
+              <div
+                key={i}
+                style={{
+                  position: "absolute",
+                  left: s.left,
+                  bottom: 6,
+                  width: s.size,
+                  height: s.size,
+                  borderRadius: "50%",
+                  background: s.color,
+                  boxShadow: `0 0 6px 2px ${s.color}88`,
+                  animation: `enter-btn-sparkle ${s.dur} ${s.delay} ease-out infinite`,
+                  pointerEvents: "none",
+                }}
+              />
+            ))}
+            {/* Breathing ring */}
+            <div style={{
+              position: "absolute", inset: -10, borderRadius: 9999,
+              border: "1.5px solid rgba(196,164,100,0.50)",
+              animation: "intro-cta-ring-breathe 2.4s ease-in-out infinite",
+              pointerEvents: "none",
+            }} />
+            {/* Pulse ring */}
+            <div style={{
+              position: "absolute", inset: -6, borderRadius: 9999,
+              border: "2px solid rgba(232,201,122,0.65)",
+              animation: "intro-cta-ring-pulse 1.8s ease-out infinite",
+              pointerEvents: "none",
+            }} />
+            <button
+              onClick={dismiss}
+              aria-label="Enter WIZ AI"
+              style={{
+                display: "flex", alignItems: "center", gap: 16,
+                padding: "1rem 3rem",
+                borderRadius: 9999,
+                border: "none",
+                cursor: "pointer",
+                background: `linear-gradient(105deg, ${GOLD_DEEP} 0%, ${GOLD} 20%, #f0d98a 45%, ${GOLD_LITE} 55%, ${GOLD} 75%, ${GOLD_DEEP} 100%)`,
+                backgroundSize: "300% 100%",
+                animation: "intro-cta-shimmer 3s linear infinite",
+                boxShadow: [
+                  "0 0 0 1px rgba(255,255,255,0.18)",
+                  `0 0 28px ${GOLD}88`,
+                  `0 0 60px ${GOLD}44`,
+                  "inset 0 1px 0 rgba(255,255,255,0.35)",
+                  "inset 0 -1px 0 rgba(0,0,0,0.20)",
+                ].join(", "),
+                color: "#0a0a0f",
+                fontWeight: 900,
+                fontSize: "clamp(0.8rem, 1.5vw, 0.95rem)",
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+                overflow: "hidden",
+                position: "relative",
+              }}
+            >
+              {/* Light sweep */}
+              <span style={{
+                position: "absolute", top: 0, bottom: 0, width: "40%",
+                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)",
+                animation: "intro-cta-sweep 2.8s ease-in-out infinite",
+                pointerEvents: "none",
+              }} />
+              <span style={{
+                position: "relative",
+                textShadow: "0 1px 0 rgba(255,255,255,0.3), 0 -1px 0 rgba(0,0,0,0.15)",
+              }}>
+                Enter WIZ AI
+              </span>
+              <ChevronRight style={{ position: "relative", width: 20, height: 20 }} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Skip Intro — top-right */}
       <button
         onClick={dismiss}
-        className="absolute top-5 left-5 z-40 flex items-center gap-1.5 text-sm text-white/50 hover:text-white/80 transition-colors"
+        style={{
+          position: "absolute",
+          top: "max(env(safe-area-inset-top), 1.25rem)",
+          right: "max(env(safe-area-inset-right), 1.25rem)",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          color: "rgba(255,255,255,0.35)",
+          fontSize: "0.7rem",
+          fontWeight: 500,
+          letterSpacing: "0.20em",
+          textTransform: "uppercase",
+          padding: "0.5rem 0.75rem",
+          opacity: after(phase, ["glow","logo","tagline","cta"]) ? 1 : 0,
+          transition: "opacity 0.6s ease, color 0.2s ease",
+        }}
+        onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
+        onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.35)")}
         aria-label="Skip intro"
       >
-        <X className="w-3.5 h-3.5" />
-        <span>Skip</span>
+        Skip Intro
       </button>
-
-      {/* ── Enter CTA ─────────────────────────────────────────────────── */}
-      <button
-        onClick={dismiss}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-[#1a0f00] transition-all duration-200 hover:scale-105 active:scale-95"
-        style={{
-          background: "linear-gradient(180deg, #f0d878 0%, #d4a832 40%, #a07828 100%)",
-          boxShadow: beat && !prefersReducedMotion
-            ? "0 0 24px rgba(196,154,60,0.5), 0 4px 16px rgba(0,0,0,0.4)"
-            : "0 0 12px rgba(196,154,60,0.25), 0 4px 16px rgba(0,0,0,0.4)",
-          transition: "box-shadow 0.12s ease",
-        }}
-      >
-        Enter WIZ AI
-        <ChevronRight className="w-4 h-4" />
-      </button>
-
-      {/* ── CSS keyframes ─────────────────────────────────────────────── */}
-      <style>{`
-        @keyframes scene-text-in {
-          from { opacity: 0; transform: translateY(12px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes ken-burns {
-          from { transform: scale(1.0); }
-          to   { transform: scale(1.08); }
-        }
-        @keyframes ken-burns-reverse {
-          from { transform: scale(1.08); }
-          to   { transform: scale(1.0); }
-        }
-        @keyframes beat-light {
-          0%   { opacity: 0; }
-          5%   { opacity: 0.6; }
-          15%  { opacity: 0; }
-          100% { opacity: 0; }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-// ── Scene background component ─────────────────────────────────────────────
-const SCENE_BG_CONFIGS: Record<number, { from: string; via: string; to: string }> = {
-  1: { from: "#000000", via: "#0a0508", to: "#050208" },
-  2: { from: "#020510", via: "#050a1a", to: "#020510" },
-  3: { from: "#100402", via: "#1a0804", to: "#0a0200" },
-  4: { from: "#080210", via: "#100418", to: "#060110" },
-  5: { from: "#021010", via: "#041818", to: "#020a0a" },
-  6: { from: "#080604", via: "#120e06", to: "#080604" },
-};
-
-function SceneBg({
-  scene,
-  active,
-  beat,
-  fading = false,
-}: {
-  scene: Scene;
-  active: boolean;
-  beat: boolean;
-  fading?: boolean;
-}) {
-  const cfg = SCENE_BG_CONFIGS[scene.id] ?? SCENE_BG_CONFIGS[1];
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  return (
-    <div
-      className="absolute inset-0 z-0"
-      style={{
-        opacity: fading ? (active ? 1 : 0) : active ? 1 : 0,
-        transition: `opacity ${fading ? 0.6 : 0.6}s ease`,
-      }}
-    >
-      {/* Gradient background */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: `radial-gradient(ellipse 120% 120% at 50% 60%, ${cfg.via} 0%, ${cfg.from} 50%, ${cfg.to} 100%)`,
-          animation: prefersReducedMotion ? undefined : `${scene.id % 2 === 0 ? "ken-burns" : "ken-burns-reverse"} ${SCENE_DURATION_MS}ms ease-in-out forwards`,
-        }}
-      />
-
-      {/* Beat-pulse light flash */}
-      {!prefersReducedMotion && (
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: `radial-gradient(ellipse 60% 60% at 50% 40%, ${scene.accentClass === "accent-gold" ? "rgba(196,154,60,0.12)" : scene.accentClass === "accent-blue" ? "rgba(80,120,220,0.12)" : scene.accentClass === "accent-orange" ? "rgba(220,100,30,0.12)" : scene.accentClass === "accent-purple" ? "rgba(140,80,200,0.12)" : "rgba(40,180,160,0.12)"} 0%, transparent 70%)`,
-            opacity: beat ? 1 : 0,
-            transition: "opacity 0.12s ease",
-          }}
-          aria-hidden
-        />
-      )}
-
-      {/* Scene-specific overlays */}
-      {scene.showParticles && <ParticleLayer active={active} type="dust" />}
-      {scene.showFlames && <ParticleLayer active={active} type="flames" />}
-      {scene.showCharCuts && <CharCuts />}
-      {scene.showMontage && <MontageLabels />}
-      {scene.showOutput && <OutputFrame />}
     </div>
   );
 }
