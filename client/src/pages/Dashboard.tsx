@@ -2,6 +2,7 @@ import { WIZANIMATE_PRODUCT_PAGE, WIZVIDEO_STUDIO_PAGE, WIZVIDEO_NEW_PROJECT, WI
 import { SceneHistoryLog } from "@/components/SceneHistoryLog";
 import { FuelTheSession } from "@/components/FuelTheSession";
 import { ReturnTriggerBanner } from "@/components/ReturnTriggerBanner";
+import { NotificationBell } from "@/components/NotificationBell";
 /**
  * Dashboard — High-retention creator hub.
  * Shows action cards, continue projects, project grid, insights, upgrade block, inspiration, empty state.
@@ -225,6 +226,7 @@ export default function Dashboard() {
               <Users className="w-3 h-3" />
               Discover Creators
             </a>
+            <NotificationBell />
             <a
               href="/account"
               className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center hover:bg-white/15 transition-colors"

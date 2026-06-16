@@ -2700,6 +2700,22 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       console.error("[Email] Failed to send render complete email:", emailErr);
     }
 
+    // ── In-app notification ──────────────────────────────────────────────────
+    try {
+      const { inAppNotifications } = await import("../drizzle/schema");
+      await dbConn.insert(inAppNotifications).values({
+        userId: job.userId,
+        title: "Your video is ready! 🎬",
+        message: "Your music video has finished rendering and is ready to download.",
+        type: "system",
+        actionUrl: `/dashboard?jobId=${jobId}`,
+        actionLabel: "View video",
+        isRead: false,
+      });
+    } catch (notifErr) {
+      console.error("[Notification] Failed to insert in-app notification:", notifErr);
+    }
+
     return url;
   } finally {
     try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {}

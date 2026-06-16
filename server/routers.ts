@@ -31,6 +31,7 @@ import { unsubscribeRouter } from "./routers/unsubscribe";
 import { characterLibraryRouter } from "./routers/characterLibrary";
 import { studiosRouter } from "./routers/studios";
 import { wizavisionRouter } from "./routers/wizavision";
+import { notificationsRouter } from "./routers/notifications";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -64,6 +65,7 @@ export const appRouter = router({
   characterLibrary: characterLibraryRouter,
   studios: studiosRouter,
   wizavision: wizavisionRouter,
+  notifications: notificationsRouter,
   platform: router({
     stats: publicProcedure.query(async () => {
       try {
