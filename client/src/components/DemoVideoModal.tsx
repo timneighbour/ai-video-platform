@@ -142,14 +142,13 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
           className="relative w-full rounded-xl overflow-hidden bg-black"
           style={{ aspectRatio: "16/9", boxShadow: "0 0 80px rgba(0,0,0,0.8)" }}
         >
-          {/* iOS Safari: muted attr required for autoplay, playsInline + webkit-playsinline both needed */}
+          {/* iOS Safari: playsInline + webkit-playsinline both needed. Do NOT add muted attr — JS controls vid.muted directly */}
           <video
             ref={videoRef}
             src={VIDEO_SRC}
             poster={POSTER_URL}
             className="w-full h-full object-contain"
             playsInline
-            muted
             preload="metadata"
             {...{ "webkit-playsinline": "true", "x-webkit-airplay": "allow" }}
             onTimeUpdate={handleTimeUpdate}
