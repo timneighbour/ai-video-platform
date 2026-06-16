@@ -91,7 +91,7 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
     clearAll();
     const vid = videoRef.current;
     if (vid) vid.pause();
-    localStorage.setItem(INTRO_SESSION_KEY, "1");
+    sessionStorage.setItem(INTRO_SESSION_KEY, "1");
     setVisible(false);
     setTimeout(onComplete, 650);
   }, [onComplete]);
@@ -138,7 +138,7 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
       opacity: visible ? 1 : 0,
       transition: "opacity 0.65s ease-in-out",
       pointerEvents: visible ? "auto" : "none",
-      zIndex: 10000,
+      zIndex: 9999,
     }}>
       <style>{`
         @keyframes wi-particle {
