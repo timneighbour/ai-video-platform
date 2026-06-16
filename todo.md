@@ -3267,7 +3267,7 @@
 - [ ] Add premium imagery/gradients to dashboard cards
 - [x] Fix project resume — clicking a project loads it into the editor
 - [x] Fix global nav links across remaining pages
-- [ ] Replace all "Pro" plan references with correct tier names (Creator/Studio)
+- [x] Replace all "Pro" plan references with correct tier names (Creator/Studio)
 
 ## WIZSOUND DEMO AUDIO FIX (Apr 2026)
 - [ ] Generate Standard audio track (raw, dry, unprocessed)
@@ -3321,13 +3321,13 @@
 - [x] Generate WizLumina™ logo: glowing orb/light burst, purple + gold glow, dark background
 - [x] Create WizLumina™ homepage section: Standard / Enhance (+£2) / Cinematic (+£5) with A/B visual toggle
 - [x] Add "See the Difference" visual comparison section on homepage (same video, Standard vs Cinematic toggle)
-- [ ] Add WizLumina™ to DemoVideoModal comparison
+- [x] Add WizLumina™ to DemoVideoModal comparison
 - [x] Update pricing: 720p→£3, 1080p→£6, 4K→£10; WizSound Enhance→+£2, Cinematic→+£5; WizLumina Enhance→+£2, Cinematic→+£5
 - [x] Add "Cinematic Mode" bundle (+£8): WizSound Cinematic + WizLumina Cinematic, BEST EXPERIENCE label, most prominent in paywall
 - [x] Upgrade RenderPaywallModal order: Quality → Cinematic Mode (pre-selected) → Individual upgrades
 - [ ] Add "How WizVid Works" education section to homepage (5 steps with images)
 - [ ] Reposition language site-wide: replace "enhancement"/"audio upgrade" with "Cinematic Engine"/"Studio-Grade Sound"/"Film-Level Visuals"
-- [ ] Wire WizLumina logo into paywall, homepage section, comparison section
+- [x] Wire WizLumina logo into paywall, homepage section, comparison section
 
 ## Unified WizSound + WizLumina Tier System
 - [x] Rebuild RenderPaywallModal: single master tier toggle (Standard / Enhance / Cinematic) that auto-syncs both WizSound and WizLumina
@@ -3336,7 +3336,7 @@
 - [x] Auto-sync: selecting Cinematic on either system enables both
 - [x] Update WizSoundSection homepage to reference unified system
 - [x] Update WizLuminaSection homepage to reference unified system
-- [ ] Update pricing page to reflect unified tier pricing
+- [x] Update pricing page to reflect unified tier pricing
 
 ## Homepage Cinematic Rebuild (Pasted_content_04)
 - [x] Update hero headline: "Create Cinematic Videos with AI"

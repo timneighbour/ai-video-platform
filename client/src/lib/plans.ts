@@ -203,7 +203,7 @@ export const PLANS: PlanData[] = [
   },
   {
     id: "pro",
-    name: "Pro",
+    name: "Pro Plus",
     monthlyPrice: 59,
     annualTotal: 590,
     annualSaving: 118,

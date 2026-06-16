@@ -66,9 +66,9 @@ const ENHANCE_TIERS: Array<{
     audioPrice: 0,
     visualPrice: 0,
     bundlePrice: 0,
-    audioLabel: "Original audio",
+    audioLabel: "Standard Audio",
     visualLabel: "Original visuals",
-    audioFeatures: ["Original mix", "Stereo output"],
+    audioFeatures: ["Clean stereo mix", "Ready to share"],
     visualFeatures: ["Original AI output", "Standard colour"],
   },
   {
@@ -79,8 +79,8 @@ const ENHANCE_TIERS: Array<{
     bundlePrice: 2,
     audioLabel: "WizSound™ Enhance",
     visualLabel: "WizLumina™ Enhance",
-    audioFeatures: ["Stereo widening", "Frequency EQ", "Noise reduction"],
-    visualFeatures: ["Improved brightness & contrast", "Sharper image", "Vibrant colours"],
+    audioFeatures: ["Richer, fuller sound", "Cleaner audio", "Wider stereo feel"],
+    visualFeatures: ["Brighter, punchier image", "Sharper detail", "More vivid colours"],
     badge: "POPULAR",
   },
   {
@@ -91,11 +91,11 @@ const ENHANCE_TIERS: Array<{
     bundlePrice: 1, // bundle: 4K (£6) + Cinematic (£1) = £7 total (Cinematic Pack)
     audioLabel: "WizSound™ Cinematic",
     visualLabel: "WizLumina™ Cinematic",
-    audioFeatures: ["Full mastering pipeline", "Immersive spatial depth", "Streaming loudness (−14 LUFS)"],
-    visualFeatures: ["Advanced colour grading", "HDR tone mapping", "Film-level finish"],
+    audioFeatures: ["Studio-mastered sound", "Deep, immersive audio", "Optimised for streaming"],
+    visualFeatures: ["Film-grade colour grading", "Cinematic contrast & depth", "Polished, professional finish"],
     badge: "★ RECOMMENDED",
     highlight: true,
-    microcopy: "Studio-grade audio and cinematic visuals",
+    microcopy: "Studio-grade sound and film-level visuals",
   },
 ];
 
@@ -253,7 +253,7 @@ export function RenderPaywallModal({
           {/* ── Unified Enhancement Mode ───────────────────────────────── */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-white">Enhancement Mode</h3>
+              <h3 className="text-sm font-semibold text-white">Sound &amp; Vision</h3>
               {isCinematicMode && (
                 <span className="text-[10px] text-[--color-silver] font-medium">Cinematic Pack — 4K + WizSound™</span>
               )}
@@ -307,14 +307,16 @@ export function RenderPaywallModal({
 
                           {/* Audio + Visual sub-labels — the key UI showing both are synced */}
                           <div className="flex gap-3 mt-1.5 flex-wrap">
-                            <div className="flex items-center gap-1">
-                              <span className="text-[10px] text-muted-foreground/50">♪</span>
+                            <div className="flex items-center gap-1.5">
+                              <img src="/manus-storage/wizsound-logo-new_c5cced65_d334a3bb.png" alt="WizSound" className="h-3 w-auto object-contain opacity-60" />
                               <span className="text-[11px] text-[--color-silver] font-medium">{tier.audioLabel}</span>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <span className="text-[10px] text-muted-foreground/50">◆</span>
-                              <span className="text-[11px] text-[--color-gold] font-medium">{tier.visualLabel}</span>
-                            </div>
+                            {tier.id !== "standard" && (
+                              <div className="flex items-center gap-1.5">
+                                <img src="/manus-storage/wizlumina-logo-new_0709f3c5_83ddc673.png" alt="WizLumina" className="h-3 w-auto object-contain opacity-80" />
+                                <span className="text-[11px] text-[--color-gold] font-medium">{tier.visualLabel}</span>
+                              </div>
+                            )}
                           </div>
 
                           {/* Microcopy for cinematic */}

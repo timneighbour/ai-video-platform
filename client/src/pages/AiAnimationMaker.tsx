@@ -163,7 +163,7 @@ const FAQS = [
   },
   {
     q: "What video lengths are supported?",
-    a: "From short 5-second clips up to 96-second full animated videos (12 scenes × 8 seconds each) on the Pro plan. Longer formats are in development.",
+    a: "From short 5-second clips up to 96-second full animated videos (12 scenes × 8 seconds each) on the Pro Plus plan. Longer formats are in development.",
   },
   {
     q: "Is the output watermark-free?",

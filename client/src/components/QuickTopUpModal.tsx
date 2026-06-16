@@ -66,7 +66,7 @@ const PACKS = [
   },
   {
     key: "pro" as const,
-    name: "Pro",
+    name: "Pro Plus",
     credits: 1500,
     priceGbp: 84.99,
     priceDisplay: "£84.99",

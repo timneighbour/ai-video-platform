@@ -31,7 +31,7 @@ const PLANS = SHARED_PLANS.map((p) => ({ ...p, icon: PLAN_ICONS[p.id] }));
 // Component 
 export default function Subscribe() {
 
- useSEO({ title: "Subscribe — WIZ AI Plans & Pricing", path: "/subscribe", description: "Choose your WIZ AI plan. Starter, Creator, and Pro tiers with full access to AI video, music, image, and animation tools. Start with a free trial." });
+ useSEO({ title: "Subscribe — WIZ AI Plans & Pricing", path: "/subscribe", description: "Choose your WIZ AI plan. Starter, Creator, and Pro Plus tiers with full access to AI video, music, image, and animation tools. Start with a free trial." });
  const { isAuthenticated } = useAuth();
  // Track subscription page view
  useEffect(() => { mp.subscriptionViewed("direct"); }, []);
@@ -294,7 +294,7 @@ export default function Subscribe() {
  <thead>
  <tr className="border-b border-white/10">
  <th className="text-left p-4 text-muted-foreground font-medium w-40">Feature</th>
- {["Free", "Starter", "Basic", "Creator", "Pro", "Studio"].map((name) => (
+ {["Free", "Starter", "Basic", "Creator", "Pro Plus", "Studio"].map((name) => (
  <th key={name} className={`p-4 text-center font-bold ${name === "Creator" ? "text-[--color-gold]" : "text-white"}`}>
  {name}
  {name === "Creator" && <div className="text-xs text-[--color-gold]/70 font-normal mt-0.5">Most Popular</div>}

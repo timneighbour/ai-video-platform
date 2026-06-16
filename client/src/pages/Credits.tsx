@@ -92,7 +92,7 @@ const STANDARD_PACKS = [
   },
   {
     id: "pro" as const,
-    name: "Pro",
+    name: "Pro Plus",
     tagline: "4–5 videos",
     price: 84.99,
     priceDisplay: "£84.99",

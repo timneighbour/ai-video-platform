@@ -42,17 +42,17 @@ export default function HomePricingSection() {
             className="text-xs font-semibold tracking-[0.2em] uppercase mb-4"
             style={{ color: "oklch(0.82 0.16 80)" }}
           >
-            Simple Pricing
+            Transparent Pricing
           </p>
           <h2
             id="home-pricing-heading"
             className="text-3xl sm:text-4xl font-bold text-white mb-4 leading-tight"
           >
-            Create videos from{" "}
-            <span style={{ color: "oklch(0.82 0.16 80)" }}>£1 per minute</span>
+            Create for free.{" "}
+            <span style={{ color: "oklch(0.82 0.16 80)" }}>Pay to render.</span>
           </h2>
           <p className="text-base text-white/60 max-w-xl mx-auto">
-            Start free. Only pay when you render. Upgrade for more credits, higher quality, and priority builds.
+            Build your entire video — storyboard, scenes, lip sync — at no cost. Only pay when you're ready to download your finished video. No subscriptions required.
           </p>
         </div>
 
