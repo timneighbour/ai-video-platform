@@ -244,7 +244,7 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
       </div>
 
       {/* Logo — pinned to top centre */}
-      <div style={{ position: "absolute", top: "1.5vh", left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
+      <div style={{ position: "absolute", top: -50, left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
         <div style={{ position: "relative" }}>
           <div style={{ position: "absolute", inset: -32, borderRadius: "50%", background: `radial-gradient(ellipse at center, ${GOLD}1A 0%, transparent 70%)`, animation: show("ambient","clips","cta") ? "wi-halo 3.2s ease-in-out infinite" : "none", opacity: show("ambient","clips","cta") ? 1 : 0, transition: "opacity 1s ease" }} />
           <img
