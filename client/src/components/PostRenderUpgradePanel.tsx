@@ -33,9 +33,9 @@ const QUALITY_META: Record<Quality, { label: string; resolution: string; badge?:
 };
 
 const AUDIO_META: Record<AudioTier, { label: string; description: string; badge?: string }> = {
-  standard:  { label: "Standard Audio",       description: "Original audio track" },
-  enhanced:  { label: "WizSound Active",       description: "Stereo widening + EQ" },
-  cinematic: { label: "WizSound Spatial",      description: "Spatial depth, −14 LUFS master", badge: "Recommended" },
+  standard:  { label: "Standard Audio",         description: "Original audio — unprocessed" },
+  enhanced:  { label: "WizSound™ Enhance",      description: "Stereo widening, EQ, light compression" },
+  cinematic: { label: "WizSound™ Cinematic",    description: "Spatial depth, −14 LUFS cinematic master", badge: "Recommended" },
 };
 
 export default function PostRenderUpgradePanel({

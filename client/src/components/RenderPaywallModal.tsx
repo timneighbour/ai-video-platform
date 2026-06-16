@@ -219,6 +219,9 @@ export function RenderPaywallModal({
             </div>
             <DialogTitle className="text-xl font-bold text-white">Make your video cinematic</DialogTitle>
             <p className="text-sm text-white/50 mt-1">Choose your enhancement — only pay when you build your final video.</p>
+            <p className="text-[10px] text-white/30 mt-1 font-mono tracking-widest uppercase">
+              Powered by <span className="text-[rgba(184,137,42,0.7)]">WizCreate™</span> &amp; <span className="text-[rgba(184,137,42,0.7)]">WizSound™</span>
+            </p>
           </div>
 
  {/* Free render badge — P0.2: prominent free tier messaging */}

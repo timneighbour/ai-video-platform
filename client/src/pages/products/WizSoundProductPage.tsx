@@ -124,7 +124,7 @@ const FAQS = [
  { q: "Can I hear the difference before paying?", a: "Yes — use the audio demo player on this page to hear the same source track processed through each tier. The preview uses real WizSound-processed audio, not a simulation." },
  { q: "What do credits cover for WizSound?", a: "Previewing is always free. Credits are only charged when you export the final enhanced audio. You can compare tiers and listen as many times as you like before deciding." },
  { q: "Can I use the enhanced audio commercially?", a: "Yes — all WizSound-processed audio is fully licensed for commercial use on all plans, including streaming platforms, sync licensing, broadcast, and live events." },
- { q: "What is the difference between Active and Spatial?", a: "WizSound Active applies 7-stage enhancement including stereo widening, 3-band EQ, and loudness normalisation. WizSound Spatial adds the full 13-stage cinematic chain — Haas psychoacoustic widening, 5-band EQ, harmonic exciter, concert reverb, and −14 LUFS mastering." },
+ { q: "What is the difference between Enhance and Cinematic?", a: "WizSound™ Enhance applies 7-stage enhancement including stereo widening, 3-band EQ, and loudness normalisation. WizSound™ Cinematic adds the full 13-stage cinematic chain — Haas psychoacoustic widening, 5-band EQ, harmonic exciter, concert reverb, and −14 LUFS mastering." },
 ];
 
 function FaqItem({ q, a }: { q: string; a: string }) {

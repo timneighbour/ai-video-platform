@@ -26,8 +26,8 @@ import { ChevronRight, Volume2, X } from "@/lib/icons";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
 // ── Audio configuration ───────────────────────────────────────────────────
-// Placeholder URL — replace with a real cinematic sting when available
-const INTRO_AUDIO_URL = "";
+// WizSound cinematic demo track used as intro sting until a dedicated sting is produced
+const INTRO_AUDIO_URL = "/manus-storage/wizsound-cinematic_73f24d09.mp3";
 // Session key to remember mute preference (shared with IntroScreen)
 const MUTE_SESSION_KEY = "wizai_intro_muted";
 

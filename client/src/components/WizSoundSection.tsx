@@ -35,16 +35,16 @@ const MODE_CONFIG: Record<AudioMode, {
     borderColor: "rgba(255,255,255,0.1)",
   },
   enhanced: {
-    label: "WizSound Active",
-    sublabel: "WizSound™",
+    label: "WizSound™ Enhance",
+    sublabel: "WizSound™ Enhance",
     description: "Richer · Fuller · Clearer · Studio-mastered audio enhancement",
     gradient: "linear-gradient(135deg, rgba(139,92,246,0.85), rgba(99,102,241,0.75))",
     glow: "0 0 16px rgba(139,92,246,0.35)",
     borderColor: "rgba(139,92,246,0.45)",
   },
   cinematic: {
-    label: "WizSound Spatial",
-    sublabel: "WizSound™ Spatial",
+    label: "WizSound™ Cinematic",
+    sublabel: "WizSound™ Cinematic",
     description: "Spatial depth · Immersive reverb · Deep bass · Cinema-grade audio",
     gradient: "linear-gradient(135deg, rgba(217,70,239,0.9), rgba(139,92,246,0.8))",
     glow: "0 0 24px rgba(217,70,239,0.45), 0 0 48px rgba(139,92,246,0.2)",
@@ -571,16 +571,16 @@ export default function WizSoundSection() {
             WizSound™ Spatial Audio Engine
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
-            Hear the{" "}
+            Cinematic sound.{" "}
             <span className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 bg-clip-text text-transparent">
-              spatial difference
+              Not just visuals.
             </span>
           </h2>
           <p className="text-white/50 text-lg max-w-2xl mx-auto leading-relaxed">
-            Cinema-grade immersive audio. Toggle between Standard, Enhanced, and Cinematic spatial modes to experience how WizSound transforms your video's sound.
+            WizSound™ transforms your audio into an immersive, cinematic experience — adding depth, clarity, and impact to every video.
           </p>
           <p className="text-[rgba(184,137,42,0.5)] text-sm mt-2 font-medium">
-            Best experienced with headphones for full spatial depth
+            Simulated cinematic spatial audio experience
           </p>
         </div>
 
@@ -595,22 +595,22 @@ export default function WizSoundSection() {
           <div className="flex flex-col gap-3 reveal" style={{ transitionDelay: "200ms" }}>
             <FeatureCard
               icon={Volume2}
-              title="Standard Audio"
-              description="The raw, unprocessed audio — flat mix, no EQ, narrow stereo. The baseline before WizSound enhancement."
+              title="Immersive Depth"
+              description="Spatial reverb and Haas psychoacoustic widening place your audio in three-dimensional space — the listener feels surrounded, not just hearing."
               gradient="linear-gradient(135deg, rgba(100,100,120,0.8), rgba(60,60,80,0.8))"
             />
             <FeatureCard
               icon={Music2}
-              title="WizSound Active"
-              description="Studio-grade EQ, bass boost, stereo widening, and light compression. Immediate, clean improvement for any content."
+              title="Cinematic Mastering"
+              description="Studio-grade 5-band EQ, dynamic compression, harmonic saturation, and −14 LUFS loudness normalisation — every track sounds broadcast-ready."
               gradient="linear-gradient(135deg, rgba(139,92,246,0.8), rgba(99,102,241,0.8))"
             />
             <FeatureCard
               icon={Radio}
-              title="WizSound Spatial"
-              description="Full spatial audio mastering — concert-hall reverb, deep immersive bass, stereo widening, and cinema-grade dynamic range. Your video sounds like it belongs in a Dolby Cinema."
+              title="Built for Video"
+              description="WizSound™ is engineered specifically for music video output — preserving vocal clarity while expanding the soundstage to fill any screen."
               gradient="linear-gradient(135deg, rgba(217,70,239,0.85), rgba(139,92,246,0.75))"
-              badge="SPATIAL"
+              badge="CINEMATIC"
             />
 
             {/* Spatial depth indicator */}

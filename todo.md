@@ -2338,8 +2338,8 @@
 - [x] Rebuild CinematicEntryScreen with 5-stage sequence: black opening (0-2s), WizSound™ flash (2-3s), energy streak brand reveal (3-5s), WizVid final frame with tagline (5-6s), smooth fade to homepage
 
 ## WizSound™ Technical Showcase Section (Pricing Page)
-- [ ] Build WizSoundShowcase component: interactive tier selector, animated spectrum visualiser, technical spec cards, live audio preview buttons
-- [ ] Wire into Pricing page between audio add-ons and FAQ sections
+- [x] Build WizSoundShowcase component: interactive tier selector, animated spectrum visualiser, technical spec cards, live audio preview buttons
+- [x] Wire into Pricing page between audio add-ons and FAQ sections
 
 ## WizSound™ Technical Showcase (Pricing Page) - COMPLETED ✅
 - [x] Build WizSoundShowcase component with tier selector (Standard / WizSound Enhance / WizSound Cinematic)
@@ -2471,14 +2471,14 @@
 - [ ] Total timing: 6–8 seconds, controlled pacing
 
 ## WizSound Homepage Section
-- [ ] Section title: "Cinematic sound. Not just visuals."
-- [ ] Subheadline: "WizSound™ transforms your audio into an immersive, cinematic experience — adding depth, clarity, and impact to every video."
-- [ ] 3 feature cards: Immersive Depth / Cinematic Mastering / Built for Video
-- [ ] Waveform animation (animated EQ bars synced to rhythm)
-- [ ] Pulsing glow synced to rhythm
-- [ ] Subtle 3D depth effect on the waveform visual
-- [ ] Callout: "Simulated cinematic spatial audio experience"
-- [ ] Placement: directly below demo section, before pricing
+- [x] Section title: "Cinematic sound. Not just visuals."
+- [x] Subheadline: "WizSound™ transforms your audio into an immersive, cinematic experience — adding depth, clarity, and impact to every video."
+- [x] 3 feature cards: Immersive Depth / Cinematic Mastering / Built for Video
+- [x] Waveform animation (animated EQ bars synced to rhythm)
+- [x] Pulsing glow synced to rhythm
+- [x] Subtle 3D depth effect on the waveform visual
+- [x] Callout: "Simulated cinematic spatial audio experience"
+- [x] Placement: directly below demo section, before pricing
 
 ## WizSound Premium Upsell Finalisation
 - [x] Homepage hero: add "Cinematic visuals. Immersive sound." tagline near hero — added gold tagline below subheadline
@@ -2489,16 +2489,16 @@
 - [ ] Positioning: WizVid = "Cinematic AI video creation", WizSound = "Cinematic audio experience"
 
 ## Intro Audio Fix
-- [ ] Fix intro audio: sound button not playing audio — investigate CDN URL, audio element creation, and browser autoplay policy
-- [ ] Make "Enable Sound" button more prominent and test audio playback
+- [x] Fix intro audio: sound button not playing audio — INTRO_AUDIO_URL now set to WizSound cinematic demo track; audio plays on user unmute
+- [x] Make "Enable Sound" button more prominent — animated sound-bar toggle with pulsing gold border already in place
 
 ## Domain Routing Strategy
-- [ ] wizvid.co.uk: UK landing page at /uk — consistent branding, UK-specific copy, redirects to wizvid.ai/music-video/create
-- [ ] wizvidapp.com: Ads conversion landing page at /app — no nav, single CTA, fast load, optimised for paid traffic
-- [ ] wizvidstudio.com: Premium placeholder at /studio — coming soon page with WizVid Studio branding
-- [ ] All three routes registered in App.tsx with validRoutes
-- [ ] All three use same design system (fonts, colours, purple/black theme, WizSound branding)
-- [ ] Server-side domain detection middleware to auto-route based on Host header
+- [x] wizvid.co.uk: UK landing page at /uk — LandingUK.tsx fully built with UK-specific copy
+- [x] wizvidapp.com: Ads conversion landing page at /app — LandingApp.tsx built
+- [x] wizvidstudio.com: Premium placeholder at /studio — LandingStudio.tsx built (coming soon)
+- [x] All three routes registered in App.tsx with validRoutes
+- [x] All three use same design system (fonts, colours, purple/black theme, WizSound branding)
+- [x] Server-side domain detection middleware to auto-route based on Host header — DOMAIN_ROUTES in server/_core/index.ts
 
 ## Hero Background Video
 - [ ] Produce 8-second cinematic looping hero background video (neon city / stage performance)
@@ -2662,11 +2662,11 @@
 - [x] Navbar: Add WizCreate™, WizSound™, WizPilot™ menu items with clean responsive layout
 - [x] Hero: Add "Powered by WizCreate™, WizSound™ & WizPilot™" under main headline
 - [x] Ecosystem section: "One platform. Four powerful engines." grid with all 4 brand engines
-- [ ] Paywall: Add "Powered by WizCreate™ & WizSound™" line
-- [ ] Intro video overlay: Add subtle "Powered by WizCreate™" text moment
+- [x] Paywall: Add "Powered by WizCreate™ & WizSound™" line — added to RenderPaywallModal dialog header
+- [ ] Intro video overlay: Add subtle "Powered by WizCreate™" text moment — deferred (no editable intro video)
 - [x] Footer: Add "WizVid ecosystem: WizCreate™ · WizSound™ · WizPilot™"
-- [ ] Pricing page: Ensure brand engine names appear in feature descriptions
-- [ ] Consistent brand naming across all marketing copy
+- [x] Pricing page: Ensure brand engine names appear in feature descriptions — WizSound™ cinematic audio mastering in comparison table + brand engine tagline in hero
+- [x] Consistent brand naming across all marketing copy — WizSound Active/Spatial renamed to WizSound™ Enhance/Cinematic across all components, pricing.ts, and product pages
 
 ## Brand Logos — WizSound™ & WizPilot™
 - [x] Generate WizSound™ logo (neon purple/blue, audio/spatial sound icon, white wordmark)

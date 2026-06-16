@@ -133,7 +133,7 @@ const COMPARISON_GROUPS = [
  group: "Features",
  rows: [
  { label: "All 6 WIZ AI products", starter: true, creator: true, studio: true, isCheck: true },
- { label: "WizSound audio mastering", starter: true, creator: true, studio: true, isCheck: true },
+ { label: "WizSound™ cinematic audio mastering", starter: true, creator: true, studio: true, isCheck: true },
  { label: "WizSync\u2122 character lock", starter: false, creator: true, studio: true, isCheck: true },
  { label: "Priority video builds", starter: false, creator: true, studio: true, isCheck: true },
  ],
@@ -434,7 +434,13 @@ export default function Pricing() {
   <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-5 leading-[1.05]">Director-level control.<br />
   <span className="metallic-gold">Pay when your video is ready.</span>
   </h1>
-  <p className="text-lg sm:text-xl text-white/50 max-w-xl mx-auto leading-relaxed mb-8">Build your entire music video at no cost — direct every scene, control lip sync and character consistency, preview before you commit. Only pay when you're ready to download.
+  <p className="text-lg sm:text-xl text-white/50 max-w-xl mx-auto leading-relaxed mb-6">Build your entire music video at no cost — direct every scene, control lip sync and character consistency, preview before you commit. Only pay when you're ready to download.
+  </p>
+  <p className="text-[11px] text-white/25 font-mono tracking-widest uppercase mb-8">
+    Cinematic AI video creation · Powered by{" "}
+    <span className="text-[rgba(184,137,42,0.65)]">WizCreate™</span>{" · "}
+    <span className="text-[rgba(184,137,42,0.65)]">WizSound™</span>{" · "}
+    <span className="text-[rgba(184,137,42,0.65)]">WizPilot™</span>
   </p>
  {/* Trust pills */}
  <div className="flex flex-wrap items-center justify-center gap-3">
