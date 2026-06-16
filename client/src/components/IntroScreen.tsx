@@ -243,25 +243,27 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
         ))}
       </div>
 
-      {/* Centre overlay — lower third clears singer's face */}
-      <div style={{ position: "relative", zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center", width: "100%", paddingTop: "36vh" }}>
-
-        {/* Logo */}
-        <div style={{ position: "relative", marginBottom: 12 }}>
+      {/* Logo — pinned to top centre */}
+      <div style={{ position: "absolute", top: "5vh", left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
+        <div style={{ position: "relative" }}>
           <div style={{ position: "absolute", inset: -32, borderRadius: "50%", background: `radial-gradient(ellipse at center, ${GOLD}1A 0%, transparent 70%)`, animation: show("ambient","clips","cta") ? "wi-halo 3.2s ease-in-out infinite" : "none", opacity: show("ambient","clips","cta") ? 1 : 0, transition: "opacity 1s ease" }} />
           <img
             src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png"
             alt="WIZ AI"
             style={{
-              width: "clamp(160px, 22vw, 260px)", height: "auto", display: "block",
+              width: "clamp(190px, 26vw, 300px)", height: "auto", display: "block",
               filter: show("ambient","clips","cta") ? `drop-shadow(0 0 22px ${GOLD}99) drop-shadow(0 0 50px ${GOLD}55)` : "none",
               opacity: show("ambient","clips","cta") ? 1 : 0,
-              transform: show("ambient","clips","cta") ? "scale(1) translateY(0)" : "scale(0.84) translateY(14px)",
+              transform: show("ambient","clips","cta") ? "scale(1) translateY(0)" : "scale(0.84) translateY(-10px)",
               transition: "opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1), filter 1.2s ease",
               position: "relative",
             }}
           />
         </div>
+      </div>
+
+      {/* Lower overlay — labels, waveform, CTA */}
+      <div style={{ position: "absolute", bottom: "9vh", left: 0, right: 0, zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center" }}>
 
         {/* Product label — changes each clip */}
         <div style={{ height: 48, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
