@@ -3319,8 +3319,8 @@
 
 ## WizLumina™ + Premium Platform Upgrade
 - [x] Generate WizLumina™ logo: glowing orb/light burst, purple + gold glow, dark background
-- [ ] Create WizLumina™ homepage section: Standard / Enhance (+£2) / Cinematic (+£5) with A/B visual toggle
-- [ ] Add "See the Difference" visual comparison section on homepage (same video, Standard vs Cinematic toggle)
+- [x] Create WizLumina™ homepage section: Standard / Enhance (+£2) / Cinematic (+£5) with A/B visual toggle
+- [x] Add "See the Difference" visual comparison section on homepage (same video, Standard vs Cinematic toggle)
 - [ ] Add WizLumina™ to DemoVideoModal comparison
 - [x] Update pricing: 720p→£3, 1080p→£6, 4K→£10; WizSound Enhance→+£2, Cinematic→+£5; WizLumina Enhance→+£2, Cinematic→+£5
 - [x] Add "Cinematic Mode" bundle (+£8): WizSound Cinematic + WizLumina Cinematic, BEST EXPERIENCE label, most prominent in paywall
