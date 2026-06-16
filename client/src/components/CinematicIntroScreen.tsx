@@ -22,8 +22,14 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { ChevronRight, X } from "@/lib/icons";
+import { ChevronRight, Volume2, X } from "@/lib/icons";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
+
+// ── Audio configuration ───────────────────────────────────────────────────
+// Placeholder URL — replace with a real cinematic sting when available
+const INTRO_AUDIO_URL = "";
+// Session key to remember mute preference (shared with IntroScreen)
+const MUTE_SESSION_KEY = "wizai_intro_muted";
 
 // ── Scene configuration ────────────────────────────────────────────────────
 const SCENE_DURATION_MS = 3200; // each scene visible for 3.2s
@@ -331,15 +337,41 @@ export default function CinematicIntroScreen({ onComplete }: CinematicIntroScree
   const [transitioning, setTransitioning] = useState(false);
   const [visible, setVisible] = useState(true);
   const [dismissed, setDismissed] = useState(false);
+  // Mute state — starts muted (autoplay policy); persisted in sessionStorage
+  const [isMuted, setIsMuted] = useState(() => {
+    const stored = sessionStorage.getItem(MUTE_SESSION_KEY);
+    // Default to muted unless user explicitly unmuted in this session
+    return stored !== "0";
+  });
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const beat = useBeatPulse(118);
   const parallax = useMouseParallax(10);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // ── Sync muted state to audio element ──────────────────────────────────
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.muted = isMuted;
+    if (!isMuted && audio.paused && INTRO_AUDIO_URL) {
+      audio.play().catch(() => setIsMuted(true));
+    }
+  }, [isMuted]);
+
+  const toggleMute = useCallback(() => {
+    setIsMuted((prev) => {
+      const next = !prev;
+      sessionStorage.setItem(MUTE_SESSION_KEY, next ? "1" : "0");
+      return next;
+    });
+  }, []);
+
   const dismiss = useCallback(() => {
     if (dismissed) return;
     setDismissed(true);
     sessionStorage.setItem(INTRO_SESSION_KEY, "1");
+    if (audioRef.current) audioRef.current.pause();
     setVisible(false);
     setTimeout(() => onComplete(), 600);
   }, [dismissed, onComplete]);
@@ -467,6 +499,70 @@ export default function CinematicIntroScreen({ onComplete }: CinematicIntroScree
           />
         ))}
       </div>
+
+      {/* ── Optional audio element (plays intro sting when URL is set) ──── */}
+      {INTRO_AUDIO_URL && (
+        <audio
+          ref={audioRef}
+          src={INTRO_AUDIO_URL}
+          muted={isMuted}
+          loop
+          autoPlay
+          preload="auto"
+          aria-hidden
+        />
+      )}
+
+      {/* ── Mute / unmute toggle ──────────────────────────────────────── */}
+      <button
+        onClick={toggleMute}
+        aria-label={isMuted ? "Unmute audio" : "Mute audio"}
+        className="absolute top-5 right-5 z-40 flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-105"
+        style={{
+          animation: isMuted ? "unmute-pulse 2s ease-in-out infinite" : "none",
+          background: isMuted
+            ? "rgba(196,164,100,0.12)"
+            : "rgba(196,164,100,0.08)",
+          border: isMuted
+            ? "1px solid rgba(196,164,100,0.55)"
+            : "1px solid rgba(196,164,100,0.25)",
+          boxShadow: isMuted
+            ? "0 0 16px rgba(196,164,100,0.30), inset 0 0 8px rgba(196,164,100,0.08)"
+            : "none",
+        }}
+      >
+        {isMuted ? (
+          <>
+            {/* Animated sound wave bars */}
+            <div className="flex items-end gap-[2px] h-4">
+              {[
+                { anim: "sound-bar-1 0.6s 0s ease-in-out infinite" },
+                { anim: "sound-bar-2 0.6s 0.1s ease-in-out infinite" },
+                { anim: "sound-bar-3 0.6s 0.2s ease-in-out infinite" },
+                { anim: "sound-bar-4 0.6s 0.3s ease-in-out infinite" },
+                { anim: "sound-bar-5 0.6s 0.15s ease-in-out infinite" },
+              ].map((b, i) => (
+                <div
+                  key={i}
+                  style={{
+                    animation: b.anim,
+                    width: "3px",
+                    borderRadius: "2px",
+                    background: "#c4a464",
+                    minHeight: "4px",
+                  }}
+                />
+              ))}
+            </div>
+            <span className="text-[#c4a464] text-[10px] tracking-[0.18em] uppercase font-semibold">Tap for Sound</span>
+          </>
+        ) : (
+          <>
+            <Volume2 className="w-4 h-4 text-[#c4a464]/80" />
+            <span className="text-[#c4a464]/80 text-[10px] tracking-[0.18em] uppercase font-semibold">Sound On</span>
+          </>
+        )}
+      </button>
 
       {/* ── Skip button ───────────────────────────────────────────────── */}
       <button

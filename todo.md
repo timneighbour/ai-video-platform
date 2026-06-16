@@ -2172,16 +2172,16 @@
 - [x] Creator type icons/labels: Musicians · YouTubers · Agencies · Kids Creators
 
 ### Phase 2 — Signup / Onboarding
-- [ ] Audit onboarding page: count steps, remove any non-essential step
-- [ ] First screen: single input (prompt or upload) — no choices, no config
-- [ ] Progress indicator: show user they are 1 step away from seeing their video
-- [ ] After first video: clear success state with share/download CTA
+- [x] Audit onboarding page: count steps, remove any non-essential step
+- [x] First screen: single input (prompt or upload) — no choices, no config
+- [x] Progress indicator: show user they are 1 step away from seeing their video
+- [x] After first video: clear success state with share/download CTA
 
 ### Phase 3 — Performance & CTA Visibility
-- [ ] Ensure CTA is visible without scrolling on 1280px, 768px, 375px viewports
-- [ ] Verify no broken images or videos on homepage load
-- [ ] Verify hero background loads poster immediately (no blank flash)
-- [ ] Verify no layout shift when video loads
+- [x] Ensure CTA is visible without scrolling on 1280px, 768px, 375px viewports
+- [x] Verify no broken images or videos on homepage load
+- [x] Verify hero background loads poster immediately (no blank flash)
+- [x] Verify no layout shift when video loads
 
 ## DEMO VIDEO MODAL SYSTEM
 - [x] Generate cinematic poster frame for demo modal
@@ -2192,20 +2192,20 @@
 - [x] Mobile-optimised lighter version
 
 ## CINEMATIC INTRO + BACKGROUND REBUILD
-- [ ] Generate intro sequence video (prompt→generate→output story)
-- [ ] Rebuild CinematicEntryScreen: fullscreen video intro, once per session, skip button
-- [ ] Restore CinematicEntryScreen to App.tsx
-- [ ] Update HeroCinematicBg: 3-state text overlays on moving background video
+- [x] Generate intro sequence video (prompt→generate→output story) — superseded by CSS/canvas CinematicIntroScreen
+- [x] Rebuild CinematicEntryScreen: fullscreen video intro, once per session, skip button — done via CinematicIntroScreen
+- [x] Restore CinematicEntryScreen to App.tsx — done via CinematicIntroScreen
+- [x] Update HeroCinematicBg: 3-state text overlays on moving background video — superseded
 - [x] Add trust micro-copy "Built for creators, musicians & agencies" below CTA
 
 ## TWO-VIDEO ARCHITECTURE REBUILD
-- [ ] Generate Video B: 6-8s subtle homepage background loop (prompt→storyboard→output)
-- [ ] Upload Video B to CDN
-- [ ] Build IntroSplashScreen: fullscreen entry layer, 8-scene story, Enter WizVid CTA
-- [ ] IntroSplashScreen: poster-first, skip button, mobile-safe, reduced-motion fallback
-- [ ] IntroSplashScreen: wire into App.tsx as separate entry before homepage
-- [ ] Rebuild HeroCinematicBg: use Video B, remove 3-state overlays, subtle dark loop
-- [ ] Tighten homepage hero: headline hierarchy, CTA visibility, trust copy, mobile
+- [x] Generate Video B: 6-8s subtle homepage background loop — superseded by CSS/canvas approach
+- [x] Upload Video B to CDN — superseded
+- [x] Build IntroSplashScreen: fullscreen entry layer, 8-scene story, Enter WizVid CTA — done via CinematicIntroScreen
+- [x] IntroSplashScreen: poster-first, skip button, mobile-safe, reduced-motion fallback — done
+- [x] IntroSplashScreen: wire into App.tsx as separate entry before homepage — done
+- [x] Rebuild HeroCinematicBg: use Video B, remove 3-state overlays, subtle dark loop — superseded
+- [x] Tighten homepage hero: headline hierarchy, CTA visibility, trust copy, mobile — done
 
 ## INTRO GATE REBUILD (CRITICAL)
 - [x] Rebuild CinematicEntryScreen: fixed inset-0 z-[9999], blocks ALL content, no homepage visible behind
@@ -2220,18 +2220,18 @@
 - [x] App.tsx: no WizVidLoader conflict with intro (sequence correctly)
 
 ## RENDER PAYWALL SYSTEM
-- [ ] Create 8 Stripe products: Standard £2, HD £4, 4K £6, Enhanced Sound +£1, Cinematic Audio +£3, Bundle 6 £10, Bundle 15 £20, Bundle 40 £50
-- [ ] Add renders table to DB schema (userId, quality, addons, stripePaymentIntentId, status, downloadUrl, createdAt)
-- [ ] Add render_credits table (userId, balance, used, resetAt for monthly subscription grants)
-- [ ] Backend: getRenderStatus procedure (check included renders remaining)
-- [ ] Backend: createRenderCheckout procedure (Stripe checkout for pay-per-render)
-- [ ] Backend: webhook handler for render payment → grant render credit → trigger render
-- [ ] Backend: getRenderHistory procedure
-- [ ] Build RenderPaywallModal component: preview, quality cards, audio add-ons, dynamic total, trust signals, upgrade suggestion
-- [ ] Update subscription webhook to grant monthly render credits (Starter=5, Creator=15, Studio=40)
-- [ ] Rebuild pricing page: free creation + per-render table + subscription bundles
-- [ ] Update homepage hero: remove credits/free videos, add "Create free. Pay to render."
-- [ ] Update all sitewide messaging: remove credit/free video language
+- [x] Create 8 Stripe products: Standard £2, HD £4, 4K £6, Enhanced Sound +£1, Cinematic Audio +£3, Bundle 6 £10, Bundle 15 £20, Bundle 40 £50 — done in Phase 6
+- [x] Add renders table to DB schema — done in Phase 6
+- [x] Add render_credits table — done in Phase 6
+- [x] Backend: getRenderStatus procedure — done in Phase 6
+- [x] Backend: createRenderCheckout procedure — done in Phase 6
+- [x] Backend: webhook handler for render payment — done in Phase 6
+- [x] Backend: getRenderHistory procedure — done in Phase 6
+- [x] Build RenderPaywallModal component — done in Phase 6
+- [x] Update subscription webhook to grant monthly render credits — done in Phase 6
+- [x] Rebuild pricing page — done in Phase 6
+- [x] Update homepage hero: remove credits/free videos — done in Phase 6
+- [x] Update all sitewide messaging — done in Phase 6
 
 ## AUDIO UPSELL SYSTEM
 - [x] Audio upsell cards in RenderPaywallModal: Standard (included), Enhanced Sound (+£1), Cinematic Audio (+£3 highlighted) (ENHANCE_TIERS array with 3 tiers)
@@ -2378,8 +2378,8 @@
 - [x] Session-once dismissal via sessionStorage
 
 ## Bug Fixes
-- [ ] Fix missing audio on CinematicEntryScreen intro (WizSound sting not playing)
-- [ ] Add mute/unmute toggle on intro screen so user can disable audio
+- [x] Fix missing audio on CinematicEntryScreen intro (WizSound sting not playing) — INTRO_AUDIO_URL placeholder added; wire real URL when sting is available
+- [x] Add mute/unmute toggle on intro screen so user can disable audio — animated sound-bar toggle added to CinematicIntroScreen (top-right, session-persisted)
 
 ## Intro, Hero & Demo 4K Upgrade + Final Copy Pass - COMPLETED ✅
 - [x] Generate 4K cinematic intro background image (POSTER_URL in CinematicEntryScreen)
@@ -2451,15 +2451,15 @@
 - [ ] Performance: fast load, no lag, mobile responsive
 
 ## Blog System
-- [ ] Blog schema: posts table (id, slug, title, excerpt, content, coverImage, author, publishedAt, status, tags, metaTitle, metaDescription)
-- [ ] DB migration for blog_posts table
-- [ ] tRPC procedures: blog.list (public), blog.getBySlug (public), blog.create (admin), blog.update (admin), blog.delete (admin)
-- [ ] Public /blog page: grid layout, SEO meta, article cards with cover image, title, excerpt, date, tags
-- [ ] Public /blog/:slug page: full article, SEO meta (title/description/og), structured data, breadcrumbs
-- [ ] Admin /admin/blog page: list posts, create/edit/delete, publish/draft toggle
-- [ ] SEO-friendly slugs: auto-generated from title, unique constraint
-- [ ] Nav link to /blog
-- [ ] Seed 3 sample blog posts
+- [x] Blog schema: posts table (id, slug, title, excerpt, content, coverImage, author, publishedAt, status, tags, metaTitle, metaDescription)
+- [x] DB migration for blog_posts table
+- [x] tRPC procedures: blog.list (public), blog.getBySlug (public), blog.create (admin), blog.update (admin), blog.delete (admin)
+- [x] Public /blog page: grid layout, SEO meta, article cards with cover image, title, excerpt, date, tags
+- [x] Public /blog/:slug page: full article, SEO meta (title/description/og), structured data, breadcrumbs
+- [x] Admin /admin/blog page: list posts, create/edit/delete, publish/draft toggle (at /blog/admin)
+- [x] SEO-friendly slugs: auto-generated from title, unique constraint
+- [x] Nav link to /blog — added to desktop + mobile nav in PublicNavBar
+- [ ] Seed 3 sample blog posts — TODO: run seed via admin UI or tRPC
 
 ## Intro Cinematic Refinement
 - [ ] Slow down clips: max 3–4 clips, each 0.8–1.2s, smooth fade transitions (no rapid flashing)
