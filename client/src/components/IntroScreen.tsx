@@ -1,460 +1,280 @@
 /**
- * IntroScreen — Full-screen cinematic pre-homepage intro video experience.
+ * IntroScreen — Hybrid cinematic intro.
  *
- * Behaviour:
- * - Appears ONCE per browser session (sessionStorage gated)
- * - Starts muted (browser autoplay policy) — user can unmute via the toggle
- * - Mute/unmute button persists state during the session
- * - "Skip Intro" and "Enter WIZ AI" both dismiss the intro
- * - Smooth fade-out transition into the homepage
- * - Falls back to homepage after 12 s if video fails to load (iOS needs more time)
- * - Portrait mode: video uses contain so full frame is visible (no text cut-off)
- * - Landscape mode: video uses cover for full cinematic widescreen look
- * - Replay can be triggered externally via sessionStorage.removeItem + reload
+ * Sequence:
+ *   0.0s  → black screen
+ *   0.4s  → ambient glow + particles + logo fade-in
+ *   1.6s  → first showcase clip fades in as background; product label appears
+ *   5.2s  → second clip crossfades; label transitions
+ *   8.8s  → third clip crossfades; label transitions; Enter CTA slides up
+ *  13.0s  → auto-dismiss
  */
-
-import { useEffect, useRef, useState, useCallback } from "react";
-import { ChevronRight, Play, Volume2, VolumeX } from "@/lib/icons";
+import {
+  useEffect, useRef, useState, useCallback, type CSSProperties,
+} from "react";
+import { ChevronRight } from "@/lib/icons";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
-
-const VIDEO_URL =
-  "/manus-storage/WizAIIntroVidMAIN_a2651b4e.mp4";
-// No poster — we show a pure black screen while the video buffers to avoid any image flash on iOS Safari
-
-// iOS Safari needs significantly more time to buffer
-// If video doesn't fire canplay in 8s, show it anyway (readyState check) or dismiss
-const LOAD_TIMEOUT_MS = 8000;
-
-// Session key to remember mute preference
-const MUTE_SESSION_KEY = "wizai_intro_muted";
-
-interface IntroScreenProps {
-  onComplete: () => void;
-}
-
-function useOrientation() {
-  const [isLandscape, setIsLandscape] = useState(
-    () => window.innerWidth > window.innerHeight
-  );
-
-  useEffect(() => {
-    const update = () => setIsLandscape(window.innerWidth > window.innerHeight);
-    window.addEventListener("resize", update);
-    window.addEventListener("orientationchange", update);
-    // orientationchange fires before dimensions update — re-check after short delay
-    const handleOrientationChange = () => setTimeout(update, 100);
-    window.addEventListener("orientationchange", handleOrientationChange);
-    return () => {
-      window.removeEventListener("resize", update);
-      window.removeEventListener("orientationchange", update);
-      window.removeEventListener("orientationchange", handleOrientationChange);
-    };
-  }, []);
-
-  return isLandscape;
-}
-
-export default function IntroScreen({ onComplete }: IntroScreenProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [visible, setVisible] = useState(true);
-  const [showControls, setShowControls] = useState(false);
-  const [showEnterCta, setShowEnterCta] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
-  const [showPlayHint, setShowPlayHint] = useState(false);
-  // Start muted (required for autoplay) — user can toggle
-  const [isMuted, setIsMuted] = useState(true);
-  const dismissedRef = useRef(false);
-  const loadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isLandscape = useOrientation();
-
-  // ── Dismiss helper ────────────────────────────────────────────────────────
+// ── Assets ────────────────────────────────────────────────────────────────────
+const LOGO_URL = "/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png";
+const CDN      = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
+const CLIPS = [
+  { url: `${CDN}/showcase-music-video_19324f13.mp4`, product: "WizVideo™",   tagline: "AI Music Videos"   },
+  { url: `${CDN}/showcase-anime_36099b49.mp4`,        product: "WizAnimate™", tagline: "AI Animation"       },
+  { url: `${CDN}/showcase-cinematic_13667434.mp4`,   product: "WizScript™",  tagline: "AI Film Creation"   },
+];
+// ── Brand colours ─────────────────────────────────────────────────────────────
+const GOLD      = "#c4a464";
+const GOLD_LITE = "#e8c97a";
+const GOLD_DEEP = "#8a6a20";
+const BG        = "#04040e";
+// ── Static particles ──────────────────────────────────────────────────────────
+const PARTICLES: Array<{ x: number; y: number; size: number; opacity: number; dur: number; delay: number; drift: number }> = [
+  { x: 6,  y: 72, size: 3, opacity: 0.50, dur: 7.2, delay: 0.0, drift:  16 },
+  { x: 15, y: 50, size: 2, opacity: 0.38, dur: 9.1, delay: 0.6, drift: -12 },
+  { x: 24, y: 85, size: 4, opacity: 0.60, dur: 6.8, delay: 1.2, drift:  20 },
+  { x: 34, y: 38, size: 2, opacity: 0.35, dur: 8.4, delay: 0.3, drift: -14 },
+  { x: 44, y: 65, size: 3, opacity: 0.45, dur: 7.6, delay: 1.8, drift:  12 },
+  { x: 52, y: 20, size: 5, opacity: 0.65, dur: 6.2, delay: 0.0, drift:  10 },
+  { x: 62, y: 78, size: 2, opacity: 0.38, dur: 8.8, delay: 2.1, drift: -20 },
+  { x: 71, y: 45, size: 3, opacity: 0.50, dur: 7.4, delay: 0.7, drift:  16 },
+  { x: 80, y: 88, size: 4, opacity: 0.55, dur: 6.9, delay: 1.5, drift: -10 },
+  { x: 89, y: 32, size: 2, opacity: 0.40, dur: 9.2, delay: 0.4, drift:  18 },
+  { x: 12, y: 18, size: 3, opacity: 0.45, dur: 7.3, delay: 2.0, drift: -12 },
+  { x: 38, y: 12, size: 2, opacity: 0.38, dur: 8.2, delay: 0.5, drift:  22 },
+  { x: 58, y: 92, size: 3, opacity: 0.42, dur: 9.4, delay: 0.6, drift:  16 },
+  { x: 76, y: 16, size: 2, opacity: 0.40, dur: 7.1, delay: 0.8, drift: -14 },
+  { x: 92, y: 60, size: 4, opacity: 0.55, dur: 6.5, delay: 1.7, drift: -18 },
+];
+// ── Waveform bars ─────────────────────────────────────────────────────────────
+const BARS = Array.from({ length: 24 }, (_, i) => {
+  const c = Math.abs(11.5 - i) / 11.5;
+  return { baseH: 6 + (1 - c) * 20, peakH: 14 + (1 - c) * 36, dur: 0.5 + (i % 5) * 0.09, delay: (i % 7) * 0.07 };
+});
+// ── Types ─────────────────────────────────────────────────────────────────────
+type Phase = "black" | "ambient" | "clips" | "cta";
+export default function IntroScreen({ onComplete }: { onComplete: () => void }) {
+  const [phase, setPhase]               = useState<Phase>("black");
+  const [clipIdx, setClipIdx]           = useState(0);
+  const [videoVisible, setVideoVisible] = useState(false);
+  const [labelVisible, setLabelVisible] = useState(false);
+  const [visible, setVisible]           = useState(true);
+  const videoRef                        = useRef<HTMLVideoElement>(null);
+  const dismissedRef                    = useRef(false);
+  const autoTimerRef                    = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // ── Dismiss ──────────────────────────────────────────────────────────────
   const dismiss = useCallback(() => {
     if (dismissedRef.current) return;
     dismissedRef.current = true;
+    if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
     localStorage.setItem(INTRO_SESSION_KEY, "1");
-    if (videoRef.current) {
-      videoRef.current.pause();
-    }
     setVisible(false);
-    setTimeout(() => {
-      onComplete();
-    }, 600);
+    setTimeout(onComplete, 650);
   }, [onComplete]);
-
-  // ── Load-timeout fallback — iOS needs more time ─────────────────────────
-  useEffect(() => {
-    // Poll every 500ms: if video has enough data (readyState >= 2), show it
-    // even if canplay event hasn't fired (iOS Safari quirk)
-    const pollInterval = setInterval(() => {
-      const video = videoRef.current;
-      if (!video || videoReady) { clearInterval(pollInterval); return; }
-      if (video.readyState >= 2) {
-        setVideoReady(true);
-        clearInterval(pollInterval);
-        if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
-        video.play().catch(() => setShowPlayHint(true));
+  // ── Advance clip (crossfade) ──────────────────────────────────────────────
+  const advanceClip = useCallback((nextIdx: number) => {
+    setLabelVisible(false);
+    setVideoVisible(false);
+    setTimeout(() => {
+      setClipIdx(nextIdx);
+      const vid = videoRef.current;
+      if (vid) {
+        vid.src = CLIPS[nextIdx].url;
+        vid.load();
+        vid.play().catch(() => {});
       }
+      setVideoVisible(true);
+      setTimeout(() => setLabelVisible(true), 300);
     }, 500);
-
-    loadTimerRef.current = setTimeout(() => {
-      clearInterval(pollInterval);
-      if (!videoReady) {
-        // On iOS Low Power Mode or strict autoplay block — just dismiss gracefully
-        dismiss();
+  }, []);
+  // ── Main timeline ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    // Phase 1 — ambient glow + logo
+    const t1 = setTimeout(() => setPhase("ambient"), 400);
+    // Phase 2 — first clip
+    const t2 = setTimeout(() => {
+      setPhase("clips");
+      const vid = videoRef.current;
+      if (vid) {
+        vid.src = CLIPS[0].url;
+        vid.load();
+        vid.play().catch(() => {});
       }
-    }, LOAD_TIMEOUT_MS);
-
+      setVideoVisible(true);
+      setTimeout(() => setLabelVisible(true), 400);
+    }, 1600);
+    // Clip 2
+    const t3 = setTimeout(() => advanceClip(1), 5200);
+    // Clip 3 + CTA
+    const t4 = setTimeout(() => {
+      advanceClip(2);
+      setTimeout(() => setPhase("cta"), 600);
+    }, 8800);
+    // Auto-dismiss
+    autoTimerRef.current = setTimeout(dismiss, 13000);
     return () => {
-      clearInterval(pollInterval);
-      if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
+      [t1, t2, t3, t4].forEach(clearTimeout);
+      if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
     };
-  }, [videoReady, dismiss]);
-
-  // ── Show controls after brief delay ──────────────────────────────────────
-  useEffect(() => {
-    const t = setTimeout(() => setShowControls(true), 800);
-    return () => clearTimeout(t);
-  }, []);
-
-  // ── Auto-dismiss when video ends ──────────────────────────────────────────
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    const handleEnded = () => {
-      setShowEnterCta(true);
-      // Small delay so the CTA is visible before auto-dismiss
-      setTimeout(() => dismiss(), 1200);
-    };
-    video.addEventListener("ended", handleEnded);
-    return () => video.removeEventListener("ended", handleEnded);
-  }, [dismiss]);
-
-  // ── iOS Safari: force load() on mount to kick off buffering ──────────────
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    // Explicitly call load() — iOS Safari sometimes ignores src until load() is called
-    video.load();
-  }, []);
-
-  // ── Sync muted state to video element ────────────────────────────────────
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.muted = isMuted;
-    // If unmuting and video is paused due to autoplay block, try playing
-    if (!isMuted && video.paused) {
-      video.play().catch(() => {
-        // If play fails after unmute, re-mute and show hint
-        setIsMuted(true);
-      });
-    }
-  }, [isMuted]);
-
-  // ── Video ready ───────────────────────────────────────────────────────────
-  const handleCanPlay = () => {
-    setVideoReady(true);
-    if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
-    // Always start muted for autoplay compliance
-    if (videoRef.current) videoRef.current.muted = true;
-    videoRef.current?.play().catch(() => {
-      setShowPlayHint(true);
-    });
-  };
-
-  // ── Handle stall: try reloading on iOS ───────────────────────────────────
-  const handleStalled = () => {
-    const video = videoRef.current;
-    if (!video || videoReady) return;
-    const currentSrc = video.src;
-    if (currentSrc) {
-      video.load();
-    }
-  };
-
-  // ── Manual play (when autoplay is blocked) ─────────────────────────────────
-  const handleManualPlay = () => {
-    videoRef.current?.play().catch(() => {});
-    setShowPlayHint(false);
-  };
-
-  // ── Toggle mute ───────────────────────────────────────────────────────────
-  const toggleMute = () => {
-    setIsMuted((prev) => !prev);
-  };
-
-  // ── Determine video fit based on orientation ──────────────────────────────
-  const videoObjectFit = isLandscape ? "cover" : "contain";
-
+  }, [dismiss, advanceClip]);
+  const show = (...phases: Phase[]) => phases.includes(phase);
   return (
-    <div
-      className="fixed inset-0 z-[9999] bg-black flex items-center justify-center overflow-hidden"
-      style={{
-        opacity: visible ? 1 : 0,
-        transition: "opacity 0.6s ease-in-out",
-        pointerEvents: visible ? "auto" : "none",
-      }}
-    >
-      {/* ── Black screen while video buffers — no poster image to avoid iOS flash ── */}
-      {!videoReady && (
-        <div className="absolute inset-0 bg-black" />
-      )}
-
-      {/* ── Video ─────────────────────────────────────────────────────────── */}
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 10000, background: BG, overflow: "hidden",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+      opacity: visible ? 1 : 0, transition: "opacity 0.65s ease-in-out",
+      pointerEvents: visible ? "auto" : "none",
+    }}>
+      <style>{`
+        @keyframes intro-particle-rise {
+          0%   { transform: translateY(0) translateX(0) scale(1); opacity: var(--p-op); }
+          50%  { transform: translateY(-38px) translateX(var(--p-drift)) scale(1.2); opacity: calc(var(--p-op) * 1.35); }
+          100% { transform: translateY(-80px) translateX(0) scale(0.6); opacity: 0; }
+        }
+        @keyframes intro-glow-breathe {
+          0%,100% { opacity: 0.5; transform: scale(1); }
+          50%      { opacity: 0.8; transform: scale(1.08); }
+        }
+        @keyframes intro-halo {
+          0%,100% { opacity: 0.5; transform: scale(1); }
+          50%      { opacity: 0.85; transform: scale(1.05); }
+        }
+        @keyframes intro-bar {
+          0%,100% { height: var(--bar-base); }
+          50%      { height: var(--bar-peak); }
+        }
+        @keyframes intro-scan {
+          0%   { transform: translateY(-100%); opacity: 0; }
+          8%   { opacity: 0.5; }
+          92%  { opacity: 0.5; }
+          100% { transform: translateY(100vh); opacity: 0; }
+        }
+        @keyframes intro-shimmer {
+          0%   { background-position: 0% 50%; }
+          100% { background-position: 200% 50%; }
+        }
+        @keyframes intro-ring-breathe {
+          0%,100% { transform: scale(1); opacity: 0.55; }
+          50%      { transform: scale(1.06); opacity: 0.9; }
+        }
+        @keyframes intro-ring-pulse {
+          0%   { transform: scale(1); opacity: 0.8; }
+          100% { transform: scale(1.5); opacity: 0; }
+        }
+        @keyframes intro-sweep {
+          0%   { left: -40%; }
+          100% { left: 140%; }
+        }
+        @keyframes intro-label-in {
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+      {/* ── Showcase video (background) ───────────────────────────────────── */}
       <video
         ref={videoRef}
-        src={VIDEO_URL}
         muted
         playsInline
-        // iOS-specific attributes for reliable autoplay
-        {...({ "webkit-playsinline": "true", "x-webkit-airplay": "deny" } as any)}
-        preload="auto"
-        onCanPlay={handleCanPlay}
-        onCanPlayThrough={handleCanPlay}
-        onError={() => dismiss()}
-        onTimeUpdate={() => {
-          const video = videoRef.current;
-          if (!video || !video.duration) return;
-          if (video.currentTime >= video.duration - 3) {
-            setShowEnterCta(true);
-          }
-        }}
-        onStalled={handleStalled}
-        onWaiting={() => { /* iOS buffer pause — will resume automatically */ }}
-        className="absolute inset-0 w-full h-full"
+        loop
+        preload="none"
         style={{
-          opacity: videoReady ? 1 : 0,
-          transition: "opacity 0.4s ease",
-          objectFit: videoObjectFit,
-          objectPosition: "center center",
-          width: "100%",
-          height: "100%",
-          WebkitAppearance: "none",
+          position: "absolute", inset: 0, width: "100%", height: "100%",
+          objectFit: "cover", objectPosition: "center",
+          opacity: videoVisible ? 1 : 0,
+          transition: "opacity 0.55s ease",
+          zIndex: 0,
         }}
       />
-
-      {/* ── Subtle dark vignette overlay ─────────────────────────────────── */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: isLandscape
-            ? "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 40%, rgba(0,0,0,0.15) 100%)"
-            : "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 30%, rgba(0,0,0,0.3) 100%)",
-        }}
-      />
-
-      {/* ── Manual play hint (when autoplay is blocked) ───────────────────── */}
-      {showPlayHint && (
-        <button
-          onClick={handleManualPlay}
-          className="absolute inset-0 flex flex-col items-center justify-center gap-4 cursor-pointer"
-          aria-label="Play intro"
-        >
-          <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm border border-white/30 flex items-center justify-center hover:bg-white/20 transition-all">
-            <Play className="w-8 h-8 text-white ml-1" />
-          </div>
-          <p className="text-white/70 text-sm tracking-widest uppercase">Tap to play</p>
-        </button>
-      )}
-
-      {/* ── Controls overlay ─────────────────────────────────────────────── */}
-      <div
-        className="absolute inset-0 flex flex-col justify-between pointer-events-none"
-        style={{
-          opacity: showControls ? 1 : 0,
-          transition: "opacity 0.5s ease",
-          // Respect iOS safe areas
-          paddingTop: "max(env(safe-area-inset-top), 1.5rem)",
-          paddingBottom: "max(env(safe-area-inset-bottom), 1.5rem)",
-          paddingLeft: "max(env(safe-area-inset-left), 1.5rem)",
-          paddingRight: "max(env(safe-area-inset-right), 1.5rem)",
-        }}
-      >
-        {/* Top row — Sound toggle (left) + Skip Intro (right) */}
-        <div className="flex justify-between items-center pointer-events-auto">
-          {/* Premium Sound toggle with unmute prompt */}
-          <button
-            onClick={toggleMute}
-            aria-label={isMuted ? "Unmute audio" : "Mute audio"}
+      {/* Dark overlay on top of video — preserves readability of overlay content */}
+      <div style={{
+        position: "absolute", inset: 0, zIndex: 1,
+        background: `linear-gradient(to bottom, rgba(4,4,14,0.72) 0%, rgba(4,4,14,0.50) 40%, rgba(4,4,14,0.60) 70%, rgba(4,4,14,0.82) 100%)`,
+      }} />
+      {/* Gold vignette border */}
+      <div style={{
+        position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none",
+        boxShadow: `inset 0 0 80px 20px rgba(4,4,14,0.9), inset 0 0 2px 1px ${GOLD}33`,
+      }} />
+      {/* ── Ambient glow + particles ──────────────────────────────────────── */}
+      <div style={{ position: "absolute", inset: 0, zIndex: 3, pointerEvents: "none", opacity: show("ambient","clips","cta") ? 1 : 0, transition: "opacity 1.6s ease" }}>
+        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: "60vw", height: "60vw", maxWidth: 600, maxHeight: 600, borderRadius: "50%", background: `radial-gradient(ellipse at center, rgba(196,164,100,0.10) 0%, transparent 70%)`, animation: "intro-glow-breathe 4.5s ease-in-out infinite" }} />
+        <div style={{ position: "absolute", left: 0, right: 0, height: 1, background: `linear-gradient(90deg, transparent, ${GOLD}44 30%, ${GOLD_LITE}66 50%, ${GOLD}44 70%, transparent)`, animation: "intro-scan 7s ease-in-out infinite", animationDelay: "1s" }} />
+        {PARTICLES.map((p, i) => (
+          <div key={i} style={{ position: "absolute", left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size, borderRadius: "50%", background: i % 3 === 0 ? GOLD_LITE : i % 3 === 1 ? GOLD : "#fff", boxShadow: `0 0 ${p.size * 3}px ${p.size}px ${GOLD}55`, "--p-op": p.opacity, "--p-drift": `${p.drift}px`, animation: `intro-particle-rise ${p.dur}s ${p.delay}s ease-in-out infinite` } as CSSProperties} />
+        ))}
+      </div>
+      {/* ── Centre content ────────────────────────────────────────────────── */}
+      <div style={{ position: "relative", zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center", gap: 0, width: "100%" }}>
+        {/* Logo */}
+        <div style={{ position: "relative", marginBottom: 20 }}>
+          <div style={{ position: "absolute", inset: -20, borderRadius: "50%", background: `radial-gradient(ellipse at center, ${GOLD}1A 0%, transparent 70%)`, animation: show("ambient","clips","cta") ? "intro-halo 3s ease-in-out infinite" : "none", opacity: show("ambient","clips","cta") ? 1 : 0, transition: "opacity 1s ease" }} />
+          <img
+            src={LOGO_URL} alt="WIZ AI"
             style={{
-              animation: isMuted ? "unmute-pulse 2s ease-in-out infinite" : "none",
-              background: isMuted
-                ? "rgba(196,164,100,0.12)"
-                : "rgba(196,164,100,0.08)",
-              border: isMuted
-                ? "1px solid rgba(196,164,100,0.55)"
-                : "1px solid rgba(196,164,100,0.25)",
-              boxShadow: isMuted
-                ? "0 0 16px rgba(196,164,100,0.30), inset 0 0 8px rgba(196,164,100,0.08)"
-                : "none",
+              width: "clamp(100px, 18vw, 180px)", height: "auto", display: "block",
+              filter: show("ambient","clips","cta") ? `drop-shadow(0 0 20px ${GOLD}99) drop-shadow(0 0 44px ${GOLD}44)` : "none",
+              opacity: show("ambient","clips","cta") ? 1 : 0,
+              transform: show("ambient","clips","cta") ? "scale(1) translateY(0)" : "scale(0.84) translateY(14px)",
+              transition: "opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1), filter 1.2s ease",
             }}
-            className="flex items-center gap-2.5 px-4 py-2 rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-105"
-          >
-            {isMuted ? (
-              <>
-                {/* Animated sound wave bars — gold, pulsing */}
-                <div className="flex items-end gap-[2px] h-4">
-                  {[
-                    { anim: "sound-bar-1 0.6s 0s ease-in-out infinite" },
-                    { anim: "sound-bar-2 0.6s 0.1s ease-in-out infinite" },
-                    { anim: "sound-bar-3 0.6s 0.2s ease-in-out infinite" },
-                    { anim: "sound-bar-4 0.6s 0.3s ease-in-out infinite" },
-                    { anim: "sound-bar-5 0.6s 0.15s ease-in-out infinite" },
-                  ].map((b, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        animation: b.anim,
-                        width: "3px",
-                        borderRadius: "2px",
-                        background: "#c4a464",
-                        minHeight: "4px",
-                      }}
-                    />
-                  ))}
-                </div>
-                <span className="text-primary/90 text-xs tracking-[0.18em] uppercase font-semibold">Tap for Sound</span>
-              </>
-            ) : (
-              <>
-                <Volume2 className="w-4 h-4 text-primary/80" />
-                <span className="text-primary/80 text-xs tracking-[0.18em] uppercase font-semibold">Sound On</span>
-              </>
-            )}
-          </button>
-
-          {/* Skip Intro */}
-          <button
-            onClick={dismiss}
-            className="text-white/40 hover:text-white/80 transition-colors text-xs tracking-[0.2em] uppercase font-medium px-3 py-2"
-            aria-label="Skip intro"
-          >
-            Skip Intro
-          </button>
+          />
         </div>
-
-        {/* Bottom — Enter WIZ AI ultra-premium button (gated by showEnterCta) */}
-        <div
-          className="flex flex-col items-center gap-3 pb-4"
-          style={{
-            opacity: showEnterCta ? 1 : 0,
-            transform: showEnterCta ? "translateY(0)" : "translateY(24px)",
-            transition: "opacity 0.7s ease, transform 0.7s ease",
-            pointerEvents: showEnterCta ? "auto" : "none",
-          }}
-        >
-          {/* Sparkle particles */}
-          <div className="relative w-0 h-0">
+        {/* Product label — changes with each clip */}
+        <div style={{ height: 52, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginBottom: 20 }}>
+          {show("clips","cta") && (
+            <div key={clipIdx} style={{ textAlign: "center", animation: labelVisible ? "intro-label-in 0.5s ease forwards" : "none", opacity: labelVisible ? 1 : 0 }}>
+              <div style={{ color: GOLD_LITE, fontSize: "clamp(0.9rem, 2vw, 1.1rem)", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", textShadow: `0 0 24px ${GOLD}99`, marginBottom: 4 }}>
+                {CLIPS[clipIdx].product}
+              </div>
+              <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "clamp(0.6rem, 1.2vw, 0.72rem)", fontWeight: 500, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+                {CLIPS[clipIdx].tagline}
+              </div>
+            </div>
+          )}
+        </div>
+        {/* Waveform — visible during clips and cta phases */}
+        <div style={{ display: "flex", alignItems: "flex-end", gap: "clamp(2px,0.4vw,3px)", height: 48, marginBottom: 28, opacity: show("clips","cta") ? 0.75 : 0, transition: "opacity 0.8s ease" }}>
+          {BARS.map((bar, i) => (
+            <div key={i} style={{ width: "clamp(2px,0.5vw,4px)", borderRadius: 2, background: i % 3 === 0 ? `linear-gradient(to top,${GOLD_DEEP},${GOLD_LITE})` : `linear-gradient(to top,${GOLD_DEEP},${GOLD})`, height: `${bar.baseH}px`, "--bar-base": `${bar.baseH}px`, "--bar-peak": `${bar.peakH}px`, animation: show("clips","cta") ? `intro-bar ${bar.dur}s ${bar.delay}s ease-in-out infinite` : "none" } as CSSProperties} />
+          ))}
+        </div>
+        {/* CTA */}
+        <div style={{ opacity: show("cta") ? 1 : 0, transform: show("cta") ? "translateY(0)" : "translateY(24px)", transition: "opacity 0.75s ease, transform 0.75s ease", pointerEvents: show("cta") ? "auto" : "none" }}>
+          <div style={{ position: "relative" }}>
             {[
-              { left: "-60px", delay: "0s",   dur: "2.2s", size: "5px", color: "#e8c97a" },
-              { left: "-30px", delay: "0.4s", dur: "1.8s", size: "3px", color: "#fff" },
-              { left: "10px",  delay: "0.8s", dur: "2.5s", size: "4px", color: "#c4a464" },
-              { left: "40px",  delay: "0.2s", dur: "2.0s", size: "3px", color: "#e8c97a" },
-              { left: "65px",  delay: "1.1s", dur: "1.9s", size: "5px", color: "#fff" },
-              { left: "-50px", delay: "1.5s", dur: "2.3s", size: "3px", color: "#c4a464" },
-              { left: "20px",  delay: "0.6s", dur: "2.1s", size: "4px", color: "#e8c97a" },
-            ].map((p, i) => (
-              <div
-                key={i}
-                style={{
-                  position: "absolute",
-                  left: p.left,
-                  bottom: "8px",
-                  width: p.size,
-                  height: p.size,
-                  borderRadius: "50%",
-                  background: p.color,
-                  boxShadow: `0 0 6px 2px ${p.color}88`,
-                  animation: `enter-btn-sparkle ${p.dur} ${p.delay} ease-out infinite`,
-                }}
-              />
+              { left:"-52px", delay:"0s",   dur:"2.2s", size:5, color:GOLD_LITE },
+              { left:"-26px", delay:"0.4s", dur:"1.8s", size:3, color:"#fff"    },
+              { left: "10px", delay:"0.8s", dur:"2.5s", size:4, color:GOLD      },
+              { left: "40px", delay:"0.2s", dur:"2.0s", size:3, color:GOLD_LITE },
+              { left: "66px", delay:"1.1s", dur:"1.9s", size:5, color:"#fff"    },
+              { left:"-44px", delay:"1.5s", dur:"2.3s", size:3, color:GOLD      },
+              { left: "20px", delay:"0.6s", dur:"2.1s", size:4, color:GOLD_LITE },
+            ].map((s,i) => (
+              <div key={i} style={{ position:"absolute", left:s.left, bottom:6, width:s.size, height:s.size, borderRadius:"50%", background:s.color, boxShadow:`0 0 6px 2px ${s.color}88`, animation:`enter-btn-sparkle ${s.dur} ${s.delay} ease-out infinite`, pointerEvents:"none" }} />
             ))}
-          </div>
-
-          {/* The button itself */}
-          <div className="relative">
-            {/* Outer breathing ring */}
-            <div
-              style={{
-                position: "absolute",
-                inset: "-10px",
-                borderRadius: "9999px",
-                border: "1.5px solid rgba(196,164,100,0.5)",
-                animation: "enter-btn-ring-breathe 2.4s ease-in-out infinite",
-                pointerEvents: "none",
-              }}
-            />
-            {/* Fast pulse ring */}
-            <div
-              style={{
-                position: "absolute",
-                inset: "-6px",
-                borderRadius: "9999px",
-                border: "2px solid rgba(232,201,122,0.6)",
-                animation: "enter-btn-ring-pulse 1.8s ease-out infinite",
-                pointerEvents: "none",
-              }}
-            />
-
+            <div style={{ position:"absolute", inset:-10, borderRadius:9999, border:`1.5px solid rgba(196,164,100,0.50)`, animation:"intro-ring-breathe 2.4s ease-in-out infinite", pointerEvents:"none" }} />
+            <div style={{ position:"absolute", inset:-6, borderRadius:9999, border:`2px solid rgba(232,201,122,0.65)`, animation:"intro-ring-pulse 1.8s ease-out infinite", pointerEvents:"none" }} />
             <button
               onClick={dismiss}
               aria-label="Enter WIZ AI"
-              style={{
-                background:
-                  "linear-gradient(105deg, #8a6a20 0%, #c4a464 20%, #f0d98a 45%, #e8c97a 55%, #c4a464 75%, #8a6a20 100%)",
-                backgroundSize: "300% 100%",
-                animation: "enter-btn-shimmer 3s linear infinite",
-                boxShadow: [
-                  "0 0 0 1px rgba(255,255,255,0.18)",
-                  "0 0 28px rgba(196,164,100,0.55)",
-                  "0 0 60px rgba(196,164,100,0.28)",
-                  "0 0 90px rgba(196,164,100,0.12)",
-                  "inset 0 1px 0 rgba(255,255,255,0.35)",
-                  "inset 0 -1px 0 rgba(0,0,0,0.20)",
-                ].join(", "),
-                letterSpacing: "0.22em",
-                overflow: "hidden",
-              }}
-              className="group relative flex items-center gap-4 px-12 py-4 rounded-full text-background font-black text-base uppercase transition-all duration-200 hover:scale-[1.06] active:scale-[0.98]"
+              style={{ display:"flex", alignItems:"center", gap:16, padding:"1rem 3rem", borderRadius:9999, border:"none", cursor:"pointer", background:`linear-gradient(105deg,${GOLD_DEEP} 0%,${GOLD} 20%,#f0d98a 45%,${GOLD_LITE} 55%,${GOLD} 75%,${GOLD_DEEP} 100%)`, backgroundSize:"300% 100%", animation:"intro-shimmer 3s linear infinite", boxShadow:`0 0 0 1px rgba(255,255,255,0.18),0 0 28px ${GOLD}88,0 0 60px ${GOLD}44,inset 0 1px 0 rgba(255,255,255,0.35),inset 0 -1px 0 rgba(0,0,0,0.20)`, color:"#0a0a0f", fontWeight:900, fontSize:"clamp(0.8rem,1.5vw,0.95rem)", letterSpacing:"0.22em", textTransform:"uppercase", overflow:"hidden", position:"relative" }}
             >
-              {/* Continuous light sweep */}
-              <span
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  bottom: 0,
-                  width: "40%",
-                  background:
-                    "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)",
-                  animation: "enter-btn-sweep 2.8s ease-in-out infinite",
-                  pointerEvents: "none",
-                }}
-              />
-              {/* Hover inner glow */}
-              <span
-                className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                style={{
-                  background:
-                    "radial-gradient(ellipse at center, rgba(255,255,255,0.18) 0%, transparent 70%)",
-                }}
-              />
-              <span
-                className="relative"
-                style={{
-                  textShadow:
-                    "0 1px 0 rgba(255,255,255,0.3), 0 -1px 0 rgba(0,0,0,0.15)",
-                }}
-              >
-                Enter WIZ AI
-              </span>
-              <ChevronRight
-                className="relative w-5 h-5 transition-transform duration-200 group-hover:translate-x-1.5"
-                style={{ filter: "drop-shadow(0 0 4px rgba(0,0,0,0.3))" }}
-              />
+              <span style={{ position:"absolute", top:0, bottom:0, width:"40%", background:"linear-gradient(90deg,transparent,rgba(255,255,255,0.28),transparent)", animation:"intro-sweep 2.8s ease-in-out infinite", pointerEvents:"none" }} />
+              <span style={{ position:"relative", textShadow:"0 1px 0 rgba(255,255,255,0.3),0 -1px 0 rgba(0,0,0,0.15)" }}>Enter WIZ AI</span>
+              <ChevronRight style={{ position:"relative", width:20, height:20 }} />
             </button>
           </div>
         </div>
       </div>
+      {/* ── Skip ─────────────────────────────────────────────────────────── */}
+      <button
+        onClick={dismiss}
+        aria-label="Skip intro"
+        style={{ position:"absolute", top:"max(env(safe-area-inset-top),1.25rem)", right:"max(env(safe-area-inset-right),1.25rem)", zIndex:20, background:"none", border:"none", cursor:"pointer", color:"rgba(255,255,255,0.35)", fontSize:"0.7rem", fontWeight:500, letterSpacing:"0.20em", textTransform:"uppercase", padding:"0.5rem 0.75rem", opacity:show("ambient","clips","cta") ? 1 : 0, transition:"opacity 0.6s ease, color 0.2s ease" }}
+        onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.75)")}
+        onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.35)")}
+      >
+        Skip Intro
+      </button>
     </div>
   );
 }
