@@ -917,10 +917,24 @@ function Nav() {
 }
 
 // Hero 
+const GENRE_LABELS = ["MUSIC VIDEOS", "CINEMATIC FILMS", "PIXAR ANIMATION", "ANIME SHORTS", "BRAND ADS"];
 function Hero() {
  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
  const [demoOpen, setDemoOpen] = useState(false);
+ const [genreIdx, setGenreIdx] = useState(0);
+ const [genreFading, setGenreFading] = useState(false);
  const { isAuthenticated } = useAuth();
+
+ useEffect(() => {
+ const interval = setInterval(() => {
+ setGenreFading(true);
+ setTimeout(() => {
+ setGenreIdx((i) => (i + 1) % GENRE_LABELS.length);
+ setGenreFading(false);
+ }, 350);
+ }, 2200);
+ return () => clearInterval(interval);
+ }, []);
 
  const handleMouseMove = useCallback((e: React.MouseEvent) => {
  setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight });
@@ -951,12 +965,25 @@ function Hero() {
  <h1 className="text-[clamp(2.2rem,6.5vw,4.75rem)] font-black leading-[0.95] tracking-tight text-white mb-3 max-w-full overflow-hidden">Your Music.<br />
  <span className="metallic-gold">Your Video.</span>
  </h1>
- {/* Single subheadline — no competing elements */}
- <p className="text-[clamp(0.9rem,1.5vw,1.05rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-2">AI-directed cinematic music videos. Free storyboard. Professional results in minutes.
- </p>
- {/* WizSound tagline — cinematic audio positioning */}
- <p className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-semibold tracking-[0.08em] mb-6" style={{ color: "rgba(212,175,55,0.65)" }}>
- Cinematic visuals. Immersive sound.
+ {/* Cycling genre text — replaces static subheadline */}
+ <div className="flex items-center gap-3 mb-2 overflow-hidden">
+ <span
+ className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-black tracking-[0.22em] uppercase"
+ style={{
+ color: genreFading ? "transparent" : "rgba(212,175,55,0.85)",
+ textShadow: genreFading ? "none" : "0 0 18px rgba(212,175,55,0.45)",
+ opacity: genreFading ? 0 : 1,
+ transform: genreFading ? "translateY(-4px)" : "translateY(0)",
+ transition: "opacity 0.35s ease, transform 0.35s ease, color 0.35s ease, text-shadow 0.35s ease",
+ }}
+ >
+ {GENRE_LABELS[genreIdx]}
+ </span>
+ <span className="text-[clamp(0.65rem,1vw,0.75rem)] text-white/25 font-medium tracking-widest">·</span>
+ <span className="text-[clamp(0.65rem,1vw,0.75rem)] text-white/40 font-medium tracking-wide">AI-directed. Free storyboard.</span>
+ </div>
+ {/* Single subheadline */}
+ <p className="text-[clamp(0.9rem,1.5vw,1.05rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-6">Professional cinematic results in minutes. No editing experience needed.
  </p>
 
  {/* CTAs */}

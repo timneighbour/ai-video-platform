@@ -9318,3 +9318,14 @@
 - [x] Verify post-payment redirect already goes to /dashboard (not intro)
 - [x] Verify intro only shows on homepage (pathname === "/")
 - [x] Dashboard action cards already have premium background images and gradients
+- [x] Fix Clarity to use VITE_CLARITY_PROJECT_ID env var instead of hardcoded ID
+- [x] Fix demo video text position in RenderPaywallModal (move text higher, stronger gradient)
+- [x] Make WizPilot nav logo larger (h-10 → h-14)
+- [x] Make Autopilot page logo larger (h-10 → h-14)
+- [x] Add multi-genre cycling text animation to hero heading (MUSIC VIDEOS / CINEMATIC FILMS / PIXAR ANIMATION / ANIME SHORTS / BRAND ADS)
+- [x] Verified: WizSoundDemoPlayer already defaults to Standard Audio
+- [x] Verified: email notifications already wired (signup, subscription, credit purchase, failed payment, welcome)
+- [x] Verified: project resume already works correctly per job status
+- [x] Verified: post-payment redirect to /dashboard already correct
+- [x] Verified: intro only shows on homepage (not on /dashboard)
+- [x] Verified: nav links use <a href> tags (not navigate()), no broken links
