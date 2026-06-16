@@ -29,6 +29,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { StudioLoungeSection } from "@/components/StudioLounge";
+import WizSoundSection from "@/components/WizSoundSection";
 import LanguageSelector from "@/components/LanguageSelector";
 import { useTranslation } from "react-i18next";
 // Lucide icons removed — replaced with inline SVGs and product logos
@@ -950,7 +951,11 @@ function Hero() {
  <span className="metallic-gold">Your Video.</span>
  </h1>
  {/* Single subheadline — no competing elements */}
- <p className="text-[clamp(0.9rem,1.5vw,1.05rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-6">AI-directed cinematic music videos. Free storyboard. Professional results in minutes.
+ <p className="text-[clamp(0.9rem,1.5vw,1.05rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-2">AI-directed cinematic music videos. Free storyboard. Professional results in minutes.
+ </p>
+ {/* WizSound tagline — cinematic audio positioning */}
+ <p className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-semibold tracking-[0.08em] mb-6" style={{ color: "rgba(212,175,55,0.65)" }}>
+ Cinematic visuals. Immersive sound.
  </p>
 
  {/* CTAs */}
@@ -3999,6 +4004,8 @@ export default function Home() {
  <ProductGrid />
  {/* 5. Audio Demo — WizSound */}
  <WizSoundDemo />
+ {/* 5b. WizSound dedicated section — waveform, glow, 3 feature cards */}
+ <WizSoundSection />
  {/* 6. How It Works — 4-step process */}
  <HowItWorks />
  {/* 7. Cinematic Demo — SeeTheDifference */}

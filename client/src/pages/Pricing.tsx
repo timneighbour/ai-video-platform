@@ -38,6 +38,7 @@ import {
  Users, Star, Crown, Zap, Play, Headphones, Globe
 } from "@/lib/icons";
 import WizSoundDemoPlayer from "@/components/WizSoundDemoPlayer";
+import WizSoundShowcase from "@/components/WizSoundShowcase";
 import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 import PublicNavBar from "@/components/PublicNavBar";
 import { PLANS as SHARED_PLANS, TOPUP_PACKS } from "@/lib/plans";
@@ -1335,6 +1336,11 @@ export default function Pricing() {
  ))}
  </div>
  </div>
+ </section>
+
+ {/* 10a. WizSound Showcase — interactive tier selector + animated spectrum */}
+ <section className="max-w-5xl mx-auto px-6 mb-16">
+ <WizSoundShowcase />
  </section>
 
  {/* 10. FAQ */}

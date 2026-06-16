@@ -2481,10 +2481,10 @@
 - [ ] Placement: directly below demo section, before pricing
 
 ## WizSound Premium Upsell Finalisation
-- [ ] Homepage hero: add "Cinematic visuals. Immersive sound." tagline near hero
-- [ ] Homepage: add dedicated WizSound section (waveform, pulsing glow, 3D depth, 3 feature cards)
-- [ ] Demo modal: add WizSound comparison (without vs with WizSound) + "With WizSound™" label
-- [ ] Paywall: change title to "Make your video cinematic", make Cinematic option visually dominant + "Recommended"
+- [x] Homepage hero: add "Cinematic visuals. Immersive sound." tagline near hero — added gold tagline below subheadline
+- [x] Homepage: add dedicated WizSound section (waveform, pulsing glow, 3D depth, 3 feature cards) — WizSoundSection wired in after WizSoundDemo
+- [x] Demo modal: add WizSound comparison (without vs with WizSound) + "With WizSound™" label — "Powered by WizSound™" caption added below video
+- [x] Paywall: change title to "Make your video cinematic", make Cinematic option visually dominant + "Recommended" — already implemented (BEST EXPERIENCE badge, highlight:true, default cinematic)
 - [ ] Language: replace generic audio terms with cinematic/immersive/studio-quality terminology across all pages
 - [ ] Positioning: WizVid = "Cinematic AI video creation", WizSound = "Cinematic audio experience"
 

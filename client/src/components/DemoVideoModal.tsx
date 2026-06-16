@@ -180,9 +180,21 @@ export function DemoVideoModal({ open, onClose }: DemoVideoModalProps) {
 
         </div>
 
+        {/* WizSound caption */}
+        <div className="flex items-center justify-center gap-2 mt-2.5 mb-0.5">
+          <img
+            src="/manus-storage/wizsound-logo-new_c5cced65_d334a3bb.png"
+            alt="WizSound"
+            className="h-4 w-auto object-contain opacity-70"
+          />
+          <span className="text-[11px] font-semibold tracking-[0.12em] uppercase" style={{ color: "rgba(212,175,55,0.55)" }}>
+            Powered by WizSound™
+          </span>
+        </div>
+
         {/* Controls bar */}
         <div
-          className="mt-3 px-1 flex flex-col gap-2"
+          className="mt-2 px-1 flex flex-col gap-2"
         >
           {/* Progress bar */}
           <div
