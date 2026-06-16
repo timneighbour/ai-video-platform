@@ -3,7 +3,7 @@
  *
  * One master toggle: Standard → Enhance → Cinematic
  * Selecting a tier auto-syncs BOTH WizSound™ and WizLumina™.
- * Cinematic Mode is the hero option — highlighted, recommended, bundled at £8 (save £2).
+ * Cinematic Mode is the hero option — highlighted, recommended, bundled at £7 (4K + Cinematic Pack).
  *
  * Analytics events:
  *   CinematicPack_Offered  — fired when modal opens
@@ -40,9 +40,9 @@ const QUALITY_OPTIONS: Array<{
   badge?: string;
   description: string;
 }> = [
-  { id: "standard", label: "Standard", resolution: "720p", price: 3, description: "Great for social media" },
-  { id: "hd", label: "HD", resolution: "1080p", price: 6, badge: "MOST POPULAR", description: "Perfect for YouTube & streaming" },
-  { id: "4k", label: "4K Ultra", resolution: "2160p", price: 10, badge: "BEST QUALITY", description: "Cinema-grade quality" },
+  { id: "standard", label: "Standard", resolution: "720p", price: 2, description: "Great for social media" },
+  { id: "hd", label: "HD", resolution: "1080p", price: 4, badge: "MOST POPULAR", description: "Perfect for YouTube & streaming" },
+  { id: "4k", label: "4K Ultra", resolution: "2160p", price: 6, badge: "BEST QUALITY", description: "Cinema-grade quality" },
 ];
 
 /** Unified enhancement tiers — one selection syncs both WizSound™ and WizLumina™ */
@@ -74,9 +74,9 @@ const ENHANCE_TIERS: Array<{
   {
     id: "enhance",
     label: "Enhance",
-    audioPrice: 2,
-    visualPrice: 2,
-    bundlePrice: 4,
+    audioPrice: 1,
+    visualPrice: 1,
+    bundlePrice: 2,
     audioLabel: "WizSound™ Enhance",
     visualLabel: "WizLumina™ Enhance",
     audioFeatures: ["Stereo widening", "Frequency EQ", "Noise reduction"],
@@ -86,9 +86,9 @@ const ENHANCE_TIERS: Array<{
   {
     id: "cinematic",
     label: "Cinematic",
-    audioPrice: 5,
-    visualPrice: 5,
-    bundlePrice: 8, // bundle: save £2 vs £10 individual
+    audioPrice: 2,
+    visualPrice: 2,
+    bundlePrice: 1, // bundle: 4K (£6) + Cinematic (£1) = £7 total (Cinematic Pack)
     audioLabel: "WizSound™ Cinematic",
     visualLabel: "WizLumina™ Cinematic",
     audioFeatures: ["Full mastering pipeline", "Immersive spatial depth", "Streaming loudness (−14 LUFS)"],
@@ -136,7 +136,7 @@ export function RenderPaywallModal({
   const selectedTier = ENHANCE_TIERS.find((t) => t.id === enhanceTier)!;
   const selectedQuality = QUALITY_OPTIONS.find((q) => q.id === quality)!;
 
-  // Cinematic tier uses bundle price (£8 instead of £10)
+  // Cinematic tier uses bundle price: 4K (£6) + Cinematic add-on (£1) = £7 total
   const enhanceAddOn = selectedTier.bundlePrice;
   const totalPrice = selectedQuality.price + enhanceAddOn;
 
@@ -255,7 +255,7 @@ export function RenderPaywallModal({
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-white">Enhancement Mode</h3>
               {isCinematicMode && (
-                <span className="text-[10px] text-[--color-silver] font-medium">Bundle — save £2</span>
+                <span className="text-[10px] text-[--color-silver] font-medium">Cinematic Pack — 4K + WizSound™</span>
               )}
             </div>
 

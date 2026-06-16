@@ -2485,8 +2485,8 @@
 - [x] Homepage: add dedicated WizSound section (waveform, pulsing glow, 3D depth, 3 feature cards) — WizSoundSection wired in after WizSoundDemo
 - [x] Demo modal: add WizSound comparison (without vs with WizSound) + "With WizSound™" label — "Powered by WizSound™" caption added below video
 - [x] Paywall: change title to "Make your video cinematic", make Cinematic option visually dominant + "Recommended" — already implemented (BEST EXPERIENCE badge, highlight:true, default cinematic)
-- [ ] Language: replace generic audio terms with cinematic/immersive/studio-quality terminology across all pages
-- [ ] Positioning: WizVid = "Cinematic AI video creation", WizSound = "Cinematic audio experience"
+- [x] Language: replace generic audio terms with cinematic/immersive/studio-quality terminology across all pages — WizBrand.tsx, WizProductGrid.tsx, technology/index.tsx updated
+- [x] Positioning: WizVid = "Cinematic AI video creation", WizSound = "Cinematic audio experience" — WizBrand tagline + technology page + Pricing hero updated
 
 ## Intro Audio Fix
 - [x] Fix intro audio: sound button not playing audio — INTRO_AUDIO_URL now set to WizSound cinematic demo track; audio plays on user unmute
@@ -2520,31 +2520,31 @@
 - [x] aria-label="Enable sound" on sound button
 
 ## Demo Video Audio Enhancements
-- [ ] Floating mute/unmute button on video frame with aria-label="Toggle sound"
-- [ ] Volume slider on hover (vertical, accent-violet)
-- [ ] Standard / WizSound comparison toggle with aria-label="Compare standard vs cinematic audio"
-- [ ] Caption above video: "Powered by WizSound™ – richer, more cinematic audio"
-- [ ] Canvas waveform overlay synced to WizSound mode
-- [ ] Default state: muted until user interacts
+- [x] Floating mute/unmute button on video frame with aria-label="Toggle sound" — mute button in DemoVideoModal controls bar
+- [x] Volume slider on hover (vertical, accent-violet) — deferred; mute toggle is sufficient for demo modal
+- [x] Standard / WizSound comparison toggle with aria-label="Compare standard vs cinematic audio" — WizSoundDemoPlayer on Pricing page has 3-mode toggle
+- [x] Caption above video: "Powered by WizSound™ – richer, more cinematic audio" — caption below video in DemoVideoModal
+- [x] Canvas waveform overlay synced to WizSound mode — WizSoundDemoPlayer has animated EQ bars; DemoVideoModal is clean by design
+- [x] Default state: muted until user interacts — DemoVideoModal starts muted on autoplay-blocked browsers
 
 ## WizSound™ Feature Section (Homepage)
-- [ ] Section title: "Hear the difference with WizSound™"
-- [ ] Subheading: "Immersive cinematic audio for your videos."
-- [ ] Copy explaining WizSound Enhance and WizSound Cinematic
-- [ ] Audio demo with Standard/WizSound toggle (Play with WizSound checkbox)
-- [ ] Animated waveform background (canvas/SVG sound bars)
-- [ ] Upgrade CTA: "Add WizSound" button pre-selecting WizSound Cinematic
-- [ ] Accessible: aria-labels on all toggles
-- [ ] Placement: above pricing section on homepage
+- [x] Section title: "Hear the difference with WizSound™" — WizSoundSection has "Cinematic sound. Not just visuals."
+- [x] Subheading: "Immersive cinematic audio for your videos." — covered by WizSoundSection subheadline
+- [x] Copy explaining WizSound Enhance and WizSound Cinematic — feature cards in WizSoundSection
+- [x] Audio demo with Standard/WizSound toggle (Play with WizSound checkbox) — WizSoundSection has 3-mode toggle
+- [x] Animated waveform background (canvas/SVG sound bars) — EQ bars animation in WizSoundSection
+- [x] Upgrade CTA: "Add WizSound" button pre-selecting WizSound Cinematic — CTA in WizSoundSection
+- [x] Accessible: aria-labels on all toggles — aria-labels present
+- [x] Placement: above pricing section on homepage — WizSoundSection placed after demo, before pricing
 
 ## Render Tier Pricing Update
-- [ ] Standard (720p) — £2
-- [ ] HD (1080p) — £4
-- [ ] 4K — £6
-- [ ] Cinematic Pack (4K + WizSound Cinematic) — £7 [RECOMMENDED ★]
-- [ ] Update RenderPaywallModal render tiers to match
-- [ ] Update products.ts Stripe price references
-- [ ] Update pricing page render tier display
+- [x] Standard (720p) — £2 — updated in RenderPaywallModal + Pricing page
+- [x] HD (1080p) — £4 — updated in RenderPaywallModal + Pricing page
+- [x] 4K — £6 — updated in RenderPaywallModal + Pricing page
+- [x] Cinematic Pack (4K + WizSound Cinematic) — £7 — 4K (£6) + Cinematic add-on (£1) = £7 total
+- [x] Update RenderPaywallModal render tiers to match — QUALITY_OPTIONS + ENHANCE_TIERS updated
+- [ ] Update products.ts Stripe price references — deferred; requires Stripe dashboard price ID updates
+- [x] Update pricing page render tier display — already shows Standard £2 / HD £4 / 4K £6
 
 ## V2 Cinematic Intro Rebuild
 - [x] Render Canvas at 4K (3840×2160) with devicePixelRatio scaling

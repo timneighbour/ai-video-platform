@@ -56,7 +56,7 @@ const LAYERS: Record<WizLayer, LayerConfig> = {
     verb: "Enhanced with",
     pastVerb: "Enhanced with",
     processingLabel: "Enhancing audio with WizSound™…",
-    tagline: "Proprietary audio enhancement",
+    tagline: "Cinematic audio experience",
     colour: "indigo",
     glow: "0 0 12px rgba(99,102,241,0.45)",
     Icon: ({ className }) => <Music2 className={className} />,

@@ -763,16 +763,16 @@ export function WizSoundPage() {
     <TechnologyPageTemplate
       slug="wizsound"
       title="WizSound™"
-      metaTitle="WizSound™ — Audio Enhancement Engine | WIZ AI"
-      metaDesc="WizSound™ delivers audio enhancement, clarity, depth and cinematic mastering for every WIZ AI video."
-      ogTitle="WizSound™ — Audio Enhancement Engine | WIZ AI"
-      ogDesc="Audio enhancement, clarity, depth and cinematic mastering."
+      metaTitle="WizSound™ — Cinematic Audio Engine | WIZ AI"
+      metaDesc="WizSound™ delivers cinematic audio mastering — immersive spatial depth, studio clarity, and broadcast-ready quality for every WIZ AI video."
+      ogTitle="WizSound™ — Cinematic Audio Engine | WIZ AI"
+      ogDesc="Cinematic audio mastering — immersive spatial depth, studio clarity, and broadcast-ready quality."
       badge="WIZ AI Core Engine"
       headline="WizSound™"
-      subheadline="Audio enhancement, clarity, depth and cinematic mastering. Three tiers of audio quality — from standard to studio-grade."
-      whatItIs="WizSound™ is WIZ AI's proprietary audio enhancement engine. It processes the audio track of every video through three quality tiers: Standard (raw output), WizEnhanced (stereo widening, EQ mastering, noise reduction), and WizCinematic (full spatial mastering, sub-bass, dynamic range, and immersive depth). The result is broadcast-ready or cinema-grade audio on every video."
+      subheadline="Cinematic audio mastering — immersive spatial depth, studio clarity, and broadcast-ready quality. Three tiers: Standard, WizSound™ Enhance, and WizSound™ Cinematic."
+      whatItIs="WizSound™ is WIZ AI's proprietary cinematic audio engine. It processes the audio track of every video through three quality tiers: Standard (original audio, no processing), WizSound™ Enhance (stereo widening, 3-band EQ, broadcast-standard loudness mastering), and WizSound™ Cinematic (full spatial mastering, Haas psychoacoustic widening, 5-band EQ, harmonic exciter, and true-peak mastering at −14 LUFS). The result is immersive, broadcast-ready or cinema-grade audio on every video."
       features={[
-        { icon: <Music size={18} />, title: "Three Audio Tiers", desc: "Standard, WizEnhanced, and WizCinematic — choose the level of audio processing." },
+        { icon: <Music size={18} />, title: "Three Audio Tiers", desc: "Standard, WizSound™ Enhance, and WizSound™ Cinematic — choose your cinematic audio experience." },
         { icon: <Zap size={18} />, title: "Stereo Widening", desc: "Expands the stereo field for a richer, more immersive listening experience." },
         { icon: <Star size={18} />, title: "EQ Mastering", desc: "Dynamic equalisation for balanced, broadcast-ready audio." },
         { icon: <Mic size={18} />, title: "Spatial Mastering", desc: "Full spatial audio processing with sub-bass, depth, and cinematic presence." },
@@ -786,11 +786,11 @@ export function WizSoundPage() {
         { num: "04", title: "Audio delivered", desc: "The enhanced audio is assembled with the video for final delivery." },
       ]}
       capabilities={[
-        "Standard, WizEnhanced, and WizCinematic audio tiers",
+        "Standard, WizSound™ Enhance, and WizSound™ Cinematic audio tiers",
         "Stereo widening and spatial depth processing",
         "Dynamic EQ mastering for broadcast-ready balance",
         "AI noise reduction and clarity enhancement",
-        "Sub-bass and cinematic presence (WizCinematic tier)",
+        "Sub-bass, spatial depth, and cinematic presence (WizSound™ Cinematic tier)",
         "Consistent volume and dynamic range across all scenes",
         "Works with uploaded audio, AI-generated music, and voiceover",
         "Seamless integration with WizLumina for unified cinematic output",
