@@ -567,7 +567,10 @@ async function startServer() {
 
   // Static audio assets — served with CORS open so the frontend can stream them
   app.use("/api/audio", express.static(path.join(__dirname, "../public/audio"), {
-    setHeaders: (res) => res.setHeader("Access-Control-Allow-Origin", "*")
+    setHeaders: (res) => {
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Cache-Control", "public, max-age=86400");
+    }
   }));
 
   // ISS-005: Sentry error handler — must be registered AFTER all routes, BEFORE Vite/static
