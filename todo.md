@@ -2148,21 +2148,21 @@
 
 ### Phase 1 — Homepage Hero Polish
 - [x] Tighten hero spacing: reduce padding, bring headline and CTA above the fold on all viewports
-- [ ] Hero headline: single bold statement, max 2 lines, no competing elements
-- [ ] Primary CTA: "Create Your First Video — Free" — white/high-contrast, full-width on mobile
+- [x] Hero headline: single bold statement, max 2 lines, no competing elements
+- [x] Primary CTA: "Create Your First Video — Free" — white/high-contrast, full-width on mobile
 - [x] Secondary CTA: "Watch the Film" — ghost button, visually subordinate
 - [x] Remove distracting badge/pill elements that compete with CTA
-- [ ] Mobile hero: headline font size, CTA button size, no horizontal overflow
+- [x] Mobile hero: headline font size, CTA button size, no horizontal overflow
 - [x] Sticky CTA bar on mobile: fixed bottom bar with primary CTA when hero is scrolled past
 
 ### Phase 1 — Pricing Section
-- [ ] Lead with "2 free videos — no card required" at top of pricing section
-- [ ] Each plan: one-line value statement (what you get, not features list)
-- [ ] Highlight recommended plan visually (border, badge, scale)
-- [ ] Add urgency/friction reducer: "Join 500+ creators already using WizVid"
-- [ ] Remove pricing confusion: simplify plan names and feature bullets
-- [ ] Add annual/monthly toggle with savings callout
-- [ ] CTA on each plan card: clear, action-oriented label
+- [x] Lead with "2 free videos — no card required" at top of pricing section
+- [x] Each plan: one-line value statement (what you get, not features list)
+- [x] Highlight recommended plan visually (border, badge, scale)
+- [x] Add urgency/friction reducer: "Join 500+ creators already using WizVid"
+- [x] Remove pricing confusion: simplify plan names and feature bullets
+- [x] Add annual/monthly toggle with savings callout
+- [x] CTA on each plan card: clear, action-oriented label
 
 ### Phase 1 — Trust Elements
 - [x] "No credit card required" text directly below primary CTA

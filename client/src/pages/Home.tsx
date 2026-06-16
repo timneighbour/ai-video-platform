@@ -946,23 +946,19 @@ function Hero() {
 	 </div>
 
  {/* Headline */}
- <h1 className="text-[clamp(2.6rem,7vw,5rem)] font-black leading-[0.93] tracking-tight text-white mb-3">Direct. Create.<br />
- <span className="metallic-gold">Produce. Own It.</span>
+ <h1 className="text-[clamp(2.2rem,6.5vw,4.75rem)] font-black leading-[0.95] tracking-tight text-white mb-3 max-w-full overflow-hidden">Your Music.<br />
+ <span className="metallic-gold">Your Video.</span>
  </h1>
- {/* Emotional hook */}
- <p className="text-[clamp(1rem,1.8vw,1.2rem)] font-semibold leading-snug max-w-xl mb-4" style={{ color: "oklch(0.82 0.12 72)" }}>
- Premium AI-directed cinematic music video production with intelligent scene orchestration.
- </p>
- {/* Subheadline */}
- <p className="text-[clamp(0.875rem,1.4vw,1rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-6">Cinematic-first storyboarding. Character Lock™ identity consistency. WizSync™ Portrait-to-LipSync™ performance enhancement. Automatic reliability. Every video feels professionally directed — because it is.
+ {/* Single subheadline — no competing elements */}
+ <p className="text-[clamp(0.9rem,1.5vw,1.05rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-6">AI-directed cinematic music videos. Free storyboard. Professional results in minutes.
  </p>
 
  {/* CTAs */}
  <div className="relative z-20 mb-8">
- <div className="flex flex-wrap items-center gap-4 mb-2">
+ <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 mb-2">
  <a
  href="/onboarding"
- className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
+ className="btn-primary btn-sheen btn-sheen inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl text-base w-full sm:w-auto"
  style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
  onClick={() => { mp.heroCTAClicked?.(); mp.startCreatingClicked("hero"); }}
  >
@@ -971,76 +967,12 @@ function Hero() {
 	 <button
 	 type="button"
 	 onClick={() => setDemoOpen(true)}
-	 className="btn-secondary inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
+	 className="btn-secondary inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl text-base w-full sm:w-auto"
 	 style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
 	 >Watch the Film
 	 <ArrowSVG className="w-4 h-4" />
 	 </button>
- {/* ── WATCH DEMO — ultra-premium screaming CTA ── */}
- <button
- type="button"
- onClick={() => setDemoOpen(true)}
- className="group relative z-20 inline-flex items-center gap-3 min-h-[52px] px-6 py-3 rounded-2xl font-bold text-sm transition-all duration-200 hover:scale-[1.04] active:scale-[0.97]"
- style={{
- background: "linear-gradient(135deg, rgba(196,164,100,0.14) 0%, rgba(232,201,122,0.08) 100%)",
- border: "1.5px solid rgba(196,164,100,0.55)",
- boxShadow: [
- "0 0 0 3px rgba(196,164,100,0.08)",
- "0 0 24px rgba(196,164,100,0.30)",
- "0 0 48px rgba(196,164,100,0.12)",
- "inset 0 1px 0 rgba(255,255,255,0.12)",
- ].join(", "),
- WebkitTapHighlightColor: "transparent",
- touchAction: "manipulation",
- cursor: "pointer",
- }}
- aria-label="Watch the demo video"
- >
- {/* Outer pulse ring */}
- <span
- className="absolute -inset-[5px] rounded-[18px] pointer-events-none"
- style={{
- border: "1px solid rgba(196,164,100,0.35)",
- animation: "enter-btn-ring-breathe 2.2s ease-in-out infinite",
- }}
- />
- {/* Fast expanding ring */}
- <span
- className="absolute -inset-[3px] rounded-[16px] pointer-events-none"
- style={{
- border: "1.5px solid rgba(232,201,122,0.5)",
- animation: "enter-btn-ring-pulse 1.9s ease-out infinite",
- }}
- />
- {/* Play icon with multi-ring glow */}
- <span className="relative flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
- style={{
- background: "linear-gradient(135deg, #c4a464 0%, #e8c97a 100%)",
- boxShadow: "0 0 0 3px rgba(196,164,100,0.20), 0 0 16px rgba(196,164,100,0.55), 0 0 32px rgba(196,164,100,0.25)",
- }}>
- <PlaySVG className="w-4 h-4 text-background ml-0.5" />
- </span>
- {/* Label */}
- <span className="flex flex-col items-start leading-none">
- <span
- className="text-[0.65rem] font-bold tracking-[0.22em] uppercase mb-0.5"
- style={{ color: "rgba(196,164,100,0.75)" }}
- >See it in action</span>
- <span
- className="text-[1rem] font-black tracking-tight"
- style={{
- background: "linear-gradient(90deg, #e8c97a 0%, #fff 50%, #e8c97a 100%)",
- backgroundSize: "200% 100%",
- WebkitBackgroundClip: "text",
- WebkitTextFillColor: "transparent",
- backgroundClip: "text",
- animation: "enter-btn-shimmer 3s linear infinite",
- }}
- >Watch the Demo</span>
- </span>
- {/* Arrow */}
- <ChevronRight className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:translate-x-1" style={{ color: "rgba(196,164,100,0.70)" }} />
- </button>
+
  </div>
  {/* Free tier trust bar — P0.2: must be impossible to miss */}
  <div className="flex flex-wrap items-center gap-3 mt-1">
