@@ -14,7 +14,8 @@ import { useEffect, useRef, useState, useCallback, type CSSProperties } from "re
 import { ChevronRight } from "@/lib/icons";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
-const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
+const CDN       = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
+const MUSIC_URL = "/api/audio/lightless-dawn.mp3";
 
 const CLIPS = [
   { url: `${CDN}/showcase-music-video_19324f13.mp4`, product: "WizVideo™",   tagline: "AI Music Videos"  },
@@ -66,19 +67,20 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
   const [muted, setMuted]               = useState(true);
   const [visible, setVisible]           = useState(true);
   const videoRef                        = useRef<HTMLVideoElement>(null);
+  const audioRef                        = useRef<HTMLAudioElement>(null);
   const timersRef                       = useRef<ReturnType<typeof setTimeout>[]>([]);
   const dismissedRef                    = useRef(false);
 
   const clearAll = () => timersRef.current.forEach(clearTimeout);
 
-  useEffect(() => {
-    if (videoRef.current) videoRef.current.muted = muted;
-  }, [muted]);
-
   const toggleMute = useCallback(() => {
     setMuted(m => {
       const next = !m;
-      if (videoRef.current) videoRef.current.muted = next;
+      const aud = audioRef.current;
+      if (aud) {
+        aud.muted = next;
+        if (!next) aud.play().catch(() => {});
+      }
       return next;
     });
   }, []);
@@ -89,6 +91,8 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
     clearAll();
     const vid = videoRef.current;
     if (vid) vid.pause();
+    const aud = audioRef.current;
+    if (aud) { aud.pause(); }
     sessionStorage.setItem(INTRO_SESSION_KEY, "1");
     setVisible(false);
     setTimeout(onComplete, 650);
@@ -114,6 +118,9 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
       setPhase("clips");
       const vid = videoRef.current;
       if (vid) { vid.src = CLIPS[0].url; vid.load(); vid.play().catch(() => {}); }
+      // Start background music muted (browser autoplay policy — user unmutes via toggle)
+      const aud = audioRef.current;
+      if (aud) { aud.muted = true; aud.play().catch(() => {}); }
       setVideoVisible(true);
       setLabelKey(k => k + 1);
       setTimeout(() => setLabelVisible(true), 400);
@@ -199,10 +206,13 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
         }
       `}</style>
 
+      {/* Background music — "Lightless Dawn" by Kevin MacLeod (CC BY 3.0) */}
+      <audio ref={audioRef} src={MUSIC_URL} loop preload="auto" style={{ display: "none" }} />
+
       {/* Full-screen background video */}
       <video
         ref={videoRef}
-        muted={muted}
+        muted
         playsInline
         loop
         preload="none"
@@ -233,25 +243,27 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
         ))}
       </div>
 
-      {/* Centre overlay — lower third clears singer's face */}
-      <div style={{ position: "relative", zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center", width: "100%", paddingTop: "36vh" }}>
-
-        {/* Logo */}
-        <div style={{ position: "relative", marginBottom: 12 }}>
+      {/* Logo — pinned to top centre */}
+      <div style={{ position: "absolute", top: "1.5vh", left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
+        <div style={{ position: "relative" }}>
           <div style={{ position: "absolute", inset: -32, borderRadius: "50%", background: `radial-gradient(ellipse at center, ${GOLD}1A 0%, transparent 70%)`, animation: show("ambient","clips","cta") ? "wi-halo 3.2s ease-in-out infinite" : "none", opacity: show("ambient","clips","cta") ? 1 : 0, transition: "opacity 1s ease" }} />
           <img
             src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png"
             alt="WIZ AI"
             style={{
-              width: "clamp(160px, 22vw, 260px)", height: "auto", display: "block",
+              width: "clamp(190px, 26vw, 300px)", height: "auto", display: "block",
               filter: show("ambient","clips","cta") ? `drop-shadow(0 0 22px ${GOLD}99) drop-shadow(0 0 50px ${GOLD}55)` : "none",
               opacity: show("ambient","clips","cta") ? 1 : 0,
-              transform: show("ambient","clips","cta") ? "scale(1) translateY(0)" : "scale(0.84) translateY(14px)",
+              transform: show("ambient","clips","cta") ? "scale(1) translateY(0)" : "scale(0.84) translateY(-10px)",
               transition: "opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1), filter 1.2s ease",
               position: "relative",
             }}
           />
         </div>
+      </div>
+
+      {/* Lower overlay — labels, waveform, CTA */}
+      <div style={{ position: "absolute", bottom: "9vh", left: 0, right: 0, zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center" }}>
 
         {/* Product label — changes each clip */}
         <div style={{ height: 48, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
