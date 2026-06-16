@@ -9308,3 +9308,13 @@
 - [x] Dashboard: Verified intro only shows on homepage (pathname === "/") — already correct
 - [x] Subscribe.tsx: Verified comparison table plan names (Free/Starter/Basic/Creator/Pro/Studio) — already correct, Pro is a real plan
 - [x] Pricing page: Verified nav uses PublicNavBar with href-based links — already correct
+
+- [x] Fix Clarity to use VITE_CLARITY_PROJECT_ID env var instead of hardcoded ID
+- [x] Fix demo video text position in RenderPaywallModal (move higher, stronger gradient, no bleed)
+- [x] Make WizPilot nav logo larger (h-10 → h-14)
+- [x] Make Autopilot page logo larger (h-10 → h-14)
+- [x] Verify nav links already use <a href> (no navigate() calls in PublicNavBar or Home.tsx nav)
+- [x] Verify project resume already works correctly per status (storyboard_ready → storyboard step, etc.)
+- [x] Verify post-payment redirect already goes to /dashboard (not intro)
+- [x] Verify intro only shows on homepage (pathname === "/")
+- [x] Dashboard action cards already have premium background images and gradients

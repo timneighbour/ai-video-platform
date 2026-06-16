@@ -202,10 +202,10 @@ export function RenderPaywallModal({
           {previewImageUrl && (
             <div className="relative mb-4 rounded-xl overflow-hidden border border-white/10 h-28 bg-black">
               <img src={previewImageUrl} alt="Video preview" className="w-full h-full object-cover blur-sm scale-105 opacity-60" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-              <div className="absolute bottom-2 left-3 right-3">
-                <p className="text-white font-semibold text-sm truncate">{videoTitle || "Your video"}</p>
-                <p className="text-white/60 text-xs">Your video is ready</p>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4">
+                <p className="text-white font-semibold text-sm truncate drop-shadow-[0_1px_4px_rgba(0,0,0,0.8)]">{videoTitle || "Your video"}</p>
+                <p className="text-white/70 text-xs drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">Your video is ready</p>
               </div>
             </div>
           )}

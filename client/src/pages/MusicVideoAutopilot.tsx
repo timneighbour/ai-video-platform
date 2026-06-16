@@ -3227,7 +3227,7 @@ export default function MusicVideoAutopilot() {
             <span className="hidden sm:inline">Back to Studio</span>
           </NavLink>
           <NavLink href="/" className="flex items-center gap-2.5">
-            <img src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png" alt="WIZ AI" className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(20,184,166,0.20)]" loading="eager" decoding="async" />
+            <img src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png" alt="WIZ AI" className="h-14 w-auto object-contain drop-shadow-[0_0_12px_rgba(20,184,166,0.20)]" loading="eager" decoding="async" />
             <span className="hidden sm:flex items-center gap-1.5">
               <span className="font-bold text-[16px] tracking-[2px] text-white/90" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>WIZVIDEO</span>
               <span className="text-[8px] font-bold tracking-[2px] text-teal-400 px-1.5 py-0.5 rounded-sm border border-[#14b8a6]/25 uppercase" style={{ background: "rgba(20,184,166,0.08)" }}>DIRECTOR</span>
