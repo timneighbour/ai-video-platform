@@ -644,7 +644,7 @@ export default function Pricing() {
  <div className="flex items-center justify-between rounded-lg px-3 py-2 mb-3 bg-white/[0.03] border border-white/[0.06]">
  <span className="text-[10px] text-white/40 font-medium">Cost per video</span>
  <div className="flex items-center gap-2">
- <span className="text-[10px] line-through text-white/20">£6 pay-per-render</span>
+ <span className="text-[10px] line-through text-white/20">£6 per video</span>
  <span className="text-[11px] font-black" style={{ color: plan.accentColor }}>
  {formatPrice(parseFloat((plan.monthlyPrice / plan.buildsPerMonth).toFixed(2)))}/video
  </span>
@@ -705,7 +705,7 @@ export default function Pricing() {
  { label: "Videos created this week", value: "2,400+" },
  { label: "Avg. creator rating", value: "4.9 / 5" },
  { label: "Artists on platform", value: "1,200+" },
- { label: "Avg. render time", value: "< 12 min" },
+ { label: "Avg. creation time", value: "< 12 min" },
  ].map(({ label, value }) => (
  <div key={label} className="flex flex-col items-center gap-0.5 text-center">
  <span className="text-base font-extrabold text-white">{value}</span>
@@ -1326,7 +1326,7 @@ export default function Pricing() {
  {
  icon: <Sparkles className="w-6 h-6 text-[--color-gold]" />,
  label: "Quality Guarantee",
- sub: "1 free re-render included",
+ sub: "1 free revision included",
  bg: "from-[--color-gold]/[0.06]",
  },
  ].map((item) => (

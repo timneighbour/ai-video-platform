@@ -9329,3 +9329,8 @@
 - [x] Verified: post-payment redirect to /dashboard already correct
 - [x] Verified: intro only shows on homepage (not on /dashboard)
 - [x] Verified: nav links use <a href> tags (not navigate()), no broken links
+- [x] Homepage: Add "What happens next?" 5-step section (WhatHappensNext component between MusicVideoUSPSection and TestimonialsSection)
+- [x] Homepage: Add brand tagline strip "Create videos. Get discovered. Grow your audience." (BrandTaglineStrip between TestimonialsSection and FinalCTA)
+- [x] Pricing: Replace "pay-per-render" with "per video", "Avg. render time" with "Avg. creation time", "re-render" with "revision"
+- [x] Post-render: Download fallback already implemented (fetch → blob → window.open fallback + Copy Link button)
+- [x] "Previous render failed" banner: Confirmed only fires on ?jobId= resume of failed job, not on fresh loads

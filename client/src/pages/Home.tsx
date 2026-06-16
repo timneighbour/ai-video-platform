@@ -3645,6 +3645,108 @@ function MusicVideoUSPSection() {
   );
 }
 
+// What Happens Next — 5-step process reassurance
+function WhatHappensNext() {
+ const steps = [
+ {
+ num: "01",
+ title: "Upload your track",
+ desc: "Drop in your MP3. WIZ AI reads the lyrics, tempo, and mood to build your story.",
+ },
+ {
+ num: "02",
+ title: "Direct your storyboard",
+ desc: "Review every scene before anything is generated. Lock your character, camera angles, and style.",
+ },
+ {
+ num: "03",
+ title: "Start creation",
+ desc: "One click. WIZ AI renders each scene with cinematic precision — lip-synced to your vocals.",
+ },
+ {
+ num: "04",
+ title: "Get notified when it's ready",
+ desc: "We email you the moment your video is complete. No waiting around.",
+ },
+ {
+ num: "05",
+ title: "Watch, download and share",
+ desc: "Stream your video in-app, download in HD, and share directly to social. Your video, your rights.",
+ },
+ ];
+ return (
+ <section className="relative bg-background py-24 px-6 overflow-hidden">
+ <div className="luxury-divider absolute top-0 left-0 right-0" />
+ <div className="absolute top-0 right-0 w-[600px] h-[400px] opacity-[0.07] pointer-events-none" style={{ background: "radial-gradient(ellipse at top right, oklch(0.72 0.14 70), transparent 70%)" }} />
+ <div className="relative z-10 max-w-5xl mx-auto">
+ <div className="text-center mb-14 reveal">
+ <p className="text-[11px] font-bold tracking-[0.22em] uppercase text-[--color-gold-dark] mb-3">The Process</p>
+ <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-black tracking-tight text-white mb-4">
+ What happens after you click{" "}
+ <span className="metallic-gold">Create</span>?
+ </h2>
+ <p className="text-white/40 text-base max-w-xl mx-auto">Five steps from idea to finished video. No surprises.</p>
+ </div>
+ <div className="relative">
+ {/* Vertical connector line */}
+ <div className="absolute left-[1.75rem] top-8 bottom-8 w-px bg-gradient-to-b from-[--color-gold]/30 via-[--color-gold]/10 to-transparent hidden md:block" aria-hidden="true" />
+ <div className="space-y-6">
+ {steps.map((step, i) => (
+ <div key={step.num} className="flex gap-6 items-start reveal" style={{ animationDelay: `${i * 80}ms` }}>
+ {/* Step number bubble */}
+ <div
+ className="flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center text-sm font-black z-10"
+ style={{
+ background: "linear-gradient(135deg, rgba(196,164,100,0.18) 0%, rgba(196,164,100,0.06) 100%)",
+ border: "1.5px solid rgba(196,164,100,0.35)",
+ color: "oklch(0.82 0.12 72)",
+ boxShadow: "0 0 20px rgba(196,164,100,0.12)",
+ }}
+ >{step.num}</div>
+ {/* Content */}
+ <div className="pt-3">
+ <h3 className="text-white font-bold text-lg mb-1">{step.title}</h3>
+ <p className="text-white/45 text-sm leading-relaxed max-w-lg">{step.desc}</p>
+ </div>
+ </div>
+ ))}
+ </div>
+ </div>
+ {/* Bottom CTA */}
+ <div className="text-center mt-14 reveal">
+ <a
+ href="/onboarding"
+ className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base font-bold"
+ >
+ <img src={WIZAI_LOGO} alt="" aria-hidden="true" className="w-4 h-4 object-contain" />
+ Start your first project — Free
+ </a>
+ </div>
+ </div>
+ </section>
+ );
+}
+
+// Brand Tagline Strip
+function BrandTaglineStrip() {
+ return (
+ <section className="relative bg-background py-16 px-6 overflow-hidden">
+ <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ background: "linear-gradient(135deg, oklch(0.72 0.14 70) 0%, transparent 60%)" }} />
+ <div className="relative z-10 max-w-4xl mx-auto text-center reveal">
+ <p
+ className="text-[clamp(1.4rem,3.5vw,2.4rem)] font-black tracking-tight"
+ style={{ color: "oklch(0.82 0.12 72)" }}
+ >
+ Create videos.{" "}
+ <span className="text-white">Get discovered.</span>{" "}
+ Grow your audience.
+ </p>
+ <p className="text-white/30 text-sm mt-3 font-medium tracking-wide">WIZ AI — The AI Studio Built for Creators</p>
+ </div>
+ </section>
+ );
+}
+
 function TestimonialsSection() {
  const testimonials = [
  {
@@ -4042,8 +4144,12 @@ export default function Home() {
  <Showcase />
       {/* 9. Music Video USP — visible to all new visitors */}
       <MusicVideoUSPSection />
+      {/* 9b. What Happens Next — 5-step process */}
+      <WhatHappensNext />
       {/* 10. Testimonials + Social Proof */}
       <TestimonialsSection />
+      {/* 10b. Brand Tagline Strip */}
+      <BrandTaglineStrip />
       {/* 11. Pricing — simplified 3-plan overview */}
       <HomePricingSection />
       {/* 12. Final CTA */}
