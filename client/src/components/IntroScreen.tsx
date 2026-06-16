@@ -58,6 +58,7 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [visible, setVisible] = useState(true);
   const [showControls, setShowControls] = useState(false);
+  const [showEnterCta, setShowEnterCta] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
   const [showPlayHint, setShowPlayHint] = useState(false);
   // Start muted (required for autoplay) — user can toggle
@@ -119,7 +120,11 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    const handleEnded = () => dismiss();
+    const handleEnded = () => {
+      setShowEnterCta(true);
+      // Small delay so the CTA is visible before auto-dismiss
+      setTimeout(() => dismiss(), 1200);
+    };
     video.addEventListener("ended", handleEnded);
     return () => video.removeEventListener("ended", handleEnded);
   }, [dismiss]);
@@ -203,10 +208,17 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
         playsInline
         // iOS-specific attributes for reliable autoplay
         {...({ "webkit-playsinline": "true", "x-webkit-airplay": "deny" } as any)}
-        preload="metadata"
+        preload="auto"
         onCanPlay={handleCanPlay}
         onCanPlayThrough={handleCanPlay}
         onError={() => dismiss()}
+        onTimeUpdate={() => {
+          const video = videoRef.current;
+          if (!video || !video.duration) return;
+          if (video.currentTime >= video.duration - 3) {
+            setShowEnterCta(true);
+          }
+        }}
         onStalled={handleStalled}
         onWaiting={() => { /* iOS buffer pause — will resume automatically */ }}
         className="absolute inset-0 w-full h-full"
@@ -321,8 +333,16 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
           </button>
         </div>
 
-        {/* Bottom — Enter WIZ AI ultra-premium button */}
-        <div className="flex flex-col items-center gap-3 pointer-events-auto pb-4">
+        {/* Bottom — Enter WIZ AI ultra-premium button (gated by showEnterCta) */}
+        <div
+          className="flex flex-col items-center gap-3 pb-4"
+          style={{
+            opacity: showEnterCta ? 1 : 0,
+            transform: showEnterCta ? "translateY(0)" : "translateY(24px)",
+            transition: "opacity 0.7s ease, transform 0.7s ease",
+            pointerEvents: showEnterCta ? "auto" : "none",
+          }}
+        >
           {/* Sparkle particles */}
           <div className="relative w-0 h-0">
             {[
