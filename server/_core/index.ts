@@ -1,5 +1,8 @@
 import "dotenv/config";
 import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 // ISS-005: Sentry must be imported before all other modules
 import "../sentry";
 import * as Sentry from "@sentry/node";
