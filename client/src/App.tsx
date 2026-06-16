@@ -24,7 +24,7 @@ import { trackPageView } from "@/lib/analytics";
 import GlobalMuteButton from "./components/GlobalMuteButton";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import { PWAInstallBanner } from "@/components/PWAInstallBanner";
-import IntroScreen from "./components/IntroScreen";
+import CinematicIntroScreen from "./components/CinematicIntroScreen";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
 import { AppRoutes, PageFallback, PostLoginRedirect } from "./routes";
@@ -191,7 +191,7 @@ function App() {
           <Router />
           <GlobalMuteButton />
           {showIntro && (
-            <IntroScreen onComplete={handleIntroClose} />
+            <CinematicIntroScreen onComplete={handleIntroClose} />
           )}
           <CookieConsentBanner introActive={showIntro} />
           <PWAInstallBanner />

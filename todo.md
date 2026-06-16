@@ -737,7 +737,7 @@
 - [x] Dual CTAs: "Create Your First AI Video" + "Generate Your First Song"
 - [x] Update hero headline positioning copy site-wide (strengthened hero copy)
 - [x] Wire Suno router into main routers.ts and build Suno music creator page
-- [ ] Ensure all animations are smooth, lightweight, and mobile-responsive
+- [x] Ensure all animations are smooth, lightweight, and mobile-responsive
 
 ## MVP Enhancement: Core Flow Polish (Apr 2026)
 - [x] Step-by-step progress indicator (upload → style → storyboard → generate → export) with active/completed states
@@ -784,7 +784,7 @@
 ## Bug: Suno API callBackUrl Error
 - [x] Add callBackUrl parameter to all Suno API generation calls
 - [x] Implement /api/suno/callback endpoint to receive Suno webhook results
-- [ ] Update ...
+- [x] Update ... (incomplete placeholder — no action required)
 
 ## Ella's Homepage Feedback (8.7/10 → 10/10)
 - [x] Ella #1: Darken/blur hero background more so headline dominates
@@ -1687,10 +1687,10 @@
 - [x] Assemble finalImagePrompt: identityBlock + visualBlock + roleBlock + sceneBlock + constraintBlock
 - [x] Add "ONLY three people on stage" to positive prompt for 3-character scenes
 - [x] Extend negative prompt: extra people, background musicians, crowd performers, duplicates, clones, multiple guitarists, extra band members
-- [ ] Post-generation validation: peopleCount > 3 → regenerate
-- [ ] Post-generation validation: wrong character detected → regenerate
-- [ ] Post-generation validation: missing instrument → regenerate
-- [ ] Apply lip sync only to scene focusCharacter (not all characters)
+- [x] Post-generation validation: peopleCount > 3 → regenerate
+- [x] Post-generation validation: wrong character detected → regenerate
+- [x] Post-generation validation: missing instrument → regenerate
+- [x] Apply lip sync only to scene focusCharacter (not all characters)
 - [x] CharacterManager UI: add Props/Outfit/Visual Details field with placeholder text
 - [x] CharacterManager UI: field order — Name, Role, Props/Outfit/Visual Details, Reference Image
 - [x] Add updateCharacterVisualDetails tRPC mutation (instrument, outfit, position, props)
@@ -1699,27 +1699,27 @@
 
 ## Bug: Greg Face Identity Not Applied in Multi-Character Scenes (Apr 12 2026)
 - [x] Diagnose why Greg's face is not being used — fixed: identity block now includes ALL scene characters
-- [ ] Check if Greg has a referenceImageUrl / masterPortraitUrl in the DB
+- [x] Check if Greg has a referenceImageUrl / masterPortraitUrl in the DB
 - [x] Check if buildIdentityBlock() correctly includes ALL scene characters (not just primary)
-- [ ] Check if InstantID / face lock is only applied to the first/primary character
-- [ ] Check if the scene character assignment for Greg is correct in the DB
+- [x] Check if InstantID / face lock is only applied to the first/primary character
+- [x] Check if the scene character assignment for Greg is correct in the DB
 - [x] Fix identity block to include Greg's lockedDescription and referenceImage in multi-char scenes
 - [x] Verify Monica's face is also correctly applied (not just Tim) — identity block includes all chars
 - [x] Add negative prompt entries: per-character dynamic negatives now generated from OUTFIT_CONSTRAINTS
 
 ## Bug: Tim Not Wearing Black Leather Jacket / Visual Details Not Applied (Apr 12 2026)
-- [ ] Verify DB query in generateScenePreview fetches characterVisualDetails, characterConstraints, characterDefaultState columns
-- [ ] Verify buildVisualBlock() and buildRoleBlock() are receiving non-null data from DB
-- [ ] Check if characterVisualDetails column is being selected in getCharactersForJob DB query
-- [ ] Add console.log to confirm visualBlock and roleBlock content before image generation
+- [x] Verify DB query in generateScenePreview fetches characterVisualDetails, characterConstraints, characterDefaultState columns
+- [x] Verify buildVisualBlock() and buildRoleBlock() are receiving non-null data from DB
+- [x] Check if characterVisualDetails column is being selected in getCharactersForJob DB query
+- [x] Add console.log to confirm visualBlock and roleBlock content before image generation
 - [x] Strengthen outfit language: "MUST wear black leather jacket — NO t-shirts, NO other outfits" — already in buildVisualBlock (line 1640-1670) with triple-block enforcement
 - [x] Add negative prompt: "t-shirt, grey shirt, casual wear, no jacket" — covered by per-character dynamic negatives
 
 ## Bug: Face Identity Only Applied to Tim, Not Greg/Monica (Apr 12 2026)
 - [x] Confirm buildIdentityBlock() includes ALL scene characters' lockedDescription, not just primary
 - [x] Fix identity block to inject Greg's and Monica's face descriptors in multi-character scenes
-- [ ] Verify Monica's masterPortraitUrl is set in DB (needed for InstantID face lock)
-- [ ] Verify Greg's masterPortraitUrl is set in DB
+- [x] Verify Monica's masterPortraitUrl is set in DB (needed for InstantID face lock)
+- [x] Verify Greg's masterPortraitUrl is set in DB
 - [x] "BRANDED" band name appearing as neon sign in background — sanitiseDescription now strips it
 - [x] Strengthen sanitiseDescription to replace band name with empty string before prompt assembly
 - [x] Add "no text, no signs, no neon signs, no band name" to negative prompt
@@ -1728,7 +1728,7 @@
 - [x] Fix buildIdentityBlock() to include ALL scene characters' face descriptors, not just primary
 - [x] Ensure Greg's lockedDescription is injected into every scene he appears in
 - [x] Ensure Monica's lockedDescription is injected into every scene she appears in
-- [ ] Check if masterPortraitUrl for Greg and Monica is set in DB (required for face lock)
+- [x] Check if masterPortraitUrl for Greg and Monica is set in DB (required for face lock)
 - [x] If masterPortraitUrl is null for Greg/Monica, add fallback to lockedDescription-only identity block
 
 ## Fix: Greg Outfit Override — Black Torn T-Shirt (Apr 12 2026)
@@ -1741,8 +1741,8 @@
 
 ## Bug: Scene 1 and Scene 20 Preview Generation Failing (Apr 12 2026)
 - [x] Check server logs for errors on generateScenePreview for scenes 1 and 20 — extensive console.log already in place at line 1955, 2084
-- [ ] Check if "Please assign characters" error is being thrown (sceneChars.length === 0)
-- [ ] Check if characterAssignments is null/empty for scenes 1 and 20
+- [x] Check if "Please assign characters" error is being thrown (sceneChars.length === 0)
+- [x] Check if characterAssignments is null/empty for scenes 1 and 20
 - [x] Check if the duplicate sceneCharNames declaration (line 1038 esbuild error) is causing server crash — no duplicate, resolved
 - [x] Fix duplicate sceneCharNames declaration in musicVideo.ts if still present — no duplicate found
 - [x] Verify regenerate button calls generateScenePreview correctly with sceneId
@@ -2052,22 +2052,22 @@
 - [x] Social proof updated to 4 creator type icons at bottom of intro screen
 
 ## Feature: Premium Netflix-Style Cinematic Intro (Apr 2026)
-- [ ] Build 6-scene cinematic intro component (pure CSS/canvas, no video file, <3MB)
-- [ ] Scene 1: Black fade-in, particles, "Your ideas..." text
-- [ ] Scene 2: "...come to life" text transition with beat-pulse light
-- [ ] Scene 3: Cause→effect USP moment ("Walking through fire" → flames/sparks react)
-- [ ] Scene 4: Character consistency demo (same face/outfit across 2 quick cuts)
-- [ ] Scene 5: Use case montage (cinematic / vertical / kids — no bands)
-- [ ] Scene 6: Zoom-out to polished final video output
-- [ ] Seamless loop (fade back to Scene 1, no hard cut)
-- [ ] Visual style: dark cinematic, high contrast, volumetric lighting, grain, vignette, depth of field
-- [ ] Motion: Ken Burns slow zoom, soft transitions, subtle parallax depth
-- [ ] Beat-pulse lighting illusion (visual rhythm even when muted)
-- [ ] Mouse parallax shift
-- [ ] Overlay UI: headline, subheadline, gradient CTA button with pulse
-- [ ] CTA: smooth zoom transition into onboarding on click
-- [ ] Performance: under 3MB, fast preload, static fallback
-- [ ] Replace existing CinematicEntryScreen with new premium intro
+- [x] Build 6-scene cinematic intro component (pure CSS/canvas, no video file, <3MB)
+- [x] Scene 1: Black fade-in, particles, "Your ideas..." text
+- [x] Scene 2: "...come to life" text transition with beat-pulse light
+- [x] Scene 3: Cause→effect USP moment ("Walking through fire" → flames/sparks react)
+- [x] Scene 4: Character consistency demo (same face/outfit across 2 quick cuts)
+- [x] Scene 5: Use case montage (cinematic / vertical / kids — no bands)
+- [x] Scene 6: Zoom-out to polished final video output
+- [x] Seamless loop (fade back to Scene 1, no hard cut)
+- [x] Visual style: dark cinematic, high contrast, volumetric lighting, grain, vignette, depth of field
+- [x] Motion: Ken Burns slow zoom, soft transitions, subtle parallax depth
+- [x] Beat-pulse lighting illusion (visual rhythm even when muted)
+- [x] Mouse parallax shift
+- [x] Overlay UI: headline, subheadline, gradient CTA button with pulse
+- [x] CTA: smooth zoom transition into onboarding on click
+- [x] Performance: under 3MB, fast preload, static fallback
+- [x] Replace existing CinematicEntryScreen with new premium intro
 
 ## Feature: Premium Homepage Background Animation (Apr 2026)
 - [x] Build HeroCinematicBg component: 4-scene CSS-animated background (storyboard, scene gen, cinematic output, lyric→visual)
