@@ -1,4 +1,5 @@
 import "dotenv/config";
+import path from "path";
 // ISS-005: Sentry must be imported before all other modules
 import "../sentry";
 import * as Sentry from "@sentry/node";
@@ -563,6 +564,11 @@ async function startServer() {
       return res.status(500).json({ error: err?.message ?? "unknown" });
     }
   });
+
+  // Static audio assets — served with CORS open so the frontend can stream them
+  app.use("/api/audio", express.static(path.join(__dirname, "../public/audio"), {
+    setHeaders: (res) => res.setHeader("Access-Control-Allow-Origin", "*")
+  }));
 
   // ISS-005: Sentry error handler — must be registered AFTER all routes, BEFORE Vite/static
   // Captures unhandled Express errors and sends them to Sentry
