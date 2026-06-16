@@ -119,11 +119,23 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
       setTimeout(() => setLabelVisible(true), 400);
     }, 1600);
     const t3 = setTimeout(() => advanceClip(1), 5200);
-    const t4 = setTimeout(() => { advanceClip(2); setTimeout(() => setPhase("cta"), 600); }, 8800);
-    const t5 = setTimeout(dismiss, 13000);
-    timersRef.current = [t1, t2, t3, t4, t5];
+    const t4 = setTimeout(() => {
+      advanceClip(2);
+      setTimeout(() => setPhase("cta"), 600);
+      // Infinite clip loop — keeps cycling until user clicks "Enter WIZ AI"
+      const loopFrom = (idx: number) => {
+        const t = setTimeout(() => {
+          const next = (idx + 1) % CLIPS.length;
+          advanceClip(next);
+          loopFrom(next);
+        }, 3600);
+        timersRef.current.push(t);
+      };
+      loopFrom(2);
+    }, 8800);
+    timersRef.current = [t1, t2, t3, t4];
     return () => clearAll();
-  }, [dismiss, advanceClip]);
+  }, [advanceClip]);
 
   const show = (...phases: Phase[]) => phases.includes(phase);
 
