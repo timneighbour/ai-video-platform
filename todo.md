@@ -2459,7 +2459,7 @@
 - [x] Admin /admin/blog page: list posts, create/edit/delete, publish/draft toggle (at /blog/admin)
 - [x] SEO-friendly slugs: auto-generated from title, unique constraint
 - [x] Nav link to /blog — added to desktop + mobile nav in PublicNavBar
-- [ ] Seed 3 sample blog posts — TODO: run seed via admin UI or tRPC
+- [x] Seed 3 sample blog posts — 3 posts seeded via SQL: WizSound Cinematic intro, Music Video tutorial, WizVid 2025 platform overview
 
 ## Intro Cinematic Refinement
 - [ ] Slow down clips: max 3–4 clips, each 0.8–1.2s, smooth fade transitions (no rapid flashing)

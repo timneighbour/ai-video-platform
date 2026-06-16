@@ -443,7 +443,7 @@ export default function CinematicIntroScreen({ onComplete }: CinematicIntroScree
 
       {/* ── Overlay text (with parallax) ──────────────────────────────── */}
       <div
-        className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-6"
+        className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-6 pointer-events-none"
         style={{
           transform: prefersReducedMotion
             ? undefined
