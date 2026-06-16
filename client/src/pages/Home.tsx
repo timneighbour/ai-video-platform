@@ -3177,6 +3177,9 @@ function SeeTheDifference() {
 // ─── WizLumina Tier Section — Standard / Enhance / Cinematic upsell ────────────
 function WizLuminaTierSection() {
   const [activeTier, setActiveTier] = useState<"standard" | "enhance" | "cinematic">("standard");
+  const [hoveredCard, setHoveredCard] = useState<"standard" | "enhance" | "cinematic" | null>(null);
+  const [animKey, setAnimKey] = useState(0);
+
   const TIERS = [
     {
       key: "standard" as const,
@@ -3188,7 +3191,9 @@ function WizLuminaTierSection() {
       accentColor: "oklch(0.72 0.01 260)",
       borderColor: "rgba(148,163,184,0.25)",
       glow: "rgba(148,163,184,0.12)",
+      glowHover: "rgba(148,163,184,0.28)",
       badgeBg: "rgba(148,163,184,0.08)",
+      badgeBgHover: "rgba(148,163,184,0.16)",
       badgeText: "oklch(0.78 0.01 260)",
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
@@ -3206,7 +3211,9 @@ function WizLuminaTierSection() {
       accentColor: "oklch(0.65 0.18 250)",
       borderColor: "rgba(99,102,241,0.40)",
       glow: "rgba(99,102,241,0.25)",
+      glowHover: "rgba(99,102,241,0.50)",
       badgeBg: "rgba(99,102,241,0.10)",
+      badgeBgHover: "rgba(99,102,241,0.20)",
       badgeText: "oklch(0.72 0.18 250)",
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
@@ -3224,7 +3231,9 @@ function WizLuminaTierSection() {
       accentColor: "oklch(0.72 0.14 70)",
       borderColor: "rgba(196,164,100,0.45)",
       glow: "rgba(196,164,100,0.45)",
+      glowHover: "rgba(196,164,100,0.75)",
       badgeBg: "rgba(196,164,100,0.10)",
+      badgeBgHover: "rgba(196,164,100,0.22)",
       badgeText: "oklch(0.82 0.14 70)",
       badge: "BEST EXPERIENCE",
       icon: (
@@ -3235,7 +3244,15 @@ function WizLuminaTierSection() {
       ),
     },
   ];
+
   const active = TIERS.find((t) => t.key === activeTier)!;
+
+  const handleTierSwitch = (key: "standard" | "enhance" | "cinematic") => {
+    if (key === activeTier) return;
+    setActiveTier(key);
+    setAnimKey((k) => k + 1);
+  };
+
   return (
     <section className="relative bg-background py-28 px-6 overflow-hidden">
       <div className="luxury-divider absolute top-0 left-0 right-0" />
@@ -3244,6 +3261,24 @@ function WizLuminaTierSection() {
         className="absolute inset-0 pointer-events-none transition-all duration-1000"
         style={{ background: `radial-gradient(ellipse 70% 50% at 50% 100%, ${active.glow} 0%, transparent 65%)` }}
       />
+      {/* CSS keyframes for stagger fade-in */}
+      <style>{`
+        @keyframes wizlumina-fade-up {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .wizlumina-feature-item {
+          animation: wizlumina-fade-up 0.35s ease both;
+        }
+        @keyframes wizlumina-card-in {
+          from { opacity: 0; transform: translateY(8px) scale(0.98); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .wizlumina-card-anim {
+          animation: wizlumina-card-in 0.4s cubic-bezier(0.22,1,0.36,1) both;
+        }
+      `}</style>
+
       <div className="max-w-5xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-14 reveal">
@@ -3261,41 +3296,66 @@ function WizLuminaTierSection() {
             Every render includes Standard grading. Upgrade to Enhance or Cinematic for broadcast-ready and film-grade visuals.
           </p>
         </div>
+
         {/* Tier toggle pills */}
         <div className="flex items-center justify-center gap-2 mb-10 reveal">
-          {TIERS.map((tier) => (
-            <button
-              key={tier.key}
-              onClick={() => setActiveTier(tier.key)}
-              className="relative px-6 py-2.5 rounded-full text-[13px] font-bold transition-all duration-300"
-              style={activeTier === tier.key ? {
-                background: tier.badgeBg,
-                color: tier.accentColor,
-                border: `1px solid ${tier.borderColor}`,
-                boxShadow: `0 0 20px ${tier.glow}`,
-              } : {
-                background: "transparent",
-                color: "rgba(255,255,255,0.4)",
-                border: "1px solid rgba(255,255,255,0.08)",
-              }}
-            >
-              {tier.label}
-            </button>
-          ))}
+          {TIERS.map((tier) => {
+            const isActive = activeTier === tier.key;
+            return (
+              <button
+                key={tier.key}
+                onClick={() => handleTierSwitch(tier.key)}
+                className="relative px-6 py-2.5 rounded-full text-[13px] font-bold transition-all duration-300 overflow-hidden"
+                style={isActive ? {
+                  background: tier.badgeBg,
+                  color: tier.accentColor,
+                  border: `1px solid ${tier.borderColor}`,
+                  boxShadow: `0 0 20px ${tier.glow}, 0 0 0 1px ${tier.borderColor} inset`,
+                  transform: "scale(1.06)",
+                } : {
+                  background: "transparent",
+                  color: "rgba(255,255,255,0.4)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  transform: "scale(1)",
+                }}
+              >
+                {/* Active underline indicator */}
+                {isActive && (
+                  <span
+                    className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] rounded-full transition-all duration-500"
+                    style={{ width: "60%", background: tier.accentColor, boxShadow: `0 0 8px ${tier.accentColor}` }}
+                  />
+                )}
+                {tier.label}
+              </button>
+            );
+          })}
         </div>
-        {/* Active tier card */}
+
+        {/* Active tier card — animates on tier switch */}
         <div className="reveal max-w-2xl mx-auto">
           <div
-            className="rounded-2xl p-8 transition-all duration-500"
+            key={`card-${activeTier}-${animKey}`}
+            className="wizlumina-card-anim rounded-2xl p-8 transition-all duration-500 hover:scale-[1.015]"
             style={{
               background: `linear-gradient(160deg, ${active.badgeBg} 0%, rgba(0,0,0,0.4) 100%)`,
               border: `1px solid ${active.borderColor}`,
               boxShadow: `0 0 60px ${active.glow}, 0 0 0 1px ${active.borderColor} inset`,
+              transition: "box-shadow 0.4s ease, transform 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 90px ${active.glowHover}, 0 0 0 1px ${active.borderColor} inset`;
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 60px ${active.glow}, 0 0 0 1px ${active.borderColor} inset`;
             }}
           >
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: active.badgeBg, border: `1px solid ${active.borderColor}`, color: active.accentColor }}>
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300"
+                  style={{ background: active.badgeBg, border: `1px solid ${active.borderColor}`, color: active.accentColor }}
+                >
                   {active.icon}
                 </div>
                 <div>
@@ -3315,9 +3375,15 @@ function WizLuminaTierSection() {
                 <p className="text-[11px] text-white/40">{active.priceNote}</p>
               </div>
             </div>
+
+            {/* Feature list — stagger-animates on tier switch */}
             <ul className="space-y-3 mb-8">
-              {active.features.map((f) => (
-                <li key={f} className="flex items-center gap-3 text-sm text-white/70">
+              {active.features.map((f, idx) => (
+                <li
+                  key={`${activeTier}-${f}-${animKey}`}
+                  className="wizlumina-feature-item flex items-center gap-3 text-sm text-white/70"
+                  style={{ animationDelay: `${idx * 60}ms` }}
+                >
                   <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: active.badgeBg, border: `1px solid ${active.borderColor}` }}>
                     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" style={{ color: active.accentColor }}>
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -3327,51 +3393,106 @@ function WizLuminaTierSection() {
                 </li>
               ))}
             </ul>
+
+            {/* CTA buttons */}
             <div className="flex items-center gap-3">
               <a
-                href="/onboarding"
-                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all duration-200"
+                href="/pricing"
+                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                 style={{ background: `linear-gradient(135deg, ${active.badgeBg}, rgba(0,0,0,0.5))`, border: `1px solid ${active.borderColor}`, color: active.accentColor, boxShadow: `0 0 24px ${active.glow}` }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = `0 0 36px ${active.glowHover}`; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = `0 0 24px ${active.glow}`; }}
               >
                 <img src={WIZLUMINA_LOGO} alt="" className="w-4 h-4 object-contain" aria-hidden="true" />
-                Start Creating
+                Select {active.label} Tier
               </a>
               <a
-                href="/pricing"
-                className="px-6 py-3.5 rounded-xl text-sm font-semibold text-white/50 hover:text-white/80 transition-colors"
+                href="/onboarding"
+                className="px-6 py-3.5 rounded-xl text-sm font-semibold text-white/50 hover:text-white/80 hover:bg-white/[0.04] transition-all duration-200"
                 style={{ border: "1px solid rgba(255,255,255,0.08)" }}
               >
-                See Pricing
+                Start Free
               </a>
             </div>
           </div>
         </div>
-        {/* Comparison row */}
+
+        {/* Comparison row — hover to preview, click to select */}
         <div className="mt-10 grid grid-cols-3 gap-4 reveal">
-          {TIERS.map((tier) => (
-            <button
-              key={tier.key}
-              onClick={() => setActiveTier(tier.key)}
-              className="p-4 rounded-xl text-center transition-all duration-300 cursor-pointer"
-              style={activeTier === tier.key ? {
-                background: tier.badgeBg,
-                border: `1px solid ${tier.borderColor}`,
-                boxShadow: `0 0 20px ${tier.glow}`,
-              } : {
-                background: "rgba(255,255,255,0.02)",
-                border: "1px solid rgba(255,255,255,0.06)",
-              }}
-            >
-              <p className="text-sm font-bold mb-1" style={{ color: activeTier === tier.key ? tier.accentColor : "rgba(255,255,255,0.5)" }}>{tier.label}</p>
-              <p className="text-lg font-black" style={{ color: activeTier === tier.key ? tier.accentColor : "rgba(255,255,255,0.3)" }}>{tier.price}</p>
-              <p className="text-[10px] text-white/30 mt-0.5">{tier.priceNote}</p>
-            </button>
-          ))}
+          {TIERS.map((tier) => {
+            const isActive = activeTier === tier.key;
+            const isHovered = hoveredCard === tier.key;
+            return (
+              <div
+                key={tier.key}
+                className="relative rounded-xl overflow-hidden cursor-pointer"
+                style={{
+                  background: isActive ? tier.badgeBg : isHovered ? tier.badgeBgHover : "rgba(255,255,255,0.02)",
+                  border: `1px solid ${isActive ? tier.borderColor : isHovered ? tier.borderColor : "rgba(255,255,255,0.06)"}`,
+                  boxShadow: isActive ? `0 0 24px ${tier.glow}` : isHovered ? `0 0 32px ${tier.glowHover}` : "none",
+                  transform: isHovered && !isActive ? "translateY(-4px) scale(1.02)" : isActive ? "scale(1.01)" : "scale(1)",
+                  transition: "all 0.25s cubic-bezier(0.22,1,0.36,1)",
+                }}
+                onClick={() => handleTierSwitch(tier.key)}
+                onMouseEnter={() => setHoveredCard(tier.key)}
+                onMouseLeave={() => setHoveredCard(null)}
+              >
+                {/* Best experience badge */}
+                {(tier as typeof TIERS[2]).badge && (
+                  <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${tier.accentColor}, transparent)` }} />
+                )}
+                <div className="p-4 text-center">
+                  {/* Icon */}
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-2 transition-all duration-200"
+                    style={{ background: isActive || isHovered ? tier.badgeBg : "rgba(255,255,255,0.04)", color: isActive || isHovered ? tier.accentColor : "rgba(255,255,255,0.3)", border: `1px solid ${isActive || isHovered ? tier.borderColor : "rgba(255,255,255,0.06)"}` }}
+                  >
+                    <div className="scale-75">{tier.icon}</div>
+                  </div>
+                  <p className="text-sm font-bold mb-1" style={{ color: isActive ? tier.accentColor : isHovered ? tier.accentColor : "rgba(255,255,255,0.5)" }}>{tier.label}</p>
+                  <p className="text-lg font-black" style={{ color: isActive ? tier.accentColor : isHovered ? tier.accentColor : "rgba(255,255,255,0.3)" }}>{tier.price}</p>
+                  <p className="text-[10px] text-white/30 mt-0.5 mb-3">{tier.priceNote}</p>
+                  {/* Select Tier button */}
+                  <a
+                    href="/pricing"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-lg text-[11px] font-bold tracking-wide transition-all duration-200"
+                    style={{
+                      background: isActive ? tier.badgeBg : "rgba(255,255,255,0.04)",
+                      border: `1px solid ${isActive ? tier.borderColor : "rgba(255,255,255,0.08)"}`,
+                      color: isActive ? tier.accentColor : "rgba(255,255,255,0.4)",
+                      boxShadow: isActive ? `0 0 12px ${tier.glow}` : "none",
+                    }}
+                    onMouseEnter={(e) => {
+                      const el = e.currentTarget as HTMLAnchorElement;
+                      el.style.background = tier.badgeBg;
+                      el.style.borderColor = tier.borderColor;
+                      el.style.color = tier.accentColor;
+                      el.style.boxShadow = `0 0 16px ${tier.glowHover}`;
+                    }}
+                    onMouseLeave={(e) => {
+                      const el = e.currentTarget as HTMLAnchorElement;
+                      el.style.background = isActive ? tier.badgeBg : "rgba(255,255,255,0.04)";
+                      el.style.borderColor = isActive ? tier.borderColor : "rgba(255,255,255,0.08)";
+                      el.style.color = isActive ? tier.accentColor : "rgba(255,255,255,0.4)";
+                      el.style.boxShadow = isActive ? `0 0 12px ${tier.glow}` : "none";
+                    }}
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                    Select Tier
+                  </a>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
   );
 }
+
 
 // ─── Music Video USP Section — visible to all new visitors on homepage ───────
 function MusicVideoUSPSection() {
