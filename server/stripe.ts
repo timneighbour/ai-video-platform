@@ -50,7 +50,7 @@ export async function createSubscriptionCheckout(
       },
     ],
     success_url: `${origin}/dashboard?subscription=success`,
-    cancel_url: `${origin}/subscribe?subscription=canceled`,
+    cancel_url: `${origin}/pricing?subscription=canceled`,
     allow_promotion_codes: true,
   });
 

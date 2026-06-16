@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
-import { Sparkles, ArrowLeft, Wand2, Film, Download, Users, MessageSquare,
+import { Sparkles, Wand2, Film, Download, Users, MessageSquare,
   CheckCircle2, Clock, Bell, Share2, ArrowRight, Play, Zap, ChevronRight } from "@/lib/icons";
-import { Link } from "wouter";
+import PublicNavBar from "@/components/PublicNavBar";
 
 const CDN = "/manus-storage";
 const WIZAI_LOGO = "/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png";
@@ -187,6 +187,7 @@ export default function HowItWorks() {
   return (
     <div className="min-h-screen bg-background text-white">
 
+      <PublicNavBar />
       {/* HERO */}
       <div className="relative overflow-hidden min-h-[520px] flex flex-col">
         <div className="absolute inset-0">
@@ -194,24 +195,6 @@ export default function HowItWorks() {
           <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(180deg, rgba(6,6,6,0.25) 0%, rgba(6,6,6,0.55) 50%, rgba(6,6,6,1) 100%)" }} />
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 90% 70% at 50% 0%, rgba(139,92,246,0.18), transparent)" }} />
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 50% at 80% 50%, rgba(196,164,100,0.08), transparent)" }} />
-        </div>
-        <div className="relative z-20 flex items-center justify-between px-6 py-5 max-w-7xl mx-auto w-full">
-          <Link href="/">
-            <a className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <ArrowLeft className="w-4 h-4 text-white/40" />
-              <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[4.275rem] w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
-            </a>
-          </Link>
-          <a href="/onboarding"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all hover:scale-105"
-            style={{
-              backgroundImage: "linear-gradient(135deg, #c4a464 0%, #e8d5a0 50%, #c4a464 100%)",
-              color: "#0a0a0a",
-              boxShadow: "0 0 20px rgba(196,164,100,0.25)",
-            }}>
-            <Sparkles className="w-3.5 h-3.5" />
-            Start Creating
-          </a>
         </div>
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center max-w-5xl mx-auto px-6 pt-8 pb-20 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8"

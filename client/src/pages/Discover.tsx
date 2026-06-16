@@ -2,6 +2,7 @@ import { WIZVIDEO_STUDIO_PAGE } from "@/lib/routes";
 import { useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { Link } from "wouter";
+import PublicNavBar from "@/components/PublicNavBar";
 import { trpc } from "@/lib/trpc";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -223,8 +224,9 @@ export default function Discover() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <PublicNavBar />
       {/* Hero */}
-      <section className="relative pt-24 pb-16 px-4 text-center overflow-hidden">
+      <section className="relative pt-16 pb-16 px-4 text-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-transparent to-transparent pointer-events-none" />
         <div className="relative max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-sm font-medium mb-6">

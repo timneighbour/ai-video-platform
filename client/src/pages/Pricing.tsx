@@ -347,7 +347,7 @@ export default function Pricing() {
  if (!isAuthenticated) { window.location.href = getLoginUrl(); return; }
  setLoadingPlan(planId);
  try {
- const result = await createSubscriptionCheckout.mutateAsync({ plan: planId, origin: window.location.origin });
+ const result = await createSubscriptionCheckout.mutateAsync({ plan: planId, origin: window.location.origin, billingInterval: billingCycle });
  if (result.checkoutUrl) {
  // Fire GA conversion in background, then navigate immediately
  try { gtagSendEvent(result.checkoutUrl); } catch (_) {}

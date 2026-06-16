@@ -316,7 +316,7 @@ export const billingRouter = router({
           ],
           mode: "subscription",
           success_url: `${input.origin}/dashboard?success=true`,
-          cancel_url: `${input.origin}/subscribe?canceled=true`,
+          cancel_url: `${input.origin}/pricing?canceled=true`,
           client_reference_id: ctx.user.id.toString(),
           metadata: {
             user_id: ctx.user.id.toString(),

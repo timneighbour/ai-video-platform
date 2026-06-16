@@ -484,11 +484,7 @@ export default function Dashboard() {
               {recentProjects.map((job: any) => (
                 <a
                   key={job.id}
-                  href={job.status === "completed" && job.finalVideoUrl
-                    ? job.finalVideoUrl
-                    : `${WIZVIDEO_STUDIO_PAGE}?jobId=${job.id}`}
-                  target={job.status === "completed" && job.finalVideoUrl ? "_blank" : undefined}
-                  rel="noopener noreferrer"
+                  href={`${WIZVIDEO_STUDIO_PAGE}?jobId=${job.id}`}
                   className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-white/20 transition-all overflow-hidden"
                 >
                   <div className="relative aspect-video bg-card overflow-hidden">

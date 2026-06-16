@@ -403,7 +403,7 @@ export default function CinematicIntroScreen({ onComplete }: CinematicIntroScree
 
   return (
     <div
-      className="fixed inset-0 z-[9999] overflow-hidden"
+      className="fixed inset-0 z-[10000] overflow-hidden"
       style={{
         background: "#000",
         transition: dismissed ? "opacity 0.6s ease" : undefined,

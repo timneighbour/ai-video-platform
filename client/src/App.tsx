@@ -123,10 +123,21 @@ function Router() {
 
 // ─── Intro screen helpers ─────────────────────────────────────────────────────
 
+/** Stripe return params that indicate the user is coming back from a checkout flow */
+const STRIPE_RETURN_PARAMS = ["success", "canceled", "subscription", "credits", "topup", "bundle_purchased", "credits_purchased", "session_id", "upsell_success", "upsell_canceled", "render_canceled", "topup=success", "topup=canceled"];
+
+function isStripeReturn(): boolean {
+  if (typeof window === "undefined") return false;
+  const params = new URLSearchParams(window.location.search);
+  return STRIPE_RETURN_PARAMS.some(p => params.has(p));
+}
+
 function shouldShowIntroOnLoad(): boolean {
   if (typeof window === "undefined") return false;
   const isHomepage = window.location.pathname === "/" || window.location.pathname === "";
   if (!isHomepage) return false;
+  // Never show intro when returning from Stripe checkout
+  if (isStripeReturn()) return false;
   const ua = navigator.userAgent.toLowerCase();
   const isBot = /googlebot|lighthouse|chrome-lighthouse|pagespeed|adsbot|bingbot|slurp|duckduckbot|baiduspider|yandex|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot|applebot|msnbot|semrushbot|ahrefsbot|dotbot|petalbot|bytespider|gptbot|chatgpt|ccbot|anthropic|claudebot|headlesschrome/.test(ua);
   const isPageSpeed = !!(window as any).__lighthouse || !!(window as any).__pagespeed ||
@@ -148,6 +159,8 @@ function App() {
   useEffect(() => {
     const isHomepage = window.location.pathname === "/" || window.location.pathname === "";
     if (!isHomepage) return;
+    // Skip intro when returning from Stripe checkout
+    if (isStripeReturn()) return;
     const ua = navigator.userAgent.toLowerCase();
     const isBot = /googlebot|lighthouse|chrome-lighthouse|pagespeed|adsbot|bingbot|slurp|duckduckbot|baiduspider|yandex|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot|applebot|msnbot|semrushbot|ahrefsbot|dotbot|petalbot|bytespider|gptbot|chatgpt|ccbot|anthropic|claudebot|headlesschrome/.test(ua);
     const isPageSpeed = !!(window as any).__lighthouse || !!(window as any).__pagespeed ||

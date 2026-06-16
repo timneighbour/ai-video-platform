@@ -2763,7 +2763,7 @@
 - [x] Confirm TypeScript clean
 
 ## Site-Wide Button & Navigation Audit
-- [ ] Fix intro video: Skip and Mute buttons unclickable (container div intercepts clicks)
+- [x] Fix intro video: Skip and Mute buttons unclickable (container div intercepts clicks)
 - [x] Audit App.tsx routes — ensure all pages are registered — all 70+ routes confirmed in routes.tsx
 - [x] Audit homepage navigation links — PublicNavBar confirmed with all product/technology/tool links
 - [ ] Audit all back buttons across pages
@@ -2990,9 +2990,9 @@
 - [x] Fix Music Video/creator links: must navigate directly, not trigger intro
 - [x] Fix DemoVideoModal audio: replaced Web Audio API with pre-processed audio files
 - [x] Fix WizSoundSection audio: replaced Web Audio API with pre-processed audio files
-- [ ] Fix post-payment redirect: success must go to dashboard, not intro
+- [x] Fix post-payment redirect: success must go to dashboard, not intro
 - [ ] Validate all Stripe products exist in test mode
-- [ ] Fix checkout success/cancel URL routing
+- [x] Fix checkout success/cancel URL routing
 - [ ] Verify content unlock after payment (credits/renders)
 - [ ] Fix error handling for failed payments
 - [x] Fix intro mute toggle: mute/unmute works via GlobalAudioContext
@@ -3248,7 +3248,7 @@
 - [x] Shorten CTA button labels so they fit in 4-column pricing cards without overflow
 
 ## PRICING PAGE CTA + NAV FIX (Apr 2026)
-- [ ] Fix pricing page CTA buttons (plan subscribe buttons not working)
+- [x] Fix pricing page CTA buttons (plan subscribe buttons not working)
 - [ ] Fix Home and Create nav links on pricing page
 
 ## GLOBAL NAV FIX (Apr 2026)
@@ -3260,13 +3260,13 @@
 - [ ] Fix "Continue where you left off" — clicking a project must load it into the editor
 - [ ] Ensure storyboard_ready projects open at the storyboard step
 - [ ] Ensure failed projects can be retried from the editor
-- [ ] Fix global nav links (Home/Create) across all pages
+- [x] Fix global nav links (Home/Create) across all pages
 
 ## DASHBOARD PREMIUM REDESIGN (Apr 2026)
 - [ ] Add cinematic hero banner with user greeting and stats
 - [ ] Add premium imagery/gradients to dashboard cards
-- [ ] Fix project resume — clicking a project loads it into the editor
-- [ ] Fix global nav links across remaining pages
+- [x] Fix project resume — clicking a project loads it into the editor
+- [x] Fix global nav links across remaining pages
 - [ ] Replace all "Pro" plan references with correct tier names (Creator/Studio)
 
 ## WIZSOUND DEMO AUDIO FIX (Apr 2026)
