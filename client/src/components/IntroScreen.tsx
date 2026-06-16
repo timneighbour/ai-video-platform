@@ -70,7 +70,7 @@ export default function IntroScreen({ onComplete }: IntroScreenProps) {
   const dismiss = useCallback(() => {
     if (dismissedRef.current) return;
     dismissedRef.current = true;
-    sessionStorage.setItem(INTRO_SESSION_KEY, "1");
+    localStorage.setItem(INTRO_SESSION_KEY, "1");
     if (videoRef.current) {
       videoRef.current.pause();
     }

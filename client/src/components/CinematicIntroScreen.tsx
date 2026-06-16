@@ -370,7 +370,7 @@ export default function CinematicIntroScreen({ onComplete }: CinematicIntroScree
   const dismiss = useCallback(() => {
     if (dismissed) return;
     setDismissed(true);
-    sessionStorage.setItem(INTRO_SESSION_KEY, "1");
+    localStorage.setItem(INTRO_SESSION_KEY, "1");
     if (audioRef.current) audioRef.current.pause();
     setVisible(false);
     setTimeout(() => onComplete(), 600);

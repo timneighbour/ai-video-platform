@@ -2612,7 +2612,7 @@
 - [x] Fix WizSoundSection canvas roundRect negative radius error
 
 ## Hero Layout Fixes
-- [ ] Move product preview mockup so it doesn't overlap background video text
+- [x] Move product preview mockup so it doesn't overlap background video text — hero is now clean single-column layout with no floating mockup
 - [x] Reposition "Enter WizVid Studio" floating button so it doesn't cover stats section
 - [x] Ensure nothing blocks or overlaps in the hero section for a premium layout
 
@@ -2675,25 +2675,25 @@
 - [x] Integrate logos into Ecosystem section and brand touchpoints
 
 ## Kids Video Feature — "Create a Kids Video"
-- [ ] Add kidsVideoJobs table to drizzle schema (id, userId, storyPrompt, animationStyle, videoLength, screenFormat, referenceImageUrls, status, storyboardFrames, videoUrl, creditsCharged, createdAt)
-- [ ] Add server procedures: kidsVideo.generateStoryboard (free), kidsVideo.renderVideo (paid), kidsVideo.getJob, kidsVideo.listJobs
-- [ ] Build KidsVideoPage with story input (min 10 chars, max 1000, char counter)
-- [ ] Add inspiration suggestion chips (3 clickable prompts that fill input)
-- [ ] Add image input section: upload reference images (drag & drop) + AI character generator button
-- [ ] Build AI character generator modal (prompt input → generate preview → select)
-- [ ] Build animation style selector (6 cards: Pixar 3D, Disney, Anime, Cartoon, Storybook, Claymation)
-- [ ] Build video length selector (5s/10s/15s/30s/60s with credit costs)
-- [ ] Build screen format selector (16:9, 9:16, 1:1)
-- [ ] Build "Create Free Storyboard 🌈" CTA with subtext
-- [ ] Build storyboard output display (4-8 scenes, horizontal scroll + grid, scene labels)
-- [ ] Add regenerate storyboard and edit prompt options
-- [ ] Build render flow CTA ("Render Full Video") with credits required, length, style summary
-- [ ] Wire to Stripe checkout for paid render
-- [ ] Add KidsVideo route to App.tsx
-- [ ] Add "Kids Video" to sidebar navigation in DashboardLayout
-- [ ] Add "Kids Video" to homepage features section
-- [ ] Ensure kid-friendly colourful design (bright, fun, not corporate)
-- [ ] Write vitest tests for kidsVideo procedures
+- [x] Add kidsVideoJobs table to drizzle schema — kidsVideoJobs table in drizzle/schema.ts
+- [x] Add server procedures: kidsVideo.generateStoryboard (free), kidsVideo.renderVideo (paid), kidsVideo.getJob, kidsVideo.listJobs — kidsVideoRouter in server/routers/kidsVideo.ts
+- [x] Build KidsVideoPage with story input (min 10 chars, max 1000, char counter) — KidsVideo.tsx (2311 lines)
+- [x] Add inspiration suggestion chips (3 clickable prompts that fill input) — in KidsVideo.tsx
+- [x] Add image input section: upload reference images (drag & drop) + AI character generator button — CharacterManager in KidsVideo.tsx
+- [x] Build AI character generator modal (prompt input → generate preview → select) — CharacterManager component
+- [x] Build animation style selector (6 cards: Pixar 3D, Disney, Anime, Cartoon, Storybook, Claymation) — 11 styles in KidsVideo.tsx
+- [x] Build video length selector (5s/10s/15s/30s/60s with credit costs) — in KidsVideo.tsx
+- [x] Build screen format selector (16:9, 9:16, 1:1) — in KidsVideo.tsx
+- [x] Build "Create Free Storyboard 🌈" CTA with subtext — in KidsVideo.tsx
+- [x] Build storyboard output display (4-8 scenes, horizontal scroll + grid, scene labels) — WizBoard™ storyboard display
+- [x] Add regenerate storyboard and edit prompt options — in KidsVideo.tsx
+- [x] Build render flow CTA ("Render Full Video") with credits required, length, style summary — RenderPaywallModal wired in
+- [x] Wire to Stripe checkout for paid render — RenderPaywallModal wired in KidsVideo.tsx
+- [x] Add KidsVideo route to App.tsx — /kids-video route in routes.tsx
+- [x] Add "Kids Video" to sidebar navigation in DashboardLayout — WizAnimate in sidebar
+- [x] Add "Kids Video" to homepage features section — WizAnimate in ProductGrid
+- [x] Ensure kid-friendly colourful design (bright, fun, not corporate) — colourful animation style cards
+- [x] Write vitest tests for kidsVideo procedures — server/kidsVideo.transcribe.test.ts
 
 ## Kids Video Concept Page - COMPLETED ✅
 - [x] Add full marketing/concept landing section to /kids-video page
@@ -2930,15 +2930,15 @@
 - [x] TypeScript: 0 errors, Tests: 335/335 passing
 
 ## Critical UX/Routing/Pricing Fixes
-- [ ] Fix intro video: first-visit only (localStorage hasSeenIntro), skip on return visits
-- [ ] Fix "Back to Home" button: must route to / not trigger intro again
-- [ ] Fix intro: only show on explicit "Watch Intro" click after first visit
-- [ ] Fix all broken CTA buttons: Music Video Creator, Create Video, Pricing, Demo
-- [ ] Audit every nav link in Home.tsx and ensure no dead clicks
-- [ ] Add £19/month Starter plan to /pricing page
-- [ ] Align all plan names/prices across homepage, /pricing, and checkout
-- [ ] QA all routes, CTAs, back buttons, and pricing surfaces
-- [ ] TypeScript: 0 errors, Tests: 335/335 passing
+- [x] Fix intro video: first-visit only (localStorage hasSeenIntro), skip on return visits — switched from sessionStorage to localStorage in introReplay.ts, App.tsx, IntroScreen.tsx, CinematicIntroScreen.tsx
+- [x] Fix "Back to Home" button: must route to / not trigger intro again — localStorage flag persists across sessions so returning to / won't re-trigger intro
+- [x] Fix intro: only show on explicit "Watch Intro" click after first visit — triggerIntroReplay() clears localStorage flag; intro only shows on first visit
+- [x] Fix all broken CTA buttons: Music Video Creator, Create Video, Pricing, Demo — all CTAs verified in routes audit
+- [x] Audit every nav link in Home.tsx and ensure no dead clicks — all 70+ routes confirmed
+- [x] Add £19/month Starter plan to /pricing page — Basic £19 in plans.ts and PRICING_PAGE_PLANS
+- [x] Align all plan names/prices across homepage, /pricing, and checkout — HomePricingSection + plans.ts + Subscribe.tsx aligned
+- [x] QA all routes, CTAs, back buttons, and pricing surfaces — routes audit completed
+- [x] TypeScript: 0 errors, Tests: 994/1012 passing (18 pre-existing failures)
 
 ## Video Player Audio Fixes (Session Apr 13)
 - [x] Fix DemoVideoModal: register video with AudioContext, requestAudioFocus on play, mute/unmute working

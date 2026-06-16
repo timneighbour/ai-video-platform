@@ -134,7 +134,7 @@ function shouldShowIntroOnLoad(): boolean {
     navigator.webdriver === true;
   if (isBot || isPageSpeed) return false;
   try {
-    return !sessionStorage.getItem(INTRO_SESSION_KEY);
+    return !localStorage.getItem(INTRO_SESSION_KEY);
   } catch {
     return false;
   }
@@ -155,7 +155,7 @@ function App() {
       navigator.webdriver === true;
     if (isBot || isPageSpeed) return;
     try {
-      const seen = sessionStorage.getItem(INTRO_SESSION_KEY);
+      const seen = localStorage.getItem(INTRO_SESSION_KEY);
       if (!seen) {
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
@@ -164,7 +164,7 @@ function App() {
         });
       }
     } catch {
-      // sessionStorage unavailable — skip intro
+      // localStorage unavailable — skip intro
     }
   }, []);
 
