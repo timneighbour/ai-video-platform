@@ -92,7 +92,7 @@ const TRIGGERS: Trigger[] = [
     borderColor: "border-[--color-gold]/20",
     bgColor: "bg-[--color-gold]/[0.04]",
     headline: "Unlock 4K exports and monthly credits",
-    subline: "Pro plan from £19/mo — cancel anytime, no credit card required to try.",
+    subline: "Starter plan from £9/mo — cancel anytime, no credit card required to try.",
     ctaLabel: "See plans →",
     ctaHref: "/pricing",
     ctaStyle: "text-[--color-gold] hover:text-primary/90",

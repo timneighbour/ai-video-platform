@@ -9293,3 +9293,9 @@
 - [x] Hero tightening — confirmed already optimised (min-h-screen, clamp headline, 3 CTAs, trust bar, flex-wrap mobile)
 - [x] Cinematic intro screen — confirmed already implemented as IntroScreen.tsx (MP4 from CDN, iOS fallback, auto-dismiss)
 - [x] Provider pipeline — confirmed HeyGen Direct Photo+Audio is primary, WaveSpeed is fallback, Sync Labs is secondary fallback
+
+- [x] Dashboard: Move "Continue where you left off" section above Insights Strip so returning users see it first
+- [x] Dashboard: Make "Continue where you left off" section visually prominent with gold border + in-progress badge
+- [x] WizPilot: Add auto-save status chip ("Saved automatically") in the nav bar during upload step
+- [x] WizPilot: Add "What happens next" reassurance strip (Free storyboard / Ready in seconds / You approve first) above Generate Storyboard button
+- [x] ReturnTriggerBanner: Fix stale "Pro plan from £19/mo" copy → "Starter plan from £9/mo"

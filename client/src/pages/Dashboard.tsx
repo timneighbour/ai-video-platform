@@ -361,11 +361,12 @@ export default function Dashboard() {
 
         {/* ── Continue Where You Left Off ──────────────────────────────── */}
         {continueProjects.length > 0 && (
-          <section>
+          <section className="rounded-2xl border border-[--color-gold]/20 bg-gradient-to-r from-[--color-gold]/[0.04] to-transparent p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Clock className="w-4 h-4 text-muted-foreground" />
+                <Play className="w-4 h-4 text-[--color-gold]" />
                 Continue where you left off
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/25 tracking-wider uppercase">{continueProjects.length} in progress</span>
               </h2>
               <a href="/projects" className="text-xs text-muted-foreground/70 hover:text-white flex items-center gap-1 transition-colors">
                 View all <ChevronRight className="w-3 h-3" />

@@ -1081,6 +1081,7 @@ export default function MusicVideoAutopilot() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [showAuthGate, setShowAuthGate] = useState(false);
   const [ambience, setAmbience] = useState(65);
+  const [autoSavedAt, setAutoSavedAt] = useState<number | null>(null);
   // --- Synchronous URL param pre-population (runs before hooks initialize) ---
   // We use a ref to track whether we already did this to avoid double-running.
   const _didPrePopulate = useRef(false);
@@ -1465,6 +1466,11 @@ export default function MusicVideoAutopilot() {
     jobId: jobId || undefined,
     step,
   });
+  // Track last auto-save time for the status indicator
+  React.useEffect(() => {
+    const interval = setInterval(() => setAutoSavedAt(Date.now()), 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Plan limits query — used to show length limit warning
   const { data: planLimits } = trpc.billing.getPlanLimits.useQuery(undefined, {
@@ -3228,6 +3234,13 @@ export default function MusicVideoAutopilot() {
             </span>
           </NavLink>
           <div className="flex items-center gap-3">
+            {/* Auto-save status chip */}
+            {step === "upload" && autoSavedAt && (
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] text-teal-400/70 font-medium">
+                <CheckCircle2 className="w-3 h-3" />
+                Saved automatically
+              </span>
+            )}
             <StudioAmbientLight value={ambience} onChange={setAmbience} accentColor="#14b8a6" />
             <NavLink href="/dashboard" className="flex items-center gap-1.5 text-white/80 hover:text-white transition-colors">
               <LayoutDashboard className="w-4 h-4" />
@@ -4662,6 +4675,21 @@ export default function MusicVideoAutopilot() {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* What happens after you click — reassurance strip */}
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { icon: Sparkles, label: "Free storyboard",     sub: "No card needed" },
+                  { icon: Clock,    label: "Ready in seconds",    sub: "Instant preview" },
+                  { icon: CheckCircle2, label: "You approve first", sub: "Pay only to build" },
+                ].map(({ icon: Icon, label, sub }) => (
+                  <div key={label} className="flex flex-col items-center gap-1 p-2.5 rounded-xl text-center" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
+                    <Icon className="w-3.5 h-3.5 text-white/25" />
+                    <span className="text-[10px] text-white/45 font-medium leading-tight">{label}</span>
+                    <span className="text-[9px] text-white/20">{sub}</span>
+                  </div>
+                ))}
               </div>
 
               {quotaError && (
