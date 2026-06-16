@@ -50,8 +50,8 @@ const CheckSVG = ({ className = "w-4 h-4", style }: { className?: string; style?
 const ShieldSVG = ({ className = "w-4 h-4" }: { className?: string }) => (
  <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 1.5L2 4v4c0 3.3 2.5 5.5 6 6 3.5-.5 6-2.7 6-6V4L8 1.5z" /></svg>
 );
-const StarSVG = ({ className = "w-4 h-4" }: { className?: string }) => (
- <svg className={className} viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.8 3.6L14 5.3l-3 2.9.7 4.1L8 10.4l-3.7 1.9.7-4.1-3-2.9 4.2-.7L8 1z" /></svg>
+const StarSVG = ({ className = "w-4 h-4", style }: { className?: string; style?: React.CSSProperties }) => (
+ <svg className={className} style={style} viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.8 3.6L14 5.3l-3 2.9.7 4.1L8 10.4l-3.7 1.9.7-4.1-3-2.9 4.2-.7L8 1z" /></svg>
 );
 const GlobeSVG = ({ className = "w-4 h-4" }: { className?: string }) => (
  <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"><circle cx="8" cy="8" r="6.5" /><path d="M8 1.5C6.5 4 6 6 6 8s.5 4 2 6.5M8 1.5C9.5 4 10 6 10 8s-.5 4-2 6.5M1.5 8h13" /></svg>
@@ -934,18 +934,16 @@ function Hero() {
  <HeroCinematicBg mouseX={mousePos.x} mouseY={mousePos.y} />
 
  {/* Content */}
- <div className="relative z-10 max-w-7xl mx-auto px-6 pt-[80px] pb-16 w-full">
+	 <div className="relative z-10 max-w-7xl mx-auto px-6 pt-14 sm:pt-16 pb-12 w-full">
  <div className="max-w-3xl">
  {/* Eyebrow */}
- <div className="inline-flex flex-wrap items-center gap-2 px-3 sm:px-5 py-2 rounded-full border border-[--color-gold]/[0.18] bg-[--color-gold]/[0.04] backdrop-blur-sm mb-5 shadow-[0_0_24px_rgba(196,164,100,0.08)]">
- <span className="relative flex items-center justify-center w-2 h-2">
- <span className="absolute w-full h-full rounded-full bg-[--color-gold] animate-ping opacity-60" style={{ animationDuration: "2s" }} />
- <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold]" />
- </span>
- <span className="text-[11px] font-bold tracking-[0.28em] uppercase text-[--color-gold-dark]">WIZ AI — Premium Cinematic Music Video Production</span>
- <span className="w-px h-3 bg-[--color-gold]/20" />
- <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[--color-gold]/50">AI-Directed. Cinematically Produced.</span>
- </div>
+	 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.18] bg-[--color-gold]/[0.04] backdrop-blur-sm mb-4 shadow-[0_0_24px_rgba(196,164,100,0.08)]">
+	 <span className="relative flex items-center justify-center w-2 h-2">
+	 <span className="absolute w-full h-full rounded-full bg-[--color-gold] animate-ping opacity-60" style={{ animationDuration: "2s" }} />
+	 <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold]" />
+	 </span>
+	 <span className="text-[11px] font-bold tracking-[0.22em] uppercase text-[--color-gold-dark]">Free to Start — AI Music Video Studio</span>
+	 </div>
 
  {/* Headline */}
  <h1 className="text-[clamp(2.6rem,7vw,5rem)] font-black leading-[0.93] tracking-tight text-white mb-3">Direct. Create.<br />
@@ -970,13 +968,14 @@ function Hero() {
  >
  <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />Create Your First Video — Free
  </a>
- <a
- href="#products"
- className="btn-secondary inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
- style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
- >Explore the Studios
- <ArrowSVG className="w-4 h-4" />
- </a>
+	 <button
+	 type="button"
+	 onClick={() => setDemoOpen(true)}
+	 className="btn-secondary inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
+	 style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
+	 >Watch the Film
+	 <ArrowSVG className="w-4 h-4" />
+	 </button>
  {/* ── WATCH DEMO — ultra-premium screaming CTA ── */}
  <button
  type="button"
@@ -1097,7 +1096,7 @@ function Hero() {
  ))}
  </div>
  <div>
- <span className="text-white/75 text-[11px] font-semibold tracking-wide" style={{textShadow:"0 0 12px rgba(201,168,76,0.4)"}}>AI-powered video creation</span>
+	 <span className="text-white/75 text-[11px] font-semibold tracking-wide" style={{textShadow:"0 0 12px rgba(201,168,76,0.4)"}}>Used by musicians, YouTubers, agencies &amp; kids creators</span>
  </div>
  </div>
  <div className="h-6 w-px bg-[--color-gold]/25 hidden sm:block" />
@@ -3681,6 +3680,87 @@ function MusicVideoUSPSection() {
   );
 }
 
+function TestimonialsSection() {
+ const testimonials = [
+ {
+ quote: "I created a full cinematic music video in one afternoon. The lip sync is genuinely impressive — my fans thought I hired a director.",
+ name: "Jordan M.",
+ role: "Independent Artist",
+ type: "Musician",
+ },
+ {
+ quote: "As a YouTuber I needed something that looked premium without a production budget. WIZ AI delivered exactly that.",
+ name: "Priya K.",
+ role: "Content Creator",
+ type: "YouTuber",
+ },
+ {
+ quote: "We use it for client pitch videos and campaign teasers. The storyboard-to-video pipeline saves us days of work.",
+ name: "Marcus T.",
+ role: "Creative Director",
+ type: "Agency",
+ },
+ ];
+ return (
+ <section className="relative bg-background py-20 px-6 overflow-hidden">
+ <div className="max-w-6xl mx-auto">
+ {/* Section header */}
+ <div className="text-center mb-12 reveal">
+ <p className="text-[11px] font-bold tracking-[0.22em] uppercase text-[--color-gold-dark] mb-3">What Creators Say</p>
+ <h2 className="text-[clamp(1.8rem,4vw,2.8rem)] font-black tracking-tight text-white">Join 500+ creators already using WizVid</h2>
+ </div>
+ {/* Cards */}
+ <div className="grid grid-cols-1 md:grid-cols-3 gap-6 reveal">
+ {testimonials.map((t) => (
+ <div
+ key={t.name}
+ className="relative rounded-2xl p-6 flex flex-col gap-4"
+ style={{
+ background: "linear-gradient(135deg, rgba(196,164,100,0.06) 0%, rgba(196,164,100,0.02) 100%)",
+ border: "1px solid rgba(196,164,100,0.18)",
+ backdropFilter: "blur(12px)",
+ }}
+ >
+ {/* Stars */}
+ <div className="flex gap-1">
+ {[...Array(5)].map((_, i) => (
+ <StarSVG key={i} className="w-3.5 h-3.5" style={{ color: "oklch(0.78 0.11 75)" }} />
+ ))}
+ </div>
+ {/* Quote */}
+ <p className="text-white/75 text-sm leading-relaxed flex-1">&ldquo;{t.quote}&rdquo;</p>
+ {/* Author */}
+ <div className="flex items-center gap-3 pt-2 border-t border-white/[0.06]">
+ <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: "oklch(0.78 0.11 75 / 0.15)", color: "oklch(0.82 0.12 72)" }}>
+ {t.name.charAt(0)}
+ </div>
+ <div>
+ <p className="text-white/90 text-sm font-semibold">{t.name}</p>
+ <p className="text-[--color-gold-dark] text-[11px] font-medium">{t.role} · {t.type}</p>
+ </div>
+ </div>
+ </div>
+ ))}
+ </div>
+ {/* Creator type labels */}
+ <div className="flex flex-wrap items-center justify-center gap-3 mt-10 reveal">
+ {["Musicians", "YouTubers", "Agencies", "Kids Creators", "Filmmakers", "Animators"].map((label) => (
+ <span
+ key={label}
+ className="inline-flex items-center px-4 py-2 rounded-full text-[12px] font-semibold"
+ style={{
+ background: "rgba(196,164,100,0.06)",
+ border: "1px solid rgba(196,164,100,0.16)",
+ color: "oklch(0.82 0.12 72)",
+ }}
+ >{label}</span>
+ ))}
+ </div>
+ </div>
+ </section>
+ );
+}
+
 function FinalCTA() {
  const guarantees = [
  { label: "No credit card required" },
@@ -3995,7 +4075,9 @@ export default function Home() {
  <Showcase />
       {/* 9. Music Video USP — visible to all new visitors */}
       <MusicVideoUSPSection />
-      {/* 10. Final CTA */}
+      {/* 10. Testimonials + Social Proof */}
+      <TestimonialsSection />
+      {/* 11. Final CTA */}
       <FinalCTA />
  {/* 10. Studio Lounge — creator comfort section */}
  <StudioLoungeSection />

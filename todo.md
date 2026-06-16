@@ -1868,10 +1868,10 @@
 - [x] Schema: add lockedIdentity, lockedOutfit, lockedProps, lockedRole fields to videoCharacters table
 - [x] normaliseCharacter(): single function that runs for BOTH photo-uploaded and AI-generated characters
 - [x] normaliseCharacter(): generates masterPortrait, assigns masterSeed, stores lockedIdentity/lockedOutfit/lockedProps/lockedRole
-- [ ] Remove dual code paths in scene generation (photo-mode vs AI-mode)
+- [x] Remove dual code paths in scene generation (photo-mode vs AI-mode)
 - [x] Scene injection: ALL characters use IDENTITY + OUTFIT + PROPS + ROLE format regardless of source
 - [x] Failsafe: after generation, check identity/outfit consistency; retry up to 2x with stronger constraints if drift detected
-- [ ] CharacterConfirmationStep: trigger normaliseCharacter for all characters (photo and AI) before storyboard
+- [x] CharacterConfirmationStep: trigger normaliseCharacter for all characters (photo and AI) before storyboard
 - [x] AI-generated characters: use aiGeneratedImageUrl as masterPortraitUrl if no photo (previewImageUrl used as fallback in masterPortraitUrl ?? previewImageUrl chain)
 
 ## Feature: Audio Preview Player on Upload Step (Apr 12 2026)
@@ -2147,11 +2147,11 @@
 ## REVENUE-FIRST: CONVERSION CRITICAL
 
 ### Phase 1 — Homepage Hero Polish
-- [ ] Tighten hero spacing: reduce padding, bring headline and CTA above the fold on all viewports
+- [x] Tighten hero spacing: reduce padding, bring headline and CTA above the fold on all viewports
 - [ ] Hero headline: single bold statement, max 2 lines, no competing elements
 - [ ] Primary CTA: "Create Your First Video — Free" — white/high-contrast, full-width on mobile
-- [ ] Secondary CTA: "Watch the Film" — ghost button, visually subordinate
-- [ ] Remove distracting badge/pill elements that compete with CTA
+- [x] Secondary CTA: "Watch the Film" — ghost button, visually subordinate
+- [x] Remove distracting badge/pill elements that compete with CTA
 - [ ] Mobile hero: headline font size, CTA button size, no horizontal overflow
 - [x] Sticky CTA bar on mobile: fixed bottom bar with primary CTA when hero is scrolled past
 
@@ -2165,11 +2165,11 @@
 - [ ] CTA on each plan card: clear, action-oriented label
 
 ### Phase 1 — Trust Elements
-- [ ] "No credit card required" text directly below primary CTA
-- [ ] Social proof bar: "Used by musicians, YouTubers, agencies and kids creators"
-- [ ] Add 3 placeholder testimonial cards with avatar, name, role, quote
-- [ ] Add "Free to start" badge in nav or hero badge area
-- [ ] Creator type icons/labels: Musicians · YouTubers · Agencies · Kids Creators
+- [x] "No credit card required" text directly below primary CTA
+- [x] Social proof bar: "Used by musicians, YouTubers, agencies and kids creators"
+- [x] Add 3 placeholder testimonial cards with avatar, name, role, quote
+- [x] Add "Free to start" badge in nav or hero badge area
+- [x] Creator type icons/labels: Musicians · YouTubers · Agencies · Kids Creators
 
 ### Phase 2 — Signup / Onboarding
 - [ ] Audit onboarding page: count steps, remove any non-essential step
@@ -2196,7 +2196,7 @@
 - [ ] Rebuild CinematicEntryScreen: fullscreen video intro, once per session, skip button
 - [ ] Restore CinematicEntryScreen to App.tsx
 - [ ] Update HeroCinematicBg: 3-state text overlays on moving background video
-- [ ] Add trust micro-copy "Built for creators, musicians & agencies" below CTA
+- [x] Add trust micro-copy "Built for creators, musicians & agencies" below CTA
 
 ## TWO-VIDEO ARCHITECTURE REBUILD
 - [ ] Generate Video B: 6-8s subtle homepage background loop (prompt→storyboard→output)
@@ -9036,15 +9036,15 @@
 - [x] Scene 0 on job 960001 approved so its one-at-a-time gate releases scene 1
 
 ## Replace Sync Labs with WaveSpeed InfiniteTalk
-- [ ] Research InfiniteTalk API endpoint, parameters, polling format
-- [ ] Build server/ai-apis/infinitetalk-lipsync.ts client
-- [ ] Update heartbeat: replace Sync Labs submission with InfiniteTalk
-- [ ] Update heartbeat: replace Sync Labs polling with InfiniteTalk polling
-- [ ] Update DB schema if new fields needed for InfiniteTalk task tracking
-- [ ] Remove Sync Labs references from pipeline (keep SYNC_LABS_API_KEY in env for legacy)
-- [ ] Reset active jobs (960001, 1020003) lip sync scenes to pending for re-dispatch with InfiniteTalk
-- [ ] TypeScript check: 0 errors
-- [ ] Save checkpoint
+- [x] Research InfiniteTalk API endpoint, parameters, polling format
+- [x] Build server/ai-apis/infinitetalk-lipsync.ts client
+- [x] Update heartbeat: replace Sync Labs submission with InfiniteTalk
+- [x] Update heartbeat: replace Sync Labs polling with InfiniteTalk polling
+- [x] Update DB schema if new fields needed for InfiniteTalk task tracking
+- [x] Remove Sync Labs references from pipeline (keep SYNC_LABS_API_KEY in env for legacy)
+- [x] Reset active jobs (960001, 1020003) lip sync scenes to pending for re-dispatch with InfiniteTalk
+- [x] TypeScript check: 0 errors
+- [x] Save checkpoint
 - [x] Migrate lip-sync from Sync Labs sync-3 to WaveSpeed InfiniteTalk hybrid pipeline (performance scenes skip Seedance → InfiniteTalk direct; cinematic scenes use Seedance only)
 
 ## Air Studios Venue Reference & Storyboard Quality Fix
@@ -9057,26 +9057,26 @@
 - [x] Set job 1020003 back to storyboard_ready to trigger regeneration with Air Studios anchor
 
 ## Pipeline Upgrade v2 (2026-06-10)
-- [ ] Step 1: Probe hard pause — set job status to `awaiting_probe_approval` when probe scene submitted, block all remaining scenes until owner approves
-- [ ] Step 1: Add `awaiting_probe_approval` to job status enum in schema
-- [ ] Step 1: Update heartbeat to skip scene dispatch when job is in `awaiting_probe_approval`
-- [ ] Step 1: Update `approveProbe` procedure to transition job from `awaiting_probe_approval` back to `rendering`
-- [ ] Step 2: Schema — add `originalVideoUrl` field to musicVideoScenes
-- [ ] Step 2: Schema — add `lipsyncedVideoUrl` field to musicVideoScenes
-- [ ] Step 2: Schema — add `renderProvider` field to musicVideoScenes
-- [ ] Step 2: Schema — add `lipSyncProvider` field to musicVideoScenes
-- [ ] Step 2: Schema — add `renderDurationMs` field to musicVideoScenes
-- [ ] Step 2: Schema — add `lipSyncDurationMs` field to musicVideoScenes
-- [ ] Step 2: Schema — add `lipSyncRetryCount` field to musicVideoScenes
-- [ ] Step 2: Run migration and update heartbeat to populate new fields
-- [ ] Step 3: Create `server/ai-apis/lipsync-provider.ts` abstraction layer
-- [ ] Step 3: Add `WIZ_LIPSYNC_PROVIDER` env var support (heygen / latentsync / infinitetalk)
-- [ ] Step 3: Add LatentSync stub in fallback chain (placeholder, not yet integrated)
-- [ ] Step 4: Add singing/speech mode detection — use `precision` for performance/singing, `standard` for speech/narration
-- [ ] Step 4: Add audio duration validation after stem extraction — reject if >250ms drift from scene duration
-- [ ] Step 5: Extend quality scoring to store lipSyncQualityScore, faceConsistencyScore, mouthVisibilityScore, overallSceneScore in DB
-- [ ] Step 5: Implement 4-attempt retry chain: HeyGen Precision → HeyGen alt settings → LatentSync → InfiniteTalk
-- [ ] Step 5: Block assembly if overallSceneScore < 0.75 after all retry attempts
+- [x] Step 1: Probe hard pause — set job status to `awaiting_probe_approval` when probe scene submitted, block all remaining scenes until owner approves
+- [x] Step 1: Add `awaiting_probe_approval` to job status enum in schema
+- [x] Step 1: Update heartbeat to skip scene dispatch when job is in `awaiting_probe_approval`
+- [x] Step 1: Update `approveProbe` procedure to transition job from `awaiting_probe_approval` back to `rendering`
+- [x] Step 2: Schema — add `originalVideoUrl` field to musicVideoScenes
+- [x] Step 2: Schema — add `lipsyncedVideoUrl` field to musicVideoScenes
+- [x] Step 2: Schema — add `renderProvider` field to musicVideoScenes
+- [x] Step 2: Schema — add `lipSyncProvider` field to musicVideoScenes
+- [x] Step 2: Schema — add `renderDurationMs` field to musicVideoScenes
+- [x] Step 2: Schema — add `lipSyncDurationMs` field to musicVideoScenes
+- [x] Step 2: Schema — add `lipSyncRetryCount` field to musicVideoScenes (uses retryCount field)
+- [x] Step 2: Run migration and update heartbeat to populate new fields
+- [x] Step 3: Create `server/ai-apis/lipsync-provider.ts` abstraction layer
+- [x] Step 3: Add `WIZ_LIPSYNC_PROVIDER` env var support (heygen / latentsync / infinitetalk)
+- [x] Step 3: Add LatentSync stub in fallback chain (placeholder, not yet integrated)
+- [x] Step 4: Add singing/speech mode detection — use `precision` for performance/singing, `standard` for speech/narration
+- [x] Step 4: Add audio duration validation after stem extraction — reject if >250ms drift from scene duration
+- [x] Step 5: Extend quality scoring to store lipSyncQualityScore, faceConsistencyScore, mouthVisibilityScore, overallSceneScore in DB
+- [x] Step 5: Implement 4-attempt retry chain: HeyGen Precision → HeyGen alt settings → LatentSync → InfiniteTalk
+- [x] Step 5: Block assembly if overallSceneScore < 0.75 after all retry attempts
 
 ## Pipeline Bug Fixes (2026-06-11)
 - [x] Fix probe gate: probePassed=true now triggers full_render mode (dispatch all scenes at once) instead of one-at-a-time per-scene approval
