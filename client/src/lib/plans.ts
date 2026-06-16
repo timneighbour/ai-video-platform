@@ -164,9 +164,9 @@ export const PLANS: PlanData[] = [
   {
     id: "creator",
     name: "Creator",
-    monthlyPrice: 35,
-    annualTotal: 350,
-    annualSaving: 70,
+    monthlyPrice: 29,
+    annualTotal: 290,
+    annualSaving: 58,
     tagline: "Create up to 15 videos/month",
     bestFor: "Best for active creators",
     outcomes: [
@@ -291,8 +291,8 @@ export function getPlan(id: PlanId): PlanData | undefined {
 // ── Paid plans only (excludes free) ──────────────────────────────────────────
 export const PAID_PLANS = PLANS.filter((p) => p.id !== "free");
 
-// ── Plans shown on the /pricing page (3-tier simplified view) ────────────────
-export const PRICING_PAGE_PLANS: PlanId[] = ["starter", "creator", "studio"];
+// ── Plans shown on the /pricing page (5-tier view) ─────────────────────────
+export const PRICING_PAGE_PLANS: PlanId[] = ["starter", "basic", "creator", "pro", "studio"];
 
 // ── Comparison table rows (used by both /pricing and /subscribe) ──────────────
 export const COMPARISON_ROWS: {

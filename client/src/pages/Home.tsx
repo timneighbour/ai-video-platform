@@ -29,6 +29,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { StudioLoungeSection } from "@/components/StudioLounge";
+import HomePricingSection from "@/components/HomePricingSection";
 import WizSoundSection from "@/components/WizSoundSection";
 import LanguageSelector from "@/components/LanguageSelector";
 import { useTranslation } from "react-i18next";
@@ -4016,9 +4017,11 @@ export default function Home() {
       <MusicVideoUSPSection />
       {/* 10. Testimonials + Social Proof */}
       <TestimonialsSection />
-      {/* 11. Final CTA */}
+      {/* 11. Pricing — simplified 3-plan overview */}
+      <HomePricingSection />
+      {/* 12. Final CTA */}
       <FinalCTA />
- {/* 10. Studio Lounge — creator comfort section */}
+ {/* 13. Studio Lounge — creator comfort section */}
  <StudioLoungeSection />
  </main>
  <Footer />

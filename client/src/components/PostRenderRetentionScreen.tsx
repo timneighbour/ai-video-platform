@@ -15,7 +15,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import {
   Download, Play, Pause, Share2, Sparkles, Film, Music,
   Baby, Youtube, ChevronRight, ArrowRight, Star, Zap, RefreshCw,
-  Rocket, Globe, Instagram, Twitter, Users, Crown
+  Rocket, Globe, Instagram, Twitter, Users, Crown, VolumeX, Volume2
 } from "@/lib/icons";
 import { toast } from "sonner";
 
@@ -99,6 +99,7 @@ export function PostRenderRetentionScreen({
 }: PostRenderRetentionScreenProps) {
   const formatInfo = FORMAT_LABELS[aspectRatio] ?? FORMAT_LABELS["16:9"];
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true); // start muted; attempt unmute on play
   const [showConfetti, setShowConfetti] = useState(true);
   const [showSharePanel, setShowSharePanel] = useState(false);
   const [includeWatermark, setIncludeWatermark] = useState(true);
@@ -129,7 +130,25 @@ export function PostRenderRetentionScreen({
     const v = videoRef.current;
     if (!v) return;
     if (isPlaying) { v.pause(); setIsPlaying(false); }
-    else { v.play(); setIsPlaying(true); }
+    else {
+      // Attempt unmute on play (user gesture satisfies autoplay policy)
+      v.muted = false;
+      setIsMuted(false);
+      v.play().catch(() => {
+        v.muted = true;
+        setIsMuted(true);
+        v.play().catch(() => {});
+      });
+      setIsPlaying(true);
+    }
+  }
+
+  function toggleMute() {
+    const v = videoRef.current;
+    if (!v) return;
+    const next = !isMuted;
+    v.muted = next;
+    setIsMuted(next);
   }
 
   function handleDownload() {
@@ -290,6 +309,16 @@ export function PostRenderRetentionScreen({
               <span style={{fontSize:9,color:'rgba(255,255,255,0.35)',letterSpacing:0.5}}>00:00 / --:--</span>
             </div>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <button
+                onClick={toggleMute}
+                aria-label={isMuted ? 'Unmute' : 'Mute'}
+                style={{background:'none',border:'none',cursor:'pointer',color: isMuted ? 'rgba(212,168,67,0.7)' : 'rgba(255,255,255,0.7)',padding:0,display:'flex',alignItems:'center',gap:3,fontSize:9,letterSpacing:1}}
+              >
+                {isMuted
+                  ? <VolumeX style={{width:12,height:12}} />
+                  : <Volume2 style={{width:12,height:12}} />
+                }
+              </button>
               <button onClick={handleDownload} style={{background:'none',border:'none',cursor:'pointer',color:'rgba(212,168,67,0.7)',padding:0,display:'flex',alignItems:'center',gap:4,fontSize:9,fontWeight:600,letterSpacing:1}}>
                 <Download style={{width:11,height:11}} /> EXPORT
               </button>
