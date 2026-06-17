@@ -45,10 +45,10 @@ export default function FreeTrial() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const createJob = trpc.musicVideo.job.createJob.useMutation({
-    onSuccess: (data) => {
+    onSuccess: (data: { jobId: number }) => {
       setJobId(data.jobId);
     },
-    onError: (err) => {
+    onError: (err: { message: string }) => {
       if (err.message.includes("FREE_TRIAL_USED")) {
         setError("You have already used your free trial. Upgrade to a paid plan to create more videos.");
       } else {
@@ -62,9 +62,9 @@ export default function FreeTrial() {
     { jobId: jobId! },
     {
       enabled: !!jobId,
-      refetchInterval: (data) => {
+      refetchInterval: (data: { job?: { status?: string } } | undefined) => {
         if (!data) return 5000;
-        const status = (data as any)?.job?.status;
+        const status = data?.job?.status;
         if (status === "completed" || status === "failed") return false;
         return 5000;
       },
