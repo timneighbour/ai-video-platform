@@ -35,7 +35,7 @@ const PLANS = SHARED_PLANS
 // Component 
 export default function Subscribe() {
 
- useSEO({ title: "Subscribe — WIZ AI Plans & Pricing", path: "/subscribe", description: "Choose your WIZ AI plan. Starter, Creator, and Pro Plus tiers with full access to AI video, music, image, and animation tools. Start with a free trial." });
+ useSEO({ title: "Subscribe — WIZ AI Plans & Pricing", path: "/subscribe", description: "Choose your WIZ AI plan. Starter (£29), Creator (£79), and Pro (£149) with full access to AI video, music, image, and animation tools. Start free." });
  const { isAuthenticated } = useAuth();
  // Track subscription page view
  useEffect(() => { mp.subscriptionViewed("direct"); }, []);
@@ -71,7 +71,7 @@ export default function Subscribe() {
  mp.checkoutStarted(planName, typeof planPrice === "number" ? planPrice : undefined);
  setLoadingPlan(planId);
  createSubscriptionCheckout.mutate({
- plan: planId as "starter" | "creator" | "studio",
+ plan: planId as "starter" | "creator" | "pro" | "studio",
  origin: window.location.origin,
  billingInterval: billing,
  });
@@ -306,7 +306,7 @@ export default function Subscribe() {
  <thead>
  <tr className="border-b border-white/10">
  <th className="text-left p-4 text-muted-foreground font-medium w-40">Feature</th>
- {["Free", "Starter", "Creator", "Studio"].map((name) => (
+ {["Free", "Starter", "Creator", "Pro"].map((name) => (
  <th key={name} className={`p-4 text-center font-bold ${name === "Creator" ? "text-[--color-gold]" : "text-white"}`}>
  {name}
  {name === "Creator" && <div className="text-xs text-[--color-gold]/70 font-normal mt-0.5">Most Popular</div>}

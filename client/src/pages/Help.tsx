@@ -179,7 +179,7 @@ const CATEGORIES: Category[] = [
     borderColor: "border-border/40",
     faqs: [
       { q: "Why is my video not generating?", a: "Check that you have sufficient Build Credits and that your audio file meets the format requirements (MP3/WAV, under 50 MB). If the issue persists, try refreshing the page or contact support via Live Chat." },
-      { q: "My video quality looks low — what can I do?", a: "Ensure you have selected HD or 4K quality in the render settings. Quality options depend on your plan — Studio plan unlocks 4K. Also check that your source audio is high quality." },
+      { q: "My video quality looks low — what can I do?", a: "Ensure you have selected HD or 4K quality in the render settings. Quality options depend on your plan — Pro plan unlocks 4K. Also check that your source audio is high quality." },
       { q: "How do I download my video?", a: "Once your video is ready, go to Render History, click on your video, and use the Download button. Videos are available in MP4 format." },
       { q: "I'm getting an error message — what should I do?", a: "Note the error message and contact our support team via Live Chat or email at support@wiz-ai.io. Include your account email and a description of what you were doing when the error occurred." },
       { q: "My audio upload is failing — what file sizes are supported?", a: "Audio files must be under 50 MB. Supported formats: MP3, WAV, FLAC, AAC, M4A. If your file is larger, compress it using a free tool like Audacity before uploading." },
@@ -210,7 +210,7 @@ const CATEGORIES: Category[] = [
     faqs: [
       { q: "What is WizCreate™?", a: "WizCreate™ is WIZ AI's intelligent storyboard engine. It analyses your lyrics or script and automatically generates a complete visual storyboard — one scene per section — ready for you to review and customise." },
       { q: "Can I edit my storyboard before building?", a: "Yes. After WizCreate™ generates your storyboard, you can edit any scene description, change styles, reorder scenes, or regenerate individual scenes before committing to a full build." },
-      { q: "How many scenes can a storyboard have?", a: "Storyboards can have between 4 and 24 scenes depending on your track length and plan. Studio plan supports the maximum scene count." },
+      { q: "How many scenes can a storyboard have?", a: "Storyboards can have between 4 and 24 scenes depending on your track length and plan. Pro plan supports the maximum scene count." },
       { q: "Is storyboard generation really free?", a: "Yes. Generating a storyboard with WizCreate™ is always free. You only spend Build Credits when you click Build to render the final video." },
     ],
   },

@@ -9378,3 +9378,14 @@
 - [x] Fix FreeTrial.tsx: update refetchInterval to use query.state.data pattern for tRPC v11 compatibility
 - [x] TypeScript: 0 errors confirmed
 - [x] Deployment: succeeded — wiz-ai.io, www.wiz-ai.io, aivideoplatform-aljhdnsu.manus.space all live
+## Subscribe Page Plan Rename: studio → "Pro" (Jun 17 2026)
+- [x] plans.ts: rename studio plan display name from "Studio" to "Pro" and update tagline/bestFor copy
+- [x] plans.ts: update COMPARISON_ROWS to use "pro" column key (or keep "studio" key but update Subscribe.tsx table header)
+- [x] plans.ts: confirm SUBSCRIBE_PAGE_PLANS = ["free", "starter", "creator", "studio"] (basic and pro ID hidden)
+- [x] Subscribe.tsx: update comparison table header from "Studio" to "Pro"
+- [x] Subscribe.tsx: update handlePlanSelect type cast to include "studio"
+- [x] Dashboard.tsx: rename any "Studio" plan label to "Pro"
+- [x] Account.tsx: rename any "Studio" plan label to "Pro"
+- [x] Pricing.tsx: rename "Studio" to "Pro" in all display contexts
+- [x] Email/notification templates: rename "Studio" to "Pro" in any user-facing copy (products.ts, Help.tsx, Credits.tsx, QuickTopUpModal, PostFirstRenderSubscribeModal)
+- [x] Stripe env var audit: STRIPE_SECRET_KEY and VITE_STRIPE_PUBLISHABLE_KEY are injected by platform — sandbox shows test keys but production Cloud Run uses the live keys configured in Manus Secrets UI

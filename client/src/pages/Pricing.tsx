@@ -157,7 +157,7 @@ const FAQS = [
  },
  {
  q: "What is the difference between Standard, HD, and 4K?",
- a: "Standard (720p) is great for social media previews. HD (1080p) is perfect for YouTube, Instagram, and most streaming platforms. 4K (2160p) is cinema-grade quality for professional productions. 4K is available on Creator and Studio plans.",
+ a: "Standard (720p) is great for social media previews. HD (1080p) is perfect for YouTube, Instagram, and most streaming platforms. 4K (2160p) is cinema-grade quality for professional productions. 4K is available on Creator and Pro plans.",
  },
  {
  q: "What happens if I use all my monthly Build Credits?",
@@ -173,11 +173,11 @@ const FAQS = [
  },
  {
  q: "What is WizSync\u2122 character lock?",
- a: "WizSync\u2122 character lock uses AI to maintain the same character appearance across multiple scenes in your video. Available on Creator and Studio plans.",
+ a: "WizSync\u2122 character lock uses AI to maintain the same character appearance across multiple scenes in your video. Available on Creator and Pro plans.",
  },
  {
  q: "What is priority video building?",
- a: "Priority video builds move your job to the front of the queue. On Creator and Studio plans, your videos process faster — typically within minutes.",
+ a: "Priority video builds move your job to the front of the queue. On Creator and Pro plans, your videos process faster — typically within minutes.",
  },
  {
  q: "Is there a free trial?",
@@ -701,7 +701,7 @@ export default function Pricing() {
  </span>
  ) : (
  <span className="flex items-center justify-center gap-1.5">
- {plan.id === "starter" ? "Start Creating — Free" : plan.id === "creator" ? "Get Creator Plan" : "Get Studio Plan"}
+ {plan.id === "starter" ? "Start Creating — Free" : plan.id === "creator" ? "Get Creator Plan" : "Get Pro Plan"}
  <ArrowRight className="w-3.5 h-3.5" />
  </span>
  )}
@@ -837,7 +837,7 @@ export default function Pricing() {
  {[
  { label: "Start Creating", style: "bg-white/[0.06] text-white/70 hover:bg-white/[0.1] border border-white/[0.1]" },
  { label: "Choose Creator", style: "btn-primary shadow-[0_4px_20px_rgba(196,164,100,0.3)]" },
- { label: "Upgrade to Studio", style: "bg-white/[0.06] text-white/70 hover:bg-white/[0.1] border border-white/[0.1]" },
+ { label: "Upgrade to Pro", style: "bg-white/[0.06] text-white/70 hover:bg-white/[0.1] border border-white/[0.1]" },
  ].map((btn, i) => (
  <div key={btn.label} className="px-4 py-5 flex items-center justify-center border-l" style={{ borderColor: i === 1 ? "rgba(196,164,100,0.15)" : "rgba(255,255,255,0.05)", background: i === 1 ? "rgba(196,164,100,0.04)" : "transparent" }}>
  <a href="#plans" className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap ${btn.style}`}>
@@ -874,7 +874,7 @@ export default function Pricing() {
  { label: "Pay-per-video (HD)", videos: 15, cost: 15 * 4, perVideo: "£4.00", saving: null, highlight: false },
  { label: "Pay-per-video (4K)", videos: 15, cost: 15 * 6, perVideo: "£6.00", saving: null, highlight: false },
  { label: "Creator Plan (£79/mo)", videos: 6, cost: 79, perVideo: "£13.17", saving: "6 full music videos/month", highlight: true },
- { label: "Studio Plan (£149/mo)", videos: 12, cost: 149, perVideo: "£12.42", saving: "12 full music videos/month", highlight: false },
+ { label: "Pro Plan (£149/mo)", videos: 12, cost: 149, perVideo: "£12.42", saving: "12 full music videos/month", highlight: false },
  ].map((row, i) => (
  <tr key={i} className={`border-b border-white/[0.04] last:border-0 ${
  row.highlight ? "bg-[rgba(196,164,100,0.06)]" : "hover:bg-white/[0.02]"
@@ -1244,7 +1244,7 @@ export default function Pricing() {
  title: "For Brands",
  desc: "Full API access to automate campaign visuals, product videos and social content at scale.",
  icon: "\ud83d\udcbc",
- plan: "Studio Plan",
+ plan: "Pro Plan",
  },
  {
  title: "For Storytellers",
@@ -1286,7 +1286,7 @@ export default function Pricing() {
  name: "Marcus T.",
  role: "Animation Studio",
  quote: "WizAnimate is a game-changer for character animation. We use it for client projects every week.",
- plan: "Studio Plan",
+ plan: "Pro Plan",
  initials: "MT",
  color: "oklch(0.70 0.18 260)",
  },

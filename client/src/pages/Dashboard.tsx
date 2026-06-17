@@ -166,7 +166,8 @@ export default function Dashboard() {
   };
 
   const creditBalance = creditData?.balance ?? 0;
-  const currentPlan = subData?.plan ? subData.plan.charAt(0).toUpperCase() + subData.plan.slice(1) : "Free";
+  const PLAN_DISPLAY_NAMES: Record<string, string> = { free: "Free", starter: "Starter", basic: "Basic", creator: "Creator", pro: "Pro", studio: "Pro", business: "Pro" };
+  const currentPlan = subData?.plan ? (PLAN_DISPLAY_NAMES[subData.plan] ?? (subData.plan.charAt(0).toUpperCase() + subData.plan.slice(1))) : "Free";
   const renderBalance = renderStatus?.total ?? 0;
   const totalProjects = recentJobsData?.length ?? 0;
   const completedProjects = recentJobsData?.filter((j: any) => j.status === "completed").length ?? 0;

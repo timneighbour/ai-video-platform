@@ -260,12 +260,12 @@ export const PLANS: PlanData[] = [
   },
   {
     id: "studio",
-    name: "Studio",
+    name: "Pro",
     monthlyPrice: 149,
     annualTotal: 1490,
     annualSaving: 298,
-    tagline: "Create up to 12 videos/month",
-    bestFor: "Best for brands, agencies and high-volume creators",
+    tagline: "Create up to 12 videos/month in 4K",
+    bestFor: "Best for professional creators, brands and agencies",
     outcomes: [
       "12 videos per month",
       "Standard, HD & 4K quality",
@@ -315,13 +315,14 @@ export const PAID_PLANS = PLANS.filter((p) => p.id !== "free");
 export const PRICING_PAGE_PLANS: PlanId[] = ["starter", "creator", "studio"];
 
 // ── Plans shown on the /subscribe page ───────────────────────────────────────
-// Must match PRICING_PAGE_PLANS — only tiers with live Stripe price IDs.
-// "basic" (£19) and "pro" (£149 duplicate of Studio) are intentionally excluded.
+// Shows Free, Starter (£29), Creator (£79), Pro (£149).
+// "basic" (£19 legacy) and "pro" plan ID (hidden legacy alias) are excluded.
+// "studio" plan ID maps to the "Pro" display tier — no DB/Stripe changes.
 export const SUBSCRIBE_PAGE_PLANS: PlanId[] = ["free", "starter", "creator", "studio"];
 
 // ── Comparison table rows (used by both /pricing and /subscribe) ──────────────
-// Only includes the 3 live paid tiers (starter, creator, studio) plus free.
-// "basic" and "pro" columns removed — those tiers are not shown on any public page.
+// Columns: Free | Starter | Creator | Pro (displayed name for studio plan ID).
+// "basic" and "pro" plan ID columns are excluded from all public pages.
 export const COMPARISON_ROWS: {
   feature: string;
   free: string | boolean;

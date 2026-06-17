@@ -2,7 +2,7 @@
  * PostFirstRenderSubscribeModal
  *
  * Shown after a user's first successful render (for free/unsubscribed users).
- * Presents Creator and Studio plans with direct Stripe checkout + Founding Creator offer.
+ * Presents Creator and Pro plans with direct Stripe checkout + Founding Creator offer.
  * Designed to convert first-time renders into paying subscribers.
  *
  * Trigger: after FirstRenderCelebrationModal is closed, or as a second step.
@@ -46,7 +46,7 @@ const PLANS = [
   },
   {
     id: "studio" as const,
-    name: "Studio",
+    name: "Pro",
     price: 99,
     annualPrice: 990,
     badge: "Best Value",

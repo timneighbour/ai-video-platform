@@ -74,7 +74,7 @@ const STANDARD_PACKS = [
   },
   {
     id: "studio" as const,
-    name: "Studio",
+    name: "Pro",
     tagline: "2 full videos",
     price: 44.99,
     priceDisplay: "£44.99",
