@@ -1,106 +1,128 @@
-/**
- * VideoToVideo — Coming Soon page
- *
- * The Video-to-Video style transfer backend is not yet implemented.
- * This page shows a "coming soon" state so users are not misled.
- * When the Runway ML / fal.ai video-to-video integration is ready,
- * replace this page with the full implementation.
- */
+import { useAuth } from "@/_core/hooks/useAuth";
 import { LandscapeHint } from "@/components/LandscapeHint";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Video, Clock } from "@/lib/icons";
-import { Link } from "wouter";
-import { useSEO } from "@/hooks/useSEO";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ArrowLeft, Sparkles, Zap, Upload } from "@/lib/icons";
+import { useState } from "react";
+import { useLocation } from "wouter";
 
 export default function VideoToVideo() {
-  useSEO({
-    title: "Video-to-Video Style Transfer — Coming Soon | WIZ AI",
-    path: "/tools/video-to-video",
-    description: "AI-powered video style transfer is in active development. Transform any video into a new artistic style — coming soon to WIZ AI.",
-  });
+  const { user, isAuthenticated } = useAuth();
+  const [, setLocation] = useLocation();
+  const [style, setStyle] = useState("oil-painting");
+
+  const estimatedCredits = 200;
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b border-border/40">
         <div className="container flex h-16 items-center justify-between">
-          <Link href="/dashboard">
-            <a className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </a>
-          </Link>
+          <a href="/dashboard" className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </a>
           <h1 className="text-xl font-bold">Video-to-Video Style Transfer</h1>
           <div className="w-20" />
         </div>
       </div>
 
-      {/* Coming Soon Content */}
-      <div className="container py-20 flex flex-col items-center justify-center text-center" style={{ maxWidth: "42rem", marginLeft: "auto", marginRight: "auto" }}>
-        <div className="mb-8 flex items-center justify-center w-24 h-24 rounded-full bg-accent/10 border border-accent/20">
-          <Video className="h-10 w-10 text-accent" />
-        </div>
-
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium mb-6">
-          <Clock className="h-3 w-3" />
-          In Active Development
-        </div>
-
-        <h2 className="text-3xl font-bold text-foreground mb-4">
-          Video Style Transfer is Coming Soon
-        </h2>
-
-        <p className="text-muted-foreground text-lg leading-relaxed mb-4">
-          Transform any video into a completely different artistic style — oil painting, anime, watercolour, cyberpunk, and more — all powered by AI.
-        </p>
-
-        <p className="text-muted-foreground leading-relaxed mb-10">
-          Our team is integrating advanced video diffusion models to bring you frame-consistent style transfer at scale. The feature will be included in your existing subscription when it launches.
-        </p>
-
-        <Card className="w-full border-border/40 bg-card/50 backdrop-blur mb-8">
-          <CardContent className="pt-6 pb-6">
-            <p className="text-sm font-medium text-foreground mb-4">What to expect</p>
-            <div className="grid gap-3 text-sm text-muted-foreground text-left">
-              <div className="flex items-start gap-3">
-                <span className="text-accent mt-0.5">✓</span>
-                <span>Multiple artistic styles — oil painting, anime, watercolour, sketch, cyberpunk</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="text-accent mt-0.5">✓</span>
-                <span>Frame-consistent rendering — no flickering between frames</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="text-accent mt-0.5">✓</span>
-                <span>Up to 10 minutes of video per job</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="text-accent mt-0.5">✓</span>
-                <span>4K resolution output</span>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="text-accent mt-0.5">✓</span>
-                <span>Included in Creator and Studio plan credit allowances</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Link href="/text-to-video-creator">
-            <Button variant="outline" className="gap-2">
-              Try WizScript Instead
-            </Button>
-          </Link>
-          <Link href="/dashboard">
-            <Button className="gap-2">
-              Back to Dashboard
-            </Button>
-          </Link>
+      {/* Coming Soon Banner */}
+      <div className="bg-accent/10 border-b border-accent/20 py-3">
+        <div className="container text-center">
+          <p className="text-sm font-medium text-accent">
+            🎬 Coming Soon — Video-to-Video Style Transfer is in active development and will be available shortly.
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Your subscription already includes this feature. No extra charge when it launches.
+          </p>
         </div>
       </div>
 
+      {/* Content */}
+      <div className="container py-8">
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Input Section */}
+          <div className="lg:col-span-2 space-y-6 opacity-50 pointer-events-none select-none">
+            <Card className="border-border/40 bg-card/50 backdrop-blur">
+              <CardHeader>
+                <CardTitle>Upload Video</CardTitle>
+                <CardDescription>Upload the video you want to transform</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="border-2 border-dashed border-border/40 rounded-lg p-8 text-center">
+                  <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="font-medium text-foreground">Drop video here or click to upload</p>
+                  <p className="text-xs text-muted-foreground mt-1">MP4, WebM up to 500MB</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/40 bg-card/50 backdrop-blur">
+              <CardHeader>
+                <CardTitle>Select Style</CardTitle>
+                <CardDescription>Choose the artistic style to apply</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Select value={style} onValueChange={setStyle} disabled>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="oil-painting">Oil Painting</SelectItem>
+                    <SelectItem value="watercolor">Watercolor</SelectItem>
+                    <SelectItem value="sketch">Sketch</SelectItem>
+                    <SelectItem value="anime">Anime</SelectItem>
+                    <SelectItem value="cyberpunk">Cyberpunk</SelectItem>
+                    <SelectItem value="vintage">Vintage</SelectItem>
+                    <SelectItem value="neon">Neon</SelectItem>
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            <Card className="border-border/40 bg-accent/5 backdrop-blur sticky top-4">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-accent" />
+                  Coming Soon
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Video-to-Video Style Transfer is being built. It will apply cinematic artistic styles to any video you upload.
+                </p>
+                <Button
+                  className="w-full gap-2 mt-4"
+                  disabled
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Coming Soon
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  Included in your current plan — no extra charge at launch.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/40 bg-card/50 backdrop-blur">
+              <CardHeader>
+                <CardTitle className="text-sm">Processing Info</CardTitle>
+              </CardHeader>
+              <CardContent className="text-xs text-muted-foreground space-y-2">
+                <p>• Processing time varies by video length</p>
+                <p>• Maximum 10 minutes per video</p>
+                <p>• 4K resolution supported</p>
+                <p>• Results emailed when ready</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
       <LandscapeHint />
     </div>
   );
