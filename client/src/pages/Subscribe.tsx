@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useSEO } from "@/hooks/useSEO";
-import { PLANS as SHARED_PLANS, COMPARISON_ROWS, SUBSCRIBE_PAGE_PLANS } from "@/lib/plans";
+import { PLANS as SHARED_PLANS, COMPARISON_ROWS } from "@/lib/plans";
 
 // Plan icon overlay (UI-only, not in shared module) 
 const PLAN_ICONS: Record<string, React.ReactNode> = {
@@ -26,8 +26,9 @@ const PLAN_ICONS: Record<string, React.ReactNode> = {
  studio: <Gem className="w-5 h-5" />,
 };
 // Merge shared plan data with UI-only icon field — only show tiers with live Stripe price IDs
+// Inline array used intentionally to avoid any bundler tree-shaking issues with named exports
 const PLANS = SHARED_PLANS
-  .filter((p) => SUBSCRIBE_PAGE_PLANS.includes(p.id))
+  .filter((p) => ["free", "starter", "creator", "studio"].includes(p.id))
   .map((p) => ({ ...p, icon: PLAN_ICONS[p.id] }));
 
 
