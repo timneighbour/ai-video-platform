@@ -1124,7 +1124,17 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         // or failed and needs retry. Also handles scenes that completed Seedance
         // but were queued before the hybrid pipeline switch (videoUrl set, lipSync pending).
         const lipSyncPendingScenes = scenes.filter(
-          (s) => s.status === "completed" && s.lipSyncStatus === "pending" && !s.lipSyncTaskId
+          (s) =>
+            s.status === "completed" &&
+            !s.lipSyncTaskId &&
+            (
+              s.lipSyncStatus === "pending" ||
+              // ISS-RETRY-ERROR: also retry error-state scenes that haven't exhausted all attempts.
+              // Without this, any scene that errors on attempt 0 (before lipSyncAttempts is
+              // incremented) deadlocks forever — AssemblyWorker resets the job to 'rendering'
+              // but the heartbeat never retries the scene because it only filtered for 'pending'.
+              (s.lipSyncStatus === "error" && ((s as any).lipSyncAttempts ?? 0) < LIPSYNC_TOTAL_MAX_ATTEMPTS)
+            )
         );
 
         if (lipSyncPendingScenes.length > 0) {

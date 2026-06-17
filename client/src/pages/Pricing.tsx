@@ -288,7 +288,11 @@ function CompCell({ value, isCheck }: { value: string | boolean; isCheck?: boole
 }
 
 export default function Pricing() {
- useSEO({ title: "Pricing — WIZ AI", path: "/pricing", description: "Choose the WIZ AI plan that fits your creative workflow. Free to create, Starter (£29/mo), Creator (£79/mo), and Studio (£149/mo) plans available. One Build Credit = one final downloadable video. Only pay when you're ready." });
+ useSEO({
+    title: "Pricing — WIZ AI",
+    path: "/pricing",
+    description: "WIZ AI plans from £29/month. Starter, Creator, and Pro tiers with full access to AI video, music, image, and animation tools. Start with a free trial — no credit card required.",
+  });
  const { isAuthenticated } = useAuth();
  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
  const [loadingBundle, setLoadingBundle] = useState<string | null>(null);

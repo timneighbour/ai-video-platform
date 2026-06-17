@@ -163,13 +163,51 @@ export async function processOrphanedAssemblyJobs(): Promise<void> {
       });
 
       if (lipSyncIncomplete.length > 0) {
+        // MAX-RESET GUARD: increment assemblyAttempts on every lip-sync-guard reset.
+        // Without this, a job whose scenes are permanently stuck in lip sync will loop
+        // forever (assembling → rendering → assembling → ...) because assemblyAttempts
+        // is only incremented when assembly actually fires. By counting resets here too,
+        // the existing MAX_ASSEMBLY_ATTEMPTS=5 hard-fail will eventually catch it.
+        const resetAttempts = (job.assemblyAttempts ?? 0) + 1;
+        if (resetAttempts >= MAX_ASSEMBLY_ATTEMPTS) {
+          console.error(
+            `[AssemblyWorker] Job ${job.id} has been reset to 'rendering' ${resetAttempts} times ` +
+            `due to incomplete lip sync — permanently failing and refunding credits`
+          );
+          await db.update(musicVideoJobs)
+            .set({
+              status: "failed",
+              assemblyAttempts: resetAttempts,
+              errorMessage: `Your video could not complete lip sync after ${MAX_ASSEMBLY_ATTEMPTS} attempts. Your credits have been refunded — please try again or contact support.`,
+              updatedAt: new Date(),
+            })
+            .where(eq(musicVideoJobs.id, job.id));
+          if ((job.creditCost ?? 0) > 0) {
+            try {
+              await refundCredits(
+                job.userId,
+                job.creditCost,
+                `Refund: lip sync loop exhausted ${MAX_ASSEMBLY_ATTEMPTS} resets — job #${job.id}`,
+                job.id
+              );
+            } catch (refundErr) {
+              console.error(`[AssemblyWorker] CRITICAL: Failed to refund credits for job ${job.id}:`, refundErr);
+            }
+          }
+          await notifyOwner({
+            title: `❌ Lip Sync Loop Hard-Failed — Job ${job.id}`,
+            content: `Job ${job.id} ("${job.title ?? 'untitled'}") was reset from assembling→rendering ${MAX_ASSEMBLY_ATTEMPTS} times due to stuck lip sync and has been permanently failed.\n\nCredits refunded: ${job.creditCost}\nUser ID: ${job.userId}\nStuck scenes: ${lipSyncIncomplete.length}`,
+          }).catch(() => {});
+          inFlightAssemblies.delete(job.id);
+          continue;
+        }
         console.log(
           `[AssemblyWorker] Job ${job.id} has ${lipSyncIncomplete.length} scene(s) not lip-sync-ready — ` +
-          `resetting to 'rendering' so heartbeat can complete lip sync first`
+          `resetting to 'rendering' so heartbeat can complete lip sync first (reset ${resetAttempts}/${MAX_ASSEMBLY_ATTEMPTS})`
         );
         await db
           .update(musicVideoJobs)
-          .set({ status: "rendering", updatedAt: new Date() })
+          .set({ status: "rendering", assemblyAttempts: resetAttempts, updatedAt: new Date() })
           .where(eq(musicVideoJobs.id, job.id));
         inFlightAssemblies.delete(job.id);
         continue;

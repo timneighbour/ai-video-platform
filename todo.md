@@ -9367,3 +9367,8 @@
 - [x] WizSync fullRender credit gate verified — deductCredits() called at line 435, throws FORBIDDEN if ok===false (insufficient credits)
 - [x] Checkpoint 6f188366 confirmed in git history — contains HeyGen URL fix + lip sync retry cap
 - [x] Job 1080001 fix confirmed deployed — lipSyncAttempts column added, HeyGen 403 fix in checkpoint 128412d
+
+## Job 1080001 Infinite Loop Fixes (Jun 17 2026)
+- [ ] DB: Reset scene 990019 lipSyncStatus from "error" to "pending"
+- [ ] Code: Fix heartbeat lipSyncPendingScenes filter to include error-state scenes with lipSyncAttempts < LIPSYNC_TOTAL_MAX_ATTEMPTS
+- [ ] Code: Add AssemblyWorker max-reset guard — hard-fail jobs that cycle assembling→rendering more than 5 times
