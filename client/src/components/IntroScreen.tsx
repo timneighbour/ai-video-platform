@@ -15,7 +15,7 @@ import { ChevronRight } from "@/lib/icons";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
 const CDN       = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx";
-const MUSIC_URL = "/api/audio/lightless-dawn.mp3";
+const MUSIC_URL = "/manus-storage/lightless-dawn_fe514858.mp3";
 
 const CLIPS = [
   { url: `${CDN}/showcase-music-video_19324f13.mp4`, product: "WizVideo™",   tagline: "AI Music Videos"  },
