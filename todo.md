@@ -9372,3 +9372,9 @@
 - [x] DB: Reset scene 990019 lipSyncStatus from "error" to "pending"
 - [x] Code: Fix heartbeat lipSyncPendingScenes filter to include error-state scenes with lipSyncAttempts < LIPSYNC_TOTAL_MAX_ATTEMPTS
 - [x] Code: Add AssemblyWorker max-reset guard — hard-fail jobs that cycle assembling→rendering more than 5 times
+## FreeTrial.tsx TypeScript Fix & Deployment Unblock (Jun 17 2026)
+- [x] Fix FreeTrial.tsx: correct tRPC paths from trpc.musicVideo.job.* to trpc.musicVideo.* (procedures are spread flat)
+- [x] Fix FreeTrial.tsx: remove explicit type annotations from useMutation onSuccess/onError callbacks (let tRPC infer)
+- [x] Fix FreeTrial.tsx: update refetchInterval to use query.state.data pattern for tRPC v11 compatibility
+- [x] TypeScript: 0 errors confirmed
+- [x] Deployment: succeeded — wiz-ai.io, www.wiz-ai.io, aivideoplatform-aljhdnsu.manus.space all live

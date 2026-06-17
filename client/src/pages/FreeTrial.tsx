@@ -44,11 +44,11 @@ export default function FreeTrial() {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const createJob = trpc.musicVideo.job.createJob.useMutation({
-    onSuccess: (data: { jobId: number }) => {
-      setJobId(data.jobId);
+  const createJob = trpc.musicVideo.createJob.useMutation({
+    onSuccess: (data) => {
+      setJobId((data as { jobId: number }).jobId);
     },
-    onError: (err: { message: string }) => {
+    onError: (err) => {
       if (err.message.includes("FREE_TRIAL_USED")) {
         setError("You have already used your free trial. Upgrade to a paid plan to create more videos.");
       } else {
@@ -58,11 +58,12 @@ export default function FreeTrial() {
   });
 
   // Poll job status once we have a jobId
-  const { data: jobStatus } = trpc.musicVideo.job.getJob.useQuery(
+  const { data: jobStatus } = trpc.musicVideo.getJob.useQuery(
     { jobId: jobId! },
     {
       enabled: !!jobId,
-      refetchInterval: (data: { job?: { status?: string } } | undefined) => {
+      refetchInterval: (query) => {
+        const data = query.state.data as { job?: { status?: string } } | undefined;
         if (!data) return 5000;
         const status = data?.job?.status;
         if (status === "completed" || status === "failed") return false;
