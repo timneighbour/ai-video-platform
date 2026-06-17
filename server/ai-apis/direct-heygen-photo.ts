@@ -86,36 +86,42 @@ async function downloadFromManusStorage(
   storageKey: string,
   label: string
 ): Promise<Buffer> {
-  const { storageGet } = await import("../storage");
-
   console.log(
-    `[HeyGenDirect] Downloading ${label} from Manus storage: ${storageKey}`
+    `[HeyGenDirect] Downloading ${label}: ${storageKey.substring(0, 100)}`
   );
 
-  // Get the presigned URL
-  const { url: presignedUrl } = await storageGet(storageKey);
+  // If the input is already a full URL (files.manuscdn.com, CloudFront, etc.),
+  // download it directly — no storageGet presigning needed.
+  if (storageKey.startsWith("https://") || storageKey.startsWith("http://")) {
+    const dlResp = await fetch(storageKey, { method: "GET" });
+    if (!dlResp.ok) {
+      throw new Error(
+        `[HeyGenDirect] Failed to download ${label} from URL: HTTP ${dlResp.status}`
+      );
+    }
+    const buffer = Buffer.from(await dlResp.arrayBuffer());
+    console.log(`[HeyGenDirect] Downloaded ${label} (direct URL): ${buffer.length} bytes`);
+    return buffer;
+  }
 
-  // Download using the presigned URL with auth headers
+  // For relative storage keys, use storageGet to get a presigned URL
+  const { storageGet } = await import("../storage");
+  const { url: presignedUrl } = await storageGet(storageKey);
   const forgeApiKey = ENV.forgeApiKey;
   if (!forgeApiKey) {
     throw new Error(
       `[HeyGenDirect] Storage credentials missing for downloading ${label}`
     );
   }
-
   const dlResp = await fetch(presignedUrl, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${forgeApiKey}`,
-    },
+    headers: { Authorization: `Bearer ${forgeApiKey}` },
   });
-
   if (!dlResp.ok) {
     throw new Error(
       `[HeyGenDirect] Failed to download ${label} from storage: HTTP ${dlResp.status}`
     );
   }
-
   const buffer = Buffer.from(await dlResp.arrayBuffer());
   console.log(`[HeyGenDirect] Downloaded ${label}: ${buffer.length} bytes`);
   return buffer;
