@@ -9,7 +9,7 @@
  *   9.0s  → WizScript™ clip + "Enter WIZ AI" CTA slides up, infinite loop begins
  */
 
-import { useEffect, useRef, useState, useCallback, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useCallback, type CSSProperties } from "react";
 import { ChevronRight } from "@/lib/icons";
 import { INTRO_SESSION_KEY } from "@/lib/introReplay";
 
@@ -73,6 +73,24 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
   const audioRef                        = useRef<HTMLAudioElement>(null);
   const timersRef                       = useRef<ReturnType<typeof setTimeout>[]>([]);
   const dismissedRef                    = useRef(false);
+  const soundOffRef                     = useRef<HTMLButtonElement>(null);
+  const logoContainerRef                = useRef<HTMLDivElement>(null);
+  const logoImgRef                      = useRef<HTMLImageElement>(null);
+
+  // Pixel-perfect alignment: lock W tip to Sound Off button top border
+  useLayoutEffect(() => {
+    const align = () => {
+      const btn = soundOffRef.current;
+      const logo = logoContainerRef.current;
+      const img = logoImgRef.current;
+      if (!btn || !logo || !img) return;
+      const wTipOffset = (514 / 2048) * img.offsetWidth;
+      logo.style.top = (btn.offsetTop - wTipOffset) + "px";
+    };
+    align();
+    window.addEventListener("resize", align);
+    return () => window.removeEventListener("resize", align);
+  }, []);
 
   const clearAll = () => timersRef.current.forEach(clearTimeout);
 
@@ -207,8 +225,8 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
           to   { opacity: 1; letter-spacing: 0.32em; }
         }
         @keyframes wi-cta-glow-pulse {
-          0%,100% { box-shadow: 0 0 0 0 rgba(196,164,100,0); }
-          50%      { box-shadow: 0 0 24px 8px rgba(196,164,100,0.15); }
+          0%,100% { box-shadow: 0 0 28px rgba(196,164,100,0.18), inset 0 0 20px rgba(196,164,100,0.04); }
+          50%      { box-shadow: 0 0 44px rgba(196,164,100,0.30), inset 0 0 20px rgba(196,164,100,0.07); }
         }
         @keyframes wi-dot-ping {
           0%   { transform: scale(1);   opacity: 0.7; }
@@ -254,16 +272,17 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
         ))}
       </div>
 
-      {/* Logo — top centre, fully visible */}
-      <div style={{ position: "absolute", top: "3.5vh", left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
+      {/* Logo — top right, W tip JS-aligned to Sound Off border top */}
+      <div ref={logoContainerRef} style={{ position: "absolute", top: "-1.43rem", right: "1.4rem", zIndex: 10 }}>
         <div style={{ position: "relative" }}>
-          <div style={{ position: "absolute", inset: -36, borderRadius: "50%", background: `radial-gradient(ellipse at center, ${GOLD}16 0%, transparent 68%)`, animation: show("ambient","clips","cta") ? "wi-halo 3.5s ease-in-out infinite" : "none", opacity: show("ambient","clips","cta") ? 1 : 0, transition: "opacity 1.2s ease" }} />
+          <div style={{ position: "absolute", inset: -24, borderRadius: "50%", background: `radial-gradient(ellipse at center, ${GOLD}16 0%, transparent 68%)`, animation: show("ambient","clips","cta") ? "wi-halo 3.5s ease-in-out infinite" : "none", opacity: show("ambient","clips","cta") ? 1 : 0, transition: "opacity 1.2s ease" }} />
           <img
+            ref={logoImgRef}
             src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png"
             alt="WIZ AI"
             style={{
-              width: "clamp(180px, 24vw, 280px)", height: "auto", display: "block",
-              filter: show("ambient","clips","cta") ? `drop-shadow(0 0 18px ${GOLD}88) drop-shadow(0 0 44px ${GOLD}44)` : "none",
+              width: "clamp(140px, 16vw, 180px)", height: "auto", display: "block",
+              filter: show("ambient","clips","cta") ? `drop-shadow(0 0 12px ${GOLD}88) drop-shadow(0 0 28px ${GOLD}44)` : "none",
               opacity: show("ambient","clips","cta") ? 1 : 0,
               transform: show("ambient","clips","cta") ? "scale(1) translateY(0)" : "scale(0.88) translateY(-8px)",
               transition: "opacity 1.1s cubic-bezier(0.16,1,0.3,1), transform 1.1s cubic-bezier(0.16,1,0.3,1), filter 1.4s ease",
@@ -288,16 +307,16 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
       )}
 
       {/* Lower overlay — labels, waveform, CTA */}
-      <div style={{ position: "absolute", bottom: "8vh", left: 0, right: 0, zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <div style={{ position: "absolute", bottom: "14vh", left: 0, right: 0, zIndex: 10, display: "flex", flexDirection: "column", alignItems: "center" }}>
 
         {/* Product label */}
-        <div style={{ height: 56, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
+        <div style={{ height: 88, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
           {show("clips","cta") && (
             <div key={labelKey} style={{ textAlign: "center", opacity: labelVisible ? 1 : 0, animation: labelVisible ? "wi-label-in 0.6s ease forwards" : "none" }}>
-              <div style={{ color: GOLD_LITE, fontSize: "clamp(0.95rem, 2vw, 1.15rem)", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", textShadow: `0 0 32px ${GOLD}cc`, marginBottom: 6 }}>
+              <div style={{ color: GOLD_LITE, fontSize: "clamp(1.9rem, 3.9vw, 2.6rem)", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", textShadow: `0 0 48px ${GOLD}cc, 0 0 80px ${GOLD}44`, marginBottom: 12 }}>
                 {CLIPS[clipIdx].product}
               </div>
-              <div style={{ color: "rgba(255,255,255,0.44)", fontSize: "clamp(0.58rem, 1.1vw, 0.70rem)", fontWeight: 500, letterSpacing: "0.28em", textTransform: "uppercase" }}>
+              <div style={{ color: "rgba(255,255,255,0.55)", fontSize: "clamp(0.80rem, 1.55vw, 1.0rem)", fontWeight: 500, letterSpacing: "0.28em", textTransform: "uppercase" }}>
                 {CLIPS[clipIdx].tagline}
               </div>
             </div>
@@ -332,11 +351,11 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
             <button
               onClick={dismiss}
               aria-label="Enter WIZ AI"
-              style={{ display:"flex", alignItems:"center", gap:9, padding:"0.58rem 1.85rem", borderRadius:9999, border:`1px solid rgba(196,164,100,0.50)`, cursor:"pointer", background:"rgba(8,8,18,0.88)", color:GOLD, fontWeight:700, fontSize:"clamp(0.66rem,1.05vw,0.78rem)", letterSpacing:"0.22em", textTransform:"uppercase", overflow:"hidden", position:"relative", animation:"wi-cta-glow-pulse 3.2s ease-in-out infinite", backdropFilter:"blur(8px)" }}
-              onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "rgba(196,164,100,0.12)"; b.style.borderColor = `${GOLD}bb`; }}
-              onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "rgba(8,8,18,0.88)"; b.style.borderColor = "rgba(196,164,100,0.50)"; }}
+              style={{ display:"flex", alignItems:"center", gap:11, padding:"0.82rem 2.6rem", borderRadius:9999, border:`1.5px solid rgba(196,164,100,0.72)`, cursor:"pointer", background:"rgba(8,8,18,0.90)", color:GOLD_LITE, fontWeight:700, fontSize:"clamp(0.78rem,1.25vw,0.96rem)", letterSpacing:"0.26em", textTransform:"uppercase", overflow:"hidden", position:"relative", animation:"wi-cta-glow-pulse 3.2s ease-in-out infinite", backdropFilter:"blur(8px)", boxShadow:`0 0 28px rgba(196,164,100,0.18), inset 0 0 20px rgba(196,164,100,0.04)` }}
+              onMouseEnter={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "rgba(196,164,100,0.15)"; b.style.borderColor = `${GOLD_LITE}cc`; b.style.boxShadow = `0 0 44px rgba(196,164,100,0.34), inset 0 0 20px rgba(196,164,100,0.08)`; }}
+              onMouseLeave={e => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "rgba(8,8,18,0.90)"; b.style.borderColor = "rgba(196,164,100,0.72)"; b.style.boxShadow = `0 0 28px rgba(196,164,100,0.18), inset 0 0 20px rgba(196,164,100,0.04)`; }}
             >
-              <span style={{ position:"absolute", top:0, bottom:0, width:"42%", background:"linear-gradient(90deg,transparent,rgba(196,164,100,0.08),transparent)", animation:"wi-sweep 3.4s ease-in-out infinite", pointerEvents:"none" }} />
+              <span style={{ position:"absolute", top:0, bottom:0, width:"42%", background:"linear-gradient(90deg,transparent,rgba(196,164,100,0.10),transparent)", animation:"wi-sweep 3.4s ease-in-out infinite", pointerEvents:"none" }} />
               <span style={{ position:"relative" }}>Enter WIZ AI</span>
               <ChevronRight style={{ position:"relative", width:18, height:18 }} />
             </button>
@@ -349,6 +368,7 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
 
       {/* Sound toggle */}
       <button
+        ref={soundOffRef}
         onClick={toggleMute}
         aria-label={muted ? "Unmute" : "Mute"}
         style={{ position:"absolute", top:"1.4rem", left:"1.4rem", zIndex:20, background:"rgba(4,4,14,0.60)", border:`1px solid ${muted ? "rgba(255,255,255,0.12)" : GOLD + "77"}`, borderRadius:9999, cursor:"pointer", padding:"0.42rem 0.72rem", display:"flex", alignItems:"center", gap:6, opacity:show("clips","cta") ? 1 : 0, transition:"opacity 0.7s ease, border-color 0.3s ease", backdropFilter:"blur(8px)" }}
@@ -367,11 +387,11 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
         </span>
       </button>
 
-      {/* Skip Intro */}
+      {/* Skip Intro — bottom right, clear of logo */}
       <button
         onClick={dismiss}
         aria-label="Skip intro"
-        style={{ position:"absolute", top:"1.4rem", right:"1.4rem", zIndex:20, background:"none", border:"none", cursor:"pointer", color:"rgba(255,255,255,0.30)", fontSize:"0.62rem", fontWeight:600, letterSpacing:"0.22em", textTransform:"uppercase", padding:"0.5rem 0.8rem", opacity:show("ambient","clips","cta") ? 1 : 0, transition:"opacity 0.7s ease, color 0.2s ease" }}
+        style={{ position:"absolute", bottom:"2.4rem", right:"1.6rem", zIndex:20, background:"none", border:"none", cursor:"pointer", color:"rgba(255,255,255,0.30)", fontSize:"0.62rem", fontWeight:600, letterSpacing:"0.22em", textTransform:"uppercase", padding:"0.5rem 0.8rem", opacity:show("ambient","clips","cta") ? 1 : 0, transition:"opacity 0.7s ease, color 0.2s ease" }}
         onMouseEnter={e => ((e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.70)")}
         onMouseLeave={e => ((e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.30)")}
       >
