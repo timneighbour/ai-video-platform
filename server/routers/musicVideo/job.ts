@@ -83,6 +83,8 @@ import {
   getVocalOnsetTime,
   translateErrorMessage,
 } from "./_shared";
+import { trimAudioToLength } from "../../audioTrim";
+import { users } from "../../../drizzle/schema";
 
 export const musicVideoJobRouter = router({
   transcribeAudioDirect: protectedProcedure
@@ -127,6 +129,7 @@ export const musicVideoJobRouter = router({
         audioUrl: z.string().url().optional(), // direct URL to audio (e.g. from Suno)
         audioMimeType: z.enum(["audio/mpeg", "audio/wav", "audio/mp4", "audio/ogg", "audio/m4a"]).optional(),
         audioDuration: z.number().int().min(10).max(360), // 10s to 6 minutes
+        isFreeTrial: z.boolean().optional(), // Free trial render — 30s trim, watermarked, no credits
         themePrompt: z.string().min(10).max(2000),
         genre: z.string().max(128).optional(),
         mood: z.string().max(128).optional(),
@@ -141,6 +144,21 @@ export const musicVideoJobRouter = router({
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
+      // ── Free Trial Gate ────────────────────────────────────────────────────
+      const isFreeTrial = input.isFreeTrial === true;
+      if (isFreeTrial) {
+        // One free trial per account — check freeTrialUsed flag
+        const [userRow] = await db.select({ freeTrialUsed: users.freeTrialUsed })
+          .from(users)
+          .where(eq(users.id, ctx.user.id));
+        if (userRow?.freeTrialUsed) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "FREE_TRIAL_USED: You have already used your free trial render. Upgrade to a paid plan to create more videos.",
+          });
+        }
+      }
+
       // ── Profitability Gate 1: Resolve user plan ────────────────────────────
       const isAdmin = ctx.user.role === "admin";
       const userSub = isAdmin ? null : await getUserSubscription(ctx.user.id);
@@ -150,7 +168,8 @@ export const musicVideoJobRouter = router({
       const planConfig = SUBSCRIPTION_PLANS[productPlan];
 
       // ── Profitability Gate 2: Monthly video count limit ────────────────────
-      if (!isAdmin) {
+      // Free trial bypasses all plan gates
+      if (!isAdmin && !isFreeTrial) {
         const videosThisMonth = await countVideosThisMonth(ctx.user.id);
         if (videosThisMonth >= planConfig.maxVideosPerMonth) {
           throw new TRPCError({
@@ -161,32 +180,54 @@ export const musicVideoJobRouter = router({
       }
 
       // ── Profitability Gate 3: Video length limit ───────────────────────────
-      if (!isAdmin && input.audioDuration > planConfig.maxVideoSeconds) {
+      // Free trial is always 30s — no length gate needed
+      if (!isAdmin && !isFreeTrial && input.audioDuration > planConfig.maxVideoSeconds) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: `Video length exceeds your plan limit. ${planConfig.name} plan allows up to ${planConfig.maxVideoSeconds} seconds (${Math.floor(planConfig.maxVideoSeconds / 60)}m ${planConfig.maxVideoSeconds % 60}s). Your audio is ${input.audioDuration}s. Please trim your audio or upgrade your plan.`,
         });
       }
 
+      // ── Free Trial: trim audio to 30 seconds ─────────────────────────────
+      // For free trial renders, we trim the audio server-side before uploading.
+      // trimAudioToLength handles download, ffmpeg trim, fade-out, and S3 upload.
+      let rawAudioUrl: string | undefined = input.audioUrl;
+      let rawAudioBase64: string | undefined = input.audioBase64;
+      let effectiveAudioDuration = input.audioDuration;
+      if (isFreeTrial) {
+        effectiveAudioDuration = 30;
+        if (input.audioUrl) {
+          // Trim from URL directly
+          rawAudioUrl = await trimAudioToLength(input.audioUrl, 30, ctx.user.id);
+        }
+        // base64 path: upload first, then trim
+      }
+
       // Upload audio to S3 (either from base64 or direct URL)
       let audioUrl: string;
       let audioKey: string;
-      if (input.audioUrl) {
-        // Suno path: fetch from URL and re-upload to our S3 for reliability
-        assertSafeUrl(input.audioUrl); // ISS-033: SSRF guard
-        const fetchRes = await fetch(input.audioUrl);
+      if (rawAudioUrl && !rawAudioBase64) {
+        // Suno path or pre-trimmed free trial URL
+        assertSafeUrl(rawAudioUrl); // ISS-033: SSRF guard
+        const fetchRes = await fetch(rawAudioUrl);
         const arrayBuf = await fetchRes.arrayBuffer();
         const audioBuffer = Buffer.from(arrayBuf);
         audioKey = `music-video-audio/${ctx.user.id}-${Date.now()}.mp3`;
         const uploaded = await storagePut(audioKey, audioBuffer, "audio/mpeg");
         audioUrl = uploaded.url;
-      } else if (input.audioBase64) {
+      } else if (rawAudioBase64 ?? input.audioBase64) {
+        const b64 = rawAudioBase64 ?? input.audioBase64!;
         const mimeType = input.audioMimeType ?? "audio/mpeg";
-        const audioBuffer = Buffer.from(input.audioBase64, "base64");
+        const audioBuffer = Buffer.from(b64, "base64");
         const ext = mimeType.split("/")[1].replace("mpeg", "mp3");
         audioKey = `music-video-audio/${ctx.user.id}-${Date.now()}.${ext}`;
         const uploaded = await storagePut(audioKey, audioBuffer, mimeType);
         audioUrl = uploaded.url;
+        // For free trial with base64 audio, trim after upload
+        if (isFreeTrial) {
+          audioUrl = await trimAudioToLength(audioUrl, 30, ctx.user.id);
+          audioKey = audioUrl; // key is the trimmed S3 URL for reference
+        }
       } else {
         throw new TRPCError({ code: "BAD_REQUEST", message: "Either audioBase64 or audioUrl is required." });
       }
@@ -202,15 +243,17 @@ export const musicVideoJobRouter = router({
         characterImageUrl = url;
       }
 
-      const sceneCount = calculateSceneCount(input.audioDuration);
-      const creditCost = calculateCreditCost(sceneCount, input.audioDuration);
+      const sceneCount = calculateSceneCount(effectiveAudioDuration);
+      // Free trial renders are free — no credits charged
+      const creditCost = isFreeTrial ? 0 : calculateCreditCost(sceneCount, effectiveAudioDuration);
 
       const [result] = await db.insert(musicVideoJobs).values({
         userId: ctx.user.id,
         title: input.title,
         audioUrl,
         audioKey,
-        audioDuration: input.audioDuration,
+        audioDuration: effectiveAudioDuration,
+        isFreeTrial,
         themePrompt: input.themePrompt,
         genre: input.genre ?? null,
         mood: input.mood ?? null,
@@ -251,6 +294,13 @@ export const musicVideoJobRouter = router({
       });
 
       const jobId = (result as any).insertId as number;
+
+      // Mark free trial as used (one per account)
+      if (isFreeTrial) {
+        await db.update(users)
+          .set({ freeTrialUsed: true, freeTrialUsedAt: new Date() })
+          .where(eq(users.id, ctx.user.id));
+      }
 
       // Kick off transcription asynchronously (non-blocking)
       // This runs in the background so the user can see the storyboard step immediately

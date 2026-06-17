@@ -9369,6 +9369,6 @@
 - [x] Job 1080001 fix confirmed deployed — lipSyncAttempts column added, HeyGen 403 fix in checkpoint 128412d
 
 ## Job 1080001 Infinite Loop Fixes (Jun 17 2026)
-- [ ] DB: Reset scene 990019 lipSyncStatus from "error" to "pending"
-- [ ] Code: Fix heartbeat lipSyncPendingScenes filter to include error-state scenes with lipSyncAttempts < LIPSYNC_TOTAL_MAX_ATTEMPTS
-- [ ] Code: Add AssemblyWorker max-reset guard — hard-fail jobs that cycle assembling→rendering more than 5 times
+- [x] DB: Reset scene 990019 lipSyncStatus from "error" to "pending"
+- [x] Code: Fix heartbeat lipSyncPendingScenes filter to include error-state scenes with lipSyncAttempts < LIPSYNC_TOTAL_MAX_ATTEMPTS
+- [x] Code: Add AssemblyWorker max-reset guard — hard-fail jobs that cycle assembling→rendering more than 5 times

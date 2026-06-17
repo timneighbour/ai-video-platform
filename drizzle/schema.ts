@@ -26,6 +26,9 @@ export const users = mysqlTable("users", {
   /** Marketing opt-out -- set when user clicks unsubscribe link in campaign emails */
   marketingOptOut: boolean("marketingOptOut").default(false).notNull(),
   marketingOptOutAt: timestamp("marketingOptOutAt"),
+  /** Free trial render used — one per account, set after first free trial job is created */
+  freeTrialUsed: boolean("freeTrialUsed").default(false).notNull(),
+  freeTrialUsedAt: timestamp("freeTrialUsedAt"),
 });
 
 export type User = typeof users.$inferSelect;
@@ -254,6 +257,8 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   upsellVideoUrl: varchar("upsellVideoUrl", { length: 1024 }),  // S3 URL of the upsell-processed video
   upsellVideoKey: varchar("upsellVideoKey", { length: 512 }),   // S3 key of the upsell-processed video
   upsellProcessedAt: timestamp("upsellProcessedAt"),            // When upsell processing completed
+  /** Free trial render — audio trimmed to 30s, output watermarked, no credits charged */
+  isFreeTrial: boolean("isFreeTrial").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

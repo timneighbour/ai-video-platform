@@ -2609,6 +2609,36 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       }
     }
 
+    // ── FREE TRIAL WATERMARK ─────────────────────────────────────────────────
+    // If this is a free trial render, apply a semi-transparent gold "WIZ AI" text
+    // overlay in the bottom-right corner before uploading to S3.
+    // The watermark is removed when the user upgrades and the upsellRemoveWatermark
+    // flag is set — the upsell delivery worker re-renders without this step.
+    if (job.isFreeTrial) {
+      const watermarkedVideo = path.join(tmpDir, "watermarked.mp4");
+      const wmFilter = [
+        // Gold semi-transparent text, bottom-right, 2% margin from edges
+        "drawtext=text='WIZ AI':",
+        "fontcolor=0xe8c97a@0.72:",
+        "fontsize=h*0.038:",
+        "x=w-tw-w*0.02:",
+        "y=h-th-h*0.02:",
+        "shadowcolor=black@0.55:",
+        "shadowx=2:shadowy=2",
+      ].join("");
+      try {
+        await execAsync(
+          `"${FFMPEG_BIN}" -y -i "${finalVideoPath}" -vf "${wmFilter}" -c:v libx264 -preset fast -crf 22 -c:a copy "${watermarkedVideo}"`,
+          { timeout: 300000 }
+        );
+        finalVideoPath = watermarkedVideo;
+        console.log(`[FreeTrial] Job ${jobId}: watermark applied to free trial render.`);
+      } catch (wmErr) {
+        // Non-fatal — deliver the unwatermarked video rather than failing the job
+        console.error(`[FreeTrial] Job ${jobId}: watermark failed — delivering unwatermarked. Error: ${(wmErr as Error).message}`);
+      }
+    }
+
     const finalBuffer = fs.readFileSync(finalVideoPath);
     // Phase 2: UUID-keyed S3 path — never reuses a previous path, even on re-render
     const finalUuid = randomUUID();
