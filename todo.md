@@ -9356,3 +9356,7 @@
 - [x] Poll-failed reset: increment attempts, permanently fail + refund after 5 total
 - [x] Provider routing: force Sync Labs when lipSyncAttempts >= LIPSYNC_HEYGEN_MAX_ATTEMPTS
 - [x] All changes compile clean (0 TypeScript errors)
+
+## Pre-Launch Audit Fixes (June 2026)
+- [x] Replace Voiceover tool (/tools/voiceover) with Coming Soon page — was silently doing nothing on generate click (TODO stub)
+- [x] Replace VideoToVideo tool (/tools/video-to-video) with Coming Soon page — was silently doing nothing on generate click (TODO stub)
