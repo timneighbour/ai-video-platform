@@ -243,7 +243,7 @@ export const PLANS: PlanData[] = [
   },
   {
     id: "studio",
-    name: "Studio",
+    name: "Pro",
     monthlyPrice: 149,
     annualTotal: 1490,
     annualSaving: 298,
