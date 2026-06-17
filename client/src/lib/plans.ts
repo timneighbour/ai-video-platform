@@ -7,7 +7,7 @@
  * Prices here must stay in sync with server/products.ts SUBSCRIPTION_PLANS.
  * When you update prices here, they propagate to /pricing and /subscribe automatically.
  *
- * Last updated: 2026-04-23
+ * Last updated: 2026-06-17
  */
 
 // ── Plan IDs ─────────────────────────────────────────────────────────────────
@@ -87,13 +87,13 @@ export const PLANS: PlanData[] = [
   {
     id: "starter",
     name: "Starter",
-    monthlyPrice: 9,
-    annualTotal: 79,
-    annualSaving: 29,
+    monthlyPrice: 29,
+    annualTotal: 290,
+    annualSaving: 58,
     tagline: "Create up to 2 videos/month",
     bestFor: "Best for first-time creators",
     outcomes: [
-      "2 Build Credits per month",
+      "2 videos per month",
       "Standard quality (720p)",
       "All 6 WIZ AI products",
       "Free storyboard generation",
@@ -123,6 +123,11 @@ export const PLANS: PlanData[] = [
     cta: "Start Creating",
     highlight: false,
   },
+  /**
+   * NOTE: "basic" tier (£19/mo) has no matching Stripe price ID in server/products.ts.
+   * It is kept here for type completeness but is NOT shown on the /pricing page.
+   * Do not add it to PRICING_PAGE_PLANS until a Stripe price ID is configured.
+   */
   {
     id: "basic",
     name: "Basic",
@@ -164,13 +169,13 @@ export const PLANS: PlanData[] = [
   {
     id: "creator",
     name: "Creator",
-    monthlyPrice: 29,
-    annualTotal: 290,
-    annualSaving: 58,
-    tagline: "Create up to 15 videos/month",
+    monthlyPrice: 79,
+    annualTotal: 790,
+    annualSaving: 158,
+    tagline: "Create up to 6 videos/month",
     bestFor: "Best for active creators",
     outcomes: [
-      "15 Build Credits per month",
+      "6 videos per month",
       "Standard, HD & 4K quality",
       "WizSync™ character lock",
       "Priority build queue",
@@ -180,7 +185,7 @@ export const PLANS: PlanData[] = [
       "Priority email support",
     ],
     features: [
-      { text: "15 final videos per month", included: true },
+      { text: "6 final videos per month", included: true },
       { text: "Up to 11 scenes per video", included: true },
       { text: "Around 88 seconds max", included: true },
       { text: "4K 2160p output", included: true },
@@ -189,7 +194,7 @@ export const PLANS: PlanData[] = [
       { text: "WizSync™ character lock", included: true },
       { text: "Priority video builds", included: true },
     ],
-    buildsPerMonth: 15,
+    buildsPerMonth: 6,
     scenesPerVideo: 11,
     outputQuality: "4K 2160p",
     watermark: false,
@@ -201,16 +206,21 @@ export const PLANS: PlanData[] = [
     cta: "Upgrade Plan",
     highlight: true,
   },
+  /**
+   * NOTE: "pro" tier has no matching Stripe price ID in server/products.ts.
+   * It is kept here for type completeness but is NOT shown on the /pricing page.
+   * Do not add it to PRICING_PAGE_PLANS until a Stripe price ID is configured.
+   */
   {
     id: "pro",
-    name: "Pro Plus",
-    monthlyPrice: 59,
-    annualTotal: 590,
-    annualSaving: 118,
-    tagline: "Create up to 25 videos/month in 4K",
+    name: "Pro",
+    monthlyPrice: 149,
+    annualTotal: 1490,
+    annualSaving: 298,
+    tagline: "Create up to 12 videos/month in 4K",
     bestFor: "Best for professional creators",
     outcomes: [
-      "25 Build Credits per month",
+      "12 videos per month",
       "Standard, HD & 4K quality",
       "WizSync™ character lock",
       "Priority build queue",
@@ -220,7 +230,7 @@ export const PLANS: PlanData[] = [
       "Priority support",
     ],
     features: [
-      { text: "25 final videos per month", included: true },
+      { text: "12 final videos per month", included: true },
       { text: "Up to 12 scenes per video", included: true },
       { text: "Around 96 seconds max", included: true },
       { text: "4K 2160p output", included: true },
@@ -229,7 +239,7 @@ export const PLANS: PlanData[] = [
       { text: "WizSync™ character lock", included: true },
       { text: "Priority video builds", included: true },
     ],
-    buildsPerMonth: 25,
+    buildsPerMonth: 12,
     scenesPerVideo: 12,
     outputQuality: "4K 2160p",
     watermark: false,
@@ -244,13 +254,13 @@ export const PLANS: PlanData[] = [
   {
     id: "studio",
     name: "Studio",
-    monthlyPrice: 99,
-    annualTotal: 990,
-    annualSaving: 198,
-    tagline: "Create up to 40 videos/month",
+    monthlyPrice: 149,
+    annualTotal: 1490,
+    annualSaving: 298,
+    tagline: "Create up to 12 videos/month",
     bestFor: "Best for brands, agencies and high-volume creators",
     outcomes: [
-      "40 Build Credits per month",
+      "12 videos per month",
       "Standard, HD & 4K quality",
       "Fastest build speed — top priority",
       "WizSync™ character lock",
@@ -260,7 +270,7 @@ export const PLANS: PlanData[] = [
       "Dedicated support",
     ],
     features: [
-      { text: "40 final videos per month", included: true },
+      { text: "12 final videos per month", included: true },
       { text: "Up to 12 scenes per video", included: true },
       { text: "Around 96 seconds max", included: true },
       { text: "4K 2160p output", included: true },
@@ -269,7 +279,7 @@ export const PLANS: PlanData[] = [
       { text: "WizSync™ character lock", included: true },
       { text: "API access for automation", included: true },
     ],
-    buildsPerMonth: 40,
+    buildsPerMonth: 12,
     scenesPerVideo: 12,
     outputQuality: "4K 2160p",
     watermark: false,
@@ -291,8 +301,10 @@ export function getPlan(id: PlanId): PlanData | undefined {
 // ── Paid plans only (excludes free) ──────────────────────────────────────────
 export const PAID_PLANS = PLANS.filter((p) => p.id !== "free");
 
-// ── Plans shown on the /pricing page (5-tier view) ─────────────────────────
-export const PRICING_PAGE_PLANS: PlanId[] = ["starter", "basic", "creator", "pro", "studio"];
+// ── Plans shown on the /pricing page ─────────────────────────────────────────
+// Only includes tiers with valid Stripe price IDs in server/products.ts.
+// "basic" and "pro" are hidden until Stripe price IDs are configured.
+export const PRICING_PAGE_PLANS: PlanId[] = ["starter", "creator", "studio"];
 
 // ── Comparison table rows (used by both /pricing and /subscribe) ──────────────
 export const COMPARISON_ROWS: {
@@ -304,7 +316,7 @@ export const COMPARISON_ROWS: {
   pro: string | boolean;
   studio: string | boolean;
 }[] = [
-  { feature: "Build Credits/month", free: "2 (trial)", starter: "2", basic: "5", creator: "15", pro: "25", studio: "40" },
+  { feature: "Videos/month", free: "1 (trial)", starter: "2", basic: "5", creator: "6", pro: "12", studio: "12" },
   { feature: "Max quality",         free: "720p",      starter: "720p", basic: "1080p", creator: "4K", pro: "4K", studio: "4K" },
   { feature: "Free storyboard",     free: true,        starter: true,   basic: true,    creator: true, pro: true,  studio: true  },
   { feature: "WizSound discount",   free: false,       starter: false,  basic: false,   creator: "20%", pro: "40%", studio: "60%" },

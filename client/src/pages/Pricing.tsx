@@ -88,17 +88,17 @@ const PLAN_UI_OVERLAY: Record<string, {
  starter: {
  accentColor: "oklch(0.65 0.08 240)", bgImage: PLAN_BG_STARTER,
  glowColor: "rgba(100,140,200,0.12)", borderColor: "rgba(100,140,200,0.2)",
- annualPrice: 79, tagline: "Start creating music videos today.",
+ annualPrice: 290, tagline: "Start creating music videos today.",
  },
  creator: {
  accentColor: "oklch(0.78 0.11 75)", bgImage: PLAN_BG_CREATOR,
  glowColor: "rgba(196,164,100,0.18)", borderColor: "rgba(196,164,100,0.45)",
- annualPrice: 350, tagline: "More videos, more scenes, more creative control.",
+ annualPrice: 790, tagline: "More videos, more scenes, more creative control.",
  },
  studio: {
  accentColor: "oklch(0.72 0.12 300)", bgImage: PLAN_BG_PRO,
  glowColor: "rgba(160,100,220,0.14)", borderColor: "rgba(160,100,220,0.25)",
- annualPrice: 990, tagline: "12 videos a month. Full cinematic control.",
+ annualPrice: 1490, tagline: "12 videos a month. Full cinematic control.",
  },
 };
 // Merge shared plan data with Pricing-page UI overlay
@@ -122,8 +122,8 @@ const COMPARISON_GROUPS = [
  {
  group: "Output",
  rows: [
- { label: "Videos per month", starter: "2", creator: "15", studio: "40" },
- { label: "Build Credits / month", starter: "2", creator: "15", studio: "40" },
+ { label: "Videos per month", starter: "2", creator: "6", studio: "12" },
+ { label: "Build Credits / month", starter: "2", creator: "6", studio: "12" },
  { label: "Max scenes per video", starter: "8 (≈64s)", creator: "11 (≈88s)", studio: "12 (≈96s)" },
  { label: "Max output quality", starter: "720p", creator: "4K 2160p", studio: "4K 2160p" },
  { label: "No watermark", starter: true, creator: true, studio: true, isCheck: true },
@@ -287,7 +287,7 @@ function CompCell({ value, isCheck }: { value: string | boolean; isCheck?: boole
 }
 
 export default function Pricing() {
- useSEO({ title: "Pricing — WIZ AI", path: "/pricing", description: "Choose the WIZ AI plan that fits your creative workflow. Free to create, Starter (£9/mo), Creator (£35/mo), and Studio (£99/mo) plans available. One Build Credit = one final downloadable video. Only pay when you're ready." });
+ useSEO({ title: "Pricing — WIZ AI", path: "/pricing", description: "Choose the WIZ AI plan that fits your creative workflow. Free to create, Starter (£29/mo), Creator (£79/mo), and Studio (£149/mo) plans available. One Build Credit = one final downloadable video. Only pay when you're ready." });
  const { isAuthenticated } = useAuth();
  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
  const [loadingBundle, setLoadingBundle] = useState<string | null>(null);
@@ -860,8 +860,8 @@ export default function Pricing() {
  { label: "Pay-per-video (Standard)", videos: 15, cost: 15 * 2, perVideo: "£2.00", saving: null, highlight: false },
  { label: "Pay-per-video (HD)", videos: 15, cost: 15 * 4, perVideo: "£4.00", saving: null, highlight: false },
  { label: "Pay-per-video (4K)", videos: 15, cost: 15 * 6, perVideo: "£6.00", saving: null, highlight: false },
- { label: "Creator Plan (£35/mo)", videos: 15, cost: 35, perVideo: "£2.33", saving: "Save up to £55/mo vs 4K", highlight: true },
- { label: "Studio Plan (£99/mo)", videos: 40, cost: 99, perVideo: "£2.48", saving: "Save up to £141/mo vs 4K", highlight: false },
+ { label: "Creator Plan (£79/mo)", videos: 6, cost: 79, perVideo: "£13.17", saving: "6 full music videos/month", highlight: true },
+ { label: "Studio Plan (£149/mo)", videos: 12, cost: 149, perVideo: "£12.42", saving: "12 full music videos/month", highlight: false },
  ].map((row, i) => (
  <tr key={i} className={`border-b border-white/[0.04] last:border-0 ${
  row.highlight ? "bg-[rgba(196,164,100,0.06)]" : "hover:bg-white/[0.02]"
