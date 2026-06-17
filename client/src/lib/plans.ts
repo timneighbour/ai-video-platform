@@ -314,23 +314,28 @@ export const PAID_PLANS = PLANS.filter((p) => p.id !== "free");
 // "basic" and "pro" are hidden until Stripe price IDs are configured.
 export const PRICING_PAGE_PLANS: PlanId[] = ["starter", "creator", "studio"];
 
+// ── Plans shown on the /subscribe page ───────────────────────────────────────
+// Must match PRICING_PAGE_PLANS — only tiers with live Stripe price IDs.
+// "basic" (£19) and "pro" (£149 duplicate of Studio) are intentionally excluded.
+export const SUBSCRIBE_PAGE_PLANS: PlanId[] = ["free", "starter", "creator", "studio"];
+
 // ── Comparison table rows (used by both /pricing and /subscribe) ──────────────
+// Only includes the 3 live paid tiers (starter, creator, studio) plus free.
+// "basic" and "pro" columns removed — those tiers are not shown on any public page.
 export const COMPARISON_ROWS: {
   feature: string;
   free: string | boolean;
   starter: string | boolean;
-  basic: string | boolean;
   creator: string | boolean;
-  pro: string | boolean;
   studio: string | boolean;
 }[] = [
-  { feature: "Videos/month", free: "1 (trial)", starter: "2", basic: "5", creator: "6", pro: "12", studio: "12" },
-  { feature: "Max quality",         free: "720p",      starter: "720p", basic: "1080p", creator: "4K", pro: "4K", studio: "4K" },
-  { feature: "Free storyboard",     free: true,        starter: true,   basic: true,    creator: true, pro: true,  studio: true  },
-  { feature: "WizSound discount",   free: false,       starter: false,  basic: false,   creator: "20%", pro: "40%", studio: "60%" },
-  { feature: "WizSync™ character lock", free: false,   starter: false,  basic: false,   creator: true, pro: true,  studio: true  },
-  { feature: "Build speed",         free: "Standard",  starter: "Standard", basic: "Standard", creator: "Priority", pro: "Priority", studio: "Fastest" },
-  { feature: "API access",          free: false,       starter: false,  basic: false,   creator: false, pro: false, studio: true  },
+  { feature: "Videos/month",            free: "1 (trial)", starter: "2",         creator: "6",         studio: "12"     },
+  { feature: "Max quality",             free: "720p",      starter: "720p",      creator: "4K",        studio: "4K"     },
+  { feature: "Free storyboard",         free: true,        starter: true,        creator: true,        studio: true     },
+  { feature: "WizSound discount",       free: false,       starter: false,       creator: "20%",       studio: "60%"    },
+  { feature: "WizSync™ character lock", free: false,       starter: false,       creator: true,        studio: true     },
+  { feature: "Build speed",             free: "Standard",  starter: "Standard",  creator: "Priority",  studio: "Fastest"},
+  { feature: "API access",              free: false,       starter: false,       creator: false,       studio: true     },
 ];
 
 // ── Build Credit / Topup Packs ────────────────────────────────────────────────

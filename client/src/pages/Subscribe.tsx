@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useSEO } from "@/hooks/useSEO";
-import { PLANS as SHARED_PLANS, COMPARISON_ROWS } from "@/lib/plans";
+import { PLANS as SHARED_PLANS, COMPARISON_ROWS, SUBSCRIBE_PAGE_PLANS } from "@/lib/plans";
 
 // Plan icon overlay (UI-only, not in shared module) 
 const PLAN_ICONS: Record<string, React.ReactNode> = {
@@ -25,8 +25,10 @@ const PLAN_ICONS: Record<string, React.ReactNode> = {
  pro: <Crown className="w-5 h-5" />,
  studio: <Gem className="w-5 h-5" />,
 };
-// Merge shared plan data with UI-only icon field
-const PLANS = SHARED_PLANS.map((p) => ({ ...p, icon: PLAN_ICONS[p.id] }));
+// Merge shared plan data with UI-only icon field — only show tiers with live Stripe price IDs
+const PLANS = SHARED_PLANS
+  .filter((p) => SUBSCRIBE_PAGE_PLANS.includes(p.id))
+  .map((p) => ({ ...p, icon: PLAN_ICONS[p.id] }));
 
 
 
@@ -69,7 +71,7 @@ export default function Subscribe() {
  mp.checkoutStarted(planName, typeof planPrice === "number" ? planPrice : undefined);
  setLoadingPlan(planId);
  createSubscriptionCheckout.mutate({
- plan: planId as "starter" | "basic" | "creator" | "pro" | "studio",
+ plan: planId as "starter" | "creator" | "studio",
  origin: window.location.origin,
  billingInterval: billing,
  });
@@ -136,7 +138,7 @@ export default function Subscribe() {
  {/* 3. Plan cards */}
  <section className="pb-16 px-4">
  <div className="container max-w-7xl mx-auto">
- <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 items-start">
+ <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-start">
  {PLANS.map((plan) => {
  const annualMonthlyEquiv = plan.annualTotal > 0 ? Math.round((plan.annualTotal / 12) * 10) / 10 : 0;
  const displayPrice = billing === "annual" && annualMonthlyEquiv > 0 ? annualMonthlyEquiv : plan.monthlyPrice;
@@ -304,7 +306,7 @@ export default function Subscribe() {
  <thead>
  <tr className="border-b border-white/10">
  <th className="text-left p-4 text-muted-foreground font-medium w-40">Feature</th>
- {["Free", "Starter", "Basic", "Creator", "Pro Plus", "Studio"].map((name) => (
+ {["Free", "Starter", "Creator", "Studio"].map((name) => (
  <th key={name} className={`p-4 text-center font-bold ${name === "Creator" ? "text-[--color-gold]" : "text-white"}`}>
  {name}
  {name === "Creator" && <div className="text-xs text-[--color-gold]/70 font-normal mt-0.5">Most Popular</div>}
@@ -316,8 +318,8 @@ export default function Subscribe() {
  {COMPARISON_ROWS.map((row, i) => (
  <tr key={row.feature} className={`border-b border-white/5 ${i % 2 === 0 ? "bg-white/[0.015]" : ""}`}>
  <td className="p-4 text-muted-foreground text-xs font-medium">{row.feature}</td>
- {([row.free, row.starter, row.basic, row.creator, row.pro, row.studio] as (string | boolean)[]).map((val, j) => (
- <td key={j} className={`p-4 text-center ${j === 3 ? "bg-[--color-gold]/5" : ""}`}>{renderCell(val)}</td>
+ {([row.free, row.starter, row.creator, row.studio] as (string | boolean)[]).map((val, j) => (
+ <td key={j} className={`p-4 text-center ${j === 2 ? "bg-[--color-gold]/5" : ""}`}>{renderCell(val)}</td>
  ))}
  </tr>
  ))}
