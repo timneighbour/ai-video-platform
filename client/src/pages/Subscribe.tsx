@@ -25,8 +25,10 @@ const PLAN_ICONS: Record<string, React.ReactNode> = {
  pro: <Crown className="w-5 h-5" />,
  studio: <Gem className="w-5 h-5" />,
 };
+// Only show 4 tiers on subscribe page — basic and pro plan IDs are hidden
+const SUBSCRIBE_PLAN_IDS: string[] = ["free", "starter", "creator", "studio"];
 const PLANS = SHARED_PLANS
-  .filter((p) => (["free","starter","creator","studio"] as string[]).includes(p.id))
+  .filter((p) => SUBSCRIBE_PLAN_IDS.includes(p.id))
   .map((p) => ({ ...p, icon: PLAN_ICONS[p.id] }));
 
 
