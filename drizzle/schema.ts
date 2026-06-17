@@ -242,6 +242,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   // --- Sync Labs Lip Sync Tracking -------------------------------------------
   syncLabsJobId: varchar("syncLabsJobId", { length: 128 }), // Sync Labs job ID -- used to resume polling after server restart
   assemblyStartedAt: timestamp("assemblyStartedAt"),         // When assembly began -- used to detect truly stuck jobs
+  assemblyAttempts: int("assemblyAttempts").default(0).notNull(), // Number of assembly attempts — capped at 5; triggers credit refund on exhaustion
   vocalOnsetTime: double("vocalOnsetTime"),                  // Precise vocal start time in seconds (from silencedetect on vocal stem)
   // --- Upsell Delivery (ISS-002) -------------------------------------------
   // Flags set by Stripe webhook when user purchases post-completion add-ons.

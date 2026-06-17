@@ -9334,3 +9334,14 @@
 - [x] Pricing: Replace "pay-per-render" with "per video", "Avg. render time" with "Avg. creation time", "re-render" with "revision"
 - [x] Post-render: Download fallback already implemented (fetch → blob → window.open fallback + Copy Link button)
 - [x] "Previous render failed" banner: Confirmed only fires on ?jobId= resume of failed job, not on fresh loads
+
+
+## Pre-Launch Readiness Audit (2026-06-17)
+- [x] Pricing discrepancy found and fixed: plans.ts now matches server/products.ts (£29/£79/£149)
+- [x] Pricing.tsx PLAN_UI_OVERLAY annual prices corrected (Starter £290, Creator £790, Studio £1490)
+- [x] Pricing.tsx SEO description, comparison table, and value calculator updated to correct prices
+- [x] Orphaned basic/pro tiers removed from PRICING_PAGE_PLANS (hidden, no Stripe IDs)
+- [x] plans.test.ts updated to assert correct prices (£29/£79/£149)
+- [x] assemblyAttempts column added to musicVideoJobs (DB migration applied)
+- [x] Assembly worker: max 5 retry attempts then auto-refund credits + permanent fail
+- [x] jobResurrectionReaper: skips reset for jobs with exhausted assembly attempts

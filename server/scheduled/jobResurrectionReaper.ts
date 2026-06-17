@@ -142,12 +142,14 @@ export async function runJobResurrectionReaper() {
     // ── 2. STUCK ASSEMBLING JOBS (no video, >30 min) ──────────────────────────
     // status='assembling' + finalVideoUrl IS NULL + assemblyStartedAt >30min
     try {
+      const MAX_ASSEMBLY_ATTEMPTS_REAPER = 5; // Must match assemblyWorker.ts MAX_ASSEMBLY_ATTEMPTS
       const stuckAssemblingJobs = await db
         .select({
           id: musicVideoJobs.id,
           userId: musicVideoJobs.userId,
           title: musicVideoJobs.title,
           assemblyStartedAt: musicVideoJobs.assemblyStartedAt,
+          assemblyAttempts: musicVideoJobs.assemblyAttempts,
           updatedAt: musicVideoJobs.updatedAt,
         })
         .from(musicVideoJobs)
@@ -162,6 +164,11 @@ export async function runJobResurrectionReaper() {
       for (const job of stuckAssemblingJobs) {
         try {
           const stuckMinutes = Math.round((now - new Date(job.updatedAt).getTime()) / 60000);
+          // If attempts are exhausted, skip reset — assemblyWorker will handle the refund on next tick
+          if ((job.assemblyAttempts ?? 0) >= MAX_ASSEMBLY_ATTEMPTS_REAPER) {
+            console.warn(`[JobResurrectionReaper] Job ${job.id} has exhausted assembly attempts — skipping reset, assemblyWorker will refund`);
+            continue;
+          }
           console.warn(`[JobResurrectionReaper] Job ${job.id} stuck in assembling for ${stuckMinutes}min — resetting to rendering`);
 
           // Reset job to rendering
