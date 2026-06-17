@@ -32,7 +32,7 @@ export default function FreeTrial() {
     description: "Try WIZ AI free. Upload your track and get a 30-second AI music video — no credit card required. One free render per account.",
   });
 
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { data: me } = trpc.auth.me.useQuery(undefined, { enabled: !!user });
 
   const [audioFile, setAudioFile] = useState<File | null>(null);
