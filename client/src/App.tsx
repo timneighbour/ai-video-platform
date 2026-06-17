@@ -222,10 +222,10 @@ function PostLoginRedirect() {
 // Routes that should not be indexed by search engines
 const PRIVATE_ROUTE_PREFIXES = [
   "/dashboard", "/projects", "/account", "/settings",
-  "/music-video/create", "/render-history", "/batch-regeneration",
+  "/render-history", "/batch-regeneration",
   "/enhancement-studio", "/tools/", "/wizscore", "/wizsync",
-  "/music-creator", "/wiz-image", "/wiz-shorts", "/kids-video", "/characters",
-  "/text-to-video", "/onboarding", "/credits", "/subscribe",
+  "/music-creator", "/wiz-image", "/wiz-shorts", "/characters",
+  "/onboarding", "/credits",
   "/wizpilot", "/autopilot",
 ];
 
