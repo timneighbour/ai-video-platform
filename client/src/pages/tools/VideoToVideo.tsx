@@ -10,18 +10,9 @@ import { useLocation } from "wouter";
 export default function VideoToVideo() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
-  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [style, setStyle] = useState("oil-painting");
-  const [generating, setGenerating] = useState(false);
 
   const estimatedCredits = 200;
-
-  const handleGenerate = async () => {
-    if (!videoFile) return;
-    setGenerating(true);
-    // TODO: Implement actual generation
-    setTimeout(() => setGenerating(false), 2000);
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -37,31 +28,34 @@ export default function VideoToVideo() {
         </div>
       </div>
 
+      {/* Coming Soon Banner */}
+      <div className="bg-accent/10 border-b border-accent/20 py-3">
+        <div className="container text-center">
+          <p className="text-sm font-medium text-accent">
+            🎬 Coming Soon — Video-to-Video Style Transfer is in active development and will be available shortly.
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Your subscription already includes this feature. No extra charge when it launches.
+          </p>
+        </div>
+      </div>
+
       {/* Content */}
       <div className="container py-8">
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Input Section */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 opacity-50 pointer-events-none select-none">
             <Card className="border-border/40 bg-card/50 backdrop-blur">
               <CardHeader>
                 <CardTitle>Upload Video</CardTitle>
                 <CardDescription>Upload the video you want to transform</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="border-2 border-dashed border-border/40 rounded-lg p-8 text-center hover:border-accent/50 transition-colors cursor-pointer">
+                <div className="border-2 border-dashed border-border/40 rounded-lg p-8 text-center">
                   <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                   <p className="font-medium text-foreground">Drop video here or click to upload</p>
                   <p className="text-xs text-muted-foreground mt-1">MP4, WebM up to 500MB</p>
-                  <input
-                    type="file"
-                    accept="video/*"
-                    className="hidden"
-                    onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                  />
                 </div>
-                {videoFile && (
-                  <p className="text-sm text-accent mt-3">✓ {videoFile.name}</p>
-                )}
               </CardContent>
             </Card>
 
@@ -71,7 +65,7 @@ export default function VideoToVideo() {
                 <CardDescription>Choose the artistic style to apply</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Select value={style} onValueChange={setStyle}>
+                <Select value={style} onValueChange={setStyle} disabled>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -95,24 +89,22 @@ export default function VideoToVideo() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Zap className="h-5 w-5 text-accent" />
-                  Estimated Cost
+                  Coming Soon
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <p className="text-3xl font-bold text-foreground">{estimatedCredits}</p>
-                  <p className="text-sm text-muted-foreground">credits</p>
-                </div>
+                <p className="text-sm text-muted-foreground">
+                  Video-to-Video Style Transfer is being built. It will apply cinematic artistic styles to any video you upload.
+                </p>
                 <Button
                   className="w-full gap-2 mt-4"
-                  onClick={handleGenerate}
-                  disabled={!videoFile || generating}
+                  disabled
                 >
                   <Sparkles className="h-4 w-4" />
-                  {generating ? "Processing..." : "Transform Video"}
+                  Coming Soon
                 </Button>
                 <p className="text-xs text-muted-foreground text-center">
-                  Available: 2,500 credits
+                  Included in your current plan — no extra charge at launch.
                 </p>
               </CardContent>
             </Card>
