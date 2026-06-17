@@ -9360,3 +9360,10 @@
 ## Pre-Launch Audit Fixes (June 2026)
 - [x] Replace Voiceover tool (/tools/voiceover) with Coming Soon page — was silently doing nothing on generate click (TODO stub)
 - [x] Replace VideoToVideo tool (/tools/video-to-video) with Coming Soon page — was silently doing nothing on generate click (TODO stub)
+## GitHub Sync & Pre-Launch Verification (Jun 17 2026)
+- [x] Pull GitHub commit 62a91d00 (Voiceover Coming Soon) — merged as ddd396d
+- [x] Pull GitHub commit e180bf79 (VideoToVideo Coming Soon) — merged as ddd396d
+- [ ] WizScore plan gating — add Studio-only tier check to server/routers/wizScore.ts (currently credit-gated only, no plan check)
+- [x] WizSync fullRender credit gate verified — deductCredits() called at line 435, throws FORBIDDEN if ok===false (insufficient credits)
+- [x] Checkpoint 6f188366 confirmed in git history — contains HeyGen URL fix + lip sync retry cap
+- [x] Job 1080001 fix confirmed deployed — lipSyncAttempts column added, HeyGen 403 fix in checkpoint 128412d
