@@ -18,7 +18,7 @@ import { wizScoreJobs, sunoMusicTasks } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 import { initSuno } from "../ai-apis/suno";
-import { getUserCredits, deductCredits } from "../db";
+import { getUserCredits, deductCredits, getUserSubscription, mapDbPlanToProductPlan } from "../db";
 
 const CREDITS_PER_SCORE = 5;
 
@@ -176,6 +176,16 @@ Generate a Suno music prompt (50-100 words) and style tags (2-4 comma-separated 
         .where(and(eq(wizScoreJobs.id, input.jobId), eq(wizScoreJobs.userId, ctx.user.id)));
 
       if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+
+      // Plan gate — WizScore is Studio-only
+      const sub = await getUserSubscription(ctx.user.id);
+      const plan = mapDbPlanToProductPlan(sub?.plan ?? "free");
+      if (plan !== "studio") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "PLAN_REQUIRED:studio:WizScore™ is available on the Studio plan. Upgrade to access AI soundtrack generation.",
+        });
+      }
 
       // Credit check before generation
       const creditsRecord = await getUserCredits(ctx.user.id);

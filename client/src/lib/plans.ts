@@ -40,6 +40,8 @@ export interface PlanData {
   priorityBuilds: boolean;
   wizSyncLock: boolean;
   apiAccess: boolean;
+  /** WizScore™ AI soundtrack generation — Studio-only */
+  wizScoreAccess: boolean;
   popular: boolean;
   badge: string | null;
   /** CTA label on Subscribe page */
@@ -79,6 +81,7 @@ export const PLANS: PlanData[] = [
     priorityBuilds: false,
     wizSyncLock: false,
     apiAccess: false,
+    wizScoreAccess: false,
     popular: false,
     badge: null,
     cta: "Start Creating",
@@ -118,6 +121,7 @@ export const PLANS: PlanData[] = [
     priorityBuilds: false,
     wizSyncLock: false,
     apiAccess: false,
+    wizScoreAccess: false,
     popular: false,
     badge: null,
     cta: "Start Creating",
@@ -161,6 +165,7 @@ export const PLANS: PlanData[] = [
     priorityBuilds: false,
     wizSyncLock: false,
     apiAccess: false,
+    wizScoreAccess: false,
     popular: false,
     badge: null,
     cta: "Start Creating",
@@ -201,6 +206,7 @@ export const PLANS: PlanData[] = [
     priorityBuilds: true,
     wizSyncLock: true,
     apiAccess: false,
+    wizScoreAccess: false,
     popular: true,
     badge: "Most Popular",
     cta: "Upgrade Plan",
@@ -246,6 +252,7 @@ export const PLANS: PlanData[] = [
     priorityBuilds: true,
     wizSyncLock: true,
     apiAccess: false,
+    wizScoreAccess: false,
     popular: false,
     badge: null,
     cta: "Upgrade Plan",
@@ -286,6 +293,7 @@ export const PLANS: PlanData[] = [
     priorityBuilds: true,
     wizSyncLock: true,
     apiAccess: true,
+    wizScoreAccess: true,
     popular: false,
     badge: "Best Value",
     cta: "Upgrade Plan",
