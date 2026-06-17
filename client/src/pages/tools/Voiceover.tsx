@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Sparkles, Zap, Play } from "@/lib/icons";
+import { ArrowLeft, Sparkles, Zap } from "@/lib/icons";
 import { useState } from "react";
 import { useLocation } from "wouter";
 
@@ -15,16 +15,8 @@ export default function Voiceover() {
   const [voice, setVoice] = useState("professional-male");
   const [language, setLanguage] = useState("en");
   const [tone, setTone] = useState("neutral");
-  const [generating, setGenerating] = useState(false);
 
   const estimatedCredits = Math.min(10 + Math.ceil(text.length / 100), 50);
-
-  const handleGenerate = async () => {
-    if (!text.trim()) return;
-    setGenerating(true);
-    // TODO: Implement actual generation
-    setTimeout(() => setGenerating(false), 2000);
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -40,11 +32,23 @@ export default function Voiceover() {
         </div>
       </div>
 
+      {/* Coming Soon Banner */}
+      <div className="bg-accent/10 border-b border-accent/20 py-3">
+        <div className="container text-center">
+          <p className="text-sm font-medium text-accent">
+            🎙️ Coming Soon — AI Voiceover is in active development and will be available shortly.
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Your subscription already includes this feature. No extra charge when it launches.
+          </p>
+        </div>
+      </div>
+
       {/* Content */}
       <div className="container py-8">
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Input Section */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 opacity-50 pointer-events-none select-none">
             <Card className="border-border/40 bg-card/50 backdrop-blur">
               <CardHeader>
                 <CardTitle>Enter Your Script</CardTitle>
@@ -54,7 +58,7 @@ export default function Voiceover() {
                 <Textarea
                   placeholder="Enter your script here. The AI will generate natural-sounding narration..."
                   value={text}
-                  onChange={(e) => setText(e.target.value)}
+                  readOnly
                   className="min-h-40"
                 />
                 <p className="text-xs text-muted-foreground">
@@ -72,7 +76,7 @@ export default function Voiceover() {
                 <div className="grid gap-4 md:grid-cols-3">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Voice</label>
-                    <Select value={voice} onValueChange={setVoice}>
+                    <Select value={voice} onValueChange={setVoice} disabled>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -89,7 +93,7 @@ export default function Voiceover() {
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Language</label>
-                    <Select value={language} onValueChange={setLanguage}>
+                    <Select value={language} onValueChange={setLanguage} disabled>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -108,7 +112,7 @@ export default function Voiceover() {
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Tone</label>
-                    <Select value={tone} onValueChange={setTone}>
+                    <Select value={tone} onValueChange={setTone} disabled>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -132,24 +136,22 @@ export default function Voiceover() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Zap className="h-5 w-5 text-accent" />
-                  Estimated Cost
+                  Coming Soon
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <p className="text-3xl font-bold text-foreground">{estimatedCredits}</p>
-                  <p className="text-sm text-muted-foreground">credits</p>
-                </div>
+                <p className="text-sm text-muted-foreground">
+                  AI Voiceover is being built. It will generate natural-sounding speech from your script using professional voice models.
+                </p>
                 <Button
                   className="w-full gap-2 mt-4"
-                  onClick={handleGenerate}
-                  disabled={!text.trim() || generating}
+                  disabled
                 >
                   <Sparkles className="h-4 w-4" />
-                  {generating ? "Generating..." : "Generate Voiceover"}
+                  Coming Soon
                 </Button>
                 <p className="text-xs text-muted-foreground text-center">
-                  Available: 2,500 credits
+                  Included in your current plan — no extra charge at launch.
                 </p>
               </CardContent>
             </Card>
