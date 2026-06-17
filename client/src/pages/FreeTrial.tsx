@@ -15,7 +15,7 @@
 import { useState, useRef } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
