@@ -16,7 +16,8 @@ import {
   Volume2, Star, Shield, RefreshCw, ChevronRight
 } from "@/lib/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 const WIZGENESIS_LOGO = "/manus-storage/wizgenesis-logo-new_9814b3d1_cabaf933.png";
 
@@ -125,14 +126,23 @@ export function WizGenesisModal({
   // Reset confirmation checkbox whenever the modal opens
   useEffect(() => { if (open) setConfirmed(false); }, [open]);
 
+  const { user } = useAuth();
+  const [, navigate] = useLocation();
   const renderStatus = trpc.render.getRenderStatus.useQuery(undefined, { enabled: open, staleTime: 30_000 });
   const creditsQuery = trpc.billing.getCredits.useQuery(undefined, { enabled: open, staleTime: 30_000 });
+  const subQuery = trpc.billing.getAccountSubscription.useQuery(undefined, { enabled: open, staleTime: 60_000 });
   const currentBalance = creditsQuery.data?.balance ?? null;
   const createRenderCheckout = trpc.render.createRenderCheckout.useMutation();
   const useFreeRender = trpc.render.useFreeRender.useMutation();
 
   const hasFreeRenders = (renderStatus.data?.total ?? 0) > 0;
   const isAdmin = renderStatus.data?.isAdmin ?? false;
+
+  // Free trial / pay-once helpers
+  const hasActiveSub = subQuery.data?.isActive === true && subQuery.data?.planKey !== "free";
+  const freeTrialUsed = user?.freeTrialUsed ?? true; // default true = safe (don't show if unknown)
+  const showFreeTrialOption = !hasActiveSub && !freeTrialUsed;
+  const showPayOnceLabel = !hasActiveSub;
 
   // Fire analytics once per open
   useEffect(() => {
@@ -515,8 +525,29 @@ export function WizGenesisModal({
           </Button>
           )}
 
+          {/* ── Free Trial option (non-subscribers only) ─────────────── */}
+          {showFreeTrialOption && (
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 space-y-2">
+              <p className="text-xs font-semibold text-white/60 uppercase tracking-wider">Not ready to pay?</p>
+              <p className="text-xs text-muted-foreground/60 leading-relaxed">
+                Try a <span className="text-white/80 font-medium">free 30-second watermarked preview</span> — see the quality before you commit. One per account.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full border-white/20 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-medium gap-2"
+                onClick={() => { onClose(); navigate("/free-trial"); }}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Try Free — 30s watermarked preview
+              </Button>
+            </div>
+          )}
+
           <p className="text-center text-xs text-muted-foreground/50">
-            Secure payment via Stripe · Instant download after building
+            {showPayOnceLabel
+              ? "No subscription needed · Pay once · Secure payment via Stripe"
+              : "Secure payment via Stripe · Instant download after building"}
           </p>
         </div>
       </DialogContent>

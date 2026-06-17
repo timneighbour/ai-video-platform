@@ -9389,3 +9389,17 @@
 - [x] Pricing.tsx: rename "Studio" to "Pro" in all display contexts
 - [x] Email/notification templates: rename "Studio" to "Pro" in any user-facing copy (products.ts, Help.tsx, Credits.tsx, QuickTopUpModal, PostFirstRenderSubscribeModal)
 - [x] Stripe env var audit: STRIPE_SECRET_KEY and VITE_STRIPE_PUBLISHABLE_KEY are injected by platform — sandbox shows test keys but production Cloud Run uses the live keys configured in Manus Secrets UI
+
+## Feature 1: Pay-Per-Video Checkout (Jun 17 2026)
+- [ ] drizzle/schema.ts: add payPerVideoOrders table
+- [ ] DB migration: CREATE TABLE pay_per_video_orders
+- [ ] server/stripe.ts: add createPayPerVideoCheckout export
+- [ ] server/billing.ts: add createPayPerVideoCheckout mutation to billingRouter
+- [ ] server/webhooks.ts: handle pay_per_video metadata type in handleCheckoutSessionCompleted
+- [ ] Frontend: show cost estimate + Pay & Render button for users with no subscription on storyboard/project page
+
+## Feature 2: Free Trial Render (30s watermarked, one per account) (Jun 17 2026)
+- [ ] drizzle/schema.ts: add freeTrialUsed boolean column to users table
+- [ ] DB migration: ALTER TABLE users ADD COLUMN free_trial_used
+- [ ] server/billing.ts: add startFreeTrialRender mutation
+- [ ] Frontend: show "Try Free (30s preview)" button for free-tier users who have not used trial
