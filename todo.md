@@ -9345,3 +9345,14 @@
 - [x] assemblyAttempts column added to musicVideoJobs (DB migration applied)
 - [x] Assembly worker: max 5 retry attempts then auto-refund credits + permanent fail
 - [x] jobResurrectionReaper: skips reset for jobs with exhausted assembly attempts
+
+## Lip Sync Retry Cap (Anti-Silent-Loop Fix) - COMPLETED ✅
+- [x] Add lipSyncAttempts column to musicVideoScenes schema (migration applied)
+- [x] Add creditCost to activeJobs SELECT query in sceneDispatchHeartbeat
+- [x] Import refundCredits into sceneDispatchHeartbeat
+- [x] Add LIPSYNC_HEYGEN_MAX_ATTEMPTS (3) and LIPSYNC_TOTAL_MAX_ATTEMPTS (5) constants
+- [x] Submission catch block: increment attempts, force Sync Labs after 3 HeyGen failures, permanently fail + refund after 5 total
+- [x] Timeout reset: increment attempts counter on each stuck-job reset
+- [x] Poll-failed reset: increment attempts, permanently fail + refund after 5 total
+- [x] Provider routing: force Sync Labs when lipSyncAttempts >= LIPSYNC_HEYGEN_MAX_ATTEMPTS
+- [x] All changes compile clean (0 TypeScript errors)

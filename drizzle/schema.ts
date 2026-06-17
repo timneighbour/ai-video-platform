@@ -384,6 +384,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   lipsyncedVideoUrl: varchar("lipsyncedVideoUrl", { length: 1024 }), // HeyGen Precision output — final lip-synced clip
   renderProvider: varchar("renderProvider", { length: 64 }), // Provider used for video render: seedance | hailuo | fal | kling
   lipSyncProvider: varchar("lipSyncProvider", { length: 64 }), // Provider used for lip sync: heygen | latentsync | infinitetalk
+  lipSyncAttempts: int("lipSyncAttempts").default(0).notNull(), // Submission attempt counter — after 3 HeyGen failures falls back to Sync Labs; after 5 total permanently fails with credit refund
   renderDurationMs: int("renderDurationMs"), // Time taken for video render in milliseconds
   lipSyncDurationMs: int("lipSyncDurationMs"), // Time taken for lip sync in milliseconds
   // --- Quality Scoring (Pipeline v2) ---
