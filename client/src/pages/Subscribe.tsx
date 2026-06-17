@@ -25,10 +25,8 @@ const PLAN_ICONS: Record<string, React.ReactNode> = {
  pro: <Crown className="w-5 h-5" />,
  studio: <Gem className="w-5 h-5" />,
 };
-// Merge shared plan data with UI-only icon field — only show tiers with live Stripe price IDs
-// Inline array used intentionally to avoid any bundler tree-shaking issues with named exports
 const PLANS = SHARED_PLANS
-  .filter((p) => ["free", "starter", "creator", "studio"].includes(p.id))
+  .filter((p) => (["free","starter","creator","studio"] as string[]).includes(p.id))
   .map((p) => ({ ...p, icon: PLAN_ICONS[p.id] }));
 
 
