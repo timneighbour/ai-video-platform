@@ -305,15 +305,15 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
             ].map((s,i) => (
               <div key={i} style={{ position:"absolute", left:s.left, bottom:8, width:s.size, height:s.size, borderRadius:"50%", background:s.color, boxShadow:`0 0 5px 2px ${s.color}88`, animation:`wi-sparkle ${s.dur} ${s.delay} ease-out infinite`, pointerEvents:"none" }} />
             ))}
-            <div style={{ position:"absolute", inset:-12, borderRadius:9999, border:`1.5px solid rgba(196,164,100,0.48)`, animation:"wi-ring-breathe 2.4s ease-in-out infinite", pointerEvents:"none" }} />
-            <div style={{ position:"absolute", inset:-6, borderRadius:9999, border:`2px solid rgba(232,201,122,0.60)`, animation:"wi-ring-pulse 1.8s ease-out infinite", pointerEvents:"none" }} />
+            <div style={{ position:"absolute", inset:-10, borderRadius:9999, border:`1px solid rgba(196,164,100,0.22)`, animation:"wi-ring-breathe 2.4s ease-in-out infinite", pointerEvents:"none" }} />
+            <div style={{ position:"absolute", inset:-4, borderRadius:9999, border:`1px solid rgba(232,201,122,0.28)`, animation:"wi-ring-pulse 1.8s ease-out infinite", pointerEvents:"none" }} />
             <button
               onClick={dismiss}
               aria-label="Enter WIZ AI"
-              style={{ display:"flex", alignItems:"center", gap:14, padding:"1rem 3rem", borderRadius:9999, border:"none", cursor:"pointer", background:`linear-gradient(105deg,${GOLD_DEEP} 0%,${GOLD} 20%,#f0d98a 45%,${GOLD_LITE} 55%,${GOLD} 75%,${GOLD_DEEP} 100%)`, backgroundSize:"300% 100%", animation:"wi-shimmer 3s linear infinite", boxShadow:`0 0 0 1px rgba(255,255,255,0.18),0 0 30px ${GOLD}88,0 0 64px ${GOLD}44,inset 0 1px 0 rgba(255,255,255,0.35),inset 0 -1px 0 rgba(0,0,0,0.20)`, color:"#0a0a0f", fontWeight:900, fontSize:"clamp(0.8rem,1.5vw,0.95rem)", letterSpacing:"0.22em", textTransform:"uppercase", overflow:"hidden", position:"relative" }}
+              style={{ display:"flex", alignItems:"center", gap:8, padding:"0.52rem 1.6rem", borderRadius:9999, border:`1px solid rgba(196,164,100,0.55)`, cursor:"pointer", background:"rgba(10,10,15,0.82)", boxShadow:`0 0 12px rgba(196,164,100,0.18),inset 0 1px 0 rgba(255,255,255,0.05)`, color:GOLD, fontWeight:700, fontSize:"clamp(0.68rem,1.1vw,0.80rem)", letterSpacing:"0.20em", textTransform:"uppercase", overflow:"hidden", position:"relative" }}
             >
-              <span style={{ position:"absolute", top:0, bottom:0, width:"40%", background:"linear-gradient(90deg,transparent,rgba(255,255,255,0.28),transparent)", animation:"wi-sweep 2.8s ease-in-out infinite", pointerEvents:"none" }} />
-              <span style={{ position:"relative", textShadow:"0 1px 0 rgba(255,255,255,0.3),0 -1px 0 rgba(0,0,0,0.18)" }}>Enter WIZ AI</span>
+              <span style={{ position:"absolute", top:0, bottom:0, width:"40%", background:"linear-gradient(90deg,transparent,rgba(196,164,100,0.10),transparent)", animation:"wi-sweep 3.2s ease-in-out infinite", pointerEvents:"none" }} />
+              <span style={{ position:"relative" }}>Enter WIZ AI</span>
               <ChevronRight style={{ position:"relative", width:20, height:20 }} />
             </button>
           </div>
