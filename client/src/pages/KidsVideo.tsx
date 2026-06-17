@@ -4,6 +4,8 @@
  * auto-transcription, story prompt, full inline video preview + scene edit panel
  */
 import { useState, useRef, useEffect, useCallback, type ReactNode } from "react";
+import { Helmet } from "react-helmet-async";
+
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { LandscapeHint } from "@/components/LandscapeHint";
@@ -544,6 +546,14 @@ export default function KidsVideo() {
       display: "flex",
       flexDirection: "column",
     }}>
+    <Helmet>
+      <title>WizAnimate™ — AI Animation Studio | WIZ AI</title>
+      <meta name="description" content="Upload any audio track and generate a fully animated beat-synced video in minutes. Build characters, choose your style, and render — powered by WizAnimate™." />
+      <meta property="og:title" content="WizAnimate™ — AI Animation Studio | WIZ AI" />
+      <meta property="og:description" content="Upload any audio track and generate a fully animated beat-synced video in minutes. Build characters, choose your style, and render — powered by WizAnimate™." />
+      <meta property="og:url" content="https://wiz-ai.io/kids-video" />
+      <link rel="canonical" href="https://wiz-ai.io/kids-video" />
+    </Helmet>
       {/* ── Studio Hero ─────────────────────────────────────────────────── */}
       <div style={{ position: "relative", width: "100%", height: 400, overflow: "hidden", flexShrink: 0 }}>
         <img src={ENV_IMG} alt="WizAnimate Studio" style={{

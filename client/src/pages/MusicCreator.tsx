@@ -4,6 +4,8 @@
  * Matches mockup-v4-wizaudio.html exactly.
  */
 import { useState, useRef, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+
 import { LandscapeHint } from "@/components/LandscapeHint";
 import { WIZSOUND_TIERS } from "@/lib/pricing";
 import { trpc } from "@/lib/trpc";
@@ -154,6 +156,15 @@ function ConsoleEQDisplay({ isActive }: { isActive: boolean }) {
   }, [isActive]);
 
   return (
+    <>
+    <Helmet>
+      <title>AI Music Creator — WIZ AI</title>
+      <meta name="description" content="Generate original AI music tracks from a text prompt. Choose genre, mood, and length — powered by WizSound™." />
+      <meta property="og:title" content="AI Music Creator — WIZ AI" />
+      <meta property="og:description" content="Generate original AI music tracks from a text prompt. Choose genre, mood, and length — powered by WizSound™." />
+      <meta property="og:url" content="https://wiz-ai.io/music-creator" />
+      <link rel="canonical" href="https://wiz-ai.io/music-creator" />
+    </Helmet>
     <canvas
       ref={canvasRef}
       width={390}
@@ -161,6 +172,7 @@ function ConsoleEQDisplay({ isActive }: { isActive: boolean }) {
       className="w-full"
       style={{ imageRendering: "pixelated" }}
     />
+    </>
   );
 }
 

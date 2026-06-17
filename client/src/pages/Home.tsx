@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Helmet } from "react-helmet-async";
+
 import { useSEO } from "@/hooks/useSEO";
 import { triggerIntroReplay } from "@/lib/introReplay";
 import WizProductGrid from "@/components/WizProductGrid";
@@ -2863,6 +2865,14 @@ function SeeTheDifference() {
 
   return (
     <section className="relative py-24 bg-background overflow-hidden">
+  <Helmet>
+    <title>WIZ AI — AI Music Video Creator</title>
+    <meta name="description" content="Create cinematic AI music videos, animation, and images from a single prompt. No editing experience needed. Start free — no credit card required." />
+    <meta property="og:title" content="WIZ AI — AI Music Video Creator" />
+    <meta property="og:description" content="Create cinematic AI music videos, animation, and images from a single prompt. No editing experience needed. Start free — no credit card required." />
+    <meta property="og:url" content="https://wiz-ai.io/" />
+    <link rel="canonical" href="https://wiz-ai.io/" />
+  </Helmet>
       {/* Deep ambient glow that shifts per tier */}
       <div
         className="absolute inset-0 pointer-events-none transition-all duration-1000"

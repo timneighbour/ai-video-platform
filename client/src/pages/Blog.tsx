@@ -1,4 +1,6 @@
 import { WIZVIDEO_STUDIO_PAGE } from "@/lib/routes";
+import { Helmet } from "react-helmet-async";
+
 import { useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { Link } from "wouter";
@@ -29,6 +31,14 @@ export default function Blog() {
 
   return (
     <>
+  <Helmet>
+    <title>Blog — WIZ AI</title>
+    <meta name="description" content="AI video creation guides, music video tips, and creative inspiration from the WIZ AI team." />
+    <meta property="og:title" content="Blog — WIZ AI" />
+    <meta property="og:description" content="AI video creation guides, music video tips, and creative inspiration from the WIZ AI team." />
+    <meta property="og:url" content="https://wiz-ai.io/blog" />
+    <link rel="canonical" href="https://wiz-ai.io/blog" />
+  </Helmet>
 
       {/* ── Header ── */}
       <div className="min-h-screen bg-black text-white">

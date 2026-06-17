@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
+
 import { useSEO } from "@/hooks/useSEO";
 import { Sparkles, Wand2, Film, Download, Users, MessageSquare,
   CheckCircle2, Clock, Bell, Share2, ArrowRight, Play, Zap, ChevronRight } from "@/lib/icons";
@@ -102,6 +104,14 @@ function StepCard({ step, index }: { step: typeof STEPS[0]; index: number }) {
   const isEven = index % 2 === 0;
   return (
     <div className="relative group">
+  <Helmet>
+    <title>How It Works — WIZ AI</title>
+    <meta name="description" content="See how WIZ AI turns a text prompt into a cinematic video in under 5 minutes. From audio upload to 4K export — step by step." />
+    <meta property="og:title" content="How It Works — WIZ AI" />
+    <meta property="og:description" content="See how WIZ AI turns a text prompt into a cinematic video in under 5 minutes. From audio upload to 4K export — step by step." />
+    <meta property="og:url" content="https://wiz-ai.io/how-it-works" />
+    <link rel="canonical" href="https://wiz-ai.io/how-it-works" />
+  </Helmet>
       {index < STEPS.length - 1 && (
         <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-full w-px h-10 z-10 hidden lg:block"
           style={{ background: `linear-gradient(180deg, ${c.primary}50, transparent)` }} />

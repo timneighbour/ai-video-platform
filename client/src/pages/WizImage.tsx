@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+
 import { LandscapeHint } from "@/components/LandscapeHint";
 import { IMAGE_RENDER_QUALITY, WIZLUMINA_CINEMATIC } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
@@ -200,6 +202,14 @@ export default function WizImage() {
 
   return (
     <div className="min-h-screen text-white" style={{ backgroundColor: BG_BASE }}>
+  <Helmet>
+    <title>WizImage™ — AI Image Generator | WIZ AI</title>
+    <meta name="description" content="Create AI album covers, band photos, tour posters, and merch designs in seconds. 8 art styles, instant generation, commercial licence included." />
+    <meta property="og:title" content="WizImage™ — AI Image Generator | WIZ AI" />
+    <meta property="og:description" content="Create AI album covers, band photos, tour posters, and merch designs in seconds. 8 art styles, instant generation, commercial licence included." />
+    <meta property="og:url" content="https://wiz-ai.io/wiz-image" />
+    <link rel="canonical" href="https://wiz-ai.io/wiz-image" />
+  </Helmet>
 
       {/* ── Ambient Environment: canvas/noise texture + indigo radial glow ── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ opacity: ambience / 100 }}>

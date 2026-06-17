@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+
 import { PAY_PER_VIDEO_TIERS, WIZSOUND_PAY_PER_VIDEO_TIERS } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
@@ -81,6 +83,14 @@ export default function Subscribe() {
 
  return (
  <div className="min-h-screen bg-background">
+  <Helmet>
+    <title>Get Started Free — WIZ AI</title>
+    <meta name="description" content="Start creating AI music videos, animation, and images today. Free trial included — no credit card required." />
+    <meta property="og:title" content="Get Started Free — WIZ AI" />
+    <meta property="og:description" content="Start creating AI music videos, animation, and images today. Free trial included — no credit card required." />
+    <meta property="og:url" content="https://wiz-ai.io/subscribe" />
+    <link rel="canonical" href="https://wiz-ai.io/subscribe" />
+  </Helmet>
 
  {/* Header */}
  <div className="border-b border-white/10">

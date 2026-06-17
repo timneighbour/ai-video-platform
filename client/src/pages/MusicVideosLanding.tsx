@@ -1,4 +1,6 @@
 import { WIZVIDEO_STUDIO_PAGE, WIZSCRIPT_STUDIO_PAGE } from "@/lib/routes";
+import { Helmet } from "react-helmet-async";
+
 import { useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { Button } from "@/components/ui/button";
@@ -72,6 +74,14 @@ export default function MusicVideosLanding() {
 
   return (
     <div className="min-h-screen bg-background text-white">
+  <Helmet>
+    <title>AI Music Video Creator — WIZ AI</title>
+    <meta name="description" content="Turn any song into a professional cinematic music video with AI. Upload your track, preview every scene, and export in 4K — powered by WizVideo™." />
+    <meta property="og:title" content="AI Music Video Creator — WIZ AI" />
+    <meta property="og:description" content="Turn any song into a professional cinematic music video with AI. Upload your track, preview every scene, and export in 4K — powered by WizVideo™." />
+    <meta property="og:url" content="https://wiz-ai.io/music-video" />
+    <link rel="canonical" href="https://wiz-ai.io/music-video" />
+  </Helmet>
       {/* Auth Gate Modal */}
       <AuthGate
         open={showAuthGate}

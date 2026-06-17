@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import {
  WIZANIMATE_PRODUCT_PAGE,
  WIZAUDIO_STUDIO_PAGE,
@@ -376,6 +377,14 @@ export default function Pricing() {
 
  return (
  <div className="min-h-screen bg-background text-white overflow-x-hidden">
+  <Helmet>
+    <title>Pricing — WIZ AI</title>
+    <meta name="description" content="WIZ AI plans from £29/month. Starter, Creator, and Pro tiers. Includes AI music video creation, WizSound™ mastering, and 4K export. No credit card needed to start." />
+    <meta property="og:title" content="Pricing — WIZ AI" />
+    <meta property="og:description" content="WIZ AI plans from £29/month. Starter, Creator, and Pro tiers. Includes AI music video creation, WizSound™ mastering, and 4K export. No credit card needed to start." />
+    <meta property="og:url" content="https://wiz-ai.io/pricing" />
+    <link rel="canonical" href="https://wiz-ai.io/pricing" />
+  </Helmet>
  <style>{`
  @keyframes priceFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
  @keyframes shimmerSlide { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
