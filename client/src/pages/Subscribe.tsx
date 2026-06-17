@@ -24,7 +24,8 @@ const PLAN_ICONS: Record<string, React.ReactNode> = {
  studio: <Gem className="w-5 h-5" />,
 };
 // Merge shared plan data with UI-only icon field
-const PLANS = SHARED_PLANS.map((p) => ({ ...p, icon: PLAN_ICONS[p.id] }));
+const SUBSCRIBE_PLAN_IDS = ["free", "starter", "creator", "studio"];
+const PLANS = SHARED_PLANS.filter((p) => SUBSCRIBE_PLAN_IDS.includes(p.id)).map((p) => ({ ...p, icon: PLAN_ICONS[p.id] }));
 
 
 
