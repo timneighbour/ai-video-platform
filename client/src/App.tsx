@@ -49,6 +49,7 @@ const KidsVideo = lazy(() => import("@/pages/KidsVideo"));
 const CharacterLibrary = lazy(() => import("@/pages/CharacterLibrary"));
 const TextToVideoCreator = lazy(() => import("@/pages/TextToVideoCreator"));
 const HowItWorks = lazy(() => import("@/pages/HowItWorks"));
+const WhyWizAI = lazy(() => import("@/pages/WhyWizAI"));
 const EnhancementStudio = lazy(() => import("@/pages/EnhancementStudio"));
 const BatchRegeneration = lazy(() => import("@/pages/BatchRegeneration"));
 const Blog = lazy(() => import("@/pages/Blog"));
@@ -320,6 +321,7 @@ function Router() {
         <Route path={"/onboarding"} component={Onboarding} />
         <Route path={"/help"} component={Help} />
         <Route path={"/how-it-works"} component={HowItWorks} />
+        <Route path={"/why-wiz-ai"} component={WhyWizAI} />
         <Route path={"/unsubscribe"} component={Unsubscribe} />
         <Route path={"/privacy"} component={Privacy} />
         <Route path={"/terms"} component={Terms} />
