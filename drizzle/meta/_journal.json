@@ -827,6 +827,13 @@
       "when": 1781710662200,
       "tag": "0117_wakeful_shadow_king",
       "breakpoints": true
+    },
+    {
+      "idx": 118,
+      "version": "5",
+      "when": 1781741738394,
+      "tag": "0118_useful_jackal",
+      "breakpoints": true
     }
   ]
 }
