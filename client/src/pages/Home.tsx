@@ -2772,9 +2772,6 @@ function WhyWizAI() {
 
 // ─── Real Output Section ─────────────────────────────────────────────────────
 function RealOutputSection() {
-  const { data: stats } = trpc.platform.stats.useQuery();
-  const videoCount = stats?.videosCreated ?? 0;
-  const formattedCount = videoCount > 0 ? videoCount.toLocaleString("en-US") : null;
 
   // Scene stills — replace these CDN URLs with real WIZ AI project output when available
   // TODO: Tim to provide 3-4 scene stills from a single project (same character, different scenes)
@@ -2822,22 +2819,15 @@ function RealOutputSection() {
           Scene 1 / Scene 4 / Scene 8 — same character, same costume, no drift.
         </p>
 
-        {/* Live stats trust bar */}
+        {/* Trust bar */}
         <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-white/50">
-          {formattedCount && (
-            <span className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              <span className="text-white/80 font-semibold">{formattedCount}</span>
-              <span>videos generated</span>
-            </span>
-          )}
           <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-white/30" />
-            No credit card required
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+            <span className="text-white/70">2 free projects included — no credit card required</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-white/30" />
-            Free to start
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400/60" />
+            <span className="text-white/70">Character Lock™ — your character, every scene</span>
           </span>
         </div>
       </div>
