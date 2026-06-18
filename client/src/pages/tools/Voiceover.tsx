@@ -1,6 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Helmet } from "react-helmet-async";
-
 import { LandscapeHint } from "@/components/LandscapeHint";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,14 +20,6 @@ export default function Voiceover() {
 
   return (
     <div className="min-h-screen bg-background">
-  <Helmet>
-    <title>AI Voiceover Generator — WIZ AI</title>
-    <meta name="description" content="Generate studio-quality voiceovers from text in seconds. Choose from 100+ AI voices — coming soon to WIZ AI." />
-    <meta property="og:title" content="AI Voiceover Generator — WIZ AI" />
-    <meta property="og:description" content="Generate studio-quality voiceovers from text in seconds. Choose from 100+ AI voices — coming soon to WIZ AI." />
-    <meta property="og:url" content="https://wiz-ai.io/tools/voiceover" />
-    <link rel="canonical" href="https://wiz-ai.io/tools/voiceover" />
-  </Helmet>
       {/* Header */}
       <div className="border-b border-border/40">
         <div className="container flex h-16 items-center justify-between">

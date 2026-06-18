@@ -58,14 +58,14 @@ export default function BlogAdmin() {
 
   if (user?.role !== "admin") {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center">
         <p className="text-white/50">Admin access required.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-white">
+    <div className="min-h-screen bg-[#0f0f0f] text-white">
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="flex items-center justify-between mb-10">

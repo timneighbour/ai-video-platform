@@ -13,7 +13,7 @@ const STEPS = [
     desc: "Generate an original song with AI or upload your own audio file to begin.",
     color: "violet",
     accent: "#8b5cf6",
-    bg: "from-primary/80 to-primary/40/40",
+    bg: "from-[#b8892a]/80 to-[#4a3010]/40",
     border: "border-[--color-gold]/30",
     pill: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
     dot: "bg-[--color-gold]",
@@ -29,7 +29,7 @@ const STEPS = [
     desc: "Our AI transforms your audio into a fully cinematic, scene-by-scene video.",
     color: "cyan",
     accent: "#06b6d4",
-    bg: "from-muted-foreground/80 to-secondary/40",
+    bg: "from-[#9090a0]/80 to-[#2e2e36]/40",
     border: "border-[--color-silver]/30",
     pill: "bg-[--color-silver]/10 text-[--color-silver] border-cyan-500/25",
     dot: "bg-cyan-500",
@@ -43,7 +43,7 @@ const STEPS = [
     desc: "Upload a photo or generate an AI character — consistent in every frame.",
     color: "pink",
     accent: "#ec4899",
-    bg: "from-muted-foreground/80 to-secondary/40",
+    bg: "from-[#9090a0]/80 to-[#2e2e36]/40",
     border: "border-[--color-silver]/30",
     pill: "bg-[--color-silver]/10 text-[--color-silver] border-pink-500/25",
     dot: "bg-[--color-silver]",
@@ -57,7 +57,7 @@ const STEPS = [
     desc: "Preview and refine your storyboard — adjust prompts, styles, and timing.",
     color: "amber",
     accent: "#f59e0b",
-    bg: "from-primary/80 to-primary/40/40",
+    bg: "from-[#b8892a]/80 to-[#4a3010]/40",
     border: "border-[--color-gold]/30",
     pill: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
     dot: "bg-[--color-gold]",
@@ -71,7 +71,7 @@ const STEPS = [
     desc: "Only build when you're happy. Choose quality, resolution, and style.",
     color: "emerald",
     accent: "#10b981",
-    bg: "from-muted-foreground/80 to-secondary/40",
+    bg: "from-[#9090a0]/80 to-[#2e2e36]/40",
     border: "border-[--color-silver]/30",
     pill: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/25",
     dot: "bg-[--color-silver]",
@@ -99,7 +99,7 @@ const STEPS = [
     desc: "Publish, share, and promote your creation across every platform.",
     color: "rose",
     accent: "#f43f5e",
-    bg: "from-muted-foreground/80 to-secondary/40",
+    bg: "from-[#9090a0]/80 to-[#2e2e36]/40",
     border: "border-rose-500/30",
     pill: "bg-[--color-silver]/10 text-[--color-silver] border-rose-500/25",
     dot: "bg-rose-500",
@@ -189,21 +189,21 @@ function CharacterAnim({ active }: { active: boolean }) {
         className="flex flex-col items-center gap-1"
         style={{ opacity: active ? 1 : 0.3, transition: "opacity 0.5s 0.2s" }}
       >
-        <div className="w-8 h-px bg-gradient-to-r from-muted-foreground/60 to-secondary/60" />
+        <div className="w-8 h-px bg-gradient-to-r from-[#9090a0]/60 to-[#2e2e36]/60" />
         <span className="text-[9px] text-[--color-silver]/70 font-semibold uppercase tracking-wider">AI</span>
-        <div className="w-8 h-px bg-gradient-to-r from-muted-foreground/60 to-secondary/60" />
+        <div className="w-8 h-px bg-gradient-to-r from-[#9090a0]/60 to-[#2e2e36]/60" />
       </div>
       {/* AI Character */}
       <div
-        className="w-14 h-14 rounded-full border-2 border-[--color-silver]/60 bg-gradient-to-br from-muted-foreground/60 to-primary/40/60 flex items-center justify-center relative"
+        className="w-14 h-14 rounded-full border-2 border-[--color-silver]/60 bg-gradient-to-br from-[#9090a0]/60 to-[#4a3010]/60 flex items-center justify-center relative"
         style={{
           opacity: active ? 1 : 0.4,
           transition: "opacity 0.5s 0.3s",
           boxShadow: active ? "0 0 20px rgba(236,72,153,0.3)" : "none",
         }}
       >
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-muted-foreground/40 to-primary/40/40 flex items-center justify-center">
-          <div className="w-4 h-4 rounded-full bg-gradient-to-br from-muted-foreground/80 to-primary/40/80" />
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#9090a0]/40 to-[#4a3010]/40 flex items-center justify-center">
+          <div className="w-4 h-4 rounded-full bg-gradient-to-br from-[#9090a0]/80 to-[#4a3010]/80" />
         </div>
         {/* Lock badge */}
         <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[--color-silver] flex items-center justify-center">
@@ -253,7 +253,7 @@ function ProgressAnim({ active }: { active: boolean }) {
       {/* Progress bar */}
       <div className="w-full h-2 rounded-full bg-[--color-silver]/10 border border-[--color-silver]/20 overflow-hidden">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-muted-foreground to-secondary"
+          className="h-full rounded-full bg-gradient-to-r from-[#9090a0] to-[#2e2e36]"
           style={{
             width: active ? "85%" : "0%",
             transition: "width 1.8s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -457,7 +457,7 @@ export default function PlatformFlow() {
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-4 tracking-tight">
             From idea to audience —
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-cyan-400 to-secondary">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#b8892a] via-cyan-400 to-[#2e2e36]">
               all in one platform
             </span>
           </h2>
@@ -675,7 +675,7 @@ export default function PlatformFlow() {
           </p>
           <NavLink
             href="/onboarding"
-            className="inline-flex items-center gap-2.5 bg-gradient-to-r from-primary to-secondary hover:from-primary hover:to-secondary text-white font-bold px-8 py-3.5 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg shadow-violet-500/25 text-sm"
+            className="inline-flex items-center gap-2.5 bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white font-bold px-8 py-3.5 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg shadow-violet-500/25 text-sm"
           >
             Start Your Journey Free
             <ArrowRight className="w-4 h-4" />

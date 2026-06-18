@@ -70,14 +70,14 @@ type JobStatus = "draft" | "storyboard_ready" | "rendering" | "assembling" | "co
 
 function StatusBadge({ status }: { status: JobStatus | string }) {
   const map: Record<string, { label: string; className: string }> = {
-    draft: { label: "Draft", className: "bg-muted text-foreground/80 border-border/70" },
+    draft: { label: "Draft", className: "bg-zinc-700 text-zinc-300 border-zinc-600" },
     storyboard_ready: { label: "Ready", className: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30" },
     rendering: { label: "Building Your Video", className: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30" },
     assembling: { label: "Assembling", className: "bg-yellow-500/20 text-yellow-300 border-yellow-500/40" },
     completed: { label: "Completed", className: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/20" },
     failed: { label: "Failed", className: "bg-red-500/20 text-red-300 border-red-500/40" },
   };
-  const cfg = map[status] ?? { label: status, className: "bg-muted text-foreground/80 border-border/70" };
+  const cfg = map[status] ?? { label: status, className: "bg-zinc-700 text-zinc-300 border-zinc-600" };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${cfg.className}`}>
       {cfg.label}
@@ -89,7 +89,7 @@ function SceneStatusIcon({ status }: { status: string }) {
   if (status === "completed") return <CheckCircle2 className="w-3.5 h-3.5 text-[--color-silver] shrink-0" />;
   if (status === "failed") return <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />;
   if (status === "generating") return <Loader2 className="w-3.5 h-3.5 text-[--color-gold] animate-spin shrink-0" />;
-  return <Clock className="w-3.5 h-3.5 text-muted-foreground/70 shrink-0" />;
+  return <Clock className="w-3.5 h-3.5 text-zinc-500 shrink-0" />;
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
@@ -133,8 +133,8 @@ export default function RenderHistory() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
-          <History className="w-12 h-12 text-muted-foreground/50 mx-auto" />
-          <p className="text-muted-foreground">Sign in to view your render history</p>
+          <History className="w-12 h-12 text-zinc-600 mx-auto" />
+          <p className="text-zinc-400">Sign in to view your render history</p>
           <Button asChild>
             <a href={getLoginUrl()}>Sign in</a>
           </Button>
@@ -184,7 +184,7 @@ export default function RenderHistory() {
         {jobsQuery.isError && (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <AlertCircle className="w-8 h-8 text-red-400" />
-            <p className="text-muted-foreground text-sm">Failed to load render history</p>
+            <p className="text-zinc-400 text-sm">Failed to load render history</p>
             <Button size="sm" variant="outline" onClick={() => jobsQuery.refetch()}>
               <RefreshCw className="w-3.5 h-3.5 mr-1.5" />Retry
             </Button>
@@ -194,12 +194,12 @@ export default function RenderHistory() {
         {/* Empty state */}
         {!jobsQuery.isLoading && !jobsQuery.isError && jobs.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center">
-              <FileVideo className="w-8 h-8 text-muted-foreground/50" />
+            <div className="w-16 h-16 rounded-2xl bg-zinc-800 flex items-center justify-center">
+              <FileVideo className="w-8 h-8 text-zinc-600" />
             </div>
             <div className="text-center">
-              <p className="text-foreground/80 font-medium mb-1">No videos yet</p>
-              <p className="text-muted-foreground/70 text-sm">Create your first AI music video to see it here</p>
+              <p className="text-zinc-300 font-medium mb-1">No videos yet</p>
+              <p className="text-zinc-500 text-sm">Create your first AI music video to see it here</p>
             </div>
             <Button asChild className="bg-[--color-gold] hover:bg-[--color-gold]/80 text-white">
               <Link href={WIZVIDEO_STUDIO_PAGE}><Sparkles className="w-3.5 h-3.5 mr-1.5" />Create your first video</Link>
@@ -227,7 +227,7 @@ export default function RenderHistory() {
                   <div className="p-4">
                     <div className="flex items-start gap-4">
                       {/* Thumbnail / video preview */}
-                      <div className="w-16 h-16 rounded-lg bg-secondary flex items-center justify-center shrink-0 overflow-hidden relative group cursor-pointer"
+                      <div className="w-16 h-16 rounded-lg bg-zinc-800 flex items-center justify-center shrink-0 overflow-hidden relative group cursor-pointer"
                         onClick={() => job.status === "completed" && job.finalVideoUrl && setSelectedJobId(job.id)}>
                         {job.status === "completed" && job.finalVideoUrl ? (
                           <>
@@ -247,7 +247,7 @@ export default function RenderHistory() {
                         ) : job.thumbnailUrl ? (
                           <img src={job.thumbnailUrl} alt={job.title || `Video #${job.id}`} className="w-full h-full object-cover" />
                         ) : (
-                          <Film className="w-5 h-5 text-muted-foreground/50" />
+                          <Film className="w-5 h-5 text-zinc-600" />
                         )}
                       </div>
 
@@ -285,7 +285,7 @@ export default function RenderHistory() {
                         {/* Progress bar for active / partial renders */}
                         {(isActive || (job.totalScenes > 0 && job.status !== "draft" && job.status !== "storyboard_ready")) && (
                           <div className="space-y-1">
-                            <Progress value={progressPct} className="h-1.5 bg-secondary" />
+                            <Progress value={progressPct} className="h-1.5 bg-zinc-800" />
                             <p className="text-xs text-muted-foreground">{progressPct}% complete</p>
                           </div>
                         )}
@@ -297,7 +297,7 @@ export default function RenderHistory() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-7 px-2 text-xs border-border text-foreground/80 bg-transparent hover:bg-secondary"
+                          className="h-7 px-2 text-xs border-zinc-700 text-zinc-300 bg-transparent hover:bg-zinc-800"
                           onClick={() => setSelectedJobId(job.id)}
                         >
                           <ChevronRight className="w-3.5 h-3.5 mr-1" />Details
@@ -352,7 +352,7 @@ export default function RenderHistory() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="h-7 px-2 text-xs border-border text-muted-foreground/70 bg-transparent hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-400"
+                          className="h-7 px-2 text-xs border-zinc-700 text-zinc-500 bg-transparent hover:bg-red-500/10 hover:border-red-500/40 hover:text-red-400"
                           disabled={deletingJobId === job.id}
                           onClick={() => setDeleteTarget({ jobId: job.id, title: job.title })}
                         >
@@ -398,7 +398,7 @@ export default function RenderHistory() {
                   { label: "Completed", value: detailsQuery.data.completedScenes, color: "text-[--color-silver]" },
                   { label: "Failed", value: detailsQuery.data.failedScenes, color: detailsQuery.data.failedScenes > 0 ? "text-red-400" : "text-muted-foreground" },
                 ].map((stat) => (
-                  <div key={stat.label} className="bg-secondary/60 rounded-lg p-3 text-center">
+                  <div key={stat.label} className="bg-zinc-800/60 rounded-lg p-3 text-center">
                     <p className={`text-xl font-bold ${stat.color}`}>{stat.value}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
                   </div>
@@ -406,7 +406,7 @@ export default function RenderHistory() {
               </div>
 
               {/* Job metadata */}
-              <div className="bg-secondary/40 rounded-lg p-3 space-y-1.5 text-xs text-muted-foreground">
+              <div className="bg-zinc-800/40 rounded-lg p-3 space-y-1.5 text-xs text-muted-foreground">
                 <div className="flex justify-between">
                   <span>Created</span>
                   <span className="text-foreground">{formatDate(detailsQuery.data.job.createdAt)}</span>
@@ -453,7 +453,7 @@ export default function RenderHistory() {
                             ? "bg-red-500/5 border border-red-500/20"
                             : scene.status === "completed"
                             ? "bg-[--color-silver]/5 border border-[--color-silver]/10"
-                            : "bg-secondary/40 border border-border"
+                            : "bg-zinc-800/40 border border-border"
                         }`}
                       >
                         <SceneStatusIcon status={scene.status} />
@@ -473,7 +473,7 @@ export default function RenderHistory() {
                           )}
                         </div>
                         {scene.status === "completed" && scene.videoUrl && (
-                          <div className="shrink-0 relative group w-16 h-10 rounded overflow-hidden bg-secondary cursor-pointer"
+                          <div className="shrink-0 relative group w-16 h-10 rounded overflow-hidden bg-zinc-800 cursor-pointer"
                             onClick={() => window.open(scene.videoUrl, '_blank')}>
                             <video
                               src={scene.videoUrl}
@@ -557,7 +557,7 @@ export default function RenderHistory() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
-        <AlertDialogContent className="bg-card border-border text-white max-w-md">
+        <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-md">
           <AlertDialogHeader>
             <div className="flex items-center gap-3 mb-1">
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-500/15 border border-red-500/30">
@@ -565,12 +565,12 @@ export default function RenderHistory() {
               </div>
               <AlertDialogTitle className="text-lg font-semibold text-white">Delete Project</AlertDialogTitle>
             </div>
-            <AlertDialogDescription className="text-muted-foreground text-sm leading-relaxed">
+            <AlertDialogDescription className="text-zinc-400 text-sm leading-relaxed">
               Are you sure you want to delete <span className="text-white font-medium">"{deleteTarget?.title || `Project #${deleteTarget?.jobId}`}"</span>? This will permanently remove the project and all associated scenes, builds, and files. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2 sm:gap-2">
-            <AlertDialogCancel className="bg-secondary border-border text-foreground/80 hover:bg-muted hover:text-white">
+            <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction

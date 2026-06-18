@@ -43,7 +43,7 @@ export function WizVidLoader({ done = false, minDuration = 600 }: WizVidLoaderPr
 
   return (
     <div
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background"
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#0f0f0f]"
       style={{
         opacity: fading ? 0 : 1,
         transition: "opacity 500ms ease-out",

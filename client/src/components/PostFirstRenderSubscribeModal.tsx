@@ -2,7 +2,7 @@
  * PostFirstRenderSubscribeModal
  *
  * Shown after a user's first successful render (for free/unsubscribed users).
- * Presents Creator and Pro plans with direct Stripe checkout + Founding Creator offer.
+ * Presents Creator and Studio plans with direct Stripe checkout + Founding Creator offer.
  * Designed to convert first-time renders into paying subscribers.
  *
  * Trigger: after FirstRenderCelebrationModal is closed, or as a second step.
@@ -46,7 +46,7 @@ const PLANS = [
   },
   {
     id: "studio" as const,
-    name: "Pro",
+    name: "Studio",
     price: 99,
     annualPrice: 990,
     badge: "Best Value",
@@ -134,7 +134,7 @@ export default function PostFirstRenderSubscribeModal({
         {/* Close */}
         <button
           onClick={handleDismiss}
-          className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground/70 hover:text-white transition-colors"
+          className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center text-zinc-500 hover:text-white transition-colors"
           style={{ background: "rgba(255,255,255,0.06)" }}
           aria-label="Close"
         >
@@ -155,7 +155,7 @@ export default function PostFirstRenderSubscribeModal({
           <h2 className="text-2xl font-black text-white mb-2 tracking-tight">
             You've created your first WIZ AI video.
           </h2>
-          <p className="text-muted-foreground text-sm leading-relaxed max-w-md mx-auto">
+          <p className="text-zinc-400 text-sm leading-relaxed max-w-md mx-auto">
             Want to keep producing? Subscribe now and get <span className="text-[--color-gold] font-semibold">bonus credits</span> as a Founding Creator — limited time.
           </p>
         </div>
@@ -170,7 +170,7 @@ export default function PostFirstRenderSubscribeModal({
                 className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
                   billingInterval === interval
                     ? "bg-[--color-gold] text-white shadow-sm"
-                    : "text-muted-foreground hover:text-white"
+                    : "text-zinc-400 hover:text-white"
                 }`}
               >
                 {interval === "monthly" ? "Monthly" : "Annual"}
@@ -212,21 +212,21 @@ export default function PostFirstRenderSubscribeModal({
                   </p>
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl font-black text-white">£{displayPrice}</span>
-                    <span className="text-muted-foreground/70 text-sm">/mo</span>
+                    <span className="text-zinc-500 text-sm">/mo</span>
                   </div>
                   {billingInterval === "annual" && (
-                    <p className="text-[11px] text-muted-foreground/70 mt-0.5">Billed £{plan.annualPrice}/year</p>
+                    <p className="text-[11px] text-zinc-500 mt-0.5">Billed £{plan.annualPrice}/year</p>
                   )}
                   <p className="text-xs mt-1.5 font-semibold" style={{ color: plan.accentColor }}>
                     {plan.videosPerMonth}
                   </p>
-                  <p className="text-[11px] text-muted-foreground/70 mt-0.5">{plan.tagline}</p>
+                  <p className="text-[11px] text-zinc-500 mt-0.5">{plan.tagline}</p>
                 </div>
 
                 {/* Features */}
                 <ul className="space-y-1.5 mb-5 flex-1">
                   {plan.highlights.map((h) => (
-                    <li key={h} className="flex items-center gap-2 text-xs text-foreground/80">
+                    <li key={h} className="flex items-center gap-2 text-xs text-zinc-300">
                       <Check className="w-3.5 h-3.5 flex-shrink-0" style={{ color: plan.accentColor }} />
                       {h}
                     </li>
@@ -267,7 +267,7 @@ export default function PostFirstRenderSubscribeModal({
           <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "oklch(0.78 0.11 75 / 0.7)" }} />
           <div>
             <p className="text-xs font-semibold text-white">Founding Creator Status</p>
-            <p className="text-[11px] text-muted-foreground/70 mt-0.5">
+            <p className="text-[11px] text-zinc-500 mt-0.5">
               Subscribe now and you'll be recognised as a Founding Creator — early supporter status, bonus credits on your first subscription, and priority access to new features.
             </p>
           </div>
@@ -277,13 +277,13 @@ export default function PostFirstRenderSubscribeModal({
         <div className="px-6 pb-6 text-center">
           <button
             onClick={handleTopUp}
-            className="text-muted-foreground/70 hover:text-foreground/80 text-xs transition-colors underline underline-offset-2"
+            className="text-zinc-500 hover:text-zinc-300 text-xs transition-colors underline underline-offset-2"
           >
             Not ready? Buy a credit pack instead
           </button>
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-1 mt-3">
             {["Cancel anytime", "You own all your content", "Secure checkout via Stripe"].map((t) => (
-              <span key={t} className="text-[10px] text-muted-foreground/50 flex items-center gap-1">
+              <span key={t} className="text-[10px] text-zinc-600 flex items-center gap-1">
                 <span className="text-[--color-gold]/40">✓</span> {t}
               </span>
             ))}

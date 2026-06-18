@@ -116,12 +116,12 @@ export default function LandingStudio() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-white font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-[#06060c] text-white font-sans overflow-x-hidden">
 
       {/* ── Minimal nav ── */}
       <nav className="flex items-center justify-between px-6 py-5 border-b border-white/5">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/40 flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.5)]">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.5)]">
             <Sparkles className="w-4.5 h-4.5 text-white" />
           </div>
           <div>
@@ -171,9 +171,9 @@ export default function LandingStudio() {
               }}>Vid</span>
             </h1>
             <div className="flex items-center justify-center gap-3 mt-1">
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-primary/40/40" />
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#4a3010]/40" />
               <span className="font-bold tracking-[0.5em] text-white/50 text-sm uppercase">STUDIO</span>
-              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-primary/40/40" />
+              <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#4a3010]/40" />
             </div>
           </div>
 
@@ -208,7 +208,7 @@ export default function LandingStudio() {
               </div>
               <button
                 type="submit"
-                className="flex-shrink-0 inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary/40 hover:from-primary hover:to-primary/40 text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:shadow-[0_0_40px_rgba(139,92,246,0.5)] text-sm"
+                className="flex-shrink-0 inline-flex items-center gap-2 bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white font-bold px-6 py-3.5 rounded-xl transition-all shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:shadow-[0_0_40px_rgba(139,92,246,0.5)] text-sm"
               >
                 Get Early Access
                 <ArrowRight className="w-4 h-4" />
@@ -226,7 +226,7 @@ export default function LandingStudio() {
       </section>
 
       {/* ── Features preview ── */}
-      <section className="py-20 px-6 border-t border-white/6 bg-gradient-to-b from-background to-background">
+      <section className="py-20 px-6 border-t border-white/6 bg-gradient-to-b from-[#06060c] to-[#0d0018]">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-[--color-gold] text-sm font-semibold uppercase tracking-widest mb-3">What's coming</p>
@@ -243,7 +243,7 @@ export default function LandingStudio() {
           <div className="grid sm:grid-cols-2 gap-5">
             {FEATURES.map((f) => (
               <div key={f.title} className="rounded-2xl border border-white/8 bg-white/3 p-6 hover:bg-white/5 transition-colors group">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/40/20 border border-[--color-gold]/30 flex items-center justify-center mb-4 group-hover:border-[--color-gold]/30 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#b8892a]/20 to-[#4a3010]/20 border border-[--color-gold]/30 flex items-center justify-center mb-4 group-hover:border-[--color-gold]/30 transition-colors">
                   <f.icon className="w-5 h-5 text-[--color-gold]" />
                 </div>
                 <h3 className="font-bold text-white mb-2">{f.title}</h3>
@@ -255,7 +255,7 @@ export default function LandingStudio() {
       </section>
 
       {/* ── Try WIZ AI now CTA ── */}
-      <section className="py-20 px-6 text-center border-t border-white/6 bg-background">
+      <section className="py-20 px-6 text-center border-t border-white/6 bg-[#06060c]">
         <div className="max-w-xl mx-auto">
           <p className="text-white/40 text-sm mb-3">While you wait for Studio…</p>
           <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-4">
@@ -279,7 +279,7 @@ export default function LandingStudio() {
       <footer className="py-8 px-6 border-t border-white/6 bg-black">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-primary to-primary/40 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center">
               <Sparkles className="w-3 h-3 text-white" />
             </div>
             <span className="text-white/60 text-sm font-semibold">WIZ AI Studio</span>

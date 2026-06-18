@@ -32,7 +32,7 @@ export default function BackButton({ fallback = "/", label = "Back", className =
   return (
     <a
       href={fallback}
-      className={`inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors font-medium group ${className}`}
+      className={`inline-flex items-center gap-2 text-sm text-[#a1a1aa] hover:text-white transition-colors font-medium group ${className}`}
       style={{ cursor: "pointer", pointerEvents: "auto", position: "relative", zIndex: 10 }}
       aria-label={label}
       onClick={handleBack}

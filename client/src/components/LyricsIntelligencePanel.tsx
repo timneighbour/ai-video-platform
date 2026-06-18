@@ -61,14 +61,14 @@ const EMOTION_COLORS: Record<string, string> = {
   dreamy: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30",
   powerful: "bg-orange-500/20 text-orange-300 border-orange-500/30",
   tender: "bg-[--color-silver]/10 text-[--color-silver] border-rose-500/30",
-  dark: "bg-muted-foreground/20/20 text-foreground/80 border-border/50/30",
+  dark: "bg-zinc-500/20 text-zinc-300 border-zinc-500/30",
   hopeful: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30",
   triumphant: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
 };
 
 function getEmotionColor(emotion: string): string {
   const key = emotion.toLowerCase();
-  return EMOTION_COLORS[key] || "bg-muted/30 text-foreground/80 border-border/70/30";
+  return EMOTION_COLORS[key] || "bg-zinc-700/30 text-zinc-300 border-zinc-600/30";
 }
 
 function getEmotionIcon(emotion: string): React.ReactNode {
@@ -147,24 +147,24 @@ export function LyricsIntelligencePanel({
           <Sparkles className="w-5 h-5 text-[--color-gold]" />
           <h3 className="text-lg font-bold text-white">Lyrics Intelligence</h3>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-zinc-400">
           See what our AI sees in your lyrics — emotions, scenes, and visual cues
         </p>
       </div>
 
       {blocks.length === 0 ? (
-        <div className="rounded-xl border border-border/50 bg-card/60 p-6 text-center space-y-4">
+        <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/60 p-6 text-center space-y-4">
           <div className="w-12 h-12 rounded-full bg-[--color-gold]/10 border border-[--color-gold]/20 flex items-center justify-center mx-auto">
             <Eye className="w-6 h-6 text-[--color-gold]" />
           </div>
           <div>
             <p className="text-white font-medium mb-1">Analyse Your Lyrics</p>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-zinc-400">
               Our AI will break down each line of your lyrics, tagging emotions, suggesting scene types, and identifying visual cues for your music video.
             </p>
           </div>
           <Button
-            className="bg-gradient-to-r from-primary to-secondary hover:from-primary hover:to-secondary text-white"
+            className="bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white"
             onClick={handleAnalyse}
             disabled={isAnalysing}
           >
@@ -176,24 +176,24 @@ export function LyricsIntelligencePanel({
         <>
           {/* Summary stats */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-lg bg-secondary/50 border border-border/40 p-2 text-center">
+            <div className="rounded-lg bg-zinc-800/50 border border-zinc-700/40 p-2 text-center">
               <div className="text-lg font-bold text-white">{blocks.length}</div>
-              <div className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">Lyric Blocks</div>
+              <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Lyric Blocks</div>
             </div>
-            <div className="rounded-lg bg-secondary/50 border border-border/40 p-2 text-center">
+            <div className="rounded-lg bg-zinc-800/50 border border-zinc-700/40 p-2 text-center">
               <div className="text-lg font-bold text-white">{new Set(blocks.map(b => b.emotion.toLowerCase())).size}</div>
-              <div className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">Unique Emotions</div>
+              <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Unique Emotions</div>
             </div>
-            <div className="rounded-lg bg-secondary/50 border border-border/40 p-2 text-center">
+            <div className="rounded-lg bg-zinc-800/50 border border-zinc-700/40 p-2 text-center">
               <div className="text-lg font-bold text-white">{blocks.reduce((sum, b) => sum + b.visualCues.length, 0)}</div>
-              <div className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">Visual Cues</div>
+              <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Visual Cues</div>
             </div>
           </div>
 
           {/* Lyric blocks */}
           <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
             {blocks.map((block, index) => (
-              <Card key={index} className="bg-card/60 border-border/50">
+              <Card key={index} className="bg-zinc-900/60 border-zinc-700/50">
                 <CardContent className="p-3">
                   <div
                     className="flex items-start gap-3 cursor-pointer"
@@ -205,41 +205,41 @@ export function LyricsIntelligencePanel({
                           {getEmotionIcon(block.emotion)}
                           <span className="ml-1">{block.emotion}</span>
                         </Badge>
-                        <Badge variant="outline" className="text-xs bg-secondary/50 text-muted-foreground border-border/50">
+                        <Badge variant="outline" className="text-xs bg-zinc-800/50 text-zinc-400 border-zinc-700/50">
                           {block.sceneType}
                         </Badge>
                         {block.visualCues.slice(0, 2).map((cue, ci) => (
-                          <Badge key={ci} variant="outline" className="text-xs bg-secondary/30 text-muted-foreground/70 border-border/30">
+                          <Badge key={ci} variant="outline" className="text-xs bg-zinc-800/30 text-zinc-500 border-zinc-700/30">
                             {cue}
                           </Badge>
                         ))}
                       </div>
-                      <p className="text-sm text-foreground/80 italic truncate">"{block.line}"</p>
+                      <p className="text-sm text-zinc-300 italic truncate">"{block.line}"</p>
 
                       {expandedBlock === index && (
                         <div className="mt-3 space-y-3">
                           {editingBlock === index ? (
                             <div className="space-y-2">
                               <div>
-                                <label className="text-xs text-muted-foreground/70 mb-1 block">Emotion</label>
+                                <label className="text-xs text-zinc-500 mb-1 block">Emotion</label>
                                 <input
-                                  className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-white"
+                                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white"
                                   value={editValues.emotion || ""}
                                   onChange={e => setEditValues(prev => ({ ...prev, emotion: e.target.value }))}
                                 />
                               </div>
                               <div>
-                                <label className="text-xs text-muted-foreground/70 mb-1 block">Scene Type</label>
+                                <label className="text-xs text-zinc-500 mb-1 block">Scene Type</label>
                                 <input
-                                  className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-white"
+                                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white"
                                   value={editValues.sceneType || ""}
                                   onChange={e => setEditValues(prev => ({ ...prev, sceneType: e.target.value }))}
                                 />
                               </div>
                               <div>
-                                <label className="text-xs text-muted-foreground/70 mb-1 block">Visual Cues (comma-separated)</label>
+                                <label className="text-xs text-zinc-500 mb-1 block">Visual Cues (comma-separated)</label>
                                 <input
-                                  className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-white"
+                                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white"
                                   value={(editValues.visualCues || []).join(", ")}
                                   onChange={e => setEditValues(prev => ({ ...prev, visualCues: e.target.value.split(",").map(s => s.trim()).filter(Boolean) }))}
                                 />
@@ -248,7 +248,7 @@ export function LyricsIntelligencePanel({
                                 <Button size="sm" className="bg-[--color-gold] hover:bg-[--color-gold]/80 text-white" onClick={() => handleSaveEdit(index)}>
                                   <Check className="w-3 h-3 mr-1" /> Save
                                 </Button>
-                                <Button size="sm" variant="outline" className="border-border text-foreground/80 bg-transparent" onClick={handleCancelEdit}>
+                                <Button size="sm" variant="outline" className="border-zinc-700 text-zinc-300 bg-transparent" onClick={handleCancelEdit}>
                                   <X className="w-3 h-3 mr-1" /> Cancel
                                 </Button>
                               </div>
@@ -256,14 +256,14 @@ export function LyricsIntelligencePanel({
                           ) : (
                             <div className="space-y-2">
                               <div className="flex items-center gap-2">
-                                <span className="text-xs text-muted-foreground/70">Scene:</span>
-                                <span className="text-sm text-foreground/80">{block.sceneType}</span>
+                                <span className="text-xs text-zinc-500">Scene:</span>
+                                <span className="text-sm text-zinc-300">{block.sceneType}</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="text-xs text-muted-foreground/70">Visual Cues:</span>
+                                <span className="text-xs text-zinc-500">Visual Cues:</span>
                                 <div className="flex flex-wrap gap-1">
                                   {block.visualCues.map((cue, ci) => (
-                                    <Badge key={ci} variant="outline" className="text-xs bg-secondary/30 text-muted-foreground border-border/50">
+                                    <Badge key={ci} variant="outline" className="text-xs bg-zinc-800/30 text-zinc-400 border-zinc-700/50">
                                       {cue}
                                     </Badge>
                                   ))}
@@ -272,7 +272,7 @@ export function LyricsIntelligencePanel({
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="border-border text-muted-foreground bg-transparent hover:bg-secondary mt-1"
+                                className="border-zinc-700 text-zinc-400 bg-transparent hover:bg-zinc-800 mt-1"
                                 onClick={() => handleEditBlock(index)}
                               >
                                 <Pencil className="w-3 h-3 mr-1" /> Edit Tags
@@ -283,7 +283,7 @@ export function LyricsIntelligencePanel({
                       )}
                     </div>
                     {/* Expand indicator */}
-                    <div className="text-muted-foreground/70 mt-1">
+                    <div className="text-zinc-500 mt-1">
                       {expandedBlock === index ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </div>
                   </div>
@@ -293,17 +293,17 @@ export function LyricsIntelligencePanel({
           </div>
 
           {/* Scene Preview Grid */}
-          <div className="rounded-xl border border-border/50 bg-card/60 overflow-hidden">
+          <div className="rounded-xl border border-zinc-700/50 bg-zinc-900/60 overflow-hidden">
             <button
-              className="w-full flex items-center justify-between px-4 py-3 hover:bg-secondary/40 transition-colors"
+              className="w-full flex items-center justify-between px-4 py-3 hover:bg-zinc-800/40 transition-colors"
               onClick={() => setShowScenePreview(v => !v)}
             >
               <div className="flex items-center gap-2">
                 <Film className="w-4 h-4 text-[--color-gold]" />
                 <span className="text-sm font-semibold text-white">Scene Preview</span>
-                <span className="text-xs text-muted-foreground/70">— your music video, scene by scene</span>
+                <span className="text-xs text-zinc-500">— your music video, scene by scene</span>
               </div>
-              {showScenePreview ? <ChevronUp className="w-4 h-4 text-muted-foreground/70" /> : <ChevronDown className="w-4 h-4 text-muted-foreground/70" />}
+              {showScenePreview ? <ChevronUp className="w-4 h-4 text-zinc-500" /> : <ChevronDown className="w-4 h-4 text-zinc-500" />}
             </button>
             {showScenePreview && (
               <div className="px-4 pb-4">
@@ -311,24 +311,24 @@ export function LyricsIntelligencePanel({
                   {blocks.map((block, i) => (
                     <div
                       key={i}
-                      className={`relative rounded-lg bg-gradient-to-br ${getSceneBgGradient(block.emotion)} border border-border/40 p-2.5 flex flex-col gap-1.5 min-h-[90px]`}
+                      className={`relative rounded-lg bg-gradient-to-br ${getSceneBgGradient(block.emotion)} border border-zinc-700/40 p-2.5 flex flex-col gap-1.5 min-h-[90px]`}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Scene {i + 1}</span>
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Scene {i + 1}</span>
                         <Badge variant="outline" className={`text-[9px] px-1 py-0 ${getEmotionColor(block.emotion)}`}>
                           {getEmotionIcon(block.emotion)}
                           <span className="ml-0.5">{block.emotion}</span>
                         </Badge>
                       </div>
-                      <p className="text-[11px] text-foreground/80 leading-tight line-clamp-2 italic">"{block.line}"</p>
+                      <p className="text-[11px] text-zinc-300 leading-tight line-clamp-2 italic">"{block.line}"</p>
                       <div className="mt-auto">
-                        <span className="text-[10px] text-muted-foreground/70 block truncate">{block.sceneType}</span>
+                        <span className="text-[10px] text-zinc-500 block truncate">{block.sceneType}</span>
                         {block.visualCues[0] && (
                           <span className="text-[10px] text-[--color-gold]/70 block truncate">✦ {block.visualCues[0]}</span>
                         )}
                       </div>
                       {/* Intensity bar */}
-                      <div className="w-full h-0.5 bg-muted/50 rounded-full mt-1">
+                      <div className="w-full h-0.5 bg-zinc-700/50 rounded-full mt-1">
                         <div
                           className="h-full rounded-full bg-gradient-to-r from-[--color-gold] to-amber-400"
                           style={{ width: `${(block.intensity / 10) * 100}%` }}
@@ -345,7 +345,7 @@ export function LyricsIntelligencePanel({
           <div className="flex justify-end gap-3 pt-2">
             <Button
               variant="outline"
-              className="border-border text-foreground/80 bg-transparent hover:bg-secondary"
+              className="border-zinc-700 text-zinc-300 bg-transparent hover:bg-zinc-800"
               onClick={handleAnalyse}
               disabled={isAnalysing}
             >
@@ -353,7 +353,7 @@ export function LyricsIntelligencePanel({
               Re-analyse
             </Button>
             <Button
-              className="bg-gradient-to-r from-primary to-secondary hover:from-primary hover:to-secondary text-white px-8"
+              className="bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white px-8"
               onClick={() => onConfirm(blocks)}
             >
               Looks Good <ArrowRight className="w-4 h-4 ml-2" />

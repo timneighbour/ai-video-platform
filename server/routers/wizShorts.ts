@@ -18,7 +18,7 @@ import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb, getUserCredits, deductCredits } from "../db";
 import { wizShortsJobs, wizShortsScenes } from "../../drizzle/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 import { submitGrokVideo, pollGrokVideo } from "../ai-apis/grok-imagine";
 import { storagePut } from "../storage";
@@ -27,7 +27,6 @@ import { promisify } from "util";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import logger from "../logger";
 
 const execAsync = promisify(exec);
 
@@ -224,7 +223,7 @@ export const wizShortsRouter = router({
             .set({ taskId: `grok:${requestId}`, status: "generating", updatedAt: new Date() })
             .where(eq(wizShortsScenes.id, scene.id));
 
-          logger.info({ sceneIndex: scene.sceneIndex, requestId }, "[WizShorts] Scene submitted → Grok");
+          console.log(`[WizShorts] Scene ${scene.sceneIndex} submitted → Grok requestId=${requestId}`);
         } catch (err: any) {
           console.error(`[WizShorts] Scene ${scene.sceneIndex} submit failed:`, err?.message);
           await db
@@ -296,7 +295,7 @@ export const wizShortsRouter = router({
               .set({ status: "completed", videoUrl: url, videoKey: key, updatedAt: new Date() })
               .where(eq(wizShortsScenes.id, scene.id));
 
-            logger.info({ sceneIndex: scene.sceneIndex }, "[WizShorts] Scene completed → S3");
+            console.log(`[WizShorts] Scene ${scene.sceneIndex} completed → S3`);
           } else if (result.status === "failed" || result.status === "expired") {
             await db
               .update(wizShortsScenes)
@@ -304,7 +303,7 @@ export const wizShortsRouter = router({
               .where(eq(wizShortsScenes.id, scene.id));
           }
         } catch (err: any) {
-          logger.warn({ sceneIndex: scene.sceneIndex, err: err?.message }, "[WizShorts] Scene poll error");
+          console.warn(`[WizShorts] Scene ${scene.sceneIndex} poll error:`, err?.message);
         }
       }
 
@@ -429,10 +428,10 @@ export const wizShortsRouter = router({
         .select()
         .from(wizShortsJobs)
         .where(eq(wizShortsJobs.userId, ctx.user.id))
-        .orderBy(desc(wizShortsJobs.createdAt))
+        .orderBy(wizShortsJobs.createdAt)
         .limit(input.limit);
 
-      return jobs;
+      return jobs.reverse();
     }),
 });
 
@@ -464,7 +463,7 @@ async function runAssembly(
       .set({ status: "complete", videoUrl, updatedAt: new Date() })
       .where(eq(wizShortsJobs.id, jobId));
 
-    logger.info({ jobId, videoUrl }, "[WizShorts] Job assembly complete");
+    console.log(`[WizShorts] Job ${jobId} assembly complete → ${videoUrl}`);
   } catch (err: any) {
     const msg = String(err?.message ?? err);
     console.error(`[WizShorts] Job ${jobId} assembly failed:`, msg);
@@ -498,7 +497,7 @@ async function assembleShorts(
       const sceneFile = path.join(tmpDir, `scene-${String(scene.sceneIndex).padStart(3, "0")}.mp4`);
       const resp = await fetch(scene.videoUrl);
       if (!resp.ok) {
-        logger.warn({ sceneIndex: scene.sceneIndex, status: resp.status }, "[WizShorts] Scene download failed");
+        console.warn(`[WizShorts] Scene ${scene.sceneIndex} download failed: HTTP ${resp.status}`);
         continue;
       }
       const buf = Buffer.from(await resp.arrayBuffer());
@@ -523,9 +522,9 @@ async function assembleShorts(
         { timeout: 120000 }
       );
       concatOk = true;
-      logger.info({ jobId }, "[WizShorts] concat (stream copy) succeeded");
+      console.log(`[WizShorts] Job ${jobId} concat (stream copy) succeeded`);
     } catch (copyErr: any) {
-      logger.warn({ jobId, err: copyErr?.message }, "[WizShorts] stream copy failed, falling back to libx264");
+      console.warn(`[WizShorts] Job ${jobId} stream copy failed, falling back to libx264:`, copyErr?.message);
     }
 
     // Fallback: re-encode with libx264 if stream copy failed (codec mismatch)
@@ -534,7 +533,7 @@ async function assembleShorts(
         `ffmpeg -y -f concat -safe 0 -i "${concatFile}" -c:v libx264 -preset fast -crf 22 -vf "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2" "${concatenated}"`,
         { timeout: 300000 }
       );
-      logger.info({ jobId }, "[WizShorts] concat (libx264 fallback) succeeded");
+      console.log(`[WizShorts] Job ${jobId} concat (libx264 fallback) succeeded`);
     }
 
     let finalVideo = concatenated;
@@ -555,9 +554,9 @@ async function assembleShorts(
           { timeout: 120000 }
         );
         finalVideo = withAudio;
-        logger.info({ jobId }, "[WizShorts] music mixed successfully");
+        console.log(`[WizShorts] Job ${jobId} music mixed successfully`);
       } catch (audioErr: any) {
-        logger.warn({ jobId, err: audioErr?.message }, "[WizShorts] music mixing failed, using video without audio");
+        console.warn(`[WizShorts] Job ${jobId} music mixing failed, using video without audio:`, audioErr?.message);
       }
     }
 

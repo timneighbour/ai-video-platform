@@ -116,7 +116,7 @@ export default function CookieConsentBanner({ introActive = false }: { introActi
       aria-modal="true"
       aria-label="Cookie consent"
     >
-      <div className="max-w-4xl mx-auto bg-background border border-[--color-gold]/25 rounded-2xl shadow-2xl overflow-hidden">
+      <div className="max-w-4xl mx-auto bg-[#0f0f0f] border border-[--color-gold]/25 rounded-2xl shadow-2xl overflow-hidden">
         {/* Gold top accent */}
         <div className="h-0.5 w-full bg-gradient-to-r from-[--color-gold]/40 via-[--color-gold] to-[--color-gold]/40" />
 
@@ -130,7 +130,7 @@ export default function CookieConsentBanner({ introActive = false }: { introActi
               <h2 className="text-base font-bold text-white leading-tight">
                 We use cookies
               </h2>
-              <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+              <p className="text-sm text-[#a1a1aa] mt-1 leading-relaxed">
                 WIZ AI uses cookies to improve your experience, analyse site usage, and support marketing. Essential cookies are always active. You can choose which optional cookies to allow.{" "}
                 <a
                   href="/cookie-policy"
@@ -155,7 +155,7 @@ export default function CookieConsentBanner({ introActive = false }: { introActi
 
           {/* Manage Preferences (expandable) */}
           <button
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors mb-4"
+            className="flex items-center gap-2 text-sm text-[#a1a1aa] hover:text-white transition-colors mb-4"
             onClick={() => setShowManage(!showManage)}
             type="button"
           >
@@ -182,7 +182,7 @@ export default function CookieConsentBanner({ introActive = false }: { introActi
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground/70 mt-0.5 leading-relaxed">
+                    <p className="text-xs text-[#71717a] mt-0.5 leading-relaxed">
                       {cat.description}
                     </p>
                   </div>
@@ -265,7 +265,7 @@ export default function CookieConsentBanner({ introActive = false }: { introActi
           </div>
 
           {/* GDPR note */}
-          <p className="text-[10px] text-muted-foreground/60 mt-3 flex items-center gap-1.5">
+          <p className="text-[10px] text-[#52525b] mt-3 flex items-center gap-1.5">
             <Shield className="w-3 h-3 flex-shrink-0" />
             Your choice is stored locally and you can change it at any time via Cookie Settings in the footer.
           </p>

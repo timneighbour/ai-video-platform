@@ -119,19 +119,19 @@ function TranscriptionBox({
   const showBoth = rawTranscript && rawTranscript !== refinedPrompt && rawTranscript.length > 0;
 
   return (
-    <div className="mt-3 w-full rounded-xl border border-border/60 bg-background/95 shadow-[0_4px_24px_rgba(0,0,0,0.4)] overflow-hidden">
+    <div className="mt-3 w-full rounded-xl border border-zinc-700/60 bg-zinc-950/95 shadow-[0_4px_24px_rgba(0,0,0,0.4)] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-border/60 bg-card/60">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-zinc-800/60 bg-zinc-900/60">
         <div className="flex items-center gap-1.5">
           <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
-          <span className="text-[11px] font-semibold text-foreground/80 uppercase tracking-wider">
+          <span className="text-[11px] font-semibold text-zinc-300 uppercase tracking-wider">
             Transcription
           </span>
         </div>
         <button
           type="button"
           onClick={onDismiss}
-          className="text-[10px] text-muted-foreground/50 hover:text-muted-foreground transition-colors px-1.5 py-0.5 rounded hover:bg-secondary/60"
+          className="text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors px-1.5 py-0.5 rounded hover:bg-zinc-800/60"
         >
           Dismiss
         </button>
@@ -142,14 +142,14 @@ function TranscriptionBox({
         {showBoth && (
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <p className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wider">
+              <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">
                 What you said
               </p>
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => copyToClipboard(rawTranscript, "Transcript")}
-                  className="flex items-center gap-1 text-[10px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                  className="flex items-center gap-1 text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors"
                   title="Copy to clipboard"
                 >
                   <Copy className="w-3 h-3" />
@@ -158,7 +158,7 @@ function TranscriptionBox({
                 <button
                   type="button"
                   onClick={() => onUse(rawTranscript, "raw")}
-                  className="flex items-center gap-1 text-[10px] text-muted-foreground/70 hover:text-amber-400 transition-colors font-medium"
+                  className="flex items-center gap-1 text-[10px] text-zinc-500 hover:text-amber-400 transition-colors font-medium"
                 >
                   Use this
                   <ChevronRight className="w-3 h-3" />
@@ -172,7 +172,7 @@ function TranscriptionBox({
                 rows={2}
                 className={cn(
                   "w-full resize-none rounded-lg px-3 py-2 text-[12px] leading-relaxed",
-                  "bg-card/60 border border-border/60 text-muted-foreground",
+                  "bg-zinc-900/60 border border-zinc-800/60 text-zinc-400",
                   "focus:outline-none cursor-text select-all"
                 )}
                 onClick={(e) => (e.target as HTMLTextAreaElement).select()}
@@ -191,7 +191,7 @@ function TranscriptionBox({
               <button
                 type="button"
                 onClick={() => copyToClipboard(refinedPrompt, "Refined prompt")}
-                className="flex items-center gap-1 text-[10px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                className="flex items-center gap-1 text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors"
                 title="Copy to clipboard"
               >
                 <Copy className="w-3 h-3" />
@@ -217,7 +217,7 @@ function TranscriptionBox({
               rows={3}
               className={cn(
                 "w-full resize-none rounded-lg px-3 py-2.5 text-[12px] leading-relaxed",
-                "bg-card/80 border border-amber-500/20 text-foreground",
+                "bg-zinc-900/80 border border-amber-500/20 text-zinc-200",
                 "focus:outline-none cursor-text"
               )}
               onClick={(e) => (e.target as HTMLTextAreaElement).select()}
@@ -226,7 +226,7 @@ function TranscriptionBox({
         </div>
 
         {/* Footer hint */}
-        <p className="text-[10px] text-muted-foreground/50 text-center">
+        <p className="text-[10px] text-zinc-600 text-center">
           Click a text box to select all · Copy or click "Use this" to apply to the scene
         </p>
       </div>
@@ -446,7 +446,7 @@ export function VoicePromptButton({
             "relative flex items-center justify-center rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60",
             "w-10 h-10 shrink-0",
             (state === "idle" || state === "ready") && !disabled &&
-              "bg-secondary/80 border border-border/70/50 text-muted-foreground hover:border-amber-500/60 hover:text-amber-400 hover:bg-muted/80 hover:shadow-[0_0_12px_rgba(184,137,42,0.25)]",
+              "bg-zinc-800/80 border border-zinc-600/50 text-zinc-400 hover:border-amber-500/60 hover:text-amber-400 hover:bg-zinc-700/80 hover:shadow-[0_0_12px_rgba(184,137,42,0.25)]",
             isRecording &&
               "bg-red-900/40 border border-red-500/70 text-red-400 shadow-[0_0_16px_rgba(220,38,38,0.45)]",
             isProcessing &&
@@ -482,19 +482,19 @@ export function VoicePromptButton({
 
         {/* Live waveform */}
         {showWaveform && isRecording && (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card/80 border border-red-500/30 shadow-[0_0_12px_rgba(220,38,38,0.15)]">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900/80 border border-red-500/30 shadow-[0_0_12px_rgba(220,38,38,0.15)]">
             <span className="flex items-center gap-1 text-[10px] font-semibold text-red-400 uppercase tracking-widest shrink-0">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
               REC
             </span>
             <WaveformCanvas analyser={analyser} />
-            <span className="text-[10px] text-muted-foreground/70 shrink-0">{secondsLeft}s</span>
+            <span className="text-[10px] text-zinc-500 shrink-0">{secondsLeft}s</span>
           </div>
         )}
 
         {/* Processing indicator */}
         {isProcessing && (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card/80 border border-amber-500/30">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-900/80 border border-amber-500/30">
             <Loader2 className="w-3 h-3 text-amber-400 animate-spin shrink-0" />
             <span className="text-[11px] text-amber-300">Transcribing…</span>
           </div>
@@ -502,14 +502,14 @@ export function VoicePromptButton({
 
         {/* Ready hint */}
         {isReady && (
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-[11px] text-zinc-400">
             Transcription ready — copy or click "Use this" below
           </span>
         )}
 
         {/* Idle hint */}
         {state === "idle" && !disabled && (
-          <span className="text-[11px] text-muted-foreground/70 italic">or speak your direction</span>
+          <span className="text-[11px] text-zinc-500 italic">or speak your direction</span>
         )}
 
         {/* Done confirmation */}
@@ -548,7 +548,7 @@ export function VoicePromptInline({
   return (
     <div className="flex items-center gap-2">
       {label && (
-        <span className="text-sm font-medium text-foreground/80">{label}</span>
+        <span className="text-sm font-medium text-zinc-300">{label}</span>
       )}
       <VoicePromptButton
         toolContext={toolContext}

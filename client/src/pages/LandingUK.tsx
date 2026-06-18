@@ -16,7 +16,7 @@ const MAIN_APP = "https://wiz-ai.io";
 
 // Shared design tokens — must match main site
 const BRAND = {
-  headline: "bg-gradient-to-r from-primary via-purple-200 to-primary/40 bg-clip-text text-transparent",
+  headline: "bg-gradient-to-r from-[#b8892a] via-purple-200 to-[#4a3010] bg-clip-text text-transparent",
   badge: "inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/15 text-[--color-gold] text-xs font-mono tracking-[0.18em] uppercase font-semibold",
   ctaPrimary: "inline-flex items-center gap-3 bg-white text-black font-bold px-9 py-4 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.3)] hover:shadow-[0_0_70px_rgba(255,255,255,0.45)] hover:bg-white/95 transition-all duration-300 text-base",
   ctaSecondary: "inline-flex items-center gap-2.5 px-7 py-4 rounded-2xl border border-white/20 bg-white/5 hover:bg-white/10 text-white font-semibold transition-all duration-300 text-sm",
@@ -49,11 +49,11 @@ export default function LandingUK() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-white font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-[#0a0a0f] text-white font-sans overflow-x-hidden">
       {/* ── Nav ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-black/60 backdrop-blur-xl">
         <a href={MAIN_APP} className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-primary/40 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <span className="font-extrabold text-white text-lg tracking-tight">WIZ AI</span>
@@ -164,7 +164,7 @@ export default function LandingUK() {
       </section>
 
       {/* ── Features ── */}
-      <section className="py-20 px-6 border-t border-white/6 bg-gradient-to-b from-background to-background">
+      <section className="py-20 px-6 border-t border-white/6 bg-gradient-to-b from-[#0a0a0f] to-[#0f0f18]">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-[--color-gold] text-sm font-semibold uppercase tracking-widest mb-3">Why WIZ AI</p>
@@ -183,7 +183,7 @@ export default function LandingUK() {
       </section>
 
       {/* ── WizSound callout ── */}
-      <section className="py-16 px-6 bg-gradient-to-r from-primary/40 via-background to-primary/40/30 border-t border-white/6">
+      <section className="py-16 px-6 bg-gradient-to-r from-[#b8892a]/40 via-[#0f0f18] to-[#4a3010]/30 border-t border-white/6">
         <div className="max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[--color-gold]/30 bg-[--color-gold]/15 text-[--color-gold] text-sm font-semibold mb-5">
             <Volume2 className="w-4 h-4" />
@@ -207,7 +207,7 @@ export default function LandingUK() {
       </section>
 
       {/* ── Use cases strip ── */}
-      <section className="py-14 px-6 border-t border-white/6 bg-background">
+      <section className="py-14 px-6 border-t border-white/6 bg-[#0a0a0f]">
         <div className="max-w-4xl mx-auto">
           <p className="text-center text-white/40 text-xs uppercase tracking-widest font-semibold mb-6">What UK creators can build</p>
           <div className="flex flex-wrap justify-center gap-4">
@@ -228,7 +228,7 @@ export default function LandingUK() {
       </section>
 
       {/* ── Final CTA ── */}
-      <section className="py-24 px-6 text-center border-t border-white/6 bg-gradient-to-b from-background to-background">
+      <section className="py-24 px-6 text-center border-t border-white/6 bg-gradient-to-b from-[#0a0a0f] to-[#0d0018]">
         <div className="max-w-2xl mx-auto">
           <div className={`${BRAND.badge} mx-auto mb-5`}>
             <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
@@ -254,7 +254,7 @@ export default function LandingUK() {
       <footer className="py-8 px-6 border-t border-white/6 bg-black">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-primary to-primary/40 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center">
               <Sparkles className="w-3 h-3 text-white" />
             </div>
             <span className="text-white/60 text-sm font-semibold">WIZ AI.co.uk</span>

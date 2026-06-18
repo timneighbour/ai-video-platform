@@ -283,7 +283,7 @@ function LightboxModal({ item, onClose }: { item: ShowcaseItem; onClose: () => v
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-xl font-bold text-white mb-1">{item.title}</h2>
-              <p className="text-muted-foreground text-sm leading-relaxed max-w-2xl">{item.description}</p>
+              <p className="text-zinc-400 text-sm leading-relaxed max-w-2xl">{item.description}</p>
             </div>
             <Link href="/create">
               <a className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white transition-all hover:scale-105"
@@ -294,8 +294,8 @@ function LightboxModal({ item, onClose }: { item: ShowcaseItem; onClose: () => v
             </Link>
           </div>
           {item.creatorName && (
-            <p className="mt-3 text-xs text-muted-foreground/50">
-              Made with WIZ AI · {item.tool} · <span className="text-muted-foreground/70">{item.creatorName}</span>
+            <p className="mt-3 text-xs text-zinc-600">
+              Made with WIZ AI · {item.tool} · <span className="text-zinc-500">{item.creatorName}</span>
             </p>
           )}
         </div>
@@ -358,7 +358,7 @@ function ShowcaseHero({ item, onPlay }: { item: ShowcaseItem; onPlay: () => void
         </div>
 
         <h2 className="text-3xl md:text-5xl font-black text-white mb-3 leading-tight max-w-xl">{item.title}</h2>
-        <p className="text-foreground/80 text-sm md:text-base max-w-lg mb-6 leading-relaxed">{item.description}</p>
+        <p className="text-zinc-300 text-sm md:text-base max-w-lg mb-6 leading-relaxed">{item.description}</p>
 
         <div className="flex items-center gap-3 flex-wrap">
           <button
@@ -500,10 +500,10 @@ function ShowcaseCard({ item, onOpen }: { item: ShowcaseItem; onOpen: () => void
 
       {/* Card info */}
       <div className="p-4">
-        <h3 className="font-bold text-white text-sm mb-1.5 line-clamp-1 group-hover:text-primary/90 transition-colors">{item.title}</h3>
-        <p className="text-muted-foreground/70 text-xs line-clamp-2 leading-relaxed">{item.description}</p>
+        <h3 className="font-bold text-white text-sm mb-1.5 line-clamp-1 group-hover:text-[#e8c97a] transition-colors">{item.title}</h3>
+        <p className="text-zinc-500 text-xs line-clamp-2 leading-relaxed">{item.description}</p>
         {item.creatorName && (
-          <p className="mt-2 text-[10px] text-muted-foreground/40">Made with WIZ AI</p>
+          <p className="mt-2 text-[10px] text-zinc-700">Made with WIZ AI</p>
         )}
       </div>
     </div>
@@ -550,7 +550,7 @@ export default function ShowcasePage() {
       <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-4"
         style={{ background: "rgba(3,3,3,0.85)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <Link href="/">
-          <a className="flex items-center gap-2 text-muted-foreground hover:text-white transition-colors text-sm">
+          <a className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors text-sm">
             <img
               src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png"
               alt="WIZ AI"
@@ -560,7 +560,7 @@ export default function ShowcasePage() {
         </Link>
         <div className="flex items-center gap-3">
           <Link href="/pricing">
-            <a className="hidden sm:block text-muted-foreground hover:text-white text-sm transition-colors">Pricing</a>
+            <a className="hidden sm:block text-zinc-400 hover:text-white text-sm transition-colors">Pricing</a>
           </Link>
           <Link href="/create">
             <a className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs text-white transition-all hover:scale-105"
@@ -583,7 +583,7 @@ export default function ShowcasePage() {
             <h1 className="text-3xl md:text-4xl font-black text-white leading-tight">
               AI Creations Gallery
             </h1>
-            <p className="text-muted-foreground/70 text-sm mt-2 max-w-lg">
+            <p className="text-zinc-500 text-sm mt-2 max-w-lg">
               Real outputs from WIZ AI tools. Every video, animation, and image is AI-generated — no editing required.
             </p>
           </div>
@@ -635,7 +635,7 @@ export default function ShowcasePage() {
       {/* ── Grid ────────────────────────────────────────────────────────────── */}
       <div className="px-6 md:px-12 pb-24">
         {gridItems.length === 0 ? (
-          <div className="text-center py-20 text-muted-foreground/50">
+          <div className="text-center py-20 text-zinc-600">
             <p className="text-lg font-semibold mb-2">No items in this category yet</p>
             <p className="text-sm">Check back soon — more content is being added regularly.</p>
           </div>
@@ -655,7 +655,7 @@ export default function ShowcasePage() {
             Your turn
           </p>
           <h2 className="text-3xl md:text-4xl font-black text-white mb-4">Create your own AI video</h2>
-          <p className="text-muted-foreground mb-8 text-sm md:text-base">
+          <p className="text-zinc-400 mb-8 text-sm md:text-base">
             No editing experience needed. Start free — no credit card required.
           </p>
           <Link href="/create">

@@ -55,7 +55,7 @@ const PACKS = [
   },
   {
     key: "studio" as const,
-    name: "Pro",
+    name: "Studio",
     credits: 750,
     priceGbp: 44.99,
     priceDisplay: "£44.99",
@@ -66,7 +66,7 @@ const PACKS = [
   },
   {
     key: "pro" as const,
-    name: "Pro Plus",
+    name: "Pro",
     credits: 1500,
     priceGbp: 84.99,
     priceDisplay: "£84.99",
@@ -114,7 +114,7 @@ const SUB_PLANS = [
   },
   {
     id: "studio" as const,
-    name: "Pro",
+    name: "Studio",
     monthlyPrice: 99,
     priceDisplay: "£99/mo",
     annualDisplay: "£990/yr",

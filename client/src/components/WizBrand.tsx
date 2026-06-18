@@ -56,7 +56,7 @@ const LAYERS: Record<WizLayer, LayerConfig> = {
     verb: "Enhanced with",
     pastVerb: "Enhanced with",
     processingLabel: "Enhancing audio with WizSound™…",
-    tagline: "Cinematic audio experience",
+    tagline: "Proprietary audio enhancement",
     colour: "indigo",
     glow: "0 0 12px rgba(99,102,241,0.45)",
     Icon: ({ className }) => <Music2 className={className} />,
@@ -290,7 +290,7 @@ export function WizBrandProcessingOverlay({
         </div>
 
         {title && <h2 className="text-2xl font-bold text-white mb-1">{title}</h2>}
-        {subtitle && <p className="text-muted-foreground text-sm mb-8">{subtitle}</p>}
+        {subtitle && <p className="text-zinc-400 text-sm mb-8">{subtitle}</p>}
 
         {/* Stage list */}
         <div className="space-y-2 text-left mt-6">
@@ -302,7 +302,7 @@ export function WizBrandProcessingOverlay({
                   ? "bg-[--color-silver]/5 border-[--color-silver]/20"
                   : s.active
                   ? `${c.bg} ${c.border}`
-                  : "bg-card/50 border-border/50"
+                  : "bg-zinc-900/50 border-zinc-800/50"
               }`}
             >
               {s.done ? (
@@ -315,10 +315,10 @@ export function WizBrandProcessingOverlay({
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
               ) : (
-                <div className="w-4 h-4 rounded-full border border-border/70 shrink-0" />
+                <div className="w-4 h-4 rounded-full border border-zinc-600 shrink-0" />
               )}
               <span className={`text-sm font-medium ${
-                s.done ? "text-[--color-silver]" : s.active ? "text-white" : "text-muted-foreground/70"
+                s.done ? "text-[--color-silver]" : s.active ? "text-white" : "text-zinc-500"
               }`}>{s.label}</span>
             </div>
           ))}

@@ -1,6 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Helmet } from "react-helmet-async";
-
 import { LandscapeHint } from "@/components/LandscapeHint";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -168,14 +166,6 @@ export default function LipSync() {
 
   return (
     <div className="min-h-screen bg-background">
-  <Helmet>
-    <title>AI Lip Sync Tool — WIZ AI</title>
-    <meta name="description" content="Sync any audio to a face or character with pixel-perfect accuracy. Upload a video or image, add your track, and WizSync™ handles the rest." />
-    <meta property="og:title" content="AI Lip Sync Tool — WIZ AI" />
-    <meta property="og:description" content="Sync any audio to a face or character with pixel-perfect accuracy. Upload a video or image, add your track, and WizSync™ handles the rest." />
-    <meta property="og:url" content="https://wiz-ai.io/tools/lip-sync" />
-    <link rel="canonical" href="https://wiz-ai.io/tools/lip-sync" />
-  </Helmet>
       {/* Header */}
       <div className="border-b border-border/40">
         <div className="container flex h-16 items-center justify-between">

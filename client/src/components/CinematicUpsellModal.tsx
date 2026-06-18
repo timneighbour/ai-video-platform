@@ -107,9 +107,9 @@ export default function CinematicUpsellModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-background border-border text-white max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0">
+      <DialogContent className="bg-zinc-950 border-zinc-800 text-white max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0">
         {/* Header */}
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border shrink-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
           <div className="flex items-center gap-3 mb-1">
             <div className="w-10 h-10 rounded-xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-[--color-gold]" />
@@ -118,7 +118,7 @@ export default function CinematicUpsellModal({
               <DialogTitle className="text-white text-lg leading-tight">
                 Want this video to look like a real music video?
               </DialogTitle>
-              <DialogDescription className="text-muted-foreground text-sm mt-0.5">
+              <DialogDescription className="text-zinc-400 text-sm mt-0.5">
                 Upgrade key scenes to cinematic quality — rendered with our premium AI model for sharper detail, cinematic motion, and a professional finish.
               </DialogDescription>
             </div>
@@ -126,14 +126,14 @@ export default function CinematicUpsellModal({
         </DialogHeader>
 
         {/* Quality comparison strip */}
-        <div className="mx-6 mt-4 rounded-xl border border-[--color-gold]/20 bg-gradient-to-r from-primary/30/30 to-primary/20/20 px-4 py-3 shrink-0">
+        <div className="mx-6 mt-4 rounded-xl border border-[--color-gold]/20 bg-gradient-to-r from-[#2a1f00]/30 to-[#1a1000]/20 px-4 py-3 shrink-0">
           <p className="text-xs font-semibold text-[--color-gold] uppercase tracking-wider mb-2 flex items-center gap-1.5">
             <Film className="w-3.5 h-3.5" />
             What cinematic quality adds
           </p>
           <div className="grid grid-cols-2 gap-x-6 gap-y-1">
             {QUALITY_BULLETS.map((b) => (
-              <div key={b} className="flex items-center gap-2 text-xs text-foreground/80">
+              <div key={b} className="flex items-center gap-2 text-xs text-zinc-300">
                 <CheckCircle2 className="w-3.5 h-3.5 text-[--color-gold] flex-shrink-0" />
                 {b}
               </div>
@@ -144,9 +144,9 @@ export default function CinematicUpsellModal({
         {/* Scene selector */}
         <div className="px-6 pt-4 pb-2 shrink-0">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-foreground/80">
+            <p className="text-sm font-semibold text-zinc-300">
               Select scenes to upgrade
-              <span className="text-muted-foreground/70 font-normal ml-2">
+              <span className="text-zinc-500 font-normal ml-2">
                 ({selectedIds.size} of {upgradableScenes.length} selected)
               </span>
             </p>
@@ -157,10 +157,10 @@ export default function CinematicUpsellModal({
               >
                 Select all
               </button>
-              <span className="text-muted-foreground/40">·</span>
+              <span className="text-zinc-700">·</span>
               <button
                 onClick={deselectAll}
-                className="text-xs text-muted-foreground/70 hover:text-muted-foreground transition-colors"
+                className="text-xs text-zinc-500 hover:text-zinc-400 transition-colors"
               >
                 Deselect all
               </button>
@@ -171,7 +171,7 @@ export default function CinematicUpsellModal({
         {/* Scene grid — scrollable */}
         <div className="overflow-y-auto flex-1 px-6 pb-4">
           {upgradableScenes.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground/70 text-sm">
+            <div className="text-center py-8 text-zinc-500 text-sm">
               No completed scenes available to upgrade.
             </div>
           ) : (
@@ -185,11 +185,11 @@ export default function CinematicUpsellModal({
                     className={`relative rounded-xl overflow-hidden border-2 transition-all text-left group ${
                       selected
                         ? "border-[--color-gold]/70 shadow-lg shadow-[#b8892a]/20"
-                        : "border-border hover:border-border/70"
+                        : "border-zinc-800 hover:border-zinc-600"
                     }`}
                   >
                     {/* Thumbnail */}
-                    <div className="aspect-video bg-card relative">
+                    <div className="aspect-video bg-zinc-900 relative">
                       {scene.previewImageUrl ? (
                         <img
                           src={scene.previewImageUrl}
@@ -199,7 +199,7 @@ export default function CinematicUpsellModal({
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Film className="w-6 h-6 text-muted-foreground/40" />
+                          <Film className="w-6 h-6 text-zinc-700" />
                         </div>
                       )}
                       {/* Selection overlay */}
@@ -215,19 +215,19 @@ export default function CinematicUpsellModal({
                         {selected ? (
                           <CheckCircle2 className="w-5 h-5 text-[--color-gold] drop-shadow" />
                         ) : (
-                          <Circle className="w-5 h-5 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
+                          <Circle className="w-5 h-5 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
                         )}
                       </div>
                       {/* Scene number badge */}
                       <div className="absolute bottom-1.5 left-1.5">
-                        <Badge className="bg-black/70 text-foreground/80 text-[10px] px-1.5 py-0 border-0">
+                        <Badge className="bg-black/70 text-zinc-300 text-[10px] px-1.5 py-0 border-0">
                           Scene {scene.index + 1}
                         </Badge>
                       </div>
                     </div>
                     {/* Prompt snippet */}
-                    <div className="px-2 py-1.5 bg-card/80">
-                      <p className="text-[10px] text-muted-foreground line-clamp-2 leading-relaxed">
+                    <div className="px-2 py-1.5 bg-zinc-900/80">
+                      <p className="text-[10px] text-zinc-400 line-clamp-2 leading-relaxed">
                         {scene.prompt}
                       </p>
                     </div>
@@ -239,10 +239,10 @@ export default function CinematicUpsellModal({
         </div>
 
         {/* Sticky footer */}
-        <div className="px-6 py-4 border-t border-border bg-background rounded-b-2xl shrink-0 space-y-3">
+        <div className="px-6 py-4 border-t border-zinc-800 bg-zinc-950 rounded-b-2xl shrink-0 space-y-3">
           {/* Cost summary */}
           <div className="flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-zinc-400">
               {selectedIds.size} scene{selectedIds.size !== 1 ? "s" : ""} ×{" "}
               <span className="text-white font-semibold">{COST_PER_SCENE} Credits</span>
             </div>
@@ -254,7 +254,7 @@ export default function CinematicUpsellModal({
                 </p>
               )}
               {canAfford && totalCost > 0 && (
-                <p className="text-xs text-muted-foreground/70 mt-0.5">
+                <p className="text-xs text-zinc-500 mt-0.5">
                   {creditBalance - totalCost} Credits remaining after upgrade
                 </p>
               )}
@@ -276,7 +276,7 @@ export default function CinematicUpsellModal({
               </Link>
               <Button
                 variant="ghost"
-                className="w-full text-muted-foreground/70 hover:text-foreground/80 hover:bg-card"
+                className="w-full text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900"
                 onClick={onClose}
               >
                 Maybe later
@@ -286,7 +286,7 @@ export default function CinematicUpsellModal({
             <div className="flex gap-3">
               <Button
                 variant="ghost"
-                className="flex-1 text-muted-foreground/70 hover:text-foreground/80 hover:bg-card"
+                className="flex-1 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900"
                 onClick={onClose}
                 disabled={isUpgrading}
               >
@@ -313,7 +313,7 @@ export default function CinematicUpsellModal({
             </div>
           )}
 
-          <p className="text-xs text-muted-foreground/50 text-center">
+          <p className="text-xs text-zinc-600 text-center">
             Credits are deducted immediately · Upgraded scenes replace originals in your video
           </p>
         </div>

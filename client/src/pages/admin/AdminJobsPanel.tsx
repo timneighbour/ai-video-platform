@@ -25,7 +25,6 @@ import {
   Loader2,
   Film,
   Copy,
-  Play,
 } from "@/lib/icons";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -208,10 +207,6 @@ function JobDetailView({ jobId, onBack }: { jobId: number; onBack: () => void })
     onSuccess: () => { toast.success("Job reset to rendering"); refetch(); },
     onError: (e) => toast.error("Reset failed", { description: e.message }),
   });
-  const resumeJob = trpc.musicVideo.resumeProviderUnavailableJob.useMutation({
-    onSuccess: () => { toast.success("Job resumed — heartbeat will re-dispatch failed scenes"); refetch(); },
-    onError: (e) => toast.error("Resume failed", { description: e.message }),
-  });
 
   const [resettingScenes, setResettingScenes] = useState<Set<number>>(new Set());
 
@@ -283,19 +278,6 @@ function JobDetailView({ jobId, onBack }: { jobId: number; onBack: () => void })
             {resetJob.isPending ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <RotateCcw className="w-3 h-3 mr-1" />}
             Reset Job
           </Button>
-          {(job.status as string) === "provider_unavailable" && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 bg-transparent text-xs"
-              onClick={() => resumeJob.mutateAsync({ jobId: job.id })}
-              disabled={resumeJob.isPending}
-              title="Resume after provider top-up — clears 30-min throttle on failed scenes"
-            >
-              {resumeJob.isPending ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Play className="w-3 h-3 mr-1" />}
-              Resume Job
-            </Button>
-          )}
         </div>
       </div>
 
@@ -386,14 +368,14 @@ export default function AdminJobsPanel() {
 
   if (selectedJobId !== null) {
     return (
-      <div className="min-h-screen bg-background text-white p-6">
+      <div className="min-h-screen bg-[#0e0c0a] text-white p-6">
         <JobDetailView jobId={selectedJobId} onBack={() => setSelectedJobId(null)} />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-white p-6">
+    <div className="min-h-screen bg-[#0e0c0a] text-white p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

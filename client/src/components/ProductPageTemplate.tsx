@@ -92,10 +92,10 @@ export default function ProductPageTemplate(props: ProductPageProps) {
   });
 
   return (
-    <div className="bg-background text-white min-h-screen overflow-x-hidden">
+    <div className="bg-[#040404] text-white min-h-screen overflow-x-hidden">
 
       {/* ── Sticky Nav ── */}
-      <nav className="sticky top-0 z-50 border-b border-[--color-gold]/[0.08] bg-background/95 backdrop-blur-xl px-6 py-3.5">
+      <nav className="sticky top-0 z-50 border-b border-[--color-gold]/[0.08] bg-[#040404]/95 backdrop-blur-xl px-6 py-3.5">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <BackButton fallback="/" label="Back" />
@@ -200,7 +200,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
       </section>
 
       {/* ── What It Does ── */}
-      <section className="py-24 px-6 bg-background">
+      <section className="py-24 px-6 bg-[#060606]">
         <div className="max-w-5xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.04] text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold] mb-8">
             <img src={logo} alt={name} className="h-4 w-auto object-contain" loading="lazy" />
@@ -235,7 +235,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
                   </div>
                 </>
               ) : (
-                <div className="bg-background p-10 flex flex-col items-center justify-center" style={{ minHeight: 320 }}>
+                <div className="bg-[#0a0a0a] p-10 flex flex-col items-center justify-center" style={{ minHeight: 320 }}>
                   <div className="absolute inset-0 opacity-30" style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%, rgba(196,164,100,0.08) 0%, transparent 70%)" }} />
                   <img src={logo} alt={name} className="h-24 w-auto object-contain relative z-10 mb-4" loading="lazy"
                     style={{ filter: "drop-shadow(0 0 24px rgba(196,164,100,0.20))" }} />
@@ -264,7 +264,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
             {howItWorks.map((step, i) => {
               const Icon = ICON_MAP[step.icon];
               return (
-                <div key={step.num} className="relative rounded-3xl border border-[--color-gold]/[0.10] bg-background hover:border-[--color-gold]/[0.22] hover:bg-[--color-gold]/[0.025] transition-all duration-300 group overflow-hidden">
+                <div key={step.num} className="relative rounded-3xl border border-[--color-gold]/[0.10] bg-[#0a0a0a] hover:border-[--color-gold]/[0.22] hover:bg-[--color-gold]/[0.025] transition-all duration-300 group overflow-hidden">
                   {/* Step image or icon header */}
                   {step.image ? (
                     <div className="relative h-40 overflow-hidden">
@@ -310,7 +310,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
       </section>
 
       {/* ── Key Benefits ── */}
-      <section className="py-24 px-6 bg-background">
+      <section className="py-24 px-6 bg-[#060606]">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.04] text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold] mb-5">
@@ -323,7 +323,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {benefits.map((b, idx) => (
-              <div key={b.title} className="p-7 rounded-3xl border border-[--color-gold]/[0.08] bg-background hover:border-[--color-gold]/[0.18] hover:bg-[--color-gold]/[0.02] transition-all duration-300 group">
+              <div key={b.title} className="p-7 rounded-3xl border border-[--color-gold]/[0.08] bg-[#0a0a0a] hover:border-[--color-gold]/[0.18] hover:bg-[--color-gold]/[0.02] transition-all duration-300 group">
                 <div className="w-8 h-8 rounded-xl bg-[--color-gold]/[0.10] border border-[--color-gold]/[0.18] flex items-center justify-center mb-4 group-hover:bg-[--color-gold]/[0.18] transition-colors">
                   <span className="text-[11px] font-black text-[--color-gold] font-mono">{String(idx + 1).padStart(2, "0")}</span>
                 </div>
@@ -351,7 +351,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
               {keyFeatures.map((feat) => {
                 const Icon = ICON_MAP[feat.icon];
                 return (
-                  <div key={feat.title} className="group rounded-3xl border border-[--color-gold]/[0.08] bg-background hover:border-[--color-gold]/[0.20] hover:bg-[--color-gold]/[0.025] transition-all duration-300 overflow-hidden">
+                  <div key={feat.title} className="group rounded-3xl border border-[--color-gold]/[0.08] bg-[#0a0a0a] hover:border-[--color-gold]/[0.20] hover:bg-[--color-gold]/[0.025] transition-all duration-300 overflow-hidden">
                     {feat.image ? (
                       <div className="relative h-44 overflow-hidden">
                         <img src={feat.image} alt={feat.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
@@ -378,7 +378,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
 
       {/* ── Example Output ── */}
       {exampleOutput && (
-        <section className="py-24 px-6 bg-background">
+        <section className="py-24 px-6 bg-[#060606]">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.15] bg-[--color-gold]/[0.04] text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold] mb-5">
@@ -422,7 +422,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
       </section>
 
       {/* ── Related Modules ── */}
-      <section className="py-20 px-6 bg-background">
+      <section className="py-20 px-6 bg-[#060606]">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-2xl font-extrabold text-white mb-2">Part of the WIZ AI Engine</h2>
@@ -443,7 +443,7 @@ export default function ProductPageTemplate(props: ProductPageProps) {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-[--color-gold]/[0.06] bg-background py-12 px-6">
+      <footer className="border-t border-[--color-gold]/[0.06] bg-[#030303] py-12 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-6">
             <NavLink href="/">

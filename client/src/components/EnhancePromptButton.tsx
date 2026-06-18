@@ -153,7 +153,7 @@ export default function EnhancePromptButton({
             <button
               type="button"
               onClick={() => setEnhanced(null)}
-              className="text-muted-foreground/70 hover:text-foreground/80 transition-colors"
+              className="text-zinc-500 hover:text-zinc-300 transition-colors"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -176,7 +176,7 @@ export default function EnhancePromptButton({
               size="sm"
               variant="outline"
               onClick={handleCopy}
-              className="h-7 gap-1 text-xs border-border text-foreground/80 hover:bg-secondary"
+              className="h-7 gap-1 text-xs border-zinc-700 text-zinc-300 hover:bg-zinc-800"
             >
               {copied ? (
                 <Check className="h-3 w-3 text-green-400" />

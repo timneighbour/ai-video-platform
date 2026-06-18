@@ -6,7 +6,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { wizImages } from "../../drizzle/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { generateGrokImage, type GrokImageSize } from "../ai-apis/grok-imagine";
 import { storagePut } from "../storage";
 import { getUserCredits, deductCredits } from "../db";
@@ -126,12 +126,7 @@ export const wizImageRouter = router({
 
       await db
         .delete(wizImages)
-        .where(
-          and(
-            eq(wizImages.id, input.id),
-            eq(wizImages.userId, ctx.user.id)  // ownership guard — users can only delete their own images
-          )
-        );
+        .where(eq(wizImages.id, input.id));
 
       return { success: true };
     }),

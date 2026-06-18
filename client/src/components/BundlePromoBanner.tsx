@@ -60,7 +60,7 @@ export default function BundlePromoBanner({
 
   return (
     <div
-      className={`relative flex items-center gap-3 rounded-lg border border-[--color-gold]/30 bg-background/40 px-4 py-3 text-sm ${className}`}
+      className={`relative flex items-center gap-3 rounded-lg border border-[--color-gold]/30 bg-[#2a1f00]/40 px-4 py-3 text-sm ${className}`}
     >
       {/* Icon */}
       <div className="flex-shrink-0">

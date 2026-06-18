@@ -1,1 +1,0 @@
-ALTER TABLE `musicVideoScenes` ADD `lipSyncAttempts` int DEFAULT 0 NOT NULL;

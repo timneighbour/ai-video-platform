@@ -55,7 +55,7 @@ const REJECTION_MESSAGES: Record<PhotoValidationCheck, string> = {
   single_person:
     "Your photo appears to contain more than one person. Please upload a photo with only you in the frame.",
   min_resolution:
-    "Your photo is too small. Please upload a higher-resolution image (at least 512 × 512 pixels required for lip-sync quality).",
+    "Your photo is too small. Please upload a higher-resolution image (at least 400 × 400 pixels recommended).",
   face_size:
     "Your face is too small in the photo. Please upload a closer shot where your face fills more of the frame.",
   no_sunglasses:
@@ -87,11 +87,9 @@ export async function validateCharacterPhoto(
   // ── Resolution check (client-side dimensions if available) ────────────────
   const knownWidth = widthPx ?? 0;
   const knownHeight = heightPx ?? 0;
-  // ISS-037: Minimum 512×512 required for HeyGen/InfiniteTalk lip-sync quality
-  const MIN_DIMENSION_PX = 512;
   const resolutionOk = knownWidth === 0 || knownHeight === 0
     ? true // unknown — defer to LLM
-    : knownWidth >= MIN_DIMENSION_PX && knownHeight >= MIN_DIMENSION_PX;
+    : knownWidth >= 200 && knownHeight >= 200;
 
   // ── LLM vision assessment ─────────────────────────────────────────────────
   let llmChecks: Partial<Record<PhotoValidationCheck, boolean>> = {};
@@ -203,7 +201,7 @@ Return ONLY valid JSON. No explanation. No markdown.`,
   const effectiveHeight = estimatedHeight > 0 ? estimatedHeight : knownHeight;
   const minResOk = effectiveWidth === 0 || effectiveHeight === 0
     ? true
-    : effectiveWidth >= MIN_DIMENSION_PX && effectiveHeight >= MIN_DIMENSION_PX;
+    : effectiveWidth >= 200 && effectiveHeight >= 200;
 
   const checks: Record<PhotoValidationCheck, boolean> = {
     face_detected:     llmChecks.face_detected     ?? true,

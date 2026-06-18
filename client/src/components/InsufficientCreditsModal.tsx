@@ -42,7 +42,7 @@ export default function InsufficientCreditsModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-background border-border text-white max-w-md">
+      <DialogContent className="bg-zinc-950 border-zinc-800 text-white max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-xl bg-red-900/40 border border-red-800/40 flex items-center justify-center">
@@ -50,7 +50,7 @@ export default function InsufficientCreditsModal({
             </div>
             <DialogTitle className="text-white text-lg">Not enough Credits</DialogTitle>
           </div>
-          <DialogDescription className="text-muted-foreground text-sm leading-relaxed">
+          <DialogDescription className="text-zinc-400 text-sm leading-relaxed">
             This video needs <strong className="text-white">{required} Credits</strong> to create.
             You have <strong className="text-white">{balance} Credits</strong> — you&apos;re{" "}
             <strong className="text-red-300">{shortfall} Credits short</strong>.
@@ -74,13 +74,13 @@ export default function InsufficientCreditsModal({
           {canReduceQuality && onReduceQuality && (
             <Button
               variant="outline"
-              className="w-full border-border text-foreground/80 hover:bg-secondary bg-transparent gap-2"
+              className="w-full border-zinc-700 text-zinc-300 hover:bg-zinc-800 bg-transparent gap-2"
               onClick={() => {
                 onReduceQuality();
                 onClose();
               }}
             >
-              <ArrowDownCircle className="w-4 h-4 text-muted-foreground" />
+              <ArrowDownCircle className="w-4 h-4 text-zinc-400" />
               Reduce Quality (Standard only)
             </Button>
           )}
@@ -88,14 +88,14 @@ export default function InsufficientCreditsModal({
           {/* Dismiss */}
           <Button
             variant="ghost"
-            className="w-full text-muted-foreground/70 hover:text-foreground/80 hover:bg-card"
+            className="w-full text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900"
             onClick={onClose}
           >
             Cancel
           </Button>
         </div>
 
-        <p className="text-xs text-muted-foreground/50 text-center mt-2">
+        <p className="text-xs text-zinc-600 text-center mt-2">
           Credits never expire · Storyboard generation is always free
         </p>
       </DialogContent>

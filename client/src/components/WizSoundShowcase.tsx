@@ -49,10 +49,10 @@ const TIERS: {
   },
   {
     id: "enhanced",
-    label: "WizSound™ Enhance",
+    label: "WizSound Active",
     price: "+£1",
     tagline: "Polished, fuller sound",
-    colour: "from-primary to-primary/40",
+    colour: "from-[#b8892a] to-[#4a3010]",
     glow: "rgba(184,137,42,0.4)",
     specs: [
       { label: "Stereo Width", value: "×2.5", bar: 72 },
@@ -66,9 +66,9 @@ const TIERS: {
   },
   {
     id: "cinematic",
-    label: "WizSound™ Cinematic",
+    label: "WizSound Spatial",
     price: "+£3",
-    tagline: "Cinematic audio mastering — spatial depth, broadcast-ready",
+    tagline: "Spatial audio mastering — cinema-grade immersive sound",
     colour: "from-[#9b59b6] to-[#6c3483]",
     glow: "rgba(155,89,182,0.45)",
     badge: "RECOMMENDED",

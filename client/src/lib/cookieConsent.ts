@@ -148,7 +148,7 @@ export function loadClarity(): void {
     t.src = "https://www.clarity.ms/tag/" + i;
     const y = l.getElementsByTagName(r)[0];
     y.parentNode?.insertBefore(t, y);
-  })(window, document, "clarity", "script", import.meta.env.VITE_CLARITY_PROJECT_ID || "wbohukdt58");
+  })(window, document, "clarity", "script", "wbohukdt58");
 }
 
 /** Opt Mixpanel in — only after analytics consent */

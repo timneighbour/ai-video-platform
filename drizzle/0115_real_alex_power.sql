@@ -1,1 +1,0 @@
-ALTER TABLE `musicVideoJobs` ADD `assemblyAttempts` int DEFAULT 0 NOT NULL;

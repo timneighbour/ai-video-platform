@@ -49,14 +49,14 @@ const TRIGGERS: Trigger[] = [
   {
     id: "try_cinematic",
     icon: Film,
-    iconColor: "text-primary",
-    borderColor: "border-primary/20",
-    bgColor: "bg-primary/[0.04]",
+    iconColor: "text-[#b8892a]",
+    borderColor: "border-[#b8892a]/20",
+    bgColor: "bg-[#b8892a]/[0.04]",
     headline: "Try a new cinematic style",
     subline: "WizLumina™ Cinematic is now available — ultra-realistic lighting and depth.",
     ctaLabel: "Open WizVideo →",
     ctaHref: "/music-video/create",
-    ctaStyle: "text-primary hover:text-primary/90",
+    ctaStyle: "text-[#b8892a] hover:text-[#e8c878]",
     condition: (p) => p.totalProjects >= 1,
   },
   {
@@ -75,14 +75,14 @@ const TRIGGERS: Trigger[] = [
   {
     id: "try_music",
     icon: Music,
-    iconColor: "text-foreground/80",
+    iconColor: "text-zinc-300",
     borderColor: "border-white/10",
     bgColor: "bg-white/[0.02]",
     headline: "Have you tried WizAudio™?",
     subline: "Generate original AI music for your next video — no royalties, ever.",
     ctaLabel: "Try WizAudio →",
     ctaHref: "/music-creator",
-    ctaStyle: "text-foreground/80 hover:text-white",
+    ctaStyle: "text-zinc-300 hover:text-white",
     condition: (p) => p.totalProjects >= 2,
   },
   {
@@ -92,10 +92,10 @@ const TRIGGERS: Trigger[] = [
     borderColor: "border-[--color-gold]/20",
     bgColor: "bg-[--color-gold]/[0.04]",
     headline: "Unlock 4K exports and monthly credits",
-    subline: "Starter plan from £9/mo — cancel anytime, no credit card required to try.",
+    subline: "Pro plan from £19/mo — cancel anytime, no credit card required to try.",
     ctaLabel: "See plans →",
     ctaHref: "/pricing",
-    ctaStyle: "text-[--color-gold] hover:text-primary/90",
+    ctaStyle: "text-[--color-gold] hover:text-[#e8c878]",
     condition: (p) => p.isFreePlan && p.totalProjects >= 1,
   },
   {
@@ -166,7 +166,7 @@ export function ReturnTriggerBanner(props: ReturnTriggerBannerProps) {
         <p className="text-sm font-semibold text-white leading-tight">
           {resolveHeadline(activeTrigger, props)}
         </p>
-        <p className="text-xs text-muted-foreground/70 mt-0.5 leading-relaxed">{activeTrigger.subline}</p>
+        <p className="text-xs text-zinc-500 mt-0.5 leading-relaxed">{activeTrigger.subline}</p>
       </div>
       <div className="flex-shrink-0 flex items-center gap-3">
         <a
@@ -181,7 +181,7 @@ export function ReturnTriggerBanner(props: ReturnTriggerBannerProps) {
           className="w-6 h-6 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors flex-shrink-0"
           aria-label="Dismiss"
         >
-          <X className="w-3 h-3 text-muted-foreground/70" />
+          <X className="w-3 h-3 text-zinc-500" />
         </button>
       </div>
     </div>

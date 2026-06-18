@@ -94,7 +94,7 @@ export default function FirstRenderCelebrationModal({
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center text-muted-foreground/70 hover:text-white transition-colors"
+          className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center text-zinc-500 hover:text-white transition-colors"
           style={{ background: "rgba(255,255,255,0.06)" }}
         >
           <X className="w-4 h-4" />
@@ -134,7 +134,7 @@ export default function FirstRenderCelebrationModal({
           <h2 className="text-2xl font-black text-white mb-1 tracking-tight">
             Your first WIZ AI creation is complete
           </h2>
-          <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mx-auto">
+          <p className="text-zinc-400 text-sm leading-relaxed max-w-xs mx-auto">
             {videoTitle
               ? `"${videoTitle}" is ready. `
               : "Your video is ready. "}
@@ -176,7 +176,7 @@ export default function FirstRenderCelebrationModal({
           {/* Create another */}
           <Button
             variant="ghost"
-            className="w-full h-11 text-sm text-muted-foreground hover:text-white hover:bg-white/5"
+            className="w-full h-11 text-sm text-zinc-400 hover:text-white hover:bg-white/5"
             onClick={() => { handleClose(); onCreateAnother?.(); }}
           >
             <Sparkles className="w-4 h-4 mr-2" />
@@ -186,7 +186,7 @@ export default function FirstRenderCelebrationModal({
 
         {/* Footer */}
         <div className="px-8 pb-6 text-center">
-          <p className="text-muted-foreground/50 text-xs">
+          <p className="text-zinc-600 text-xs">
             Share your creation and tag{" "}
             <span className="text-[--color-gold]/60">@wizai</span> — we'd love to feature it.
           </p>

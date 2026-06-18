@@ -1248,14 +1248,6 @@ export async function startSceneRender(
 }
 
 // ── BYTEPLUS SEEDANCE: ModelArk Seedance 2.0 ────────────────────────────────────────────────────
-/**
- * Snap an arbitrary duration (seconds) to the nearest value accepted by BytePlus Seedance.
- * The API only accepts exactly 5 or 10 seconds — any other value (e.g. 6) is rejected.
- * Threshold: <=7.5 → 5, >7.5 → 10.
- */
-export function snapBytePlusDuration(duration: number): 5 | 10 {
-  return duration <= 7.5 ? 5 : 10;
-}
 async function startSceneRenderBytePlusSeedance(
   sceneId: number,
   prompt: string,
@@ -1264,8 +1256,7 @@ async function startSceneRenderBytePlusSeedance(
   _jobId: number = 0,
   characterImageUrl?: string
 ): Promise<string> {
-  // BytePlus Seedance only accepts exactly 5 or 10 seconds — snap to nearest valid value.
-  const clampedDuration: 5 | 10 = snapBytePlusDuration(duration);
+  const clampedDuration = Math.max(5, Math.min(10, Math.round(duration))) as 5 | 10;
   const safeRatio = (aspectRatio === "21:9" ? "16:9" : aspectRatio) as "16:9" | "9:16" | "1:1" | "4:3";
   const taskId = await submitBytePlusSeedanceVideo({
     prompt,
@@ -2308,41 +2299,7 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     }
 
     if (identityWarnings > 0) {
-      // ── AUTO-REGENERATION: reset warning scenes to pending (max 2 retries per scene) ──────
-      // Re-fetch scenes with faceValidationStatus to find which ones need regeneration
-      const warningScenes = await dbConn
-        .select({ id: musicVideoScenes.id, sceneIndex: musicVideoScenes.sceneIndex, retryCount: musicVideoScenes.retryCount })
-        .from(musicVideoScenes)
-        .where(and(eq(musicVideoScenes.jobId, jobId), eq(musicVideoScenes.faceValidationStatus, "warning")));
-      const regenCandidates = warningScenes.filter(s => (s.retryCount ?? 0) < 2);
-      if (regenCandidates.length > 0) {
-        console.warn(`[IdentityGate] Job ${jobId}: auto-regenerating ${regenCandidates.length} scene(s) that failed identity validation (retryCount < 2)`);
-        for (const s of regenCandidates) {
-          await dbConn.update(musicVideoScenes)
-            .set({
-              status: "pending",
-              videoUrl: null,
-              taskId: null,
-              lipSyncStatus: "pending",
-              lipSyncTaskId: null,
-              lipSyncVideoUrl: null,
-              faceValidationStatus: "pending",
-              retryCount: (s.retryCount ?? 0) + 1,
-              errorMessage: "Auto-regenerating: failed identity validation",
-              updatedAt: new Date(),
-            })
-            .where(eq(musicVideoScenes.id, s.id));
-          console.log(`[IdentityGate] Scene ${s.sceneIndex} (id=${s.id}) reset to pending for auto-regeneration (retry ${(s.retryCount ?? 0) + 1}/2)`);
-        }
-        // Reset job status to rendering so heartbeat picks up the pending scenes
-        await dbConn.update(musicVideoJobs)
-          .set({ status: "rendering" as any, updatedAt: new Date() })
-          .where(eq(musicVideoJobs.id, jobId));
-        // Abort assembly — scenes need to be re-rendered first
-        throw new Error(`[IdentityGate] Job ${jobId}: assembly aborted — ${regenCandidates.length} scene(s) queued for auto-regeneration due to identity validation failure`);
-      }
-      // All warning scenes have exhausted retries — deliver with warning flag
-      const warningMsg = `Identity Gate: ${identityWarnings}/${performanceScenes.length} performance scene(s) failed face similarity check (retries exhausted). Video delivered but flagged for review.`;
+      const warningMsg = `Identity Gate: ${identityWarnings}/${performanceScenes.length} performance scene(s) failed face similarity check. Video delivered but flagged for review.`;
       console.warn(`[IdentityGate] Job ${jobId}: ${warningMsg}`);
       // Append to existing error message (don't overwrite QC warnings)
       const existingMsg = qcIssues.length > 0 ? `QC Warning: ${qcIssues.join("; ")}; ` : "";
@@ -2609,36 +2566,6 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       }
     }
 
-    // ── FREE TRIAL WATERMARK ─────────────────────────────────────────────────
-    // If this is a free trial render, apply a semi-transparent gold "WIZ AI" text
-    // overlay in the bottom-right corner before uploading to S3.
-    // The watermark is removed when the user upgrades and the upsellRemoveWatermark
-    // flag is set — the upsell delivery worker re-renders without this step.
-    if (job.isFreeTrial) {
-      const watermarkedVideo = path.join(tmpDir, "watermarked.mp4");
-      const wmFilter = [
-        // Gold semi-transparent text, bottom-right, 2% margin from edges
-        "drawtext=text='WIZ AI':",
-        "fontcolor=0xe8c97a@0.72:",
-        "fontsize=h*0.038:",
-        "x=w-tw-w*0.02:",
-        "y=h-th-h*0.02:",
-        "shadowcolor=black@0.55:",
-        "shadowx=2:shadowy=2",
-      ].join("");
-      try {
-        await execAsync(
-          `"${FFMPEG_BIN}" -y -i "${finalVideoPath}" -vf "${wmFilter}" -c:v libx264 -preset fast -crf 22 -c:a copy "${watermarkedVideo}"`,
-          { timeout: 300000 }
-        );
-        finalVideoPath = watermarkedVideo;
-        console.log(`[FreeTrial] Job ${jobId}: watermark applied to free trial render.`);
-      } catch (wmErr) {
-        // Non-fatal — deliver the unwatermarked video rather than failing the job
-        console.error(`[FreeTrial] Job ${jobId}: watermark failed — delivering unwatermarked. Error: ${(wmErr as Error).message}`);
-      }
-    }
-
     const finalBuffer = fs.readFileSync(finalVideoPath);
     // Phase 2: UUID-keyed S3 path — never reuses a previous path, even on re-render
     const finalUuid = randomUUID();
@@ -2728,22 +2655,6 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
       }
     } catch (emailErr) {
       console.error("[Email] Failed to send render complete email:", emailErr);
-    }
-
-    // ── In-app notification ──────────────────────────────────────────────────
-    try {
-      const { inAppNotifications } = await import("../drizzle/schema");
-      await dbConn.insert(inAppNotifications).values({
-        userId: job.userId,
-        title: "Your video is ready! 🎬",
-        message: "Your music video has finished rendering and is ready to download.",
-        type: "system",
-        actionUrl: `/dashboard?jobId=${jobId}`,
-        actionLabel: "View video",
-        isRead: false,
-      });
-    } catch (notifErr) {
-      console.error("[Notification] Failed to insert in-app notification:", notifErr);
     }
 
     return url;

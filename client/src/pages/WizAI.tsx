@@ -115,11 +115,11 @@ function FadeSection({ children, className = "" }: { children: React.ReactNode; 
 
 export default function WizAI() {
   return (
-    <div className="min-h-screen bg-background text-white antialiased">
+    <div className="min-h-screen bg-[#0a0a0a] text-white antialiased">
       <BackgroundOrbs />
 
       {/* ── Nav ─────────────────────────────────────────────────────────── */}
-      <nav className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/5">
+      <nav className="fixed top-0 inset-x-0 z-50 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <a href="https://www.wiz-ai.io" className="text-xl font-bold tracking-tight">
             <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Wiz</span>

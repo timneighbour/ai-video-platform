@@ -142,7 +142,7 @@ export default function WizVidEngine() {
   return (
     <section
       ref={ref}
-      className="py-24 px-6 bg-background relative overflow-hidden"
+      className="py-24 px-6 bg-[#080808] relative overflow-hidden"
       aria-label="The WIZ AI Engine"
     >
       {/* Background radial glow */}
@@ -162,7 +162,7 @@ export default function WizVidEngine() {
           </div>
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
             The{" "}
-            <span className="bg-gradient-to-r from-primary via-cyan-200 to-secondary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#b8892a] via-cyan-200 to-[#2e2e36] bg-clip-text text-transparent">
               WIZ AI Engine
             </span>
           </h2>
@@ -286,7 +286,7 @@ export default function WizVidEngine() {
         >
           <NavLink
             href="/music-video/create"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-primary to-primary/40 text-white font-semibold text-sm hover:from-primary hover:to-primary/40 transition-all duration-200 shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] text-white font-semibold text-sm hover:from-[#b8892a] hover:to-[#4a3010] transition-all duration-200 shadow-[0_0_20px_rgba(139,92,246,0.3)]"
           >
             Start the Engine <ArrowRight className="w-4 h-4" />
           </NavLink>

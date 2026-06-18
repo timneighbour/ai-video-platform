@@ -103,7 +103,7 @@ const CREATE_TILES: StudioTile[] = [
 const ENHANCE_TILES: StudioTile[] = [
   {
     name: "WizSound™",
-    benefit: "Cinematic audio mastering — immersive spatial sound",
+    benefit: "Studio-grade audio mastering & enhancement",
     href: "/products/wizsound",
     image: HERO_WIZSOUND,
     glowColor: "rgba(196,164,100,0.30)",

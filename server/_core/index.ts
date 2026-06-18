@@ -1,8 +1,4 @@
 import "dotenv/config";
-import path from "path";
-import { fileURLToPath } from "url";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 // ISS-005: Sentry must be imported before all other modules
 import "../sentry";
 import * as Sentry from "@sentry/node";
@@ -31,7 +27,6 @@ import { goldenValidationHandler } from "../scheduled/goldenValidationHandler";
 import { processOrphanedAssemblyJobs } from "../assemblyWorker";
 import { jobResurrectionReaperHandler } from "../scheduled/jobResurrectionReaper";
 import { runProbeReminderHeartbeat } from "../scheduled/probeReminderHeartbeat";
-import { sendWeeklySpendReport } from "../weekly-spend-report";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -465,17 +460,6 @@ async function startServer() {
   // dead rendering jobs, and SLA breach alerts.
   app.post("/api/scheduled/jobResurrectionReaper", jobResurrectionReaperHandler);
 
-  // ── Scheduled: weekly spend efficiency report (Mondays 09:00 UTC) ─────────
-  app.post("/api/scheduled/weeklySpendReport", async (_req, res) => {
-    try {
-      await sendWeeklySpendReport();
-      res.json({ ok: true });
-    } catch (err: any) {
-      console.error("[weeklySpendReport route] Error:", err?.message);
-      res.status(500).json({ ok: false, error: err?.message ?? "Unknown error" });
-    }
-  });
-
   // ── Debug: pre-render validation check (owner-only, temporary) ─────────────
   app.get("/api/debug/validate/:jobId", async (req, res) => {
     try {
@@ -567,14 +551,6 @@ async function startServer() {
       return res.status(500).json({ error: err?.message ?? "unknown" });
     }
   });
-
-  // Static audio assets — served with CORS open so the frontend can stream them
-  app.use("/api/audio", express.static(path.join(__dirname, "../public/audio"), {
-    setHeaders: (res) => {
-      res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Cache-Control", "public, max-age=86400");
-    }
-  }));
 
   // ISS-005: Sentry error handler — must be registered AFTER all routes, BEFORE Vite/static
   // Captures unhandled Express errors and sends them to Sentry
