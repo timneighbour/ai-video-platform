@@ -1671,3 +1671,41 @@ select {
   from { transform: scaleY(0.5); opacity: 0.55; }
   to   { transform: scaleY(1.0); opacity: 0.9; }
 }
+
+/* ── Hero cinematic background — orb drift animations ─────────────────── */
+/* 5 independently-drifting warm amber/gold light orbs                      */
+@keyframes orbDriftA {
+  0%   { transform: translate(0px, 0px) scale(1.00); opacity: 0.85; }
+  25%  { transform: translate(30px, -25px) scale(1.04); opacity: 1.00; }
+  50%  { transform: translate(15px, -45px) scale(0.97); opacity: 0.90; }
+  75%  { transform: translate(-20px, -20px) scale(1.02); opacity: 0.95; }
+  100% { transform: translate(0px, 0px) scale(1.00); opacity: 0.85; }
+}
+@keyframes orbDriftB {
+  0%   { transform: translate(0px, 0px) scale(1.00); opacity: 0.80; }
+  30%  { transform: translate(-25px, 30px) scale(1.05); opacity: 1.00; }
+  60%  { transform: translate(-40px, 15px) scale(0.96); opacity: 0.85; }
+  80%  { transform: translate(-15px, -10px) scale(1.03); opacity: 0.95; }
+  100% { transform: translate(0px, 0px) scale(1.00); opacity: 0.80; }
+}
+@keyframes orbDriftC {
+  0%   { transform: translate(0px, 0px) scale(1.00); opacity: 0.75; }
+  20%  { transform: translate(20px, -20px) scale(1.03); opacity: 0.90; }
+  50%  { transform: translate(35px, -10px) scale(0.98); opacity: 1.00; }
+  70%  { transform: translate(10px, 15px) scale(1.04); opacity: 0.85; }
+  100% { transform: translate(0px, 0px) scale(1.00); opacity: 0.75; }
+}
+@keyframes orbDriftD {
+  0%   { transform: translate(0px, 0px) scale(1.00); opacity: 0.70; }
+  35%  { transform: translate(15px, -30px) scale(1.06); opacity: 0.95; }
+  65%  { transform: translate(25px, -15px) scale(0.95); opacity: 0.80; }
+  85%  { transform: translate(5px, 10px) scale(1.02); opacity: 0.90; }
+  100% { transform: translate(0px, 0px) scale(1.00); opacity: 0.70; }
+}
+@keyframes orbDriftE {
+  0%   { transform: translate(0px, 0px) scale(1.00); opacity: 0.80; }
+  40%  { transform: translate(-20px, 20px) scale(1.04); opacity: 1.00; }
+  70%  { transform: translate(-30px, 35px) scale(0.97); opacity: 0.85; }
+  90%  { transform: translate(-10px, 15px) scale(1.01); opacity: 0.90; }
+  100% { transform: translate(0px, 0px) scale(1.00); opacity: 0.80; }
+}
