@@ -1251,7 +1251,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               // synclabs:      → Sync Labs (fallback)
               // other          → InfiniteTalk / WaveSpeed (legacy fallback)
               const taskIdStr = scene.lipSyncTaskId!;
-              let pollResult: { status: string; videoUrl?: string };
+              let pollResult: { status: string; videoUrl?: string; errorCode?: string };
               if (taskIdStr.startsWith("heygen_direct:")) {
                 const heyGenDirectId = taskIdStr.slice("heygen_direct:".length);
                 console.log(`[SceneDispatch] Scene ${scene.id} — HeyGen Direct task ${heyGenDirectId}, polling`);
@@ -1266,7 +1266,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 const syncLabsId = taskIdStr.slice("synclabs:".length);
                 console.log(`[SceneDispatch] Scene ${scene.id} — Sync Labs job ${syncLabsId}, polling`);
                 const syncLabsPoll = await pollSyncLabsDirect(syncLabsId, scene.id);
-                pollResult = { status: syncLabsPoll.status, videoUrl: syncLabsPoll.videoUrl };
+                pollResult = { status: syncLabsPoll.status, videoUrl: syncLabsPoll.videoUrl, errorCode: syncLabsPoll.errorCode };
               } else if (taskIdStr.length < 30 && !taskIdStr.match(/^[0-9a-f]{8}-[0-9a-f]{4}-/i) && !taskIdStr.match(/^[0-9a-f]{20,}/i)) {
                 // Legacy HeyGen Precision (short alphanumeric, no prefix)
                 console.log(`[SceneDispatch] Scene ${scene.id} — HeyGen Precision task ${taskIdStr}, polling (legacy no-prefix)`);
@@ -1380,12 +1380,35 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 } catch { /* non-fatal */ }
 
               } else if (pollResult.status === "failed") {
-                console.error(`[SceneDispatch] Scene ${scene.id} lip sync job ${scene.lipSyncTaskId} FAILED — resetting to pending for retry`);
-                // Reset to pending so the heartbeat re-submits on the next tick.
-                // Under the premium policy, 'error' permanently blocks assembly — never use it here.
-                await db.update(musicVideoScenes)
-                  .set({ lipSyncStatus: "pending", lipSyncTaskId: null, updatedAt: new Date() })
-                  .where(eq(musicVideoScenes.id, scene.id));
+                // Use structured error classification for SyncLabs jobs
+                if (taskIdStr.startsWith("synclabs:") && pollResult.errorCode) {
+                  const { classifySyncLabsError } = await import("../ai-apis/synclabs-errors");
+                  const classification = await classifySyncLabsError(pollResult.errorCode).catch(() => null);
+                  if (classification?.retryAction === "no_retry") {
+                    // Permanent input error — flag as error so it doesn't loop forever
+                    console.error(`[SceneDispatch] Scene ${scene.id} lip sync PERMANENT FAILURE (${pollResult.errorCode}) — ${classification.suggestion}`);
+                    await db.update(musicVideoScenes)
+                      .set({ lipSyncStatus: "error" as any, lipSyncTaskId: null, updatedAt: new Date() })
+                      .where(eq(musicVideoScenes.id, scene.id));
+                  } else if (classification?.retryAction === "escalate") {
+                    console.error(`[SceneDispatch] Scene ${scene.id} lip sync INTERNAL ERROR (${pollResult.errorCode}) — escalating. ${classification.suggestion}`);
+                    await db.update(musicVideoScenes)
+                      .set({ lipSyncStatus: "pending", lipSyncTaskId: null, updatedAt: new Date() })
+                      .where(eq(musicVideoScenes.id, scene.id));
+                  } else {
+                    console.error(`[SceneDispatch] Scene ${scene.id} lip sync job ${scene.lipSyncTaskId} FAILED (${pollResult.errorCode}) — resetting to pending for retry`);
+                    await db.update(musicVideoScenes)
+                      .set({ lipSyncStatus: "pending", lipSyncTaskId: null, updatedAt: new Date() })
+                      .where(eq(musicVideoScenes.id, scene.id));
+                  }
+                } else {
+                  console.error(`[SceneDispatch] Scene ${scene.id} lip sync job ${scene.lipSyncTaskId} FAILED — resetting to pending for retry`);
+                  // Reset to pending so the heartbeat re-submits on the next tick.
+                  // Under the premium policy, 'error' permanently blocks assembly — never use it here.
+                  await db.update(musicVideoScenes)
+                    .set({ lipSyncStatus: "pending", lipSyncTaskId: null, updatedAt: new Date() })
+                    .where(eq(musicVideoScenes.id, scene.id));
+                }
               } else {
                 console.log(`[SceneDispatch] Scene ${scene.id} lip sync status: ${pollResult.status} — polling next tick`);
               }
