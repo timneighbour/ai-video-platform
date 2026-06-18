@@ -1414,8 +1414,23 @@ function USPGridSection() {
  },
  ];
  return (
- <section className="relative bg-[#030303] py-24 px-6 overflow-hidden">
- <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 50% at 50% 0%, oklch(0.72 0.14 70 / 0.04), transparent 70%)" }} />
+ <section className="relative py-24 px-6 overflow-hidden">
+
+ {/* ── Background: premium dark studio control room with mixing desk ── */}
+ <div className="absolute inset-0" style={{
+ backgroundImage: "url('/manus-storage/production-details-bg_a9d2cd46.jpg')",
+ backgroundSize: "cover",
+ backgroundPosition: "center 35%",
+ }} />
+ {/* Dark overlay — balanced to show studio photo while keeping text readable */}
+ <div className="absolute inset-0" style={{
+ background: "linear-gradient(180deg, rgba(3,2,1,0.88) 0%, rgba(5,3,1,0.72) 50%, rgba(3,2,1,0.88) 100%)",
+ }} />
+ {/* Warm amber centre glow to tie into WIZ AI palette */}
+ <div className="absolute inset-0" style={{
+ background: "radial-gradient(ellipse 65% 45% at 50% 60%, rgba(196,140,40,0.09), transparent 70%)",
+ }} />
+
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  <div className="relative z-10 max-w-[900px] mx-auto">
  <div className="text-center mb-14">
