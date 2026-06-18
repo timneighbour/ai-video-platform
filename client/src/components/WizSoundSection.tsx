@@ -35,16 +35,16 @@ const MODE_CONFIG: Record<AudioMode, {
     borderColor: "rgba(255,255,255,0.1)",
   },
   enhanced: {
-    label: "WizSound Active",
-    sublabel: "WizSound™",
+    label: "WizSound™ Enhance",
+    sublabel: "WizSound™ Enhance",
     description: "Richer · Fuller · Clearer · Studio-mastered audio enhancement",
     gradient: "linear-gradient(135deg, rgba(139,92,246,0.85), rgba(99,102,241,0.75))",
     glow: "0 0 16px rgba(139,92,246,0.35)",
     borderColor: "rgba(139,92,246,0.45)",
   },
   cinematic: {
-    label: "WizSound Spatial",
-    sublabel: "WizSound™ Spatial",
+    label: "WizSound™ Cinematic",
+    sublabel: "WizSound™ Cinematic",
     description: "Spatial depth · Immersive reverb · Deep bass · Cinema-grade audio",
     gradient: "linear-gradient(135deg, rgba(217,70,239,0.9), rgba(139,92,246,0.8))",
     glow: "0 0 24px rgba(217,70,239,0.45), 0 0 48px rgba(139,92,246,0.2)",
@@ -317,7 +317,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
 
   return (
     <div
-      className="relative rounded-2xl overflow-hidden border bg-[#0c0c14] transition-all duration-700"
+      className="relative rounded-2xl overflow-hidden border bg-background transition-all duration-700"
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(24px)",
@@ -401,7 +401,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
               {[0, 1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="w-0.5 rounded-full bg-[#b8892a]"
+                  className="w-0.5 rounded-full bg-primary"
                   style={{
                     height: `${8 + Math.random() * 8}px`,
                     animation: `spatialBar 0.8s ease-in-out infinite ${i * 0.1}s`,
@@ -409,7 +409,7 @@ function WizSoundPlayer({ visible }: { visible: boolean }) {
                 />
               ))}
             </div>
-            <span className="text-[9px] font-bold text-[#d4aa48] tracking-wider uppercase">Spatial</span>
+            <span className="text-[9px] font-bold text-primary/90 tracking-wider uppercase">Spatial</span>
           </div>
         )}
       </div>
@@ -555,7 +555,7 @@ export default function WizSoundSection() {
   return (
     <section
       ref={sectionRef}
-      className="py-24 px-6 bg-gradient-to-b from-[#0d0d18] via-[#0f0f0f] to-[#0f0f0f] relative overflow-hidden"
+      className="py-24 px-6 bg-gradient-to-b from-background via-background to-background relative overflow-hidden"
     >
       {/* Ambient background glow for spatial feel */}
       <div className="absolute inset-0 pointer-events-none">
@@ -566,21 +566,21 @@ export default function WizSoundSection() {
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Header */}
         <div className="text-center mb-14 reveal" style={{ transitionDelay: "0ms" }}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[rgba(184,137,42,0.3)] bg-[rgba(184,137,42,0.08)] text-[#d4aa48] text-xs font-mono tracking-widest uppercase font-semibold mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#b8892a] animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[rgba(184,137,42,0.3)] bg-[rgba(184,137,42,0.08)] text-primary/90 text-xs font-mono tracking-widest uppercase font-semibold mb-5">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
             WizSound™ Spatial Audio Engine
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
-            Hear the{" "}
-            <span className="bg-gradient-to-r from-[#b8892a] via-[#d4aa48] to-[#e8c878] bg-clip-text text-transparent">
-              spatial difference
+            Cinematic sound.{" "}
+            <span className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 bg-clip-text text-transparent">
+              Not just visuals.
             </span>
           </h2>
           <p className="text-white/50 text-lg max-w-2xl mx-auto leading-relaxed">
-            Cinema-grade immersive audio. Toggle between Standard, Enhanced, and Cinematic spatial modes to experience how WizSound transforms your video's sound.
+            WizSound™ transforms your audio into an immersive, cinematic experience — adding depth, clarity, and impact to every video.
           </p>
           <p className="text-[rgba(184,137,42,0.5)] text-sm mt-2 font-medium">
-            Best experienced with headphones for full spatial depth
+            Simulated cinematic spatial audio experience
           </p>
         </div>
 
@@ -595,28 +595,28 @@ export default function WizSoundSection() {
           <div className="flex flex-col gap-3 reveal" style={{ transitionDelay: "200ms" }}>
             <FeatureCard
               icon={Volume2}
-              title="Standard Audio"
-              description="The raw, unprocessed audio — flat mix, no EQ, narrow stereo. The baseline before WizSound enhancement."
+              title="Immersive Depth"
+              description="Spatial reverb and Haas psychoacoustic widening place your audio in three-dimensional space — the listener feels surrounded, not just hearing."
               gradient="linear-gradient(135deg, rgba(100,100,120,0.8), rgba(60,60,80,0.8))"
             />
             <FeatureCard
               icon={Music2}
-              title="WizSound Active"
-              description="Studio-grade EQ, bass boost, stereo widening, and light compression. Immediate, clean improvement for any content."
+              title="Cinematic Mastering"
+              description="Studio-grade 5-band EQ, dynamic compression, harmonic saturation, and −14 LUFS loudness normalisation — every track sounds broadcast-ready."
               gradient="linear-gradient(135deg, rgba(139,92,246,0.8), rgba(99,102,241,0.8))"
             />
             <FeatureCard
               icon={Radio}
-              title="WizSound Spatial"
-              description="Full spatial audio mastering — concert-hall reverb, deep immersive bass, stereo widening, and cinema-grade dynamic range. Your video sounds like it belongs in a Dolby Cinema."
+              title="Built for Video"
+              description="WizSound™ is engineered specifically for music video output — preserving vocal clarity while expanding the soundstage to fill any screen."
               gradient="linear-gradient(135deg, rgba(217,70,239,0.85), rgba(139,92,246,0.75))"
-              badge="SPATIAL"
+              badge="CINEMATIC"
             />
 
             {/* Spatial depth indicator */}
             <div className="p-4 rounded-xl border border-[rgba(184,137,42,0.2)] bg-gradient-to-br from-[rgba(184,137,42,0.07)] to-[rgba(180,180,200,0.03)]">
               <div className="flex items-center gap-3 mb-3">
-                <Headphones className="w-5 h-5 text-[#b8892a] flex-shrink-0" />
+                <Headphones className="w-5 h-5 text-primary flex-shrink-0" />
                 <div>
                   <p className="text-white/80 text-sm font-semibold">Spatial Sound Experience</p>
                   <p className="text-white/40 text-[11px]">Inspired by Dolby Cinema immersive audio</p>
@@ -643,11 +643,11 @@ export default function WizSoundSection() {
 
             {/* Pricing callout */}
             <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/8 bg-white/[0.03]">
-              <Sparkles className="w-4 h-4 text-[#b8892a] flex-shrink-0" />
+              <Sparkles className="w-4 h-4 text-primary flex-shrink-0" />
               <p className="text-white/45 text-xs leading-relaxed">
                 <span className="text-white/70 font-medium">Standard Audio</span> is free with every build.{" "}
-                <span className="text-[#d4aa48] font-medium">Enhanced</span> +£1 ·{" "}
-                <span className="text-[#d4aa48] font-medium">Cinematic Spatial</span> +£3
+                <span className="text-primary/90 font-medium">Enhanced</span> +£1 ·{" "}
+                <span className="text-primary/90 font-medium">Cinematic Spatial</span> +£3
               </p>
             </div>
           </div>

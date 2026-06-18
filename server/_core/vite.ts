@@ -40,8 +40,8 @@ function getRouteMeta(pathname: string): RouteMeta {
       canonical: `${BASE_URL}/`,
     },
     "/pricing": {
-      title: "Pricing — WIZ AI",
-      description: "Simple, transparent pricing. Start free, upgrade when you're ready. Starter from £9/mo.",
+      title: "Pricing — WIZ AI | Starter £29 · Creator £79 · Studio £149",
+      description: "Choose the WIZ AI plan that fits your creative workflow. Starter (£29/mo), Creator (£79/mo), and Studio (£149/mo). One Build Credit = one final downloadable video. Only pay when you're ready.",
       canonical: `${BASE_URL}/pricing`,
     },
     "/how-it-works": {
@@ -90,8 +90,8 @@ function getRouteMeta(pathname: string): RouteMeta {
       canonical: `${BASE_URL}/music-video/create`,
     },
     "/products/wizvideo": {
-      title: "WizVideo — AI Music Video Studio | WIZ AI",
-      description: "WizVideo is WIZ AI's flagship music video creation studio. Turn any song into a cinematic masterpiece.",
+      title: "WizVideo™ — AI Music Video Generator | WIZ AI",
+      description: "WizVideo™ generates cinematic AI music videos from your audio track — beat-locked visuals, professional output, no editing skills required. Upload your song and create a full AI music video in minutes.",
       canonical: `${BASE_URL}/products/wizvideo`,
     },
     "/products/wizsound": {
@@ -100,23 +100,23 @@ function getRouteMeta(pathname: string): RouteMeta {
       canonical: `${BASE_URL}/products/wizsound`,
     },
     "/products/wizscript": {
-      title: "WizScript — AI Video Creator | WIZ AI",
-      description: "Turn any script into a professional AI video with WizScript. No camera or editing required.",
+      title: "WizScript™ — AI Screenplay & Storyboard Generator | WIZ AI",
+      description: "WizScript™ generates professional screenplays and storyboards from a single prompt — proper screenplay format, auto-storyboarding, and direct WizVideo™ integration. From idea to storyboard in seconds.",
       canonical: `${BASE_URL}/products/wizscript`,
     },
     "/products/wizanimate": {
-      title: "WizAnimate — AI Animation Studio | WIZ AI",
-      description: "Create stunning AI animations with WizAnimate. Perfect for music videos, kids content, and social media.",
+      title: "WizAnimate™ — AI Animation Studio | WIZ AI",
+      description: "WizAnimate™ generates beat-locked animated music videos from your audio track — AI characters, automatic lip sync, and cinematic animation styles. No animation experience needed.",
       canonical: `${BASE_URL}/products/wizanimate`,
     },
     "/products/wizimage": {
-      title: "WizImage — AI Image Creator | WIZ AI",
-      description: "Generate stunning AI images for your videos, social media, and creative projects.",
+      title: "WizImage™ — AI Visual Creator | WIZ AI",
+      description: "Create stunning AI visuals: album covers, band photos, tour posters, merch designs, and more. 8 art styles including Cinematic, Anime, Oil Painting, and Photorealistic. Powered by WizImage™.",
       canonical: `${BASE_URL}/products/wizimage`,
     },
     "/products/wizshorts": {
-      title: "WizShorts — AI Short-Form Video | WIZ AI",
-      description: "Create viral short-form AI videos for TikTok, Reels, and YouTube Shorts in minutes.",
+      title: "WizShorts™ — AI Short-Form Video Creator | WIZ AI",
+      description: "WizShorts™ generates polished 9:16 short-form videos for YouTube Shorts, Instagram Reels, and TikTok — from a topic or script, in minutes. AI scenes, optional music, and polished transitions.",
       canonical: `${BASE_URL}/products/wizshorts`,
     },
     "/products/wizgenesis": {
@@ -145,13 +145,13 @@ function getRouteMeta(pathname: string): RouteMeta {
       canonical: `${BASE_URL}/products/wizcreate`,
     },
     "/products/wizscore": {
-      title: "WizScore — AI Music Scoring | WIZ AI",
-      description: "Generate original AI music scores for your videos with WizScore.",
+      title: "WizScore™ — AI Orchestral Score Composer | WIZ AI",
+      description: "WizScore™ analyses your video's mood, pacing, and emotional arc — then composes an original, perfectly synchronised soundtrack. AI-composed, royalty-free, and timed precisely to your footage.",
       canonical: `${BASE_URL}/products/wizscore`,
     },
     "/products/wizsync-info": {
-      title: "WizSync — Audio-Visual Sync | WIZ AI",
-      description: "WizSync ensures perfect audio-visual synchronisation in every AI video.",
+      title: "WizSync™ — Audio-Visual Synchronisation Engine | WIZ AI",
+      description: "WizSync™ analyses your audio at the waveform level and locks every visual cut, character movement, and scene transition to the exact rhythm of your track. Beat-perfect, frame-accurate synchronisation.",
       canonical: `${BASE_URL}/products/wizsync-info`,
     },
     "/discover": {
@@ -170,8 +170,8 @@ function getRouteMeta(pathname: string): RouteMeta {
       canonical: `${BASE_URL}/uk`,
     },
     "/blog": {
-      title: "Blog — WIZ AI",
-      description: "Tips, tutorials, and news from the WIZ AI team.",
+      title: "Blog — WIZ AI | AI Creative Tips & Tutorials",
+      description: "Learn how to create cinematic AI music videos, storyboards, and animations. Tips, tutorials, and insights from the WIZ AI team on getting the most from every WIZ AI studio.",
       canonical: `${BASE_URL}/blog`,
     },
     "/subscribe": {

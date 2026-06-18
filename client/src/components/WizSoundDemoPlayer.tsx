@@ -57,11 +57,11 @@ const TIERS: TierConfig[] = [
   },
   {
     id: "enhanced",
-    label: "WizSound Active",
-    sublabel: "ACTIVE",
+    label: "WizSound™ Enhance",
+    sublabel: "ENHANCE",
     price: "+£1",
     tagline: "Polished, fuller sound — professional audio enhancement",
-    colour: "from-[#b8892a] to-[#7c5a1a]",
+    colour: "from-primary to-primary/45",
     glowColour: "rgba(184,137,42,0.45)",
     accentHex: "#c4a464",
     specs: [
@@ -82,8 +82,8 @@ const TIERS: TierConfig[] = [
   },
   {
     id: "cinematic",
-    label: "WizSound Spatial",
-    sublabel: "SPATIAL",
+    label: "WizSound™ Cinematic",
+    sublabel: "CINEMATIC",
     price: "+£3",
     tagline: "Cinema-grade spatial mastering — immersive, broadcast-ready",
     badge: "RECOMMENDED",
@@ -136,7 +136,7 @@ function buildStandardChain(ctx: AudioContext, source: MediaElementAudioSourceNo
 
 function buildEnhancedChain(ctx: AudioContext, source: MediaElementAudioSourceNode): AudioChain {
   /**
-   * WizSound Active chain — subtle, clean enhancement:
+   * WizSound™ Enhance chain — subtle, clean enhancement:
    * source → splitter → gentle M/S widening → merger
    *        → 3-band EQ (conservative boosts) → soft compressor → gain → destination
    *
@@ -216,7 +216,7 @@ function buildEnhancedChain(ctx: AudioContext, source: MediaElementAudioSourceNo
 
 function buildCinematicChain(ctx: AudioContext, source: MediaElementAudioSourceNode): AudioChain {
   /**
-   * WizSound Spatial chain — clean, immersive, no distortion:
+   * WizSound™ Cinematic chain — clean, immersive, no distortion:
    * source → splitter → Haas psychoacoustic widening (tiny delays) → merger
    *        → 5-band EQ (gentle boosts ≤ 2.5 dB) → transparent compressor
    *        → parallel reverb (short, low wet mix) → gain → destination
@@ -527,7 +527,7 @@ export default function WizSoundDemoPlayer({ compact = false }: { compact?: bool
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
   return (
-    <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#07070a]"
+    <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-background"
       style={{ boxShadow: `0 0 80px ${tier.glowColour}, 0 0 20px rgba(0,0,0,0.8)` }}>
 
       {/* Ambient background glow */}

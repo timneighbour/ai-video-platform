@@ -35,14 +35,14 @@ type JobStatus = "draft" | "storyboard_ready" | "rendering" | "assembling" | "co
 
 function StatusBadge({ status }: { status: JobStatus }) {
   const config: Record<JobStatus, { label: string; className: string; icon: React.ReactNode }> = {
-    draft:            { label: "Draft",            className: "bg-zinc-800 text-zinc-400 border-zinc-700",          icon: <Edit3 className="w-3 h-3" /> },
+    draft:            { label: "Draft",            className: "bg-secondary text-muted-foreground border-border",          icon: <Edit3 className="w-3 h-3" /> },
     storyboard_ready: { label: "Storyboard Ready", className: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30", icon: <BookmarkCheck className="w-3 h-3" /> },
     rendering:        { label: "Building Your Video", className: "bg-blue-500/15 text-[--color-gold] border-[--color-gold]/30", icon: <Loader2 className="w-3 h-3 animate-spin" /> },
     assembling:       { label: "Assembling",       className: "bg-blue-500/15 text-[--color-gold] border-[--color-gold]/30", icon: <Loader2 className="w-3 h-3 animate-spin" /> },
     completed:        { label: "Complete",         className: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/30", icon: <CheckCircle2 className="w-3 h-3" /> },
     failed:           { label: "Failed",           className: "bg-red-500/15 text-red-300 border-red-500/30",       icon: <AlertCircle className="w-3 h-3" /> },
     paused:           { label: "Paused — Action Required", className: "bg-amber-500/15 text-amber-300 border-amber-500/40 animate-pulse", icon: <Pause className="w-3 h-3" /> },
-    cancelled:        { label: "Cancelled",        className: "bg-zinc-800 text-zinc-500 border-zinc-700",          icon: <AlertCircle className="w-3 h-3" /> },
+    cancelled:        { label: "Cancelled",        className: "bg-secondary text-muted-foreground/70 border-border",          icon: <AlertCircle className="w-3 h-3" /> },
   };
   const { label, className, icon } = config[status] ?? config.draft;
   return (
@@ -104,8 +104,8 @@ function ProjectCard({
   return (
     <div className={`flex flex-col rounded-xl border transition-all overflow-hidden group ${
       isPaused
-        ? "bg-[#1a1200] border-amber-500/30 hover:border-amber-400/50"
-        : "bg-[#141414] border-white/8 hover:border-white/14"
+        ? "bg-background border-amber-500/30 hover:border-amber-400/50"
+        : "bg-card border-white/8 hover:border-white/14"
     }`}>
       {/* Paused banner */}
       {isPaused && (
@@ -141,7 +141,7 @@ function ProjectCard({
             </div>
             <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all duration-700 ${isPaused ? "bg-amber-500/60" : "bg-gradient-to-r from-blue-500 to-[#4a3010]"}`}
+                className={`h-full rounded-full transition-all duration-700 ${isPaused ? "bg-amber-500/60" : "bg-gradient-to-r from-blue-500 to-primary/40"}`}
                 style={{ width: `${pct}%` }}
               />
             </div>
@@ -177,7 +177,7 @@ function ProjectCard({
                     Resume Render
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="bg-[#1a1a1a] border-white/10">
+                <AlertDialogContent className="bg-card border-white/10">
                   <AlertDialogHeader>
                     <AlertDialogTitle className="text-white">Resume rendering?</AlertDialogTitle>
                     <AlertDialogDescription className="text-white/50">
@@ -207,7 +207,7 @@ function ProjectCard({
                     Delete Project
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="bg-[#1a1a1a] border-white/10">
+                <AlertDialogContent className="bg-card border-white/10">
                   <AlertDialogHeader>
                     <AlertDialogTitle className="text-white">Delete project?</AlertDialogTitle>
                     <AlertDialogDescription className="text-white/50">
@@ -274,7 +274,7 @@ function ProjectCard({
                     <Pause className="w-3 h-3" />
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent className="bg-[#1a1a1a] border-white/10">
+                <AlertDialogContent className="bg-card border-white/10">
                   <AlertDialogHeader>
                     <AlertDialogTitle className="text-white">Pause rendering?</AlertDialogTitle>
                     <AlertDialogDescription className="text-white/50">
@@ -312,7 +312,7 @@ function ProjectCard({
                   <Trash2 className="w-3 h-3" />
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="bg-[#1a1a1a] border-white/10">
+              <AlertDialogContent className="bg-card border-white/10">
                 <AlertDialogHeader>
                   <AlertDialogTitle className="text-white">Delete project?</AlertDialogTitle>
                   <AlertDialogDescription className="text-white/50">

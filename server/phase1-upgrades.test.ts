@@ -27,7 +27,7 @@ describe("Phase 1a — Default shot mix", () => {
 
   it("performanceShotRatio tRPC createJob fallback is 80", async () => {
     const fs = await import("fs");
-    const content = fs.readFileSync("server/routers/musicVideo.ts", "utf-8");
+    const content = fs.readFileSync("server/routers/musicVideo/render.ts", "utf-8") + fs.readFileSync("server/routers/musicVideo/job.ts", "utf-8") + fs.readFileSync("server/routers/musicVideo/character.ts", "utf-8");
     expect(content).toContain("performanceShotRatio: input.performanceShotRatio ?? 80");
   });
 

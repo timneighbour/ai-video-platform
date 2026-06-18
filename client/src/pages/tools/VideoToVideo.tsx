@@ -1,4 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
+import { Helmet } from "react-helmet-async";
+
 import { LandscapeHint } from "@/components/LandscapeHint";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +18,14 @@ export default function VideoToVideo() {
 
   return (
     <div className="min-h-screen bg-background">
+  <Helmet>
+    <title>AI Video-to-Video — WIZ AI</title>
+    <meta name="description" content="Transform existing footage with AI-powered style transfer and scene enhancement. Video-to-Video coming soon to WIZ AI." />
+    <meta property="og:title" content="AI Video-to-Video — WIZ AI" />
+    <meta property="og:description" content="Transform existing footage with AI-powered style transfer and scene enhancement. Video-to-Video coming soon to WIZ AI." />
+    <meta property="og:url" content="https://wiz-ai.io/tools/video-to-video" />
+    <link rel="canonical" href="https://wiz-ai.io/tools/video-to-video" />
+  </Helmet>
       {/* Header */}
       <div className="border-b border-border/40">
         <div className="container flex h-16 items-center justify-between">

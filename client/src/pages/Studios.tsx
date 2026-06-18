@@ -82,7 +82,7 @@ function ProfileForm({
           <SelectTrigger className="bg-white/5 border-white/10 text-white">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="bg-[#1a1a2e] border-white/10">
+          <SelectContent className="bg-background border-white/10">
             {PROFILE_TYPES.map(t => (
               <SelectItem key={t.value} value={t.value} className="text-white hover:bg-white/10">
                 {t.icon} {t.label}
@@ -179,12 +179,12 @@ export default function Studios() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#0a0a14] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
-          <Layers className="w-16 h-16 text-[#b8892a] mx-auto" />
+          <Layers className="w-16 h-16 text-primary mx-auto" />
           <h2 className="text-2xl font-bold text-white">My Creative Studios</h2>
           <p className="text-white/60">Sign in to manage your creative projects</p>
-          <Button asChild className="bg-[#b8892a] hover:bg-[#a07820] text-black font-semibold">
+          <Button asChild className="bg-primary hover:bg-primary/80 text-black font-semibold">
             <a href={getLoginUrl()}>Sign In</a>
           </Button>
         </div>
@@ -193,15 +193,15 @@ export default function Studios() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a14] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Header */}
-      <div className="border-b border-white/5 bg-gradient-to-r from-[#0a0a14] via-[#12122a] to-[#0a0a14]">
+      <div className="border-b border-white/5 bg-gradient-to-r from-background via-background to-background">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-[#b8892a]/20 flex items-center justify-center">
-                  <Layers className="w-5 h-5 text-[#b8892a]" />
+                <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                  <Layers className="w-5 h-5 text-primary" />
                 </div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent">
                   My Creative Studios
@@ -213,11 +213,11 @@ export default function Studios() {
             </div>
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-[#b8892a] hover:bg-[#a07820] text-black font-semibold gap-2">
+                <Button className="bg-primary hover:bg-primary/80 text-black font-semibold gap-2">
                   <Plus className="w-4 h-4" /> New Studio
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-[#12122a] border-white/10 text-white max-w-md">
+              <DialogContent className="bg-card border-white/10 text-white max-w-md">
                 <DialogHeader>
                   <DialogTitle className="text-xl font-bold">Create a New Studio</DialogTitle>
                 </DialogHeader>
@@ -246,8 +246,8 @@ export default function Studios() {
           </div>
         ) : profiles.length === 0 ? (
           <div className="text-center py-24">
-            <div className="w-24 h-24 rounded-3xl bg-[#b8892a]/10 flex items-center justify-center mx-auto mb-6">
-              <Layers className="w-12 h-12 text-[#b8892a]/60" />
+            <div className="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
+              <Layers className="w-12 h-12 text-primary/60" />
             </div>
             <h3 className="text-2xl font-bold text-white mb-3">No Studios Yet</h3>
             <p className="text-white/50 max-w-md mx-auto mb-8">
@@ -256,7 +256,7 @@ export default function Studios() {
             </p>
             <Button
               onClick={() => setCreateOpen(true)}
-              className="bg-[#b8892a] hover:bg-[#a07820] text-black font-semibold gap-2 px-8 py-3"
+              className="bg-primary hover:bg-primary/80 text-black font-semibold gap-2 px-8 py-3"
             >
               <Plus className="w-5 h-5" /> Create Your First Studio
             </Button>
@@ -335,7 +335,7 @@ export default function Studios() {
             {/* Add new card */}
             <button
               onClick={() => setCreateOpen(true)}
-              className="rounded-2xl border-2 border-dashed border-white/10 hover:border-[#b8892a]/40 hover:bg-[#b8892a]/5 transition-all duration-300 min-h-[220px] flex flex-col items-center justify-center gap-3 text-white/30 hover:text-[#b8892a] group"
+              className="rounded-2xl border-2 border-dashed border-white/10 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 min-h-[220px] flex flex-col items-center justify-center gap-3 text-white/30 hover:text-primary group"
             >
               <div className="w-12 h-12 rounded-xl border-2 border-dashed border-current flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Plus className="w-6 h-6" />
@@ -348,7 +348,7 @@ export default function Studios() {
 
       {/* Edit Dialog */}
       <Dialog open={!!editProfile} onOpenChange={v => !v && setEditProfile(null)}>
-        <DialogContent className="bg-[#12122a] border-white/10 text-white max-w-md">
+        <DialogContent className="bg-card border-white/10 text-white max-w-md">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Edit Studio</DialogTitle>
           </DialogHeader>
@@ -368,7 +368,7 @@ export default function Studios() {
 
       {/* Delete Confirm Dialog */}
       <Dialog open={deleteId !== null} onOpenChange={v => !v && setDeleteId(null)}>
-        <DialogContent className="bg-[#12122a] border-white/10 text-white max-w-sm">
+        <DialogContent className="bg-card border-white/10 text-white max-w-sm">
           <DialogHeader>
             <DialogTitle>Delete Studio?</DialogTitle>
           </DialogHeader>

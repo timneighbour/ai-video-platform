@@ -18,7 +18,7 @@ const STEPS = [
     borderColor: "border-[--color-gold]/30",
     glowColor: "shadow-violet-500/20",
     dotColor: "bg-[--color-gold]",
-    lineColor: "from-[#b8892a]/60",
+    lineColor: "from-primary/60",
   },
   {
     step: 2,
@@ -32,7 +32,7 @@ const STEPS = [
     borderColor: "border-cyan-500/30",
     glowColor: "shadow-cyan-500/20",
     dotColor: "bg-cyan-500",
-    lineColor: "from-[#9090a0]/60",
+    lineColor: "from-muted-foreground/60",
   },
   {
     step: 3,
@@ -46,7 +46,7 @@ const STEPS = [
     borderColor: "border-pink-500/30",
     glowColor: "shadow-pink-500/20",
     dotColor: "bg-pink-500",
-    lineColor: "from-[#9090a0]/60",
+    lineColor: "from-muted-foreground/60",
   },
   {
     step: 4,
@@ -60,7 +60,7 @@ const STEPS = [
     borderColor: "border-[--color-gold]/30",
     glowColor: "shadow-amber-500/20",
     dotColor: "bg-[--color-gold]",
-    lineColor: "from-[#b8892a]/60",
+    lineColor: "from-primary/60",
   },
   {
     step: 5,
@@ -74,7 +74,7 @@ const STEPS = [
     borderColor: "border-[--color-silver]/30",
     glowColor: "shadow-emerald-500/20",
     dotColor: "bg-[--color-silver]",
-    lineColor: "from-[#9090a0]/60",
+    lineColor: "from-muted-foreground/60",
   },
   {
     step: 6,
@@ -102,7 +102,7 @@ const STEPS = [
     borderColor: "border-rose-500/30",
     glowColor: "shadow-rose-500/20",
     dotColor: "bg-rose-500",
-    lineColor: "from-[#9090a0]/60",
+    lineColor: "from-muted-foreground/60",
   },
 ];
 
@@ -152,7 +152,7 @@ export default function AllInOnePlatform() {
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-4 tracking-tight">
             The complete AI video creation platform
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#b8892a] via-cyan-400 to-[#2e2e36]">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-primary via-cyan-400 to-secondary">
               — all in one place
             </span>
           </h2>
@@ -169,7 +169,7 @@ export default function AllInOnePlatform() {
         <div className="hidden lg:block">
           <div className="relative">
             {/* Connecting line */}
-            <div className="absolute top-[52px] left-[calc(100%/14)] right-[calc(100%/14)] h-px bg-gradient-to-r from-[#b8892a]/40 via-cyan-500/40 via-pink-500/40 via-amber-500/40 via-emerald-500/40 via-sky-500/40 to-[#2e2e36]/40" />
+            <div className="absolute top-[52px] left-[calc(100%/14)] right-[calc(100%/14)] h-px bg-gradient-to-r from-primary/40 via-cyan-500/40 via-pink-500/40 via-amber-500/40 via-emerald-500/40 via-sky-500/40 to-secondary/40" />
 
             <div className="grid grid-cols-7 gap-3">
               {STEPS.map((s, i) => {
@@ -262,7 +262,7 @@ export default function AllInOnePlatform() {
           </p>
           <NavLink
             href="/onboarding"
-            className="inline-flex items-center gap-2.5 bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white font-bold px-8 py-3.5 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg shadow-violet-500/25 text-sm"
+            className="inline-flex items-center gap-2.5 bg-gradient-to-r from-primary to-secondary hover:from-primary hover:to-secondary text-white font-bold px-8 py-3.5 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg shadow-violet-500/25 text-sm"
           >
             Start Creating
             <ArrowRight className="w-4 h-4" />

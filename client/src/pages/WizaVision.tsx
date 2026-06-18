@@ -41,7 +41,7 @@ function VideoCard({ video }: { video: any }) {
           {video.thumbnailUrl ? (
             <img src={video.thumbnailUrl} alt={video.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#1a1a3e] to-[#0a0a14]">
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-background to-background">
               <Play className="w-10 h-10 text-white/20" />
             </div>
           )}
@@ -63,7 +63,7 @@ function VideoCard({ video }: { video: any }) {
           </div>
         </div>
         <div className="mt-2">
-          <h3 className="font-semibold text-white text-sm line-clamp-2 leading-tight group-hover:text-[#b8892a] transition-colors">{video.title}</h3>
+          <h3 className="font-semibold text-white text-sm line-clamp-2 leading-tight group-hover:text-primary transition-colors">{video.title}</h3>
           <div className="flex items-center gap-2 mt-1">
             {video.creatorName && <span className="text-white/40 text-xs truncate">{video.creatorName}</span>}
             {video.viewCount > 0 && (
@@ -82,12 +82,12 @@ function SectionHeader({ title, icon, href }: { title: string; icon: React.React
   return (
     <div className="flex items-center justify-between mb-5">
       <div className="flex items-center gap-2.5">
-        <div className="text-[#b8892a]">{icon}</div>
+        <div className="text-primary">{icon}</div>
         <h2 className="text-xl font-bold text-white">{title}</h2>
       </div>
       {href && (
         <Link href={href}>
-          <button className="text-white/40 hover:text-[#b8892a] text-sm flex items-center gap-1 transition-colors">
+          <button className="text-white/40 hover:text-primary text-sm flex items-center gap-1 transition-colors">
             See all <ChevronRight className="w-4 h-4" />
           </button>
         </Link>
@@ -115,7 +115,7 @@ export default function WizaVision() {
   const heroVideo = featured[0] ?? trending[0] ?? recent[0];
 
   return (
-    <div className="min-h-screen bg-[#070710] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Minimal sticky nav — escape route back to WIZ AI */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 py-3" style={{ background: "rgba(7,7,16,0.88)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="flex items-center gap-3">
@@ -124,7 +124,7 @@ export default function WizaVision() {
             WIZ AI
           </a>
           <span className="text-white/20 text-sm">/</span>
-          <span className="text-[#b8892a] font-bold text-sm tracking-wide">WizaVision</span>
+          <span className="text-primary font-bold text-sm tracking-wide">WizaVision</span>
         </div>
         <div className="flex items-center gap-3">
           {user ? (
@@ -132,7 +132,7 @@ export default function WizaVision() {
           ) : (
             <a href={getLoginUrl()} className="text-sm font-semibold text-white/50 hover:text-white transition-colors">Sign In</a>
           )}
-          <Button size="sm" className="bg-[#b8892a] hover:bg-[#a07820] text-black font-bold text-xs px-4 h-8"
+          <Button size="sm" className="bg-primary hover:bg-primary/80 text-black font-bold text-xs px-4 h-8"
             onClick={() => { window.location.href = user ? "/wizavision/publish" : getLoginUrl(); }}>
             Publish
           </Button>
@@ -143,20 +143,20 @@ export default function WizaVision() {
           {heroVideo?.thumbnailUrl ? (
             <img src={heroVideo.thumbnailUrl} alt="" className="w-full h-full object-cover opacity-40" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-[#1a0a3e] via-[#0a0a20] to-[#0a1a2e]" />
+            <div className="w-full h-full bg-gradient-to-br from-background via-background to-background" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#070710] via-[#070710]/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#070710]/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent" />
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-6 pb-16 pt-32">
           <div className="max-w-2xl">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-[#b8892a] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
                 <Play className="w-5 h-5 text-black ml-0.5" />
               </div>
               <div>
                 <span className="text-2xl font-black tracking-tight">
-                  <span className="text-[#b8892a]">Wiza</span><span className="text-white">Vision</span>
+                  <span className="text-primary">Wiza</span><span className="text-white">Vision</span>
                 </span>
                 <div className="text-white/40 text-xs">AI-Powered Entertainment Platform</div>
               </div>
@@ -180,10 +180,10 @@ export default function WizaVision() {
             ) : (
               <>
                 <h1 className="text-4xl md:text-5xl font-black leading-tight mb-4">
-                  The Home of<br /><span className="text-[#b8892a]">AI-Generated</span> Entertainment
+                  The Home of<br /><span className="text-primary">AI-Generated</span> Entertainment
                 </h1>
                 <p className="text-white/60 text-lg mb-6">Discover stunning music videos, animations, short films and more.</p>
-                <Button className="bg-[#b8892a] hover:bg-[#a07820] text-black font-bold gap-2 px-8 py-3 text-base"
+                <Button className="bg-primary hover:bg-primary/80 text-black font-bold gap-2 px-8 py-3 text-base"
                   onClick={() => window.location.href = user ? "/wizavision/publish" : getLoginUrl()}>
                   <Play className="w-5 h-5" /> {user ? "Publish Your First Video" : "Get Started Free"}
                 </Button>
@@ -195,23 +195,23 @@ export default function WizaVision() {
 
       {/* What is WizaVision? — description section for new visitors */}
       <div className="max-w-7xl mx-auto px-6 pt-10 pb-4">
-        <div className="rounded-2xl border border-[#b8892a]/15 bg-gradient-to-r from-[#b8892a]/[0.06] to-[#7c3aed]/[0.04] p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6">
-          <div className="w-12 h-12 rounded-xl bg-[#b8892a]/15 border border-[#b8892a]/25 flex items-center justify-center shrink-0">
-            <Play className="w-6 h-6 text-[#b8892a] ml-0.5" />
+        <div className="rounded-2xl border border-primary/15 bg-gradient-to-r from-primary/[0.06] to-[#7c3aed]/[0.04] p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6">
+          <div className="w-12 h-12 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0">
+            <Play className="w-6 h-6 text-primary ml-0.5" />
           </div>
           <div className="flex-1">
             <h2 className="text-lg font-black text-white mb-1.5">
-              What is <span className="text-[#b8892a]">WizaVision</span>?
+              What is <span className="text-primary">WizaVision</span>?
             </h2>
             <p className="text-white/55 text-sm leading-relaxed max-w-2xl">
               WizaVision is WIZ AI&rsquo;s video streaming and discovery platform — a curated home for AI-generated entertainment. Watch music videos, short films, animations, documentaries, and more, all created by the WIZ AI community. Browse by category, discover trending creators, and publish your own AI-generated videos to the world.
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <a href="/wizavision/browse" className="text-xs font-bold tracking-wide text-[#b8892a] hover:text-[#d4a843] transition-colors border border-[#b8892a]/30 hover:border-[#b8892a]/60 px-4 py-2 rounded-lg">
+            <a href="/wizavision/browse" className="text-xs font-bold tracking-wide text-primary hover:text-primary/80 transition-colors border border-primary/30 hover:border-primary/60 px-4 py-2 rounded-lg">
               Browse All
             </a>
-            <a href="/create" className="text-xs font-bold tracking-wide bg-[#b8892a] hover:bg-[#a07820] text-black px-4 py-2 rounded-lg transition-colors">
+            <a href="/create" className="text-xs font-bold tracking-wide bg-primary hover:bg-primary/80 text-black px-4 py-2 rounded-lg transition-colors">
               Create a Video
             </a>
           </div>
@@ -311,7 +311,7 @@ export default function WizaVision() {
                       <div className="w-16 h-16 rounded-full bg-white/10 mx-auto mb-3 overflow-hidden flex items-center justify-center text-2xl">
                         {c.avatarUrl ? <img src={c.avatarUrl} alt={c.displayName} className="w-full h-full object-cover" /> : c.displayName[0]}
                       </div>
-                      <div className="font-semibold text-white text-sm group-hover:text-[#b8892a] transition-colors">{c.displayName}</div>
+                      <div className="font-semibold text-white text-sm group-hover:text-primary transition-colors">{c.displayName}</div>
                       <div className="text-white/40 text-xs mt-0.5">{c.videoCount} videos</div>
                     </div>
                   </Link>
@@ -321,12 +321,12 @@ export default function WizaVision() {
           )}
           {recent.length === 0 && trending.length === 0 && featured.length === 0 && (
             <div className="text-center py-20">
-              <div className="w-24 h-24 rounded-3xl bg-[#b8892a]/10 flex items-center justify-center mx-auto mb-6">
-                <Play className="w-12 h-12 text-[#b8892a]/60" />
+              <div className="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                <Play className="w-12 h-12 text-primary/60" />
               </div>
               <h3 className="text-2xl font-bold text-white mb-3">WizaVision is Coming to Life</h3>
               <p className="text-white/50 max-w-md mx-auto mb-8">Be the first to publish your AI-generated video to WizaVision.</p>
-              <Button className="bg-[#b8892a] hover:bg-[#a07820] text-black font-bold gap-2 px-8 py-3"
+              <Button className="bg-primary hover:bg-primary/80 text-black font-bold gap-2 px-8 py-3"
                 onClick={() => window.location.href = user ? "/wizavision/publish" : getLoginUrl()}>
                 <Upload className="w-5 h-5" /> {user ? "Publish Your First Video" : "Join WizaVision"}
               </Button>

@@ -90,9 +90,9 @@ export default function DashboardLayout({
             alt=""
             className="w-full h-full object-cover object-center opacity-[0.12]"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#06050a]/70 via-[#06050a]/50 to-[#06050a]/90" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background/90" />
           {/* Amber ceiling lamp glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#b8892a]/8 blur-[120px] rounded-full" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-primary/8 blur-[120px] rounded-full" />
         </div>
         {/* Sign-in card */}
         <div className="relative z-10 flex flex-col items-center gap-8 p-10 max-w-md w-full mx-4">
@@ -305,8 +305,8 @@ function DashboardLayoutContent({
                 {user?.role === "admin" && (
                   <DropdownMenuItem asChild>
                     <a href="/admin" className="cursor-pointer flex items-center">
-                      <ShieldAlert className="mr-2 h-4 w-4 text-[#e8c97a]" />
-                      <span className="text-[#e8c97a] font-medium">Admin Panel</span>
+                      <ShieldAlert className="mr-2 h-4 w-4 text-primary/90" />
+                      <span className="text-primary/90 font-medium">Admin Panel</span>
                     </a>
                   </DropdownMenuItem>
                 )}

@@ -484,7 +484,7 @@ export default function TextToVideoCreator() {
           <div className="w-11 h-11 rounded-xl flex items-center justify-center text-sm flex-shrink-0" style={{ background: "rgba(124,58,237,0.18)", border: "1px solid rgba(124,58,237,0.4)" }}></div>
           <div className="flex-1">
             <div className="text-sm font-bold mb-0.5" style={{ color: "#a78bfa", letterSpacing: "0.5px" }}>DESCRIBE YOUR VIDEO TO BEGIN</div>
-            <div className="text-xs text-zinc-500">Type your screenplay prompt below — WizScript™ generates a full storyboard with AI scene previews</div>
+            <div className="text-xs text-muted-foreground/70">Type your screenplay prompt below — WizScript™ generates a full storyboard with AI scene previews</div>
           </div>
           <div className="text-xs font-bold px-4 py-2 rounded-lg flex-shrink-0" style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.35)", color: "#a78bfa" }}>START BELOW ↓</div>
         </div>

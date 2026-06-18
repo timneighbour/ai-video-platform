@@ -40,6 +40,8 @@ export interface PlanData {
   priorityBuilds: boolean;
   wizSyncLock: boolean;
   apiAccess: boolean;
+  /** WizScore™ AI soundtrack generation — Studio-only */
+  wizScoreAccess: boolean;
   popular: boolean;
   badge: string | null;
   /** CTA label on Subscribe page */
@@ -79,6 +81,7 @@ export const PLANS: PlanData[] = [
     priorityBuilds: false,
     wizSyncLock: false,
     apiAccess: false,
+    wizScoreAccess: false,
     popular: false,
     badge: null,
     cta: "Start Creating",
@@ -118,11 +121,17 @@ export const PLANS: PlanData[] = [
     priorityBuilds: false,
     wizSyncLock: false,
     apiAccess: false,
+    wizScoreAccess: false,
     popular: false,
     badge: null,
     cta: "Start Creating",
     highlight: false,
   },
+  /**
+   * NOTE: "basic" tier (£19/mo) has no matching Stripe price ID in server/products.ts.
+   * It is kept here for type completeness but is NOT shown on the /pricing page.
+   * Do not add it to PRICING_PAGE_PLANS until a Stripe price ID is configured.
+   */
   {
     id: "basic",
     name: "Basic",
@@ -156,6 +165,7 @@ export const PLANS: PlanData[] = [
     priorityBuilds: false,
     wizSyncLock: false,
     apiAccess: false,
+    wizScoreAccess: false,
     popular: false,
     badge: null,
     cta: "Start Creating",
@@ -196,11 +206,17 @@ export const PLANS: PlanData[] = [
     priorityBuilds: true,
     wizSyncLock: true,
     apiAccess: false,
+    wizScoreAccess: false,
     popular: true,
     badge: "Most Popular",
     cta: "Upgrade Plan",
     highlight: true,
   },
+  /**
+   * NOTE: "pro" tier has no matching Stripe price ID in server/products.ts.
+   * It is kept here for type completeness but is NOT shown on the /pricing page.
+   * Do not add it to PRICING_PAGE_PLANS until a Stripe price ID is configured.
+   */
   {
     id: "pro",
     name: "Pro",
@@ -236,6 +252,7 @@ export const PLANS: PlanData[] = [
     priorityBuilds: true,
     wizSyncLock: true,
     apiAccess: false,
+    wizScoreAccess: false,
     popular: false,
     badge: null,
     cta: "Upgrade Plan",
@@ -247,8 +264,8 @@ export const PLANS: PlanData[] = [
     monthlyPrice: 149,
     annualTotal: 1490,
     annualSaving: 298,
-    tagline: "Create up to 12 videos/month",
-    bestFor: "Best for brands, agencies and high-volume creators",
+    tagline: "Create up to 12 videos/month in 4K",
+    bestFor: "Best for professional creators, brands and agencies",
     outcomes: [
       "12 videos per month",
       "Standard, HD & 4K quality",
@@ -276,6 +293,7 @@ export const PLANS: PlanData[] = [
     priorityBuilds: true,
     wizSyncLock: true,
     apiAccess: true,
+    wizScoreAccess: true,
     popular: false,
     badge: "Best Value",
     cta: "Upgrade Plan",
@@ -291,26 +309,34 @@ export function getPlan(id: PlanId): PlanData | undefined {
 // ── Paid plans only (excludes free) ──────────────────────────────────────────
 export const PAID_PLANS = PLANS.filter((p) => p.id !== "free");
 
-// ── Plans shown on the /pricing page (3-tier simplified view) ────────────────
+// ── Plans shown on the /pricing page ─────────────────────────────────────────
+// Only includes tiers with valid Stripe price IDs in server/products.ts.
+// "basic" and "pro" are hidden until Stripe price IDs are configured.
 export const PRICING_PAGE_PLANS: PlanId[] = ["starter", "creator", "studio"];
 
+// ── Plans shown on the /subscribe page ───────────────────────────────────────
+// Shows Free, Starter (£29), Creator (£79), Pro (£149).
+// "basic" (£19 legacy) and "pro" plan ID (hidden legacy alias) are excluded.
+// "studio" plan ID maps to the "Pro" display tier — no DB/Stripe changes.
+export const SUBSCRIBE_PAGE_PLANS: PlanId[] = ["free", "starter", "creator", "studio"];
+
 // ── Comparison table rows (used by both /pricing and /subscribe) ──────────────
+// Columns: Free | Starter | Creator | Pro (displayed name for studio plan ID).
+// "basic" and "pro" plan ID columns are excluded from all public pages.
 export const COMPARISON_ROWS: {
   feature: string;
   free: string | boolean;
   starter: string | boolean;
-  basic: string | boolean;
   creator: string | boolean;
-  pro: string | boolean;
   studio: string | boolean;
 }[] = [
-  { feature: "Videos/month", free: "1 (trial)", starter: "2", basic: "5", creator: "6", pro: "12", studio: "12" },
-  { feature: "Max quality",         free: "720p",      starter: "720p", basic: "1080p", creator: "4K", pro: "4K", studio: "4K" },
-  { feature: "Free storyboard",     free: true,        starter: true,   basic: true,    creator: true, pro: true,  studio: true  },
-  { feature: "WizSound discount",   free: false,       starter: false,  basic: false,   creator: "20%", pro: "40%", studio: "60%" },
-  { feature: "WizSync™ character lock", free: false,   starter: false,  basic: false,   creator: true, pro: true,  studio: true  },
-  { feature: "Build speed",         free: "Standard",  starter: "Standard", basic: "Standard", creator: "Priority", pro: "Priority", studio: "Fastest" },
-  { feature: "API access",          free: false,       starter: false,  basic: false,   creator: false, pro: false, studio: true  },
+  { feature: "Videos/month",            free: "1 (trial)", starter: "2",         creator: "6",         studio: "12"     },
+  { feature: "Max quality",             free: "720p",      starter: "720p",      creator: "4K",        studio: "4K"     },
+  { feature: "Free storyboard",         free: true,        starter: true,        creator: true,        studio: true     },
+  { feature: "WizSound discount",       free: false,       starter: false,       creator: "20%",       studio: "60%"    },
+  { feature: "WizSync™ character lock", free: false,       starter: false,       creator: true,        studio: true     },
+  { feature: "Build speed",             free: "Standard",  starter: "Standard",  creator: "Priority",  studio: "Fastest"},
+  { feature: "API access",              free: false,       starter: false,       creator: false,       studio: true     },
 ];
 
 // ── Build Credit / Topup Packs ────────────────────────────────────────────────

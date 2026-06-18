@@ -67,7 +67,7 @@ export async function trackPurchaseCompleted(opts: {
   plan: string;
   amount: number;       // in pence/cents
   currency: string;
-  purchaseType: "subscription" | "credits" | "upsell";
+  purchaseType: "subscription" | "credits" | "upsell" | "pay_per_video";
   packLabel?: string;
 }): Promise<void> {
   await trackServerEvent({

@@ -214,7 +214,7 @@ export function SceneLipSyncPreviewModal({
                 <Music className="w-3 h-3 mr-1" /> LIP SYNC PROCESSING…
               </Badge>
             ) : (
-              <Badge className="bg-zinc-500/20 text-zinc-400 border-zinc-500/30 text-xs">
+              <Badge className="bg-muted-foreground/20/20 text-muted-foreground border-border/50/30 text-xs">
                 RAW VIDEO (no lip sync yet)
               </Badge>
             )}

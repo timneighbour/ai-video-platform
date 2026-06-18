@@ -147,7 +147,7 @@ export const billingRouter = router({
 
         const session = await stripe.checkout.sessions.create({
           customer_email: ctx.user.email || undefined,
-          // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
+          // payment_method_types omitted  -  Stripe auto-enables card, Apple Pay, Google Pay, PayPal
           line_items: lineItems,
           mode: "payment",
           success_url: `${input.origin}/onboarding?upsell_success=true&job_id=${input.jobId}`,
@@ -279,7 +279,7 @@ export const billingRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        // Monthly price IDs — fallback to hardcoded sandbox prices if env var is from wrong account
+        // Monthly price IDs  -  fallback to hardcoded sandbox prices if env var is from wrong account
         const isValidPrice = (id: string | undefined) =>
           !!id && id.startsWith("price_");
         const monthlyPrices: Record<string, string> = {
@@ -307,7 +307,7 @@ export const billingRouter = router({
 
         const session = await stripe.checkout.sessions.create({
           customer_email: ctx.user.email || undefined,
-          // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
+          // payment_method_types omitted  -  Stripe auto-enables card, Apple Pay, Google Pay, PayPal
           line_items: [
             {
               price: priceId,
@@ -316,7 +316,7 @@ export const billingRouter = router({
           ],
           mode: "subscription",
           success_url: `${input.origin}/dashboard?success=true`,
-          cancel_url: `${input.origin}/subscribe?canceled=true`,
+          cancel_url: `${input.origin}/pricing?canceled=true`,
           client_reference_id: ctx.user.id.toString(),
           metadata: {
             user_id: ctx.user.id.toString(),
@@ -359,7 +359,7 @@ export const billingRouter = router({
         // Use env var if valid, otherwise fall back to sandbox price IDs
         const vp = (id: string | undefined, fallback: string) => (id && id.startsWith("price_")) ? id : fallback;
         const creditPacks: Record<string, { priceId: string; credits: number; label: string }> = {
-          // ── Option A packs — dedicated Stripe price IDs ─────────────────────────────────────────────────
+          // ── Option A packs  -  dedicated Stripe price IDs ─────────────────────────────────────────────────
           spark: {
             priceId: vp(process.env.STRIPE_TOPUP_SPARK_PRICE_ID, "price_1TTtsxI3gJ5F0DKDr2osAQtH"),
             credits: 50,
@@ -436,7 +436,7 @@ export const billingRouter = router({
 
         const session = await stripe.checkout.sessions.create({
           customer_email: ctx.user.email || undefined,
-          // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
+          // payment_method_types omitted  -  Stripe auto-enables card, Apple Pay, Google Pay, PayPal
           line_items: [
             {
               price: packInfo.priceId,
@@ -474,7 +474,7 @@ export const billingRouter = router({
    * Uses a two-pass LLM approach:
    *   1. World-lock pass: extract subject, costume, setting, tone, camera style, action progression
    *   2. Scene generation pass: generate all scenes from the locked base
-   * Free — no credits deducted. Used in WizScript storyboard step.
+   * Free  -  no credits deducted. Used in WizScript storyboard step.
    */
   generateAIStoryboard: protectedProcedure
     .input(
@@ -622,7 +622,7 @@ You have a locked world bible with an exact character specification. Every scene
 - NEVER change the character's costume, footwear, or helmet state between scenes unless the action explicitly requires it
 - NEVER introduce new characters, new locations, or symbolic cutaways unless the user explicitly asked for them
 - Each scene description MUST explicitly name the locked costume/footwear/headwear details so the image AI cannot drift
-Each scene should feel like the next shot in the same film — same world, same character, continuous narrative.
+Each scene should feel like the next shot in the same film  -  same world, same character, continuous narrative.
 Return ONLY valid JSON. No commentary.`,
           },
           {
@@ -638,7 +638,7 @@ Generate exactly ${sceneCount} sequential storyboard scenes. Each scene must:
 2. Stay in the EXACT same setting: ${worldBible.setting}
 3. Progress the action logically: ${actionSteps.join(" → ")}
 4. Include a specific camera shot type and movement
-5. In the scene description, explicitly name the character's clothing, footwear, and headwear — do NOT just say "same as before"
+5. In the scene description, explicitly name the character's clothing, footwear, and headwear  -  do NOT just say "same as before"
 
 Action steps to cover: ${actionSteps.map((s, i) => `Scene ${i + 1}: ${s}`).join(", ")}`,
           },
@@ -686,7 +686,7 @@ Action steps to cover: ${actionSteps.map((s, i) => `Scene ${i + 1}: ${s}`).join(
       if (rawScenes.length === 0) {
         rawScenes = actionSteps.map((step, i) => ({
           title: i === 0 ? "Opening Shot" : i === sceneCount - 1 ? "Closing Shot" : `Scene ${i + 1}`,
-          description: `${worldBible.main_subject} — ${step}. ${worldBible.setting}.`,
+          description: `${worldBible.main_subject}  -  ${step}. ${worldBible.setting}.`,
           visualNotes: `${input.style} style. ${worldBible.camera_style}. ${consistencyAnchor}`,
           duration: i === 0 || i === sceneCount - 1 ? "3s" : "5s",
         }));
@@ -706,7 +706,7 @@ Action steps to cover: ${actionSteps.map((s, i) => `Scene ${i + 1}: ${s}`).join(
 
   /**
    * Generate an AI preview image for a single storyboard scene.
-   * Free — no credits deducted. Used in WizScript storyboard step.
+   * Free  -  no credits deducted. Used in WizScript storyboard step.
    */
   generateScenePreview: protectedProcedure
     .input(
@@ -846,6 +846,98 @@ Action steps to cover: ${actionSteps.map((s, i) => `Scene ${i + 1}: ${s}`).join(
     }),
 
   /**
+   * Pay-per-video checkout  -  scene-count pricing (£1.50/scene, £5 min).
+   * For non-subscribers who want to render a single video without a subscription.
+   */
+  createPayPerVideoCheckout: protectedProcedure
+    .input(z.object({
+      projectId: z.number().int().positive(),
+      sceneCount: z.number().int().min(1).max(12),
+      origin: z.string().url(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { createPayPerVideoCheckout: createCheckout } = await import("../stripe");
+      const { url, amountPence } = await createCheckout(
+        ctx.user.id,
+        input.projectId,
+        input.sceneCount,
+        ctx.user.email || "",
+        ctx.user.name ?? null,
+        input.origin
+      );
+      return { checkoutUrl: url, amountPence };
+    }),
+
+  /**
+   * Trigger the render pipeline for a pay-per-video purchase.
+   * Called by Dashboard when Stripe redirects back with ?render=success&project=X.
+   * Looks up the paid pay_per_video_orders row for this user + projectId,
+   * calls triggerMusicVideoRender, and marks the order as 'rendering'.
+   * Idempotent  -  safe to call multiple times.
+   */
+  triggerPayPerVideoRender: protectedProcedure
+    .input(z.object({
+      projectId: z.number().int().positive(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { TRPCError } = await import("@trpc/server");
+      const { getDb } = await import("../db");
+      const { payPerVideoOrders } = await import("../../drizzle/schema");
+      const { eq, and } = await import("drizzle-orm");
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      // Find the most recent paid order for this user + project
+      const [order] = await db
+        .select()
+        .from(payPerVideoOrders)
+        .where(
+          and(
+            eq(payPerVideoOrders.userId, ctx.user.id),
+            eq(payPerVideoOrders.projectId, input.projectId),
+            eq(payPerVideoOrders.status, "paid")
+          )
+        )
+        .orderBy(payPerVideoOrders.createdAt)
+        .limit(1);
+      if (!order) {
+        // Check if already triggered (status = 'rendering' or 'completed')
+        const [anyOrder] = await db
+          .select()
+          .from(payPerVideoOrders)
+          .where(
+            and(
+              eq(payPerVideoOrders.userId, ctx.user.id),
+              eq(payPerVideoOrders.projectId, input.projectId)
+            )
+          )
+          .limit(1);
+        if (anyOrder) {
+          // Already triggered  -  idempotent success
+          return { success: true, alreadyTriggered: true, status: anyOrder.status };
+        }
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No paid order found for this project. Payment may still be processing  -  please wait a moment and try again.",
+        });
+      }
+      // Trigger the render pipeline (projectId IS the musicVideoJobs.id)
+      const { triggerMusicVideoRender } = await import("../music-video-service");
+      const triggerResult = await triggerMusicVideoRender(ctx.user.id, input.projectId);
+      if (!triggerResult.success) {
+        console.warn(`[triggerPayPerVideoRender] triggerMusicVideoRender failed for job ${input.projectId}: ${triggerResult.reason}`);
+        // Don't throw  -  payment is confirmed; render may need manual retry
+        return { success: false, reason: triggerResult.reason };
+      }
+      // Mark order as rendering
+      await db
+        .update(payPerVideoOrders)
+        .set({ status: "rendering" })
+        .where(eq(payPerVideoOrders.id, order.id));
+      console.log(`[triggerPayPerVideoRender] Render triggered for project ${input.projectId}, order ${order.id}`);
+      return { success: true, alreadyTriggered: false };
+    }),
+
+  /**
    * Get the user's top-up purchase history
    */
   getTopupHistory: protectedProcedure.query(async ({ ctx }) => {
@@ -962,7 +1054,7 @@ export const renderRouter = router({
 
       const session = await stripe.checkout.sessions.create({
         customer_email: ctx.user.email || undefined,
-        // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
+        // payment_method_types omitted  -  Stripe auto-enables card, Apple Pay, Google Pay, PayPal
         line_items: lineItems,
         mode: "payment",
         success_url: `${input.origin}/render/success?render_job_id=${renderJobId}&session_id={CHECKOUT_SESSION_ID}`,
@@ -1006,7 +1098,7 @@ export const renderRouter = router({
 
       const session = await stripe.checkout.sessions.create({
         customer_email: ctx.user.email || undefined,
-        // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
+        // payment_method_types omitted  -  Stripe auto-enables card, Apple Pay, Google Pay, PayPal
         line_items: [{ price: bundleInfo.priceId, quantity: 1 }],
         mode: "payment",
         success_url: `${input.origin}/dashboard?bundle_purchased=true&renders=${bundleInfo.renders}`,
@@ -1220,7 +1312,7 @@ export const renderRouter = router({
             unit_amount: qualityDiff,
             product_data: {
               name: `Upgrade to ${qualityPrices[targetQuality].label} (${qualityPrices[targetQuality].resolution})`,
-              description: `Upgrade from ${qualityPrices[existingJob.quality].label} — you pay only the difference`,
+              description: `Upgrade from ${qualityPrices[existingJob.quality].label}  -  you pay only the difference`,
             },
           },
           quantity: 1,
@@ -1234,7 +1326,7 @@ export const renderRouter = router({
             unit_amount: audioDiff,
             product_data: {
               name: `Upgrade to ${audioPrices[targetAudioTier].label}`,
-              description: `Audio upgrade from ${audioPrices[existingJob.audioTier].label} — you pay only the difference`,
+              description: `Audio upgrade from ${audioPrices[existingJob.audioTier].label}  -  you pay only the difference`,
             },
           },
           quantity: 1,
@@ -1258,7 +1350,7 @@ export const renderRouter = router({
 
       const session = await stripe.checkout.sessions.create({
         customer_email: ctx.user.email || undefined,
-        // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
+        // payment_method_types omitted  -  Stripe auto-enables card, Apple Pay, Google Pay, PayPal
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         line_items: lineItems as any,
         mode: "payment",
@@ -1350,15 +1442,15 @@ export const renderRouter = router({
 
   /**
    * Return CDN URLs for the 10-second WizSound™ tier preview audio samples.
-   * These are pre-generated static files — no auth required.
+   * These are pre-generated static files  -  no auth required.
    */
   getWizSoundPreviews: publicProcedure.query(() => {
     return {
-      // Standard: flat/dry — reduced bass, no widening, quiet — the "before" experience
+      // Standard: flat/dry  -  reduced bass, no widening, quiet  -  the "before" experience
       standard: "/manus-storage/wizsound-demo-standard_faeb45d0.mp3",
-      // Enhanced: EQ boosted, compressed, stereo widened — clear improvement over standard
+      // Enhanced: EQ boosted, compressed, stereo widened  -  clear improvement over standard
       enhanced: "/manus-storage/wizsound-demo-enhanced_0e893759.mp3",
-      // Cinematic: same enhanced master — full DSP pipeline, broadcast-standard loudness
+      // Cinematic: same enhanced master  -  full DSP pipeline, broadcast-standard loudness
       cinematic: "/manus-storage/wizsound-demo-enhanced_0e893759.mp3",
     };
   }),
@@ -1381,7 +1473,7 @@ export const renderRouter = router({
       if (job.userId !== ctx.user.id && ctx.user.role !== "admin") {
         throw new TRPCError({ code: "FORBIDDEN", message: "Unauthorised" });
       }
-      // Already confirmed — idempotent
+      // Already confirmed  -  idempotent
       if (job.paymentStatus === "paid" || job.paymentStatus === "free" || job.paymentStatus === "subscription") {
         return { success: true, job, alreadyConfirmed: true };
       }

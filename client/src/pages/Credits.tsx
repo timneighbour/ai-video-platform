@@ -74,7 +74,7 @@ const STANDARD_PACKS = [
   },
   {
     id: "studio" as const,
-    name: "Studio",
+    name: "Pro",
     tagline: "2 full videos",
     price: 44.99,
     priceDisplay: "£44.99",
@@ -92,7 +92,7 @@ const STANDARD_PACKS = [
   },
   {
     id: "pro" as const,
-    name: "Pro",
+    name: "Pro Plus",
     tagline: "4–5 videos",
     price: 84.99,
     priceDisplay: "£84.99",
@@ -198,13 +198,13 @@ export default function Credits() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Nav */}
-      <nav className="sticky top-0 z-50 border-b border-white/8 bg-[#0a0a0a]/95 backdrop-blur-xl px-6 py-4">
+      <nav className="sticky top-0 z-50 border-b border-white/8 bg-background/95 backdrop-blur-xl px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <a
             href="/dashboard"
-            className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors text-sm"
+            className="flex items-center gap-2 text-muted-foreground hover:text-white transition-colors text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
@@ -225,7 +225,7 @@ export default function Credits() {
           <h1 className="text-4xl font-bold tracking-tight">
             Get more Credits
           </h1>
-          <p className="text-zinc-400 text-lg max-w-xl mx-auto">
+          <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Credits are only used when you build or upgrade videos. Storyboard generation is always free — preview your full video before you spend a single credit.
           </p>
         </div>
@@ -235,7 +235,7 @@ export default function Credits() {
           <div className="flex items-center gap-3 mb-8">
             <Film className="w-5 h-5 text-[--color-gold]" />
             <h2 className="text-xl font-bold">Build Credits</h2>
-            <span className="text-xs text-zinc-500">50–4,000 Credits · from £3.99 · never expire</span>
+            <span className="text-xs text-muted-foreground/70">50–4,000 Credits · from £3.99 · never expire</span>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -244,8 +244,8 @@ export default function Credits() {
                 key={pack.id}
                 className={`relative rounded-2xl border p-6 flex flex-col gap-5 transition-all ${
                   pack.popular
-                    ? "border-[--color-gold]/30 bg-gradient-to-b from-[#b8892a]/40 to-zinc-900/60 shadow-lg shadow-[#b8892a]/20"
-                    : "border-zinc-800 bg-zinc-900/60 hover:border-zinc-700"
+                    ? "border-[--color-gold]/30 bg-gradient-to-b from-primary/40 to-zinc-900/60 shadow-lg shadow-[#b8892a]/20"
+                    : "border-border bg-card/60 hover:border-border"
                 }`}
               >
                 {pack.popular && (
@@ -258,20 +258,20 @@ export default function Credits() {
                 )}
 
                 <div>
-                  <p className="text-xs text-zinc-500 uppercase tracking-wider font-semibold mb-1">{pack.tagline}</p>
+                  <p className="text-xs text-muted-foreground/70 uppercase tracking-wider font-semibold mb-1">{pack.tagline}</p>
                   <h3 className="text-xl font-bold text-white">{pack.name}</h3>
-                  <p className="text-sm text-zinc-400 mt-1">{pack.videos}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{pack.videos}</p>
                 </div>
 
                 <div className="flex items-end gap-1">
                   <span className="text-4xl font-bold text-white">{(pack as { priceDisplay?: string }).priceDisplay ?? `£${pack.price}`}</span>
-                  <span className="text-zinc-500 text-sm mb-1">one-time</span>
+                  <span className="text-muted-foreground/70 text-sm mb-1">one-time</span>
                 </div>
-                <p className="text-[11px] text-zinc-600 -mt-3">{(pack as { perCreditPence?: number }).perCreditPence?.toFixed(1)}p per credit</p>
+                <p className="text-[11px] text-muted-foreground/50 -mt-3">{(pack as { perCreditPence?: number }).perCreditPence?.toFixed(1)}p per credit</p>
 
                 <ul className="space-y-2 flex-1">
                   {pack.perks.map((perk) => (
-                    <li key={perk} className="flex items-center gap-2 text-sm text-zinc-300">
+                    <li key={perk} className="flex items-center gap-2 text-sm text-foreground/80">
                       <CheckCircle2 className="w-4 h-4 text-[--color-gold] flex-shrink-0" />
                       {perk}
                     </li>
@@ -284,7 +284,7 @@ export default function Credits() {
                   className={`w-full font-semibold ${
                     pack.popular
                       ? "bg-[--color-gold] hover:bg-[--color-gold]/80 text-white"
-                      : "bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700"
+                      : "bg-secondary hover:bg-muted text-white border border-border"
                   }`}
                 >
                   {loading === pack.id ? (
@@ -310,7 +310,7 @@ export default function Credits() {
             <Clapperboard className="w-5 h-5 text-[--color-gold]" />
             <h2 className="text-xl font-bold">Cinematic Upgrades</h2>
           </div>
-          <p className="text-zinc-400 text-sm mb-8">
+          <p className="text-muted-foreground text-sm mb-8">
             Upgrade individual scenes in your videos to premium cinematic quality. Each cinematic scene costs 20 Credits.
             Use these packs to top up your cinematic scene allowance.
           </p>
@@ -321,8 +321,8 @@ export default function Credits() {
                 key={pack.id}
                 className={`relative rounded-2xl border p-6 flex flex-col gap-4 transition-all ${
                   (pack as { popular?: boolean }).popular
-                    ? "border-[--color-gold]/30 bg-gradient-to-b from-[#b8892a]/30 to-zinc-900/60"
-                    : "border-zinc-800 bg-zinc-900/60 hover:border-zinc-700"
+                    ? "border-[--color-gold]/30 bg-gradient-to-b from-primary/30 to-zinc-900/60"
+                    : "border-border bg-card/60 hover:border-border"
                 }`}
               >
                 {(pack as { popular?: boolean }).popular && (
@@ -336,12 +336,12 @@ export default function Credits() {
 
                 <div>
                   <h3 className="text-lg font-bold text-white">{pack.name}</h3>
-                  <p className="text-sm text-zinc-400 mt-1">{pack.description}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{pack.description}</p>
                 </div>
 
                 <div className="flex items-end gap-1">
                   <span className="text-3xl font-bold text-white">£{pack.price}</span>
-                  <span className="text-zinc-500 text-sm mb-1">one-time</span>
+                  <span className="text-muted-foreground/70 text-sm mb-1">one-time</span>
                 </div>
 
                 <div className="flex items-center gap-2 text-sm text-[--color-gold]">
@@ -372,7 +372,7 @@ export default function Credits() {
         </section>
 
         {/* Trust signals */}
-        <section className="grid md:grid-cols-3 gap-6 border-t border-zinc-800 pt-12">
+        <section className="grid md:grid-cols-3 gap-6 border-t border-border pt-12">
           {[
             {
               icon: <Zap className="w-5 h-5 text-[--color-gold]" />,
@@ -394,7 +394,7 @@ export default function Credits() {
               <div className="mt-0.5">{item.icon}</div>
               <div>
                 <p className="text-sm font-semibold text-white">{item.title}</p>
-                <p className="text-xs text-zinc-500 mt-1">{item.desc}</p>
+                <p className="text-xs text-muted-foreground/70 mt-1">{item.desc}</p>
               </div>
             </div>
           ))}

@@ -16,7 +16,7 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: mysqlEnum("role", ["user", "admin", "support", "ops"]).default("user").notNull(),
   stripeCustomerId: varchar("stripeCustomerId", { length: 255 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -26,6 +26,9 @@ export const users = mysqlTable("users", {
   /** Marketing opt-out -- set when user clicks unsubscribe link in campaign emails */
   marketingOptOut: boolean("marketingOptOut").default(false).notNull(),
   marketingOptOutAt: timestamp("marketingOptOutAt"),
+  /** Free trial render used — one per account, set after first free trial job is created */
+  freeTrialUsed: boolean("freeTrialUsed").default(false).notNull(),
+  freeTrialUsedAt: timestamp("freeTrialUsedAt"),
 });
 
 export type User = typeof users.$inferSelect;
@@ -237,9 +240,12 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   // --- Lalal.ai Cloud Vocal Isolation -------------------------------------------
   lalalSourceId: varchar("lalalSourceId", { length: 128 }),  // Lalal.ai source_id after audio upload
   lalalTaskId: varchar("lalalTaskId", { length: 128 }),      // Lalal.ai task_id after split job started
+  // ISS-010b: Track when vocal isolation was submitted to detect stuck jobs (>20 min = timeout + fallback to full mix)
+  vocalsSubmittedAt: timestamp("vocalsSubmittedAt"),          // When LaLal/WaveSpeed vocal isolation was submitted
   // --- Sync Labs Lip Sync Tracking -------------------------------------------
   syncLabsJobId: varchar("syncLabsJobId", { length: 128 }), // Sync Labs job ID -- used to resume polling after server restart
   assemblyStartedAt: timestamp("assemblyStartedAt"),         // When assembly began -- used to detect truly stuck jobs
+  assemblyAttempts: int("assemblyAttempts").default(0).notNull(), // Number of assembly attempts — capped at 5; triggers credit refund on exhaustion
   vocalOnsetTime: double("vocalOnsetTime"),                  // Precise vocal start time in seconds (from silencedetect on vocal stem)
   // --- Upsell Delivery (ISS-002) -------------------------------------------
   // Flags set by Stripe webhook when user purchases post-completion add-ons.
@@ -251,6 +257,8 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   upsellVideoUrl: varchar("upsellVideoUrl", { length: 1024 }),  // S3 URL of the upsell-processed video
   upsellVideoKey: varchar("upsellVideoKey", { length: 512 }),   // S3 key of the upsell-processed video
   upsellProcessedAt: timestamp("upsellProcessedAt"),            // When upsell processing completed
+  /** Free trial render — audio trimmed to 30s, output watermarked, no credits charged */
+  isFreeTrial: boolean("isFreeTrial").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -381,6 +389,7 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   lipsyncedVideoUrl: varchar("lipsyncedVideoUrl", { length: 1024 }), // HeyGen Precision output — final lip-synced clip
   renderProvider: varchar("renderProvider", { length: 64 }), // Provider used for video render: seedance | hailuo | fal | kling
   lipSyncProvider: varchar("lipSyncProvider", { length: 64 }), // Provider used for lip sync: heygen | latentsync | infinitetalk
+  lipSyncAttempts: int("lipSyncAttempts").default(0).notNull(), // Submission attempt counter — after 3 HeyGen failures falls back to Sync Labs; after 5 total permanently fails with credit refund
   renderDurationMs: int("renderDurationMs"), // Time taken for video render in milliseconds
   lipSyncDurationMs: int("lipSyncDurationMs"), // Time taken for lip sync in milliseconds
   // --- Quality Scoring (Pipeline v2) ---
@@ -1877,3 +1886,21 @@ export const sceneVersions = mysqlTable("sceneVersions", {
 });
 export type SceneVersion = typeof sceneVersions.$inferSelect;
 export type InsertSceneVersion = typeof sceneVersions.$inferInsert;
+
+/**
+ * pay_per_video_orders — records one-time pay-per-render purchases by non-subscribers.
+ * Created when a Stripe checkout.session.completed fires with metadata.type = "pay_per_video".
+ */
+export const payPerVideoOrders = mysqlTable("pay_per_video_orders", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  projectId: int("project_id").notNull(),
+  stripeSessionId: varchar("stripe_session_id", { length: 512 }).notNull().unique(),
+  sceneCount: int("scene_count").notNull(),
+  amountPence: int("amount_pence").notNull(),
+  status: varchar("status", { length: 32 }).notNull().default("pending"), // pending | paid | failed
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type PayPerVideoOrder = typeof payPerVideoOrders.$inferSelect;
+export type InsertPayPerVideoOrder = typeof payPerVideoOrders.$inferInsert;

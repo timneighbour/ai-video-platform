@@ -1,10 +1,12 @@
 /**
  * WizScore Router
- * Video → AI Analysis → Suno Prompt → Synced Soundtrack
+ * Video → User Description → AI Suno Prompt → Synced Soundtrack
  *
  * Flow:
  * 1. User uploads video → storagePut → create wizScoreJob (status: analyzing)
- * 2. analyzeVideo: invokeLLM with video URL → extract mood/pacing/energy/duration/genre → build Suno prompt
+ * 2. analyze: user supplies mood/pacing/energy/genre → LLM crafts Suno prompt
+ *    (NOTE: Manus LLM is text-only; video file_url inputs are not supported.
+ *     The UI form collects the analysis fields from the user instead.)
  * 3. generateScore: call suno.generate with prompt + targetDuration → sunoTaskId
  * 4. pollScore: proxy to suno.status → when complete, return audioUrl
  */
@@ -12,10 +14,13 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { wizScoreJobs } from "../../drizzle/schema";
+import { wizScoreJobs, sunoMusicTasks } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { invokeLLM } from "../_core/llm";
 import { initSuno } from "../ai-apis/suno";
+import { getUserCredits, deductCredits, getUserSubscription, mapDbPlanToProductPlan } from "../db";
+
+const CREDITS_PER_SCORE = 5;
 
 export const wizScoreRouter = router({
   /**
@@ -44,11 +49,23 @@ export const wizScoreRouter = router({
     }),
 
   /**
-   * Analyse the video using the LLM (multimodal) and generate a Suno prompt.
-   * Updates the job with analysis JSON and sunoPrompt.
+   * Analyse the video using user-supplied description fields.
+   * The Manus LLM is text-only and cannot accept video/mp4 inputs, so we
+   * accept mood/pacing/energy/genre from the UI form and use the LLM to
+   * craft the Suno prompt from those fields instead.
    */
   analyze: protectedProcedure
-    .input(z.object({ jobId: z.number().int() }))
+    .input(
+      z.object({
+        jobId: z.number().int(),
+        // User-supplied analysis from the UI form
+        mood: z.string().min(1).max(100),
+        pacing: z.enum(["slow", "medium", "fast", "variable"]),
+        energy: z.enum(["low", "medium", "high", "building"]),
+        genre: z.string().min(1).max(100),
+        videoDurationSeconds: z.number().int().min(1).max(600),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "DB unavailable" });
@@ -61,56 +78,36 @@ export const wizScoreRouter = router({
       if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
 
       try {
+        // Use LLM to craft the Suno prompt from user-supplied analysis fields
         const response = await invokeLLM({
           messages: [
             {
               role: "system",
-              content: `You are a professional film composer and music supervisor. Analyse the provided video and return a JSON object with these fields:
-{
-  "mood": "string — overall emotional tone (e.g. 'epic', 'melancholic', 'upbeat', 'tense', 'romantic')",
-  "pacing": "string — edit pace ('slow', 'medium', 'fast', 'variable')",
-  "energy": "string — energy level ('low', 'medium', 'high', 'building')",
-  "genre": "string — best-fit music genre (e.g. 'orchestral', 'electronic', 'indie pop', 'jazz', 'hip-hop')",
-  "videoDurationSeconds": number,
-  "sunoPrompt": "string — a 50-100 word Suno music generation prompt that captures the video's mood, pacing, and energy. Be specific about instrumentation, tempo, and feel.",
-  "sunoStyle": "string — 2-4 genre/style tags for Suno separated by commas (e.g. 'cinematic orchestral, epic, emotional')"
-}
-Return ONLY valid JSON, no markdown, no explanation.`,
+              content: `You are a professional film composer. Based on the video analysis provided, create a Suno music generation prompt and style tags. Return ONLY valid JSON: {"sunoPrompt": "...", "sunoStyle": "..."}`,
             },
             {
               role: "user",
-              content: [
-                {
-                  type: "text",
-                  text: "Analyse this video and return the JSON object as instructed:",
-                },
-                {
-                  type: "file_url",
-                  file_url: {
-                    url: job.videoUrl,
-                    mime_type: "video/mp4",
-                  },
-                },
-              ],
+              content: `Video analysis:
+- Mood: ${input.mood}
+- Pacing: ${input.pacing}
+- Energy: ${input.energy}
+- Genre: ${input.genre}
+- Duration: ${input.videoDurationSeconds}s
+Generate a Suno music prompt (50-100 words) and style tags (2-4 comma-separated tags).`,
             },
           ],
           response_format: {
             type: "json_schema",
             json_schema: {
-              name: "video_analysis",
+              name: "suno_prompt_output",
               strict: true,
               schema: {
                 type: "object",
                 properties: {
-                  mood: { type: "string" },
-                  pacing: { type: "string" },
-                  energy: { type: "string" },
-                  genre: { type: "string" },
-                  videoDurationSeconds: { type: "number" },
                   sunoPrompt: { type: "string" },
                   sunoStyle: { type: "string" },
                 },
-                required: ["mood", "pacing", "energy", "genre", "videoDurationSeconds", "sunoPrompt", "sunoStyle"],
+                required: ["sunoPrompt", "sunoStyle"],
                 additionalProperties: false,
               },
             },
@@ -118,14 +115,23 @@ Return ONLY valid JSON, no markdown, no explanation.`,
         });
 
         const raw = response.choices?.[0]?.message?.content ?? "";
-        const analysis = typeof raw === "string" ? JSON.parse(raw) : raw;
+        const result = typeof raw === "string" ? JSON.parse(raw) : raw;
+
+        const analysis = {
+          mood: input.mood,
+          pacing: input.pacing,
+          energy: input.energy,
+          genre: input.genre,
+          videoDurationSeconds: input.videoDurationSeconds,
+          sunoStyle: result.sunoStyle,
+        };
 
         await db
           .update(wizScoreJobs)
           .set({
             analysis: JSON.stringify(analysis),
-            sunoPrompt: analysis.sunoPrompt,
-            videoDuration: Math.round(analysis.videoDurationSeconds ?? 0),
+            sunoPrompt: result.sunoPrompt,
+            videoDuration: input.videoDurationSeconds,
             status: "generating",
             updatedAt: new Date(),
           })
@@ -133,9 +139,9 @@ Return ONLY valid JSON, no markdown, no explanation.`,
 
         return {
           analysis,
-          sunoPrompt: analysis.sunoPrompt,
-          sunoStyle: analysis.sunoStyle,
-          videoDuration: Math.round(analysis.videoDurationSeconds ?? 0),
+          sunoPrompt: result.sunoPrompt,
+          sunoStyle: result.sunoStyle,
+          videoDuration: input.videoDurationSeconds,
         };
       } catch (err: any) {
         await db
@@ -171,6 +177,26 @@ Return ONLY valid JSON, no markdown, no explanation.`,
 
       if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
 
+      // Plan gate — WizScore is Studio-only
+      const sub = await getUserSubscription(ctx.user.id);
+      const plan = mapDbPlanToProductPlan(sub?.plan ?? "free");
+      if (plan !== "studio") {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "PLAN_REQUIRED:studio:WizScore™ is available on the Studio plan. Upgrade to access AI soundtrack generation.",
+        });
+      }
+
+      // Credit check before generation
+      const creditsRecord = await getUserCredits(ctx.user.id);
+      const creditBalance = creditsRecord?.balance ?? 0;
+      if (creditBalance < CREDITS_PER_SCORE) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `INSUFFICIENT_CREDITS:${CREDITS_PER_SCORE}:${creditBalance}:${CREDITS_PER_SCORE - creditBalance}`,
+        });
+      }
+
       try {
         const callBackUrl = input.origin ? `${input.origin}/api/suno/callback` : undefined;
         const suno = initSuno();
@@ -182,10 +208,11 @@ Return ONLY valid JSON, no markdown, no explanation.`,
           callBackUrl,
         });
 
-        // Insert a suno_music_tasks row
-        const [sunoResult] = await db.insert(
-          (await import("../../drizzle/schema")).sunoMusicTasks
-        ).values({
+        // Deduct credits after successful Suno call
+        await deductCredits(ctx.user.id, CREDITS_PER_SCORE, "WizScore generation");
+
+        // Insert a suno_music_tasks row (static import — no dynamic import per-call)
+        const [sunoResult] = await db.insert(sunoMusicTasks).values({
           userId: ctx.user.id,
           taskId: externalTaskId,
           prompt: input.sunoPrompt,

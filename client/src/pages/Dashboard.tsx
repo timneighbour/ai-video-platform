@@ -2,6 +2,7 @@ import { WIZANIMATE_PRODUCT_PAGE, WIZVIDEO_STUDIO_PAGE, WIZVIDEO_NEW_PROJECT, WI
 import { SceneHistoryLog } from "@/components/SceneHistoryLog";
 import { FuelTheSession } from "@/components/FuelTheSession";
 import { ReturnTriggerBanner } from "@/components/ReturnTriggerBanner";
+import { NotificationBell } from "@/components/NotificationBell";
 /**
  * Dashboard — High-retention creator hub.
  * Shows action cards, continue projects, project grid, insights, upgrade block, inspiration, empty state.
@@ -47,7 +48,7 @@ const CREATE_ACTIONS = [
     subtitle: "Music video from your track",
     icon: Film,
     href: WIZVIDEO_NEW_PROJECT,
-    gradient: "from-[#b8892a] to-[#4a3010]",
+    gradient: "from-primary to-primary/40",
     glow: "shadow-[#b8892a]/25",
     badge: "Most Popular",
     bgImage: DASH_BG_MUSIC_VIDEO,
@@ -58,7 +59,7 @@ const CREATE_ACTIONS = [
     subtitle: "AI-generated original songs",
     icon: Music,
     href: WIZAUDIO_STUDIO_PAGE,
-    gradient: "from-[#4a4a5a] to-[#2e2e36]",
+    gradient: "from-secondary to-secondary",
     glow: "shadow-[#9090a0]/25",
     badge: null,
     bgImage: DASH_BG_MUSIC,
@@ -69,7 +70,7 @@ const CREATE_ACTIONS = [
     subtitle: "AI character animation studio",
     icon: Baby,
     href: WIZANIMATE_PRODUCT_PAGE,
-    gradient: "from-[#9090a0] to-[#2e2e36]",
+    gradient: "from-muted-foreground to-secondary",
     glow: "shadow-[#9090a0]/20",
     badge: null,
     bgImage: DASH_BG_KIDS,
@@ -80,7 +81,7 @@ const CREATE_ACTIONS = [
     subtitle: "Cinematic content for your channel",
     icon: Youtube,
     href: WIZVIDEO_NEW_PROJECT,
-    gradient: "from-[#3a2a10] to-[#1a1a1a]",
+    gradient: "from-background to-card",
     glow: "shadow-[#b8892a]/20",
     badge: null,
     bgImage: DASH_BG_YOUTUBE,
@@ -106,9 +107,9 @@ function StatusBadge({ status }: { status: string }) {
     storyboard_ready: { label: "Ready", cls: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30" },
     failed: { label: "Failed", cls: "bg-red-500/15 text-red-400 border-red-500/20" },
     provider_unavailable: { label: "Paused — Resuming Soon", cls: "bg-amber-500/15 text-amber-400 border-amber-500/20" },
-    draft: { label: "Draft", cls: "bg-zinc-500/15 text-zinc-400 border-zinc-500/20" },
+    draft: { label: "Draft", cls: "bg-muted-foreground/20/15 text-muted-foreground border-border/50/20" },
   };
-  const { label, cls } = map[status] ?? { label: status, cls: "bg-zinc-500/15 text-zinc-400 border-zinc-500/20" };
+  const { label, cls } = map[status] ?? { label: status, cls: "bg-muted-foreground/20/15 text-muted-foreground border-border/50/20" };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${cls}`}>
       {label}
@@ -122,7 +123,7 @@ function ProgressBar({ value, max }: { value: number; max: number }) {
   return (
     <div className="w-full h-1 bg-white/8 rounded-full overflow-hidden">
       <div
-        className="h-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] rounded-full transition-all"
+        className="h-full bg-gradient-to-r from-primary to-primary/40 rounded-full transition-all"
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -141,6 +142,7 @@ export default function Dashboard() {
   const { data: recentJobsData } = trpc.musicVideo.listJobs.useQuery(undefined, { enabled: isAuthenticated, staleTime: 60_000 });
   const [deleteTarget, setDeleteTarget] = useState<{ jobId: number; title: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const triggerPayPerVideoRenderMutation = trpc.billing.triggerPayPerVideoRender.useMutation();
   const deleteJobMutation = trpc.musicVideo.deleteJob.useMutation({
     onSuccess: () => {
       toast.success("Project deleted");
@@ -165,7 +167,8 @@ export default function Dashboard() {
   };
 
   const creditBalance = creditData?.balance ?? 0;
-  const currentPlan = subData?.plan ? subData.plan.charAt(0).toUpperCase() + subData.plan.slice(1) : "Free";
+  const PLAN_DISPLAY_NAMES: Record<string, string> = { free: "Free", starter: "Starter", basic: "Basic", creator: "Creator", pro: "Pro", studio: "Pro", business: "Pro" };
+  const currentPlan = subData?.plan ? (PLAN_DISPLAY_NAMES[subData.plan] ?? (subData.plan.charAt(0).toUpperCase() + subData.plan.slice(1))) : "Free";
   const renderBalance = renderStatus?.total ?? 0;
   const totalProjects = recentJobsData?.length ?? 0;
   const completedProjects = recentJobsData?.filter((j: any) => j.status === "completed").length ?? 0;
@@ -173,6 +176,60 @@ export default function Dashboard() {
   useEffect(() => {
     if (!isAuthenticated) setLocation("/");
   }, [isAuthenticated, setLocation]);
+
+  // Handle pay-per-video success redirect: ?render=success&project=X
+  // Fires triggerPayPerVideoRender to start the render pipeline, then shows a toast.
+  // Deduplication: sessionStorage key prevents duplicate calls on re-render.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("render") !== "success") return;
+    const projectIdStr = params.get("project");
+    const projectId = projectIdStr ? parseInt(projectIdStr, 10) : NaN;
+    if (isNaN(projectId)) return;
+    // Remove params immediately so back-navigation cannot retrigger
+    const url = new URL(window.location.href);
+    url.searchParams.delete("render");
+    url.searchParams.delete("project");
+    window.history.replaceState({}, "", url.toString());
+    // Guard against duplicate fires within the same browser session
+    const dedupKey = `ppv_render_triggered_${projectId}`;
+    if (sessionStorage.getItem(dedupKey)) {
+      toast.success("Payment confirmed!", { description: "Your video is being rendered. Check your projects for progress." });
+      return;
+    }
+    sessionStorage.setItem(dedupKey, "1");
+    // Trigger the render pipeline
+    triggerPayPerVideoRenderMutation.mutate(
+      { projectId },
+      {
+        onSuccess: (result) => {
+          if (result.alreadyTriggered) {
+            toast.success("Payment confirmed!", { description: "Your video render is already in progress. Check your projects for updates." });
+          } else if (result.success) {
+            toast.success("Payment confirmed! Your video is being queued for render.", {
+              description: "We'll notify you when it's ready. You can track progress in your projects.",
+              duration: 8000,
+            });
+          } else {
+            toast.warning("Payment received, but render could not start automatically.", {
+              description: (result as any).reason ?? "Please open your project and click Build to start rendering.",
+              duration: 10000,
+            });
+          }
+        },
+        onError: (err) => {
+          // Payment is confirmed — don't show a scary error, just guide them
+          toast.info("Payment confirmed!", {
+            description: err.message.includes("still be processing")
+              ? "Your payment is still being confirmed. Please wait a moment and refresh the page."
+              : "Please open your project and click Build to start rendering.",
+            duration: 10000,
+          });
+        },
+      }
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Fire Purchase Completed (client-side confirmation) when Stripe redirects back with ?success=true.
   // The authoritative server-side Purchase Completed fires from the Stripe webhook in webhooks.ts.
@@ -206,9 +263,9 @@ export default function Dashboard() {
   const isEmptyCredits = creditData !== undefined && creditBalance === 0;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* ── Top Nav ─────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 border-b border-white/8 bg-[#0a0a0a]/90 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-white/8 bg-background/90 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2">
             <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[3.375rem] w-auto" />
@@ -220,11 +277,12 @@ export default function Dashboard() {
             </span>
             <a
               href="/discover"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-zinc-300 text-xs font-medium hover:bg-white/10 hover:text-white transition-all"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-foreground/80 text-xs font-medium hover:bg-white/10 hover:text-white transition-all"
             >
               <Users className="w-3 h-3" />
               Discover Creators
             </a>
+            <NotificationBell />
             <a
               href="/account"
               className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center hover:bg-white/15 transition-colors"
@@ -237,38 +295,74 @@ export default function Dashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-12">
 
-        {/* ── Welcome ────────────────────────────────────────────────────── */}
-        <div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
-            <span className="bg-gradient-to-r from-[#e8c878] via-[#f2dfa0] to-[#b8892a] bg-clip-text text-transparent">
-              {isNewUser ? `Welcome${user?.name ? `, ${user.name.split(" ")[0]}` : ""}` : "Welcome back"}{!isNewUser && user?.name ? `, ${user.name.split(" ")[0]}` : ""}
-            </span>
-          </h1>
-          <p className="text-zinc-400 mt-2 text-base">
-            {isNewUser
-              ? "Your studio is ready. Director-level control over every scene — your first storyboard is completely free."
-              : `What do you want to create today${user?.name ? `, ${user.name.split(" ")[0]}` : ""}? Consistent characters, cinematic lip sync, and full director control — all in one place.`
-            }
-          </p>
-        </div>
+        {/* ── Cinematic Hero Banner ──────────────────────────────────────── */}
+        <section className="relative rounded-2xl overflow-hidden border border-[--color-gold]/25 shadow-[0_0_60px_rgba(196,164,100,0.08)]" style={{ minHeight: 200 }}>
+          {/* Background image */}
+          <img src={DASH_CINEMATIC_BANNER} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover opacity-25" loading="eager" />
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/60 to-black/40 pointer-events-none" />
+          {/* Gold top accent line */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] pointer-events-none" style={{ background: "linear-gradient(90deg, transparent, oklch(0.78 0.11 75 / 0.7), oklch(0.65 0.14 70 / 0.5), transparent)" }} />
+          {/* Content */}
+          <div className="relative px-6 sm:px-8 py-7 sm:py-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+              {/* Greeting */}
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <img src={WIZAI_LOGO} alt="WIZ AI" className="w-5 h-5 object-contain opacity-70" loading="eager" />
+                  <span className="text-[10px] font-black tracking-[0.28em] uppercase" style={{ color: "oklch(0.78 0.11 75 / 0.55)" }}>WIZ AI Studio</span>
+                </div>
+                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                  {isNewUser
+                    ? <>{`Welcome`}{user?.name ? <>, <span className="metallic-gold">{user.name.split(" ")[0]}</span></> : ""}</>
+                    : <>{"Welcome back"}{user?.name ? <>, <span className="metallic-gold">{user.name.split(" ")[0]}</span></> : ""}</>
+                  }
+                </h1>
+                <p className="text-white/45 text-sm mt-1.5 max-w-md leading-relaxed">
+                  {isNewUser
+                    ? "Your studio is ready. Director-level control over every scene — your first storyboard is completely free."
+                    : "What do you want to create today? Consistent characters, cinematic lip sync, and full director control."
+                  }
+                </p>
+              </div>
+              {/* Stats row */}
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4">
+                {[
+                  { label: "Videos", value: totalProjects, icon: Film },
+                  { label: "Completed", value: completedProjects, icon: CheckCircle2 },
+                  { label: "Credits", value: creditBalance.toLocaleString(), icon: Zap },
+                ].map((stat) => {
+                  const Icon = stat.icon;
+                  return (
+                    <div key={stat.label} className="flex flex-col items-center px-4 py-2.5 rounded-xl border border-white/10 bg-white/[0.04] backdrop-blur-sm min-w-[72px]">
+                      <Icon className="w-3.5 h-3.5 text-[--color-gold] mb-1" />
+                      <span className="text-xl font-black text-white leading-none">{stat.value}</span>
+                      <span className="text-[10px] text-white/40 mt-0.5 uppercase tracking-wider">{stat.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* ── First-time welcome banner ─────────────────────────────────────── */}
         {isNewUser && (
-          <div className="rounded-2xl border border-[--color-gold]/20 bg-gradient-to-r from-[#b8892a]/[0.06] to-transparent p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5">
+          <div className="rounded-2xl border border-[--color-gold]/20 bg-gradient-to-r from-primary/[0.06] to-transparent p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5">
             <div className="flex-shrink-0 w-11 h-11 rounded-xl border border-[--color-gold]/25 bg-[--color-gold]/[0.08] flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-[--color-gold]" />
             </div>
             <div className="flex-1">
               <p className="text-sm font-bold text-white mb-1">You have {creditBalance > 0 ? creditBalance : 30} free Build Credits</p>
-              <p className="text-xs text-zinc-400 leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 Storyboard generation is always free. Preview your full video before you pay. Credits are only used when you click <span className="text-white font-medium">Build</span> to render. Consistent characters and cinematic lip sync included — no extra charge.
               </p>
             </div>
             <div className="flex-shrink-0 flex flex-col gap-2">
-              <a href={WIZVIDEO_NEW_PROJECT} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white text-xs font-semibold transition-all shadow-lg shadow-[#b8892a]/20">
+              <a href={WIZVIDEO_NEW_PROJECT} className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-primary/40 hover:from-primary/80 hover:to-primary text-white text-xs font-semibold transition-all shadow-lg shadow-[#b8892a]/20">
                 <Sparkles className="w-3.5 h-3.5" /> Start your first video
               </a>
-              <a href="/pricing" className="text-[10px] text-zinc-500 hover:text-[--color-gold] text-center transition-colors">See what each plan unlocks →</a>
+              <a href="/pricing" className="text-[10px] text-muted-foreground/70 hover:text-[--color-gold] text-center transition-colors">See what each plan unlocks →</a>
             </div>
           </div>
         )}
@@ -279,7 +373,7 @@ export default function Dashboard() {
             <Zap className="w-4 h-4 text-amber-400 flex-shrink-0" />
             <div className="flex-1">
               <p className="text-sm font-semibold text-white">{isEmptyCredits ? "You\'re out of Build Credits" : `Only ${creditBalance} Build Credits remaining`}</p>
-              <p className="text-xs text-zinc-400 mt-0.5">{isEmptyCredits ? "Top up to continue building videos." : "Top up now so you don\'t get interrupted mid-project."}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{isEmptyCredits ? "Top up to continue building videos." : "Top up now so you don\'t get interrupted mid-project."}</p>
             </div>
             <a href="/credits" className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-semibold hover:bg-amber-500/25 transition-all">
               <Zap className="w-3 h-3" /> Top up credits
@@ -341,33 +435,34 @@ export default function Dashboard() {
         {/* ── Insights Strip ───────────────────────────────────────────── */}
         <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: "Total Videos", value: totalProjects, icon: Film, color: "text-[--color-gold]" },
-            { label: "Builds Done", value: completedProjects, icon: CheckCircle2, color: "text-[--color-silver]" },
-            { label: "Renders Left", value: renderBalance, icon: Zap, color: "text-[--color-gold]" },
-            { label: "Credits", value: creditBalance.toLocaleString(), icon: Star, color: "text-[--color-gold]" },
+            { label: "Total Videos", value: totalProjects, icon: Film, href: "/projects" },
+            { label: "Builds Done", value: completedProjects, icon: CheckCircle2, href: "/projects" },
+            { label: "Renders Left", value: renderBalance, icon: Zap, href: "/credits" },
+            { label: "Build Credits", value: creditBalance.toLocaleString(), icon: Star, href: "/credits" },
           ].map((stat) => {
             const Icon = stat.icon;
             return (
-              <div key={stat.label} className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
+              <a key={stat.label} href={stat.href} className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-[--color-gold]/25 hover:bg-white/[0.05] transition-all p-4 cursor-pointer">
                 <div className="flex items-center gap-2 mb-2">
-                  <Icon className={`w-4 h-4 ${stat.color}`} />
-                  <span className="text-xs text-zinc-500 uppercase tracking-wider">{stat.label}</span>
+                  <Icon className="w-4 h-4 text-[--color-gold]" />
+                  <span className="text-xs text-muted-foreground/70 uppercase tracking-wider">{stat.label}</span>
                 </div>
-                <p className="text-2xl font-bold text-white">{stat.value}</p>
-              </div>
+                <p className="text-2xl font-bold text-white group-hover:text-[--color-gold-light] transition-colors">{stat.value}</p>
+              </a>
             );
           })}
         </section>
 
         {/* ── Continue Where You Left Off ──────────────────────────────── */}
         {continueProjects.length > 0 && (
-          <section>
+          <section className="rounded-2xl border border-[--color-gold]/20 bg-gradient-to-r from-[--color-gold]/[0.04] to-transparent p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Clock className="w-4 h-4 text-zinc-400" />
+                <Play className="w-4 h-4 text-[--color-gold]" />
                 Continue where you left off
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/25 tracking-wider uppercase">{continueProjects.length} in progress</span>
               </h2>
-              <a href="/projects" className="text-xs text-zinc-500 hover:text-white flex items-center gap-1 transition-colors">
+              <a href="/projects" className="text-xs text-muted-foreground/70 hover:text-white flex items-center gap-1 transition-colors">
                 View all <ChevronRight className="w-3 h-3" />
               </a>
             </div>
@@ -379,12 +474,12 @@ export default function Dashboard() {
                   className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-[--color-gold]/30 hover:bg-white/[0.06] transition-all overflow-hidden"
                 >
                   {/* Thumbnail */}
-                  <div className="relative h-28 bg-zinc-900 overflow-hidden">
+                  <div className="relative h-28 bg-card overflow-hidden">
                     {job.thumbnailUrl ? (
                       <img src={job.thumbnailUrl} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Film className="w-8 h-8 text-zinc-700" />
+                        <Film className="w-8 h-8 text-muted-foreground/40" />
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -397,12 +492,12 @@ export default function Dashboard() {
                     <p className="text-sm font-medium text-white truncate group-hover:text-[--color-gold] transition-colors">
                       {job.title || `Project #${job.id}`}
                     </p>
-                    <p className="text-[11px] text-zinc-500 mt-0.5">
+                    <p className="text-[11px] text-muted-foreground/70 mt-0.5">
                       {new Date(job.createdAt).toLocaleDateString()}
                     </p>
                     {job.totalScenes > 0 && (
                       <div className="mt-2">
-                        <div className="flex justify-between text-[10px] text-zinc-500 mb-1">
+                        <div className="flex justify-between text-[10px] text-muted-foreground/70 mb-1">
                           <span>{job.completedScenes}/{job.totalScenes} scenes</span>
                           <span>{Math.round((job.completedScenes / job.totalScenes) * 100)}%</span>
                         </div>
@@ -416,7 +511,7 @@ export default function Dashboard() {
                       </div>
                       <button
                         onClick={(e) => openDeleteDialog(e, job.id, job.title)}
-                        className="p-1 rounded hover:bg-red-500/20 text-zinc-600 hover:text-red-400 transition-all"
+                        className="p-1 rounded hover:bg-red-500/20 text-muted-foreground/50 hover:text-red-400 transition-all"
                         title="Delete project"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -434,10 +529,10 @@ export default function Dashboard() {
           <section>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Clapperboard className="w-4 h-4 text-zinc-400" />
+                <Clapperboard className="w-4 h-4 text-muted-foreground" />
                 Your Projects
               </h2>
-              <a href="/projects" className="text-xs text-zinc-500 hover:text-white flex items-center gap-1 transition-colors">
+              <a href="/projects" className="text-xs text-muted-foreground/70 hover:text-white flex items-center gap-1 transition-colors">
                 View all <ChevronRight className="w-3 h-3" />
               </a>
             </div>
@@ -445,19 +540,15 @@ export default function Dashboard() {
               {recentProjects.map((job: any) => (
                 <a
                   key={job.id}
-                  href={job.status === "completed" && job.finalVideoUrl
-                    ? job.finalVideoUrl
-                    : `${WIZVIDEO_STUDIO_PAGE}?jobId=${job.id}`}
-                  target={job.status === "completed" && job.finalVideoUrl ? "_blank" : undefined}
-                  rel="noopener noreferrer"
+                  href={`${WIZVIDEO_STUDIO_PAGE}?jobId=${job.id}`}
                   className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-white/20 transition-all overflow-hidden"
                 >
-                  <div className="relative aspect-video bg-zinc-900 overflow-hidden">
+                  <div className="relative aspect-video bg-card overflow-hidden">
                     {job.thumbnailUrl ? (
                       <img src={job.thumbnailUrl} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Film className="w-5 h-5 text-zinc-700" />
+                        <Film className="w-5 h-5 text-muted-foreground/40" />
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
@@ -486,9 +577,9 @@ export default function Dashboard() {
                 className="group rounded-xl border border-dashed border-white/15 bg-transparent hover:border-[--color-gold]/30 hover:bg-[--color-gold]/15 transition-all flex flex-col items-center justify-center gap-2 aspect-video p-4"
               >
                 <div className="w-8 h-8 rounded-full bg-white/8 group-hover:bg-[--color-gold]/15 flex items-center justify-center transition-colors">
-                  <Plus className="w-4 h-4 text-zinc-400 group-hover:text-[--color-gold] transition-colors" />
+                  <Plus className="w-4 h-4 text-muted-foreground group-hover:text-[--color-gold] transition-colors" />
                 </div>
-                <span className="text-[11px] text-zinc-500 group-hover:text-[--color-gold] transition-colors text-center">New Project</span>
+                <span className="text-[11px] text-muted-foreground/70 group-hover:text-[--color-gold] transition-colors text-center">New Project</span>
               </a>
             </div>
           </section>
@@ -500,13 +591,13 @@ export default function Dashboard() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/40 pointer-events-none" />
             <div className="relative">
               <div className="relative w-20 h-20 mx-auto mb-6">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#b8892a]/30 to-[#4a3010]/30 animate-pulse" />
-                <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-lg shadow-[#b8892a]/30">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/30 to-primary/40/30 animate-pulse" />
+                <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/40 flex items-center justify-center shadow-lg shadow-[#b8892a]/30">
                   <Sparkles className="w-9 h-9 text-white" />
                 </div>
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">Your first WIZ AI video starts here</h2>
-              <p className="text-zinc-400 mb-6 max-w-md mx-auto">
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 Upload a track, describe your vision, and WIZ AI builds a fully produced cinematic music video — scenes, visuals, beat-sync — in minutes.
               </p>
               {/* Example prompt chips */}
@@ -515,7 +606,7 @@ export default function Dashboard() {
                   <a
                     key={p}
                     href={`${WIZVIDEO_STUDIO_PAGE}?demo=1&prompt=${encodeURIComponent(p.replace(/^[^\s]+\s/, ""))}`}
-                    className="text-xs px-3 py-1.5 rounded-full text-zinc-300 hover:text-white transition-colors"
+                    className="text-xs px-3 py-1.5 rounded-full text-foreground/80 hover:text-white transition-colors"
                     style={{ background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.2)" }}
                   >
                     {p}
@@ -523,12 +614,12 @@ export default function Dashboard() {
                 ))}
               </div>
               <a href={WIZVIDEO_NEW_PROJECT}>
-                <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white px-8 h-12 text-base font-semibold shadow-lg shadow-[#b8892a]/30">
+                <Button className="bg-gradient-to-r from-primary to-primary/40 hover:from-primary/80 hover:to-primary text-white px-8 h-12 text-base font-semibold shadow-lg shadow-[#b8892a]/30">
                   <Sparkles className="w-5 h-5 mr-2" />
                   Start Creating — It's Free
                 </Button>
               </a>
-              <p className="text-zinc-600 text-xs mt-4">50 free credits · No card required · First video in minutes</p>
+              <p className="text-muted-foreground/50 text-xs mt-4">50 free credits · No card required · First video in minutes</p>
             </div>
           </section>
         )}        {/* ── Social Proof Strip ────────────────────────────────── */}
@@ -536,17 +627,17 @@ export default function Dashboard() {
           <div className="flex flex-wrap justify-center gap-6 py-4 px-4 rounded-xl" style={{ background: "rgba(201,168,76,0.04)", border: "1px solid rgba(201,168,76,0.1)" }}>
             <div className="flex items-center gap-2">
               <span className="text-2xl font-black text-[--color-gold]">{platformStats.creators.toLocaleString()}+</span>
-              <span className="text-xs text-zinc-400">creators</span>
+              <span className="text-xs text-muted-foreground">creators</span>
             </div>
             <div className="w-px h-8 bg-white/8 self-center hidden sm:block" />
             <div className="flex items-center gap-2">
               <span className="text-2xl font-black text-[--color-gold]">{platformStats.videosCreated.toLocaleString()}+</span>
-              <span className="text-xs text-zinc-400">videos created</span>
+              <span className="text-xs text-muted-foreground">videos created</span>
             </div>
             <div className="w-px h-8 bg-white/8 self-center hidden sm:block" />
             <div className="flex items-center gap-2">
               <span className="text-2xl font-black text-[--color-gold]">9</span>
-              <span className="text-xs text-zinc-400">AI studios</span>
+              <span className="text-xs text-muted-foreground">AI studios</span>
             </div>
           </div>
         )}
@@ -561,19 +652,19 @@ export default function Dashboard() {
                   <CheckCircle2 className="w-4 h-4 text-[--color-silver]" />
                   Completed Videos
                 </h2>
-                <a href="/projects" className="text-xs text-zinc-500 hover:text-white flex items-center gap-1 transition-colors">
+                <a href="/projects" className="text-xs text-muted-foreground/70 hover:text-white flex items-center gap-1 transition-colors">
                   View all <ChevronRight className="w-3 h-3" />
                 </a>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {completedVideos.slice(0, 6).map((job: any) => (
                   <div key={job.id} className="group rounded-xl border border-white/8 bg-white/[0.03] hover:border-[--color-silver]/40/30 transition-all overflow-hidden">
-                    <div className="relative aspect-video bg-zinc-900 overflow-hidden">
+                    <div className="relative aspect-video bg-card overflow-hidden">
                       {job.thumbnailUrl ? (
                         <img src={job.thumbnailUrl} alt={job.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Film className="w-6 h-6 text-zinc-700" />
+                          <Film className="w-6 h-6 text-muted-foreground/40" />
                         </div>
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -594,13 +685,13 @@ export default function Dashboard() {
                       <a
                         href={job.finalVideoUrl}
                         download
-                        className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 text-xs font-medium transition-all"
+                        className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-foreground/80 text-xs font-medium transition-all"
                       >
                         <Download className="w-3 h-3" /> Download
                       </a>
                       <button
                         onClick={(e) => openDeleteDialog(e, job.id, job.title)}
-                        className="flex items-center justify-center h-8 w-8 rounded-lg bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 text-zinc-500 hover:text-red-400 text-xs transition-all"
+                        className="flex items-center justify-center h-8 w-8 rounded-lg bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/30 text-muted-foreground/70 hover:text-red-400 text-xs transition-all"
                         title="Delete project"
                       >
                         <Trash2 className="w-3 h-3" />
@@ -614,7 +705,7 @@ export default function Dashboard() {
         })()}
 
         {/* ── Go Cinematic Upgrade Block ───────────────────────────────── */}
-        <section className="relative rounded-2xl overflow-hidden border border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/20 via-[#1a1a1a] to-black p-6 sm:p-8">
+        <section className="relative rounded-2xl overflow-hidden border border-[--color-gold]/30 bg-gradient-to-br from-primary/20 via-card to-black p-6 sm:p-8">
           {/* Cinematic banner background */}
           <img src={DASH_CINEMATIC_BANNER} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" loading="eager" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent pointer-events-none" />
@@ -629,23 +720,23 @@ export default function Dashboard() {
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">Go Cinematic</h2>
-              <p className="text-zinc-400 text-sm max-w-md">
+              <p className="text-muted-foreground text-sm max-w-md">
                 Upgrade your next video with studio-grade audio and film-level visuals. One click, total transformation.
               </p>
               <div className="flex flex-wrap gap-3 mt-4">
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
                   <span className="text-[--color-silver] text-sm font-semibold">WizSound™</span>
-                  <span className="text-zinc-500 text-xs">Cinematic audio mastering</span>
+                  <span className="text-muted-foreground/70 text-xs">Cinematic audio mastering</span>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
                   <span className="text-[--color-gold] text-sm font-semibold">WizLumina™</span>
-                  <span className="text-zinc-500 text-xs">Film-level colour grading</span>
+                  <span className="text-muted-foreground/70 text-xs">Film-level colour grading</span>
                 </div>
               </div>
             </div>
             <div className="flex-shrink-0">
               <a href={WIZVIDEO_NEW_PROJECT}>
-                <Button className="bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white px-6 h-11 font-semibold shadow-lg shadow-[#b8892a]/30 whitespace-nowrap">
+                <Button className="bg-gradient-to-r from-primary to-primary/40 hover:from-primary/80 hover:to-primary text-white px-6 h-11 font-semibold shadow-lg shadow-[#b8892a]/30 whitespace-nowrap">
                   <Wand2 className="w-4 h-4 mr-2" />
                   Upgrade your next video
                 </Button>
@@ -658,7 +749,7 @@ export default function Dashboard() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-zinc-400" />
+              <TrendingUp className="w-4 h-4 text-muted-foreground" />
               Get inspired
             </h2>
           </div>
@@ -675,7 +766,7 @@ export default function Dashboard() {
                 <p className="text-xs font-medium text-white group-hover:text-[--color-gold] transition-colors leading-snug">
                   {idea.title}
                 </p>
-                <div className="mt-2 flex items-center gap-1 text-[10px] text-zinc-600 group-hover:text-[--color-gold] transition-colors">
+                <div className="mt-2 flex items-center gap-1 text-[10px] text-muted-foreground/50 group-hover:text-[--color-gold] transition-colors">
                   <Sparkles className="w-2.5 h-2.5" />
                   Try this
                 </div>
@@ -689,7 +780,7 @@ export default function Dashboard() {
         {/* ── Your next video could be even better ────────────────────────────────── */}
         {hasProjects && (
           <section className="text-center py-8 border-t border-white/8">
-            <p className="text-zinc-400 text-sm mb-4">Your next video could be even better.</p>
+            <p className="text-muted-foreground text-sm mb-4">Your next video could be even better.</p>
             <a href={WIZVIDEO_NEW_PROJECT}>
               <Button variant="outline" className="border-[--color-gold]/30 text-[--color-gold] bg-transparent hover:bg-[--color-gold]/15 px-6">
                 <Plus className="w-4 h-4 mr-2" />
@@ -710,20 +801,20 @@ export default function Dashboard() {
             <div className="flex-1">
               <p className="text-xs font-bold tracking-widest uppercase text-[--color-gold]/70 mb-2">Ready to go further?</p>
               <h3 className="text-lg font-bold text-white mb-1">Unlock unlimited builds & priority rendering</h3>
-              <p className="text-sm text-zinc-400">Upgrade to a plan for monthly credits, priority queue, 4K exports, and WizLumina™ + WizSound™ cinematic upgrades.</p>
+              <p className="text-sm text-muted-foreground">Upgrade to a plan for monthly credits, priority queue, 4K exports, and WizLumina™ + WizSound™ cinematic upgrades.</p>
               <div className="flex flex-wrap gap-x-6 gap-y-1 mt-3">
                 {['No credit card required to try', 'Cancel anytime', 'You own all your content'].map((t) => (
-                  <span key={t} className="text-xs text-zinc-500 flex items-center gap-1.5">
+                  <span key={t} className="text-xs text-muted-foreground/70 flex items-center gap-1.5">
                     <span className="text-[--color-gold]/60">✓</span> {t}
                   </span>
                 ))}
               </div>
             </div>
             <div className="flex-shrink-0 flex flex-col gap-2">
-              <a href="/pricing" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white text-sm font-semibold transition-all shadow-lg shadow-[#b8892a]/20">
+              <a href="/pricing" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-primary/40 hover:from-primary/80 hover:to-primary text-white text-sm font-semibold transition-all shadow-lg shadow-[#b8892a]/20">
                 <Crown className="w-4 h-4" /> See plans
               </a>
-              <a href="/credits" className="text-xs text-zinc-500 hover:text-[--color-gold] text-center transition-colors">Just need more credits? →</a>
+              <a href="/credits" className="text-xs text-muted-foreground/70 hover:text-[--color-gold] text-center transition-colors">Just need more credits? →</a>
             </div>
           </section>
         )}
@@ -732,7 +823,7 @@ export default function Dashboard() {
 
       {/* ── Delete Confirmation Dialog───────────────────────────── */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
-        <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-md">
+        <AlertDialogContent className="bg-card border-border text-white max-w-md">
           <AlertDialogHeader>
             <div className="flex items-center gap-3 mb-1">
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-500/15 border border-red-500/30">
@@ -740,12 +831,12 @@ export default function Dashboard() {
               </div>
               <AlertDialogTitle className="text-lg font-semibold text-white">Delete Project</AlertDialogTitle>
             </div>
-            <AlertDialogDescription className="text-zinc-400 text-sm leading-relaxed">
+            <AlertDialogDescription className="text-muted-foreground text-sm leading-relaxed">
               Are you sure you want to delete <span className="text-white font-medium">"{deleteTarget?.title || `Project #${deleteTarget?.jobId}`}"</span>? This will permanently remove the project and all associated scenes, builds, and files. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2 sm:gap-2">
-            <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white">
+            <AlertDialogCancel className="bg-secondary border-border text-foreground/80 hover:bg-muted hover:text-white">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction

@@ -28,8 +28,8 @@ export function SceneHistoryLog() {
     return (
       <section className="rounded-2xl border border-white/8 bg-white/[0.02] p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Clock className="w-4 h-4 text-zinc-500" />
-          <h2 className="text-sm font-semibold text-zinc-400 tracking-wide uppercase">Scene History</h2>
+          <Clock className="w-4 h-4 text-muted-foreground/70" />
+          <h2 className="text-sm font-semibold text-muted-foreground tracking-wide uppercase">Scene History</h2>
         </div>
         <div className="space-y-2">
           {[1, 2, 3].map((i) => (
@@ -44,10 +44,10 @@ export function SceneHistoryLog() {
     return (
       <section className="rounded-2xl border border-white/8 bg-white/[0.02] p-6">
         <div className="flex items-center gap-2 mb-3">
-          <Clock className="w-4 h-4 text-zinc-500" />
-          <h2 className="text-sm font-semibold text-zinc-400 tracking-wide uppercase">Scene History</h2>
+          <Clock className="w-4 h-4 text-muted-foreground/70" />
+          <h2 className="text-sm font-semibold text-muted-foreground tracking-wide uppercase">Scene History</h2>
         </div>
-        <p className="text-sm text-zinc-600 italic">
+        <p className="text-sm text-muted-foreground/50 italic">
           No scene retries or cancellations yet. Actions you take on failed scenes will appear here.
         </p>
       </section>
@@ -59,10 +59,10 @@ export function SceneHistoryLog() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-zinc-500" />
-          <h2 className="text-sm font-semibold text-zinc-400 tracking-wide uppercase">Scene History</h2>
+          <Clock className="w-4 h-4 text-muted-foreground/70" />
+          <h2 className="text-sm font-semibold text-muted-foreground tracking-wide uppercase">Scene History</h2>
         </div>
-        <span className="text-xs text-zinc-600">{history.length} recent action{history.length !== 1 ? "s" : ""}</span>
+        <span className="text-xs text-muted-foreground/50">{history.length} recent action{history.length !== 1 ? "s" : ""}</span>
       </div>
 
       {/* Log rows */}
@@ -80,7 +80,7 @@ export function SceneHistoryLog() {
                 className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 ${
                   isRetry
                     ? "bg-amber-500/15 text-amber-400"
-                    : "bg-zinc-500/15 text-zinc-400"
+                    : "bg-muted-foreground/20/15 text-muted-foreground"
                 }`}
               >
                 {isRetry
@@ -91,7 +91,7 @@ export function SceneHistoryLog() {
               {/* Details */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className={`text-xs font-semibold ${isRetry ? "text-amber-400" : "text-zinc-400"}`}>
+                  <span className={`text-xs font-semibold ${isRetry ? "text-amber-400" : "text-muted-foreground"}`}>
                     {isRetry ? "Retried" : "Cancelled"}
                   </span>
                   <span className="text-xs text-white/70">
@@ -99,13 +99,13 @@ export function SceneHistoryLog() {
                   </span>
                   {entry.jobTitle && (
                     <>
-                      <span className="text-xs text-zinc-600">in</span>
+                      <span className="text-xs text-muted-foreground/50">in</span>
                       <span className="text-xs text-white/50 truncate max-w-[140px]">{entry.jobTitle}</span>
                     </>
                   )}
                 </div>
                 {isRetry && entry.errorMessageBefore && (
-                  <p className="text-[11px] text-zinc-600 truncate mt-0.5 max-w-xs">
+                  <p className="text-[11px] text-muted-foreground/50 truncate mt-0.5 max-w-xs">
                     Was: {entry.errorMessageBefore.slice(0, 80)}
                   </p>
                 )}
@@ -113,8 +113,8 @@ export function SceneHistoryLog() {
 
               {/* Timestamp + arrow */}
               <div className="flex items-center gap-1.5 shrink-0">
-                <span className="text-[11px] text-zinc-600">{timeAgo(entry.createdAt)}</span>
-                <ChevronRight className="w-3.5 h-3.5 text-zinc-700 group-hover:text-zinc-400 transition-colors" />
+                <span className="text-[11px] text-muted-foreground/50">{timeAgo(entry.createdAt)}</span>
+                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />
               </div>
             </button>
           );
@@ -122,7 +122,7 @@ export function SceneHistoryLog() {
       </div>
 
       {/* Footer hint */}
-      <p className="text-[11px] text-zinc-700 mt-3 text-center">
+      <p className="text-[11px] text-muted-foreground/40 mt-3 text-center">
         Showing last {history.length} action{history.length !== 1 ? "s" : ""} · Click any row to open the project
       </p>
     </section>

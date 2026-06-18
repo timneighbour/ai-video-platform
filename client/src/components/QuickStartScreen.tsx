@@ -129,7 +129,7 @@ export function QuickStartScreen({ studio, onBack }: QuickStartScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#030303] overflow-hidden relative flex flex-col items-center justify-center px-4 py-16">
+    <div className="min-h-screen bg-background overflow-hidden relative flex flex-col items-center justify-center px-4 py-16">
       {/* ── Cinematic background ─────────────────────────────────────────── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         {/* Studio background image with heavy vignette */}
@@ -139,14 +139,14 @@ export function QuickStartScreen({ studio, onBack }: QuickStartScreenProps) {
           className="absolute inset-0 w-full h-full object-cover opacity-[0.08]"
           style={{ filter: "blur(2px)" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#030303] via-[#030303]/80 to-[#030303]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background" />
         {/* Accent orb behind the card */}
         <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full opacity-[0.07]"
           style={{ background: `radial-gradient(circle, ${studio.accentColor} 0%, transparent 70%)` }}
         />
         {/* Scan line */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#b8892a]/20 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
       </div>
 
       {/* ── Back button ──────────────────────────────────────────────────── */}
@@ -164,13 +164,13 @@ export function QuickStartScreen({ studio, onBack }: QuickStartScreenProps) {
       <div className="relative z-10 flex items-center gap-3 mb-10">
         <div className="flex items-center gap-1.5">
           <div className="w-6 h-6 rounded-full bg-white/10 border border-white/15 flex items-center justify-center text-[10px] font-bold text-white/40">1</div>
-          <div className="w-16 h-px bg-gradient-to-r from-[#b8892a]/60 to-[#b8892a]/60" />
+          <div className="w-16 h-px bg-gradient-to-r from-primary/60 to-primary/60" />
           <div
             className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
             style={{ background: `linear-gradient(135deg, ${studio.accentColor}, ${studio.accentColor}cc)` }}
           >2</div>
         </div>
-        <span className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#b8892a]/70 ml-2">Your first creation</span>
+        <span className="text-[11px] font-semibold tracking-[0.18em] uppercase text-primary/70 ml-2">Your first creation</span>
       </div>
 
       {/* ── Main card ────────────────────────────────────────────────────── */}

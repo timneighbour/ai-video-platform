@@ -178,7 +178,7 @@ export function LyricsReviewModal({
                       onChange={(e) => setEditValue(e.target.value)}
                       rows={3}
                       placeholder="Enter lyrics for this scene window…"
-                      className="text-xs font-mono bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.3)] text-zinc-200 resize-none focus:border-[--color-gold]"
+                      className="text-xs font-mono bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.3)] text-foreground resize-none focus:border-[--color-gold]"
                     />
                     <div className="flex items-center gap-2">
                       <Button
@@ -228,7 +228,7 @@ export function LyricsReviewModal({
             <X className="w-4 h-4 mr-1.5" /> Go Back
           </Button>
           <Button
-            className="bg-gradient-to-r from-[#b8892a] to-[#2e2e36] hover:from-[#b8892a] hover:to-[#2e2e36] text-white font-semibold text-sm px-5"
+            className="bg-gradient-to-r from-primary to-secondary hover:from-primary hover:to-secondary text-white font-semibold text-sm px-5"
             onClick={onConfirm}
           >
             <Sparkles className="w-4 h-4 mr-2" />

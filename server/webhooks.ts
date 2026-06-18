@@ -6,7 +6,7 @@
 import Stripe from "stripe";
 import { getDb, getRawConn } from "./db";
 import { eq } from "drizzle-orm";
-import { subscriptions, creditTransactions, credits, topupPurchases, kidsVideoJobs } from "../drizzle/schema";
+import { subscriptions, creditTransactions, credits, topupPurchases, kidsVideoJobs, payPerVideoOrders } from "../drizzle/schema";
 import { notifyOwner } from "./_core/notification";
 import { addCredits } from "./credit-service";
 import {
@@ -84,6 +84,45 @@ async function handleCheckoutSessionCompleted(session: any) {
       );
 
       return { success: true, type: "kids_video", jobId };
+    }
+
+    // Detect pay-per-video purchase: billing router sends metadata.type === 'pay_per_video'
+    if (metadata.type === "pay_per_video") {
+      const projectId = parseInt(metadata.project_id, 10);
+      const sceneCount = parseInt(metadata.scene_count, 10);
+      const amountPence = session.amount_total ?? 0;
+      const stripeSessionId = session.id;
+      console.log(`[Stripe Webhook] Pay-per-video purchase: user ${userId}, project ${projectId}, ${sceneCount} scenes, £${amountPence / 100}`);
+      // Record the order in pay_per_video_orders (idempotent — unique on stripe_session_id)
+      try {
+        await db.insert(payPerVideoOrders).values({
+          userId,
+          projectId,
+          stripeSessionId,
+          sceneCount,
+          amountPence,
+          status: "paid",
+        });
+      } catch (insertErr: any) {
+        // Idempotency: ignore duplicate session (unique constraint on stripe_session_id)
+        if (!insertErr?.message?.includes("Duplicate entry")) {
+          console.error("[Stripe Webhook] Failed to insert pay_per_video_order:", insertErr.message);
+        }
+      }
+      // Notify owner
+      await notifyOwner({
+        title: "New Pay-Per-Video Purchase",
+        content: `User ${metadata.customer_name} (${metadata.customer_email}) paid £${amountPence / 100} to render project #${projectId} (${sceneCount} scenes).`,
+      }).catch(() => {});
+      // Track purchase
+      await trackPurchaseCompleted({
+        userId,
+        plan: `pay_per_video:${sceneCount}_scenes`,
+        amount: amountPence,
+        currency: session.currency ?? "gbp",
+        purchaseType: "pay_per_video",
+      }).catch(() => {});
+      return { success: true, type: "pay_per_video", projectId, sceneCount };
     }
 
     // Detect upsell purchase: billing router sends metadata.type === 'upsell'

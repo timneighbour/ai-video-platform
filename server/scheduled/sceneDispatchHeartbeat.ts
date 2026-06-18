@@ -76,6 +76,14 @@ import { submitHeyGenDirectPhoto, pollHeyGenDirectPhoto, isHeyGenDirectConfigure
 import { submitSyncLabsDirect, pollSyncLabsDirect, isSyncLabsConfigured } from "../ai-apis/synclabs-direct";
 import { getProbeDecision } from "../pre-render-validator";
 import { resetSceneAttempts, checkProgressiveSpendAlerts } from "../spend-protection";
+import { refundCredits } from "../credit-service";
+
+// Lip sync retry cap constants
+// After LIPSYNC_HEYGEN_MAX_ATTEMPTS consecutive HeyGen failures, fall back to Sync Labs.
+// After LIPSYNC_TOTAL_MAX_ATTEMPTS total failures (across all providers), permanently fail the scene
+// and refund the user's credits.
+const LIPSYNC_HEYGEN_MAX_ATTEMPTS = 3;
+const LIPSYNC_TOTAL_MAX_ATTEMPTS = 5;
 import { normaliseBpm } from "../instrument-analysis";
 import { getVocalStemForCharacter } from "../vocal-isolation-service";
 import { muxAudioIntoVideo, trimVideoStart } from "../audio-clip-extractor";
@@ -86,6 +94,7 @@ import { validateRawSceneForLipSync } from "../raw-scene-validator";
 import { runPostRenderCheck, formatQualityLockRejection } from "../wiz-quality-lock";
 import { triggerCloudVocalIsolation } from "../cloud-vocal-isolation";
 import { notifyOwner } from "../_core/notification";
+import { isProviderCreditError } from "../routers/musicVideo/_shared";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
 // ── ISS-017: Heartbeat watchdog ────────────────────────────────────────────────
@@ -175,6 +184,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         stemVocalsUrl: musicVideoJobs.stemVocalsUrl,
         transcriptionSegments: musicVideoJobs.transcriptionSegments,
         sceneSetting: musicVideoJobs.sceneSetting,
+        creditCost: musicVideoJobs.creditCost,
       })
       .from(musicVideoJobs)
       .where(inArray(musicVideoJobs.status, ["rendering", "awaiting_probe_approval"]));
@@ -325,8 +335,25 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             // HARD STOP: do not retry while provider is unavailable — avoids credit burn loop
             console.warn(`[SceneDispatch] Job ${job.id} — SKIPPING retry of ${failedScenes.length} failed_retryable scene(s): job is provider_unavailable. Waiting for manual resume.`);
           } else {
-            console.log(`[SceneDispatch] Job ${job.id} — resetting ${failedScenes.length} failed/failed_retryable scene(s) back to pending for retry`);
-            for (const fs of failedScenes) {
+            // ISS-205: 30-minute retry throttle — skip failed_retryable scenes that errored
+            // less than 30 minutes ago to prevent rapid credit-burn retry loops.
+            const RETRY_THROTTLE_MS = 30 * 60 * 1000; // 30 minutes
+            const now = Date.now();
+            const scenesToRetry = failedScenes.filter((s) => {
+              const errorAt = (s as any).providerErrorAt;
+              if (!errorAt) return true; // no error timestamp → retry immediately
+              const msSinceError = now - new Date(errorAt).getTime();
+              if (msSinceError < RETRY_THROTTLE_MS) {
+                console.log(`[SceneDispatch] Job ${job.id} scene ${s.id} — throttled: ${Math.round((RETRY_THROTTLE_MS - msSinceError) / 60000)}min until next retry`);
+                return false;
+              }
+              return true;
+            });
+            if (scenesToRetry.length === 0) {
+              console.log(`[SceneDispatch] Job ${job.id} — all ${failedScenes.length} failed_retryable scene(s) are throttled (30-min cooldown active)`);
+            } else {
+            console.log(`[SceneDispatch] Job ${job.id} — resetting ${scenesToRetry.length}/${failedScenes.length} failed/failed_retryable scene(s) back to pending for retry`);
+            for (const fs of scenesToRetry) {
               // CRITICAL: Cancel providerJobLogs entries so idempotency check doesn't block re-dispatch
               await resetSceneAttempts(fs.id);
               await db.update(musicVideoScenes)
@@ -346,8 +373,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             // Re-fetch scenes after reset so pending list is accurate
             const refreshed = await db.select().from(musicVideoScenes).where(eq(musicVideoScenes.jobId, job.id));
             pendingScenes.push(...refreshed.filter(s => failedScenes.some(f => f.id === s.id)));
-          }
-        }
+            } // end scenesToRetry.length > 0
+          } // end else (not provider_unavailable)
+        } // end failedScenes.length > 0
 
         // ── 2b. HARD PAUSE: awaiting_probe_approval ──────────────────────────
         // If the job is in awaiting_probe_approval, the owner has not yet approved
@@ -712,9 +740,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             const errMsg = String(dispatchErr?.message ?? dispatchErr).slice(0, 300);
             console.error(`[SceneDispatch] Failed to dispatch scene ${scene.id}: ${errMsg}`);
 
-            const isBalanceError = errMsg.toLowerCase().includes('insufficient') ||
-              errMsg.toLowerCase().includes('balance') ||
-              errMsg.toLowerCase().includes('402');
+            // isProviderCreditError covers: 400 Insufficient Credits, 402 Payment Required,
+            // "insufficient balance", "payment required", "credit exhausted", etc.
+            const isBalanceError = isProviderCreditError(errMsg);
 
             // Mark scene as failed_retryable with error metadata
             try {
@@ -1096,7 +1124,17 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         // or failed and needs retry. Also handles scenes that completed Seedance
         // but were queued before the hybrid pipeline switch (videoUrl set, lipSync pending).
         const lipSyncPendingScenes = scenes.filter(
-          (s) => s.status === "completed" && s.lipSyncStatus === "pending" && !s.lipSyncTaskId
+          (s) =>
+            s.status === "completed" &&
+            !s.lipSyncTaskId &&
+            (
+              s.lipSyncStatus === "pending" ||
+              // ISS-RETRY-ERROR: also retry error-state scenes that haven't exhausted all attempts.
+              // Without this, any scene that errors on attempt 0 (before lipSyncAttempts is
+              // incremented) deadlocks forever — AssemblyWorker resets the job to 'rendering'
+              // but the heartbeat never retries the scene because it only filtered for 'pending'.
+              (s.lipSyncStatus === "error" && ((s as any).lipSyncAttempts ?? 0) < LIPSYNC_TOTAL_MAX_ATTEMPTS)
+            )
         );
 
         if (lipSyncPendingScenes.length > 0) {
@@ -1159,8 +1197,15 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               } catch (charErr: any) {
                 console.warn(`[SceneDispatch] Scene ${scene.id} RETRY: could not resolve character URL from videoCharacters: ${charErr.message}`);
               }
-              const useHeyGenDirectRetry = isHeyGenDirectConfigured() && !!retryCharacterUrl && lipSyncSubmittedThisTick < LIPSYNC_MAX_PER_TICK;
-              const useSyncLabsRetry = !useHeyGenDirectRetry && isSyncLabsConfigured() && !!retryCharacterUrl;
+              // After LIPSYNC_HEYGEN_MAX_ATTEMPTS failures, force Sync Labs as the provider.
+              // This prevents a broken HeyGen key/quota from blocking the pipeline indefinitely.
+              const sceneAttemptCount = (scene as any).lipSyncAttempts ?? 0;
+              const forceToSyncLabs = sceneAttemptCount >= LIPSYNC_HEYGEN_MAX_ATTEMPTS;
+              const useHeyGenDirectRetry = !forceToSyncLabs && isHeyGenDirectConfigured() && !!retryCharacterUrl && lipSyncSubmittedThisTick < LIPSYNC_MAX_PER_TICK;
+              const useSyncLabsRetry = (forceToSyncLabs || !useHeyGenDirectRetry) && isSyncLabsConfigured() && !!retryCharacterUrl && lipSyncSubmittedThisTick < LIPSYNC_MAX_PER_TICK;
+              if (forceToSyncLabs) {
+                console.warn(`[SceneDispatch] Scene ${scene.id} RETRY: ${sceneAttemptCount} HeyGen failures — forcing Sync Labs fallback`);
+              }
 
               if (useHeyGenDirectRetry) {
                 console.log(`[SceneDispatch] Scene ${scene.id} RETRY → HeyGen Direct Photo+Audio (character: ${retryCharacterUrl!.slice(0, 60)}...)`);
@@ -1208,9 +1253,34 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 console.log(`[SceneDispatch] Scene ${scene.id} RETRY: rate limit hit — deferring to next tick`);
               }
             } catch (retryErr: any) {
-              console.error(`[SceneDispatch] Scene ${scene.id} RETRY lip-sync failed: ${String(retryErr?.message ?? retryErr).slice(0, 200)} — will retry next tick`);
-              // Do NOT set lipSyncStatus=error — that permanently blocks assembly.
-              // Leave as pending so the next heartbeat tick retries submission.
+              const currentAttempts = (scene as any).lipSyncAttempts ?? 0;
+              const nextAttempts = currentAttempts + 1;
+              console.error(`[SceneDispatch] Scene ${scene.id} RETRY lip-sync failed (attempt ${nextAttempts}/${LIPSYNC_TOTAL_MAX_ATTEMPTS}): ${String(retryErr?.message ?? retryErr).slice(0, 200)}`);
+              if (nextAttempts >= LIPSYNC_TOTAL_MAX_ATTEMPTS) {
+                // Exhausted all retries — permanently fail the scene and refund credits
+                console.error(`[SceneDispatch] Scene ${scene.id} lip sync PERMANENTLY FAILED after ${nextAttempts} attempts — marking error and refunding credits`);
+                await db.update(musicVideoScenes)
+                  .set({ lipSyncStatus: "error" as any, lipSyncTaskId: null, lipSyncAttempts: nextAttempts, updatedAt: new Date() })
+                  .where(eq(musicVideoScenes.id, scene.id));
+                // Refund credits for this job if all scenes have now exhausted retries
+                try {
+                  const allScenes = await db.select().from(musicVideoScenes).where(eq(musicVideoScenes.jobId, job.id));
+                  const allExhausted = allScenes.every((s: any) => s.lipSyncStatus === "error" || s.lipSyncStatus === "done" || s.lipSyncStatus === "skipped");
+                  const anyError = allScenes.some((s: any) => s.lipSyncStatus === "error");
+                  if (allExhausted && anyError) {
+                    await db.update(musicVideoJobs).set({ status: "failed", errorMessage: "Lip sync failed after maximum retries — credits refunded", updatedAt: new Date() }).where(eq(musicVideoJobs.id, job.id));
+                    await refundCredits(job.userId, job.creditCost, `Lip sync failed after ${LIPSYNC_TOTAL_MAX_ATTEMPTS} attempts — job ${job.id}`, job.id);
+                    console.log(`[SceneDispatch] Job ${job.id} — credits refunded for user ${job.userId}`);
+                  }
+                } catch (refundErr: any) {
+                  console.error(`[SceneDispatch] Job ${job.id} — credit refund failed: ${String(refundErr?.message ?? refundErr).slice(0, 200)}`);
+                }
+              } else {
+                // Increment attempt counter and leave as pending for next tick
+                await db.update(musicVideoScenes)
+                  .set({ lipSyncAttempts: nextAttempts, updatedAt: new Date() })
+                  .where(eq(musicVideoScenes.id, scene.id));
+              }
             }
           }
         }
@@ -1228,20 +1298,26 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               const isHeyGenTaskForTimeout = (scene.lipSyncTaskId ?? "").startsWith("heygen:");
               const stuckTimeout = isHeyGenTaskForTimeout ? HEYGEN_STUCK_TIMEOUT_MS : INFINITETALK_STUCK_TIMEOUT_MS;
               if (sceneAge > stuckTimeout) {
-                console.warn(`[SceneDispatch] Scene ${scene.id} lip sync job stuck for ${Math.round(sceneAge / 60000)}min — resetting lip sync to pending for retry`);
-                // CRITICAL: Only reset lipSyncStatus — NEVER change scene status to 'pending'.
-                // Changing status to 'pending' would trigger a full Seedance re-render, wasting credits.
-                // The scene is already 'completed' (Seedance render done) — only the lip sync needs retry.
-                // Also restore videoUrl from originalVideoUrl if it was accidentally cleared.
-                await db.update(musicVideoScenes)
-                  .set({
-                    status: "completed",  // MUST stay completed — do not re-render
-                    // videoUrl restored via separate query below if null
-                    lipSyncStatus: "pending",
-                    lipSyncTaskId: null,
-                    updatedAt: new Date()
-                  })
-                  .where(eq(musicVideoScenes.id, scene.id));
+                const timeoutAttempts = ((scene as any).lipSyncAttempts ?? 0) + 1;
+                console.warn(`[SceneDispatch] Scene ${scene.id} lip sync job stuck for ${Math.round(sceneAge / 60000)}min (attempt ${timeoutAttempts}/${LIPSYNC_TOTAL_MAX_ATTEMPTS}) — resetting lip sync to pending for retry`);
+                if (timeoutAttempts >= LIPSYNC_TOTAL_MAX_ATTEMPTS) {
+                  console.error(`[SceneDispatch] Scene ${scene.id} lip sync PERMANENTLY FAILED after ${timeoutAttempts} timeout attempts — marking error`);
+                  await db.update(musicVideoScenes)
+                    .set({ lipSyncStatus: "error" as any, lipSyncTaskId: null, lipSyncAttempts: timeoutAttempts, updatedAt: new Date() })
+                    .where(eq(musicVideoScenes.id, scene.id));
+                } else {
+                  // CRITICAL: Only reset lipSyncStatus — NEVER change scene status to 'pending'.
+                  // Changing status to 'pending' would trigger a full Seedance re-render, wasting credits.
+                  await db.update(musicVideoScenes)
+                    .set({
+                      status: "completed",  // MUST stay completed — do not re-render
+                      lipSyncStatus: "pending",
+                      lipSyncTaskId: null,
+                      lipSyncAttempts: timeoutAttempts,
+                      updatedAt: new Date()
+                    })
+                    .where(eq(musicVideoScenes.id, scene.id));
+                }
                 continue;
               }
 
@@ -1380,12 +1456,32 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 } catch { /* non-fatal */ }
 
               } else if (pollResult.status === "failed") {
-                console.error(`[SceneDispatch] Scene ${scene.id} lip sync job ${scene.lipSyncTaskId} FAILED — resetting to pending for retry`);
-                // Reset to pending so the heartbeat re-submits on the next tick.
-                // Under the premium policy, 'error' permanently blocks assembly — never use it here.
-                await db.update(musicVideoScenes)
-                  .set({ lipSyncStatus: "pending", lipSyncTaskId: null, updatedAt: new Date() })
-                  .where(eq(musicVideoScenes.id, scene.id));
+                const failedAttempts = ((scene as any).lipSyncAttempts ?? 0) + 1;
+                console.error(`[SceneDispatch] Scene ${scene.id} lip sync job ${scene.lipSyncTaskId} FAILED (attempt ${failedAttempts}/${LIPSYNC_TOTAL_MAX_ATTEMPTS})`);
+                if (failedAttempts >= LIPSYNC_TOTAL_MAX_ATTEMPTS) {
+                  console.error(`[SceneDispatch] Scene ${scene.id} lip sync PERMANENTLY FAILED after ${failedAttempts} attempts — marking error and refunding credits`);
+                  await db.update(musicVideoScenes)
+                    .set({ lipSyncStatus: "error" as any, lipSyncTaskId: null, lipSyncAttempts: failedAttempts, updatedAt: new Date() })
+                    .where(eq(musicVideoScenes.id, scene.id));
+                  try {
+                    const allScenes = await db.select().from(musicVideoScenes).where(eq(musicVideoScenes.jobId, job.id));
+                    const allExhausted = allScenes.every((s: any) => s.lipSyncStatus === "error" || s.lipSyncStatus === "done" || s.lipSyncStatus === "skipped");
+                    const anyError = allScenes.some((s: any) => s.lipSyncStatus === "error");
+                    if (allExhausted && anyError) {
+                      await db.update(musicVideoJobs).set({ status: "failed", errorMessage: "Lip sync failed after maximum retries — credits refunded", updatedAt: new Date() }).where(eq(musicVideoJobs.id, job.id));
+                      await refundCredits(job.userId, job.creditCost, `Lip sync failed after ${LIPSYNC_TOTAL_MAX_ATTEMPTS} attempts — job ${job.id}`, job.id);
+                      console.log(`[SceneDispatch] Job ${job.id} — credits refunded for user ${job.userId}`);
+                    }
+                  } catch (refundErr: any) {
+                    console.error(`[SceneDispatch] Job ${job.id} — credit refund failed: ${String(refundErr?.message ?? refundErr).slice(0, 200)}`);
+                  }
+                } else {
+                  // Reset to pending so the heartbeat re-submits on the next tick.
+                  // Increment attempt counter to track progress toward the cap.
+                  await db.update(musicVideoScenes)
+                    .set({ lipSyncStatus: "pending", lipSyncTaskId: null, lipSyncAttempts: failedAttempts, updatedAt: new Date() })
+                    .where(eq(musicVideoScenes.id, scene.id));
+                }
               } else {
                 console.log(`[SceneDispatch] Scene ${scene.id} lip sync status: ${pollResult.status} — polling next tick`);
               }

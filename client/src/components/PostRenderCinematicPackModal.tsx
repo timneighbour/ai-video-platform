@@ -253,7 +253,7 @@ export default function PostRenderCinematicPackModal({
           {/* Celebration icon */}
           <div className="relative mb-4 flex items-center justify-center">
             <div className="absolute w-20 h-20 rounded-full bg-[--color-gold]/15 animate-ping" style={{ animationDuration: "2.5s" }} />
-            <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-[#b8892a] to-[#4a3010] flex items-center justify-center shadow-lg shadow-fuchsia-500/30">
+            <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary/40 flex items-center justify-center shadow-lg shadow-fuchsia-500/30">
               <Sparkles className="w-7 h-7 text-white" />
             </div>
           </div>
@@ -283,7 +283,7 @@ export default function PostRenderCinematicPackModal({
           >
             {/* Best Value badge */}
             <div className="absolute -top-3 left-5 flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] text-white text-[10px] font-bold tracking-wider shadow-lg">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-primary to-primary/40 text-white text-[10px] font-bold tracking-wider shadow-lg">
                 <Star className="w-2.5 h-2.5 fill-white" />
                 BEST VALUE
               </span>
@@ -304,7 +304,7 @@ export default function PostRenderCinematicPackModal({
                     </TooltipTrigger>
                     <TooltipContent
                       side="top"
-                      className="max-w-[240px] text-xs leading-relaxed bg-[#0a0800] border border-[--color-gold]/30 text-white/85 shadow-xl"
+                      className="max-w-[240px] text-xs leading-relaxed bg-background border border-[--color-gold]/30 text-white/85 shadow-xl"
                     >
                       The Cinematic Pack bundles 4K video building with our full WizSound™ Cinematic mastering pipeline and priority queue placement — all at a single price. Individually these would cost £9 (£6 + £3).
                     </TooltipContent>

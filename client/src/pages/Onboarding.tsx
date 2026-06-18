@@ -19,7 +19,7 @@ const options = [
     accentColor: '#b8892a',
     glowColor: 'rgba(184,137,42,0.35)',
     tag: 'Most Popular',
-    tagColor: 'from-[#b8892a] to-[#e8c878]',
+    tagColor: 'from-primary to-primary/80',
     stats: ['Director control', 'Consistent characters', 'Cinematic lip sync'],
     creditHint: 'from 30 credits',
   },
@@ -145,12 +145,12 @@ const Onboarding: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#030303] overflow-hidden relative">
+    <div className="min-h-screen bg-background overflow-hidden relative">
 
       {/* ── Cinematic background layer ─────────────────────────────────────── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         {/* Deep space gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-[#030303] to-[#020202]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background" />
         {/* Ambient gold orb top-right */}
         <div
           className="absolute -top-60 right-0 w-[700px] h-[700px] rounded-full opacity-[0.06]"
@@ -173,7 +173,7 @@ const Onboarding: React.FC = () => {
           }}
         />
         {/* Horizontal scan line */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#b8892a]/20 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
       </div>
 
       {/* ── Back button ────────────────────────────────────────────────────── */}
@@ -199,11 +199,11 @@ const Onboarding: React.FC = () => {
         {/* ── Step indicator ─────────────────────────────────────────────── */}
         <div className="flex items-center gap-3 mb-8">
           <div className="flex items-center gap-1.5">
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#b8892a] to-[#e8c878] flex items-center justify-center text-[10px] font-bold text-white">1</div>
-            <div className="w-16 h-px bg-gradient-to-r from-[#b8892a]/60 to-white/10" />
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-[10px] font-bold text-white">1</div>
+            <div className="w-16 h-px bg-gradient-to-r from-primary/60 to-white/10" />
             <div className="w-6 h-6 rounded-full border border-white/15 flex items-center justify-center text-[10px] font-medium text-white/30">2</div>
           </div>
-          <span className="text-[11px] font-semibold tracking-[0.18em] uppercase text-[#b8892a]/70 ml-2">Choose your creation type</span>
+          <span className="text-[11px] font-semibold tracking-[0.18em] uppercase text-primary/70 ml-2">Choose your creation type</span>
         </div>
 
         {/* ── Hero headline ──────────────────────────────────────────────── */}
@@ -241,7 +241,7 @@ const Onboarding: React.FC = () => {
           <div className="flex items-center gap-5 text-[11px] text-white/25 font-medium tracking-wide">
             {['Preview before you pay', 'Consistent characters', '2 free projects included'].map((item, i) => (
               <React.Fragment key={item}>
-                {i > 0 && <span className="w-1 h-1 rounded-full bg-[#b8892a]/30" />}
+                {i > 0 && <span className="w-1 h-1 rounded-full bg-primary/30" />}
                 <span>{item}</span>
               </React.Fragment>
             ))}
@@ -286,7 +286,7 @@ const Onboarding: React.FC = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
                     {/* Start Here badge */}
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[10px] font-black text-[#0a0a0f] tracking-wide uppercase shadow-[0_0_16px_rgba(255,255,255,0.3)]">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[10px] font-black text-background tracking-wide uppercase shadow-[0_0_16px_rgba(255,255,255,0.3)]">
                       ★ Start Here
                     </div>
                     {/* Tag */}
@@ -322,7 +322,7 @@ const Onboarding: React.FC = () => {
 
                   {/* CTA */}
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#b8892a] to-[#e8c878] text-white text-sm font-bold group-hover:shadow-[0_0_30px_rgba(184,137,42,0.5)] transition-all duration-300">
+                    <div className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-primary/80 text-white text-sm font-bold group-hover:shadow-[0_0_30px_rgba(184,137,42,0.5)] transition-all duration-300">
                       <span>Start Creating</span>
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </div>
@@ -472,7 +472,7 @@ const Onboarding: React.FC = () => {
 
         {/* ── How It Works ──────────────────────────────────────────────── */}
         <div className="w-full max-w-3xl mt-16 mb-4">
-          <p className="text-center text-[11px] font-bold tracking-[0.25em] uppercase text-[#b8892a]/60 mb-8">How it works</p>
+          <p className="text-center text-[11px] font-bold tracking-[0.25em] uppercase text-primary/60 mb-8">How it works</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
               { step: '01', title: 'Choose a studio', desc: 'Pick the creation type that matches your project — video, music, animation, or image.' },
@@ -480,7 +480,7 @@ const Onboarding: React.FC = () => {
               { step: '03', title: 'Build & download', desc: 'Happy with the preview? Hit Build. Credits are only used when you render the final video.' },
             ].map((item) => (
               <div key={item.step} className="flex flex-col items-center text-center gap-3">
-                <div className="w-10 h-10 rounded-full border border-[#b8892a]/30 bg-[#b8892a]/[0.06] flex items-center justify-center text-[#b8892a] text-sm font-bold">{item.step}</div>
+                <div className="w-10 h-10 rounded-full border border-primary/30 bg-primary/[0.06] flex items-center justify-center text-primary text-sm font-bold">{item.step}</div>
                 <p className="text-sm font-semibold text-white/80">{item.title}</p>
                 <p className="text-xs text-white/35 leading-relaxed">{item.desc}</p>
               </div>
@@ -489,16 +489,16 @@ const Onboarding: React.FC = () => {
         </div>
 
         {/* ── Credit explainer ──────────────────────────────────────────────── */}
-        <div className="w-full max-w-3xl mt-12 rounded-2xl border border-[#b8892a]/15 bg-[#b8892a]/[0.04] px-8 py-7">
+        <div className="w-full max-w-3xl mt-12 rounded-2xl border border-primary/15 bg-primary/[0.04] px-8 py-7">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-            <div className="flex-shrink-0 w-12 h-12 rounded-xl border border-[#b8892a]/25 bg-[#b8892a]/[0.08] flex items-center justify-center">
-              <Zap className="w-5 h-5 text-[#b8892a]" />
+            <div className="flex-shrink-0 w-12 h-12 rounded-xl border border-primary/25 bg-primary/[0.08] flex items-center justify-center">
+              <Zap className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1">
               <p className="text-sm font-bold text-white mb-1">You have 50 free Build Credits</p>
               <p className="text-xs text-white/40 leading-relaxed">Storyboard generation is always free — preview your full video before spending a single credit. Credits are only used when you click <span className="text-white/60 font-medium">Build</span> to render the final video. A standard 3-scene music video costs 45 credits.</p>
             </div>
-            <a href="/pricing" className="flex-shrink-0 text-xs font-semibold text-[#b8892a] hover:text-[#e8c878] transition-colors whitespace-nowrap">See all plans →</a>
+            <a href="/pricing" className="flex-shrink-0 text-xs font-semibold text-primary hover:text-primary/90 transition-colors whitespace-nowrap">See all plans →</a>
           </div>
         </div>
 
@@ -511,7 +511,7 @@ const Onboarding: React.FC = () => {
             { icon: '🛡', text: 'Secure checkout via Stripe' },
           ].map((item) => (
             <div key={item.text} className="flex items-center gap-2 text-[11px] text-white/30 font-medium">
-              <span className="text-[#b8892a]/60 text-xs">{item.icon}</span>
+              <span className="text-primary/60 text-xs">{item.icon}</span>
               {item.text}
             </div>
           ))}
@@ -521,11 +521,11 @@ const Onboarding: React.FC = () => {
         <div className="mt-12 text-center">
           <p className="text-white/60 text-xs">
             By continuing, you agree to WIZ AI's{' '}
-            <a href="/terms" className="text-white/30 hover:text-[#b8892a]/70 transition-colors font-medium underline underline-offset-2">
+            <a href="/terms" className="text-white/30 hover:text-primary/70 transition-colors font-medium underline underline-offset-2">
               Terms of Service
             </a>
             {' '}and{' '}
-            <a href="/privacy" className="text-white/30 hover:text-[#b8892a]/70 transition-colors font-medium underline underline-offset-2">
+            <a href="/privacy" className="text-white/30 hover:text-primary/70 transition-colors font-medium underline underline-offset-2">
               Privacy Policy
             </a>
           </p>

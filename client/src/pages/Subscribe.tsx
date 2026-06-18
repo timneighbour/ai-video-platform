@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+
 import { PAY_PER_VIDEO_TIERS, WIZSOUND_PAY_PER_VIDEO_TIERS } from "@/lib/pricing";
 import { mp } from "@/lib/mixpanel";
 import { Button } from "@/components/ui/button";
@@ -23,16 +25,18 @@ const PLAN_ICONS: Record<string, React.ReactNode> = {
  pro: <Crown className="w-5 h-5" />,
  studio: <Gem className="w-5 h-5" />,
 };
-// Merge shared plan data with UI-only icon field
-const SUBSCRIBE_PLAN_IDS = ["free", "starter", "creator", "studio"];
-const PLANS = SHARED_PLANS.filter((p) => SUBSCRIBE_PLAN_IDS.includes(p.id)).map((p) => ({ ...p, icon: PLAN_ICONS[p.id] }));
+// Only show 4 tiers on subscribe page — basic and pro plan IDs are hidden
+const SUBSCRIBE_PLAN_IDS: string[] = ["free", "starter", "creator", "studio"];
+const PLANS = SHARED_PLANS
+  .filter((p) => SUBSCRIBE_PLAN_IDS.includes(p.id))
+  .map((p) => ({ ...p, icon: PLAN_ICONS[p.id] }));
 
 
 
 // Component 
 export default function Subscribe() {
 
- useSEO({ title: "Subscribe — WIZ AI Plans & Pricing", path: "/subscribe", description: "Choose your WIZ AI plan. Starter, Creator, and Pro tiers with full access to AI video, music, image, and animation tools. Start with a free trial." });
+ useSEO({ title: "Subscribe — WIZ AI Plans & Pricing", path: "/subscribe", description: "Choose your WIZ AI plan. Starter (£29), Creator (£79), and Pro (£149) with full access to AI video, music, image, and animation tools. Start free." });
  const { isAuthenticated } = useAuth();
  // Track subscription page view
  useEffect(() => { mp.subscriptionViewed("direct"); }, []);
@@ -68,7 +72,7 @@ export default function Subscribe() {
  mp.checkoutStarted(planName, typeof planPrice === "number" ? planPrice : undefined);
  setLoadingPlan(planId);
  createSubscriptionCheckout.mutate({
- plan: planId as "starter" | "basic" | "creator" | "pro" | "studio",
+ plan: planId as "starter" | "creator" | "pro" | "studio",
  origin: window.location.origin,
  billingInterval: billing,
  });
@@ -82,6 +86,14 @@ export default function Subscribe() {
 
  return (
  <div className="min-h-screen bg-background">
+  <Helmet>
+    <title>Get Started Free — WIZ AI</title>
+    <meta name="description" content="Start creating AI music videos, animation, and images today. Free trial included — no credit card required." />
+    <meta property="og:title" content="Get Started Free — WIZ AI" />
+    <meta property="og:description" content="Start creating AI music videos, animation, and images today. Free trial included — no credit card required." />
+    <meta property="og:url" content="https://wiz-ai.io/subscribe" />
+    <link rel="canonical" href="https://wiz-ai.io/subscribe" />
+  </Helmet>
 
  {/* Header */}
  <div className="border-b border-white/10">
@@ -127,7 +139,7 @@ export default function Subscribe() {
  {/* 3. Plan cards */}
  <section className="pb-16 px-4">
  <div className="container max-w-7xl mx-auto">
- <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 items-start">
+ <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-start">
  {PLANS.map((plan) => {
  const annualMonthlyEquiv = plan.annualTotal > 0 ? Math.round((plan.annualTotal / 12) * 10) / 10 : 0;
  const displayPrice = billing === "annual" && annualMonthlyEquiv > 0 ? annualMonthlyEquiv : plan.monthlyPrice;
@@ -136,14 +148,14 @@ export default function Subscribe() {
  key={plan.id}
  className={`relative rounded-2xl border flex flex-col p-4 transition-all duration-300 ${
  plan.highlight
- ? "border-[--color-gold]/60 bg-gradient-to-b from-[#2a1f00]/60 to-background shadow-[0_0_40px_-8px_rgba(184,137,42,0.4)] scale-105 lg:scale-110 z-10"
+ ? "border-[--color-gold]/60 bg-gradient-to-b from-primary/30/60 to-background shadow-[0_0_40px_-8px_rgba(184,137,42,0.4)] scale-105 lg:scale-110 z-10"
  : "border-white/10 bg-white/[0.03] hover:border-white/20"
  }`}
  >
  {plan.badge && (
  <div className={`absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-bold whitespace-nowrap ${
  plan.highlight
- ? "metallic-gold text-[#1a1000] border border-[--color-gold]/40"
+ ? "metallic-gold text-primary/20 border border-[--color-gold]/40"
  : "bg-[--color-silver]/10 text-[--color-silver] border border-[--color-silver]/30"
  }`}>
  {plan.badge}
@@ -161,15 +173,15 @@ export default function Subscribe() {
  {displayPrice > 0 && <span className="text-muted-foreground text-sm mb-1">/mo</span>}
  </div>
  {billing === "annual" && plan.annualSaving > 0 && (
- <p className="text-xs text-[#a1a1aa] mb-1">£{plan.annualTotal}/year <span className="text-[--color-gold] font-semibold">save £{plan.annualSaving}</span></p>
+ <p className="text-xs text-muted-foreground mb-1">£{plan.annualTotal}/year <span className="text-[--color-gold] font-semibold">save £{plan.annualSaving}</span></p>
  )}
  {billing === "monthly" && plan.annualSaving > 0 && (
- <p className="text-xs text-[#a1a1aa] mb-1">or £{plan.annualTotal}/yr <span className="text-[--color-gold] font-semibold">save £{plan.annualSaving}</span></p>
+ <p className="text-xs text-muted-foreground mb-1">or £{plan.annualTotal}/yr <span className="text-[--color-gold] font-semibold">save £{plan.annualSaving}</span></p>
  )}
  <Button
  className={`w-full mt-3 mb-4 font-semibold text-sm ${
  plan.highlight
- ? "btn-primary text-[#1a1000] border-0"
+ ? "btn-primary text-primary/20 border-0"
  : plan.id === "free"
  ? "bg-white/10 hover:bg-white/20 text-white border border-white/20"
  : ""
@@ -241,7 +253,7 @@ export default function Subscribe() {
  {[
  ...WIZSOUND_PAY_PER_VIDEO_TIERS.map(t => ({ tier: t.tier, desc: t.desc, price: t.price, highlight: t.highlight, badge: t.badge })),
  ].map((item) => (
- <div key={item.tier} className={`rounded-2xl border p-5 transition-all ${item.highlight ? "border-[--color-gold]/50 bg-gradient-to-b from-[#2a1f00]/50 to-background shadow-[0_0_30px_-8px_rgba(184,137,42,0.35)]" : "border-white/10 bg-white/[0.03]"}`}>
+ <div key={item.tier} className={`rounded-2xl border p-5 transition-all ${item.highlight ? "border-[--color-gold]/50 bg-gradient-to-b from-primary/30/50 to-background shadow-[0_0_30px_-8px_rgba(184,137,42,0.35)]" : "border-white/10 bg-white/[0.03]"}`}>
  {item.badge && <div className="inline-block rounded-full bg-[--color-gold]/15 text-[--color-gold] text-xs font-bold px-3 py-0.5 mb-3 border border-[--color-gold]/30">{item.badge}</div>}
  <div className="flex items-center gap-2 mb-2">
  <Volume2 className={`h-4 w-4 ${item.highlight ? "text-[--color-gold]" : "text-muted-foreground"}`} />
@@ -295,7 +307,7 @@ export default function Subscribe() {
  <thead>
  <tr className="border-b border-white/10">
  <th className="text-left p-4 text-muted-foreground font-medium w-40">Feature</th>
- {["Free", "Starter", "Basic", "Creator", "Pro", "Studio"].map((name) => (
+ {["Free", "Starter", "Creator", "Pro"].map((name) => (
  <th key={name} className={`p-4 text-center font-bold ${name === "Creator" ? "text-[--color-gold]" : "text-white"}`}>
  {name}
  {name === "Creator" && <div className="text-xs text-[--color-gold]/70 font-normal mt-0.5">Most Popular</div>}
@@ -307,8 +319,8 @@ export default function Subscribe() {
  {COMPARISON_ROWS.map((row, i) => (
  <tr key={row.feature} className={`border-b border-white/5 ${i % 2 === 0 ? "bg-white/[0.015]" : ""}`}>
  <td className="p-4 text-muted-foreground text-xs font-medium">{row.feature}</td>
- {([row.free, row.starter, row.basic, row.creator, row.pro, row.studio] as (string | boolean)[]).map((val, j) => (
- <td key={j} className={`p-4 text-center ${j === 3 ? "bg-[--color-gold]/5" : ""}`}>{renderCell(val)}</td>
+ {([row.free, row.starter, row.creator, row.studio] as (string | boolean)[]).map((val, j) => (
+ <td key={j} className={`p-4 text-center ${j === 2 ? "bg-[--color-gold]/5" : ""}`}>{renderCell(val)}</td>
  ))}
  </tr>
  ))}

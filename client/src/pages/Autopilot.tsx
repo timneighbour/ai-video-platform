@@ -432,7 +432,7 @@ export default function Autopilot() {
             <span className="hidden sm:inline">Back to Studio</span>
           </Button>
           <a href="/">
-            <img src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png" alt="WIZ AI" className="h-10 w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
+            <img src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png" alt="WIZ AI" className="h-14 w-auto object-contain drop-shadow-[0_0_12px_rgba(196,164,100,0.15)]" loading="eager" decoding="async" />
           </a>
           <CreditBalance variant="badge" />
         </div>
@@ -1033,7 +1033,7 @@ export default function Autopilot() {
               </div>
               {/* Render time estimate + quality guarantee */}
               <div className="flex flex-wrap items-center gap-3 pt-1">
-                <span className="inline-flex items-center gap-1.5 text-[11px] text-zinc-500">
+                <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground/70">
                   <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><circle cx="8" cy="8" r="6.5" /><path d="M8 5v3.5l2 2" /></svg>
                   ~{Math.max(3, Math.round(storyboard.length * 0.7))} min render
                 </span>

@@ -162,7 +162,8 @@ export default function Account() {
     }
   };
 
-  const planName = subData?.plan ?? "Free";
+  const PLAN_DISPLAY_NAMES: Record<string, string> = { free: "Free", starter: "Starter", basic: "Basic", creator: "Creator", pro: "Pro", studio: "Pro", business: "Pro" };
+  const planName = subData?.plan ? (PLAN_DISPLAY_NAMES[subData.plan] ?? (subData.plan.charAt(0).toUpperCase() + subData.plan.slice(1))) : "Free";
   const isActive = subData?.isActive ?? false;
   const pricePerMonth = subData?.pricePerMonth ?? 0;
   const periodEnd = subData?.currentPeriodEnd ? new Date(subData.currentPeriodEnd).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "—";

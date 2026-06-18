@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import {
  WIZANIMATE_PRODUCT_PAGE,
  WIZAUDIO_STUDIO_PAGE,
@@ -38,6 +39,7 @@ import {
  Users, Star, Crown, Zap, Play, Headphones, Globe
 } from "@/lib/icons";
 import WizSoundDemoPlayer from "@/components/WizSoundDemoPlayer";
+import WizSoundShowcase from "@/components/WizSoundShowcase";
 import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
 import PublicNavBar from "@/components/PublicNavBar";
 import { PLANS as SHARED_PLANS, TOPUP_PACKS } from "@/lib/plans";
@@ -87,17 +89,17 @@ const PLAN_UI_OVERLAY: Record<string, {
  starter: {
  accentColor: "oklch(0.65 0.08 240)", bgImage: PLAN_BG_STARTER,
  glowColor: "rgba(100,140,200,0.12)", borderColor: "rgba(100,140,200,0.2)",
- annualPrice: 79, tagline: "Start creating music videos today.",
+ annualPrice: 290, tagline: "Start creating music videos today.",
  },
  creator: {
  accentColor: "oklch(0.78 0.11 75)", bgImage: PLAN_BG_CREATOR,
  glowColor: "rgba(196,164,100,0.18)", borderColor: "rgba(196,164,100,0.45)",
- annualPrice: 350, tagline: "More videos, more scenes, more creative control.",
+ annualPrice: 790, tagline: "More videos, more scenes, more creative control.",
  },
  studio: {
  accentColor: "oklch(0.72 0.12 300)", bgImage: PLAN_BG_PRO,
  glowColor: "rgba(160,100,220,0.14)", borderColor: "rgba(160,100,220,0.25)",
- annualPrice: 990, tagline: "12 videos a month. Full cinematic control.",
+ annualPrice: 1490, tagline: "12 videos a month. Full cinematic control.",
  },
 };
 // Merge shared plan data with Pricing-page UI overlay
@@ -121,8 +123,8 @@ const COMPARISON_GROUPS = [
  {
  group: "Output",
  rows: [
- { label: "Videos per month", starter: "2", creator: "15", studio: "40" },
- { label: "Build Credits / month", starter: "2", creator: "15", studio: "40" },
+ { label: "Videos per month", starter: "2", creator: "6", studio: "12" },
+ { label: "Build Credits / month", starter: "2", creator: "6", studio: "12" },
  { label: "Max scenes per video", starter: "8 (≈64s)", creator: "11 (≈88s)", studio: "12 (≈96s)" },
  { label: "Max output quality", starter: "720p", creator: "4K 2160p", studio: "4K 2160p" },
  { label: "No watermark", starter: true, creator: true, studio: true, isCheck: true },
@@ -132,7 +134,7 @@ const COMPARISON_GROUPS = [
  group: "Features",
  rows: [
  { label: "All 6 WIZ AI products", starter: true, creator: true, studio: true, isCheck: true },
- { label: "WizSound audio mastering", starter: true, creator: true, studio: true, isCheck: true },
+ { label: "WizSound™ cinematic audio mastering", starter: true, creator: true, studio: true, isCheck: true },
  { label: "WizSync\u2122 character lock", starter: false, creator: true, studio: true, isCheck: true },
  { label: "Priority video builds", starter: false, creator: true, studio: true, isCheck: true },
  ],
@@ -155,7 +157,7 @@ const FAQS = [
  },
  {
  q: "What is the difference between Standard, HD, and 4K?",
- a: "Standard (720p) is great for social media previews. HD (1080p) is perfect for YouTube, Instagram, and most streaming platforms. 4K (2160p) is cinema-grade quality for professional productions. 4K is available on Creator and Studio plans.",
+ a: "Standard (720p) is great for social media previews. HD (1080p) is perfect for YouTube, Instagram, and most streaming platforms. 4K (2160p) is cinema-grade quality for professional productions. 4K is available on Creator and Pro plans.",
  },
  {
  q: "What happens if I use all my monthly Build Credits?",
@@ -171,11 +173,11 @@ const FAQS = [
  },
  {
  q: "What is WizSync\u2122 character lock?",
- a: "WizSync\u2122 character lock uses AI to maintain the same character appearance across multiple scenes in your video. Available on Creator and Studio plans.",
+ a: "WizSync\u2122 character lock uses AI to maintain the same character appearance across multiple scenes in your video. Available on Creator and Pro plans.",
  },
  {
  q: "What is priority video building?",
- a: "Priority video builds move your job to the front of the queue. On Creator and Studio plans, your videos process faster — typically within minutes.",
+ a: "Priority video builds move your job to the front of the queue. On Creator and Pro plans, your videos process faster — typically within minutes.",
  },
  {
  q: "Is there a free trial?",
@@ -241,7 +243,7 @@ function CurrencySelector({ currency, setCurrency, currencies, isLoading }: {
  <ChevronDown className={`w-3 h-3 text-white/40 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
  </button>
  {open && (
- <div className="absolute right-0 top-full mt-2 w-56 max-h-72 overflow-y-auto rounded-2xl bg-[#0c0c0c]/98 backdrop-blur-2xl border border-[--color-gold]/[0.1] shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-50 py-1.5">
+ <div className="absolute right-0 top-full mt-2 w-56 max-h-72 overflow-y-auto rounded-2xl bg-background/98 backdrop-blur-2xl border border-[--color-gold]/[0.1] shadow-[0_20px_60px_rgba(0,0,0,0.8)] z-50 py-1.5">
  {currencies.map(c => (
  <button
  key={c.code}
@@ -286,7 +288,11 @@ function CompCell({ value, isCheck }: { value: string | boolean; isCheck?: boole
 }
 
 export default function Pricing() {
- useSEO({ title: "Pricing — WIZ AI", path: "/pricing", description: "Choose the WIZ AI plan that fits your creative workflow. Free to create, Starter (£9/mo), Creator (£35/mo), and Studio (£99/mo) plans available. One Build Credit = one final downloadable video. Only pay when you're ready." });
+ useSEO({
+    title: "Pricing — WIZ AI",
+    path: "/pricing",
+    description: "WIZ AI plans from £29/month. Starter, Creator, and Pro tiers with full access to AI video, music, image, and animation tools. Start with a free trial — no credit card required.",
+  });
  const { isAuthenticated } = useAuth();
  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
  const [loadingBundle, setLoadingBundle] = useState<string | null>(null);
@@ -346,7 +352,7 @@ export default function Pricing() {
  if (!isAuthenticated) { window.location.href = getLoginUrl(); return; }
  setLoadingPlan(planId);
  try {
- const result = await createSubscriptionCheckout.mutateAsync({ plan: planId, origin: window.location.origin });
+ const result = await createSubscriptionCheckout.mutateAsync({ plan: planId, origin: window.location.origin, billingInterval: billingCycle });
  if (result.checkoutUrl) {
  // Fire GA conversion in background, then navigate immediately
  try { gtagSendEvent(result.checkoutUrl); } catch (_) {}
@@ -374,7 +380,15 @@ export default function Pricing() {
  }
 
  return (
- <div className="min-h-screen bg-[#040404] text-white overflow-x-hidden">
+ <div className="min-h-screen bg-background text-white overflow-x-hidden">
+  <Helmet>
+    <title>Pricing — WIZ AI</title>
+    <meta name="description" content="WIZ AI plans from £29/month. Starter, Creator, and Pro tiers. Includes AI music video creation, WizSound™ mastering, and 4K export. No credit card needed to start." />
+    <meta property="og:title" content="Pricing — WIZ AI" />
+    <meta property="og:description" content="WIZ AI plans from £29/month. Starter, Creator, and Pro tiers. Includes AI music video creation, WizSound™ mastering, and 4K export. No credit card needed to start." />
+    <meta property="og:url" content="https://wiz-ai.io/pricing" />
+    <link rel="canonical" href="https://wiz-ai.io/pricing" />
+  </Helmet>
  <style>{`
  @keyframes priceFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
  @keyframes shimmerSlide { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
@@ -433,7 +447,13 @@ export default function Pricing() {
   <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-5 leading-[1.05]">Director-level control.<br />
   <span className="metallic-gold">Pay when your video is ready.</span>
   </h1>
-  <p className="text-lg sm:text-xl text-white/50 max-w-xl mx-auto leading-relaxed mb-8">Build your entire music video at no cost — direct every scene, control lip sync and character consistency, preview before you commit. Only pay when you're ready to download.
+  <p className="text-lg sm:text-xl text-white/50 max-w-xl mx-auto leading-relaxed mb-6">Build your entire music video at no cost — direct every scene, control lip sync and character consistency, preview before you commit. Only pay when you're ready to download.
+  </p>
+  <p className="text-[11px] text-white/25 font-mono tracking-widest uppercase mb-8">
+    Cinematic AI video creation · Powered by{" "}
+    <span className="text-[rgba(184,137,42,0.65)]">WizCreate™</span>{" · "}
+    <span className="text-[rgba(184,137,42,0.65)]">WizSound™</span>{" · "}
+    <span className="text-[rgba(184,137,42,0.65)]">WizPilot™</span>
   </p>
  {/* Trust pills */}
  <div className="flex flex-wrap items-center justify-center gap-3">
@@ -478,7 +498,7 @@ export default function Pricing() {
  </div>
  </div>
  {/* Content */}
- <div className="p-5 bg-[#0a0a0a]">
+ <div className="p-5 bg-background">
  <h3 className="text-sm font-bold text-white mb-1.5">{item.title}</h3>
  <p className="text-xs text-white/40 leading-relaxed">{item.desc}</p>
  </div>
@@ -516,7 +536,7 @@ export default function Pricing() {
  onClick={() => setBillingCycle("monthly")}
  className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
  billingCycle === "monthly"
- ? "text-[#0a0a0a] shadow-[0_2px_12px_rgba(196,164,100,0.3)]"
+ ? "text-background shadow-[0_2px_12px_rgba(196,164,100,0.3)]"
  : "text-white/40 hover:text-white/70"
  }`}
  style={billingCycle === "monthly" ? { background: 'linear-gradient(to right, oklch(0.50 0.13 55), oklch(0.72 0.14 70))' } : {}}
@@ -525,13 +545,13 @@ export default function Pricing() {
  onClick={() => setBillingCycle("annual")}
  className={`flex items-center gap-2 px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
  billingCycle === "annual"
- ? "text-[#0a0a0a] shadow-[0_2px_12px_rgba(196,164,100,0.3)]"
+ ? "text-background shadow-[0_2px_12px_rgba(196,164,100,0.3)]"
  : "text-white/40 hover:text-white/70"
  }`}
  style={billingCycle === "annual" ? { background: 'linear-gradient(to right, oklch(0.50 0.13 55), oklch(0.72 0.14 70))' } : {}}
  >Yearly
  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all duration-300 ${
- billingCycle === "annual" ? "bg-[#0a0a0a]/30 text-[#0a0a0a]" : "bg-[--color-gold]/15 text-[--color-gold]"
+ billingCycle === "annual" ? "bg-background/30 text-background" : "bg-[--color-gold]/15 text-[--color-gold]"
  }`}>Save 20%</span>
  </button>
  </div>
@@ -580,7 +600,7 @@ export default function Pricing() {
  )}
  {plan.badge && (
  <div className="relative z-10 text-center pt-3 pb-1">
- <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-black tracking-wider shadow-lg">
+ <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-background text-[10px] font-black tracking-wider shadow-lg">
  <Star className="w-2.5 h-2.5 fill-current" /> {plan.badge}
  </span>
  </div>
@@ -637,7 +657,7 @@ export default function Pricing() {
  <div className="flex items-center justify-between rounded-lg px-3 py-2 mb-3 bg-white/[0.03] border border-white/[0.06]">
  <span className="text-[10px] text-white/40 font-medium">Cost per video</span>
  <div className="flex items-center gap-2">
- <span className="text-[10px] line-through text-white/20">£6 pay-per-render</span>
+ <span className="text-[10px] line-through text-white/20">£6 per video</span>
  <span className="text-[11px] font-black" style={{ color: plan.accentColor }}>
  {formatPrice(parseFloat((plan.monthlyPrice / plan.buildsPerMonth).toFixed(2)))}/video
  </span>
@@ -681,7 +701,7 @@ export default function Pricing() {
  </span>
  ) : (
  <span className="flex items-center justify-center gap-1.5">
- {plan.id === "starter" ? "Start Creating — Free" : plan.id === "creator" ? "Get Creator Plan" : "Get Studio Plan"}
+ {plan.id === "starter" ? "Start Creating — Free" : plan.id === "creator" ? "Get Creator Plan" : "Get Pro Plan"}
  <ArrowRight className="w-3.5 h-3.5" />
  </span>
  )}
@@ -698,7 +718,7 @@ export default function Pricing() {
  { label: "Videos created this week", value: "2,400+" },
  { label: "Avg. creator rating", value: "4.9 / 5" },
  { label: "Artists on platform", value: "1,200+" },
- { label: "Avg. render time", value: "< 12 min" },
+ { label: "Avg. creation time", value: "< 12 min" },
  ].map(({ label, value }) => (
  <div key={label} className="flex flex-col items-center gap-0.5 text-center">
  <span className="text-base font-extrabold text-white">{value}</span>
@@ -817,7 +837,7 @@ export default function Pricing() {
  {[
  { label: "Start Creating", style: "bg-white/[0.06] text-white/70 hover:bg-white/[0.1] border border-white/[0.1]" },
  { label: "Choose Creator", style: "btn-primary shadow-[0_4px_20px_rgba(196,164,100,0.3)]" },
- { label: "Upgrade to Studio", style: "bg-white/[0.06] text-white/70 hover:bg-white/[0.1] border border-white/[0.1]" },
+ { label: "Upgrade to Pro", style: "bg-white/[0.06] text-white/70 hover:bg-white/[0.1] border border-white/[0.1]" },
  ].map((btn, i) => (
  <div key={btn.label} className="px-4 py-5 flex items-center justify-center border-l" style={{ borderColor: i === 1 ? "rgba(196,164,100,0.15)" : "rgba(255,255,255,0.05)", background: i === 1 ? "rgba(196,164,100,0.04)" : "transparent" }}>
  <a href="#plans" className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap ${btn.style}`}>
@@ -853,8 +873,8 @@ export default function Pricing() {
  { label: "Pay-per-video (Standard)", videos: 15, cost: 15 * 2, perVideo: "£2.00", saving: null, highlight: false },
  { label: "Pay-per-video (HD)", videos: 15, cost: 15 * 4, perVideo: "£4.00", saving: null, highlight: false },
  { label: "Pay-per-video (4K)", videos: 15, cost: 15 * 6, perVideo: "£6.00", saving: null, highlight: false },
- { label: "Creator Plan (£35/mo)", videos: 15, cost: 35, perVideo: "£2.33", saving: "Save up to £55/mo vs 4K", highlight: true },
- { label: "Studio Plan (£99/mo)", videos: 40, cost: 99, perVideo: "£2.48", saving: "Save up to £141/mo vs 4K", highlight: false },
+ { label: "Creator Plan (£79/mo)", videos: 6, cost: 79, perVideo: "£13.17", saving: "6 full music videos/month", highlight: true },
+ { label: "Pro Plan (£149/mo)", videos: 12, cost: 149, perVideo: "£12.42", saving: "12 full music videos/month", highlight: false },
  ].map((row, i) => (
  <tr key={i} className={`border-b border-white/[0.04] last:border-0 ${
  row.highlight ? "bg-[rgba(196,164,100,0.06)]" : "hover:bg-white/[0.02]"
@@ -914,11 +934,11 @@ export default function Pricing() {
  <div className="absolute -top-px left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[--color-gold] to-transparent" />
  )}
  {bundle.popular && (
- <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">MOST POPULAR
+ <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-background text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">MOST POPULAR
  </div>
  )}
  {bundle.bestValue && (
- <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">BEST VALUE
+ <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-background text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">BEST VALUE
  </div>
  )}
 
@@ -939,7 +959,7 @@ export default function Pricing() {
  </div>
 
  {/* Content */}
- <div className="flex-1 flex flex-col p-5 bg-[#0c0c0c]">
+ <div className="flex-1 flex flex-col p-5 bg-background">
  <div className="flex items-center gap-2 mb-1">
  <Package className="w-4 h-4" style={{ color: bundle.popular ? 'var(--color-gold)' : 'rgba(255,255,255,0.4)' }} />
  <span className="text-sm font-bold text-white">{bundle.label}</span>
@@ -1033,7 +1053,7 @@ export default function Pricing() {
  style={{ borderColor: tier.borderColor, boxShadow: tier.badge ? `0 0 40px ${tier.accentColor}` : 'none' }}
  >
  {tier.badge && (
- <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">
+ <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-background text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">
  {tier.badge}
  </div>
  )}
@@ -1048,7 +1068,7 @@ export default function Pricing() {
  </div>
  </div>
  {/* Price + features */}
- <div className="flex-1 p-5 bg-[#0c0c0c]">
+ <div className="flex-1 p-5 bg-background">
  <div className="flex items-baseline gap-1 mb-1">
  <span className="text-4xl font-extrabold text-white" style={{ animation: "priceFadeIn 220ms ease-out" }}>{formatPrice(tier.price)}</span>
  <span className="text-sm text-white/40">per video</span>
@@ -1224,7 +1244,7 @@ export default function Pricing() {
  title: "For Brands",
  desc: "Full API access to automate campaign visuals, product videos and social content at scale.",
  icon: "\ud83d\udcbc",
- plan: "Studio Plan",
+ plan: "Pro Plan",
  },
  {
  title: "For Storytellers",
@@ -1233,7 +1253,7 @@ export default function Pricing() {
  plan: "Creator Plan",
  },
  ].map((uc) => (
- <div key={uc.title} className="relative p-5 rounded-2xl border border-white/[0.07] bg-[#0a0a0a] flex flex-col gap-3">
+ <div key={uc.title} className="relative p-5 rounded-2xl border border-white/[0.07] bg-background flex flex-col gap-3">
  <span className="text-2xl">{uc.icon}</span>
  <h3 className="text-sm font-bold text-white">{uc.title}</h3>
  <p className="text-xs text-white/55 leading-relaxed flex-1">{uc.desc}</p>
@@ -1266,14 +1286,14 @@ export default function Pricing() {
  name: "Marcus T.",
  role: "Animation Studio",
  quote: "WizAnimate is a game-changer for character animation. We use it for client projects every week.",
- plan: "Studio Plan",
+ plan: "Pro Plan",
  initials: "MT",
  color: "oklch(0.70 0.18 260)",
  },
  ].map((t) => (
- <div key={t.name} className="relative p-5 rounded-2xl border border-white/[0.07] bg-[#0a0a0a]">
+ <div key={t.name} className="relative p-5 rounded-2xl border border-white/[0.07] bg-background">
  <div className="flex items-center gap-3 mb-3">
- <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-black text-[#0a0a0a] flex-shrink-0" style={{ background: `linear-gradient(135deg, ${t.color}, oklch(0.90 0.08 75))` }}>{t.initials}</div>
+ <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-black text-background flex-shrink-0" style={{ background: `linear-gradient(135deg, ${t.color}, oklch(0.90 0.08 75))` }}>{t.initials}</div>
  <div>
  <p className="text-[12px] font-bold text-white">{t.name}</p>
  <p className="text-[10px] text-white/40">{t.role}</p>
@@ -1319,7 +1339,7 @@ export default function Pricing() {
  {
  icon: <Sparkles className="w-6 h-6 text-[--color-gold]" />,
  label: "Quality Guarantee",
- sub: "1 free re-render included",
+ sub: "1 free revision included",
  bg: "from-[--color-gold]/[0.06]",
  },
  ].map((item) => (
@@ -1337,6 +1357,11 @@ export default function Pricing() {
  </div>
  </section>
 
+ {/* 10a. WizSound Showcase — interactive tier selector + animated spectrum */}
+ <section className="max-w-5xl mx-auto px-6 mb-16">
+ <WizSoundShowcase />
+ </section>
+
  {/* 10. FAQ */}
  <section className="max-w-3xl mx-auto px-6 mb-24">
  <div className="text-center mb-12">
@@ -1344,7 +1369,7 @@ export default function Pricing() {
  <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-3">Frequently asked questions</h2>
  <p className="text-sm text-white/40">Everything you need to know about pricing and plans</p>
  </div>
- <div className="rounded-2xl border border-white/[0.07] bg-[#0a0a0a] px-6 divide-y divide-white/[0.05]">
+ <div className="rounded-2xl border border-white/[0.07] bg-background px-6 divide-y divide-white/[0.05]">
  {FAQS.map((faq) => (
  <FAQItem key={faq.q} q={faq.q} a={faq.a} />
  ))}

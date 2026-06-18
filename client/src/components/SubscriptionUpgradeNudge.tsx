@@ -59,7 +59,7 @@ export default function SubscriptionUpgradeNudge({ className = "" }: { className
 
   return (
     <div
-      className={`relative flex items-start gap-3 rounded-xl border border-[--color-gold]/30 bg-gradient-to-r from-[#b8892a]/60 to-[#4a3010]/40 px-4 py-3 shadow-lg shadow-[#b8892a]/20 backdrop-blur-sm ${className}`}
+      className={`relative flex items-start gap-3 rounded-xl border border-[--color-gold]/30 bg-gradient-to-r from-primary/60 to-primary/40/40 px-4 py-3 shadow-lg shadow-[#b8892a]/20 backdrop-blur-sm ${className}`}
       role="status"
       aria-live="polite"
     >
@@ -73,7 +73,7 @@ export default function SubscriptionUpgradeNudge({ className = "" }: { className
         <p className="text-sm font-semibold text-white leading-snug">
           You could save with a monthly plan
         </p>
-        <p className="mt-0.5 text-xs text-zinc-400 leading-relaxed">
+        <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">
           {triggerLine} {savingsLine}
         </p>
       </div>
@@ -91,7 +91,7 @@ export default function SubscriptionUpgradeNudge({ className = "" }: { className
         </Link>
         <button
           onClick={handleDismiss}
-          className="flex h-6 w-6 items-center justify-center rounded-full text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors"
+          className="flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground/70 hover:text-foreground/80 hover:bg-secondary transition-colors"
           aria-label="Dismiss"
         >
           <X className="h-3.5 w-3.5" />
