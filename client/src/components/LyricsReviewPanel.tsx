@@ -79,8 +79,11 @@ function formatTime(seconds: number): string {
 }
 
 function isPerformanceScene(scene: LyricsReviewScene): boolean {
+  // A scene is a performance scene if its type is performance OR if lip sync is explicitly enabled.
+  // This ensures that when the user toggles lip sync ON in the storyboard card,
+  // the Review Lyrics panel immediately reflects the change and shows the Lip Sync badge.
   const type = (scene.sceneType ?? "").toLowerCase();
-  return type === "performance" || type === "lip_sync" || type === "lipsync";
+  return type === "performance" || type === "lip_sync" || type === "lipsync" || scene.lipSync === true;
 }
 
 // ─── Scene Row ────────────────────────────────────────────────────────────────

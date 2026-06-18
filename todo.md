@@ -9270,3 +9270,12 @@
 - [ ] ISS-042: Move .md planning files out of project root
 - [ ] ISS-038: Remove nohup.out from project root
 - [ ] CI/CD: Add GitHub Actions workflow (typecheck + test on PR)
+
+- [x] Add delete button on Character Lock cards (for non-primary characters like Cellist 1, Cellist 2, Violinist 1)
+- [x] Fix Review Lyrics panel: show lip sync toggle for ALL scenes (not just sceneType=performance)
+- [x] Fix storyboard scene 11 lip sync: ensure lip sync can be enabled on performance/singing scenes
+- [ ] Fix storyboard scene 12: add orchestra pull-back/fade-to-black option
+- [x] Fix audio-to-scene sync: enforce pre-calculated startTime/duration from sceneWindows (never trust LLM)
+- [x] Enforce sceneType=performance and lipSync=true when a scene window has lyrics (100% vocal onset guarantee)
+- [x] Fix scene 11 (idx=10) for job 1080001: Zara sings 'Behind the lies' (was Concertmaster)
+- [x] Fix scene 12 (idx=11) for job 1080001: orchestra pull-back with explicit fade-to-black instruction

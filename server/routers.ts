@@ -5,6 +5,7 @@ import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { billingRouter, renderRouter } from "./routers/billing";
 import { musicVideoRouter } from "./routers/musicVideo";
+import { musicVideoCharacterRouter } from "./routers/musicVideo/character";
 import { videoRouter } from "./routers/video";
 import { charactersRouter } from "./routers/characters";
 import { showcaseRouter } from "./routers/showcase";
@@ -39,7 +40,7 @@ export const appRouter = router({
   system: systemRouter,
   billing: billingRouter,
   render: renderRouter,
-  musicVideo: router({ ...musicVideoRouter._def.procedures, ...batchRegenRouter._def.procedures }),
+  musicVideo: router({ ...musicVideoRouter._def.procedures, ...batchRegenRouter._def.procedures, deleteCharacter: musicVideoCharacterRouter._def.procedures.deleteCharacter }),
   video: videoRouter,
   characters: charactersRouter,
   showcase: showcaseRouter,

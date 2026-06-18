@@ -1963,4 +1963,44 @@ Return ONLY valid JSON, no markdown.`,
 
   // ── PUBLIC WATCH PAGE ──────────────────────────────────────────────────────
   // Toggle whether a completed video is publicly accessible/indexable by Google
+
+  // ── DELETE CHARACTER ────────────────────────────────────────────────────────
+  // Remove a character from a job. Only allowed before rendering starts.
+  // Clears any characterScenes rows for this character and re-slots remaining characters.
+  deleteCharacter: protectedProcedure
+    .input(z.object({
+      jobId: z.number(),
+      characterId: z.number(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = (await getDb())!;
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      // Block deletion once rendering has started
+      if (job.status === "rendering" || job.status === "assembling" || job.status === "completed") {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Characters are locked once rendering begins" });
+      }
+      const [char] = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.id, input.characterId), eq(videoCharacters.userId, ctx.user.id)));
+      if (!char) throw new TRPCError({ code: "NOT_FOUND" });
+      // Remove from characterScenes junction table
+      await db.delete(characterScenes).where(eq(characterScenes.characterId, input.characterId));
+      // Delete the character
+      await db.delete(videoCharacters).where(eq(videoCharacters.id, input.characterId));
+      // Re-slot remaining characters so slotIndex is contiguous (0, 1, 2, ...)
+      const remaining = await db.select()
+        .from(videoCharacters)
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)))
+        .orderBy(videoCharacters.slotIndex);
+      for (let i = 0; i < remaining.length; i++) {
+        if (remaining[i].slotIndex !== i) {
+          await db.update(videoCharacters)
+            .set({ slotIndex: i, updatedAt: new Date() })
+            .where(eq(videoCharacters.id, remaining[i].id));
+        }
+      }
+      console.log(`[MusicVideo] Character ${char.name} (id=${input.characterId}) deleted from job ${input.jobId}`);
+      return { success: true, deletedName: char.name };
+    }),
 });

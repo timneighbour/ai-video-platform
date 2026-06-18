@@ -26,7 +26,7 @@ import { toast } from "sonner";
 import {
   CheckCircle2, RefreshCw, ArrowLeft, Sparkles, User,
   ShieldCheck, AlertCircle, Loader2, ImageIcon, Lock, Unlock,
-  Anchor, Info, Camera,
+  Anchor, Info, Camera, Trash2,
 } from "@/lib/icons";
 
 interface CharacterPreviewState {
@@ -108,6 +108,8 @@ export default function CharacterConfirmationStep({
   const approveCharacterPreviewMutation = trpc.musicVideo.approveCharacterPreview.useMutation();
   const generateMasterPortraitMutation = trpc.musicVideo.generateMasterPortrait.useMutation();
   const normaliseCharacterMutation = trpc.characters.normaliseCharacter.useMutation();
+  const deleteCharacterMutation = trpc.musicVideo.deleteCharacter.useMutation();
+  const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
   const [normalisedIds, setNormalisedIds] = useState<Set<number>>(new Set());
 
   // Auto-trigger normaliseCharacter for all characters that have a lockedDescription
@@ -557,6 +559,30 @@ export default function CharacterConfirmationStep({
 
               {/* Action buttons */}
               <div className="p-3 bg-zinc-900 border-t border-zinc-800 flex gap-2">
+                {/* Delete character button — only shown before rendering */}
+                <button
+                  type="button"
+                  title={`Remove ${char.name} from this project`}
+                  disabled={deletingIds.has(char.id) || isGenerating}
+                  onClick={async () => {
+                    if (!confirm(`Remove ${char.name} from this project? This cannot be undone.`)) return;
+                    setDeletingIds(prev => new Set(prev).add(char.id));
+                    try {
+                      await deleteCharacterMutation.mutateAsync({ jobId, characterId: char.id });
+                      setCharacters(prev => prev.filter(c => c.id !== char.id));
+                      toast.success(`${char.name} removed`);
+                    } catch (err: any) {
+                      toast.error(`Failed to remove ${char.name}`, { description: err?.message ?? "Please try again." });
+                    } finally {
+                      setDeletingIds(prev => { const n = new Set(prev); n.delete(char.id); return n; });
+                    }
+                  }}
+                  className="flex-shrink-0 p-2 rounded-lg border border-red-900/40 bg-red-950/20 text-red-400 hover:bg-red-900/40 hover:text-red-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  {deletingIds.has(char.id)
+                    ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    : <Trash2 className="w-3.5 h-3.5" />}
+                </button>
                 {/* Primary action: Create Full-Body Portrait (photo chars in lock mode) or Generate Preview */}
                 {isPhotoChar && characterLockMode ? (
                   <Button

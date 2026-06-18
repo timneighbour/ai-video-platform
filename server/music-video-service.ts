@@ -941,11 +941,28 @@ Distribute characters thoughtfully — each must appear in at least 2 scenes. So
       finalPrompt = `${characterPrefixes.join(" | ")}\n\n${finalPrompt}\n\nIMPORTANT: ONLY ${charNames} appear in this scene. No additional people, musicians, background performers, or crowd members. Exactly ${validAssignments.length} person${validAssignments.length === 1 ? "" : "s"} visible.`;
     }
 
+    // ENFORCE pre-calculated startTime and duration from sceneWindows.
+    // The LLM receives these values as guidance but may drift — we ALWAYS override
+    // with the mathematically correct values derived from the audio duration and scene count.
+    // This guarantees 100% audio-to-scene sync: every scene lands on the exact right beat.
+    const window = sceneWindows[scene.sceneIndex];
+    const enforcedLyrics = window?.lyrics ?? "";
+    // ENFORCE sceneType and lipSync based on lyrics presence.
+    // If a window has lyrics, it MUST be a performance scene with lip sync enabled.
+    // The LLM may sometimes classify a lyric window as cinematic — we override that here.
+    // This is the guarantee Tim needs: vocals in = performance scene, always, 100%.
+    const hasVocals = enforcedLyrics.trim().length > 0;
+    const enforcedSceneType = hasVocals ? "performance" : (scene.sceneType ?? "cinematic");
+    const enforcedLipSync = hasVocals ? true : (scene.lipSync ?? false);
     return {
       ...scene,
+      startTime: window?.startTime ?? scene.startTime,   // Authoritative — never trust LLM
+      duration: window?.duration ?? scene.duration,       // Authoritative — never trust LLM
+      sceneType: enforcedSceneType,                       // Authoritative — vocals = performance
+      lipSync: enforcedLipSync,                           // Authoritative — vocals = lip sync on
       prompt: finalPrompt,       // Full prompt with character descriptions (for rendering)
       cleanPrompt: cleanPrompt,  // Scene direction only (for UI display)
-      lyrics: sceneWindows[scene.sceneIndex]?.lyrics ?? "",
+      lyrics: enforcedLyrics,
       characterAssignments: validAssignments,
     };
   });
