@@ -927,7 +927,7 @@ function Hero() {
  onMouseMove={handleMouseMove}
  >
   {/* Cinematic motion background — gold dust, waveform, bloom */}
- <HeroCinematicBg mouseX={mousePos.x} mouseY={mousePos.y} />
+ <HeroCinematicBg />
  {/* Studio atmosphere layer — vignette + stage lights (CSS only) */}
  <div className="absolute inset-0 pointer-events-none z-[1]" style={{ background: "radial-gradient(ellipse 70% 60% at 50% 40%, transparent 0%, rgba(0,0,0,0.35) 60%, rgba(0,0,0,0.72) 100%)" }} />
  {/* Studio light — above-left */}

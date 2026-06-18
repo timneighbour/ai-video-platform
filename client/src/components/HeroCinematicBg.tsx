@@ -1,353 +1,257 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { Pause, Play } from "@/lib/icons";
 
 /* ── Hero Cinematic Background ──────────────────────────────────────
-   Base layer: 4K warm gold bokeh video (Pixabay CC0, skarletmotion)
-   Canvas layer: gold-dust particles, waveform, bloom orbs on top.
+   Base layer  : Recording studio photo (user-provided)
+   Canvas layer: Sparkly gold animated sound wave — multi-band EQ
+                 bars with gold glitter particles drifting off peaks
 ────────────────────────────────────────────────────────────────────── */
 
-
+const STUDIO_BG = "/manus-storage/recording-studio-hero_944057cd.png";
 const LS_KEY = "wizai_motion_paused";
 
-/* ── Static poster fallback ─────────────────────────────────────── */
-const STATIC_BG = "/manus-storage/concert-hall_2b6b946b.jpg";
-const HERO_VIDEO = "/manus-storage/hero-bg-gold-bokeh-4k_b3c3269e.mp4";
+/* ── Waveform config ─────────────────────────────────────────────── */
+const NUM_BARS = 80;          // number of EQ bars across the width
+const BAR_GAP = 2;            // px gap between bars
+const WAVE_Y = 0.72;          // vertical centre of wave (fraction of height)
+const WAVE_AMP = 0.18;        // max amplitude as fraction of height
+const WAVE_SPEED = 0.0018;    // phase advance per frame
+const GLITTER_PER_FRAME = 3;  // new sparkle particles per frame
 
-/* ── Particle system — gold dust ─────────────────────────────────── */
-interface Particle {
+/* ── Glitter particle ────────────────────────────────────────────── */
+interface Glitter {
   x: number; y: number;
   vx: number; vy: number;
-  size: number; opacity: number;
-  warmth: number; life: number; maxLife: number;
+  size: number;
+  life: number; maxLife: number;
+  hue: number; // 35–55 for gold range
 }
 
-function createParticle(w: number, h: number): Particle {
-  const warmth = Math.random();
-  return {
-    x: Math.random() * w,
-    y: h + Math.random() * 20,
-    vx: (Math.random() - 0.5) * 0.3,
-    vy: -(0.2 + Math.random() * 0.5),
-    size: 0.8 + Math.random() * 2,
-    opacity: 0.1 + Math.random() * 0.35,
-    warmth,
-    life: 0,
-    maxLife: 140 + Math.random() * 200,
-  };
-}
-
-function particleColor(warmth: number, alpha: number): string {
-  const r = Math.round(210 + warmth * 2);
-  const g = Math.round(210 - warmth * 35);
-  const b = Math.round(220 - warmth * 165);
-  return `rgba(${r},${g},${b},${alpha})`;
-}
-
-/* ── Waveform bars ───────────────────────────────────────────────── */
-const WAVEFORM_BARS = 28;
-
-/* ── Component ──────────────────────────────────────────────────────── */
-interface HeroCinematicBgProps {
-  mouseX?: number;
-  mouseY?: number;
-}
-
-export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCinematicBgProps) {
+/* ── Component ───────────────────────────────────────────────────── */
+export default function HeroCinematicBg() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rafRef = useRef<number>(0);
-  const particlesRef = useRef<Particle[]>([]);
-  const waveRef = useRef<number[]>(Array.from({ length: WAVEFORM_BARS }, () => 0.3 + Math.random() * 0.4));
-  const flashRef = useRef(0);
-  const timeRef = useRef(0);
+  const pausedRef = useRef(false);
+  const rafRef    = useRef<number>(0);
+  const phaseRef  = useRef(0);
+  const glitters  = useRef<Glitter[]>([]);
 
-  const [paused, setPaused] = useState(() => {
-    try { return localStorage.getItem(LS_KEY) === "true"; } catch { return false; }
-  });
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  useEffect(() => {
-    try { localStorage.setItem(LS_KEY, String(paused)); } catch { /* noop */ }
-  }, [paused]);
-
+  /* Pause toggle — persisted in localStorage */
   const togglePause = useCallback(() => {
-    setPaused((p) => !p);
+    pausedRef.current = !pausedRef.current;
+    localStorage.setItem(LS_KEY, pausedRef.current ? "1" : "0");
   }, []);
 
-  /* ── Canvas animation loop ─────────────────────────────────────── */
   useEffect(() => {
-    if (prefersReducedMotion || paused) return;
+    pausedRef.current = localStorage.getItem(LS_KEY) === "1";
+  }, []);
+
+  /* ── Canvas render loop ─────────────────────────────────────────── */
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let w = canvas.offsetWidth;
-    let h = canvas.offsetHeight;
-    canvas.width = w;
-    canvas.height = h;
-
-    const onResize = () => {
-      w = canvas.offsetWidth;
-      h = canvas.offsetHeight;
-      canvas.width = w;
-      canvas.height = h;
+    /* Resize handler */
+    const resize = () => {
+      canvas.width  = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
     };
-    window.addEventListener("resize", onResize);
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
 
-    // Seed initial particles spread across the canvas
-    particlesRef.current = Array.from({ length: 60 }, () => {
-      const p = createParticle(w, h);
-      p.y = Math.random() * h;
-      p.life = Math.random() * p.maxLife;
-      return p;
-    });
-
-    let bassTimer = 0;
-
-    function draw() {
-      if (!ctx) return;
-      timeRef.current += 1;
-      const t = timeRef.current;
-
-      ctx.clearRect(0, 0, w, h);
-
-      /* ── Warm flash (subtle gold pulse every ~100 frames) ── */
-      bassTimer++;
-      if (bassTimer > 95 + Math.random() * 35) {
-        flashRef.current = 0.10 + Math.random() * 0.08;
-        bassTimer = 0;
-      }
-      if (flashRef.current > 0) {
-        ctx.fillStyle = `rgba(212,175,55,${flashRef.current})`;
-        ctx.fillRect(0, 0, w, h);
-        flashRef.current = Math.max(0, flashRef.current - 0.010);
-      }
-
-      /* ── Particles — gold dust ── */
-      if (particlesRef.current.length < 75) {
-        particlesRef.current.push(createParticle(w, h));
-      }
-
-      particlesRef.current = particlesRef.current.filter((p) => {
-        p.life++;
-        if (p.life > p.maxLife) return false;
-        p.x += p.vx;
-        p.y += p.vy;
-
-        const progress = p.life / p.maxLife;
-        const alpha = p.opacity * Math.sin(progress * Math.PI);
-
-        // Glow halo
-        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
-        grad.addColorStop(0, particleColor(p.warmth, alpha * 0.8));
-        grad.addColorStop(1, particleColor(p.warmth, 0));
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
-        ctx.fillStyle = grad;
-        ctx.fill();
-
-        // Core dot
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = particleColor(p.warmth, alpha * 1.4);
-        ctx.fill();
-        return true;
+    /* Spawn a glitter particle at (x, y) */
+    const spawnGlitter = (x: number, y: number, intensity: number) => {
+      const hue = 38 + Math.random() * 18; // gold 38–56
+      glitters.current.push({
+        x, y,
+        vx: (Math.random() - 0.5) * 1.2,
+        vy: -(0.4 + Math.random() * 1.4) * intensity,
+        size: 1 + Math.random() * 2.5,
+        life: 0,
+        maxLife: 40 + Math.random() * 60,
+        hue,
       });
+    };
 
-      /* ── Waveform (bottom-left) — warm gold/silver ── */
-      const barW = 3;
-      const barGap = 2;
-      const waveX = 24;
-      const waveY = h - 48;
-      const maxBarH = 32;
+    /* Draw a single EQ bar */
+    const drawBar = (
+      x: number, barW: number,
+      centreY: number, halfH: number,
+      alpha: number, hue: number
+    ) => {
+      /* Gradient: bright gold centre → transparent edges */
+      const grad = ctx.createLinearGradient(x, centreY - halfH, x, centreY + halfH);
+      grad.addColorStop(0,   `hsla(${hue},100%,70%,0)`);
+      grad.addColorStop(0.2, `hsla(${hue},100%,65%,${alpha * 0.6})`);
+      grad.addColorStop(0.5, `hsla(${hue},100%,72%,${alpha})`);
+      grad.addColorStop(0.8, `hsla(${hue},100%,65%,${alpha * 0.6})`);
+      grad.addColorStop(1,   `hsla(${hue},100%,70%,0)`);
 
-      for (let i = 0; i < WAVEFORM_BARS; i++) {
-        const target = 0.2 + Math.abs(Math.sin(t * 0.04 + i * 0.55)) * 0.8;
-        waveRef.current[i] += (target - waveRef.current[i]) * 0.12;
-        const barH = waveRef.current[i] * maxBarH;
-        const ratio = i / WAVEFORM_BARS;
-        const r = Math.round(180 + ratio * 32);
-        const g = Math.round(180 - ratio * 10);
-        const b = Math.round(195 - ratio * 140);
-        const alpha = 0.50 + waveRef.current[i] * 0.35;
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.roundRect(x, centreY - halfH, barW, halfH * 2, barW / 2);
+      ctx.fill();
 
-        ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
-        ctx.beginPath();
-        ctx.roundRect(waveX + i * (barW + barGap), waveY - barH / 2, barW, barH, 1.5);
-        ctx.fill();
+      /* Glow */
+      ctx.shadowColor  = `hsla(${hue},100%,65%,${alpha * 0.8})`;
+      ctx.shadowBlur   = 12;
+      ctx.fillStyle    = grad;
+      ctx.beginPath();
+      ctx.roundRect(x, centreY - halfH, barW, halfH * 2, barW / 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    };
+
+    /* Main draw */
+    const draw = () => {
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      if (pausedRef.current) {
+        rafRef.current = requestAnimationFrame(draw);
+        return;
       }
 
-      /* ── WizSound label ── */
-      ctx.font = "bold 9px 'Inter', sans-serif";
-      ctx.letterSpacing = "0.12em";
-      ctx.fillStyle = "rgba(212,175,55,0.55)";
-      ctx.fillText("WIZSOUND\u2122", waveX, waveY + 20);
-      ctx.letterSpacing = "0";
+      phaseRef.current += WAVE_SPEED;
+      const phase = phaseRef.current;
 
-      /* ── Large bloom orbs (warm gold ambient — larger than before) ── */
-      // Orb 1: centre-left, slow drift
-      const b1x = w * 0.35 + Math.sin(t * 0.004) * w * 0.18;
-      const b1y = h * 0.45 + Math.cos(t * 0.003) * h * 0.12;
-      const bg1 = ctx.createRadialGradient(b1x, b1y, 0, b1x, b1y, w * 0.55);
-      bg1.addColorStop(0, "rgba(196,140,60,0.13)");
-      bg1.addColorStop(0.5, "rgba(180,120,40,0.06)");
-      bg1.addColorStop(1, "rgba(160,100,30,0)");
-      ctx.fillStyle = bg1;
-      ctx.fillRect(0, 0, w, h);
+      const centreY = H * WAVE_Y;
+      const maxAmp  = H * WAVE_AMP;
+      const barW    = Math.max(2, (W - BAR_GAP * NUM_BARS) / NUM_BARS);
+      const step    = barW + BAR_GAP;
 
-      // Orb 2: upper-right, offset phase
-      const b2x = w * 0.78 + Math.sin(t * 0.006 + 2.1) * w * 0.12;
-      const b2y = h * 0.28 + Math.cos(t * 0.005 + 1.3) * h * 0.14;
-      const bg2 = ctx.createRadialGradient(b2x, b2y, 0, b2x, b2y, w * 0.38);
-      bg2.addColorStop(0, "rgba(212,175,55,0.10)");
-      bg2.addColorStop(0.6, "rgba(200,150,50,0.04)");
-      bg2.addColorStop(1, "rgba(180,130,40,0)");
-      ctx.fillStyle = bg2;
-      ctx.fillRect(0, 0, w, h);
+      /* ── Draw horizontal glow line beneath bars ── */
+      const lineGrad = ctx.createLinearGradient(0, centreY, W, centreY);
+      lineGrad.addColorStop(0,   "hsla(45,100%,65%,0)");
+      lineGrad.addColorStop(0.15,"hsla(45,100%,65%,0.25)");
+      lineGrad.addColorStop(0.5, "hsla(45,100%,65%,0.45)");
+      lineGrad.addColorStop(0.85,"hsla(45,100%,65%,0.25)");
+      lineGrad.addColorStop(1,   "hsla(45,100%,65%,0)");
+      ctx.fillStyle = lineGrad;
+      ctx.fillRect(0, centreY - 1, W, 2);
 
-      // Orb 3: lower-centre, deep amber
-      const b3x = w * 0.55 + Math.sin(t * 0.0035 + 4.2) * w * 0.20;
-      const b3y = h * 0.72 + Math.cos(t * 0.004 + 2.8) * h * 0.10;
-      const bg3 = ctx.createRadialGradient(b3x, b3y, 0, b3x, b3y, w * 0.42);
-      bg3.addColorStop(0, "rgba(160,110,40,0.09)");
-      bg3.addColorStop(1, "rgba(140,90,20,0)");
-      ctx.fillStyle = bg3;
-      ctx.fillRect(0, 0, w, h);
+      /* ── EQ bars ── */
+      for (let i = 0; i < NUM_BARS; i++) {
+        const t  = i / NUM_BARS;
+        const x  = i * step;
 
-      // Orb 4: far-left edge, silver accent
-      const b4x = w * 0.08 + Math.sin(t * 0.005 + 1.0) * w * 0.06;
-      const b4y = h * 0.38 + Math.cos(t * 0.007 + 3.5) * h * 0.15;
-      const bg4 = ctx.createRadialGradient(b4x, b4y, 0, b4x, b4y, w * 0.28);
-      bg4.addColorStop(0, "rgba(200,190,160,0.07)");
-      bg4.addColorStop(1, "rgba(180,170,140,0)");
-      ctx.fillStyle = bg4;
-      ctx.fillRect(0, 0, w, h);
+        /* Multi-frequency wave: primary + harmonics */
+        const h1 = Math.sin(t * Math.PI * 4 + phase * 3.1)  * 0.55;
+        const h2 = Math.sin(t * Math.PI * 7 + phase * 5.3)  * 0.28;
+        const h3 = Math.sin(t * Math.PI * 12 + phase * 8.7) * 0.17;
+        /* Envelope: taper at edges */
+        const env = Math.sin(t * Math.PI);
+        const amp = (h1 + h2 + h3) * env;
 
-      // Orb 5: upper-centre, subtle warm highlight
-      const b5x = w * 0.50 + Math.sin(t * 0.003 + 5.5) * w * 0.14;
-      const b5y = h * 0.15 + Math.cos(t * 0.004 + 0.7) * h * 0.08;
-      const bg5 = ctx.createRadialGradient(b5x, b5y, 0, b5x, b5y, w * 0.32);
-      bg5.addColorStop(0, "rgba(196,140,60,0.08)");
-      bg5.addColorStop(1, "rgba(180,120,40,0)");
-      ctx.fillStyle = bg5;
-      ctx.fillRect(0, 0, w, h);
+        const halfH = Math.abs(amp) * maxAmp + 3;
+        const alpha = 0.55 + Math.abs(amp) * 0.45;
+        const hue   = 38 + Math.abs(amp) * 20; // gold → bright gold
+
+        drawBar(x, barW, centreY, halfH, alpha, hue);
+
+        /* Spawn glitter at bar peaks */
+        if (Math.random() < 0.04 * Math.abs(amp) + 0.005) {
+          for (let g = 0; g < GLITTER_PER_FRAME; g++) {
+            spawnGlitter(
+              x + barW / 2 + (Math.random() - 0.5) * barW,
+              centreY - halfH * (0.8 + Math.random() * 0.4),
+              0.5 + Math.abs(amp)
+            );
+          }
+        }
+      }
+
+      /* ── Update & draw glitter particles ── */
+      glitters.current = glitters.current.filter(g => g.life < g.maxLife);
+      for (const g of glitters.current) {
+        g.life++;
+        g.x  += g.vx;
+        g.y  += g.vy;
+        g.vy += 0.03; // gentle gravity
+        const progress = g.life / g.maxLife;
+        const alpha    = progress < 0.3
+          ? progress / 0.3
+          : 1 - (progress - 0.3) / 0.7;
+
+        ctx.save();
+        ctx.globalAlpha = alpha * 0.9;
+        ctx.shadowColor = `hsla(${g.hue},100%,75%,0.9)`;
+        ctx.shadowBlur  = 6;
+        ctx.fillStyle   = `hsla(${g.hue},100%,80%,1)`;
+        /* Star shape */
+        ctx.translate(g.x, g.y);
+        ctx.rotate(g.life * 0.15);
+        ctx.beginPath();
+        for (let p = 0; p < 4; p++) {
+          const angle = (p / 4) * Math.PI * 2;
+          const r = p % 2 === 0 ? g.size : g.size * 0.4;
+          ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
 
       rafRef.current = requestAnimationFrame(draw);
-    }
+    };
 
     rafRef.current = requestAnimationFrame(draw);
     return () => {
       cancelAnimationFrame(rafRef.current);
-      window.removeEventListener("resize", onResize);
+      ro.disconnect();
     };
-  }, [prefersReducedMotion, paused]);
-
-  /* ── Parallax ───────────────────────────────────────────────────── */
-  const px = (mouseX - 0.5) * 12;
-  const py = (mouseY - 0.5) * 8;
-
-  /* ── Reduced motion / paused: static ───────────────────────────── */
-  if (prefersReducedMotion && paused) {
-    return (
-      <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
-        <img src={STATIC_BG} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover" loading="eager" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/75" />
-        <button
-          onClick={() => { setPaused(false); setPrefersReducedMotion(false); }}
-          className="absolute bottom-6 right-6 z-20 flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-sm text-white/60 hover:bg-white/10 transition-all pointer-events-auto"
-          aria-label="Play background animation"
-        >
-          <Play className="w-3.5 h-3.5" /><span>Play</span>
-        </button>
-      </div>
-    );
-  }
+  }, []);
 
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div className="absolute inset-0 overflow-hidden">
 
-      {/* ── Deep dark base ── */}
+      {/* ── Base layer: recording studio photo ── */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${STUDIO_BG})` }}
+      />
+
+      {/* ── Dark overlay: preserve text readability ── */}
       <div
         className="absolute inset-0"
-        style={{ background: "#0a0705" }}
-      />
-
-      {/* ── 4K gold bokeh video — base moving layer ── */}
-      {!prefersReducedMotion && !paused && (
-        <video
-          key="hero-bg-video"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{
-            transform: `translate(${px}px, ${py}px) scale(1.08)`,
-            transition: "transform 0.5s ease-out",
-            filter: "brightness(0.72) saturate(1.15)",
-          }}
-          aria-hidden="true"
-        >
-          <source src={HERO_VIDEO} type="video/mp4" />
-        </video>
-      )}
-
-      {/* Paused state — static poster */}
-      {paused && (
-        <img
-          src={STATIC_BG}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ filter: "brightness(0.65) saturate(1.1)" }}
-        />
-      )}
-
-      {/* ── Canvas: gold dust particles + waveform + bloom ── */}
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        aria-hidden="true"
-        style={{ mixBlendMode: "screen" }}
-      />
-
-      {/* ── Dark gradient overlays ── */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/70 pointer-events-none" />
-      {/* Radial vignette */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse at 50% 35%, transparent 15%, rgba(0,0,0,0.55) 100%)" }}
-      />
-      {/* Left-side gradient for text readability */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: "linear-gradient(to right, rgba(0,0,0,0.45) 0%, transparent 60%)" }}
-      />
-      {/* Film grain — subtle depth texture */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.035] mix-blend-overlay"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          backgroundSize: "80px 80px",
+          background: "linear-gradient(180deg, rgba(8,5,2,0.55) 0%, rgba(8,5,2,0.35) 40%, rgba(8,5,2,0.60) 100%)",
         }}
       />
 
-      {/* ── Pause / Play toggle ── */}
+      {/* ── Warm vignette ── */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: "radial-gradient(ellipse 80% 60% at 50% 50%, transparent 30%, rgba(4,2,0,0.65) 100%)",
+        }}
+      />
+
+      {/* ── Canvas: sparkly gold waveform ── */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full"
+        style={{ mixBlendMode: "screen" }}
+      />
+
+      {/* ── Subtle top-to-bottom gradient fade ── */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
+        style={{ background: "linear-gradient(to bottom, transparent, rgba(6,3,1,0.7))" }}
+      />
+
+      {/* ── Pause / resume control ── */}
       <button
         onClick={togglePause}
-        className="absolute bottom-6 right-6 z-20 w-9 h-9 rounded-full bg-black/35 backdrop-blur-md border border-white/8 flex items-center justify-center text-white/50 hover:bg-white/10 hover:text-white/80 transition-all pointer-events-auto"
-        aria-label={paused ? "Play background animation" : "Pause background animation"}
+        title={pausedRef.current ? "Resume background animation" : "Pause background animation"}
+        aria-label={pausedRef.current ? "Resume background animation" : "Pause background animation"}
+        className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/30 px-3 py-1.5 text-[10px] font-medium uppercase tracking-widest text-white/50 backdrop-blur-sm transition hover:bg-black/50 hover:text-white/80"
       >
-        {paused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
+        {pausedRef.current ? <Play className="w-2.5 h-2.5" /> : <Pause className="w-2.5 h-2.5" />}
+        {pausedRef.current ? "Resume" : "Pause"}
       </button>
     </div>
   );
