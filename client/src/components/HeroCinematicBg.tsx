@@ -6,11 +6,11 @@ import { Pause, Play } from "@/lib/icons";
    Luxury upgrade: gold dust particles, metallic bloom, warm waveform.
 ────────────────────────────────────────────────────────────────────── */
 const ASSETS = {
-  // WIZ AI — The Air Studios of AI — Variation 3B (refined)
-  videoMP4: "/manus-storage/wiz-new-v3-web_3be73592.mp4",
-  // Static fallback — mid-frame from the studio environment video
-  poster: "/manus-storage/wiz-new-v3-poster_b20ed4dc.jpg",
-  staticBg: "/manus-storage/wiz-new-v3-poster_b20ed4dc.jpg",
+  // Cinematic studio atmosphere — warm amber/gold bokeh, dark background, slow motion
+  videoMP4: "/manus-storage/hero-bg-bokeh-warm-1080_f0783084.mp4",
+  // Static fallback — concert hall poster
+  poster: "/manus-storage/concert-hall_2b6b946b.jpg",
+  staticBg: "/manus-storage/concert-hall_2b6b946b.jpg",
 };
 
 const LS_KEY = "wizai_motion_paused";
