@@ -1,11 +1,14 @@
 /**
  * Cinematic Storyboard Image Generator
- * Uses fal.ai Flux Pro to generate storyboard reference images in the correct
- * aspect ratio for WaveSpeed image-to-video. WaveSpeed i2v inherits the input
- * image's aspect ratio, so storyboard images MUST match the target export format.
  *
- * Model: fal-ai/flux-pro/v1.1 (best quality for character consistency)
- * Fallback: fal-ai/flux/dev
+ * Provider priority:
+ *   1. Grok (grok-imagine-image-quality) — primary, best cinematic quality, no fal.ai dependency
+ *   2. fal.ai Flux Pro 1.1 Ultra (img2img with venue reference, if available)
+ *   3. fal.ai Flux Pro 1.1 / Flux Dev (text-to-image fallback)
+ *   4. Built-in Forge image API — final fallback, always available
+ *
+ * Output images match the target aspect ratio so WaveSpeed i2v / Seedance
+ * inherits the correct frame dimensions natively.
  */
 
 import { fal } from "@fal-ai/client";
@@ -34,10 +37,11 @@ export interface CinematicImageOptions {
   storageKeyPrefix?: string;
   /**
    * Optional venue/environment reference image URL.
-   * When provided, uses fal-ai/flux-pro/v1.1-ultra with image_prompt_strength
-   * to anchor the background to the real venue while keeping character freedom.
+   * Used by fal.ai img2img path only — Grok generates from prompt alone.
    */
   venueReferenceUrl?: string;
+  /** Scene index used to vary the seed and pick different venue reference angles */
+  sceneIndex?: number;
 }
 
 export interface CinematicImageResult {
@@ -46,27 +50,22 @@ export interface CinematicImageResult {
   height: number;
 }
 
+// Dimension map — used for aspect ratio guard and return value
+const dimensionMap: Record<string, { width: number; height: number }> = {
+  "landscape_16_9": { width: 1344, height: 768 },
+  "portrait_16_9":  { width: 768, height: 1344 },
+  "square_hd":      { width: 1024, height: 1024 },
+  "landscape_4_3":  { width: 1365, height: 1024 },
+  "portrait_4_3":   { width: 1024, height: 1365 },
+  "custom_21_9":    { width: 2048, height: 877 },
+};
+
 /**
- * Generate a cinematic storyboard image using fal.ai Flux Pro.
- * The output image matches the target aspect ratio so WaveSpeed i2v
- * inherits the correct frame dimensions natively.
+ * Sanitise a scene prompt — strip crop-inducing framing terms and append
+ * the no-crop / full-head constraint that all providers must respect.
  */
-export async function generateCinematicStoryboardImage(
-  options: CinematicImageOptions
-): Promise<CinematicImageResult> {
-  const apiKey = process.env.FAL_AI_API_KEY;
-  if (!apiKey) throw new Error("FAL_AI_API_KEY is not configured");
-
-  fal.config({ credentials: apiKey });
-
-  const imageSize = aspectRatioToFluxSize(options.aspectRatio ?? "16:9");
-
-  // Enhance the prompt for cinematic quality.
-  // CRITICAL FRAMING RULE: strip any crop-inducing framing terms from the scene prompt before
-  // passing to the image model. Terms like "close-up", "head-and-shoulders", "medium close-up"
-  // cause the model to zoom in and cut off the top of the subject's head.
-  // We replace them with safe wide/medium framing language, then append a hard no-crop constraint.
-  const safenedPrompt = (options.prompt ?? "")
+function buildCinematicPrompt(rawPrompt: string): string {
+  const safened = rawPrompt
     .replace(/\bextreme close[- ]?up\b/gi, "medium shot")
     .replace(/\bclose[- ]?up\b/gi, "medium shot")
     .replace(/\bhead[- ]and[- ]shoulders\b/gi, "medium wide shot")
@@ -74,104 +73,171 @@ export async function generateCinematicStoryboardImage(
     .replace(/\bmedium close[- ]?up\b/gi, "medium wide shot")
     .replace(/\btight shot\b/gi, "medium shot")
     .replace(/\bface[- ]?only\b/gi, "medium shot");
-  const cinematicPrompt = `${safenedPrompt}, FULL HEAD VISIBLE with generous headroom above the subject, entire head and hair fully within frame, subject NOT cropped at top, medium wide shot composition, cinematic widescreen, professional film lighting, photorealistic, 8K quality, dramatic depth of field, movie still`;
+  return `${safened}, FULL HEAD VISIBLE with generous headroom above the subject, entire head and hair fully within frame, subject NOT cropped at top, medium wide shot composition, cinematic widescreen, professional film lighting, photorealistic, 8K quality, dramatic depth of field, movie still`;
+}
+
+/**
+ * ── Provider 1: Grok grok-imagine-image-quality ──────────────────────────────
+ * Best cinematic quality. Returns a temporary URL that we download and re-upload.
+ * Native output is 1280×720 (16:9) — we use it for all aspect ratios as it
+ * consistently produces the best framing and venue accuracy.
+ */
+async function tryGrok(
+  cinematicPrompt: string,
+  imageSize: string
+): Promise<string | undefined> {
+  const xaiKey = process.env.XAI_API_KEY;
+  if (!xaiKey) return undefined;
+
+  try {
+    const res = await fetch("https://api.x.ai/v1/images/generations", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${xaiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "grok-imagine-image-quality",
+        prompt: cinematicPrompt,
+        n: 1,
+        response_format: "url",
+      }),
+      signal: AbortSignal.timeout(90_000),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "");
+      console.warn(`[CinematicImageGen] Grok HTTP ${res.status}: ${errText.slice(0, 120)}`);
+      return undefined;
+    }
+
+    const json = (await res.json()) as { data?: Array<{ url?: string }> };
+    const url = json?.data?.[0]?.url;
+    if (url) {
+      console.log(`[CinematicImageGen] Grok succeeded → ${url.slice(0, 80)}...`);
+      return url;
+    }
+  } catch (err: any) {
+    console.warn(`[CinematicImageGen] Grok failed: ${err?.message?.slice(0, 100)}`);
+  }
+  return undefined;
+}
+
+/**
+ * Generate a cinematic storyboard image.
+ * Provider priority: Grok → fal.ai (img2img + text) → Forge
+ */
+export async function generateCinematicStoryboardImage(
+  options: CinematicImageOptions
+): Promise<CinematicImageResult> {
+  const imageSize = aspectRatioToFluxSize(options.aspectRatio ?? "16:9");
+  const cinematicPrompt = buildCinematicPrompt(options.prompt ?? "");
 
   let imageUrl: string | undefined;
-
-  // If a venue reference image is provided, use flux-pro img2img to anchor the environment
-  if (options.venueReferenceUrl) {
-    try {
-      const result = await fal.subscribe("fal-ai/flux-pro/v1.1-ultra", {
-        input: {
-          prompt: cinematicPrompt,
-          image_url: options.venueReferenceUrl,
-          image_prompt_strength: 0.35, // 35% venue anchor, 65% creative freedom for characters
-          aspect_ratio: imageSize === "landscape_16_9" ? "16:9" : imageSize === "portrait_16_9" ? "9:16" : "1:1",
-          num_images: 1,
-          enable_safety_checker: false,
-          safety_tolerance: "5",
-          output_format: "jpeg",
-        },
-        logs: false,
-        pollInterval: 3000,
-      }) as any;
-      const images = result?.data?.images ?? result?.images;
-      if (images?.[0]?.url) {
-        imageUrl = images[0].url;
-        console.log(`[CinematicImageGen] Used venue reference (flux-pro-ultra img2img) → ${(imageUrl ?? "").slice(0, 80)}...`);
-      }
-    } catch (refErr: any) {
-      console.warn(`[CinematicImageGen] Venue reference img2img failed, falling back to text-only: ${refErr?.message?.slice(0, 100)}`);
-    }
-  }
-
-  // Dimension map — used both for aspect ratio guard and return value
-  const dimensionMap: Record<string, { width: number; height: number }> = {
-    "landscape_16_9": { width: 1344, height: 768 },
-    "portrait_16_9":  { width: 768, height: 1344 },
-    "square_hd":      { width: 1024, height: 1024 },
-    "landscape_4_3":  { width: 1365, height: 1024 },
-    "portrait_4_3":   { width: 1024, height: 1365 },
-    "custom_21_9":    { width: 2048, height: 877 },  // True 21:9 cinematic ultra-wide
-  };
-
-  // Try Flux Pro first, fall back to Flux Dev
-  // IMPORTANT: Both models MUST receive the correct image_size so WaveSpeed i2v
-  // inherits the right aspect ratio. Flux Dev supports image_size identically.
-  const models = ["fal-ai/flux-pro/v1.1", "fal-ai/flux/dev"] as const;
   let lastError: Error | null = null;
 
-  for (const modelId of models) {
-    if (imageUrl) break; // already got one from venue reference
-    try {
-      // For custom_21_9, Flux doesn't have a native size — use explicit width/height instead
-      const isCustomSize = imageSize === "custom_21_9";
-      const customDims = isCustomSize ? dimensionMap["custom_21_9"] : null;
-      const result = await fal.subscribe(modelId, {
-        input: {
-          prompt: cinematicPrompt,
-          ...(isCustomSize && customDims
-            ? { image_size: { width: customDims.width, height: customDims.height } }
-            : { image_size: imageSize as any }  // MUST match job aspectRatio — e.g. "landscape_16_9" for 16:9
-          ),
-          num_images: 1,
-          enable_safety_checker: false,
-          safety_tolerance: "5",
-          output_format: "jpeg",
-        },
-        logs: false,
-        pollInterval: 3000,
-      }) as any;
+  // ── 1. Grok (primary — best quality) ────────────────────────────────────────
+  imageUrl = await tryGrok(cinematicPrompt, imageSize);
 
-      const images = result?.data?.images ?? result?.images;
-      if (images?.[0]?.url) {
-        // ── ASPECT RATIO GUARD: verify the returned image matches the target ──────
-        // Flux Dev sometimes ignores image_size and returns 1024×1024.
-        // If the returned image dimensions don't match, skip and try next model.
-        const returnedW = images[0].width ?? 0;
-        const returnedH = images[0].height ?? 0;
-        const expectedDims = dimensionMap[imageSize];
-        if (returnedW > 0 && returnedH > 0 && expectedDims) {
-          const expectedRatio = expectedDims.width / expectedDims.height;
-          const actualRatio = returnedW / returnedH;
-          const ratioDiff = Math.abs(actualRatio - expectedRatio) / expectedRatio;
-          if (ratioDiff > 0.05) {
-            console.warn(`[CinematicImageGen] ${modelId} returned wrong aspect ratio: ${returnedW}×${returnedH} (expected ~${expectedDims.width}×${expectedDims.height} for ${imageSize}). Trying next model.`);
-            continue; // skip this result, try next model
-          }
+  // ── 2. fal.ai img2img with venue reference (if Grok failed + reference available) ──
+  if (!imageUrl && options.venueReferenceUrl) {
+    const falKey = process.env.FAL_AI_API_KEY;
+    if (falKey) {
+      fal.config({ credentials: falKey });
+      try {
+        const result = await fal.subscribe("fal-ai/flux-pro/v1.1-ultra", {
+          input: {
+            prompt: cinematicPrompt,
+            image_url: options.venueReferenceUrl,
+            image_prompt_strength: 0.12, // 12% venue anchor — prompt must dominate
+            aspect_ratio: imageSize === "landscape_16_9" ? "16:9" : imageSize === "portrait_16_9" ? "9:16" : "1:1",
+            num_images: 1,
+            enable_safety_checker: false,
+            safety_tolerance: "5",
+            output_format: "jpeg",
+          },
+          logs: false,
+          pollInterval: 3000,
+        }) as any;
+        const images = result?.data?.images ?? result?.images;
+        if (images?.[0]?.url) {
+          imageUrl = images[0].url;
+          console.log(`[CinematicImageGen] fal.ai img2img succeeded → ${(imageUrl ?? "").slice(0, 80)}...`);
         }
-        imageUrl = images[0].url;
-        console.log(`[CinematicImageGen] ${modelId} returned ${returnedW}×${returnedH} for ${imageSize} ✓`);
-        break;
+      } catch (refErr: any) {
+        lastError = refErr;
+        console.warn(`[CinematicImageGen] fal.ai img2img failed: ${refErr?.message?.slice(0, 100)}`);
       }
-    } catch (err: any) {
-      lastError = err;
-      console.warn(`[CinematicImageGen] ${modelId} failed: ${err?.message?.slice(0, 100)}`);
     }
   }
 
+  // ── 3. fal.ai text-to-image fallback ────────────────────────────────────────
   if (!imageUrl) {
-    throw lastError ?? new Error("All fal.ai image generation models failed");
+    const falKey = process.env.FAL_AI_API_KEY;
+    if (falKey) {
+      fal.config({ credentials: falKey });
+      const models = ["fal-ai/flux-pro/v1.1", "fal-ai/flux/dev"] as const;
+      for (const modelId of models) {
+        if (imageUrl) break;
+        try {
+          const isCustomSize = imageSize === "custom_21_9";
+          const customDims = isCustomSize ? dimensionMap["custom_21_9"] : null;
+          const result = await fal.subscribe(modelId, {
+            input: {
+              prompt: cinematicPrompt,
+              ...(isCustomSize && customDims
+                ? { image_size: { width: customDims.width, height: customDims.height } }
+                : { image_size: imageSize as any }
+              ),
+              num_images: 1,
+              enable_safety_checker: false,
+              safety_tolerance: "5",
+              output_format: "jpeg",
+            },
+            logs: false,
+            pollInterval: 3000,
+          }) as any;
+          const images = result?.data?.images ?? result?.images;
+          if (images?.[0]?.url) {
+            const returnedW = images[0].width ?? 0;
+            const returnedH = images[0].height ?? 0;
+            const expectedDims = dimensionMap[imageSize];
+            if (returnedW > 0 && returnedH > 0 && expectedDims) {
+              const expectedRatio = expectedDims.width / expectedDims.height;
+              const actualRatio = returnedW / returnedH;
+              const ratioDiff = Math.abs(actualRatio - expectedRatio) / expectedRatio;
+              if (ratioDiff > 0.05) {
+                console.warn(`[CinematicImageGen] ${modelId} wrong aspect ratio ${returnedW}×${returnedH}. Trying next.`);
+                continue;
+              }
+            }
+            imageUrl = images[0].url;
+            console.log(`[CinematicImageGen] fal.ai ${modelId} succeeded ${returnedW}×${returnedH} ✓`);
+            break;
+          }
+        } catch (err: any) {
+          lastError = err;
+          console.warn(`[CinematicImageGen] fal.ai ${modelId} failed: ${err?.message?.slice(0, 100)}`);
+        }
+      }
+    }
+  }
+
+  // ── 4. Built-in Forge fallback (always available) ───────────────────────────
+  if (!imageUrl) {
+    try {
+      console.warn(`[CinematicImageGen] All external providers failed — falling back to built-in Forge`);
+      const { generateImage } = await import("../_core/imageGeneration");
+      const forgeResult = await generateImage({ prompt: cinematicPrompt });
+      if (forgeResult.url) {
+        console.log(`[CinematicImageGen] Forge fallback succeeded → ${forgeResult.url.slice(0, 80)}...`);
+        const dims = dimensionMap[imageSize] ?? { width: 1344, height: 768 };
+        return { url: forgeResult.url, ...dims };
+      }
+    } catch (forgeErr: any) {
+      console.warn(`[CinematicImageGen] Forge fallback failed: ${forgeErr?.message?.slice(0, 100)}`);
+    }
+    throw lastError ?? new Error("All image generation providers failed (Grok + fal.ai + Forge)");
   }
 
   // Download and re-upload to S3 for permanent storage
@@ -182,7 +248,6 @@ export async function generateCinematicStoryboardImage(
   const { url: s3Url } = await storagePut(`${keyPrefix}.jpg`, buffer, "image/jpeg");
 
   const dims = dimensionMap[imageSize] ?? { width: 1344, height: 768 };
-
-  console.log(`[CinematicImageGen] Generated ${imageSize} storyboard image → ${s3Url.slice(0, 80)}...`);
+  console.log(`[CinematicImageGen] Saved ${imageSize} storyboard → ${s3Url.slice(0, 80)}...`);
   return { url: s3Url, ...dims };
 }
