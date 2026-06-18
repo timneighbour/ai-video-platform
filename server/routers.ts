@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
+import { z } from "zod";
 import { billingRouter, renderRouter } from "./routers/billing";
 import { musicVideoRouter } from "./routers/musicVideo";
 import { videoRouter } from "./routers/video";
@@ -87,6 +88,26 @@ export const appRouter = router({
         return { creators: 120, videosCreated: 340 };
       }
     }),
+  }),
+  waitlist: router({
+    join: publicProcedure
+      .input(z.object({ email: z.string().email() }))
+      .mutation(async ({ input }) => {
+        const { getDb } = await import("./db");
+        const { creatorNetworkWaitlist } = await import("../drizzle/schema");
+        const db = await getDb();
+        if (!db) throw new Error("DB unavailable");
+        try {
+          await db.insert(creatorNetworkWaitlist).values({ email: input.email });
+          return { success: true, alreadyJoined: false };
+        } catch (err: any) {
+          // Duplicate entry — already on waitlist
+          if (err?.code === "ER_DUP_ENTRY" || err?.message?.includes("Duplicate")) {
+            return { success: true, alreadyJoined: true };
+          }
+          throw err;
+        }
+      }),
   }),
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

@@ -1882,3 +1882,12 @@ export const sceneVersions = mysqlTable("sceneVersions", {
 });
 export type SceneVersion = typeof sceneVersions.$inferSelect;
 export type InsertSceneVersion = typeof sceneVersions.$inferInsert;
+
+// Creator Network Waitlist — early access email capture
+export const creatorNetworkWaitlist = mysqlTable("creator_network_waitlist", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CreatorNetworkWaitlist = typeof creatorNetworkWaitlist.$inferSelect;
+export type InsertCreatorNetworkWaitlist = typeof creatorNetworkWaitlist.$inferInsert;
