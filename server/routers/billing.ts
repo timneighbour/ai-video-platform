@@ -846,6 +846,56 @@ Action steps to cover: ${actionSteps.map((s, i) => `Scene ${i + 1}: ${s}`).join(
     }),
 
   /**
+   * Pay-per-video checkout — scene-count pricing (£1.50/scene, £5 min).
+   * For non-subscribers who want to render a single video without a subscription.
+   */
+  createPayPerVideoCheckout: protectedProcedure
+    .input(z.object({
+      projectId: z.number().int().positive(),
+      sceneCount: z.number().int().min(1).max(12),
+      origin: z.string().url(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { createPayPerVideoCheckout: createCheckout } = await import("../stripe");
+      const { url, amountPence } = await createCheckout(
+        ctx.user.id,
+        input.projectId,
+        input.sceneCount,
+        ctx.user.email || "",
+        ctx.user.name ?? null,
+        input.origin
+      );
+      return { checkoutUrl: url, amountPence };
+    }),
+
+  /**
+   * Free trial render — trims audio to 30s, applies watermark, one per account.
+   * Returns trimmed audio URL for caller to pass into the render pipeline with watermark:true.
+   */
+  startFreeTrialRender: protectedProcedure
+    .input(z.object({
+      projectId: z.number().int().positive(),
+      audioUrl: z.string().url(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const { TRPCError } = await import("@trpc/server");
+      const { getDb } = await import("../db");
+      const { users } = await import("../../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      const db = await getDb();
+      if (!db) throw new Error("DB unavailable");
+      const [user] = await db.select().from(users).where(eq(users.id, ctx.user.id));
+      if (!user) throw new Error("User not found");
+      if (user.freeTrialUsed) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Free trial already used on this account." });
+      }
+      const { trimAudioToLength } = await import("../audioTrim");
+      const trimmedUrl = await trimAudioToLength(input.audioUrl, 30, ctx.user.id);
+      await db.update(users).set({ freeTrialUsed: true }).where(eq(users.id, ctx.user.id));
+      return { trimmedAudioUrl: trimmedUrl, freeTrialRender: true };
+    }),
+
+  /**
    * Get the user's top-up purchase history
    */
   getTopupHistory: protectedProcedure.query(async ({ ctx }) => {

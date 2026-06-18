@@ -134,6 +134,7 @@ export function WizGenesisModal({
   const currentBalance = creditsQuery.data?.balance ?? null;
   const createRenderCheckout = trpc.render.createRenderCheckout.useMutation();
   const useFreeRender = trpc.render.useFreeRender.useMutation();
+  const createPayPerVideoCheckout = trpc.billing.createPayPerVideoCheckout.useMutation();
 
   const hasFreeRenders = (renderStatus.data?.total ?? 0) > 0;
   const isAdmin = renderStatus.data?.isAdmin ?? false;
@@ -143,6 +144,12 @@ export function WizGenesisModal({
   const freeTrialUsed = user?.freeTrialUsed ?? true; // default true = safe (don't show if unknown)
   const showFreeTrialOption = !hasActiveSub && !freeTrialUsed;
   const showPayOnceLabel = !hasActiveSub;
+
+  // Pay-per-video pricing: £1.50/scene, £5 min
+  const ppvSceneCount = sceneCount ?? 1;
+  const ppvAmountPence = Math.max(500, ppvSceneCount * 150);
+  const ppvAmountDisplay = (ppvAmountPence / 100).toFixed(2);
+  const showPayPerVideo = !hasActiveSub && !hasFreeRenders && !isAdmin;
 
   // Fire analytics once per open
   useEffect(() => {
@@ -166,6 +173,25 @@ export function WizGenesisModal({
 
   const isCinematicMode = enhanceTier === "cinematic";
   const ctaLabel = isCinematicMode ? "Build My Cinematic Video" : "Build My Video";
+
+  async function handlePayPerVideo() {
+    trackEvent("WizGenesis_PayPerVideoClicked", { jobId, sceneCount: ppvSceneCount, amountPence: ppvAmountPence });
+    setIsLoading(true);
+    try {
+      const result = await createPayPerVideoCheckout.mutateAsync({
+        projectId: jobId,
+        sceneCount: ppvSceneCount,
+        origin: window.location.origin,
+      });
+      if (result.checkoutUrl) {
+        window.location.href = result.checkoutUrl;
+      }
+    } catch (err) {
+      toast.error("Something went wrong", { description: err instanceof Error ? err.message : "Please try again." });
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   async function handleRender() {
     trackEvent("WizGenesis_RenderClicked", { jobId, jobType, quality, enhanceTier, totalPrice });
@@ -523,6 +549,26 @@ export function WizGenesisModal({
               <>{isCinematicMode ? <Sparkles className="w-5 h-5 mr-2" /> : <Film className="w-5 h-5 mr-2" />}{ctaLabel}</>
             )}
           </Button>
+          )}
+
+          {/* ── Pay-Per-Video option (non-subscribers without free renders) ── */}
+          {showPayPerVideo && (
+            <div className="rounded-xl border border-[--color-gold]/20 bg-[--color-gold]/[0.04] px-4 py-3 space-y-2">
+              <p className="text-xs font-semibold text-[--color-gold]/70 uppercase tracking-wider">No subscription needed</p>
+              <p className="text-xs text-muted-foreground/60 leading-relaxed">
+                Pay once for this video — <span className="text-white/80 font-medium">£{ppvAmountDisplay}</span> for {ppvSceneCount} scene{ppvSceneCount !== 1 ? "s" : ""} (£1.50/scene, £5 min).
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full border-[--color-gold]/30 bg-[--color-gold]/10 hover:bg-[--color-gold]/20 text-[--color-gold] hover:text-[--color-gold] text-xs font-semibold gap-2"
+                onClick={handlePayPerVideo}
+                disabled={isLoading}
+              >
+                <Film className="w-3.5 h-3.5" />
+                Pay £{ppvAmountDisplay} — Render this video
+              </Button>
+            </div>
           )}
 
           {/* ── Free Trial option (non-subscribers only) ─────────────── */}

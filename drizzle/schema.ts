@@ -1886,3 +1886,21 @@ export const sceneVersions = mysqlTable("sceneVersions", {
 });
 export type SceneVersion = typeof sceneVersions.$inferSelect;
 export type InsertSceneVersion = typeof sceneVersions.$inferInsert;
+
+/**
+ * pay_per_video_orders — records one-time pay-per-render purchases by non-subscribers.
+ * Created when a Stripe checkout.session.completed fires with metadata.type = "pay_per_video".
+ */
+export const payPerVideoOrders = mysqlTable("pay_per_video_orders", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull(),
+  projectId: int("project_id").notNull(),
+  stripeSessionId: varchar("stripe_session_id", { length: 512 }).notNull().unique(),
+  sceneCount: int("scene_count").notNull(),
+  amountPence: int("amount_pence").notNull(),
+  status: varchar("status", { length: 32 }).notNull().default("pending"), // pending | paid | failed
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+export type PayPerVideoOrder = typeof payPerVideoOrders.$inferSelect;
+export type InsertPayPerVideoOrder = typeof payPerVideoOrders.$inferInsert;
