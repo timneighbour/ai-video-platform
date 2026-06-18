@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "580cdcec-63bc-40da-b092-8e42be26eed1",
-  "prevId": "3b9ebdc0-09e0-45fe-90ff-16b2987c898c",
+  "id": "5ffb1dc4-2d78-4355-915f-44be6adb6d80",
+  "prevId": "ac93cfa8-018d-4113-866b-561b57e1e1e5",
   "tables": {
     "analyticsEvents": {
       "name": "analyticsEvents",
@@ -2979,13 +2979,6 @@
           "notNull": false,
           "autoincrement": false
         },
-        "vocalsSubmittedAt": {
-          "name": "vocalsSubmittedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "syncLabsJobId": {
           "name": "syncLabsJobId",
           "type": "varchar(128)",
@@ -3059,6 +3052,14 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "isFreeTrial": {
+          "name": "isFreeTrial",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
         },
         "createdAt": {
           "name": "createdAt",
@@ -6436,6 +6437,21 @@
         },
         "marketingOptOutAt": {
           "name": "marketingOptOutAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "freeTrialUsed": {
+          "name": "freeTrialUsed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "freeTrialUsedAt": {
+          "name": "freeTrialUsedAt",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false,

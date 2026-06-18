@@ -286,13 +286,14 @@ export default function WizProductGrid() {
         {/* ── Section header ──────────────────────────────────────────────── */}
         <div className="mb-16 reveal text-center">
           <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">
-            WIZ AI — The Creative Ecosystem
+            YOUR STUDIO
           </p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white leading-tight mb-3">
-            The Magnificent 7 Specialised AI Studios
+            Every room. Every tool. One space.
           </h2>
           <p className="text-white/40 text-base max-w-2xl leading-relaxed mx-auto">
-            Seven specialised AI studios. One platform. Every creative discipline covered — from original music to cinematic video, animation, and beyond.
+            From the main stage to the sound booth to the animation suite —
+            everything you need to make something extraordinary.
           </p>
         </div>
         {/* ── Row 1: CREATE (7 tiles) — 4 top + 3 centred bottom ─────────── */}

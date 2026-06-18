@@ -92,6 +92,7 @@ export const musicVideoRouter = router({
         audioUrl: z.string().url().optional(), // direct URL to audio (e.g. from Suno)
         audioMimeType: z.enum(["audio/mpeg", "audio/wav", "audio/mp4", "audio/ogg", "audio/m4a"]).optional(),
         audioDuration: z.number().int().min(10).max(360), // 10s to 6 minutes
+        isFreeTrial: z.boolean().optional(), // Free trial render -- 30s trim, watermarked, no credits
         themePrompt: z.string().min(10).max(2000),
         genre: z.string().max(128).optional(),
         mood: z.string().max(128).optional(),

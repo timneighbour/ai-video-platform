@@ -1,24 +1,20 @@
 /**
  * CookieConsentBanner — GDPR/UK PECR compliant
  *
- * Shows on first visit. Three actions:
- * - Accept All
- * - Reject Non-Essential
- * - Manage Preferences (opens granular category toggles)
+ * Slim fixed bottom strip (≤56px collapsed). Expand to manage preferences.
+ * Three actions: Accept All, Reject Non-Essential, Manage Preferences (accordion).
  *
  * Also exports <CookieSettingsButton /> for footer re-open trigger.
  */
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { X, Shield, ChevronDown, ChevronUp } from "@/lib/icons";
+import { ChevronDown, ChevronUp, Shield } from "@/lib/icons";
 import {
   acceptAllCookies,
   rejectNonEssentialCookies,
   saveCustomCookiePreferences,
   hasConsentChoice,
   getStoredConsent,
-  resetConsent,
 } from "@/lib/cookieConsent";
 
 // ── Global event for re-opening the banner from footer ──────────────────────
@@ -68,16 +64,16 @@ export default function CookieConsentBanner({ introActive = false }: { introActi
   const [marketing, setMarketing] = useState(false);
   const [functional, setFunctional] = useState(false);
 
-  // When intro finishes (introActive goes false), show banner if needed
+  // Show after intro completes, only if no consent stored
   useEffect(() => {
-    if (introActive) return; // Wait until intro completes
+    if (introActive) return;
     if (!hasConsentChoice()) {
       setVisible(true);
     }
   }, [introActive]);
-  useEffect(() => {
 
-    // Listen for re-open from footer
+  // Listen for re-open from footer
+  useEffect(() => {
     const handleOpen = () => {
       const stored = getStoredConsent();
       if (stored) {
@@ -111,80 +107,102 @@ export default function CookieConsentBanner({ introActive = false }: { introActi
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[9999] p-4 sm:p-6"
+      className="fixed bottom-0 left-0 right-0 z-[9999]"
       role="dialog"
       aria-modal="true"
       aria-label="Cookie consent"
     >
-      <div className="max-w-4xl mx-auto bg-[#0f0f0f] border border-[--color-gold]/25 rounded-2xl shadow-2xl overflow-hidden">
-        {/* Gold top accent */}
-        <div className="h-0.5 w-full bg-gradient-to-r from-[--color-gold]/40 via-[--color-gold] to-[--color-gold]/40" />
+      {/* Gold top border accent */}
+      <div
+        className="h-px w-full"
+        style={{ background: "linear-gradient(90deg, transparent, oklch(0.78 0.11 75 / 0.3), transparent)" }}
+      />
 
-        <div className="p-5 sm:p-6">
-          {/* Header */}
-          <div className="flex items-start gap-3 mb-4">
-            <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-[--color-gold]/10 border border-[--color-gold]/30 flex items-center justify-center">
-              <Shield className="w-4 h-4 text-[--color-gold]" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-base font-bold text-white leading-tight">
-                We use cookies
-              </h2>
-              <p className="text-sm text-[#a1a1aa] mt-1 leading-relaxed">
-                WIZ AI uses cookies to improve your experience, analyse site usage, and support marketing. Essential cookies are always active. You can choose which optional cookies to allow.{" "}
-                <a
-                  href="/cookie-policy"
-                  className="text-[--color-gold] hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Cookie Policy
-                </a>
-                {" · "}
-                <a
-                  href="/privacy"
-                  className="text-[--color-gold] hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Privacy Policy
-                </a>
-              </p>
-            </div>
-          </div>
+      {/* Main strip */}
+      <div
+        style={{
+          background: "rgba(0,0,0,0.88)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          borderTop: "1px solid oklch(0.78 0.11 75 / 0.18)",
+        }}
+      >
+        {/* Collapsed strip — single row, max 56px */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-wrap items-center gap-x-4 gap-y-2 py-3 min-h-[56px]">
+          {/* Left: text + cookie policy link */}
+          <p className="text-[13px] text-white/60 flex-1 min-w-[180px]">
+            We use cookies to improve your experience.{" "}
+            <a
+              href="/cookie-policy"
+              className="underline text-white/50 hover:text-white/80 transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Cookie Policy
+            </a>
+          </p>
 
-          {/* Manage Preferences (expandable) */}
+          {/* Middle: manage preferences accordion toggle */}
           <button
-            className="flex items-center gap-2 text-sm text-[#a1a1aa] hover:text-white transition-colors mb-4"
-            onClick={() => setShowManage(!showManage)}
             type="button"
+            className="flex items-center gap-1 text-[12px] text-white/40 hover:text-white/70 transition-colors whitespace-nowrap"
+            onClick={() => setShowManage((v) => !v)}
           >
-            {showManage ? (
-              <ChevronUp className="w-4 h-4" />
-            ) : (
-              <ChevronDown className="w-4 h-4" />
-            )}
+            {showManage ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             Manage preferences
           </button>
 
-          {showManage && (
-            <div className="space-y-3 mb-5 border border-white/[0.06] rounded-xl p-4 bg-white/[0.02]">
+          {/* Right: buttons */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              type="button"
+              className="h-8 px-3.5 rounded-lg text-[12px] font-semibold text-white/60 hover:text-white transition-colors whitespace-nowrap"
+              style={{ border: "1px solid rgba(255,255,255,0.12)" }}
+              onClick={handleRejectAll}
+            >
+              Reject non-essential
+            </button>
+            <button
+              type="button"
+              className="h-8 px-3.5 rounded-lg text-[12px] font-bold text-black transition-opacity hover:opacity-90 whitespace-nowrap"
+              style={{ background: "oklch(0.78 0.11 75)" }}
+              onClick={handleAcceptAll}
+            >
+              Accept all
+            </button>
+          </div>
+        </div>
+
+        {/* Expandable manage preferences panel */}
+        {showManage && (
+          <div
+            className="max-w-7xl mx-auto px-4 sm:px-6 pb-4"
+            style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+          >
+            <div className="grid sm:grid-cols-2 gap-3 pt-4 mb-4">
               {CATEGORIES.map((cat) => (
-                <div key={cat.id} className="flex items-start gap-3">
+                <div
+                  key={cat.id}
+                  className="flex items-start gap-3 px-3 py-2.5 rounded-xl"
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
+                >
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-white">
-                        {cat.label}
-                      </span>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-[13px] font-semibold text-white/85">{cat.label}</span>
                       {cat.alwaysOn && (
-                        <span className="text-[10px] font-medium text-[--color-gold] bg-[--color-gold]/10 border border-[--color-gold]/20 px-1.5 py-0.5 rounded-full">
+                        <span
+                          className="text-[10px] font-medium px-1.5 py-0.5 rounded-full"
+                          style={{
+                            color: "oklch(0.78 0.11 75)",
+                            background: "oklch(0.78 0.11 75 / 0.10)",
+                            border: "1px solid oklch(0.78 0.11 75 / 0.20)",
+                          }}
+                        >
                           Always on
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-[#71717a] mt-0.5 leading-relaxed">
-                      {cat.description}
-                    </p>
+                    <p className="text-[11px] text-white/35 leading-relaxed">{cat.description}</p>
                   </div>
                   <Switch
                     checked={
@@ -212,64 +230,40 @@ export default function CookieConsentBanner({ introActive = false }: { introActi
                 </div>
               ))}
             </div>
-          )}
-
-          {/* Action buttons */}
-          <div className="flex flex-col sm:flex-row gap-2.5">
-            {showManage ? (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 border-white/25 text-white/80 hover:text-white hover:border-white/40 bg-white/5 hover:bg-white/10 text-xs"
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-[11px] text-white/25 flex items-center gap-1.5 flex-1 min-w-[200px]">
+                <Shield className="w-3 h-3 flex-shrink-0" />
+                Your choice is stored locally and can be changed via Cookie Settings in the footer.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  className="h-8 px-3.5 rounded-lg text-[12px] font-semibold text-white/60 hover:text-white transition-colors"
+                  style={{ border: "1px solid rgba(255,255,255,0.12)" }}
                   onClick={handleRejectAll}
                 >
                   Reject non-essential
-                </Button>
+                </button>
                 <button
                   type="button"
-                  className="flex-1 h-8 px-3 rounded-md text-xs font-semibold text-black transition-opacity hover:opacity-90"
-                  style={{ background: 'oklch(0.72 0.14 70)' }}
+                  className="h-8 px-3.5 rounded-lg text-[12px] font-bold text-black transition-opacity hover:opacity-90"
+                  style={{ background: "oklch(0.78 0.11 75)" }}
                   onClick={handleSavePreferences}
                 >
                   Save preferences
                 </button>
                 <button
                   type="button"
-                  className="flex-1 h-8 px-3 rounded-md text-xs font-semibold text-white bg-white/10 hover:bg-white/15 transition-colors"
+                  className="h-8 px-3.5 rounded-lg text-[12px] font-bold text-black transition-opacity hover:opacity-90"
+                  style={{ background: "oklch(0.78 0.11 75)" }}
                   onClick={handleAcceptAll}
                 >
                   Accept all
                 </button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 border-white/25 text-white/80 hover:text-white hover:border-white/40 bg-white/5 hover:bg-white/10 text-xs"
-                  onClick={handleRejectAll}
-                >
-                  Reject non-essential
-                </Button>
-                <button
-                  type="button"
-                  className="flex-1 h-8 px-3 rounded-md text-xs font-semibold text-black transition-opacity hover:opacity-90"
-                  style={{ background: 'oklch(0.72 0.14 70)' }}
-                  onClick={handleAcceptAll}
-                >
-                  Accept all cookies
-                </button>
-              </>
-            )}
+              </div>
+            </div>
           </div>
-
-          {/* GDPR note */}
-          <p className="text-[10px] text-[#52525b] mt-3 flex items-center gap-1.5">
-            <Shield className="w-3 h-3 flex-shrink-0" />
-            Your choice is stored locally and you can change it at any time via Cookie Settings in the footer.
-          </p>
-        </div>
+        )}
       </div>
     </div>
   );
