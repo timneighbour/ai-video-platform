@@ -926,9 +926,18 @@ function Hero() {
  className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-[#030303]"
  onMouseMove={handleMouseMove}
  >
- {/* Cinematic motion background — gold dust, waveform, bloom */}
+  {/* Cinematic motion background — gold dust, waveform, bloom */}
  <HeroCinematicBg mouseX={mousePos.x} mouseY={mousePos.y} />
-
+ {/* Studio atmosphere layer — vignette + stage lights (CSS only) */}
+ <div className="absolute inset-0 pointer-events-none z-[1]" style={{ background: "radial-gradient(ellipse 70% 60% at 50% 40%, transparent 0%, rgba(0,0,0,0.35) 60%, rgba(0,0,0,0.72) 100%)" }} />
+ {/* Studio light — above-left */}
+ <div className="absolute pointer-events-none z-[1]" style={{ top: "-80px", left: "-60px", width: "420px", height: "420px", borderRadius: "50%", background: "radial-gradient(circle, rgba(255,245,220,0.055) 0%, transparent 70%)", filter: "blur(90px)", opacity: 0.9 }} />
+ {/* Studio light — above-right */}
+ <div className="absolute pointer-events-none z-[1]" style={{ top: "-60px", right: "-80px", width: "380px", height: "380px", borderRadius: "50%", background: "radial-gradient(circle, rgba(220,190,130,0.05) 0%, transparent 70%)", filter: "blur(100px)", opacity: 0.85 }} />
+ {/* Studio light — centre-top warm bloom */}
+ <div className="absolute pointer-events-none z-[1]" style={{ top: "-40px", left: "50%", transform: "translateX(-50%)", width: "500px", height: "300px", borderRadius: "50%", background: "radial-gradient(ellipse, rgba(196,164,100,0.04) 0%, transparent 70%)", filter: "blur(80px)" }} />
+ {/* Stage floor reflection — bottom fade */}
+ <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[1]" style={{ height: "200px", background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%)" }} />
  {/* Content */}
  <div className="relative z-10 max-w-7xl mx-auto px-6 pt-[80px] pb-16 w-full">
  <div className="max-w-3xl">
@@ -1292,6 +1301,118 @@ function CharacterLockSection() {
  </section>
  );
 }
+// USP Grid — Built like a real studio (Change 9)
+function USPGridSection() {
+ const features = [
+ {
+ icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /><path d="M12 8v4l3 3" /></svg>,
+ title: "Character Lock\u2122",
+ desc: "Face, hair, clothing, instruments — locked consistent across every scene. From scene one to the final frame.",
+ },
+ {
+ icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><circle cx="9" cy="7" r="3" /><circle cx="15" cy="7" r="3" /><path d="M3 21v-2a6 6 0 0112 0v2" /><path d="M15 11a6 6 0 016 6v2" /></svg>,
+ title: "Multi-Character Lip Sync",
+ desc: "Every performer sings in sync — not just the lead. Full group scenes, accurately lip-synced.",
+ },
+ {
+ icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>,
+ title: "Your Face. Your Artist.",
+ desc: "Upload your own reference photos. Your artist, your performers — not generic AI faces.",
+ },
+ {
+ icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M9 19V6l12-3v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>,
+ title: "Instrument Recognition",
+ desc: "Film yourself playing and upload it. WIZ AI studies your technique and replicates it scene by scene.",
+ },
+ {
+ icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M12 2v20M2 12h20" /><circle cx="12" cy="12" r="3" /></svg>,
+ title: "BPM-Locked Performance",
+ desc: "WIZ AI analyses your track's tempo and locks every performer and instrument to the exact beat.",
+ },
+ {
+ icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" /><path d="M19 10v2a7 7 0 01-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>,
+ title: "Vocal Isolation",
+ desc: "Your vocal is isolated from the mix before lip sync is applied — so every movement matches your actual voice.",
+ },
+ {
+ icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>,
+ title: "Exact Duration Audio",
+ desc: "Need a track that's exactly 3 minutes 12 seconds? WizAudio generates it to the precise second — every time.",
+ },
+ {
+ icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>,
+ title: "Voice-to-Prompt Direction",
+ desc: "Speak your creative vision like you're talking to a director. WIZ AI transcribes and builds from your words.",
+ },
+ ];
+ return (
+ <section className="relative bg-[#030303] py-24 px-6 overflow-hidden">
+ <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 50% at 50% 0%, oklch(0.72 0.14 70 / 0.04), transparent 70%)" }} />
+ <div className="luxury-divider absolute top-0 left-0 right-0" />
+ <div className="relative z-10 max-w-[900px] mx-auto">
+ <div className="text-center mb-14">
+ <p className="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>BUILT LIKE A REAL STUDIO</p>
+ <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-black tracking-tight text-white">The production details that matter.</h2>
+ </div>
+ <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10">
+ {features.map((f, i) => (
+ <div key={i} className="flex items-start gap-4">
+ <div className="flex-shrink-0 mt-0.5" style={{ color: "oklch(0.78 0.11 75)" }}>{f.icon}</div>
+ <div>
+ <p className="text-[15px] font-bold text-white mb-1">{f.title}</p>
+ <p className="text-[13px] text-white/45 leading-relaxed">{f.desc}</p>
+ </div>
+ </div>
+ ))}
+ </div>
+ </div>
+ <div className="luxury-divider absolute bottom-0 left-0 right-0" />
+ </section>
+ );
+}
+
+// Pipeline Section — From idea to finished video (Change 10)
+function PipelineSection() {
+ const steps = [
+ { num: "01", title: "Describe your idea", desc: "Speak it or type it. WizGenesis\u2122 refines your creative direction and builds a complete production brief." },
+ { num: "02", title: "Create your music", desc: "Generate an original track in any genre, any style — matched exactly to your required duration. 3 minutes 12 seconds? Done." },
+ { num: "03", title: "Build your characters", desc: "Upload reference photos, describe your performers, specify their styling, instruments, and look. Locked in for every scene." },
+ { num: "04", title: "Direct your music video", desc: "WizVideo builds your full cinematic music video — BPM-synced, lip-synced, character-consistent, scene by scene." },
+ { num: "05", title: "Cut your short-form content", desc: "WizShorts cuts your video into platform-ready clips for social — automatically." },
+ { num: "06", title: "Download and distribute", desc: "Your complete music video package, ready to publish. No editing software. No crew. No studio hire." },
+ ];
+ return (
+ <section className="relative bg-[#030303] py-24 px-6 overflow-hidden">
+ <div className="luxury-divider absolute top-0 left-0 right-0" />
+ <div className="relative z-10 max-w-[860px] mx-auto">
+ <div className="text-center mb-14">
+ <p className="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>THE FULL PIPELINE</p>
+ <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-black tracking-tight text-white leading-tight">
+ From a blank page to a finished music video.<br />
+ <span className="text-white/50">Everything in one studio.</span>
+ </h2>
+ </div>
+ <div className="relative">
+ {/* Vertical connector line */}
+ <div className="absolute left-[19px] top-6 bottom-6 w-px hidden sm:block" style={{ background: "linear-gradient(to bottom, oklch(0.78 0.11 75 / 0.25), oklch(0.78 0.11 75 / 0.05))" }} />
+ <div className="flex flex-col gap-8">
+ {steps.map((s, i) => (
+ <div key={i} className="flex items-start gap-5">
+ <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-black tracking-widest" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.3)", color: "oklch(0.82 0.11 75)", background: "oklch(0.78 0.11 75 / 0.06)" }}>{s.num}</div>
+ <div className="pt-1.5">
+ <p className="text-[16px] font-bold text-white mb-1">{s.title}</p>
+ <p className="text-[13px] text-white/45 leading-relaxed">{s.desc}</p>
+ </div>
+ </div>
+ ))}
+ </div>
+ </div>
+ </div>
+ <div className="luxury-divider absolute bottom-0 left-0 right-0" />
+ </section>
+ );
+}
+
 // WizAI Worlds — brand film showcase section
 const WIZAI_WORLDS_VIDEO = `/manus-storage/WizAiWorldsVideo_2e126b24.mp4`;
 const WIZAI_WORLDS_POSTER = `/manus-storage/WizAiWorldsThumb_30db3080.jpg`;
@@ -3806,6 +3927,73 @@ const DEMO_VIDEOS = [
 ];
 
 
+// Creator Network Teaser — Change 12
+function CreatorNetworkSection() {
+  const [email, setEmail] = React.useState("");
+  const [submitted, setSubmitted] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const joinWaitlist = trpc.waitlist.join.useMutation({
+    onSuccess: () => { setSubmitted(true); setError(""); },
+    onError: (e) => setError(e.message || "Something went wrong. Please try again."),
+  });
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    setError("");
+    joinWaitlist.mutate({ email });
+  };
+  return (
+    <section className="relative w-full py-24 px-6 bg-[#030303] overflow-hidden">
+      {/* Subtle ambient glow */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full bg-[oklch(0.78_0.11_75/0.04)] blur-[120px]" />
+      </div>
+      <div className="relative max-w-xl mx-auto text-center">
+        {/* Label */}
+        <p className="text-[10px] tracking-[0.3em] uppercase text-[oklch(0.82_0.11_75)] mb-6 font-medium">COMING SOON</p>
+        {/* Headline */}
+        <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight mb-6">
+          Your music video.<br />
+          <span className="text-[oklch(0.82_0.11_75)]">On the WIZ AI Creator Network.</span>
+        </h2>
+        {/* Body */}
+        <p className="text-white/55 text-base leading-relaxed mb-10 max-w-[520px] mx-auto">
+          Your own artist page. Your videos, discoverable by genre and style.
+          Share your work. Connect with other creators. Grow beyond your existing following.
+        </p>
+        {/* Email form */}
+        {submitted ? (
+          <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[oklch(0.82_0.11_75/0.4)] text-[oklch(0.82_0.11_75)] text-sm tracking-wide">
+            <span>✦</span>
+            <span>You&apos;re on the list. We&apos;ll be in touch.</span>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="Your email address"
+              className="flex-1 px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/30 text-sm focus:outline-none focus:border-[oklch(0.82_0.11_75/0.5)] transition-colors"
+            />
+            <button
+              type="submit"
+              disabled={joinWaitlist.isPending}
+              className="px-6 py-3 rounded-lg bg-[oklch(0.82_0.11_75)] text-black font-semibold text-sm hover:bg-[oklch(0.88_0.11_75)] transition-colors disabled:opacity-60 whitespace-nowrap"
+            >
+              {joinWaitlist.isPending ? "Joining..." : "Get Early Access"}
+            </button>
+          </form>
+        )}
+        {error && <p className="mt-3 text-red-400 text-sm">{error}</p>}
+      </div>
+    </section>
+  );
+}
+
 // Footer 
 function Footer() {
  return (
@@ -3987,6 +4175,10 @@ export default function Home() {
  <Hero />
  {/* 1b. Character Lock — core differentiator */}
  <CharacterLockSection />
+ {/* 1c. USP Grid — Built like a real studio */}
+ <USPGridSection />
+ {/* 1d. Pipeline — From idea to finished video */}
+ <PipelineSection />
  {/* 2. WizAI Worlds — brand film showcase */}
  <WizAIWorldsSection />
  {/* 3. Hero Demo — click-to-play product trailer */}
@@ -4009,6 +4201,8 @@ export default function Home() {
       <FinalCTA />
  {/* 10. Studio Lounge — creator comfort section */}
  <StudioLoungeSection />
+ {/* 11. Creator Network Teaser — early access waitlist */}
+ <CreatorNetworkSection />
  </main>
  <Footer />
  <ContinueProjectBanner />
