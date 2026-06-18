@@ -265,7 +265,7 @@ function AccordionItem({ faq, borderColor }: { faq: FAQ; borderColor: string }) 
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function Help() {
-  useSEO({ title: "Help & FAQ — WIZ AI", path: "/help", description: "Find answers to all your questions about WIZ AI products, billing, and technical support." });
+  useSEO({ title: "Help & Support — WIZ AI", path: "/help", description: "Find answers about WIZ AI products, billing, lip sync AI, Character Lock™, and technical support. Live chat available." });
 
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");

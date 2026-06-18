@@ -1077,7 +1077,7 @@ function SceneVideoPlayer({ videoUrl, audioRef, startTime, duration, videoRef, o
 
 export default function MusicVideoAutopilot() {
 
-  useSEO({ title: "WizVideo™ — AI Music Video Director", path: "/music-video/create", description: "Upload your song and create a full AI music video. Automatic scene generation, character consistency, beat-synced visuals, and cinematic effects." });
+  useSEO({ title: "WizVideo™ — AI Music Video Generator", path: "/music-video/create", description: "Upload your song and generate a full AI music video. Character Lock™ identity consistency, lip sync AI, beat-synced scenes, and cinematic effects." });
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [showAuthGate, setShowAuthGate] = useState(false);
   const [ambience, setAmbience] = useState(65);

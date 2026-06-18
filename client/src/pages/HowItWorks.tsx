@@ -181,7 +181,7 @@ function StepCard({ step, index }: { step: typeof STEPS[0]; index: number }) {
 }
 
 export default function HowItWorks() {
-  useSEO({ title: "How It Works — WIZ AI", path: "/how-it-works", description: "See how WIZ AI turns your audio into a full cinematic music video in minutes. Upload, preview, build, download." });
+  useSEO({ title: "How It Works — WIZ AI", path: "/how-it-works", description: "See how WIZ AI turns your audio into a full AI music video in minutes. Upload, preview, build, download. No editing experience needed." });
   const [activeStage, setActiveStage] = useState<number | null>(null);
 
   return (

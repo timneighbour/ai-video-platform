@@ -1104,6 +1104,15 @@ function Hero() {
  </div>
  </div>
 
+      {/* SEO keyword paragraph — visible subtle body text, genuine product description */}
+      <p
+        className="text-center max-w-2xl mx-auto px-6"
+        style={{ fontSize: "13px", color: "rgba(255,255,255,0.42)", lineHeight: "1.7", marginTop: "2rem", marginBottom: "0.5rem" }}
+      >
+        WIZ AI is an AI music video maker and generator built for musicians and independent artists. Create
+        AI-generated music videos with lip sync AI, Character Lock™ identity consistency, and cinematic scene
+        direction — no editing experience required. Upload your track and produce a full music video in minutes.
+      </p>
  <DemoVideoModal open={demoOpen} onClose={() => setDemoOpen(false)} />
  </section>
  );
@@ -4505,7 +4514,7 @@ function ContinueProjectBanner() {
 
 // Page 
 export default function Home() {
- useSEO({ title: "WIZ AI — Premium AI-Directed Cinematic Music Video Production", path: "/", description: "WIZ AI is a premium AI-directed cinematic music video production platform. Cinematic-first storyboarding, Character Lock™ identity consistency, WizSync™ Portrait-to-LipSync™ performance enhancement, and intelligent scene orchestration. Every video feels professionally directed — not AI-generated." });
+ useSEO({ title: "WIZ AI — AI Music Video Maker", path: "/", description: "Create AI-generated music videos with lip sync, Character Lock™, and cinematic scene direction. The AI music video generator built for musicians." });
  useReveal();
  useEffect(() => { mp.homepageViewed(); }, []);
  return (

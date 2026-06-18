@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSEO } from "@/hooks/useSEO";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -97,6 +98,7 @@ function SectionHeader({ title, icon, href }: { title: string; icon: React.React
 }
 
 export default function WizaVision() {
+  useSEO({ title: "WizaVision — AI Music Video Gallery", path: "/wizavision", description: "Browse AI-generated music videos created with WIZ AI. See Character Lock™ and lip sync AI in action across cinematic music video examples." });
   const { user } = useAuth();
   const [search, setSearch] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
