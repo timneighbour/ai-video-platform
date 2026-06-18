@@ -938,21 +938,15 @@ function Hero() {
  <span className="absolute w-full h-full rounded-full bg-[--color-gold] animate-ping opacity-60" style={{ animationDuration: "2s" }} />
  <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold]" />
  </span>
- <span className="text-[11px] font-bold tracking-[0.28em] uppercase text-[--color-gold-dark]">WIZ AI — Premium Cinematic Music Video Production</span>
- <span className="w-px h-3 bg-[--color-gold]/20" />
- <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[--color-gold]/50">AI-Directed. Cinematically Produced.</span>
+ <span className="text-[11px] font-bold tracking-[0.28em] uppercase text-white/50">✦ AI CREATIVE STUDIO ✦</span>
  </div>
 
  {/* Headline */}
- <h1 className="text-[clamp(2.6rem,7vw,5rem)] font-black leading-[0.93] tracking-tight text-white mb-3">Direct. Create.<br />
- <span className="metallic-gold">Produce. Own It.</span>
+ <h1 className="text-[clamp(2.6rem,7vw,5rem)] font-black leading-[0.93] tracking-tight text-white mb-3">You're in the studio.<br />
+ <span className="metallic-gold" style={{ color: "oklch(0.82 0.11 75)" }}>Make something real.</span>
  </h1>
- {/* Emotional hook */}
- <p className="text-[clamp(1rem,1.8vw,1.2rem)] font-semibold leading-snug max-w-xl mb-4" style={{ color: "oklch(0.82 0.12 72)" }}>
- Premium AI-directed cinematic music video production with intelligent scene orchestration.
- </p>
  {/* Subheadline */}
- <p className="text-[clamp(0.875rem,1.4vw,1rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-6">Cinematic-first storyboarding. Character Lock™ identity consistency. WizSync™ Portrait-to-LipSync™ performance enhancement. Automatic reliability. Every video feels professionally directed — because it is.
+ <p className="text-[clamp(0.875rem,1.4vw,1rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-6">Cinematic music videos. Consistent characters. Real lip sync. No camera, no crew, no compromise.
  </p>
 
  {/* CTAs */}
@@ -1062,30 +1056,8 @@ function Hero() {
  </div>
  </div>
 
- {/* Proof strip — studio-grade capabilities */}
- <div className="flex flex-wrap gap-3 mb-10">
- {[
-        { label: "Character Lock™", glow: "oklch(0.68 0.18 330)" },
-        { label: "Real Lip Sync", glow: "oklch(0.70 0.18 260)" },
-        { label: "Lyric-Aware Storyboarding™", glow: "oklch(0.72 0.18 160)" },
-        { label: "Scene Director™", glow: "oklch(0.78 0.11 75)" },
-        { label: "Preview Before Download™", glow: "oklch(0.78 0.11 75)" },
- ].map((item) => (
- <span
- key={item.label}
- className="inline-flex items-center px-4 py-2.5 rounded-xl text-[13px] font-bold tracking-wide"
- style={{
- background: "linear-gradient(135deg, rgba(196,164,100,0.10) 0%, rgba(196,164,100,0.04) 100%)",
- border: "1px solid oklch(0.78 0.11 75 / 0.22)",
- color: "oklch(0.90 0.08 75)",
- boxShadow: `0 0 18px ${item.glow}18, inset 0 1px 0 oklch(0.78 0.11 75 / 0.14)`,
- backdropFilter: "blur(8px)",
- }}
- >
- {item.label}
- </span>
- ))}
- </div>
+ {/* Proof strip — atmospheric text line */}
+ <p className="text-[10px] tracking-[0.25em] text-white/35 uppercase text-left mb-10">CHARACTER LOCK &middot; REAL LIP SYNC &middot; LYRIC-AWARE SCENES &middot; DIRECTOR CONTROL</p>
 
  {/* Trust strip */}
  <div className="flex flex-wrap items-center gap-4 px-4 py-2.5 rounded-2xl" style={{background:"rgba(201,168,76,0.06)",border:"1px solid rgba(201,168,76,0.18)",backdropFilter:"blur(12px)"}}>
@@ -1096,7 +1068,7 @@ function Hero() {
  ))}
  </div>
  <div>
- <span className="text-white/75 text-[11px] font-semibold tracking-wide" style={{textShadow:"0 0 12px rgba(201,168,76,0.4)"}}>AI-powered video creation</span>
+ <span className="text-white/75 text-[11px] font-semibold tracking-wide" style={{textShadow:"0 0 12px rgba(201,168,76,0.4)"}}>Built for musicians, creators &amp; production studios</span>
  </div>
  </div>
  <div className="h-6 w-px bg-[--color-gold]/25 hidden sm:block" />
@@ -1166,6 +1138,7 @@ function HeroDemoSection() {
  <div className="max-w-5xl mx-auto relative z-10">
  {/* Header */}
  <div className="text-center mb-10 reveal">
+ <p className="text-[10px] font-bold tracking-[0.3em] uppercase mb-3" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>REAL OUTPUT — NO EDITING, NO CAMERA, NO CREW</p>
  <h2 className="text-[clamp(1.6rem,4vw,2.8rem)] font-black tracking-tight text-white mb-3 leading-tight">
  See how WIZ AI turns ideas into full videos in minutes
  </h2>
@@ -1203,15 +1176,10 @@ function HeroDemoSection() {
  style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation", border: "none", background: "rgba(0,0,0,0.50)" }}
  aria-label="Play demo video"
  >
- <div
- className="w-20 h-20 rounded-full flex items-center justify-center mb-5 hover:scale-110 transition-transform duration-200"
- style={{
- background: "linear-gradient(135deg, oklch(0.78 0.11 75), oklch(0.65 0.14 70))",
- boxShadow: "0 0 50px rgba(196,164,100,0.5)",
- pointerEvents: "none",
- }}
- >
- <PlaySVG className="w-8 h-8 text-white ml-1" />
+ <div className="relative w-36 h-36 rounded-full flex items-center justify-center mb-5 hover:scale-110 transition-transform duration-200" style={{ background: "linear-gradient(135deg, oklch(0.78 0.11 75), oklch(0.65 0.14 70))", boxShadow: "0 0 60px rgba(196,164,100,0.6), 0 0 100px rgba(196,164,100,0.25)", pointerEvents: "none" }}>
+ {/* Pulse ring */}
+ <span className="absolute inset-0 rounded-full pointer-events-none" style={{ animation: "demoBtnPulse 2s ease-in-out infinite", border: "2.5px solid rgba(196,164,100,0.65)" }} />
+ <PlaySVG className="w-10 h-10 text-white ml-1" />
  </div>
  <p className="text-white/70 text-sm font-medium tracking-wide pointer-events-none">Watch the demo</p>
  <p className="text-white/35 text-xs mt-1 pointer-events-none">~53 seconds</p>
@@ -1265,8 +1233,10 @@ function HeroDemoSection() {
  </span>
  </button>
  </div>
+ {/* Atmospheric caption */}
+ <p className="text-center text-white/40 text-xs tracking-widest uppercase mt-5 mb-0">What you see is what WIZ AI builds. This is not a promo. This is the platform.</p>
  {/* CTA below video */}
- <div className="text-center mt-8 reveal">
+ <div className="text-center mt-6 reveal">
  <a
  href="/onboarding"
  className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
@@ -1283,6 +1253,45 @@ function HeroDemoSection() {
  );
 }
 
+// Character Lock — core differentiator section
+function CharacterLockSection() {
+ return (
+ <section className="relative bg-[#030303] py-20 px-6 overflow-hidden">
+ {/* Subtle ambient glow */}
+ <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 50% at 50% 50%, oklch(0.72 0.14 70 / 0.04), transparent 70%)" }} />
+ <div className="luxury-divider absolute top-0 left-0 right-0" />
+ <div className="max-w-[720px] mx-auto relative z-10 text-center">
+ {/* Small label */}
+ <p className="text-[10px] font-bold tracking-[0.3em] uppercase mb-8" style={{ color: "oklch(0.78 0.11 75 / 0.5)" }}>
+ THE PROBLEM WITH EVERY OTHER AI VIDEO TOOL
+ </p>
+ {/* Problem headline */}
+ <h2 className="text-[clamp(1.6rem,4vw,2.8rem)] font-black tracking-tight text-white leading-[1.15] mb-6">
+ Your character changes face between scenes.<br />
+ The guitarist becomes someone else.<br />
+ The styling drifts. The magic breaks.
+ </h2>
+ {/* Thin rule */}
+ <div className="w-[120px] h-px mx-auto mb-6" style={{ background: "oklch(0.78 0.11 75 / 0.4)" }} />
+ {/* Resolution */}
+ <h3 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight mb-6" style={{ color: "oklch(0.82 0.11 75)" }}>
+ Not here.
+ </h3>
+ {/* Body */}
+ <p className="text-white/60 text-base leading-relaxed max-w-[560px] mx-auto mb-8">
+ Character Lock&#8482; holds your artist, your performers, your instruments &mdash;
+ consistent in every scene, from the first cut to the final frame.<br />
+ <span className="text-white/80 font-semibold">No other AI music video platform does this.</span>
+ </p>
+ {/* Pill */}
+ <div className="inline-flex items-center px-5 py-2 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.4)", color: "oklch(0.82 0.11 75)" }}>
+ Character Lock&#8482; &mdash; exclusive to WIZ AI
+ </div>
+ </div>
+ <div className="luxury-divider absolute bottom-0 left-0 right-0" />
+ </section>
+ );
+}
 // WizAI Worlds — brand film showcase section
 const WIZAI_WORLDS_VIDEO = `/manus-storage/WizAiWorldsVideo_2e126b24.mp4`;
 const WIZAI_WORLDS_POSTER = `/manus-storage/WizAiWorldsThumb_30db3080.jpg`;
@@ -3976,6 +3985,8 @@ export default function Home() {
  <main id="main-content">
  {/* 1. Hero — 5-second positioning */}
  <Hero />
+ {/* 1b. Character Lock — core differentiator */}
+ <CharacterLockSection />
  {/* 2. WizAI Worlds — brand film showcase */}
  <WizAIWorldsSection />
  {/* 3. Hero Demo — click-to-play product trailer */}

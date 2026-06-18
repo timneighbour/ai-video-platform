@@ -792,6 +792,13 @@
       "when": 1781546567185,
       "tag": "0112_short_may_parker",
       "breakpoints": true
+    },
+    {
+      "idx": 113,
+      "version": "5",
+      "when": 1781750853326,
+      "tag": "0113_add_free_trial_columns",
+      "breakpoints": true
     }
   ]
 }
