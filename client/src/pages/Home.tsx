@@ -1265,15 +1265,21 @@ function HeroDemoSection() {
 // Character Lock — core differentiator section
 function CharacterLockSection() {
  return (
- <section className="relative py-24 px-6 overflow-hidden" style={{ background: "#07050a" }}>
+ <section className="relative py-24 px-6 overflow-hidden">
 
- {/* ── Cinematic background: deep dark with warm amber glow pools ── */}
- <div className="absolute inset-0 pointer-events-none" style={{
- background: [
- "radial-gradient(ellipse 70% 55% at 50% 50%, oklch(0.45 0.12 70 / 0.12), transparent 65%)",
- "radial-gradient(ellipse 40% 30% at 20% 80%, oklch(0.55 0.14 65 / 0.08), transparent 60%)",
- "radial-gradient(ellipse 35% 25% at 80% 20%, oklch(0.50 0.13 72 / 0.07), transparent 55%)",
- ].join(", ")
+ {/* ── Background: cinematic film projector photo ── */}
+ <div className="absolute inset-0" style={{
+ backgroundImage: "url('/manus-storage/char-lock-bg_657ff507.jpg')",
+ backgroundSize: "cover",
+ backgroundPosition: "center 40%",
+ }} />
+ {/* Dark overlay to keep text readable while showing the photo */}
+ <div className="absolute inset-0" style={{
+ background: "linear-gradient(135deg, rgba(4,2,1,0.82) 0%, rgba(8,4,2,0.70) 50%, rgba(4,2,1,0.85) 100%)",
+ }} />
+ {/* Warm amber tint to match WIZ AI palette */}
+ <div className="absolute inset-0" style={{
+ background: "radial-gradient(ellipse 60% 50% at 50% 50%, rgba(196,140,40,0.08), transparent 70%)",
  }} />
 
  {/* ── Film strip motif: horizontal lines representing frames/scenes ── */}
@@ -1523,20 +1529,21 @@ function PipelineSection() {
  ];
 
  return (
- <section className="relative py-24 px-6 overflow-hidden" style={{ background: "#07050a" }}>
+ <section className="relative py-24 px-6 overflow-hidden">
 
- {/* ── Cinematic background ── */}
- <div className="absolute inset-0 pointer-events-none" style={{
- background: [
- "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.45 0.12 70 / 0.10), transparent 60%)",
- "radial-gradient(ellipse 50% 40% at 15% 60%, oklch(0.40 0.10 240 / 0.07), transparent 55%)",
- "radial-gradient(ellipse 40% 35% at 85% 80%, oklch(0.45 0.12 70 / 0.08), transparent 50%)",
- ].join(", ")
+ {/* ── Background: music studio with guitars and mixing desk ── */}
+ <div className="absolute inset-0" style={{
+ backgroundImage: "url('/manus-storage/pipeline-bg_b823f314.jpg')",
+ backgroundSize: "cover",
+ backgroundPosition: "center 30%",
  }} />
-
- {/* Subtle horizontal scan lines */}
- <div className="absolute inset-0 pointer-events-none" style={{
- backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 3px, oklch(0.78 0.11 75 / 0.012) 3px, oklch(0.78 0.11 75 / 0.012) 4px)",
+ {/* Dark overlay — heavier to keep cards readable */}
+ <div className="absolute inset-0" style={{
+ background: "linear-gradient(180deg, rgba(4,2,1,0.88) 0%, rgba(6,3,1,0.78) 40%, rgba(4,2,1,0.88) 100%)",
+ }} />
+ {/* Warm amber vignette */}
+ <div className="absolute inset-0" style={{
+ background: "radial-gradient(ellipse 70% 50% at 50% 30%, rgba(196,140,40,0.07), transparent 65%)",
  }} />
 
  <div className="luxury-divider absolute top-0 left-0 right-0" />
