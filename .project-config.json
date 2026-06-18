@@ -15,10 +15,10 @@
   ],
   "git_remote": {
     "repo_url": "s3://vida-prod-gitrepo/webdev-git/310519663500868908/ALJHDNsuNA7bExFuoQZUsx",
-    "access_key_id": "ASIAZV3A2ECZBICGHDTZ",
-    "secret_access_key": "InsWao0HB6qMpEJyJaQYmHmFTY/zE2VZFvP9hQeE",
-    "session_token": "IQoJb3JpZ2luX2VjEOP//////////wEaCXVzLWVhc3QtMSJHMEUCIFaauYJOcQJRfzmKWm57MVSAmddK/lgNMirT/8Cvm1N0AiEA1/Dq8KmY2KyE7fe1QlbP0JveatdUuqZmieDSG/YHSLkq/wMIq///////////ARAEGgw2NjUzODYwOTg4NjYiDF+YF/2VPlu3mCxH2irTA3UMxC2po7Gmzkx60/qGwpXWsjzcRG3T1VCpxLW03+kOpH+gvzKkAskRnp9IfIPWChA2L9tl1pbSpdxnn8GY0HGcQOpWUnT9wVdM/njD75nlki7yL01yXvJv5ZbUx+fnHeMeDR4J+BxKzf7G+pgOkrx7ReQ9hGi0zwFlsaainn2hDemw/YskFosLlp3Ggl23WKmFoGcf3Vslct3ATW8yAdmZJmMzAMhnnoasTYey9ZbSHzYs0Il8Np17gtq07H7CGAG/fkzoVTdCxyh52+GV7mcKuAGzUhxm2SbDvsFPskyrvx1zYA83IXskFOSm7oWp9YBwJSQ5D0XQ+db1wwQlVPOBCXQnt1KcWOeCQusQSlglaOreW/xJDAekOBYnt+JXo7iHCKrpI0j5hehpcaVpMEflKHmh2SvovtOIWg7ZqxhCgMWoYAl+DcO4HRcPnThOGfs2bjG6hmrRSGIZkg1Vs0IQ4bt3kF71dyQAYz7uhVUuuYMxCHkxwcjIvcZ66rvhAdzsoJ18s4XtT06RFcZ1g2GQckMyjYdUgSqoEGgfk4PAeV3xhDQHhZsDP7qbmFXyPLWhlaAI5/ouTZH18QN6Hx8rFb6LFwYGTGENklosSTU/c022MKLu0NEGOp0BhKu95KM+h7wKEBSk6eViSoVaIs0VaroNqcQuV1UGaU7MO8txkm6T9HRhwWzWDdE0wBNPnkfX6PgGrNyg3gRoxM2U6wDiLc+EB5li5Kk4vKBMPGb67djvIiLXBskalkCNF8XBbSr1Ugp4IGHeHv8n37qEppf5li3KROWNdiXJHNNAWtc5ZVG1bYGHr8kOyJ18fgvxjdvbBi3towmcGQ==",
-    "expiration": "2026-06-19T06:21:22.000Z",
+    "access_key_id": "ASIAZV3A2ECZDUJ4K3DV",
+    "secret_access_key": "qBtZHdEjlH43dGZ2iX38qPtakdS/uZnRf7bA9YLR",
+    "session_token": "IQoJb3JpZ2luX2VjEOf//////////wEaCXVzLWVhc3QtMSJIMEYCIQDpfkzqL0DsjxaIoYVY/TZxI06GKyHRFYhYyaK4GT3crQIhALZfRqTyvvgLxMmmOJw3CIJxu2x1WFu3wBUsR0bTTGW3Kv8DCLD//////////wEQBBoMNjY1Mzg2MDk4ODY2Igw62Ll2z5ulOprdxnoq0wObfFF2i7GcTt4gRyRlStNEeIiPpbP10gWAd6mWeiQvmKELav7pz0cW/evmI2+Ak8zSzeYPA3f7oIKuDHAzwwikVYXOV3CSCSULBo9qf+0yxxIpnQKqnXkUcHTJrG01kZ3/n3m1rWSySczHN1NLJjRscP5p6bdSCJMc83sbE6cqBWihfc8TbFI2pJAag4hCd2IM5oJpp7SmIHhpWKgch3JzEmdZx8Mc9EL/R5OG3nweSCtWElcoAsM74DvBukOPD84O582FdIq3s9a1LSQ5xA4j1hXpPhYsa1m/UtCPfCwCR/koHqQyZ1qWop06Or0X/SoJpXKhN0Ev58Ju49GEUlGpmL0/ucAzNDYJEwBZuOQHsnaVLIQUn8o+tZ1XCTZ3vydylxb9ybSO4CeAMTobuXdbdQWUbw8Z7w6uGf0pbYdKEZFzn7YzmoiGqfAoqeSaD7BbqUaC28qMCIAIyyN9uPflkH4X9eK2e1tO3p9czrAZre9+3SkjE19MeooVJvxY6s+ugDceefH3caJu2BuMCvTeEFrWjV2aODpCHuPjschnaF6qrPXyWhMZOEVf7quGElV5e8vZW/uI6uZO/XLF+q6lL8Wo7WfH6MXpcABNOreSgRSleTC77dHRBjqcAes7+b/QhVK84V25rG2yDTAO1Z9EE3P4Kw/t857Qv/zlqRrhloze+pyJ/CigPFJoqxRq3vofIHLty4K4QkhOLXHN1Em0hjZMp/7RcQco6kMY+3MUC7FBsJrbf8PJxtXMBNzOF79/hMzMvqfUwfLY8yZsB7Nn0BHG1GzKTB9Zl47AmuzOrTwvpE5EijgFzgLQg4daJFr3kiDZzC+15A==",
+    "expiration": "2026-06-19T10:52:43.000Z",
     "backend": "GIT_BACKEND_S3"
   },
   "name": "ai-video-platform",

@@ -61,10 +61,20 @@ export async function generateCinematicStoryboardImage(
 
   const imageSize = aspectRatioToFluxSize(options.aspectRatio ?? "16:9");
 
-  // Enhance the prompt for cinematic quality
-  // CRITICAL FRAMING RULE: always include full head with headroom — never cut off the top of the head.
-  // This prevents the AI from generating subjects that overflow the top of the frame.
-  const cinematicPrompt = `${options.prompt}, full head and body visible within frame, generous headroom above subject, subject fully contained within shot, cinematic widescreen composition, professional film lighting, photorealistic, 8K quality, dramatic depth of field, movie still`;
+  // Enhance the prompt for cinematic quality.
+  // CRITICAL FRAMING RULE: strip any crop-inducing framing terms from the scene prompt before
+  // passing to the image model. Terms like "close-up", "head-and-shoulders", "medium close-up"
+  // cause the model to zoom in and cut off the top of the subject's head.
+  // We replace them with safe wide/medium framing language, then append a hard no-crop constraint.
+  const safenedPrompt = (options.prompt ?? "")
+    .replace(/\bextreme close[- ]?up\b/gi, "medium shot")
+    .replace(/\bclose[- ]?up\b/gi, "medium shot")
+    .replace(/\bhead[- ]and[- ]shoulders\b/gi, "medium wide shot")
+    .replace(/\bMCU\b/g, "medium wide shot")
+    .replace(/\bmedium close[- ]?up\b/gi, "medium wide shot")
+    .replace(/\btight shot\b/gi, "medium shot")
+    .replace(/\bface[- ]?only\b/gi, "medium shot");
+  const cinematicPrompt = `${safenedPrompt}, FULL HEAD VISIBLE with generous headroom above the subject, entire head and hair fully within frame, subject NOT cropped at top, medium wide shot composition, cinematic widescreen, professional film lighting, photorealistic, 8K quality, dramatic depth of field, movie still`;
 
   let imageUrl: string | undefined;
 

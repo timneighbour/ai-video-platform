@@ -70,7 +70,7 @@ function buildPerformancePrompt(brief: string, name?: string): string {
   const who = name ? `${name}, ` : "";
   return (
     `Professional studio portrait photograph, ${who}${brief}. ` +
-    `Head-and-shoulders framing, medium close-up shot. ` +
+    `Medium wide shot, FULL HEAD AND HAIR COMPLETELY VISIBLE with generous headroom above the crown, subject NOT cropped at the top of frame. ` +
     `Face clearly visible, eyes open, mouth relaxed and natural. ` +
     `Soft cinematic studio lighting, warm key light from left, subtle fill. ` +
     `Sharp focus on face and eyes. ` +

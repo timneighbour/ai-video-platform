@@ -720,9 +720,11 @@ RULE 2 — MAX 2 CONSECUTIVE INTERCUTS:
   After 2 intercuts, the next scene MUST be a performance scene (if vocals are active).
   This prevents the video from losing the performer for too long.
 
-RULE 3 — AT LEAST HALF OF PERFORMANCE SCENES MUST BE MEDIUM CLOSE-UP OR HEAD-AND-SHOULDERS:
-  At least 50% of all performance scenes must be framed as medium close-up or head-and-shoulders.
-  This preserves face readability and keeps lip-sync correction viable.
+RULE 3 — AT LEAST HALF OF PERFORMANCE SCENES MUST BE MEDIUM SHOT WITH FULL HEAD VISIBLE:
+  At least 50% of all performance scenes must be framed as a medium shot or medium wide shot.
+  CRITICAL: The character's FULL HEAD AND HAIR must always be completely visible with generous headroom above the crown.
+  NEVER frame as "head-and-shoulders" or "close-up" — these cause the top of the head to be cropped off.
+  Use "medium shot" or "medium wide shot" instead. Face readability and lip-sync viability are preserved at medium shot distance.
   Wide performance shots are allowed but must not dominate.
 
 RULE 4 — EXPLICIT POPULATION FIELD (REQUIRED FOR EVERY HALL/STUDIO SCENE):
@@ -741,7 +743,7 @@ RULE 5 — EXPLICIT ATMOSPHERE FIELD (REQUIRED FOR EVERY SCENE):
 RULE 6 — STRUCTURED PROMPT SLOT ENFORCEMENT:
   Every performance scene prompt MUST contain all of these elements (in any order):
   [shot_size] + [camera_move] + [character_in_environment] + [population] + [lighting] + [emotion] + [depth_cue]
-  Example: "Medium close-up [shot_size], slow push-in [camera_move] on Zara singing inside Lyndhurst Hall [character_in_environment], full orchestra visible behind her [population], warm amber key light [lighting], emotionally vulnerable expression [emotion], shallow depth of field [depth_cue]."
+  Example: "Medium wide shot [shot_size], slow push-in [camera_move] on Zara singing inside Lyndhurst Hall [character_in_environment], full head and hair visible with generous headroom, full orchestra visible behind her [population], warm amber key light [lighting], emotionally vulnerable expression [emotion], shallow depth of field [depth_cue]."
 
 RULE 7 — FORBIDDEN TOKENS (NEVER USE THESE IN ANY PROMPT):
   The following patterns are BANNED and will cause the scene to fail validation:
@@ -749,6 +751,8 @@ RULE 7 — FORBIDDEN TOKENS (NEVER USE THESE IN ANY PROMPT):
   ❌ "isolated studio background" or "plain background"
   ❌ "floating portrait" or "portrait against"
   ❌ "microphone stand" or "at a microphone" (unless user explicitly requested)
+  ❌ "head-and-shoulders" or "head and shoulders" — always use "medium shot" or "medium wide shot" instead
+  ❌ "close-up" or "tight shot" for any scene where a character appears — these crop the top of the head
   ❌ "empty stage" or "empty room" or "empty hall" (unless intentional — must be labelled as such)
   ❌ "duplicate singer" or "two versions of"
   ❌ "performs on stage" (too vague — always specify the exact environment)
@@ -989,11 +993,11 @@ const LIP_SYNC_STYLE_PROMPTS: Record<string, string> = {
   // For best sync-3 results: character face must be clearly visible, forward-facing,
   // with natural mouth movement (slightly open, relaxed jaw) — NOT clenched or closed.
   // sync-3 handles extreme angles and obstructions natively, but frontal close-ups give best results.
-  natural: "Cinematic performance close-up. Character face clearly visible, forward-facing, natural relaxed expression with slightly parted lips, emotional presence. Atmospheric lighting. Stable camera.",
-  expressive: "High-energy performance close-up. Character face prominent in frame, intense expression, mouth naturally open with emotional energy, dynamic movement. Dramatic lighting. Stable enough for lip sync.",
-  subtle: "Intimate performance close-up. Character face softly lit, forward-facing, introspective expression with naturally relaxed jaw and parted lips. Minimal movement. Soft atmospheric lighting.",
-  dramatic: "Theatrical cinematic close-up. Character face dramatically backlit, powerful emotional expression, mouth naturally open at peak emotional intensity. Slow-motion detail. Stable framing.",
-  anime: "Anime-style cinematic close-up. Character face clearly visible, expressive eyes, naturally parted lips with emotional energy. Vibrant colour palette, dynamic but stable framing for lip sync.",
+  natural: "Cinematic performance shot. FULL HEAD AND HAIR COMPLETELY VISIBLE with generous headroom, subject NOT cropped at top. Character face clearly visible, forward-facing, natural relaxed expression with slightly parted lips, emotional presence. Atmospheric lighting. Stable camera.",
+  expressive: "High-energy performance shot. FULL HEAD AND HAIR COMPLETELY VISIBLE with generous headroom, subject NOT cropped at top. Character face prominent in frame, intense expression, mouth naturally open with emotional energy, dynamic movement. Dramatic lighting. Stable enough for lip sync.",
+  subtle: "Intimate performance shot. FULL HEAD AND HAIR COMPLETELY VISIBLE with generous headroom, subject NOT cropped at top. Character face softly lit, forward-facing, introspective expression with naturally relaxed jaw and parted lips. Minimal movement. Soft atmospheric lighting.",
+  dramatic: "Theatrical cinematic shot. FULL HEAD AND HAIR COMPLETELY VISIBLE with generous headroom, subject NOT cropped at top. Character face dramatically backlit, powerful emotional expression, mouth naturally open at peak emotional intensity. Slow-motion detail. Stable framing.",
+  anime: "Anime-style cinematic shot. FULL HEAD AND HAIR COMPLETELY VISIBLE with generous headroom, subject NOT cropped at top. Character face clearly visible, expressive eyes, naturally parted lips with emotional energy. Vibrant colour palette, dynamic but stable framing for lip sync.",
 };
 
 /**
