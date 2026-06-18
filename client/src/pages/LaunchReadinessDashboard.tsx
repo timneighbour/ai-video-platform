@@ -47,7 +47,7 @@ function StatusDot({ status }: { status: Status }) {
     green: "bg-emerald-500",
     amber: "bg-amber-400",
     red: "bg-red-500",
-    grey: "bg-muted",
+    grey: "bg-zinc-600",
   };
   return <span className={`inline-block w-2 h-2 rounded-full ${colors[status]} mr-1.5`} />;
 }
@@ -57,7 +57,7 @@ function StatusBadge({ status, label }: { status: Status; label: string }) {
     green: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
     amber: "bg-amber-400/15 text-amber-400 border-amber-400/30",
     red: "bg-red-500/15 text-red-400 border-red-500/30",
-    grey: "bg-muted/40 text-muted-foreground border-border/70/30",
+    grey: "bg-zinc-700/40 text-zinc-400 border-zinc-600/30",
   };
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${variants[status]}`}>
@@ -106,7 +106,7 @@ function MetricCard({
   status?: Status;
 }) {
   return (
-    <Card className="bg-card/60 border-white/[0.06] rounded-2xl">
+    <Card className="bg-zinc-900/60 border-white/[0.06] rounded-2xl">
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div className="w-8 h-8 rounded-lg bg-white/[0.05] flex items-center justify-center">
@@ -142,7 +142,7 @@ export default function LaunchReadinessDashboard() {
             <p className="text-sm text-white/40 mt-0.5">Platform quality, conversion, and operational health</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 bg-card border border-white/[0.08] rounded-xl p-1">
+            <div className="flex items-center gap-1 bg-zinc-900 border border-white/[0.08] rounded-xl p-1">
               {[7, 14, 30, 60].map((d) => (
                 <button
                   key={d}
@@ -327,7 +327,7 @@ export default function LaunchReadinessDashboard() {
               {data.providers.length === 0 ? (
                 <p className="text-sm text-white/30 italic">No provider data yet.</p>
               ) : (
-                <div className="rounded-2xl bg-card/60 border border-white/[0.06] overflow-hidden">
+                <div className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-white/[0.06]">
@@ -373,7 +373,7 @@ export default function LaunchReadinessDashboard() {
               {data.recentSpend.length === 0 ? (
                 <p className="text-sm text-white/30 italic">No spend events in the last 7 days.</p>
               ) : (
-                <div className="rounded-2xl bg-card/60 border border-white/[0.06] overflow-hidden">
+                <div className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] overflow-hidden">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-white/[0.06]">
@@ -407,7 +407,7 @@ export default function LaunchReadinessDashboard() {
               <h3 className="text-xs font-bold uppercase tracking-widest text-white/30 mb-4 flex items-center gap-2">
                 <AlertTriangle className="w-3.5 h-3.5" /> Top Abandonment Points (Identified)
               </h3>
-              <div className="rounded-2xl bg-card/60 border border-white/[0.06] overflow-hidden">
+              <div className="rounded-2xl bg-zinc-900/60 border border-white/[0.06] overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-white/[0.06]">

@@ -2,7 +2,6 @@ import { WIZVIDEO_STUDIO_PAGE } from "@/lib/routes";
 import { useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { Link } from "wouter";
-import PublicNavBar from "@/components/PublicNavBar";
 import { trpc } from "@/lib/trpc";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,7 +52,7 @@ interface Creator {
 function CreatorCard({ creator }: { creator: Creator }) {
   const [isHovered, setIsHovered] = useState(false);
   const typeLabel = CREATOR_TYPE_LABELS[creator.creatorType] ?? "Creator";
-  const typeColor = CREATOR_TYPE_COLORS[creator.creatorType] ?? "bg-gray-500/20 text-foreground/80";
+  const typeColor = CREATOR_TYPE_COLORS[creator.creatorType] ?? "bg-gray-500/20 text-gray-300";
 
   return (
     <div
@@ -80,7 +79,7 @@ function CreatorCard({ creator }: { creator: Creator }) {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/40 to-black">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#b8892a]/40 to-black">
             <Play className="w-12 h-12 text-white/20" />
           </div>
         )}
@@ -224,16 +223,15 @@ export default function Discover() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <PublicNavBar />
       {/* Hero */}
-      <section className="relative pt-16 pb-16 px-4 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-transparent to-transparent pointer-events-none" />
+      <section className="relative pt-24 pb-16 px-4 text-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#b8892a]/20 via-transparent to-transparent pointer-events-none" />
         <div className="relative max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[--color-gold]/15 border border-[--color-gold]/30 text-[--color-gold] text-sm font-medium mb-6">
             <Sparkles className="w-4 h-4" />
             WIZ AI Creator Network
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-purple-200 to-primary/40 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-purple-200 to-[#4a3010] bg-clip-text text-transparent">
             Discover Creators
           </h1>
           <p className="text-xl text-white/60 mb-4">
@@ -384,8 +382,8 @@ export default function Discover() {
         </section>
 
         {/* CTA Banner */}
-        <section className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-primary/60 to-secondary/40 border border-[--color-gold]/30 p-10 text-center">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none" />
+        <section className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#b8892a]/60 to-[#2e2e36]/40 border border-[--color-gold]/30 p-10 text-center">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#b8892a]/10 to-transparent pointer-events-none" />
           <div className="relative">
             <h2 className="text-3xl font-bold text-white mb-3">Want to get featured?</h2>
             <p className="text-white/60 mb-6 max-w-lg mx-auto">

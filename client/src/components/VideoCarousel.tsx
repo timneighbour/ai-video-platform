@@ -126,7 +126,7 @@ function AnimatedPlaceholder({ tool, title, description, tagline }: {
             {tagline}
           </p>
         )}
-        <p className="text-foreground/80 text-sm max-w-sm leading-relaxed">{description}</p>
+        <p className="text-gray-300 text-sm max-w-sm leading-relaxed">{description}</p>
 
         {/* Animated waveform for voiceover */}
         {tool === "voiceover" && (
@@ -273,7 +273,7 @@ export default function VideoCarousel({ videos, autoPlayInterval = 6000 }: Video
         {/* Bottom info overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-6">
           <h3 className="text-xl font-bold text-white mb-1">{currentVideo.title}</h3>
-          <p className="text-foreground/80 text-sm leading-relaxed">{currentVideo.description}</p>
+          <p className="text-gray-300 text-sm leading-relaxed">{currentVideo.description}</p>
         </div>
       </div>
 

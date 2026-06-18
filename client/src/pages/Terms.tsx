@@ -7,7 +7,7 @@ const WIZAI_LOGO = `/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png`;
 
 export default function Terms() {
   return (
-    <div className="min-h-screen bg-background text-white">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
       <Helmet>
         <title>Terms of Service — WIZ AI</title>
         <meta name="description" content="WIZ AI Terms of Service — your rights, content ownership, subscription terms, and acceptable use policy." />

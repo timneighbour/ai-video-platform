@@ -1,6 +1,4 @@
 import { WIZVIDEO_STUDIO_PAGE, WIZSCRIPT_STUDIO_PAGE } from "@/lib/routes";
-import { Helmet } from "react-helmet-async";
-
 import { useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { Button } from "@/components/ui/button";
@@ -73,15 +71,7 @@ export default function MusicVideosLanding() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-white">
-  <Helmet>
-    <title>AI Music Video Creator — WIZ AI</title>
-    <meta name="description" content="Turn any song into a professional cinematic music video with AI. Upload your track, preview every scene, and export in 4K — powered by WizVideo™." />
-    <meta property="og:title" content="AI Music Video Creator — WIZ AI" />
-    <meta property="og:description" content="Turn any song into a professional cinematic music video with AI. Upload your track, preview every scene, and export in 4K — powered by WizVideo™." />
-    <meta property="og:url" content="https://wiz-ai.io/music-video" />
-    <link rel="canonical" href="https://wiz-ai.io/music-video" />
-  </Helmet>
+    <div className="min-h-screen bg-[#0f0f0f] text-white">
       {/* Auth Gate Modal */}
       <AuthGate
         open={showAuthGate}
@@ -90,7 +80,7 @@ export default function MusicVideosLanding() {
       />
 
       {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-white/8">
+      <nav className="sticky top-0 z-50 bg-[#0f0f0f]/95 backdrop-blur-xl border-b border-white/8">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <BackButton fallback="/" label="Back to Home" />
@@ -109,7 +99,7 @@ export default function MusicVideosLanding() {
               <NavLink
                 key={link.label}
                 href={link.href}
-                className="px-4 py-2 text-sm text-muted-foreground hover:text-white rounded-lg transition-all duration-200 font-medium hover:scale-105 hover:-translate-y-0.5 inline-block"
+                className="px-4 py-2 text-sm text-[#a1a1aa] hover:text-white rounded-lg transition-all duration-200 font-medium hover:scale-105 hover:-translate-y-0.5 inline-block"
               >
                 {link.label}
               </NavLink>
@@ -125,7 +115,7 @@ export default function MusicVideosLanding() {
               </a>
             ) : (
               <>
-                <a href={getLoginUrl()} className="hidden sm:block text-sm text-muted-foreground hover:text-white transition-colors font-medium px-3 py-2">
+                <a href={getLoginUrl()} className="hidden sm:block text-sm text-[#a1a1aa] hover:text-white transition-colors font-medium px-3 py-2">
                   Sign in
                 </a>
                 <button
@@ -146,7 +136,7 @@ export default function MusicVideosLanding() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left */}
             <div>
-              <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-muted-foreground mb-8 font-medium">
+              <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-sm text-[#a1a1aa] mb-8 font-medium">
                 <Music className="w-3.5 h-3.5" />
                 AI Music Video Maker
               </div>
@@ -156,7 +146,7 @@ export default function MusicVideosLanding() {
                   WIZ AI is your crew.
                 </span>
               </h1>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg">
+              <p className="text-lg text-[#a1a1aa] leading-relaxed mb-8 max-w-lg">
                 Upload your track. Direct every scene. Control lip sync, camera angles, and character consistency — WIZ AI builds a cinematic music video synced to your lyrics, exactly as you envisioned it.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -182,7 +172,7 @@ export default function MusicVideosLanding() {
                   <ChevronRight className="w-4 h-4 mr-1" />View pricing
                 </a>
               </div>
-              <p className="text-sm text-muted-foreground">Free to create · No credit card · Only pay to build</p>
+              <p className="text-sm text-[#a1a1aa]">Free to create · No credit card · Only pay to build</p>
             </div>
 
             {/* Right: image grid */}
@@ -207,9 +197,9 @@ export default function MusicVideosLanding() {
       <section className="py-20 px-6 border-t border-white/6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
-            <p className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-4">How it works</p>
+            <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-4">How it works</p>
             <h2 className="text-4xl font-extrabold tracking-tight text-white mb-4">Three steps to your music video</h2>
-            <p className="text-muted-foreground text-lg max-w-lg mx-auto">Done in minutes. No editing required.</p>
+            <p className="text-[#a1a1aa] text-lg max-w-lg mx-auto">Done in minutes. No editing required.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {[
@@ -217,11 +207,11 @@ export default function MusicVideosLanding() {
               { step: "02", icon: "", title: "Choose your style", desc: "Pick from Cinematic, Anime, Stylised 3D, Documentary, Abstract, or Vintage." },
               { step: "03", icon: "", title: "Get your full video", desc: "AI builds your storyboard, renders every scene synced to your music, and delivers a complete video." },
             ].map((s) => (
-              <div key={s.step} className="p-7 rounded-2xl bg-card border border-white/6 hover:border-white/14 transition-all">
+              <div key={s.step} className="p-7 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/14 transition-all">
                 <div className="text-4xl mb-5">{s.icon}</div>
-                <div className="text-xs font-bold text-muted-foreground tracking-widest mb-3">STEP {s.step}</div>
+                <div className="text-xs font-bold text-[#a1a1aa] tracking-widest mb-3">STEP {s.step}</div>
                 <h3 className="font-semibold text-white text-base mb-2">{s.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{s.desc}</p>
+                <p className="text-[#a1a1aa] text-sm leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -233,7 +223,7 @@ export default function MusicVideosLanding() {
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <p className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-5">WizVideo features</p>
+              <p className="text-sm font-semibold text-[#a1a1aa] uppercase tracking-widest mb-5">WizVideo features</p>
               <h2 className="text-4xl font-extrabold tracking-tight text-white mb-8 leading-tight">
                 Your music.<br />Your story.<br />
                 <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">Brought to life.</span>
@@ -247,13 +237,13 @@ export default function MusicVideosLanding() {
                   { icon: <Zap className="w-5 h-5" />, title: "Preview Before Download™", desc: "Watch the full video before committing. Re-direct any scene for free. Download only when you are satisfied. Quality guaranteed." },
                   { icon: <Film className="w-5 h-5" />, title: "6 visual styles", desc: "Cinematic, Anime, Stylised 3D, Documentary, Abstract, or Vintage — applied consistently across every scene." },
                 ].map((f) => (
-                  <div key={f.title} className="flex gap-4 p-5 rounded-2xl bg-card border border-white/6 hover:border-white/12 transition-all">
-                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-muted-foreground flex-shrink-0">
+                  <div key={f.title} className="flex gap-4 p-5 rounded-2xl bg-[#171717] border border-white/6 hover:border-white/12 transition-all">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center text-[#a1a1aa] flex-shrink-0">
                       {f.icon}
                     </div>
                     <div>
                       <h3 className="font-semibold text-white mb-1">{f.title}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed">{f.desc}</p>
+                      <p className="text-[#a1a1aa] text-sm leading-relaxed">{f.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -261,14 +251,14 @@ export default function MusicVideosLanding() {
             </div>
             <div className="relative">
               <div className="absolute -inset-4 bg-gradient-to-br from-purple-600/15 to-blue-600/10 rounded-3xl blur-2xl" aria-hidden="true" />
-              <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-card">
+              <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-[#171717]">
                 <div className="aspect-video bg-gradient-to-br from-violet-900/40 via-blue-900/30 to-black flex items-center justify-center">
                   <div className="flex flex-col items-center gap-4 text-center px-8">
                     <div className="w-16 h-16 rounded-full bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm">
                       <Play className="w-7 h-7 text-white ml-1" />
                     </div>
                     <p className="text-white font-semibold">Your video, rendered here</p>
-                    <p className="text-muted-foreground text-sm">Full music video · Synced to lyrics · 1080p</p>
+                    <p className="text-[#a1a1aa] text-sm">Full music video · Synced to lyrics · 1080p</p>
                   </div>
                 </div>
                 <div className="p-4 border-t border-white/8 flex items-center justify-between">
@@ -276,7 +266,7 @@ export default function MusicVideosLanding() {
                     <span className="text-xs px-2.5 py-1 rounded-full bg-green-500/15 border border-green-500/20 text-[--color-silver]">✓ Lyrics synced</span>
                     <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/15 border border-blue-500/20 text-[--color-gold]">✓ No watermark</span>
                   </div>
-                  <span className="text-xs text-muted-foreground">Ready in ~4 min</span>
+                  <span className="text-xs text-[#a1a1aa]">Ready in ~4 min</span>
                 </div>
               </div>
             </div>
@@ -288,11 +278,11 @@ export default function MusicVideosLanding() {
       <section className="py-20 px-6 border-t border-white/6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
-            <p className="text-xs font-bold uppercase tracking-widest text-primary/80 mb-3">The WizVideo Standard</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-[#c9a84c] mb-3">The WizVideo Standard</p>
             <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
               Four things no other platform does.
             </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-[#a1a1aa] text-lg max-w-2xl mx-auto">
               Every feature below is exclusive to WizVideo. Not approximated. Not simulated. Built from the ground up.
             </p>
           </div>
@@ -302,24 +292,24 @@ export default function MusicVideosLanding() {
             {/* 1 — Character Lock */}
             <div className="grid lg:grid-cols-2 gap-10 items-center">
               <div className="order-2 lg:order-1">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/90/10 border border-primary/80/25 mb-5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary/90" />
-                  <span className="text-xs font-bold text-primary/80 tracking-widest uppercase">Exclusive Feature</span>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#c9a84c]/10 border border-[#c9a84c]/25 mb-5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#c9a84c]" />
+                  <span className="text-xs font-bold text-[#c9a84c] tracking-widest uppercase">Exclusive Feature</span>
                 </div>
                 <h3 className="text-3xl font-extrabold text-white mb-4 leading-tight">
                   Character Lock™
                 </h3>
-                <p className="text-muted-foreground text-base leading-relaxed mb-6">
+                <p className="text-[#a1a1aa] text-base leading-relaxed mb-6">
                   Your character's face, costume, and performance style are locked from the first scene to the last. No random strangers. No face drift. No inconsistencies. The same person — every single frame.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">Reference-to-Video model</span>
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">Master portrait anchor</span>
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">Zero face substitutions</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Reference-to-Video model</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Master portrait anchor</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Zero face substitutions</span>
                 </div>
               </div>
               <div className="order-1 lg:order-2 relative">
-                <div className="absolute -inset-3 bg-gradient-to-br from-primary/90/15 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
+                <div className="absolute -inset-3 bg-gradient-to-br from-[#c9a84c]/15 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
                 <img
                   src="/manus-storage/wizai-marketing-character-lock_1fae56ed.png"
                   alt="Character Lock™ — Same face every scene"
@@ -348,13 +338,13 @@ export default function MusicVideosLanding() {
                 <h3 className="text-3xl font-extrabold text-white mb-4 leading-tight">
                   Real Lip Sync
                 </h3>
-                <p className="text-muted-foreground text-base leading-relaxed mb-6">
+                <p className="text-[#a1a1aa] text-base leading-relaxed mb-6">
                   WizSync™ extracts the exact 8-second audio segment for each scene and passes it directly to the generation model. The result is phoneme-accurate, frame-perfect lip sync — not a visual approximation. Your character sings the actual words.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">Phoneme-accurate</span>
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">Audio-driven model</span>
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">Per-scene audio clips</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Phoneme-accurate</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Audio-driven model</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Per-scene audio clips</span>
                 </div>
               </div>
             </div>
@@ -369,13 +359,13 @@ export default function MusicVideosLanding() {
                 <h3 className="text-3xl font-extrabold text-white mb-4 leading-tight">
                   Lyric-Aware Storyboarding™
                 </h3>
-                <p className="text-muted-foreground text-base leading-relaxed mb-6">
+                <p className="text-[#a1a1aa] text-base leading-relaxed mb-6">
                   WIZ AI reads your full lyrics before generating a single scene. It extracts your song's theme, emotional arc, narrative, and key imagery — then builds a storyboard where every scene reflects exactly what is being sung at that moment.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">Deep song analysis</span>
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">Verse/chorus/bridge mapping</span>
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">Emotional arc tracking</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Deep song analysis</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Verse/chorus/bridge mapping</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Emotional arc tracking</span>
                 </div>
               </div>
               <div className="order-1 lg:order-2 relative">
@@ -408,13 +398,13 @@ export default function MusicVideosLanding() {
                 <h3 className="text-3xl font-extrabold text-white mb-4 leading-tight">
                   Scene Director™
                 </h3>
-                <p className="text-muted-foreground text-base leading-relaxed mb-6">
+                <p className="text-[#a1a1aa] text-base leading-relaxed mb-6">
                   After your video renders, you are the director. Edit any scene's prompt, camera angle, and lip sync setting. Re-render just that scene for free — before you download. Preview Before Download™ means you only commit when you are completely satisfied.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">Per-scene editing</span>
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">Free re-render before download</span>
-                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">Preview Before Download™</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Per-scene editing</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Free re-render before download</span>
+                  <span className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#a1a1aa]">Preview Before Download™</span>
                 </div>
               </div>
             </div>
@@ -428,7 +418,7 @@ export default function MusicVideosLanding() {
           <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-5">
             Upload your song. Get a full video.
           </h2>
-          <p className="text-muted-foreground text-lg mb-10 max-w-xl mx-auto">
+          <p className="text-[#a1a1aa] text-lg mb-10 max-w-xl mx-auto">
             Storyboard generation is always free. You only pay when you're ready to build and download. From £2 per video.
           </p>
           {isAuthenticated ? (
@@ -446,7 +436,7 @@ export default function MusicVideosLanding() {
               <Sparkles className="w-4 h-4 mr-2" />Start Creating
             </button>
           )}
-          <p className="text-muted-foreground text-sm mt-4">Free to create · No credit card · Only pay to build</p>
+          <p className="text-[#a1a1aa] text-sm mt-4">Free to create · No credit card · Only pay to build</p>
         </div>
       </section>
 
@@ -461,8 +451,8 @@ export default function MusicVideosLanding() {
       />
 
       {/* Footer */}
-      <footer className="bg-background border-t border-white/8 py-10 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+      <footer className="bg-[#0f0f0f] border-t border-white/8 py-10 px-6">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-[#a1a1aa]">
           <img src={WIZAI_LOGO} alt="WIZ AI" className="h-[7.3rem] w-auto object-contain" />
           <p>© 2025 WIZ AI. All rights reserved.</p>
           <div className="flex flex-wrap gap-6">

@@ -316,7 +316,6 @@ export default function HeroCinematicBg({ mouseX = 0.5, mouseY = 0.5 }: HeroCine
           // @ts-ignore — webkit-playsinline required for iOS 9 and below
           webkit-playsinline="true"
           preload="metadata"
-          poster={ASSETS.poster}
           onCanPlay={handleVideoCanPlay}
           onTimeUpdate={handleTimeUpdate}
           width={1920}

@@ -39,7 +39,7 @@ describe("Face-Consistent Image Generation Pipeline", () => {
   it("should validate that generateScenePreview uses Forge API as primary engine", async () => {
     const fs = await import("fs");
     const path = await import("path");
-    const routerPath = path.join(process.cwd(), "server/routers/musicVideo/character.ts");
+    const routerPath = path.join(process.cwd(), "server/routers/musicVideo.ts");
     const content = fs.readFileSync(routerPath, "utf-8");
 
     // V2 pipeline: Forge API is primary (fal.ai unreachable from server)
@@ -51,7 +51,7 @@ describe("Face-Consistent Image Generation Pipeline", () => {
   it("should validate that generateScenePreview uses masterPortraitUrl as primary reference", async () => {
     const fs = await import("fs");
     const path = await import("path");
-    const routerPath = path.join(process.cwd(), "server/routers/musicVideo/character.ts");
+    const routerPath = path.join(process.cwd(), "server/routers/musicVideo.ts");
     const content = fs.readFileSync(routerPath, "utf-8");
 
     // V2: master portrait is the primary face anchor
@@ -63,7 +63,7 @@ describe("Face-Consistent Image Generation Pipeline", () => {
   it("should validate that generateScenePreview has fallback to generic image generation", async () => {
     const fs = await import("fs");
     const path = await import("path");
-    const routerPath = path.join(process.cwd(), "server/routers/musicVideo/character.ts");
+    const routerPath = path.join(process.cwd(), "server/routers/musicVideo.ts");
     const content = fs.readFileSync(routerPath, "utf-8");
 
     expect(content).toContain("generateImage");
@@ -73,7 +73,7 @@ describe("Face-Consistent Image Generation Pipeline", () => {
   it("should validate error handling for face engine failures", async () => {
     const fs = await import("fs");
     const path = await import("path");
-    const routerPath = path.join(process.cwd(), "server/routers/musicVideo/character.ts");
+    const routerPath = path.join(process.cwd(), "server/routers/musicVideo.ts");
     const content = fs.readFileSync(routerPath, "utf-8");
 
     expect(content).toContain("catch (forgeErr)");
@@ -83,7 +83,7 @@ describe("Face-Consistent Image Generation Pipeline", () => {
   it("should validate that AI-described characters use Flux PuLID face lock with generic fallback", async () => {
     const fs = await import("fs");
     const path = await import("path");
-    const routerPath = path.join(process.cwd(), "server/routers/musicVideo/character.ts");
+    const routerPath = path.join(process.cwd(), "server/routers/musicVideo.ts");
     const content = fs.readFileSync(routerPath, "utf-8");
 
     // V3: AI-described characters now use Flux PuLID when masterPortraitUrl is available
@@ -97,7 +97,7 @@ describe("Face-Consistent Image Generation Pipeline", () => {
   it("should have proper logging for debugging", async () => {
     const fs = await import("fs");
     const path = await import("path");
-    const routerPath = path.join(process.cwd(), "server/routers/musicVideo/character.ts");
+    const routerPath = path.join(process.cwd(), "server/routers/musicVideo.ts");
     const content = fs.readFileSync(routerPath, "utf-8");
 
     expect(content).toContain("console.log");
@@ -107,7 +107,7 @@ describe("Face-Consistent Image Generation Pipeline", () => {
   it("should validate chained reference (V2 Step 6) is implemented", async () => {
     const fs = await import("fs");
     const path = await import("path");
-    const routerPath = path.join(process.cwd(), "server/routers/musicVideo/character.ts");
+    const routerPath = path.join(process.cwd(), "server/routers/musicVideo.ts");
     const content = fs.readFileSync(routerPath, "utf-8");
 
     // V2 Step 6: scene N uses master portrait + previous scene as dual anchors

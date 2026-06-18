@@ -5,7 +5,6 @@
  */
 import { z } from "zod";
 import { adminProcedure, router, protectedProcedure } from "../_core/trpc";
-import { supportOrAdminProcedure } from "../permissions";
 import { getDb } from "../db";
 import { users, credits, creditTransactions, creditDisputes, musicVideoJobs, musicVideoScenes } from "../../drizzle/schema";
 import { eq, like, or, desc, and, inArray, lte } from "drizzle-orm";
@@ -17,7 +16,7 @@ export const adminCreditsRouter = router({
   /**
    * Search users by name or email for the admin credit panel.
    */
-  searchUsers: supportOrAdminProcedure
+  searchUsers: adminProcedure
     .input(z.object({
       query: z.string().min(1).max(100),
       limit: z.number().min(1).max(50).default(20),
@@ -63,7 +62,7 @@ export const adminCreditsRouter = router({
   /**
    * Get a single user's credit summary and recent transaction history.
    */
-  getUserCredits: supportOrAdminProcedure
+  getUserCredits: adminProcedure
     .input(z.object({
       userId: z.number().int().positive(),
       historyLimit: z.number().min(1).max(200).default(50),
@@ -106,7 +105,7 @@ export const adminCreditsRouter = router({
    * Adjust a user's credit balance (add or deduct) with a mandatory reason.
    * Positive amount = add credits. Negative amount = deduct credits.
    */
-  adjustCredits: supportOrAdminProcedure
+  adjustCredits: adminProcedure
     .input(z.object({
       userId: z.number().int().positive(),
       amount: z.number().int().refine(n => n !== 0, "Amount cannot be zero"),

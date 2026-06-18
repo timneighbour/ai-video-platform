@@ -325,7 +325,7 @@ export const SUBSCRIPTION_PLANS = {
     stripeAnnualPriceId: process.env.STRIPE_BASIC_ANNUAL_PRICE_ID ?? "",
   },
   studio: {
-    name: "Pro",
+    name: "Studio",
     pricePerMonth: 149,
     pricePerYear: 1490,
     credits: 2160,
@@ -553,7 +553,7 @@ export const TOPUP_PACKS = {
   },
   studio: {
     key: "studio",
-    name: "Pro",
+    name: "Studio",
     credits: 750,
     priceGbp: 44.99,
     pricePence: 4499,

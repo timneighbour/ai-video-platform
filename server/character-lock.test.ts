@@ -19,7 +19,7 @@
  * 15. Lock timestamp is set when character is locked
  */
 import { describe, it, expect } from "vitest";
-import { musicVideoRouter } from "./routers/musicVideo/index";
+import { musicVideoRouter } from "./routers/musicVideo";
 
 // ─── 1. Lock state transitions ────────────────────────────────────────────────
 

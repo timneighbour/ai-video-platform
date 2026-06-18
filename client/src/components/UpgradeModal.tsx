@@ -48,7 +48,7 @@ export default function UpgradeModal({ open, onClose, trigger = "milestone" }: U
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-md bg-background border border-white/10 text-white rounded-2xl p-0 overflow-hidden">
+      <DialogContent className="max-w-md bg-[#0f0f1a] border border-white/10 text-white rounded-2xl p-0 overflow-hidden">
         {/* Header gradient */}
         <div className="bg-gradient-to-br from-pink-500/20 via-purple-600/20 to-cyan-500/10 px-6 pt-6 pb-4 border-b border-white/10">
           <button

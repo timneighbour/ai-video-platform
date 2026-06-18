@@ -29,7 +29,7 @@ const TEMPLATES: Template[] = [
     title: "WizVideo",
     description: "Turn any track into a cinematic visual story",
     href: "/music-video/create",
-    gradient: "from-primary/20 to-primary/40/10",
+    gradient: "from-[#b8892a]/20 to-[#4a3010]/10",
   },
   {
     id: "lyric-video",
@@ -37,7 +37,7 @@ const TEMPLATES: Template[] = [
     title: "Lyric Video",
     description: "Animated lyrics synced to your music",
     href: "/music-video/create",
-    gradient: "from-primary/20 to-secondary/10",
+    gradient: "from-[#b8892a]/20 to-[#2e2e36]/10",
   },
   {
     id: "faceless",
@@ -45,7 +45,7 @@ const TEMPLATES: Template[] = [
     title: "Faceless Content",
     description: "AI visuals for YouTube & social — no camera needed",
     href: "/products/wizpilot",
-    gradient: "from-[--color-gold]/10 to-card",
+    gradient: "from-[--color-gold]/10 to-[#1a1a1a]",
   },
   {
     id: "kids-story",
@@ -53,7 +53,7 @@ const TEMPLATES: Template[] = [
     title: "WizAnimate™",
     description: "AI character animation for young audiences",
     href: WIZANIMATE_PRODUCT_PAGE,
-    gradient: "from-primary/20 to-orange-600/10",
+    gradient: "from-[#b8892a]/20 to-orange-600/10",
   },
 ];
 

@@ -37,14 +37,9 @@ import {
 import * as https from "https";
 import * as http from "http";
 
-// ─── Constants ──────────────────────────────────────────────────────────────
-
-/** ISS-010b: If vocal isolation has been running for more than 20 minutes, fall back to the full mix. */
-const VOCAL_ISOLATION_TIMEOUT_MS = 20 * 60 * 1000; // 20 minutes
-
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-export type VocalIsolationStatus = "done" | "in_progress" | "failed" | "no_key" | "timed_out";
+export type VocalIsolationStatus = "done" | "in_progress" | "failed" | "no_key";
 
 export interface VocalIsolationResult {
   status: VocalIsolationStatus;
@@ -119,32 +114,13 @@ export async function triggerCloudVocalIsolation(
       const submitResult = await submitWaveSpeedVocalIsolation(audioUrl);
       const taskId = submitResult.taskId;
 
-      // Persist taskId in lalalTaskId column (repurposed for WaveSpeed) and record submission time
+      // Persist taskId in lalalTaskId column (repurposed for WaveSpeed)
       await db.update(musicVideoJobs)
-        .set({ lalalTaskId: taskId, vocalsStatus: "processing", vocalsSubmittedAt: new Date() })
+        .set({ lalalTaskId: taskId, vocalsStatus: "processing" })
         .where(eq(musicVideoJobs.id, jobId));
 
       console.log(`[CloudVocalIsolation] Job ${jobId}: prediction submitted → taskId=${taskId}`);
       return { status: "in_progress", message: `WaveSpeed prediction submitted: ${taskId}` };
-    }
-
-    // ── ISS-010b: Hard timeout check — if stuck >20 min, fall back to full mix ──
-    const [jobRow] = await db.select({ vocalsSubmittedAt: musicVideoJobs.vocalsSubmittedAt, audioUrl: musicVideoJobs.audioUrl })
-      .from(musicVideoJobs).where(eq(musicVideoJobs.id, jobId)).limit(1);
-    if (jobRow?.vocalsSubmittedAt) {
-      const msSinceSubmit = Date.now() - new Date(jobRow.vocalsSubmittedAt).getTime();
-      if (msSinceSubmit > VOCAL_ISOLATION_TIMEOUT_MS) {
-        console.warn(
-          `[CloudVocalIsolation] Job ${jobId}: vocal isolation timed out after ${Math.round(msSinceSubmit / 60000)} min ` +
-          `— falling back to full mix (audioUrl) for lip sync`
-        );
-        // Fall back: use the original full-mix audio URL as the "vocals" URL
-        const fallbackUrl = jobRow.audioUrl;
-        await db.update(musicVideoJobs)
-          .set({ vocalsStatus: "done", vocalsUrl: fallbackUrl, lalalTaskId: null })
-          .where(eq(musicVideoJobs.id, jobId));
-        return { status: "timed_out", vocalsUrl: fallbackUrl, message: "Timed out — using full mix as fallback" };
-      }
     }
 
     // ── PHASE 2: Poll existing prediction ────────────────────────────────────

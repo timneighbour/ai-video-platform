@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Helmet } from "react-helmet-async";
-
 import { useSEO } from "@/hooks/useSEO";
 import { triggerIntroReplay } from "@/lib/introReplay";
 import WizProductGrid from "@/components/WizProductGrid";
@@ -31,10 +29,6 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { StudioLoungeSection } from "@/components/StudioLounge";
-import HomePricingSection from "@/components/HomePricingSection";
-import WizSoundSection from "@/components/WizSoundSection";
-import LanguageSelector from "@/components/LanguageSelector";
-import { useTranslation } from "react-i18next";
 // Lucide icons removed — replaced with inline SVGs and product logos
 const ArrowSVG = ({ className = "w-4 h-4", style }: { className?: string; style?: React.CSSProperties }) => (
  <svg className={className} style={style} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
@@ -54,8 +48,8 @@ const CheckSVG = ({ className = "w-4 h-4", style }: { className?: string; style?
 const ShieldSVG = ({ className = "w-4 h-4" }: { className?: string }) => (
  <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 1.5L2 4v4c0 3.3 2.5 5.5 6 6 3.5-.5 6-2.7 6-6V4L8 1.5z" /></svg>
 );
-const StarSVG = ({ className = "w-4 h-4", style }: { className?: string; style?: React.CSSProperties }) => (
- <svg className={className} style={style} viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.8 3.6L14 5.3l-3 2.9.7 4.1L8 10.4l-3.7 1.9.7-4.1-3-2.9 4.2-.7L8 1z" /></svg>
+const StarSVG = ({ className = "w-4 h-4" }: { className?: string }) => (
+ <svg className={className} viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.8 3.6L14 5.3l-3 2.9.7 4.1L8 10.4l-3.7 1.9.7-4.1-3-2.9 4.2-.7L8 1z" /></svg>
 );
 const GlobeSVG = ({ className = "w-4 h-4" }: { className?: string }) => (
  <svg className={className} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"><circle cx="8" cy="8" r="6.5" /><path d="M8 1.5C6.5 4 6 6 6 8s.5 4 2 6.5M8 1.5C9.5 4 10 6 10 8s-.5 4-2 6.5M1.5 8h13" /></svg>
@@ -184,7 +178,7 @@ function NavDropdown({ open, children, wide, align = "center" }: { open: boolean
  <div className="h-4 w-full" />
  {/* Arrow tip */}
  <div className="flex justify-center mb-[-1px]">
- <div className="w-3 h-3 rotate-45 border-l border-t border-[--color-gold]/[0.18] bg-background" style={{ marginBottom: -7 }} />
+ <div className="w-3 h-3 rotate-45 border-l border-t border-[--color-gold]/[0.18] bg-[#070707]" style={{ marginBottom: -7 }} />
  </div>
  {children}
  </div>
@@ -196,11 +190,16 @@ function Nav() {
  const [scrolled, setScrolled] = useState(false);
  const [mobileOpen, setMobileOpen] = useState(false);
  const [productsOpen, setProductsOpen] = useState(false);
+ const [techOpen, setTechOpen] = useState(false);
+ const [workflowOpen, setWorkflowOpen] = useState(false);
  const [mobileProductsOpen, setMobileProductsOpen] = useState(false);
+ const [mobileTechOpen, setMobileTechOpen] = useState(false);
+ const [mobileWorkflowOpen, setMobileWorkflowOpen] = useState(false);
  const { isAuthenticated } = useAuth();
- const { t } = useTranslation();
 
- const toggleProducts = (e: React.MouseEvent) => { e.stopPropagation(); setProductsOpen((v) => !v); };
+ const toggleProducts = (e: React.MouseEvent) => { e.stopPropagation(); setProductsOpen((v) => { if (!v) { setTechOpen(false); setWorkflowOpen(false); } return !v; }); };
+ const toggleTech = (e: React.MouseEvent) => { e.stopPropagation(); setTechOpen((v) => { if (!v) { setProductsOpen(false); setWorkflowOpen(false); } return !v; }); };
+ const toggleWorkflow = (e: React.MouseEvent) => { e.stopPropagation(); setWorkflowOpen((v) => { if (!v) { setProductsOpen(false); setTechOpen(false); } return !v; }); };
 
  // Close mobile menu on resize to desktop
  useEffect(() => {
@@ -225,11 +224,11 @@ function Nav() {
  // Close dropdowns on Escape or outside click (ref-based so clicks inside nav don't close it)
  useEffect(() => {
  const onKey = (e: KeyboardEvent) => {
- if (e.key === "Escape") { setProductsOpen(false); setMobileOpen(false); }
+ if (e.key === "Escape") { setProductsOpen(false); setTechOpen(false); setWorkflowOpen(false); setMobileOpen(false); }
  };
  const onClickOutside = (e: MouseEvent) => {
  if (navRef.current && !navRef.current.contains(e.target as Node)) {
- setProductsOpen(false);
+ setProductsOpen(false); setTechOpen(false); setWorkflowOpen(false);
  }
  };
  window.addEventListener("keydown", onKey);
@@ -244,7 +243,7 @@ function Nav() {
  aria-label="Main navigation"
  className={`fixed left-0 right-0 z-50 transition-all duration-500 ${
  scrolled
- ? "bg-background/96 backdrop-blur-2xl border-b border-[--color-gold]/[0.08] shadow-[0_2px_60px_rgba(0,0,0,0.7)]"
+ ? "bg-[#060606]/96 backdrop-blur-2xl border-b border-[--color-gold]/[0.08] shadow-[0_2px_60px_rgba(0,0,0,0.7)]"
  : "bg-gradient-to-b from-black/40 to-transparent backdrop-blur-[2px]"
  }`}
  style={{ top: "var(--founding-banner-h, 0px)" }}
@@ -386,15 +385,252 @@ function Nav() {
  </NavDropdown>
  </div>
 
-            <a href="/music-video/create" className="nav-link" style={{ color: "oklch(0.82 0.11 75 / 0.85)" }} onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.92 0.11 75 / 1)"; }} onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.82 0.11 75 / 0.85)"; }}>Music Video</a>
-            <a href="/products/wizpilot" className="nav-link" style={{ color: "oklch(0.82 0.11 75 / 0.85)" }} onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.92 0.11 75 / 1)"; }} onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.82 0.11 75 / 0.85)"; }}>WizPilot</a>
- <a href="/pricing" className="nav-link">{t("nav.pricing")}</a>
+ {/* TECHNOLOGY dropdown */}
+ <div
+ className="relative"
+ onClick={(e) => e.stopPropagation()}
+ >
+ <button
+ className={`nav-link flex items-center gap-1 transition-colors ${
+ techOpen ? "text-[--color-gold-light]" : ""
+ }`}
+ aria-haspopup="true"
+ aria-expanded={techOpen}
+ onClick={toggleTech}
+ >Technology
+ <ChevronDownSVG className={`w-3.5 h-3.5 transition-transform duration-300 ${
+ techOpen ? "rotate-180 text-[--color-gold]" : ""
+ }`} />
+ </button>
+
+ <NavDropdown open={techOpen} wide>
+ <div
+ className="rounded-2xl overflow-hidden"
+ style={{
+ background: "linear-gradient(160deg, #0d0d0d 0%, #080808 100%)",
+ border: "1px solid oklch(0.78 0.11 75 / 0.13)",
+ boxShadow: "0 40px 120px rgba(0,0,0,0.95), 0 0 0 1px rgba(196,164,100,0.05) inset, 0 1px 0 rgba(196,164,100,0.16) inset",
+ }}
+ >
+ {/* Header */}
+ <div className="px-5 py-3.5 flex items-center justify-between" style={{ borderBottom: "1px solid oklch(0.78 0.11 75 / 0.07)", background: "oklch(0.78 0.11 75 / 0.02)" }}>
+ <div className="flex items-center gap-2">
+ <div className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
+ <span className="text-[10px] font-black tracking-[0.3em] uppercase text-[--color-gold-dark]/60">WIZ Engine Stack</span>
+ </div>
+ <span className="text-[9px] font-bold tracking-[0.18em] uppercase px-2 py-0.5 rounded-full" style={{ background: "oklch(0.78 0.11 75 / 0.08)", color: "oklch(0.78 0.11 75 / 0.5)", border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}>7 Engines</span>
+ </div>
+
+ {/* Core engines */}
+ <div className="px-4 pt-3 pb-1">
+ <p className="text-[9px] font-black tracking-[0.25em] uppercase text-[--color-gold-dark]/40 mb-1">Core Engines</p>
+ </div>
+ <div className="px-3 pb-2 grid grid-cols-2 gap-1">
+ {WIZ_TECHNOLOGY_CORE.map((eng) => (
+ <NavLink
+ key={eng.name}
+ href={eng.href}
+ className="group flex items-start gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
+ style={{ border: "1px solid transparent" }}
+ onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.04)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.12)"; }}
+ onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
+ >
+ <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.05)", border: "1px solid oklch(0.78 0.11 75 / 0.10)" }}>
+ <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain" loading="lazy" />
+ </div>
+ <div className="min-w-0 flex-1">
+ <p className="text-[13px] font-bold text-white/80 group-hover:text-[--color-gold-light] transition-colors leading-tight">{eng.name}<sup className="text-[8px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
+ <p className="text-[10px] text-white/25 mt-1 leading-snug group-hover:text-white/40 transition-colors">{eng.desc}</p>
+ </div>
+ </NavLink>
+ ))}
+ </div>
+
+ {/* Advanced tools divider */}
+ <div className="px-4 pt-2 pb-1" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.06)" }}>
+ <p className="text-[9px] font-black tracking-[0.25em] uppercase text-[--color-gold-dark]/40 mb-1">Advanced Tools</p>
+ </div>
+ <div className="px-3 pb-3 grid grid-cols-2 gap-1">
+ {WIZ_TECHNOLOGY_ADVANCED.map((eng) => (
+ <NavLink
+ key={eng.name}
+ href={eng.href}
+ className="group flex items-start gap-3 px-3.5 py-3 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[--color-gold]/40"
+ style={{ border: "1px solid transparent" }}
+ onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.04)"; (e.currentTarget as HTMLElement).style.borderColor = "oklch(0.78 0.11 75 / 0.12)"; }}
+ onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.borderColor = "transparent"; }}
+ >
+ <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.05)", border: "1px solid oklch(0.78 0.11 75 / 0.10)" }}>
+ <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain" loading="lazy" />
+ </div>
+ <div className="min-w-0 flex-1">
+ <p className="text-[13px] font-bold text-white/80 group-hover:text-[--color-gold-light] transition-colors leading-tight">{eng.name}<sup className="text-[8px] font-bold ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
+ <p className="text-[10px] text-white/25 mt-1 leading-snug group-hover:text-white/40 transition-colors">{eng.desc}</p>
+ </div>
+ </NavLink>
+ ))}
+ </div>
+
+ {/* Footer */}
+ <div className="px-5 py-3 flex items-center justify-between" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.06)", background: "oklch(0.78 0.11 75 / 0.015)" }}>
+ <p className="text-[10px] text-white/65 font-medium tracking-widest uppercase">7 engines powering every creation</p>
+ <a href="/#wiz-engines" className="flex items-center gap-1.5 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors">See how they work <ArrowSVG className="w-3 h-3" />
+ </a>
+ </div>
+ </div>
+ </NavDropdown>
+ </div>
+
+ {/* WORKFLOW dropdown */}
+ <div
+ className="relative"
+ onClick={(e) => e.stopPropagation()}
+ >
+ <button
+ className={`nav-link flex items-center gap-1 transition-colors ${
+ workflowOpen ? "text-[--color-gold-light]" : ""
+ }`}
+ aria-haspopup="true"
+ aria-expanded={workflowOpen}
+ onClick={toggleWorkflow}
+ >Workflow
+ <ChevronDownSVG className={`w-3.5 h-3.5 transition-transform duration-300 ${
+ workflowOpen ? "rotate-180 text-[--color-gold]" : ""
+ }`} />
+ </button>
+ <NavDropdown open={workflowOpen} wide align="right">
+ <div
+ className="rounded-2xl overflow-hidden"
+ style={{
+ background: "linear-gradient(160deg, #0d0d0d 0%, #080808 100%)",
+ border: "1px solid oklch(0.78 0.11 75 / 0.13)",
+ boxShadow: "0 40px 120px rgba(0,0,0,0.95), 0 0 0 1px rgba(196,164,100,0.05) inset, 0 1px 0 rgba(196,164,100,0.16) inset",
+ }}
+ >
+ {/* Header */}
+ <div className="px-5 py-3.5 flex items-center justify-between" style={{ borderBottom: "1px solid oklch(0.78 0.11 75 / 0.07)", background: "oklch(0.78 0.11 75 / 0.02)" }}>
+ <div className="flex items-center gap-2">
+ <div className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
+ <span className="text-[10px] font-black tracking-[0.3em] uppercase text-[--color-gold-dark]/60">Automation &amp; Supporting Tools</span>
+ </div>
+ <span className="text-[9px] font-bold tracking-[0.18em] uppercase px-2 py-0.5 rounded-full" style={{ background: "oklch(0.78 0.11 75 / 0.08)", color: "oklch(0.78 0.11 75 / 0.5)", border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}>4 Tools</span>
+ </div>
+ {/* 2-column grid with hero image panels */}
+ <div className="p-4 grid grid-cols-2 gap-3">
+ {/* WizCreate */}
+ <a
+ href="/products/wizcreate"
+ className="group relative rounded-xl overflow-hidden flex flex-col justify-end"
+ style={{ height: 180, border: "1px solid oklch(0.78 0.11 75 / 0.10)", transition: "border-color 0.2s" }}
+ onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.30)")}
+ onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
+ >
+ <img
+ src="/manus-storage/product-wizcreate-hero_6c3efa10.jpg"
+ alt="WizCreate"
+ className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+ loading="lazy"
+ />
+ <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.30) 55%, transparent 100%)" }} />
+ <div className="relative z-10 p-3.5">
+ <div className="flex items-center gap-2 mb-1">
+ <img src={WIZCREATE_LOGO} alt="WizCreate" className="w-5 h-5 object-contain" loading="lazy" />
+ <p className="text-[12px] font-bold text-white/90 group-hover:text-[--color-gold-light] transition-colors">WizCreate<sup className="text-[7px] ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
+ </div>
+ <p className="text-[10px] text-white/50 leading-tight">AI Storyboard Engine</p>
+ <p className="text-[9px] text-white/30 mt-1 leading-tight">Turn any idea into a full cinematic storyboard in seconds</p>
+ </div>
+ </a>
+ {/* WizPilot */}
+ <a
+ href="/products/wizpilot"
+ className="group relative rounded-xl overflow-hidden flex flex-col justify-end"
+ style={{ height: 180, border: "1px solid oklch(0.78 0.11 75 / 0.10)", transition: "border-color 0.2s" }}
+ onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.30)")}
+ onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
+ >
+ <img
+ src="/manus-storage/product-wizcreate-hero_6c3efa10.jpg"
+ alt="WizPilot"
+ className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+ loading="lazy"
+ />
+ <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(10,0,20,0.92) 0%, rgba(10,0,20,0.35) 55%, transparent 100%)" }} />
+ <div className="relative z-10 p-3.5">
+ <div className="flex items-center gap-2 mb-1">
+ <img src={WIZCREATE_LOGO} alt="WizPilot" className="w-5 h-5 object-contain" loading="lazy" />
+ <p className="text-[12px] font-bold text-white/90 group-hover:text-[--color-gold-light] transition-colors">WizPilot<sup className="text-[7px] ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
+ </div>
+ <p className="text-[10px] text-white/50 leading-tight">AI Workflow Automation</p>
+ <p className="text-[9px] text-white/30 mt-1 leading-tight">One prompt. Full pipeline. Zero manual steps.</p>
+ </div>
+ </a>
+ {/* WizSync */}
+ <a
+ href="/products/wizsync-info"
+ className="group relative rounded-xl overflow-hidden flex flex-col justify-end"
+ style={{ height: 180, border: "1px solid oklch(0.78 0.11 75 / 0.10)", transition: "border-color 0.2s" }}
+ onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.30)")}
+ onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
+ >
+ <img
+ src="/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg"
+ alt="WizSync"
+ className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+ loading="lazy"
+ />
+ <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,10,0.90) 0%, rgba(0,0,10,0.30) 55%, transparent 100%)" }} />
+ <div className="relative z-10 p-3.5">
+ <div className="flex items-center gap-2 mb-1">
+ <img src={WIZSYNC_LOGO} alt="WizSync" className="w-5 h-5 object-contain" loading="lazy" />
+ <p className="text-[12px] font-bold text-white/90 group-hover:text-[--color-gold-light] transition-colors">WizSync<sup className="text-[7px] ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
+ </div>
+ <p className="text-[10px] text-white/50 leading-tight">Audio-Visual Sync Engine</p>
+ <p className="text-[9px] text-white/30 mt-1 leading-tight">Every beat locked. Every cut frame-perfect.</p>
+ </div>
+ </a>
+ {/* WizScore */}
+ <a
+ href="/products/wizscore"
+ className="group relative rounded-xl overflow-hidden flex flex-col justify-end"
+ style={{ height: 180, border: "1px solid oklch(0.78 0.11 75 / 0.10)", transition: "border-color 0.2s" }}
+ onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.30)")}
+ onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.borderColor = "oklch(0.78 0.11 75 / 0.10)")}
+ >
+ <img
+ src="/manus-storage/hero-wizscore_d4786473.jpg"
+ alt="WizScore"
+ className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+ loading="lazy"
+ />
+ <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,8,8,0.92) 0%, rgba(0,8,8,0.32) 55%, transparent 100%)" }} />
+ <div className="relative z-10 p-3.5">
+ <div className="flex items-center gap-2 mb-1">
+ <WizScoreEmblem size={20} />
+ <p className="text-[12px] font-bold text-white/90 group-hover:text-[--color-gold-light] transition-colors">WizScore<sup className="text-[7px] ml-0.5 text-[--color-gold-dark]/55">™</sup></p>
+ </div>
+ <p className="text-[10px] text-white/50 leading-tight">AI Video-to-Music Engine</p>
+ <p className="text-[9px] text-white/30 mt-1 leading-tight">Your video. Its perfect original soundtrack.</p>
+ </div>
+ </a>
+ </div>
+ {/* Footer */}
+ <div className="px-5 py-3 flex items-center justify-between" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.07)", background: "oklch(0.78 0.11 75 / 0.015)" }}>
+ <p className="text-[10px] text-white/65 font-semibold tracking-widest uppercase">Automate your entire creative pipeline</p>
+ <a href="/products/wizpilot" className="flex items-center gap-1.5 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors">Launch WizPilot <ArrowSVG className="w-3 h-3" />
+ </a>
+ </div>
+ </div>
+ </NavDropdown>
+ </div>
+ <a href="/music-videos" className="nav-link" style={{ color: "oklch(0.78 0.11 75 / 0.75)" }} onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.88 0.11 75 / 1)"; }} onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.78 0.11 75 / 0.75)"; }}>WizVideo</a>
+ <a href="/wizavision" className="nav-link" style={{ color: "oklch(0.78 0.11 75 / 0.75)" }} onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.88 0.11 75 / 1)"; }} onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "oklch(0.78 0.11 75 / 0.75)"; }}>WizaVision</a>
+ <a href="/pricing" className="nav-link">Pricing</a>
  <a href="/help" className="nav-link">Help</a>
  </div>
 
  {/* Auth CTA */}
  <div className="hidden md:flex items-center gap-2.5">
- <LanguageSelector />
  {isAuthenticated ? (
  <a
  href="/dashboard"
@@ -406,14 +642,14 @@ function Nav() {
  boxShadow: "0 0 20px oklch(0.78 0.11 75 / 0.08), inset 0 1px 0 oklch(0.78 0.11 75 / 0.20)",
  }}
  >
- <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />{t("nav.dashboard")}
+ <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />Dashboard
  </a>
  ) : (
  <>
  <a
  href={getLoginUrl()}
  className="text-[13px] font-medium px-3 py-2 rounded-lg transition-colors text-[--color-silver-dark] hover:text-[--color-silver-light] hover:bg-white/[0.04]"
- >{t("nav.signIn")}
+ >Sign in
  </a>
  <a
  href="/onboarding"
@@ -425,7 +661,7 @@ function Nav() {
  boxShadow: "0 0 24px oklch(0.78 0.11 75 / 0.12), inset 0 1px 0 oklch(0.78 0.11 75 / 0.25)",
  }}
  >
- <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />{t("nav.startFree")}
+ <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-3.5 h-3.5 object-contain" />Start Creating
  </a>
  </>
  )}
@@ -441,13 +677,13 @@ function Nav() {
  >
  <div className="relative w-6 h-[18px] flex flex-col justify-between">
  <span className={`block h-[2px] w-full rounded-full transition-all duration-300 origin-center ${
- mobileOpen ? "rotate-45 translate-y-[8px] bg-primary/90" : "bg-white"
+ mobileOpen ? "rotate-45 translate-y-[8px] bg-[#c9a84c]" : "bg-white"
  }`} style={{ opacity: mobileOpen ? 1 : 0.9 }} />
  <span className={`block h-[2px] w-full rounded-full transition-all duration-300 ${
  mobileOpen ? "opacity-0 scale-x-0" : "bg-white"
  }`} style={{ opacity: mobileOpen ? 0 : 0.9 }} />
  <span className={`block h-[2px] w-full rounded-full transition-all duration-300 origin-center ${
- mobileOpen ? "-rotate-45 -translate-y-[8px] bg-primary/90" : "bg-white"
+ mobileOpen ? "-rotate-45 -translate-y-[8px] bg-[#c9a84c]" : "bg-white"
  }`} style={{ opacity: mobileOpen ? 1 : 0.9 }} />
  </div>
  </button>
@@ -558,15 +794,97 @@ function Nav() {
  </div>
  </div>
 
-            {/* Simple links */}
-            <a href="/music-video/create" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/80 hover:bg-white/[0.04] hover:text-white transition-all">
-              <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 shrink-0" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z" /></svg>
-              Music Video
-            </a>
-            <a href="/products/wizpilot" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/80 hover:bg-white/[0.04] hover:text-white transition-all">
-              <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 shrink-0" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" /></svg>
-              WizPilot
-            </a>
+ {/* Technology accordion */}
+ <div className="rounded-xl overflow-hidden" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.08)" }}>
+ <button
+ className="w-full flex items-center justify-between px-4 py-3.5 text-[15px] font-semibold transition-all duration-200"
+ style={mobileTechOpen ? { background: "oklch(0.78 0.11 75 / 0.06)", color: "oklch(0.88 0.10 75)" } : { color: "rgba(255,255,255,0.8)" }}
+ onClick={() => setMobileTechOpen((v) => !v)}
+ aria-expanded={mobileTechOpen}
+ >
+ <span className="flex items-center gap-2">
+ <span className="w-1.5 h-1.5 rounded-full" style={{ background: mobileTechOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.2)" }} />Technology
+ </span>
+ <ChevronDownSVG className={`w-4 h-4 transition-transform duration-300 ${
+ mobileTechOpen ? "rotate-180" : ""
+ }`} style={{ color: mobileTechOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.3)" }} />
+ </button>
+ <div className={`overflow-hidden transition-all duration-300 ${
+ mobileTechOpen ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"
+ }`}>
+ <div className="px-2 pb-2" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.06)" }}>
+ {WIZ_TECHNOLOGY.map((eng) => (
+ <NavLink key={eng.name} href={eng.href} className="flex items-center gap-3 px-3 py-3 rounded-xl mt-1 transition-all duration-200" style={{ border: "1px solid transparent" }}
+ onTouchStart={(e: React.TouchEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "oklch(0.78 0.11 75 / 0.06)"; }}
+ onTouchEnd={(e: React.TouchEvent<HTMLAnchorElement>) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+ onClick={() => setMobileOpen(false)}>
+ <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-xl overflow-hidden" style={{ background: "oklch(0.78 0.11 75 / 0.06)", border: "1px solid oklch(0.78 0.11 75 / 0.12)" }}>
+ <img src={eng.logo} alt={eng.name} className="w-7 h-7 object-contain" loading="lazy" />
+ </div>
+ <div className="min-w-0">
+ <p className="text-[14px] font-bold" style={{ color: "oklch(0.88 0.10 75)" }}>{eng.name}<sup className="text-[8px] ml-0.5" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>™</sup></p>
+ <p className="text-[11px] text-white/40 mt-0.5 truncate">{eng.tagline}</p>
+ </div>
+ <ArrowSVG className="w-3.5 h-3.5 ml-auto flex-shrink-0" style={{ color: "oklch(0.78 0.11 75 / 0.35)" }} />
+ </NavLink>
+ ))}
+ </div>
+ </div>
+ </div>
+
+ {/* Workflow accordion */}
+ <div className="rounded-xl overflow-hidden" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.08)" }}>
+ <button
+ className="w-full flex items-center justify-between px-4 py-3.5 text-[15px] font-semibold transition-all duration-200"
+ style={mobileWorkflowOpen ? { background: "oklch(0.78 0.11 75 / 0.06)", color: "oklch(0.88 0.10 75)" } : { color: "rgba(255,255,255,0.8)" }}
+ onClick={() => setMobileWorkflowOpen((v) => !v)}
+ aria-expanded={mobileWorkflowOpen}
+ >
+ <span className="flex items-center gap-2">
+ <span className="w-1.5 h-1.5 rounded-full" style={{ background: mobileWorkflowOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.2)" }} />Workflow
+ </span>
+ <ChevronDownSVG className={`w-4 h-4 transition-transform duration-300 ${
+ mobileWorkflowOpen ? "rotate-180" : ""
+ }`} style={{ color: mobileWorkflowOpen ? "oklch(0.78 0.11 75)" : "rgba(255,255,255,0.3)" }} />
+ </button>
+ <div className={`overflow-hidden transition-all duration-300 ${
+ mobileWorkflowOpen ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"
+ }`}>
+ <div className="px-3 pb-3 flex flex-col gap-2">
+ {[
+ { name: "WizCreate", tagline: "AI Storyboard Engine", desc: "Turn any idea into a full cinematic storyboard", href: "/products/wizcreate", logo: WIZCREATE_LOGO, img: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg" },
+ { name: "WizPilot", tagline: "AI Workflow Automation", desc: "One prompt. Full pipeline. Zero manual steps.", href: "/products/wizpilot", logo: WIZGENESIS_LOGO, img: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg" },
+{ name: "WizSync", tagline: "Audio-Visual Sync Engine", desc: "Every beat locked. Every cut frame-perfect.", href: "/products/wizsync-info", logo: WIZSYNC_LOGO, img: "/manus-storage/product-wizsound-hero_8219d2d2.jpg" },
+ { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZSOUND_LOGO, img: "/manus-storage/hero-wizscore_d4786473.jpg" },
+ ].map((tool) => (
+ <a
+ key={tool.name}
+ href={tool.href}
+ className="group relative rounded-xl overflow-hidden flex items-end"
+ style={{ height: 90, border: "1px solid oklch(0.78 0.11 75 / 0.10)" }}
+ onClick={() => setMobileOpen(false)}
+ >
+ <img src={tool.img} alt={tool.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+ <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.20) 60%, transparent 100%)" }} />
+ <div className="relative z-10 p-3 flex items-center gap-2.5 w-full">
+ <img src={tool.logo} alt={tool.name} className="w-7 h-7 object-contain flex-shrink-0" loading="lazy" />
+ <div className="min-w-0">
+ <p className="text-[13px] font-bold" style={{ color: "oklch(0.88 0.10 75)" }}>{tool.name}<sup className="text-[8px] ml-0.5" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>™</sup></p>
+ <p className="text-[11px] text-white/40 truncate">{tool.tagline}</p>
+ </div>
+ <ArrowSVG className="w-3.5 h-3.5 ml-auto flex-shrink-0" style={{ color: "oklch(0.78 0.11 75 / 0.35)" }} />
+ </div>
+ </a>
+ ))}
+ </div>
+ </div>
+ </div>
+
+ {/* Simple links */}
+ <a href="/wizavision" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold transition-all duration-200" style={{ color: "oklch(0.82 0.11 75 / 0.85)" }} onClick={() => setMobileOpen(false)}>
+ <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 shrink-0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "oklch(0.78 0.11 75 / 0.7)" }}><path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" /></svg>
+ WizaVision — Watch &amp; Discover
+ </a>
  <a href="/pricing" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/80 hover:text-white hover:bg-white/[0.04] transition-all duration-200" onClick={() => setMobileOpen(false)}>Pricing</a>
  <a href="/help" className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-[15px] font-semibold text-white/80 hover:text-white hover:bg-white/[0.04] transition-all duration-200" onClick={() => setMobileOpen(false)}>Help</a>
 
@@ -579,7 +897,7 @@ function Nav() {
  ) : (
  <>
  <a href={getLoginUrl()} className="flex items-center justify-center py-3 rounded-xl text-[14px] font-medium text-white/60 hover:text-white/90 transition-colors" style={{ border: "1px solid rgba(255,255,255,0.08)" }} onClick={() => setMobileOpen(false)}>Sign in</a>
- <a href="/onboarding" className="flex items-center justify-center gap-2 py-3.5 rounded-xl text-[15px] font-bold transition-all duration-200" style={{ background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.22) 0%, oklch(0.60 0.10 65 / 0.18) 100%)", border: "1px solid oklch(0.78 0.11 75 / 0.40)", color: "oklch(0.92 0.10 75)", boxShadow: "0 0 28px oklch(0.78 0.11 75 / 0.14)" }} onClick={() => setMobileOpen(false)}>
+ <a href="/music-video/create" className="flex items-center justify-center gap-2 py-3.5 rounded-xl text-[15px] font-bold transition-all duration-200" style={{ background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.22) 0%, oklch(0.60 0.10 65 / 0.18) 100%)", border: "1px solid oklch(0.78 0.11 75 / 0.40)", color: "oklch(0.92 0.10 75)", boxShadow: "0 0 28px oklch(0.78 0.11 75 / 0.14)" }} onClick={() => setMobileOpen(false)}>
  <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-4 h-4 object-contain" />Start Creating — Free
  </a>
  </>
@@ -593,24 +911,10 @@ function Nav() {
 }
 
 // Hero 
-const GENRE_LABELS = ["MUSIC VIDEOS", "CINEMATIC FILMS", "PIXAR ANIMATION", "ANIME SHORTS", "BRAND ADS"];
 function Hero() {
  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
  const [demoOpen, setDemoOpen] = useState(false);
- const [genreIdx, setGenreIdx] = useState(0);
- const [genreFading, setGenreFading] = useState(false);
  const { isAuthenticated } = useAuth();
-
- useEffect(() => {
- const interval = setInterval(() => {
- setGenreFading(true);
- setTimeout(() => {
- setGenreIdx((i) => (i + 1) % GENRE_LABELS.length);
- setGenreFading(false);
- }, 350);
- }, 2200);
- return () => clearInterval(interval);
- }, []);
 
  const handleMouseMove = useCallback((e: React.MouseEvent) => {
  setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight });
@@ -619,69 +923,124 @@ function Hero() {
  return (
  <section
  data-section="hero"
- className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-background"
+ className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-[#030303]"
  onMouseMove={handleMouseMove}
  >
  {/* Cinematic motion background — gold dust, waveform, bloom */}
  <HeroCinematicBg mouseX={mousePos.x} mouseY={mousePos.y} />
 
  {/* Content */}
-	 <div className="relative z-10 max-w-7xl mx-auto px-6 pt-14 sm:pt-16 pb-12 w-full">
+ <div className="relative z-10 max-w-7xl mx-auto px-6 pt-[80px] pb-16 w-full">
  <div className="max-w-3xl">
  {/* Eyebrow */}
-	 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[--color-gold]/[0.18] bg-[--color-gold]/[0.04] backdrop-blur-sm mb-4 shadow-[0_0_24px_rgba(196,164,100,0.08)]">
-	 <span className="relative flex items-center justify-center w-2 h-2">
-	 <span className="absolute w-full h-full rounded-full bg-[--color-gold] animate-ping opacity-60" style={{ animationDuration: "2s" }} />
-	 <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold]" />
-	 </span>
-	 <span className="text-[11px] font-bold tracking-[0.22em] uppercase text-[--color-gold-dark]">Free to Start — AI Music Video Studio</span>
-	 </div>
+ <div className="inline-flex flex-wrap items-center gap-2 px-3 sm:px-5 py-2 rounded-full border border-[--color-gold]/[0.18] bg-[--color-gold]/[0.04] backdrop-blur-sm mb-5 shadow-[0_0_24px_rgba(196,164,100,0.08)]">
+ <span className="relative flex items-center justify-center w-2 h-2">
+ <span className="absolute w-full h-full rounded-full bg-[--color-gold] animate-ping opacity-60" style={{ animationDuration: "2s" }} />
+ <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold]" />
+ </span>
+ <span className="text-[11px] font-bold tracking-[0.28em] uppercase text-[--color-gold-dark]">WIZ AI — Premium Cinematic Music Video Production</span>
+ <span className="w-px h-3 bg-[--color-gold]/20" />
+ <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-[--color-gold]/50">AI-Directed. Cinematically Produced.</span>
+ </div>
 
  {/* Headline */}
- <h1 className="text-[clamp(2.2rem,6.5vw,4.75rem)] font-black leading-[0.95] tracking-tight text-white mb-3 max-w-full overflow-hidden">Your Music.<br />
- <span className="metallic-gold">Your Video.</span>
+ <h1 className="text-[clamp(2.6rem,7vw,5rem)] font-black leading-[0.93] tracking-tight text-white mb-3">Direct. Create.<br />
+ <span className="metallic-gold">Produce. Own It.</span>
  </h1>
- {/* Cycling genre text — replaces static subheadline */}
- <div className="flex items-center gap-3 mb-2 overflow-hidden">
- <span
- className="text-[clamp(0.75rem,1.2vw,0.875rem)] font-black tracking-[0.22em] uppercase"
- style={{
- color: genreFading ? "transparent" : "rgba(212,175,55,0.85)",
- textShadow: genreFading ? "none" : "0 0 18px rgba(212,175,55,0.45)",
- opacity: genreFading ? 0 : 1,
- transform: genreFading ? "translateY(-4px)" : "translateY(0)",
- transition: "opacity 0.35s ease, transform 0.35s ease, color 0.35s ease, text-shadow 0.35s ease",
- }}
- >
- {GENRE_LABELS[genreIdx]}
- </span>
- <span className="text-[clamp(0.65rem,1vw,0.75rem)] text-white/25 font-medium tracking-widest">·</span>
- <span className="text-[clamp(0.65rem,1vw,0.75rem)] text-white/40 font-medium tracking-wide">AI-directed. Free storyboard.</span>
- </div>
- {/* Single subheadline */}
- <p className="text-[clamp(0.9rem,1.5vw,1.05rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-6">Professional cinematic results in minutes. No editing experience needed.
+ {/* Emotional hook */}
+ <p className="text-[clamp(1rem,1.8vw,1.2rem)] font-semibold leading-snug max-w-xl mb-4" style={{ color: "oklch(0.82 0.12 72)" }}>
+ Premium AI-directed cinematic music video production with intelligent scene orchestration.
+ </p>
+ {/* Subheadline */}
+ <p className="text-[clamp(0.875rem,1.4vw,1rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-6">Cinematic-first storyboarding. Character Lock™ identity consistency. WizSync™ Portrait-to-LipSync™ performance enhancement. Automatic reliability. Every video feels professionally directed — because it is.
  </p>
 
  {/* CTAs */}
  <div className="relative z-20 mb-8">
- <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 mb-2">
+ <div className="flex flex-wrap items-center gap-4 mb-2">
  <a
- href="/onboarding"
- className="btn-primary btn-sheen btn-sheen inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl text-base w-full sm:w-auto"
+ href="/music-video/create"
+ className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
  style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
  onClick={() => { mp.heroCTAClicked?.(); mp.startCreatingClicked("hero"); }}
  >
  <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />Create Your First Video — Free
  </a>
-	 <button
-	 type="button"
-	 onClick={() => setDemoOpen(true)}
-	 className="btn-secondary inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl text-base w-full sm:w-auto"
-	 style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
-	 >Watch the Film
-	 <ArrowSVG className="w-4 h-4" />
-	 </button>
-
+ <a
+ href="#products"
+ className="btn-secondary inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
+ style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
+ >Explore the Studios
+ <ArrowSVG className="w-4 h-4" />
+ </a>
+ </div>
+ <a href="/onboarding" className="text-[13px] text-white/35 hover:text-white/60 transition-colors mt-1 inline-block">Explore all tools &rarr;</a>
+ <div className="flex flex-wrap items-center gap-4 mb-2">
+ {/* ── WATCH DEMO — ultra-premium screaming CTA ── */}
+ <button
+ type="button"
+ onClick={() => setDemoOpen(true)}
+ className="group relative z-20 inline-flex items-center gap-3 min-h-[52px] px-6 py-3 rounded-2xl font-bold text-sm transition-all duration-200 hover:scale-[1.04] active:scale-[0.97]"
+ style={{
+ background: "linear-gradient(135deg, rgba(196,164,100,0.14) 0%, rgba(232,201,122,0.08) 100%)",
+ border: "1.5px solid rgba(196,164,100,0.55)",
+ boxShadow: [
+ "0 0 0 3px rgba(196,164,100,0.08)",
+ "0 0 24px rgba(196,164,100,0.30)",
+ "0 0 48px rgba(196,164,100,0.12)",
+ "inset 0 1px 0 rgba(255,255,255,0.12)",
+ ].join(", "),
+ WebkitTapHighlightColor: "transparent",
+ touchAction: "manipulation",
+ cursor: "pointer",
+ }}
+ aria-label="Watch the demo video"
+ >
+ {/* Outer pulse ring */}
+ <span
+ className="absolute -inset-[5px] rounded-[18px] pointer-events-none"
+ style={{
+ border: "1px solid rgba(196,164,100,0.35)",
+ animation: "enter-btn-ring-breathe 2.2s ease-in-out infinite",
+ }}
+ />
+ {/* Fast expanding ring */}
+ <span
+ className="absolute -inset-[3px] rounded-[16px] pointer-events-none"
+ style={{
+ border: "1.5px solid rgba(232,201,122,0.5)",
+ animation: "enter-btn-ring-pulse 1.9s ease-out infinite",
+ }}
+ />
+ {/* Play icon with multi-ring glow */}
+ <span className="relative flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+ style={{
+ background: "linear-gradient(135deg, #c4a464 0%, #e8c97a 100%)",
+ boxShadow: "0 0 0 3px rgba(196,164,100,0.20), 0 0 16px rgba(196,164,100,0.55), 0 0 32px rgba(196,164,100,0.25)",
+ }}>
+ <PlaySVG className="w-4 h-4 text-[#0a0a0f] ml-0.5" />
+ </span>
+ {/* Label */}
+ <span className="flex flex-col items-start leading-none">
+ <span
+ className="text-[0.65rem] font-bold tracking-[0.22em] uppercase mb-0.5"
+ style={{ color: "rgba(196,164,100,0.75)" }}
+ >See it in action</span>
+ <span
+ className="text-[1rem] font-black tracking-tight"
+ style={{
+ background: "linear-gradient(90deg, #e8c97a 0%, #fff 50%, #e8c97a 100%)",
+ backgroundSize: "200% 100%",
+ WebkitBackgroundClip: "text",
+ WebkitTextFillColor: "transparent",
+ backgroundClip: "text",
+ animation: "enter-btn-shimmer 3s linear infinite",
+ }}
+ >Watch the Demo</span>
+ </span>
+ {/* Arrow */}
+ <ChevronRight className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:translate-x-1" style={{ color: "rgba(196,164,100,0.70)" }} />
+ </button>
  </div>
  {/* Free tier trust bar — P0.2: must be impossible to miss */}
  <div className="flex flex-wrap items-center gap-3 mt-1">
@@ -733,11 +1092,11 @@ function Hero() {
  <div className="flex items-center gap-3">
  <div className="flex -space-x-2">
  {WHO_IMAGES.map((src, i) => (
- <img key={i} src={src} alt="Creator" className="w-8 h-8 rounded-full border-2 border-border/10 object-cover" loading="lazy" />
+ <img key={i} src={src} alt="Creator" className="w-8 h-8 rounded-full border-2 border-[#030303] object-cover" loading="lazy" />
  ))}
  </div>
  <div>
-	 <span className="text-white/75 text-[11px] font-semibold tracking-wide" style={{textShadow:"0 0 12px rgba(201,168,76,0.4)"}}>Used by musicians, YouTubers, agencies &amp; kids creators</span>
+ <span className="text-white/75 text-[11px] font-semibold tracking-wide" style={{textShadow:"0 0 12px rgba(201,168,76,0.4)"}}>AI-powered video creation</span>
  </div>
  </div>
  <div className="h-6 w-px bg-[--color-gold]/25 hidden sm:block" />
@@ -800,7 +1159,7 @@ function HeroDemoSection() {
  setIsMuted(newMuted);
  }, [isMuted]);
  return (
- <section className="relative bg-background py-20 px-6 overflow-hidden">
+ <section className="relative bg-[#030303] py-20 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full opacity-[0.10] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
@@ -956,7 +1315,7 @@ function WizAIWorldsSection() {
  }, [isMuted]);
 
  return (
- <section className="relative bg-background py-24 px-6 overflow-hidden">
+ <section className="relative bg-[#030303] py-24 px-6 overflow-hidden">
  {/* Deep space ambient glow */}
  <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, oklch(0.20 0.08 260 / 0.18), transparent 70%)" }} />
  <div className="absolute top-0 left-0 right-0 luxury-divider" />
@@ -1368,7 +1727,7 @@ function WorkflowJourney() {
 function WelcomeSection() {
  const [demoOpen, setDemoOpen] = useState(false);
  return (
- <section className="relative bg-background py-28 px-6 overflow-hidden">
+ <section className="relative bg-[#030303] py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full opacity-[0.09] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
@@ -1396,7 +1755,7 @@ function WelcomeSection() {
  <button
         type="button"
         onClick={() => setDemoOpen(true)}
-        className="group relative w-full aspect-video rounded-2xl overflow-hidden border border-[--color-gold]/[0.08] bg-background hover:border-[--color-gold]/[0.2] transition-all duration-500 shadow-[0_16px_60px_rgba(0,0,0,0.6)] hover:shadow-[0_24px_80px_rgba(0,0,0,0.7),0_0_40px_rgba(196,164,100,0.05)] focus:outline-none cursor-pointer p-0 block"
+        className="group relative w-full aspect-video rounded-2xl overflow-hidden border border-[--color-gold]/[0.08] bg-[#080808] hover:border-[--color-gold]/[0.2] transition-all duration-500 shadow-[0_16px_60px_rgba(0,0,0,0.6)] hover:shadow-[0_24px_80px_rgba(0,0,0,0.7),0_0_40px_rgba(196,164,100,0.05)] focus:outline-none cursor-pointer p-0 block"
         style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent" }}
         aria-label="Watch WIZ AI demo"
         >
@@ -1502,7 +1861,7 @@ function WizEngines() {
  ];
 
  return (
- <section id="wiz-engines" className="relative bg-background py-32 px-6">
+ <section id="wiz-engines" className="relative bg-[#040404] py-32 px-6">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
 
  {/* Ambient glow */}
@@ -1756,7 +2115,7 @@ function HowItWorks() {
  }, [steps.length]);
 
  return (
- <section ref={sectionRef} id="how-it-works" className="relative bg-background py-28 px-6">
+ <section ref={sectionRef} id="how-it-works" className="relative bg-[#040404] py-28 px-6">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  <div className="max-w-7xl mx-auto">
  <div className="text-center mb-20 reveal">
@@ -2013,7 +2372,7 @@ function WhyWizAI() {
  },
  ];
  return (
- <section className="relative bg-background py-28 px-6 overflow-hidden">
+ <section className="relative bg-[#030303] py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] rounded-full opacity-[0.09] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
@@ -2446,7 +2805,7 @@ function WizLuminaDemo() {
  };
  }, [handleMove]);
  return (
- <section className="relative bg-background py-28 px-6 overflow-hidden">
+ <section className="relative bg-[#040404] py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full opacity-[0.10] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
@@ -2606,7 +2965,7 @@ function Showcase() {
  ];
 
  return (
- <section id="showcase" className="relative bg-background py-28 px-6 overflow-hidden">
+ <section id="showcase" className="relative bg-[#040404] py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[500px] rounded-full opacity-[0.07] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
@@ -2641,7 +3000,7 @@ function FeatureBlock() {
  cta: "Generate a Song",
  href: WIZAUDIO_STUDIO_PAGE,
  badge: "WizSound™",
- gradient: "from-background to-background",
+ gradient: "from-[#1a1408] to-[#0d0d0d]",
  borderGlow: "hover:border-[--color-gold]/30 hover:shadow-[0_0_40px_rgba(212,175,55,0.06)]",
  },
  {
@@ -2651,7 +3010,7 @@ function FeatureBlock() {
  cta: "Create a Music Video",
  href: WIZVIDEO_STUDIO_PAGE,
  badge: "WizCreate™",
- gradient: "from-background to-background",
+ gradient: "from-[#0d1018] to-[#0d0d0d]",
  borderGlow: "hover:border-[--color-gold]/25 hover:shadow-[0_0_40px_rgba(196,164,100,0.06)]",
  },
  {
@@ -2661,12 +3020,12 @@ function FeatureBlock() {
  cta: "Try WizPilot",
  href: WIZPILOT_STUDIO_PAGE,
  badge: "WizPilot™",
- gradient: "from-background to-background",
+ gradient: "from-[#0d0d0d] to-[#080808]",
  borderGlow: "hover:border-[--color-gold]/25 hover:shadow-[0_0_40px_rgba(196,164,100,0.06)]",
  },
   ];
  return (
- <section className="relative bg-background py-28 px-6 overflow-hidden">
+ <section className="relative bg-[#030303] py-28 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient gold glow */}
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] rounded-full opacity-[0.07] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
@@ -2864,15 +3223,7 @@ function SeeTheDifference() {
   const activeTierData = STD_TIERS.find((t) => t.key === activeTier)!;
 
   return (
-    <section className="relative py-24 bg-background overflow-hidden">
-  <Helmet>
-    <title>WIZ AI — AI Music Video Creator</title>
-    <meta name="description" content="Create cinematic AI music videos, animation, and images from a single prompt. No editing experience needed. Start free — no credit card required." />
-    <meta property="og:title" content="WIZ AI — AI Music Video Creator" />
-    <meta property="og:description" content="Create cinematic AI music videos, animation, and images from a single prompt. No editing experience needed. Start free — no credit card required." />
-    <meta property="og:url" content="https://wiz-ai.io/" />
-    <link rel="canonical" href="https://wiz-ai.io/" />
-  </Helmet>
+    <section className="relative py-24 bg-[#050505] overflow-hidden">
       {/* Deep ambient glow that shifts per tier */}
       <div
         className="absolute inset-0 pointer-events-none transition-all duration-1000"
@@ -3184,330 +3535,11 @@ function SeeTheDifference() {
 }
 
 
-// ─── WizLumina Tier Section — Standard / Enhance / Cinematic upsell ────────────
-function WizLuminaTierSection() {
-  const [activeTier, setActiveTier] = useState<"standard" | "enhance" | "cinematic">("standard");
-  const [hoveredCard, setHoveredCard] = useState<"standard" | "enhance" | "cinematic" | null>(null);
-  const [animKey, setAnimKey] = useState(0);
-
-  const TIERS = [
-    {
-      key: "standard" as const,
-      label: "Standard",
-      price: "Included",
-      priceNote: "with every render",
-      tagline: "Clean, corrected output",
-      features: ["Colour correction", "Noise reduction", "720p / 1080p export", "Consistent tone"],
-      accentColor: "oklch(0.72 0.01 260)",
-      borderColor: "rgba(148,163,184,0.25)",
-      glow: "rgba(148,163,184,0.12)",
-      glowHover: "rgba(148,163,184,0.28)",
-      badgeBg: "rgba(148,163,184,0.08)",
-      badgeBgHover: "rgba(148,163,184,0.16)",
-      badgeText: "oklch(0.78 0.01 260)",
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-    },
-    {
-      key: "enhance" as const,
-      label: "Enhance",
-      price: "+£2",
-      priceNote: "per render",
-      tagline: "Broadcast-ready visual polish",
-      features: ["All Standard features", "HDR enhancement", "Frame sharpening", "Vivid colour grading"],
-      accentColor: "oklch(0.65 0.18 250)",
-      borderColor: "rgba(99,102,241,0.40)",
-      glow: "rgba(99,102,241,0.25)",
-      glowHover: "rgba(99,102,241,0.50)",
-      badgeBg: "rgba(99,102,241,0.10)",
-      badgeBgHover: "rgba(99,102,241,0.20)",
-      badgeText: "oklch(0.72 0.18 250)",
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-        </svg>
-      ),
-    },
-    {
-      key: "cinematic" as const,
-      label: "Cinematic",
-      price: "+£5",
-      priceNote: "per render",
-      tagline: "Film-grade visual mastery",
-      features: ["All Enhance features", "Golden-hour film grade", "Deep contrast & warmth", "4K export ready"],
-      accentColor: "oklch(0.72 0.14 70)",
-      borderColor: "rgba(196,164,100,0.45)",
-      glow: "rgba(196,164,100,0.45)",
-      glowHover: "rgba(196,164,100,0.75)",
-      badgeBg: "rgba(196,164,100,0.10)",
-      badgeBgHover: "rgba(196,164,100,0.22)",
-      badgeText: "oklch(0.82 0.14 70)",
-      badge: "BEST EXPERIENCE",
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
-        </svg>
-      ),
-    },
-  ];
-
-  const active = TIERS.find((t) => t.key === activeTier)!;
-
-  const handleTierSwitch = (key: "standard" | "enhance" | "cinematic") => {
-    if (key === activeTier) return;
-    setActiveTier(key);
-    setAnimKey((k) => k + 1);
-  };
-
-  return (
-    <section className="relative bg-background py-28 px-6 overflow-hidden">
-      <div className="luxury-divider absolute top-0 left-0 right-0" />
-      {/* Ambient glow shifts per tier */}
-      <div
-        className="absolute inset-0 pointer-events-none transition-all duration-1000"
-        style={{ background: `radial-gradient(ellipse 70% 50% at 50% 100%, ${active.glow} 0%, transparent 65%)` }}
-      />
-      {/* CSS keyframes for stagger fade-in */}
-      <style>{`
-        @keyframes wizlumina-fade-up {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .wizlumina-feature-item {
-          animation: wizlumina-fade-up 0.35s ease both;
-        }
-        @keyframes wizlumina-card-in {
-          from { opacity: 0; transform: translateY(8px) scale(0.98); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .wizlumina-card-anim {
-          animation: wizlumina-card-in 0.4s cubic-bezier(0.22,1,0.36,1) both;
-        }
-      `}</style>
-
-      <div className="max-w-5xl mx-auto relative z-10">
-        {/* Header */}
-        <div className="text-center mb-14 reveal">
-          <div className="flex items-center justify-center gap-3 mb-5">
-            <img src={WIZLUMINA_LOGO} alt="WizLumina" className="w-12 h-12 object-contain drop-shadow-[0_0_16px_rgba(196,164,100,0.4)]" loading="lazy" />
-            <div className="text-left">
-              <p className="text-[10px] font-black tracking-[0.3em] uppercase text-[--color-gold-dark]/60">WizLumina™</p>
-              <p className="text-[13px] font-bold text-white/80">Visual Enhancement Engine</p>
-            </div>
-          </div>
-          <h2 className="text-[clamp(2rem,4.5vw,3rem)] font-black tracking-tight text-white mb-4">
-            Choose your visual grade
-          </h2>
-          <p className="text-[--color-silver-dark]/50 text-base max-w-lg mx-auto">
-            Every render includes Standard grading. Upgrade to Enhance or Cinematic for broadcast-ready and film-grade visuals.
-          </p>
-        </div>
-
-        {/* Tier toggle pills */}
-        <div className="flex items-center justify-center gap-2 mb-10 reveal">
-          {TIERS.map((tier) => {
-            const isActive = activeTier === tier.key;
-            return (
-              <button
-                key={tier.key}
-                onClick={() => handleTierSwitch(tier.key)}
-                className="relative px-6 py-2.5 rounded-full text-[13px] font-bold transition-all duration-300 overflow-hidden"
-                style={isActive ? {
-                  background: tier.badgeBg,
-                  color: tier.accentColor,
-                  border: `1px solid ${tier.borderColor}`,
-                  boxShadow: `0 0 20px ${tier.glow}, 0 0 0 1px ${tier.borderColor} inset`,
-                  transform: "scale(1.06)",
-                } : {
-                  background: "transparent",
-                  color: "rgba(255,255,255,0.4)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  transform: "scale(1)",
-                }}
-              >
-                {/* Active underline indicator */}
-                {isActive && (
-                  <span
-                    className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] rounded-full transition-all duration-500"
-                    style={{ width: "60%", background: tier.accentColor, boxShadow: `0 0 8px ${tier.accentColor}` }}
-                  />
-                )}
-                {tier.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Active tier card — animates on tier switch */}
-        <div className="reveal max-w-2xl mx-auto">
-          <div
-            key={`card-${activeTier}-${animKey}`}
-            className="wizlumina-card-anim rounded-2xl p-8 transition-all duration-500 hover:scale-[1.015]"
-            style={{
-              background: `linear-gradient(160deg, ${active.badgeBg} 0%, rgba(0,0,0,0.4) 100%)`,
-              border: `1px solid ${active.borderColor}`,
-              boxShadow: `0 0 60px ${active.glow}, 0 0 0 1px ${active.borderColor} inset`,
-              transition: "box-shadow 0.4s ease, transform 0.3s ease",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 90px ${active.glowHover}, 0 0 0 1px ${active.borderColor} inset`;
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLDivElement).style.boxShadow = `0 0 60px ${active.glow}, 0 0 0 1px ${active.borderColor} inset`;
-            }}
-          >
-            <div className="flex items-start justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300"
-                  style={{ background: active.badgeBg, border: `1px solid ${active.borderColor}`, color: active.accentColor }}
-                >
-                  {active.icon}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-xl font-black text-white">{active.label}</h3>
-                    {(active as typeof TIERS[2]).badge && (
-                      <span className="text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full" style={{ background: "oklch(0.72 0.14 70 / 0.15)", color: "oklch(0.82 0.14 70)", border: "1px solid oklch(0.72 0.14 70 / 0.30)" }}>
-                        {(active as typeof TIERS[2]).badge}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-white/50 mt-0.5">{active.tagline}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-black" style={{ color: active.accentColor }}>{active.price}</p>
-                <p className="text-[11px] text-white/40">{active.priceNote}</p>
-              </div>
-            </div>
-
-            {/* Feature list — stagger-animates on tier switch */}
-            <ul className="space-y-3 mb-8">
-              {active.features.map((f, idx) => (
-                <li
-                  key={`${activeTier}-${f}-${animKey}`}
-                  className="wizlumina-feature-item flex items-center gap-3 text-sm text-white/70"
-                  style={{ animationDelay: `${idx * 60}ms` }}
-                >
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: active.badgeBg, border: `1px solid ${active.borderColor}` }}>
-                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" style={{ color: active.accentColor }}>
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  {f}
-                </li>
-              ))}
-            </ul>
-
-            {/* CTA buttons */}
-            <div className="flex items-center gap-3">
-              <a
-                href="/pricing"
-                className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                style={{ background: `linear-gradient(135deg, ${active.badgeBg}, rgba(0,0,0,0.5))`, border: `1px solid ${active.borderColor}`, color: active.accentColor, boxShadow: `0 0 24px ${active.glow}` }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = `0 0 36px ${active.glowHover}`; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = `0 0 24px ${active.glow}`; }}
-              >
-                <img src={WIZLUMINA_LOGO} alt="" className="w-4 h-4 object-contain" aria-hidden="true" />
-                Select {active.label} Tier
-              </a>
-              <a
-                href="/onboarding"
-                className="px-6 py-3.5 rounded-xl text-sm font-semibold text-white/50 hover:text-white/80 hover:bg-white/[0.04] transition-all duration-200"
-                style={{ border: "1px solid rgba(255,255,255,0.08)" }}
-              >
-                Start Free
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Comparison row — hover to preview, click to select */}
-        <div className="mt-10 grid grid-cols-3 gap-4 reveal">
-          {TIERS.map((tier) => {
-            const isActive = activeTier === tier.key;
-            const isHovered = hoveredCard === tier.key;
-            return (
-              <div
-                key={tier.key}
-                className="relative rounded-xl overflow-hidden cursor-pointer"
-                style={{
-                  background: isActive ? tier.badgeBg : isHovered ? tier.badgeBgHover : "rgba(255,255,255,0.02)",
-                  border: `1px solid ${isActive ? tier.borderColor : isHovered ? tier.borderColor : "rgba(255,255,255,0.06)"}`,
-                  boxShadow: isActive ? `0 0 24px ${tier.glow}` : isHovered ? `0 0 32px ${tier.glowHover}` : "none",
-                  transform: isHovered && !isActive ? "translateY(-4px) scale(1.02)" : isActive ? "scale(1.01)" : "scale(1)",
-                  transition: "all 0.25s cubic-bezier(0.22,1,0.36,1)",
-                }}
-                onClick={() => handleTierSwitch(tier.key)}
-                onMouseEnter={() => setHoveredCard(tier.key)}
-                onMouseLeave={() => setHoveredCard(null)}
-              >
-                {/* Best experience badge */}
-                {(tier as typeof TIERS[2]).badge && (
-                  <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${tier.accentColor}, transparent)` }} />
-                )}
-                <div className="p-4 text-center">
-                  {/* Icon */}
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-2 transition-all duration-200"
-                    style={{ background: isActive || isHovered ? tier.badgeBg : "rgba(255,255,255,0.04)", color: isActive || isHovered ? tier.accentColor : "rgba(255,255,255,0.3)", border: `1px solid ${isActive || isHovered ? tier.borderColor : "rgba(255,255,255,0.06)"}` }}
-                  >
-                    <div className="scale-75">{tier.icon}</div>
-                  </div>
-                  <p className="text-sm font-bold mb-1" style={{ color: isActive ? tier.accentColor : isHovered ? tier.accentColor : "rgba(255,255,255,0.5)" }}>{tier.label}</p>
-                  <p className="text-lg font-black" style={{ color: isActive ? tier.accentColor : isHovered ? tier.accentColor : "rgba(255,255,255,0.3)" }}>{tier.price}</p>
-                  <p className="text-[10px] text-white/30 mt-0.5 mb-3">{tier.priceNote}</p>
-                  {/* Select Tier button */}
-                  <a
-                    href="/pricing"
-                    onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-lg text-[11px] font-bold tracking-wide transition-all duration-200"
-                    style={{
-                      background: isActive ? tier.badgeBg : "rgba(255,255,255,0.04)",
-                      border: `1px solid ${isActive ? tier.borderColor : "rgba(255,255,255,0.08)"}`,
-                      color: isActive ? tier.accentColor : "rgba(255,255,255,0.4)",
-                      boxShadow: isActive ? `0 0 12px ${tier.glow}` : "none",
-                    }}
-                    onMouseEnter={(e) => {
-                      const el = e.currentTarget as HTMLAnchorElement;
-                      el.style.background = tier.badgeBg;
-                      el.style.borderColor = tier.borderColor;
-                      el.style.color = tier.accentColor;
-                      el.style.boxShadow = `0 0 16px ${tier.glowHover}`;
-                    }}
-                    onMouseLeave={(e) => {
-                      const el = e.currentTarget as HTMLAnchorElement;
-                      el.style.background = isActive ? tier.badgeBg : "rgba(255,255,255,0.04)";
-                      el.style.borderColor = isActive ? tier.borderColor : "rgba(255,255,255,0.08)";
-                      el.style.color = isActive ? tier.accentColor : "rgba(255,255,255,0.4)";
-                      el.style.boxShadow = isActive ? `0 0 12px ${tier.glow}` : "none";
-                    }}
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                    </svg>
-                    Select Tier
-                  </a>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-
+// Final CTA 
 // ─── Music Video USP Section — visible to all new visitors on homepage ───────
 function MusicVideoUSPSection() {
   return (
-    <section className="relative bg-background py-32 px-6 overflow-hidden">
+    <section className="relative bg-[#050505] py-32 px-6 overflow-hidden">
       {/* Ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] rounded-full opacity-[0.12] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
       <div className="luxury-divider absolute top-0 left-0 right-0" />
@@ -3648,189 +3680,6 @@ function MusicVideoUSPSection() {
   );
 }
 
-// What Happens Next — 5-step process reassurance
-function WhatHappensNext() {
- const steps = [
- {
- num: "01",
- title: "Upload your track",
- desc: "Drop in your MP3. WIZ AI reads the lyrics, tempo, and mood to build your story.",
- },
- {
- num: "02",
- title: "Direct your storyboard",
- desc: "Review every scene before anything is generated. Lock your character, camera angles, and style.",
- },
- {
- num: "03",
- title: "Start creation",
- desc: "One click. WIZ AI renders each scene with cinematic precision — lip-synced to your vocals.",
- },
- {
- num: "04",
- title: "Get notified when it's ready",
- desc: "We email you the moment your video is complete. No waiting around.",
- },
- {
- num: "05",
- title: "Watch, download and share",
- desc: "Stream your video in-app, download in HD, and share directly to social. Your video, your rights.",
- },
- ];
- return (
- <section className="relative bg-background py-24 px-6 overflow-hidden">
- <div className="luxury-divider absolute top-0 left-0 right-0" />
- <div className="absolute top-0 right-0 w-[600px] h-[400px] opacity-[0.07] pointer-events-none" style={{ background: "radial-gradient(ellipse at top right, oklch(0.72 0.14 70), transparent 70%)" }} />
- <div className="relative z-10 max-w-5xl mx-auto">
- <div className="text-center mb-14 reveal">
- <p className="text-[11px] font-bold tracking-[0.22em] uppercase text-[--color-gold-dark] mb-3">The Process</p>
- <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-black tracking-tight text-white mb-4">
- What happens after you click{" "}
- <span className="metallic-gold">Create</span>?
- </h2>
- <p className="text-white/40 text-base max-w-xl mx-auto">Five steps from idea to finished video. No surprises.</p>
- </div>
- <div className="relative">
- {/* Vertical connector line */}
- <div className="absolute left-[1.75rem] top-8 bottom-8 w-px bg-gradient-to-b from-[--color-gold]/30 via-[--color-gold]/10 to-transparent hidden md:block" aria-hidden="true" />
- <div className="space-y-6">
- {steps.map((step, i) => (
- <div key={step.num} className="flex gap-6 items-start reveal" style={{ animationDelay: `${i * 80}ms` }}>
- {/* Step number bubble */}
- <div
- className="flex-shrink-0 w-14 h-14 rounded-full flex items-center justify-center text-sm font-black z-10"
- style={{
- background: "linear-gradient(135deg, rgba(196,164,100,0.18) 0%, rgba(196,164,100,0.06) 100%)",
- border: "1.5px solid rgba(196,164,100,0.35)",
- color: "oklch(0.82 0.12 72)",
- boxShadow: "0 0 20px rgba(196,164,100,0.12)",
- }}
- >{step.num}</div>
- {/* Content */}
- <div className="pt-3">
- <h3 className="text-white font-bold text-lg mb-1">{step.title}</h3>
- <p className="text-white/45 text-sm leading-relaxed max-w-lg">{step.desc}</p>
- </div>
- </div>
- ))}
- </div>
- </div>
- {/* Bottom CTA */}
- <div className="text-center mt-14 reveal">
- <a
- href="/onboarding"
- className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-10 py-4 rounded-2xl text-base font-bold"
- >
- <img src={WIZAI_LOGO} alt="" aria-hidden="true" className="w-4 h-4 object-contain" />
- Start your first project — Free
- </a>
- </div>
- </div>
- </section>
- );
-}
-
-// Brand Tagline Strip
-function BrandTaglineStrip() {
- return (
- <section className="relative bg-background py-16 px-6 overflow-hidden">
- <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ background: "linear-gradient(135deg, oklch(0.72 0.14 70) 0%, transparent 60%)" }} />
- <div className="relative z-10 max-w-4xl mx-auto text-center reveal">
- <p
- className="text-[clamp(1.4rem,3.5vw,2.4rem)] font-black tracking-tight"
- style={{ color: "oklch(0.82 0.12 72)" }}
- >
- Create videos.{" "}
- <span className="text-white">Get discovered.</span>{" "}
- Grow your audience.
- </p>
- <p className="text-white/30 text-sm mt-3 font-medium tracking-wide">WIZ AI — The AI Studio Built for Creators</p>
- </div>
- </section>
- );
-}
-
-function TestimonialsSection() {
- const testimonials = [
- {
- quote: "I created a full cinematic music video in one afternoon. The lip sync is genuinely impressive — my fans thought I hired a director.",
- name: "Jordan M.",
- role: "Independent Artist",
- type: "Musician",
- },
- {
- quote: "As a YouTuber I needed something that looked premium without a production budget. WIZ AI delivered exactly that.",
- name: "Priya K.",
- role: "Content Creator",
- type: "YouTuber",
- },
- {
- quote: "We use it for client pitch videos and campaign teasers. The storyboard-to-video pipeline saves us days of work.",
- name: "Marcus T.",
- role: "Creative Director",
- type: "Agency",
- },
- ];
- return (
- <section className="relative bg-background py-20 px-6 overflow-hidden">
- <div className="max-w-6xl mx-auto">
- {/* Section header */}
- <div className="text-center mb-12 reveal">
- <p className="text-[11px] font-bold tracking-[0.22em] uppercase text-[--color-gold-dark] mb-3">What Creators Say</p>
- <h2 className="text-[clamp(1.8rem,4vw,2.8rem)] font-black tracking-tight text-white">Join 500+ creators already using WizVid</h2>
- </div>
- {/* Cards */}
- <div className="grid grid-cols-1 md:grid-cols-3 gap-6 reveal">
- {testimonials.map((t) => (
- <div
- key={t.name}
- className="relative rounded-2xl p-6 flex flex-col gap-4"
- style={{
- background: "linear-gradient(135deg, rgba(196,164,100,0.06) 0%, rgba(196,164,100,0.02) 100%)",
- border: "1px solid rgba(196,164,100,0.18)",
- backdropFilter: "blur(12px)",
- }}
- >
- {/* Stars */}
- <div className="flex gap-1">
- {[...Array(5)].map((_, i) => (
- <StarSVG key={i} className="w-3.5 h-3.5" style={{ color: "oklch(0.78 0.11 75)" }} />
- ))}
- </div>
- {/* Quote */}
- <p className="text-white/75 text-sm leading-relaxed flex-1">&ldquo;{t.quote}&rdquo;</p>
- {/* Author */}
- <div className="flex items-center gap-3 pt-2 border-t border-white/[0.06]">
- <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: "oklch(0.78 0.11 75 / 0.15)", color: "oklch(0.82 0.12 72)" }}>
- {t.name.charAt(0)}
- </div>
- <div>
- <p className="text-white/90 text-sm font-semibold">{t.name}</p>
- <p className="text-[--color-gold-dark] text-[11px] font-medium">{t.role} · {t.type}</p>
- </div>
- </div>
- </div>
- ))}
- </div>
- {/* Creator type labels */}
- <div className="flex flex-wrap items-center justify-center gap-3 mt-10 reveal">
- {["Musicians", "YouTubers", "Agencies", "Kids Creators", "Filmmakers", "Animators"].map((label) => (
- <span
- key={label}
- className="inline-flex items-center px-4 py-2 rounded-full text-[12px] font-semibold"
- style={{
- background: "rgba(196,164,100,0.06)",
- border: "1px solid rgba(196,164,100,0.16)",
- color: "oklch(0.82 0.12 72)",
- }}
- >{label}</span>
- ))}
- </div>
- </div>
- </section>
- );
-}
-
 function FinalCTA() {
  const guarantees = [
  { label: "No credit card required" },
@@ -3840,7 +3689,7 @@ function FinalCTA() {
  { label: "Cancel anytime" },
  ];
  return (
- <section className="relative bg-background py-32 px-6 overflow-hidden">
+ <section className="relative bg-[#040404] py-32 px-6 overflow-hidden">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  {/* Ambient glow */}
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] rounded-full opacity-[0.20] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
@@ -3951,7 +3800,7 @@ const DEMO_VIDEOS = [
 // Footer 
 function Footer() {
  return (
- <footer className="relative bg-background py-16 px-6">
+ <footer className="relative bg-[#030303] py-16 px-6">
  <div className="luxury-divider absolute top-0 left-0 right-0" />
  <div className="max-w-7xl mx-auto">
  <div className="grid md:grid-cols-5 gap-10 mb-12">
@@ -4066,7 +3915,7 @@ function StickyMobileCTA() {
 
  return (
  <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden">
- <div className="bg-background/95 backdrop-blur-xl border-t border-[--color-gold]/[0.12] px-4 py-3 flex items-center gap-3 shadow-[0_-8px_32px_rgba(0,0,0,0.6)]">
+ <div className="bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-[--color-gold]/[0.12] px-4 py-3 flex items-center gap-3 shadow-[0_-8px_32px_rgba(0,0,0,0.6)]">
  <a
  href="/onboarding"
  className="flex-1 btn-primary btn-sheen inline-flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold"
@@ -4097,7 +3946,7 @@ function ContinueProjectBanner() {
  if (!showResume || !resumeData) return null;
  return (
  <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-sm w-full mx-4">
- <div className="bg-background border border-[--color-gold]/[0.1] rounded-2xl px-5 py-4 shadow-[0_16px_60px_rgba(0,0,0,0.7)] backdrop-blur-xl flex items-center gap-4">
+ <div className="bg-[#0a0a0a] border border-[--color-gold]/[0.1] rounded-2xl px-5 py-4 shadow-[0_16px_60px_rgba(0,0,0,0.7)] backdrop-blur-xl flex items-center gap-4">
  <div className="flex-1 min-w-0">
  <p className="text-xs text-[--color-silver-dark]/40 mb-0.5">Continue where you left off</p>
  <p className="text-sm font-semibold text-white truncate">{resumeData.title || "Untitled project"}</p>
@@ -4115,7 +3964,7 @@ export default function Home() {
  useReveal();
  useEffect(() => { mp.homepageViewed(); }, []);
  return (
- <div className="bg-background text-white min-h-screen overflow-x-hidden">
+ <div className="bg-[#030303] text-white min-h-screen overflow-x-hidden">
 
  <a
  href="#main-content"
@@ -4137,29 +3986,17 @@ export default function Home() {
  <ProductGrid />
  {/* 5. Audio Demo — WizSound */}
  <WizSoundDemo />
- {/* 5b. WizSound dedicated section — waveform, glow, 3 feature cards */}
- <WizSoundSection />
  {/* 6. How It Works — 4-step process */}
  <HowItWorks />
  {/* 7. Cinematic Demo — SeeTheDifference */}
  <SeeTheDifference />
- {/* 7b. WizLumina Tier — Standard / Enhance / Cinematic upsell */}
- <WizLuminaTierSection />
  {/* 8. Video Showcase — real outputs */}
  <Showcase />
       {/* 9. Music Video USP — visible to all new visitors */}
       <MusicVideoUSPSection />
-      {/* 9b. What Happens Next — 5-step process */}
-      <WhatHappensNext />
-      {/* 10. Testimonials + Social Proof */}
-      <TestimonialsSection />
-      {/* 10b. Brand Tagline Strip */}
-      <BrandTaglineStrip />
-      {/* 11. Pricing — simplified 3-plan overview */}
-      <HomePricingSection />
-      {/* 12. Final CTA */}
+      {/* 10. Final CTA */}
       <FinalCTA />
- {/* 13. Studio Lounge — creator comfort section */}
+ {/* 10. Studio Lounge — creator comfort section */}
  <StudioLoungeSection />
  </main>
  <Footer />

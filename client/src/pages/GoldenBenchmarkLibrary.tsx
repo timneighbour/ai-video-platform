@@ -160,8 +160,8 @@ export default function GoldenBenchmarkLibrary() {
 
   if (!user || user.role !== "admin") {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="w-full max-w-md bg-card border-white/10">
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <Card className="w-full max-w-md bg-[#12121a] border-white/10">
           <CardHeader className="text-center">
             <ShieldAlert className="w-12 h-12 mx-auto text-red-400 mb-2" />
             <CardTitle className="text-white">Access Restricted</CardTitle>
@@ -186,12 +186,12 @@ export default function GoldenBenchmarkLibrary() {
   const trendScore = recentRuns.length > 0 ? Math.round((passCount / recentRuns.length) * 100) : null;
 
   return (
-    <div className="min-h-screen bg-background text-white">
+    <div className="min-h-screen bg-[#0a0a0f] text-white">
       {/* Header */}
-      <div className="border-b border-white/10 bg-background">
+      <div className="border-b border-white/10 bg-[#0d0d15]">
         <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#b8892a] to-[#e8c97a] flex items-center justify-center">
               <Crown className="w-5 h-5 text-black" />
             </div>
             <div>
@@ -210,7 +210,7 @@ export default function GoldenBenchmarkLibrary() {
               size="sm"
               onClick={() => triggerMutation.mutate()}
               disabled={isTriggering}
-              className="bg-gradient-to-r from-primary to-primary/50 hover:from-primary/90 hover:to-primary/60 text-white font-semibold"
+              className="bg-gradient-to-r from-[#b8892a] to-[#8a6520] hover:from-[#c99a35] hover:to-[#9a7530] text-white font-semibold"
             >
               {isTriggering ? (
                 <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />Running…</>
@@ -226,7 +226,7 @@ export default function GoldenBenchmarkLibrary() {
 
         {/* Quality Score Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-card border-white/10">
+          <Card className="bg-[#12121a] border-white/10">
             <CardContent className="pt-6 pb-5 flex flex-col items-center gap-4">
               <QualityRing score={validationPassRate} label="Validation Pass Rate" color="#22c55e" />
               <div className="text-center">
@@ -240,7 +240,7 @@ export default function GoldenBenchmarkLibrary() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-white/10">
+          <Card className="bg-[#12121a] border-white/10">
             <CardContent className="pt-6 pb-5 flex flex-col items-center gap-4">
               <QualityRing score={exportPassRate} label="Export Pass Rate" color="#3b82f6" />
               <div className="text-center">
@@ -250,7 +250,7 @@ export default function GoldenBenchmarkLibrary() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-white/10">
+          <Card className="bg-[#12121a] border-white/10">
             <CardContent className="pt-6 pb-5 flex flex-col items-center gap-4">
               <QualityRing score={trendScore} label="7-Day Trend" color="#f59e0b" />
               <div className="text-center">
@@ -266,10 +266,10 @@ export default function GoldenBenchmarkLibrary() {
           <h2 className="text-sm font-semibold text-white/60 uppercase tracking-widest mb-4">Benchmark Projects</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {BENCHMARK_PROJECTS.map((project) => (
-              <Card key={project.id} className={`bg-card border-white/10 relative overflow-hidden ${project.status === "active" ? "ring-1 ring-[#b8892a]/40" : ""}`}>
+              <Card key={project.id} className={`bg-[#12121a] border-white/10 relative overflow-hidden ${project.status === "active" ? "ring-1 ring-[#b8892a]/40" : ""}`}>
                 {project.status === "active" && (
                   <div className="absolute top-3 right-3">
-                    <Badge className="bg-primary/20 text-primary/90 border-primary/40 text-xs">Active</Badge>
+                    <Badge className="bg-[#b8892a]/20 text-[#e8c97a] border-[#b8892a]/40 text-xs">Active</Badge>
                   </div>
                 )}
                 {project.status === "planned" && (
@@ -319,10 +319,10 @@ export default function GoldenBenchmarkLibrary() {
         </div>
 
         {/* Frozen Fixture Spec */}
-        <Card className="bg-card border-primary/20">
+        <Card className="bg-[#12121a] border-[#b8892a]/20">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-primary/90" />
+              <Star className="w-4 h-4 text-[#e8c97a]" />
               <CardTitle className="text-sm text-white">Frozen Fixture Spec — Zara Golden Benchmark</CardTitle>
             </div>
             <CardDescription className="text-xs">
@@ -355,7 +355,7 @@ export default function GoldenBenchmarkLibrary() {
         </Card>
 
         {/* Validation Run History */}
-        <Card className="bg-card border-white/10">
+        <Card className="bg-[#12121a] border-white/10">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -433,7 +433,7 @@ export default function GoldenBenchmarkLibrary() {
                                 href={run.finalVideoUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-primary/90 hover:underline"
+                                className="text-[#e8c97a] hover:underline"
                               >
                                 ▶ Watch
                               </a>

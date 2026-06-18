@@ -41,7 +41,7 @@ export default function WizaVisionWatch() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-[#070710] flex items-center justify-center">
         <div className="text-white/40">Loading...</div>
       </div>
     );
@@ -49,7 +49,7 @@ export default function WizaVisionWatch() {
 
   if (!video) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-[#070710] flex items-center justify-center">
         <div className="text-center">
           <p className="text-white/60 mb-4">Video not found</p>
           <Link href="/wizavision">
@@ -63,7 +63,7 @@ export default function WizaVisionWatch() {
   const v = video as any;
 
   return (
-    <div className="min-h-screen bg-background text-white">
+    <div className="min-h-screen bg-[#070710] text-white">
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Back nav */}
         <div className="flex items-center gap-3 mb-6">
@@ -101,7 +101,7 @@ export default function WizaVisionWatch() {
                   </div>
                 </div>
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-background to-background">
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#1a1a3e] to-[#0a0a14]">
                   <Play className="w-16 h-16 text-white/20" />
                 </div>
               )}
@@ -188,7 +188,7 @@ export default function WizaVisionWatch() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-white text-sm font-medium line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+                        <h4 className="text-white text-sm font-medium line-clamp-2 leading-tight group-hover:text-[#b8892a] transition-colors">
                           {r.title}
                         </h4>
                         {r.creatorName && <p className="text-white/40 text-xs mt-1">{r.creatorName}</p>}

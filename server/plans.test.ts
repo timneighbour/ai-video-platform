@@ -41,19 +41,19 @@ describe("plans.ts — single source of truth", () => {
     expect(free?.annualTotal).toBe(0);
   });
 
-  it("starter plan price matches server/products.ts (£29/mo)", () => {
+  it("starter plan price matches server/products.ts (£9/mo)", () => {
     const starter = getPlan("starter");
-    expect(starter?.monthlyPrice).toBe(29);
+    expect(starter?.monthlyPrice).toBe(9);
   });
 
-  it("creator plan price matches server/products.ts (£79/mo)", () => {
+  it("creator plan price matches server/products.ts (£35/mo)", () => {
     const creator = getPlan("creator");
-    expect(creator?.monthlyPrice).toBe(79);
+    expect(creator?.monthlyPrice).toBe(35);
   });
 
-  it("studio plan price matches server/products.ts (£149/mo)", () => {
+  it("studio plan price matches server/products.ts (£99/mo)", () => {
     const studio = getPlan("studio");
-    expect(studio?.monthlyPrice).toBe(149);
+    expect(studio?.monthlyPrice).toBe(99);
   });
 
   it("PRICING_PAGE_PLANS contains exactly starter, creator, studio", () => {

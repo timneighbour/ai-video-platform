@@ -127,7 +127,7 @@ export function InstrumentAccuracyPanel({ jobId, isLocked }: InstrumentAccuracyP
       <CardContent className="px-4 pb-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {data.assignments.map((assignment) => {
-            const roleColour = ROLE_COLOURS[assignment.performanceRole] ?? "bg-muted-foreground/20/20 text-foreground/80 border-border/50/30";
+            const roleColour = ROLE_COLOURS[assignment.performanceRole] ?? "bg-zinc-500/20 text-zinc-300 border-zinc-500/30";
             const icon = INSTRUMENT_ICONS[assignment.performanceRole] ?? <Music2 className="w-4 h-4" />;
             const isEditing = editingId === assignment.characterId;
 
@@ -232,10 +232,10 @@ export function InstrumentAccuracyPanel({ jobId, isLocked }: InstrumentAccuracyP
                 ?.map((i: { label: string }) => i.label)
                 .join(", ") || "Analysing…"}
               {data.instrumentAnalysis.tempo && (
-                <span className="ml-2 text-muted-foreground/70">· {data.instrumentAnalysis.tempo} BPM</span>
+                <span className="ml-2 text-zinc-500">· {data.instrumentAnalysis.tempo} BPM</span>
               )}
               {data.instrumentAnalysis.energyLevel && (
-                <span className="ml-2 text-muted-foreground/70">· {data.instrumentAnalysis.energyLevel} energy</span>
+                <span className="ml-2 text-zinc-500">· {data.instrumentAnalysis.energyLevel} energy</span>
               )}
             </p>
           </div>

@@ -355,7 +355,7 @@ export default function AdminEmail() {
               <div>
                 <p className="text-sm font-medium mb-2">Preview (as rendered in email client):</p>
                 <div
-                  className="border border-border rounded-lg p-6 bg-background text-sm"
+                  className="border border-border rounded-lg p-6 bg-[#0f0f17] text-sm"
                   style={{ maxHeight: 400, overflowY: "auto" }}
                 >
                   <div

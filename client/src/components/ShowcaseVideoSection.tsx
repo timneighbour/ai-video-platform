@@ -170,7 +170,7 @@ export default function ShowcaseVideoSection({
 
   return (
     <section
-      className={`relative bg-background py-24 px-6 ${className}`}
+      className={`relative bg-[#040404] py-24 px-6 ${className}`}
       style={{ borderTop: "1px solid rgba(196,164,100,0.06)" }}
     >
       <div className="max-w-6xl mx-auto">

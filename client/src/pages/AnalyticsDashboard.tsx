@@ -40,7 +40,7 @@ function fmtDuration(secs: number): string {
 }
 
 function TrendBadge({ change }: { change: number }) {
-  if (change === 0) return <span className="text-xs text-muted-foreground/70">—</span>;
+  if (change === 0) return <span className="text-xs text-zinc-500">—</span>;
   const up = change > 0;
   return (
     <span className={`text-xs font-semibold ${up ? "text-emerald-400" : "text-red-400"}`}>
@@ -53,14 +53,14 @@ function KPICard({
   title, value, change, sub, accent,
 }: { title: string; value: string; change?: number; sub?: string; accent?: boolean }) {
   return (
-    <Card className={`border-border bg-card/60 backdrop-blur ${accent ? "border-[#d4af37]/40 shadow-[0_0_20px_rgba(212,175,55,0.08)]" : ""}`}>
+    <Card className={`border-zinc-800 bg-zinc-900/60 backdrop-blur ${accent ? "border-[#d4af37]/40 shadow-[0_0_20px_rgba(212,175,55,0.08)]" : ""}`}>
       <CardContent className="pt-5 pb-4">
-        <p className="text-xs text-muted-foreground/70 uppercase tracking-widest mb-1">{title}</p>
+        <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1">{title}</p>
         <div className="flex items-end gap-3">
-          <span className={`text-3xl font-bold ${accent ? "text-primary/85" : "text-white"}`}>{value}</span>
+          <span className={`text-3xl font-bold ${accent ? "text-[#d4af37]" : "text-white"}`}>{value}</span>
           {change !== undefined && <TrendBadge change={change} />}
         </div>
-        {sub && <p className="text-xs text-muted-foreground/50 mt-1">{sub}</p>}
+        {sub && <p className="text-xs text-zinc-600 mt-1">{sub}</p>}
       </CardContent>
     </Card>
   );
@@ -71,8 +71,8 @@ function KPICard({
 function GoldTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-card border border-border rounded-lg px-3 py-2 text-sm shadow-xl">
-      <p className="text-muted-foreground mb-1">{label}</p>
+    <div className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm shadow-xl">
+      <p className="text-zinc-400 mb-1">{label}</p>
       {payload.map((p: any, i: number) => (
         <p key={i} style={{ color: p.color }} className="font-semibold">
           {p.name}: {typeof p.value === "number" ? fmtNum(p.value) : p.value}
@@ -100,9 +100,9 @@ export default function AnalyticsDashboard() {
   // Access guard
   if (!user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="border-border bg-card p-8 text-center">
-          <p className="text-muted-foreground mb-4">Sign in to access analytics.</p>
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <Card className="border-zinc-800 bg-zinc-900 p-8 text-center">
+          <p className="text-zinc-400 mb-4">Sign in to access analytics.</p>
           <Link href="/"><Button variant="outline">Return Home</Button></Link>
         </Card>
       </div>
@@ -110,10 +110,10 @@ export default function AnalyticsDashboard() {
   }
   if (user.role !== "admin") {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="border-border bg-card p-8 text-center">
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <Card className="border-zinc-800 bg-zinc-900 p-8 text-center">
           <p className="text-red-400 font-semibold mb-2">Access Forbidden</p>
-          <p className="text-muted-foreground/70 text-sm mb-4">This page is restricted to administrators.</p>
+          <p className="text-zinc-500 text-sm mb-4">This page is restricted to administrators.</p>
           <Link href="/dashboard"><Button variant="outline">Return to Dashboard</Button></Link>
         </Card>
       </div>
@@ -141,27 +141,27 @@ export default function AnalyticsDashboard() {
   })), [devices]);
 
   return (
-    <div className="min-h-screen bg-background text-white">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* Header */}
-      <div className="border-b border-border bg-background/80 backdrop-blur sticky top-0 z-40">
+      <div className="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur sticky top-0 z-40">
         <div className="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Link href="/admin">
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-white gap-2">
+              <Button variant="ghost" size="sm" className="text-zinc-400 hover:text-white gap-2">
                 ← Admin
               </Button>
             </Link>
             <div>
               <h1 className="text-lg font-bold text-white">Analytics Dashboard</h1>
-              <p className="text-xs text-muted-foreground/70">Real-time visitor behaviour &amp; page performance</p>
+              <p className="text-xs text-zinc-500">Real-time visitor behaviour &amp; page performance</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Select value={String(days)} onValueChange={(v) => setDays(Number(v))}>
-              <SelectTrigger className="w-36 bg-card border-border text-sm">
+              <SelectTrigger className="w-36 bg-zinc-900 border-zinc-700 text-sm">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-card border-border">
+              <SelectContent className="bg-zinc-900 border-zinc-700">
                 <SelectItem value="7">Last 7 days</SelectItem>
                 <SelectItem value="14">Last 14 days</SelectItem>
                 <SelectItem value="30">Last 30 days</SelectItem>
@@ -172,7 +172,7 @@ export default function AnalyticsDashboard() {
             <Button
               variant="outline"
               size="sm"
-              className="border-border text-muted-foreground"
+              className="border-zinc-700 text-zinc-400"
               onClick={() => {
                 overviewQ.refetch();
                 timeSeriesQ.refetch();
@@ -227,14 +227,14 @@ export default function AnalyticsDashboard() {
         </div>
 
         {/* ── Visitor Time Series ──────────────────────────────────────────── */}
-        <Card className="border-border bg-card/60">
+        <Card className="border-zinc-800 bg-zinc-900/60">
           <CardHeader>
             <CardTitle className="text-white text-base">Visitors &amp; Sessions Over Time</CardTitle>
-            <CardDescription className="text-muted-foreground/70">Daily unique visitors and total sessions</CardDescription>
+            <CardDescription className="text-zinc-500">Daily unique visitors and total sessions</CardDescription>
           </CardHeader>
           <CardContent>
             {ts.length === 0 ? (
-              <div className="h-64 flex items-center justify-center text-muted-foreground/50 text-sm">
+              <div className="h-64 flex items-center justify-center text-zinc-600 text-sm">
                 No data yet — visitors will appear here as they browse the site.
               </div>
             ) : (
@@ -266,23 +266,23 @@ export default function AnalyticsDashboard() {
         {/* ── Two-column: Funnel + Traffic Sources ───────────────────────── */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Conversion Funnel */}
-          <Card className="border-border bg-card/60">
+          <Card className="border-zinc-800 bg-zinc-900/60">
             <CardHeader>
               <CardTitle className="text-white text-base">Conversion Funnel</CardTitle>
-              <CardDescription className="text-muted-foreground/70">Visitor → Sign-up → Render → Purchase</CardDescription>
+              <CardDescription className="text-zinc-500">Visitor → Sign-up → Render → Purchase</CardDescription>
             </CardHeader>
             <CardContent>
               {funnel.length === 0 ? (
-                <div className="h-48 flex items-center justify-center text-muted-foreground/50 text-sm">No data yet</div>
+                <div className="h-48 flex items-center justify-center text-zinc-600 text-sm">No data yet</div>
               ) : (
                 <div className="space-y-3">
                   {funnel.map((step, i) => (
                     <div key={step.stage}>
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-foreground/80">{step.stage}</span>
-                        <span className="text-muted-foreground">{fmtNum(step.count)} <span className="text-muted-foreground/50 ml-1">({step.pct}%)</span></span>
+                        <span className="text-zinc-300">{step.stage}</span>
+                        <span className="text-zinc-400">{fmtNum(step.count)} <span className="text-zinc-600 ml-1">({step.pct}%)</span></span>
                       </div>
-                      <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                      <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-700"
                           style={{ width: `${step.pct}%`, backgroundColor: FUNNEL_COLORS[i] }}
@@ -296,14 +296,14 @@ export default function AnalyticsDashboard() {
           </Card>
 
           {/* Traffic Sources */}
-          <Card className="border-border bg-card/60">
+          <Card className="border-zinc-800 bg-zinc-900/60">
             <CardHeader>
               <CardTitle className="text-white text-base">Traffic Sources</CardTitle>
-              <CardDescription className="text-muted-foreground/70">Where visitors are coming from</CardDescription>
+              <CardDescription className="text-zinc-500">Where visitors are coming from</CardDescription>
             </CardHeader>
             <CardContent>
               {sources.length === 0 ? (
-                <div className="h-48 flex items-center justify-center text-muted-foreground/50 text-sm">No data yet</div>
+                <div className="h-48 flex items-center justify-center text-zinc-600 text-sm">No data yet</div>
               ) : (
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={sources} layout="vertical" margin={{ left: 10, right: 20 }}>
@@ -321,13 +321,13 @@ export default function AnalyticsDashboard() {
 
         {/* ── Device & Browser Breakdown ───────────────────────────────────── */}
         <div className="grid md:grid-cols-2 gap-6">
-          <Card className="border-border bg-card/60">
+          <Card className="border-zinc-800 bg-zinc-900/60">
             <CardHeader>
               <CardTitle className="text-white text-base">Device Types</CardTitle>
             </CardHeader>
             <CardContent>
               {devicePie.length === 0 ? (
-                <div className="h-48 flex items-center justify-center text-muted-foreground/50 text-sm">No data yet</div>
+                <div className="h-48 flex items-center justify-center text-zinc-600 text-sm">No data yet</div>
               ) : (
                 <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
@@ -342,13 +342,13 @@ export default function AnalyticsDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-border bg-card/60">
+          <Card className="border-zinc-800 bg-zinc-900/60">
             <CardHeader>
               <CardTitle className="text-white text-base">Browsers</CardTitle>
             </CardHeader>
             <CardContent>
               {browserPie.length === 0 ? (
-                <div className="h-48 flex items-center justify-center text-muted-foreground/50 text-sm">No data yet</div>
+                <div className="h-48 flex items-center justify-center text-zinc-600 text-sm">No data yet</div>
               ) : (
                 <ResponsiveContainer width="100%" height={200}>
                   <PieChart>
@@ -366,44 +366,44 @@ export default function AnalyticsDashboard() {
 
         {/* ── Tabs: Pages / Events / Live Sessions ────────────────────────── */}
         <Tabs defaultValue="pages">
-          <TabsList className="bg-card border border-border">
-            <TabsTrigger value="pages" className="data-[state=active]:bg-secondary data-[state=active]:text-white text-muted-foreground">
+          <TabsList className="bg-zinc-900 border border-zinc-800">
+            <TabsTrigger value="pages" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400">
               Top Pages
             </TabsTrigger>
-            <TabsTrigger value="events" className="data-[state=active]:bg-secondary data-[state=active]:text-white text-muted-foreground">
+            <TabsTrigger value="events" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400">
               Top Events
             </TabsTrigger>
-            <TabsTrigger value="live" className="data-[state=active]:bg-secondary data-[state=active]:text-white text-muted-foreground">
+            <TabsTrigger value="live" className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400">
               Live Sessions
             </TabsTrigger>
           </TabsList>
 
           {/* Top Pages */}
           <TabsContent value="pages">
-            <Card className="border-border bg-card/60">
+            <Card className="border-zinc-800 bg-zinc-900/60">
               <CardContent className="pt-4">
                 {pages.length === 0 ? (
-                  <div className="py-12 text-center text-muted-foreground/50 text-sm">No page view data yet — visit some pages to populate this table.</div>
+                  <div className="py-12 text-center text-zinc-600 text-sm">No page view data yet — visit some pages to populate this table.</div>
                 ) : (
                   <Table>
                     <TableHeader>
-                      <TableRow className="border-border hover:bg-transparent">
-                        <TableHead className="text-muted-foreground/70">Page</TableHead>
-                        <TableHead className="text-muted-foreground/70 text-right">Views</TableHead>
-                        <TableHead className="text-muted-foreground/70 text-right">Unique Visitors</TableHead>
-                        <TableHead className="text-muted-foreground/70 text-right">Avg Time</TableHead>
-                        <TableHead className="text-muted-foreground/70 text-right">Scroll Depth</TableHead>
+                      <TableRow className="border-zinc-800 hover:bg-transparent">
+                        <TableHead className="text-zinc-500">Page</TableHead>
+                        <TableHead className="text-zinc-500 text-right">Views</TableHead>
+                        <TableHead className="text-zinc-500 text-right">Unique Visitors</TableHead>
+                        <TableHead className="text-zinc-500 text-right">Avg Time</TableHead>
+                        <TableHead className="text-zinc-500 text-right">Scroll Depth</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {pages.map((p) => (
-                        <TableRow key={p.path} className="border-border hover:bg-secondary/50">
-                          <TableCell className="text-foreground font-mono text-sm max-w-xs truncate">{p.path}</TableCell>
+                        <TableRow key={p.path} className="border-zinc-800 hover:bg-zinc-800/50">
+                          <TableCell className="text-zinc-200 font-mono text-sm max-w-xs truncate">{p.path}</TableCell>
                           <TableCell className="text-right text-white font-semibold">{fmtNum(Number(p.views))}</TableCell>
-                          <TableCell className="text-right text-muted-foreground">{fmtNum(Number(p.uniqueVisitors))}</TableCell>
-                          <TableCell className="text-right text-muted-foreground">{fmtDuration(Math.round(Number(p.avgTimeOnPage ?? 0)))}</TableCell>
+                          <TableCell className="text-right text-zinc-400">{fmtNum(Number(p.uniqueVisitors))}</TableCell>
+                          <TableCell className="text-right text-zinc-400">{fmtDuration(Math.round(Number(p.avgTimeOnPage ?? 0)))}</TableCell>
                           <TableCell className="text-right">
-                            <span className="text-muted-foreground">{Math.round(Number(p.avgScrollDepth ?? 0))}%</span>
+                            <span className="text-zinc-400">{Math.round(Number(p.avgScrollDepth ?? 0))}%</span>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -416,31 +416,31 @@ export default function AnalyticsDashboard() {
 
           {/* Top Events */}
           <TabsContent value="events">
-            <Card className="border-border bg-card/60">
+            <Card className="border-zinc-800 bg-zinc-900/60">
               <CardContent className="pt-4">
                 {events.length === 0 ? (
-                  <div className="py-12 text-center text-muted-foreground/50 text-sm">No events tracked yet — events fire as users interact with the site.</div>
+                  <div className="py-12 text-center text-zinc-600 text-sm">No events tracked yet — events fire as users interact with the site.</div>
                 ) : (
                   <Table>
                     <TableHeader>
-                      <TableRow className="border-border hover:bg-transparent">
-                        <TableHead className="text-muted-foreground/70">Event</TableHead>
-                        <TableHead className="text-muted-foreground/70">Category</TableHead>
-                        <TableHead className="text-muted-foreground/70 text-right">Count</TableHead>
-                        <TableHead className="text-muted-foreground/70 text-right">Unique Users</TableHead>
+                      <TableRow className="border-zinc-800 hover:bg-transparent">
+                        <TableHead className="text-zinc-500">Event</TableHead>
+                        <TableHead className="text-zinc-500">Category</TableHead>
+                        <TableHead className="text-zinc-500 text-right">Count</TableHead>
+                        <TableHead className="text-zinc-500 text-right">Unique Users</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {events.map((e) => (
-                        <TableRow key={e.event} className="border-border hover:bg-secondary/50">
-                          <TableCell className="text-foreground font-mono text-sm">{e.event}</TableCell>
+                        <TableRow key={e.event} className="border-zinc-800 hover:bg-zinc-800/50">
+                          <TableCell className="text-zinc-200 font-mono text-sm">{e.event}</TableCell>
                           <TableCell>
                             {e.category && (
-                              <Badge variant="outline" className="border-border text-muted-foreground text-xs">{e.category}</Badge>
+                              <Badge variant="outline" className="border-zinc-700 text-zinc-400 text-xs">{e.category}</Badge>
                             )}
                           </TableCell>
                           <TableCell className="text-right text-white font-semibold">{fmtNum(Number(e.count))}</TableCell>
-                          <TableCell className="text-right text-muted-foreground">{fmtNum(Number(e.uniqueUsers))}</TableCell>
+                          <TableCell className="text-right text-zinc-400">{fmtNum(Number(e.uniqueUsers))}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -452,50 +452,50 @@ export default function AnalyticsDashboard() {
 
           {/* Live Sessions */}
           <TabsContent value="live">
-            <Card className="border-border bg-card/60">
+            <Card className="border-zinc-800 bg-zinc-900/60">
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   <CardTitle className="text-white text-base">Recent Sessions</CardTitle>
-                  <CardDescription className="text-muted-foreground/70 ml-2">Auto-refreshes every 30s</CardDescription>
+                  <CardDescription className="text-zinc-500 ml-2">Auto-refreshes every 30s</CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
                 {recent.length === 0 ? (
-                  <div className="py-12 text-center text-muted-foreground/50 text-sm">No sessions yet — sessions appear as visitors browse the site.</div>
+                  <div className="py-12 text-center text-zinc-600 text-sm">No sessions yet — sessions appear as visitors browse the site.</div>
                 ) : (
                   <Table>
                     <TableHeader>
-                      <TableRow className="border-border hover:bg-transparent">
-                        <TableHead className="text-muted-foreground/70">Visitor</TableHead>
-                        <TableHead className="text-muted-foreground/70">Entry Page</TableHead>
-                        <TableHead className="text-muted-foreground/70">Device</TableHead>
-                        <TableHead className="text-muted-foreground/70 text-right">Pages</TableHead>
-                        <TableHead className="text-muted-foreground/70 text-right">Status</TableHead>
-                        <TableHead className="text-muted-foreground/70 text-right">Last Seen</TableHead>
+                      <TableRow className="border-zinc-800 hover:bg-transparent">
+                        <TableHead className="text-zinc-500">Visitor</TableHead>
+                        <TableHead className="text-zinc-500">Entry Page</TableHead>
+                        <TableHead className="text-zinc-500">Device</TableHead>
+                        <TableHead className="text-zinc-500 text-right">Pages</TableHead>
+                        <TableHead className="text-zinc-500 text-right">Status</TableHead>
+                        <TableHead className="text-zinc-500 text-right">Last Seen</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {recent.map((s) => (
-                        <TableRow key={s.id} className="border-border hover:bg-secondary/50">
-                          <TableCell className="text-muted-foreground font-mono text-xs">{s.visitorId.substring(0, 10)}…</TableCell>
-                          <TableCell className="text-foreground/80 text-sm max-w-xs truncate">{s.entryPage ?? "/"}</TableCell>
-                          <TableCell className="text-muted-foreground text-sm capitalize">{s.device ?? "—"}</TableCell>
-                          <TableCell className="text-right text-muted-foreground">{s.pageCount}</TableCell>
+                        <TableRow key={s.id} className="border-zinc-800 hover:bg-zinc-800/50">
+                          <TableCell className="text-zinc-400 font-mono text-xs">{s.visitorId.substring(0, 10)}…</TableCell>
+                          <TableCell className="text-zinc-300 text-sm max-w-xs truncate">{s.entryPage ?? "/"}</TableCell>
+                          <TableCell className="text-zinc-400 text-sm capitalize">{s.device ?? "—"}</TableCell>
+                          <TableCell className="text-right text-zinc-400">{s.pageCount}</TableCell>
                           <TableCell className="text-right">
                             <div className="flex gap-1 justify-end">
                               {s.converted && (
                                 <Badge className="bg-emerald-900/50 text-emerald-400 border-emerald-800 text-xs">Converted</Badge>
                               )}
                               {s.bounced && !s.converted && (
-                                <Badge className="bg-secondary text-muted-foreground/70 border-border text-xs">Bounced</Badge>
+                                <Badge className="bg-zinc-800 text-zinc-500 border-zinc-700 text-xs">Bounced</Badge>
                               )}
                               {!s.bounced && !s.converted && (
                                 <Badge className="bg-blue-900/50 text-blue-400 border-blue-800 text-xs">Engaged</Badge>
                               )}
                             </div>
                           </TableCell>
-                          <TableCell className="text-right text-muted-foreground/70 text-xs">
+                          <TableCell className="text-right text-zinc-500 text-xs">
                             {new Date(s.lastSeenAt).toLocaleTimeString()}
                           </TableCell>
                         </TableRow>

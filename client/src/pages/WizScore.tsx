@@ -347,33 +347,7 @@ export default function WizScore() {
     setComposeStatus("analyzing");
     setComposeError(null);
     mp.generationStarted("WizScore", undefined, scoreBrief.trim().length > 0);
-    // Derive pacing from tempo BPM
-    const bpm = parseInt(tempo, 10) || 72;
-    const pacing: "slow" | "medium" | "fast" | "variable" =
-      bpm < 60 ? "slow" : bpm < 90 ? "medium" : bpm < 140 ? "fast" : "variable";
-    // Derive energy from selected moods
-    const highEnergyMoods = ["Epic", "Action", "Triumphant", "Dramatic"];
-    const lowEnergyMoods  = ["Melancholic", "Romantic", "Haunting"];
-    const energy: "low" | "medium" | "high" | "building" =
-      selectedMoods.some(m => highEnergyMoods.includes(m)) ? "high" :
-      selectedMoods.some(m => lowEnergyMoods.includes(m))  ? "low"  : "medium";
-    // Parse duration string to seconds
-    const durationMap: Record<string, number> = {
-      "0:30 — Trailer cue": 30,
-      "1:00 — Short cue":   60,
-      "2:30 — Main title":  150,
-      "4:00 — Full scene":  240,
-      "Custom length":      120,
-    };
-    const videoDurationSeconds = durationMap[duration] ?? 120;
-    analyzeMutation.mutate({
-      jobId: wizScoreJobId,
-      mood: selectedMoods.join(", ") || scoreType,
-      pacing,
-      energy,
-      genre: scoreType,
-      videoDurationSeconds,
-    });
+    analyzeMutation.mutate({ jobId: wizScoreJobId });
   };
 
   const createJobMutation = trpc.wizScore.create.useMutation({

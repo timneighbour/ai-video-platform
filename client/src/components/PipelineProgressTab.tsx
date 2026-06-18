@@ -62,16 +62,16 @@ function stageStatusIcon(status: string) {
 function sceneStatusBadge(status: string) {
   const map: Record<string, string> = {
     done: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-    skipped: "bg-slate-500/20 text-muted-foreground border-border/50/30",
+    skipped: "bg-slate-500/20 text-slate-400 border-slate-500/30",
     processing: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-    pending: "bg-muted/20 text-muted-foreground/70 border-border/70/30",
+    pending: "bg-slate-600/20 text-slate-500 border-slate-600/30",
     error: "bg-red-500/20 text-red-400 border-red-500/30",
     completed: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
     generating: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    n_a: "bg-muted/20 text-muted-foreground/70 border-border/70/30",
+    n_a: "bg-slate-600/20 text-slate-500 border-slate-600/30",
   };
   const key = status.replace(/[^a-z_]/g, "_");
-  const cls = map[key] ?? "bg-muted/20 text-muted-foreground/70 border-border/70/30";
+  const cls = map[key] ?? "bg-slate-600/20 text-slate-500 border-slate-600/30";
   return (
     <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${cls}`}>
       {status}

@@ -72,8 +72,8 @@ export const PAY_PER_VIDEO_TIERS = [
 // ── WizSound™ Pay-per-Video Tiers (shown on /subscribe pricing overview) ──────
 export const WIZSOUND_PAY_PER_VIDEO = {
   STANDARD: { tier: "Standard",         desc: "Original audio, no processing",                                              price: "Free",      highlight: false, badge: null          } as const,
-  ACTIVE:   { tier: "WizSound™ Enhance",   desc: "Stereo widening, EQ, light compression — immediate improvement",                price: "£1/video",  highlight: false, badge: null          } as const,
-  SPATIAL:  { tier: "WizSound™ Cinematic", desc: "Full cinematic audio master — spatial depth, −14 LUFS, dynamic range",           price: "£3/video",  highlight: true,  badge: "Recommended" } as const,
+  ACTIVE:   { tier: "WizSound Active",  desc: "Stereo widening + EQ boost",                                                 price: "£1/video",  highlight: false, badge: null          } as const,
+  SPATIAL:  { tier: "WizSound Spatial", desc: "Full spatial mix — immersive depth, dynamic range, cinema-grade stereo",     price: "£3/video",  highlight: true,  badge: "Recommended" } as const,
 } as const;
 
 export const WIZSOUND_PAY_PER_VIDEO_TIERS = [

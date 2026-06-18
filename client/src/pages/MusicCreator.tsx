@@ -4,8 +4,6 @@
  * Matches mockup-v4-wizaudio.html exactly.
  */
 import { useState, useRef, useEffect } from "react";
-import { Helmet } from "react-helmet-async";
-
 import { LandscapeHint } from "@/components/LandscapeHint";
 import { WIZSOUND_TIERS } from "@/lib/pricing";
 import { trpc } from "@/lib/trpc";
@@ -156,15 +154,6 @@ function ConsoleEQDisplay({ isActive }: { isActive: boolean }) {
   }, [isActive]);
 
   return (
-    <>
-    <Helmet>
-      <title>AI Music Creator — WIZ AI</title>
-      <meta name="description" content="Generate original AI music tracks from a text prompt. Choose genre, mood, and length — powered by WizSound™." />
-      <meta property="og:title" content="AI Music Creator — WIZ AI" />
-      <meta property="og:description" content="Generate original AI music tracks from a text prompt. Choose genre, mood, and length — powered by WizSound™." />
-      <meta property="og:url" content="https://wiz-ai.io/music-creator" />
-      <link rel="canonical" href="https://wiz-ai.io/music-creator" />
-    </Helmet>
     <canvas
       ref={canvasRef}
       width={390}
@@ -172,7 +161,6 @@ function ConsoleEQDisplay({ isActive }: { isActive: boolean }) {
       className="w-full"
       style={{ imageRendering: "pixelated" }}
     />
-    </>
   );
 }
 
@@ -530,7 +518,7 @@ export default function MusicCreator() {
         {/* ON AIR sign */}
         <div className={`absolute top-4 right-6 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-[3px] border transition-all ${isOnAir ? "border-[rgba(255,59,48,0.8)] bg-[rgba(255,20,10,0.18)]" : "border-[rgba(255,59,48,0.3)] bg-[rgba(0,0,0,0.75)]"}`} style={{ boxShadow: isOnAir ? "0 0 20px rgba(255,59,48,0.3)" : "none" }}>
           <div className={`w-2 h-2 rounded-full border transition-all ${isOnAir ? "bg-[#ff3b30] border-[#ff3b30] animate-pulse" : "bg-[rgba(255,59,48,0.2)] border-[rgba(255,59,48,0.35)]"}`} style={{ boxShadow: isOnAir ? "0 0 8px #ff3b30" : "none" }} />
-          <span className={`text-[10px] font-extrabold tracking-[3px] uppercase transition-all ${isOnAir ? "text-destructive" : "text-white/65"}`}>ON AIR</span>
+          <span className={`text-[10px] font-extrabold tracking-[3px] uppercase transition-all ${isOnAir ? "text-[#ff3b30]" : "text-white/65"}`}>ON AIR</span>
         </div>
       </div>
 
@@ -741,7 +729,7 @@ export default function MusicCreator() {
             <div className="rounded-[10px] overflow-hidden" style={{ background: "linear-gradient(160deg, #0e0c16, #0a0910)", border: "1px solid rgba(255,255,255,0.07)", boxShadow: "0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03)" }}>
               {/* Header */}
               <div className="flex items-center gap-2.5 px-4 py-3" style={{ background: "rgba(0,0,0,0.3)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" style={{ boxShadow: "0 0 8px #30d158" }} />
+                <div className="w-1.5 h-1.5 rounded-full bg-[#30d158] animate-pulse" style={{ boxShadow: "0 0 8px #30d158" }} />
                 <span className="text-[9px] font-black tracking-[3px] uppercase" style={{ color: "rgba(255,255,255,0.35)" }}>Generation Engine</span>
                 <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(255,255,255,0.06), transparent)" }} />
                 <span className="text-[7px] tracking-[1.5px] uppercase px-2 py-0.5 rounded-[3px]" style={{ background: "rgba(48,209,88,0.1)", color: "rgba(48,209,88,0.7)", border: "1px solid rgba(48,209,88,0.15)" }}>● LIVE</span>
@@ -819,7 +807,7 @@ export default function MusicCreator() {
             <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0b0910" }}>
               <div className="flex items-center justify-between px-3.5 py-2 border-b border-white/7" style={{ background: "rgba(0,0,0,0.35)" }}>
                 <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" style={{ boxShadow: "0 0 5px #30d158" }} />
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#30d158] animate-pulse" style={{ boxShadow: "0 0 5px #30d158" }} />
                   <span className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/35">Recording Booth — Track Brief</span>
                 </div>
                 <VoicePromptButton toolContext="AI music and song creation" onPromptReady={(refined) => setPrompt(refined.slice(0, 400))} />
@@ -830,7 +818,7 @@ export default function MusicCreator() {
                 onChange={(e) => setPrompt(e.target.value)}
                 rows={4}
                 maxLength={400}
-                className="w-full bg-transparent border-none outline-none resize-none px-4 py-3 text-[13px] leading-[1.65] text-foreground placeholder:text-foreground/16 placeholder:italic"
+                className="w-full bg-transparent border-none outline-none resize-none px-4 py-3 text-[13px] leading-[1.65] text-[#f5f0e8] placeholder:text-[#f5f0e8]/16 placeholder:italic"
                 style={{ fontFamily: "'Courier Prime', monospace", caretColor: "#c9a84c" }}
                 placeholder={`Describe your track. Think like you're briefing the session musicians — the vibe, the tempo, the instruments, the emotion…\n\nA driving cinematic orchestral piece with building strings and pounding percussion, like a film trailer…`}
               />
@@ -905,7 +893,7 @@ export default function MusicCreator() {
                   onChange={(e) => setLyrics(e.target.value)}
                   rows={3}
                   maxLength={3000}
-                  className="w-full rounded-[4px] px-3 py-2.5 text-[12px] leading-[1.6] text-foreground placeholder:text-white/14 placeholder:italic resize-none focus:outline-none border border-white/6"
+                  className="w-full rounded-[4px] px-3 py-2.5 text-[12px] leading-[1.6] text-[#f5f0e8] placeholder:text-white/14 placeholder:italic resize-none focus:outline-none border border-white/6"
                   style={{ background: "rgba(0,0,0,0.3)", fontFamily: "'Courier Prime', monospace", caretColor: "#c9a84c" }}
                   placeholder="Enter your lyrics here, or use AI to generate them…"
                 />
@@ -929,7 +917,7 @@ export default function MusicCreator() {
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="My Amazing Song"
                 maxLength={80}
-                className="w-full bg-transparent border-none outline-none px-3.5 py-2.5 text-[14px] text-foreground placeholder:text-white/16 placeholder:italic"
+                className="w-full bg-transparent border-none outline-none px-3.5 py-2.5 text-[14px] text-[#f5f0e8] placeholder:text-white/16 placeholder:italic"
                 style={{ fontFamily: "'Courier Prime', monospace", caretColor: "#c9a84c" }}
               />
             </div>
@@ -1050,7 +1038,7 @@ export default function MusicCreator() {
                 <span className="text-[8px] font-bold tracking-[2.5px] uppercase" style={{ color: "rgba(201,168,76,0.55)" }}>Live Room</span>
                 <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-[2px] transition-all ${ isOnAir ? "bg-[rgba(255,59,48,0.18)] border border-[rgba(255,59,48,0.5)]" : "bg-transparent border border-white/8" }`}>
                   <div className={`w-1.5 h-1.5 rounded-full transition-all ${ isOnAir ? "bg-[#ff3b30] animate-pulse" : "bg-white/15" }`} style={{ boxShadow: isOnAir ? "0 0 5px #ff3b30" : "none" }} />
-                  <span className={`text-[7px] font-extrabold tracking-[2px] uppercase transition-all ${ isOnAir ? "text-destructive" : "text-white/18" }`}>REC</span>
+                  <span className={`text-[7px] font-extrabold tracking-[2px] uppercase transition-all ${ isOnAir ? "text-[#ff3b30]" : "text-white/18" }`}>REC</span>
                 </div>
               </div>
 
@@ -1162,7 +1150,7 @@ export default function MusicCreator() {
             {/* Upgrade Preview */}
             <div className="rounded-[6px] p-3.5 border border-[--color-gold]/15" style={{ background: "#0d0d10" }}>
               <div className="text-[10px] font-bold tracking-[1.5px] text-white/50 mb-2.5">
-                UPGRADE PREVIEW <span className="text-muted-foreground/60 font-normal">— Listen only · No download</span>
+                UPGRADE PREVIEW <span className="text-[#555] font-normal">— Listen only · No download</span>
               </div>
               <div className="flex gap-1.5 mb-3">
                 {(["original", "enhanced", "cinematic"] as AudioTier[]).map((t) => (
@@ -1172,16 +1160,16 @@ export default function MusicCreator() {
                     className={`flex-1 py-1.5 px-1.5 rounded-[4px] border text-center transition-all ${
                       activeTier === t
                         ? t === "cinematic"
-                          ? "border-[#9b59f5] bg-background"
-                          : "border-[--color-gold]/20 bg-background"
-                        : "border-border/50 bg-card hover:border-[--color-gold]/20"
+                          ? "border-[#9b59f5] bg-[#1a1020]"
+                          : "border-[--color-gold]/20 bg-[#1a1a20]"
+                        : "border-[#333] bg-[#1a1a1a] hover:border-[--color-gold]/20"
                     }`}
                     style={{ borderWidth: t === "cinematic" && activeTier === t ? 2 : 1 }}
                   >
-                    <div className={`text-[9px] font-bold tracking-[1px] ${t === "cinematic" ? "text-purple-400" : "text-[--color-gold]"}`}>
+                    <div className={`text-[9px] font-bold tracking-[1px] ${t === "cinematic" ? "text-[#9b59f5]" : "text-[--color-gold]"}`}>
                       {t.toUpperCase()}
                     </div>
-                    <div className={`text-[8px] mt-0.5 ${t === "original" ? "text-muted-foreground/60" : t === "cinematic" ? "text-[#6a3fa0]" : "text-[--color-gold]/60]"}`}>
+                    <div className={`text-[8px] mt-0.5 ${t === "original" ? "text-[#555]" : t === "cinematic" ? "text-[#6a3fa0]" : "text-[--color-gold]/60]"}`}>
                       {t === "original" ? WIZSOUND_TIERS.ORIGINAL.price : t === "enhanced" ? WIZSOUND_TIERS.ENHANCED.price : WIZSOUND_TIERS.CINEMATIC.price}
                     </div>
                   </button>
@@ -1203,8 +1191,8 @@ export default function MusicCreator() {
                 <div className="flex-1 h-[3px] rounded-[2px] overflow-hidden" style={{ background: "#1a1a1a" }}>
                   <div className="h-full w-[22%] rounded-[2px]" style={{ background: "linear-gradient(90deg, #c9a84c, #f0c040)" }} />
                 </div>
-                <span className="text-[9px] text-muted-foreground/60">0:22 / 3:00</span>
-                <span className="text-[9px] text-muted-foreground/50">Preview only</span>
+                <span className="text-[9px] text-[#555]">0:22 / 3:00</span>
+                <span className="text-[9px] text-[#333]">Preview only</span>
               </div>
 
               {/* WizSound CTA */}
@@ -1214,10 +1202,10 @@ export default function MusicCreator() {
                 style={{ background: "linear-gradient(135deg, rgba(155,89,245,0.15), rgba(155,89,245,0.08))" }}
               >
                 <div className="text-left">
-                  <div className="text-[10px] font-bold tracking-[1px] text-purple-400">WIZSOUND™ CINEMATIC</div>
+                  <div className="text-[10px] font-bold tracking-[1px] text-[#9b59f5]">WIZSOUND™ CINEMATIC</div>
                   <div className="text-[9px] text-[#6a3fa0] mt-0.5">Stereo widening · EQ mastering · Spatial depth</div>
                 </div>
-                <div className="text-[13px] font-bold text-purple-400">{WIZSOUND_TIERS.CINEMATIC.price}</div>
+                <div className="text-[13px] font-bold text-[#9b59f5]">{WIZSOUND_TIERS.CINEMATIC.price}</div>
               </button>
             </div>
 
@@ -1225,9 +1213,9 @@ export default function MusicCreator() {
             <div className="rounded-[6px] p-3 border border-white/6" style={{ background: "#0d0d10" }}>
               <div className="text-[10px] font-bold tracking-[1.5px] text-white/40 mb-2">STUDIO AMBIENCE</div>
               <div className="flex justify-between items-center mb-1.5">
-                <span className="text-[10px] text-muted-foreground/60">Dim</span>
+                <span className="text-[10px] text-[#555]">Dim</span>
                 <span className="text-[11px] font-semibold text-[--color-gold]">{ambience}%</span>
-                <span className="text-[10px] text-muted-foreground/60"> Bright</span>
+                <span className="text-[10px] text-[#555]"> Bright</span>
               </div>
               <input
                 type="range" min={20} max={100} value={ambience}

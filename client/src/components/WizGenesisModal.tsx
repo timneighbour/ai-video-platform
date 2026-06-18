@@ -16,8 +16,7 @@ import {
   Volume2, Star, Shield, RefreshCw, ChevronRight
 } from "@/lib/icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Link, useLocation } from "wouter";
-import { useAuth } from "@/_core/hooks/useAuth";
+import { Link } from "wouter";
 
 const WIZGENESIS_LOGO = "/manus-storage/wizgenesis-logo-new_9814b3d1_cabaf933.png";
 
@@ -126,30 +125,14 @@ export function WizGenesisModal({
   // Reset confirmation checkbox whenever the modal opens
   useEffect(() => { if (open) setConfirmed(false); }, [open]);
 
-  const { user } = useAuth();
-  const [, navigate] = useLocation();
   const renderStatus = trpc.render.getRenderStatus.useQuery(undefined, { enabled: open, staleTime: 30_000 });
   const creditsQuery = trpc.billing.getCredits.useQuery(undefined, { enabled: open, staleTime: 30_000 });
-  const subQuery = trpc.billing.getAccountSubscription.useQuery(undefined, { enabled: open, staleTime: 60_000 });
   const currentBalance = creditsQuery.data?.balance ?? null;
   const createRenderCheckout = trpc.render.createRenderCheckout.useMutation();
   const useFreeRender = trpc.render.useFreeRender.useMutation();
-  const createPayPerVideoCheckout = trpc.billing.createPayPerVideoCheckout.useMutation();
 
   const hasFreeRenders = (renderStatus.data?.total ?? 0) > 0;
   const isAdmin = renderStatus.data?.isAdmin ?? false;
-
-  // Free trial / pay-once helpers
-  const hasActiveSub = subQuery.data?.isActive === true && subQuery.data?.planKey !== "free";
-  const freeTrialUsed = user?.freeTrialUsed ?? true; // default true = safe (don't show if unknown)
-  const showFreeTrialOption = !hasActiveSub && !freeTrialUsed;
-  const showPayOnceLabel = !hasActiveSub;
-
-  // Pay-per-video pricing: £1.50/scene, £5 min
-  const ppvSceneCount = sceneCount ?? 1;
-  const ppvAmountPence = Math.max(500, ppvSceneCount * 150);
-  const ppvAmountDisplay = (ppvAmountPence / 100).toFixed(2);
-  const showPayPerVideo = !hasActiveSub && !hasFreeRenders && !isAdmin;
 
   // Fire analytics once per open
   useEffect(() => {
@@ -173,25 +156,6 @@ export function WizGenesisModal({
 
   const isCinematicMode = enhanceTier === "cinematic";
   const ctaLabel = isCinematicMode ? "Build My Cinematic Video" : "Build My Video";
-
-  async function handlePayPerVideo() {
-    trackEvent("WizGenesis_PayPerVideoClicked", { jobId, sceneCount: ppvSceneCount, amountPence: ppvAmountPence });
-    setIsLoading(true);
-    try {
-      const result = await createPayPerVideoCheckout.mutateAsync({
-        projectId: jobId,
-        sceneCount: ppvSceneCount,
-        origin: window.location.origin,
-      });
-      if (result.checkoutUrl) {
-        window.location.href = result.checkoutUrl;
-      }
-    } catch (err) {
-      toast.error("Something went wrong", { description: err instanceof Error ? err.message : "Please try again." });
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   async function handleRender() {
     trackEvent("WizGenesis_RenderClicked", { jobId, jobType, quality, enhanceTier, totalPrice });
@@ -236,10 +200,10 @@ export function WizGenesisModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-xl bg-background border border-white/10 text-white p-0 overflow-hidden rounded-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-xl bg-[#080808] border border-white/10 text-white p-0 overflow-hidden rounded-2xl max-h-[90vh] overflow-y-auto">
 
         {/* ── Header ────────────────────────────────────────────────────── */}
-        <div className="relative bg-gradient-to-br from-primary/60 via-purple-950/30 to-black px-6 pt-6 pb-5 border-b border-white/8">
+        <div className="relative bg-gradient-to-br from-[#b8892a]/60 via-purple-950/30 to-black px-6 pt-6 pb-5 border-b border-white/8">
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
             style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }}
           />
@@ -298,7 +262,7 @@ export function WizGenesisModal({
                     className={`w-full text-left rounded-xl border p-4 transition-all ${
                       isSelected
                         ? tier.highlight
-                          ? "border-[--color-gold]/30 bg-gradient-to-br from-primary/40 to-primary/40/20 ring-1 ring-[--color-gold]/30 shadow-lg shadow-[#b8892a]/20"
+                          ? "border-[--color-gold]/30 bg-gradient-to-br from-[#b8892a]/40 to-[#4a3010]/20 ring-1 ring-[--color-gold]/30 shadow-lg shadow-[#b8892a]/20"
                           : "border-[--color-gold]/30 bg-[--color-gold]/15"
                         : "border-white/8 bg-white/[0.02] hover:border-white/15 hover:bg-white/[0.04]"
                     }`}
@@ -312,14 +276,14 @@ export function WizGenesisModal({
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className={`font-semibold text-sm ${isSelected ? "text-white" : "text-foreground/80"}`}>
+                            <span className={`font-semibold text-sm ${isSelected ? "text-white" : "text-zinc-300"}`}>
                               {tier.label}
                             </span>
                             {tier.badge && (
                               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${
                                 tier.highlight
                                   ? "bg-[--color-gold]/15 text-[--color-gold] border border-[--color-gold]/30"
-                                  : "bg-white/10 text-muted-foreground"
+                                  : "bg-white/10 text-zinc-400"
                               }`}>
                                 {tier.badge}
                               </span>
@@ -339,7 +303,7 @@ export function WizGenesisModal({
 
                           {/* Microcopy for cinematic */}
                           {tier.id === "cinematic" && (
-                            <p className="text-[11px] text-muted-foreground mt-1">Studio-grade audio and cinematic visuals</p>
+                            <p className="text-[11px] text-zinc-400 mt-1">Studio-grade audio and cinematic visuals</p>
                           )}
                         </div>
                       </div>
@@ -350,7 +314,7 @@ export function WizGenesisModal({
                           <div>
                             <span className="text-sm font-bold text-white">+£{tierPrice}</span>
                             {tier.id === "cinematic" && (
-                              <p className="text-[10px] text-muted-foreground/70 line-through">£10</p>
+                              <p className="text-[10px] text-zinc-500 line-through">£10</p>
                             )}
                           </div>
                         )}
@@ -387,8 +351,8 @@ export function WizGenesisModal({
                         {opt.badge}
                       </span>
                     )}
-                    <p className={`text-xs font-semibold ${isSelected ? "text-white" : "text-foreground/80"}`}>{opt.label}</p>
-                    <p className="text-[10px] text-muted-foreground/70">{opt.resolution}</p>
+                    <p className={`text-xs font-semibold ${isSelected ? "text-white" : "text-zinc-300"}`}>{opt.label}</p>
+                    <p className="text-[10px] text-zinc-500">{opt.resolution}</p>
                     <p className={`text-sm font-bold mt-1 ${isSelected ? "text-[--color-gold]" : "text-white"}`}>£{opt.price}</p>
                   </button>
                 );
@@ -406,28 +370,28 @@ export function WizGenesisModal({
               <div className="space-y-2">
                 {sceneCount !== undefined && (
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Scenes to render</span>
+                    <span className="text-sm text-zinc-400">Scenes to render</span>
                     <span className="text-sm text-white font-medium">{sceneCount} scenes</span>
                   </div>
                 )}
                 {creditCost !== undefined && (
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Credits required</span>
+                    <span className="text-sm text-zinc-400">Credits required</span>
                     <span className="text-sm font-bold text-[--color-gold]">{creditCost} credits</span>
                   </div>
                 )}
                 {currentBalance !== null && creditCost !== undefined && (
                   <>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Your balance</span>
+                      <span className="text-sm text-zinc-400">Your balance</span>
                       <span className={`text-sm font-semibold ${
                         currentBalance >= creditCost ? "text-emerald-400" : "text-rose-400"
                       }`}>{currentBalance} credits</span>
                     </div>
                     <div className="border-t border-white/8 pt-2 mt-1 flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground/70">After render</span>
+                      <span className="text-xs text-zinc-500">After render</span>
                       <span className={`text-xs font-semibold ${
-                        currentBalance - creditCost >= 0 ? "text-foreground/80" : "text-rose-400"
+                        currentBalance - creditCost >= 0 ? "text-zinc-300" : "text-rose-400"
                       }`}>
                         {currentBalance - creditCost >= 0
                           ? `${currentBalance - creditCost} credits remaining`
@@ -444,12 +408,12 @@ export function WizGenesisModal({
           {/* ── Price Summary ──────────────────────────────────────────── */}
           <div className="rounded-xl border border-white/8 bg-white/[0.02] p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Quality ({selectedQuality.label})</span>
+              <span className="text-sm text-zinc-400">Quality ({selectedQuality.label})</span>
               <span className="text-sm text-white">£{selectedQuality.price}</span>
             </div>
             {enhanceAddOn > 0 && (
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">
+                <span className="text-sm text-zinc-400">
                   {isCinematicBundle ? "Cinematic Mode bundle" : `${selectedTier.label} enhancement`}
                 </span>
                 <span className="text-sm text-white">+£{enhanceAddOn}</span>
@@ -474,8 +438,8 @@ export function WizGenesisModal({
               { icon: Star, text: "Pay once" },
               { icon: Download, text: "Download forever" },
             ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
-                <Icon className="w-3.5 h-3.5 text-muted-foreground/50" />
+              <div key={text} className="flex items-center gap-1.5 text-xs text-zinc-500">
+                <Icon className="w-3.5 h-3.5 text-zinc-600" />
                 {text}
               </div>
             ))}
@@ -485,7 +449,7 @@ export function WizGenesisModal({
           <label
             className={`flex items-start gap-3 cursor-pointer select-none rounded-xl border px-4 py-3 transition-colors ${
               confirmed
-                ? "border-primary/50 bg-primary/5"
+                ? "border-[#b8892a]/50 bg-[#b8892a]/5"
                 : "border-white/25 bg-white/[0.04] hover:border-white/40 hover:bg-white/[0.07]"
             }`}
           >
@@ -499,16 +463,16 @@ export function WizGenesisModal({
               <div
                 className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all shadow-sm ${
                   confirmed
-                    ? "border-primary bg-primary shadow-[0_0_8px_rgba(184,137,42,0.5)]"
+                    ? "border-[#b8892a] bg-[#b8892a] shadow-[0_0_8px_rgba(184,137,42,0.5)]"
                     : "border-white/70 bg-white/10 hover:border-white hover:bg-white/20"
                 }`}
               >
                 {confirmed && <Check className="w-3.5 h-3.5 text-black" style={{ strokeWidth: 3.5 }} />}
               </div>
             </div>
-            <span className="text-sm text-foreground/80 leading-snug">
+            <span className="text-sm text-zinc-300 leading-snug">
               I understand this will use{" "}
-              <span className="font-semibold text-primary">
+              <span className="font-semibold text-[#b8892a]">
                 {creditCost !== undefined ? `${creditCost} Build Credits` : "Build Credits"}
               </span>{" "}
               from my balance to start this render.
@@ -519,8 +483,8 @@ export function WizGenesisModal({
           {/* Hard-block CTA when user cannot afford the render */}
           {currentBalance !== null && creditCost !== undefined && currentBalance < creditCost ? (
             <div className="space-y-2">
-              <div className="w-full flex items-center justify-center rounded-md bg-secondary/60 border border-border/50 text-muted-foreground/70 text-sm font-medium cursor-not-allowed select-none py-3">
-                <Zap className="w-4 h-4 mr-2 text-muted-foreground/50" />
+              <div className="w-full flex items-center justify-center rounded-md bg-zinc-800/60 border border-zinc-700/50 text-zinc-500 text-sm font-medium cursor-not-allowed select-none py-3">
+                <Zap className="w-4 h-4 mr-2 text-zinc-600" />
                 Not enough credits to render
               </div>
               <Link href="/credits">
@@ -539,8 +503,8 @@ export function WizGenesisModal({
             disabled={isLoading || !confirmed}
             className={`w-full h-13 text-base font-bold shadow-lg transition-all ${
               isCinematicMode
-                ? "bg-gradient-to-r from-primary via-purple-600 to-primary/40 hover:from-primary hover:via-purple-700 hover:to-primary/40 shadow-violet-900/50 text-white"
-                : "bg-gradient-to-r from-primary to-primary/40 hover:from-primary hover:to-primary/40 shadow-violet-900/40 text-white"
+                ? "bg-gradient-to-r from-[#b8892a] via-purple-600 to-[#4a3010] hover:from-[#b8892a] hover:via-purple-700 hover:to-[#4a3010] shadow-violet-900/50 text-white"
+                : "bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] shadow-violet-900/40 text-white"
             }`}
           >
             {isLoading ? (
@@ -551,49 +515,8 @@ export function WizGenesisModal({
           </Button>
           )}
 
-          {/* ── Pay-Per-Video option (non-subscribers without free renders) ── */}
-          {showPayPerVideo && (
-            <div className="rounded-xl border border-[--color-gold]/20 bg-[--color-gold]/[0.04] px-4 py-3 space-y-2">
-              <p className="text-xs font-semibold text-[--color-gold]/70 uppercase tracking-wider">No subscription needed</p>
-              <p className="text-xs text-muted-foreground/60 leading-relaxed">
-                Pay once for this video — <span className="text-white/80 font-medium">£{ppvAmountDisplay}</span> for {ppvSceneCount} scene{ppvSceneCount !== 1 ? "s" : ""} (£1.50/scene, £5 min).
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full border-[--color-gold]/30 bg-[--color-gold]/10 hover:bg-[--color-gold]/20 text-[--color-gold] hover:text-[--color-gold] text-xs font-semibold gap-2"
-                onClick={handlePayPerVideo}
-                disabled={isLoading}
-              >
-                <Film className="w-3.5 h-3.5" />
-                Pay £{ppvAmountDisplay} — Render this video
-              </Button>
-            </div>
-          )}
-
-          {/* ── Free Trial option (non-subscribers only) ─────────────── */}
-          {showFreeTrialOption && (
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 space-y-2">
-              <p className="text-xs font-semibold text-white/60 uppercase tracking-wider">Not ready to pay?</p>
-              <p className="text-xs text-muted-foreground/60 leading-relaxed">
-                Try a <span className="text-white/80 font-medium">free 30-second watermarked preview</span> — see the quality before you commit. One per account.
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full border-white/20 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-medium gap-2"
-                onClick={() => { onClose(); navigate("/free-trial"); }}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Try Free — 30s watermarked preview
-              </Button>
-            </div>
-          )}
-
-          <p className="text-center text-xs text-muted-foreground/50">
-            {showPayOnceLabel
-              ? "No subscription needed · Pay once · Secure payment via Stripe"
-              : "Secure payment via Stripe · Instant download after building"}
+          <p className="text-center text-xs text-zinc-600">
+            Secure payment via Stripe · Instant download after building
           </p>
         </div>
       </DialogContent>

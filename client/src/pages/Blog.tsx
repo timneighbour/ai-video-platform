@@ -1,6 +1,4 @@
 import { WIZVIDEO_STUDIO_PAGE } from "@/lib/routes";
-import { Helmet } from "react-helmet-async";
-
 import { useState } from "react";
 import { useSEO } from "@/hooks/useSEO";
 import { Link } from "wouter";
@@ -31,14 +29,6 @@ export default function Blog() {
 
   return (
     <>
-  <Helmet>
-    <title>Blog — WIZ AI</title>
-    <meta name="description" content="AI video creation guides, music video tips, and creative inspiration from the WIZ AI team." />
-    <meta property="og:title" content="Blog — WIZ AI" />
-    <meta property="og:description" content="AI video creation guides, music video tips, and creative inspiration from the WIZ AI team." />
-    <meta property="og:url" content="https://wiz-ai.io/blog" />
-    <link rel="canonical" href="https://wiz-ai.io/blog" />
-  </Helmet>
 
       {/* ── Header ── */}
       <div className="min-h-screen bg-black text-white">
@@ -61,7 +51,7 @@ export default function Blog() {
 
         {/* Hero */}
         <div className="relative overflow-hidden border-b border-white/5">
-          <div className="absolute inset-0 bg-gradient-to-br from-background/40 via-black to-black pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1000]/40 via-black to-black pointer-events-none" />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[--color-gold]/10 blur-[120px] rounded-full pointer-events-none" />
           <div className="relative max-w-6xl mx-auto px-4 py-20 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[--color-gold]/10 border border-[--color-gold]/20 text-[--color-gold] text-xs font-medium mb-6">
@@ -70,7 +60,7 @@ export default function Blog() {
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
               AI Video Creation{" "}
-              <span className="bg-gradient-to-r from-primary/80 to-primary bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#e8c878] to-[#b8892a] bg-clip-text text-transparent">
                 Insights
               </span>
             </h1>
@@ -120,7 +110,7 @@ export default function Blog() {
                           />
                         </div>
                       ) : (
-                        <div className={`${idx === 0 ? "aspect-[16/7]" : "aspect-video"} bg-gradient-to-br from-primary/30/30 to-primary/20/20 flex items-center justify-center`}>
+                        <div className={`${idx === 0 ? "aspect-[16/7]" : "aspect-video"} bg-gradient-to-br from-[#2a1f00]/30 to-[#1a1000]/20 flex items-center justify-center`}>
                           <Sparkles className="w-8 h-8 text-[--color-gold]/40" />
                         </div>
                       )}
@@ -172,7 +162,7 @@ export default function Blog() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="border-t border-white/5 bg-gradient-to-b from-black to-primary/20/20">
+        <div className="border-t border-white/5 bg-gradient-to-b from-black to-[#1a1000]/20">
           <div className="max-w-2xl mx-auto px-4 py-16 text-center">
             <h2 className="text-2xl font-bold mb-3">Ready to create your first AI video?</h2>
             <p className="text-white/50 mb-6">Free to create. Only pay when you build your final video.</p>

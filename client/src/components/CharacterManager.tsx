@@ -144,7 +144,7 @@ interface CharacterManagerProps {
 const SLOT_COLORS = [
   { ring: "ring-[--color-gold]", bg: "bg-[--color-gold]/10", badge: "bg-[--color-gold]/15 text-[--color-gold] border-[--color-gold]/30", icon: "bg-[--color-gold]", dot: "bg-[--color-gold]", tab: "bg-[--color-gold]/80 hover:bg-[--color-gold]" },
   { ring: "ring-[--color-silver]", bg: "bg-[--color-silver]/10", badge: "bg-[--color-silver]/10 text-[--color-silver] border-[--color-silver]/20", icon: "bg-[--color-silver]", dot: "bg-[--color-silver]", tab: "bg-[--color-silver]/60 hover:bg-[--color-silver]/40" },
-  { ring: "ring-zinc-500", bg: "bg-secondary/50", badge: "bg-muted/50 text-foreground/80 border-border/70", icon: "bg-muted", dot: "bg-zinc-400", tab: "bg-muted hover:bg-muted" },
+  { ring: "ring-zinc-500", bg: "bg-zinc-800/50", badge: "bg-zinc-700/50 text-zinc-300 border-zinc-600", icon: "bg-zinc-600", dot: "bg-zinc-400", tab: "bg-zinc-700 hover:bg-zinc-600" },
   { ring: "ring-amber-500",  bg: "bg-amber-900/30",  badge: "bg-amber-900/50 text-amber-300 border-amber-800",  icon: "bg-amber-600",  dot: "bg-amber-400",  tab: "bg-amber-700 hover:bg-amber-600" },
   { ring: "ring-sky-500",    bg: "bg-sky-900/30",    badge: "bg-sky-900/50 text-sky-300 border-sky-800",        icon: "bg-sky-600",    dot: "bg-sky-400",    tab: "bg-sky-700 hover:bg-sky-600" },
   { ring: "ring-emerald-500",bg: "bg-emerald-900/30",badge: "bg-emerald-900/50 text-emerald-300 border-emerald-800",icon: "bg-emerald-600",dot: "bg-emerald-400",tab: "bg-emerald-700 hover:bg-emerald-600" },
@@ -410,11 +410,11 @@ export function CharacterManager({
             key={char.slotIndex}
             className={`rounded-xl border overflow-hidden transition-all ${
               isLocked ? "border-emerald-600/70 ring-1 ring-emerald-500/30" :
-              hasPreview ? `ring-1 ${colors.ring} border-border` : "border-border"
+              hasPreview ? `ring-1 ${colors.ring} border-zinc-700` : "border-zinc-700"
             }`}
           >
             {/* ── Header ── */}
-            <div className={`px-4 py-3 flex items-center gap-3 ${isLocked ? "bg-emerald-900/20" : colors.bg} border-b border-border/50`}>
+            <div className={`px-4 py-3 flex items-center gap-3 ${isLocked ? "bg-emerald-900/20" : colors.bg} border-b border-zinc-700/50`}>
               {/* Slot icon */}
               <div className={`w-8 h-8 rounded-lg ${isLocked ? "bg-emerald-700" : colors.icon} flex items-center justify-center flex-shrink-0`}>
                 {isLocked ? <ShieldCheck className="w-4 h-4 text-white" /> :
@@ -434,7 +434,7 @@ export function CharacterManager({
 
               {/* Preview thumbnail — taller portrait so the full face is visible */}
               {hasPreview && (
-                <div className="w-10 h-14 rounded-lg overflow-hidden flex-shrink-0 ring-1 ring-zinc-500 bg-card">
+                <div className="w-10 h-14 rounded-lg overflow-hidden flex-shrink-0 ring-1 ring-zinc-500 bg-zinc-900">
                   <img
                     src={char.mode === "ai_generated" ? char.aiGeneratedImageUrl : char.photos[0]?.previewUrl}
                     alt={char.name}
@@ -452,7 +452,7 @@ export function CharacterManager({
                   onClick={() => toggleLock(char.slotIndex)}
                   className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-all border ${
                     isLocked ? "border-emerald-600/60 bg-emerald-900/30 text-emerald-300 hover:bg-emerald-900/50" :
-                    "border-border/70 bg-secondary text-muted-foreground hover:text-white hover:border-border/40"
+                    "border-zinc-600 bg-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-400"
                   }`}
                 >
                   {isLocked ? <Lock className="w-3 h-3" /> : <LockOpen className="w-3 h-3" />}
@@ -465,7 +465,7 @@ export function CharacterManager({
                 <button
                   type="button"
                   onClick={() => removeCharacter(char.slotIndex)}
-                  className="text-muted-foreground/70 hover:text-red-400 transition-colors p-1 rounded"
+                  className="text-zinc-500 hover:text-red-400 transition-colors p-1 rounded"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -477,14 +477,14 @@ export function CharacterManager({
               {/* Name + Role */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-muted-foreground text-xs mb-1 block">Name *</Label>
+                  <Label className="text-zinc-400 text-xs mb-1 block">Name *</Label>
                   <Input value={char.name} onChange={(e) => updateCharacter(char.slotIndex, { name: e.target.value })}
-                    placeholder="e.g. Alex, Lead Singer" className="bg-secondary border-border text-white text-sm" disabled={disabled} />
+                    placeholder="e.g. Alex, Lead Singer" className="bg-zinc-800 border-zinc-700 text-white text-sm" disabled={disabled} />
                 </div>
                 <div>
-                  <Label className="text-muted-foreground text-xs mb-1 block">Role / Instrument</Label>
+                  <Label className="text-zinc-400 text-xs mb-1 block">Role / Instrument</Label>
                   <Input value={char.role} onChange={(e) => updateCharacter(char.slotIndex, { role: e.target.value })}
-                    placeholder="e.g. Lead Vocalist, Guitarist" className="bg-secondary border-border text-white text-sm" disabled={disabled} />
+                    placeholder="e.g. Lead Vocalist, Guitarist" className="bg-zinc-800 border-zinc-700 text-white text-sm" disabled={disabled} />
                   {/* Quick-select instrument role buttons */}
                   {!disabled && (
                     <div className="flex flex-wrap gap-1 mt-1.5">
@@ -496,7 +496,7 @@ export function CharacterManager({
                           className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors ${
                             char.role === role
                               ? "bg-[--color-gold] border-[--color-gold]/80 text-white"
-                              : "bg-secondary border-border text-muted-foreground hover:border-[--color-gold] hover:text-[--color-gold]"
+                              : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-[--color-gold] hover:text-[--color-gold]"
                           }`}
                         >
                           {role}
@@ -509,7 +509,7 @@ export function CharacterManager({
 
               {/* ── Body Build selector ── */}
               <div>
-                <Label className="text-muted-foreground text-xs mb-2 block">Body Build <span className="text-muted-foreground/50 font-normal">(optional — helps the AI match your physique)</span></Label>
+                <Label className="text-zinc-400 text-xs mb-2 block">Body Build <span className="text-zinc-600 font-normal">(optional — helps the AI match your physique)</span></Label>
                 <div className="flex flex-wrap gap-1.5">
                   {([
                     { id: "slim",     label: "Slim",     desc: "Very lean, narrow frame" },
@@ -528,7 +528,7 @@ export function CharacterManager({
                       className={`px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
                         char.bodyBuild === opt.id
                           ? "bg-[--color-gold] border-[--color-gold]/80 text-white"
-                          : "bg-secondary border-border text-muted-foreground hover:border-[--color-gold]/60 hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                          : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-[--color-gold]/60 hover:text-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       }`}
                     >
                       {opt.label}
@@ -536,7 +536,7 @@ export function CharacterManager({
                   ))}
                 </div>
                 {char.bodyBuild !== "average" && (
-                  <p className="text-muted-foreground/50 text-[10px] mt-1">
+                  <p className="text-zinc-600 text-[10px] mt-1">
                     {char.bodyBuild === "slim" && "AI will create a slim, narrow-framed figure."}
                     {char.bodyBuild === "lean" && "AI will create a lean, toned figure."}
                     {char.bodyBuild === "athletic" && "AI will create a fit, athletic figure."}
@@ -550,19 +550,19 @@ export function CharacterManager({
               <div className="space-y-3">
                 {/* Free-text visual details (legacy, still used) */}
                 <div>
-                  <Label className="text-muted-foreground text-xs mb-1 block">Visual Details (free text)</Label>
+                  <Label className="text-zinc-400 text-xs mb-1 block">Visual Details (free text)</Label>
                   <Textarea
                     value={char.visualDetails || ""}
                     onChange={(e) => updateCharacter(char.slotIndex, { visualDetails: e.target.value })}
                     placeholder="Describe what this character wears and holds (e.g. Black leather jacket, red Gibson Les Paul guitar, microphone)"
-                    className="bg-secondary border-border text-white text-sm placeholder:text-muted-foreground/50 resize-none min-h-[60px]"
+                    className="bg-zinc-800 border-zinc-700 text-white text-sm placeholder:text-zinc-600 resize-none min-h-[60px]"
                     disabled={disabled}
                     rows={2}
                   />
                 </div>
 
                 {/* Structured locked fields */}
-                <div className="rounded-xl border border-border/70 bg-card/50 p-3 space-y-3">
+                <div className="rounded-xl border border-zinc-700/70 bg-zinc-900/50 p-3 space-y-3">
                   <div className="flex items-center gap-2 mb-1">
                     <Lock className="w-3.5 h-3.5 text-amber-400" />
                     <span className="text-amber-300 text-xs font-semibold uppercase tracking-wider">Locked Character Constraints</span>
@@ -572,13 +572,13 @@ export function CharacterManager({
                   <div>
                     <div className="flex items-center gap-1.5 mb-1">
                       <Badge className="text-[10px] px-1.5 py-0 bg-amber-900/50 text-amber-300 border-amber-800">LOCKED</Badge>
-                      <Label className="text-foreground/80 text-xs font-medium">Outfit</Label>
+                      <Label className="text-zinc-300 text-xs font-medium">Outfit</Label>
                     </div>
                     <Input
                       value={char.lockedOutfit}
                       onChange={(e) => updateCharacter(char.slotIndex, { lockedOutfit: e.target.value })}
                       placeholder="e.g. Black leather jacket, jeans with key chain"
-                      className={`bg-secondary border-border text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
+                      className={`bg-zinc-800 border-zinc-700 text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
                       disabled={disabled || isLocked}
                     />
                   </div>
@@ -587,13 +587,13 @@ export function CharacterManager({
                   <div>
                     <div className="flex items-center gap-1.5 mb-1">
                       <Badge className="text-[10px] px-1.5 py-0 bg-amber-900/50 text-amber-300 border-amber-800">LOCKED</Badge>
-                      <Label className="text-foreground/80 text-xs font-medium">Props / Instruments</Label>
+                      <Label className="text-zinc-300 text-xs font-medium">Props / Instruments</Label>
                     </div>
                     <Input
                       value={char.lockedProps}
                       onChange={(e) => updateCharacter(char.slotIndex, { lockedProps: e.target.value })}
                       placeholder="e.g. Sunburst Gibson Les Paul, microphone"
-                      className={`bg-secondary border-border text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
+                      className={`bg-zinc-800 border-zinc-700 text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
                       disabled={disabled || isLocked}
                     />
                   </div>
@@ -602,13 +602,13 @@ export function CharacterManager({
                   <div>
                     <div className="flex items-center gap-1.5 mb-1">
                       <Badge className="text-[10px] px-1.5 py-0 bg-amber-900/50 text-amber-300 border-amber-800">LOCKED</Badge>
-                      <Label className="text-foreground/80 text-xs font-medium">Position</Label>
+                      <Label className="text-zinc-300 text-xs font-medium">Position</Label>
                     </div>
                     <Input
                       value={char.lockedPosition}
                       onChange={(e) => updateCharacter(char.slotIndex, { lockedPosition: e.target.value })}
                       placeholder="e.g. Standing at microphone, seated behind drum kit"
-                      className={`bg-secondary border-border text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
+                      className={`bg-zinc-800 border-zinc-700 text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
                       disabled={disabled || isLocked}
                     />
                   </div>
@@ -617,7 +617,7 @@ export function CharacterManager({
                   <div>
                     <div className="flex items-center gap-1.5 mb-1">
                       <Badge className="text-[10px] px-1.5 py-0 bg-emerald-900/50 text-emerald-300 border-emerald-800">MUST HAVE</Badge>
-                      <Label className="text-foreground/80 text-xs font-medium">Mandatory Rules</Label>
+                      <Label className="text-zinc-300 text-xs font-medium">Mandatory Rules</Label>
                     </div>
                     <CommaInput
                       value={char.lockedRules?.mustHave || []}
@@ -625,17 +625,17 @@ export function CharacterManager({
                         lockedRules: { ...char.lockedRules, mustHave: tags }
                       })}
                       placeholder="e.g. standing at microphone, black leather jacket"
-                      className={`bg-secondary border-border text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
+                      className={`bg-zinc-800 border-zinc-700 text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
                       disabled={disabled || isLocked}
                     />
-                    <p className="text-muted-foreground/50 text-[10px] mt-0.5">Comma-separated. These MUST appear in every scene.</p>
+                    <p className="text-zinc-600 text-[10px] mt-0.5">Comma-separated. These MUST appear in every scene.</p>
                   </div>
 
                   {/* Rules — forbidden */}
                   <div>
                     <div className="flex items-center gap-1.5 mb-1">
                       <Badge className="text-[10px] px-1.5 py-0 bg-red-900/50 text-red-300 border-red-800">FORBIDDEN</Badge>
-                      <Label className="text-foreground/80 text-xs font-medium">Forbidden</Label>
+                      <Label className="text-zinc-300 text-xs font-medium">Forbidden</Label>
                     </div>
                     <CommaInput
                       value={char.lockedRules?.forbidden || []}
@@ -643,10 +643,10 @@ export function CharacterManager({
                         lockedRules: { ...char.lockedRules, forbidden: tags }
                       })}
                       placeholder="e.g. holding drumsticks, wearing t-shirt only"
-                      className={`bg-secondary border-border text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
+                      className={`bg-zinc-800 border-zinc-700 text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
                       disabled={disabled || isLocked}
                     />
-                    <p className="text-muted-foreground/50 text-[10px] mt-0.5">Comma-separated. These must NEVER appear.</p>
+                    <p className="text-zinc-600 text-[10px] mt-0.5">Comma-separated. These must NEVER appear.</p>
                   </div>
                 </div>
               </div>
@@ -654,7 +654,7 @@ export function CharacterManager({
               {/* ── Mode selector — prominent two-button toggle ── */}
               {!disabled && (
                 <div>
-                  <Label className="text-muted-foreground text-xs mb-2 block">How do you want to add this character?</Label>
+                  <Label className="text-zinc-400 text-xs mb-2 block">How do you want to add this character?</Label>
                   <div className="grid grid-cols-2 gap-2">
                     {/* Upload Photo */}
                     <button
@@ -662,13 +662,13 @@ export function CharacterManager({
                       onClick={() => updateCharacter(char.slotIndex, { mode: "photo" })}
                       className={`flex flex-col items-center gap-2 py-3 px-3 rounded-xl border-2 text-sm font-medium transition-all ${
                         char.mode === "photo"
-                          ? "border-border/40 bg-muted text-white"
-                          : "border-border bg-secondary/50 text-muted-foreground hover:border-border/50 hover:text-foreground"
+                          ? "border-zinc-400 bg-zinc-700 text-white"
+                          : "border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
                       }`}
                     >
                       <Camera className="w-5 h-5" />
                       <span>Upload Photo</span>
-                      <span className="text-xs font-normal text-muted-foreground/70 leading-tight text-center">Real person — exact likeness</span>
+                      <span className="text-xs font-normal text-zinc-500 leading-tight text-center">Real person — exact likeness</span>
                     </button>
                     {/* AI Generate */}
                     <button
@@ -677,12 +677,12 @@ export function CharacterManager({
                       className={`flex flex-col items-center gap-2 py-3 px-3 rounded-xl border-2 text-sm font-medium transition-all ${
                         char.mode === "ai_generated"
                           ? "border-[--color-gold] bg-[--color-gold]/15 text-[--color-gold]"
-                          : "border-border bg-secondary/50 text-muted-foreground hover:border-[--color-gold]/60 hover:text-foreground"
+                          : "border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-[--color-gold]/60 hover:text-zinc-200"
                       }`}
                     >
                       <Sparkles className="w-5 h-5 text-[--color-gold]" />
                       <span>AI Character Builder</span>
-                      <span className="text-xs font-normal text-muted-foreground/70 leading-tight text-center">Describe & generate any character</span>
+                      <span className="text-xs font-normal text-zinc-500 leading-tight text-center">Describe & generate any character</span>
                     </button>
                   </div>
                 </div>
@@ -700,7 +700,7 @@ export function CharacterManager({
                       className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border text-xs font-medium transition-all ${
                         hasSavedId
                           ? "border-[--color-silver]/40 bg-[--color-silver]/10 text-[--color-silver] hover:bg-[--color-silver]/20"
-                          : "border-border bg-secondary/30 text-muted-foreground/50 cursor-not-allowed"
+                          : "border-zinc-700 bg-zinc-800/30 text-zinc-600 cursor-not-allowed"
                       }`}
                       title={!hasSavedId ? "Submit the form once to enable re-analysis" : "Re-run AI photo analysis to update the visual brief"}
                     >
@@ -727,21 +727,21 @@ export function CharacterManager({
                         type="button"
                         onClick={() => triggerPhotoUpload(char.slotIndex)}
                         disabled={disabled}
-                        className="w-full rounded-xl border-2 border-dashed border-border hover:border-border/50 py-8 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all group"
+                        className="w-full rounded-xl border-2 border-dashed border-zinc-700 hover:border-zinc-500 py-8 flex flex-col items-center justify-center gap-2 text-zinc-400 hover:text-zinc-200 transition-all group"
                       >
-                        <div className="w-10 h-10 rounded-full bg-secondary group-hover:bg-muted flex items-center justify-center transition-colors">
+                        <div className="w-10 h-10 rounded-full bg-zinc-800 group-hover:bg-zinc-700 flex items-center justify-center transition-colors">
                           <ImagePlus className="w-5 h-5" />
                         </div>
                         <div className="text-center">
                           <p className="text-sm font-medium">Upload photos</p>
-                          <p className="text-xs text-muted-foreground/50 mt-0.5">JPG, PNG, WebP · Up to 10 photos · 10MB each</p>
+                          <p className="text-xs text-zinc-600 mt-0.5">JPG, PNG, WebP · Up to 10 photos · 10MB each</p>
                         </div>
                       </button>
                     ) : (
                       <div className="space-y-2">
                         <div className="grid grid-cols-4 gap-2">
                           {char.photos.map((photo, photoIndex) => (
-                            <div key={photoIndex} className="relative group rounded-lg overflow-hidden bg-card" style={{aspectRatio:'3/4'}}>
+                            <div key={photoIndex} className="relative group rounded-lg overflow-hidden bg-zinc-900" style={{aspectRatio:'3/4'}}>
                               <img src={photo.previewUrl} alt="" className="w-full h-full object-contain" />
                               {photo.isPrimary && (
                                 <div className="absolute top-1 left-1">
@@ -765,25 +765,25 @@ export function CharacterManager({
                           {char.photos.length < 10 && !disabled && (
                             <button type="button" onClick={() => triggerPhotoUpload(char.slotIndex)}
                               style={{aspectRatio:'3/4'}}
-                              className="rounded-lg border-2 border-dashed border-border hover:border-border/50 flex items-center justify-center text-muted-foreground/70 hover:text-foreground/80 transition-all">
+                              className="rounded-lg border-2 border-dashed border-zinc-700 hover:border-zinc-500 flex items-center justify-center text-zinc-500 hover:text-zinc-300 transition-all">
                               <Plus className="w-5 h-5" />
                             </button>
                           )}
                         </div>
-                        <p className="text-muted-foreground/50 text-xs">{char.photos.length} photo{char.photos.length !== 1 ? "s" : ""} · ★ = primary reference</p>
+                        <p className="text-zinc-600 text-xs">{char.photos.length} photo{char.photos.length !== 1 ? "s" : ""} · ★ = primary reference</p>
                       </div>
                     )}
                   </div>
 
                   {/* Locked description (photo mode) */}
                   {char.lockedDescription && (
-                    <div className={`rounded-lg border p-3 ${isLocked ? "border-emerald-600/50 bg-emerald-900/10" : "border-border bg-secondary/30"}`}>
-                      <Label className={`text-xs font-medium mb-1.5 block ${isLocked ? "text-emerald-300" : "text-muted-foreground"}`}>
+                    <div className={`rounded-lg border p-3 ${isLocked ? "border-emerald-600/50 bg-emerald-900/10" : "border-zinc-700 bg-zinc-800/30"}`}>
+                      <Label className={`text-xs font-medium mb-1.5 block ${isLocked ? "text-emerald-300" : "text-zinc-400"}`}>
                         {isLocked ? "Locked Visual Brief" : "Visual Brief (editable)"}
                       </Label>
                       <Textarea value={char.lockedDescription}
                         onChange={(e) => updateCharacter(char.slotIndex, { lockedDescription: e.target.value })}
-                        className={`bg-card border-border text-sm resize-none min-h-[70px] ${isLocked ? "text-emerald-100 border-emerald-800/50 cursor-not-allowed opacity-80" : "text-white"}`}
+                        className={`bg-zinc-900 border-zinc-700 text-sm resize-none min-h-[70px] ${isLocked ? "text-emerald-100 border-emerald-800/50 cursor-not-allowed opacity-80" : "text-white"}`}
                         disabled={disabled || isLocked} rows={3} />
                     </div>
                   )}
@@ -794,7 +794,7 @@ export function CharacterManager({
               {char.mode === "ai_generated" && (
                 <div className="space-y-4">
                   {/* Intro banner */}
-                  <div className="rounded-xl bg-gradient-to-br from-[--color-gold]/10 to-card border border-[--color-gold]/30 p-4">
+                  <div className="rounded-xl bg-gradient-to-br from-[--color-gold]/10 to-[#1a1a1a] border border-[--color-gold]/30 p-4">
                     <div className="flex items-start gap-3">
                       <div className="w-9 h-9 rounded-lg bg-[--color-gold] flex items-center justify-center flex-shrink-0">
                         <Wand2 className="w-5 h-5 text-white" />
@@ -810,7 +810,7 @@ export function CharacterManager({
 
                   {/* Style selector */}
                   <div>
-                    <Label className="text-muted-foreground text-xs mb-2 block">Character Style</Label>
+                    <Label className="text-zinc-400 text-xs mb-2 block">Character Style</Label>
                     <div className="grid grid-cols-4 gap-2">
                       {AI_STYLES.map((style) => (
                         <button
@@ -821,7 +821,7 @@ export function CharacterManager({
                           className={`flex flex-col items-center gap-1.5 py-3 px-1 rounded-xl border-2 text-xs font-medium transition-all ${
                             char.aiStyle === style.id
                               ? "border-[--color-gold] bg-[--color-gold]/15 text-[--color-gold]"
-                              : "border-border bg-secondary/50 text-muted-foreground hover:border-border/50 hover:text-foreground"
+                              : "border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
                           }`}
                         >
                           <span className="text-xl">{style.emoji}</span>
@@ -834,7 +834,7 @@ export function CharacterManager({
                   {/* Description input */}
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <Label className="text-muted-foreground text-xs">Describe Your Character *</Label>
+                      <Label className="text-zinc-400 text-xs">Describe Your Character *</Label>
                       <VoicePromptButton
                         toolContext="character description and appearance"
                         showWaveform={true}
@@ -846,11 +846,11 @@ export function CharacterManager({
                       value={char.aiDescription}
                       onChange={(e) => updateCharacter(char.slotIndex, { aiDescription: e.target.value })}
                       placeholder={`Describe what you want...\n\nExamples:\n• ${AI_DESCRIPTION_EXAMPLES[char.slotIndex % AI_DESCRIPTION_EXAMPLES.length]}\n• ${AI_DESCRIPTION_EXAMPLES[(char.slotIndex + 4) % AI_DESCRIPTION_EXAMPLES.length]}`}
-                      className="bg-secondary border-border text-white text-sm placeholder:text-muted-foreground/50 resize-none min-h-[100px]"
+                      className="bg-zinc-800 border-zinc-700 text-white text-sm placeholder:text-zinc-600 resize-none min-h-[100px]"
                       disabled={disabled || isGenerating}
                       rows={4}
                     />
-                    <p className="text-muted-foreground/50 text-xs mt-1">
+                    <p className="text-zinc-600 text-xs mt-1">
                       Be specific: age, gender, clothing style, hair, energy, role in the video. Works for animated characters too!
                     </p>
                   </div>
@@ -861,7 +861,7 @@ export function CharacterManager({
                       type="button"
                       onClick={() => handleGenerateCharacter(char.slotIndex)}
                       disabled={isGenerating || !char.aiDescription.trim()}
-                      className="w-full bg-gradient-to-r from-primary to-primary/40 hover:from-primary/80 hover:to-primary text-white gap-2 py-5 text-base font-semibold shadow-lg shadow-[#b8892a]/30"
+                      className="w-full bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#e8c878] hover:to-[#b8892a] text-white gap-2 py-5 text-base font-semibold shadow-lg shadow-[#b8892a]/30"
                     >
                       {isGenerating ? (
                         <><RefreshCw className="w-5 h-5 animate-spin" /> Generating Character...</>
@@ -890,8 +890,8 @@ export function CharacterManager({
                       </div>
                       {char.aiGeneratedBrief && (
                         <div className="p-3">
-                          <p className="text-muted-foreground text-xs font-medium mb-1">AI Visual Brief:</p>
-                          <p className="text-foreground/80 text-xs leading-relaxed">{char.aiGeneratedBrief}</p>
+                          <p className="text-zinc-400 text-xs font-medium mb-1">AI Visual Brief:</p>
+                          <p className="text-zinc-300 text-xs leading-relaxed">{char.aiGeneratedBrief}</p>
                         </div>
                       )}
                     </div>
@@ -899,13 +899,13 @@ export function CharacterManager({
 
                   {/* Locked description (ai mode — shows the brief) */}
                   {char.aiGeneratedBrief && (
-                    <div className={`rounded-lg border p-3 ${isLocked ? "border-emerald-600/50 bg-emerald-900/10" : "border-border bg-secondary/30"}`}>
-                      <Label className={`text-xs font-medium mb-1.5 block ${isLocked ? "text-emerald-300" : "text-muted-foreground"}`}>
+                    <div className={`rounded-lg border p-3 ${isLocked ? "border-emerald-600/50 bg-emerald-900/10" : "border-zinc-700 bg-zinc-800/30"}`}>
+                      <Label className={`text-xs font-medium mb-1.5 block ${isLocked ? "text-emerald-300" : "text-zinc-400"}`}>
                         {isLocked ? "Locked Visual Brief" : "Visual Brief (editable)"}
                       </Label>
                       <Textarea value={char.lockedDescription}
                         onChange={(e) => updateCharacter(char.slotIndex, { lockedDescription: e.target.value })}
-                        className={`bg-card border-border text-sm resize-none min-h-[70px] ${isLocked ? "text-emerald-100 border-emerald-800/50 cursor-not-allowed opacity-80" : "text-white"}`}
+                        className={`bg-zinc-900 border-zinc-700 text-sm resize-none min-h-[70px] ${isLocked ? "text-emerald-100 border-emerald-800/50 cursor-not-allowed opacity-80" : "text-white"}`}
                         disabled={disabled || isLocked} rows={3} />
                     </div>
                   )}
@@ -913,16 +913,16 @@ export function CharacterManager({
               )}
 
               {/* ── WizSync™ Lip Sync ── */}
-              <div className={`rounded-lg border p-3 transition-all ${char.enableLipSync ? "border-[--color-gold]/40 bg-[--color-gold]/10" : "border-border bg-secondary/30"}`}>
+              <div className={`rounded-lg border p-3 transition-all ${char.enableLipSync ? "border-[--color-gold]/40 bg-[--color-gold]/10" : "border-zinc-700 bg-zinc-800/30"}`}>
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <Mic className={`w-4 h-4 ${char.enableLipSync ? "text-[--color-gold]" : "text-muted-foreground/70"}`} />
+                    <Mic className={`w-4 h-4 ${char.enableLipSync ? "text-[--color-gold]" : "text-zinc-500"}`} />
                     <div>
                       <div className="flex items-center gap-1.5">
                         <p className="text-white text-sm font-medium">WizSync™</p>
                         <span className="text-[9px] font-semibold uppercase tracking-widest px-1.5 py-0.5 rounded bg-[--color-gold]/20 text-[--color-gold] border border-[--color-gold]/30">Portrait‑to‑LipSync</span>
                       </div>
-                      <p className="text-muted-foreground text-xs">
+                      <p className="text-zinc-400 text-xs">
                         AI Performance Enhancement — cinematic hero-shot lip sync
                         {char.mode === "photo" && char.photos.length === 0 && <span className="text-yellow-400 ml-1">— add a photo first</span>}
                         {char.mode === "ai_generated" && !char.aiGeneratedImageUrl && <span className="text-yellow-400 ml-1">— generate character first</span>}
@@ -949,21 +949,21 @@ export function CharacterManager({
                     {/* How WizSync works */}
                     <div className="rounded-md bg-[--color-gold]/5 border border-[--color-gold]/20 px-3 py-2">
                       <p className="text-[11px] font-semibold text-[--color-gold] uppercase tracking-widest mb-1">How WizSync™ Works</p>
-                      <p className="text-[11px] text-foreground/80 leading-relaxed">
+                      <p className="text-[11px] text-zinc-300 leading-relaxed">
                         WizSync automatically animates your character’s portrait into a cinematic performance, then applies precision lip sync to the audio track. No face video required — your locked portrait is used automatically.
                       </p>
                       <div className="mt-2 flex items-center gap-1.5 flex-wrap">
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-foreground/80 border border-border">Portrait → Animation</span>
-                        <span className="text-[10px] text-muted-foreground/50">→</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-foreground/80 border border-border">WIZ Scene Engine</span>
-                        <span className="text-[10px] text-muted-foreground/50">→</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">Portrait → Animation</span>
+                        <span className="text-[10px] text-zinc-600">→</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">WIZ Scene Engine</span>
+                        <span className="text-[10px] text-zinc-600">→</span>
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-[--color-gold]/20 text-[--color-gold] border border-[--color-gold]/30">WIZ Lip Sync</span>
                       </div>
                     </div>
 
                     {/* Optional: upload a face video for higher quality */}
                     <div>
-                      <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">Optional — Upload Face Video for Higher Quality</p>
+                      <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest mb-1.5">Optional — Upload Face Video for Higher Quality</p>
                       {char.faceVideoUrl ? (
                         <div className="flex items-center gap-2">
                           <video src={char.faceVideoUrl} className="w-16 h-16 rounded-lg object-cover border border-[--color-gold]/30" muted playsInline />
@@ -974,14 +974,14 @@ export function CharacterManager({
                           <button
                             type="button"
                             onClick={() => updateCharacter(char.slotIndex, { faceVideoUrl: undefined })}
-                            className="text-muted-foreground/70 hover:text-red-400 transition-colors text-xs"
+                            className="text-zinc-500 hover:text-red-400 transition-colors text-xs"
                             disabled={disabled}
                           >
                             Remove
                           </button>
                         </div>
                       ) : (
-                        <label className={`flex items-center gap-2 rounded-lg border border-dashed border-border bg-secondary/30 px-3 py-2 cursor-pointer hover:border-[--color-gold]/40 hover:bg-[--color-gold]/5 transition-all ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
+                        <label className={`flex items-center gap-2 rounded-lg border border-dashed border-zinc-700 bg-zinc-800/30 px-3 py-2 cursor-pointer hover:border-[--color-gold]/40 hover:bg-[--color-gold]/5 transition-all ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
                           <input
                             type="file"
                             accept="video/*"
@@ -1007,10 +1007,10 @@ export function CharacterManager({
                               }
                             }}
                           />
-                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-muted-foreground/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                           <div>
-                            <p className="text-xs text-muted-foreground">Upload face video (MP4/MOV, max 50MB)</p>
-                            <p className="text-[10px] text-muted-foreground/50">3–10s close-up — overrides portrait animation</p>
+                            <p className="text-xs text-zinc-400">Upload face video (MP4/MOV, max 50MB)</p>
+                            <p className="text-[10px] text-zinc-600">3–10s close-up — overrides portrait animation</p>
                           </div>
                         </label>
                       )}
@@ -1029,9 +1029,9 @@ export function CharacterManager({
           <button
             type="button"
             onClick={addCharacter}
-            className="flex-1 rounded-xl border-2 border-dashed border-border hover:border-border/50 py-4 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all group"
+            className="flex-1 rounded-xl border-2 border-dashed border-zinc-700 hover:border-zinc-500 py-4 flex items-center justify-center gap-2 text-zinc-400 hover:text-zinc-200 transition-all group"
           >
-            <div className="w-8 h-8 rounded-full bg-secondary group-hover:bg-muted flex items-center justify-center transition-colors">
+            <div className="w-8 h-8 rounded-full bg-zinc-800 group-hover:bg-zinc-700 flex items-center justify-center transition-colors">
               <Plus className="w-4 h-4" />
             </div>
             <span className="text-sm font-medium">Add Character {characters.length + 1}{maxCharacters < 99 ? ` of ${maxCharacters}` : ""}</span>
@@ -1053,34 +1053,34 @@ export function CharacterManager({
       {/* Library Picker Modal */}
       {showLibraryPicker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.85)" }}>
-          <div className="w-full max-w-2xl rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
+          <div className="w-full max-w-2xl rounded-2xl border border-zinc-700 bg-zinc-900 shadow-2xl overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
               <div className="flex items-center gap-2">
                 <Crown className="w-5 h-5 text-[--color-gold]" />
                 <h3 className="text-white font-bold text-base">Add from Character Library</h3>
               </div>
-              <button type="button" onClick={() => setShowLibraryPicker(false)} className="text-muted-foreground hover:text-white transition-colors">
+              <button type="button" onClick={() => setShowLibraryPicker(false)} className="text-zinc-400 hover:text-white transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
             {/* Search */}
-            <div className="px-6 py-3 border-b border-border">
+            <div className="px-6 py-3 border-b border-zinc-800">
               <input
                 type="text"
                 placeholder="Search saved characters..."
                 value={librarySearch}
                 onChange={(e) => setLibrarySearch(e.target.value)}
-                className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[--color-gold]/50"
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-[--color-gold]/50"
               />
             </div>
             {/* Character grid */}
             <div className="p-6 max-h-96 overflow-y-auto">
               {!libraryChars || libraryChars.length === 0 ? (
                 <div className="text-center py-12">
-                  <Crown className="w-10 h-10 text-muted-foreground/50 mx-auto mb-3" />
-                  <p className="text-muted-foreground text-sm font-medium">No saved characters yet</p>
-                  <p className="text-muted-foreground/70 text-xs mt-1">Save characters from your projects to reuse them here.</p>
+                  <Crown className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+                  <p className="text-zinc-400 text-sm font-medium">No saved characters yet</p>
+                  <p className="text-zinc-500 text-xs mt-1">Save characters from your projects to reuse them here.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -1089,21 +1089,21 @@ export function CharacterManager({
                       key={libChar.id}
                       type="button"
                       onClick={() => addFromLibrary(libChar)}
-                      className="group rounded-xl border border-border hover:border-[--color-gold]/50 bg-secondary hover:bg-zinc-750 p-3 text-left transition-all"
+                      className="group rounded-xl border border-zinc-700 hover:border-[--color-gold]/50 bg-zinc-800 hover:bg-zinc-750 p-3 text-left transition-all"
                     >
                       {/* Photo */}
-                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-muted mb-2">
+                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-zinc-700 mb-2">
                         {libChar.photoUrl ? (
                           <img src={libChar.photoUrl} alt={libChar.name} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
-                            <User className="w-8 h-8 text-muted-foreground/70" />
+                            <User className="w-8 h-8 text-zinc-500" />
                           </div>
                         )}
                       </div>
                       <p className="text-white text-xs font-semibold truncate">{libChar.name}</p>
                       {libChar.animStyle && (
-                        <p className="text-muted-foreground text-xs truncate mt-0.5 capitalize">{libChar.animStyle}</p>
+                        <p className="text-zinc-400 text-xs truncate mt-0.5 capitalize">{libChar.animStyle}</p>
                       )}
                       <div className="mt-2 text-[10px] text-[--color-gold] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">+ Add to project</div>
                     </button>
@@ -1116,7 +1116,7 @@ export function CharacterManager({
       )}
 
       {characters.length === 0 && (
-        <p className="text-muted-foreground/70 text-xs text-center py-2">
+        <p className="text-zinc-500 text-xs text-center py-2">
           Characters are optional. Add them if you want specific people or characters to appear in your video.
         </p>
       )}

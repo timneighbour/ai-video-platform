@@ -242,7 +242,7 @@ export default function CharacterConfirmationStep({
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4">
         <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
-        <p className="text-muted-foreground">Loading characters...</p>
+        <p className="text-zinc-400">Loading characters...</p>
       </div>
     );
   }
@@ -269,20 +269,20 @@ export default function CharacterConfirmationStep({
       </div>
 
       {/* Character Lock Mode toggle */}
-      <div className={`flex items-center gap-4 rounded-xl border px-4 py-3 transition-all ${characterLockMode ? "border-violet-700/60 bg-violet-950/30" : "border-border bg-card/40"}`}>
-        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${characterLockMode ? "bg-[--color-gold]/20" : "bg-secondary"}`}>
-          {characterLockMode ? <Lock className="w-5 h-5 text-[--color-gold]" /> : <Unlock className="w-5 h-5 text-muted-foreground" />}
+      <div className={`flex items-center gap-4 rounded-xl border px-4 py-3 transition-all ${characterLockMode ? "border-violet-700/60 bg-violet-950/30" : "border-zinc-700 bg-zinc-900/40"}`}>
+        <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${characterLockMode ? "bg-[--color-gold]/20" : "bg-zinc-800"}`}>
+          {characterLockMode ? <Lock className="w-5 h-5 text-[--color-gold]" /> : <Unlock className="w-5 h-5 text-zinc-400" />}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className={`font-semibold text-sm ${characterLockMode ? "text-[--color-gold]" : "text-foreground/80"}`}>
+            <p className={`font-semibold text-sm ${characterLockMode ? "text-[--color-gold]" : "text-zinc-300"}`}>
               Character Lock Mode
             </p>
             {characterLockMode && (
               <Badge className="bg-violet-900/60 text-[--color-gold] border-violet-700 text-xs">Recommended</Badge>
             )}
           </div>
-          <p className="text-muted-foreground/70 text-xs mt-0.5">
+          <p className="text-zinc-500 text-xs mt-0.5">
             {characterLockMode
               ? "Identity enforced via master portrait + locked seed. The same face appears in every scene."
               : "Standard mode — face consistency relies on prompt text only (less reliable)."}
@@ -291,7 +291,7 @@ export default function CharacterConfirmationStep({
         <button
           type="button"
           onClick={() => setCharacterLockMode(v => !v)}
-          className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${characterLockMode ? "bg-[--color-gold]" : "bg-muted"}`}
+          className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${characterLockMode ? "bg-[--color-gold]" : "bg-zinc-700"}`}
           aria-label="Toggle Character Lock Mode"
         >
           <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${characterLockMode ? "translate-x-6" : "translate-x-0"}`} />
@@ -374,20 +374,20 @@ export default function CharacterConfirmationStep({
                 char.previewApproved
                   ? "border-emerald-500 ring-2 ring-emerald-500/40 shadow-[0_0_20px_rgba(52,211,153,0.18)]"
                   : hasPreview
-                  ? `ring-1 ${colors.ring} border-border`
-                  : "border-border"
+                  ? `ring-1 ${colors.ring} border-zinc-700`
+                  : "border-zinc-700"
               }`}
             >
               {/* Character header */}
               <div className={`px-4 py-3 flex items-center gap-3 border-b ${
                 char.previewApproved
                   ? "bg-gradient-to-r from-emerald-900/40 to-emerald-900/10 border-emerald-700/40"
-                  : `${colors.bg} border-border/50`
+                  : `${colors.bg} border-zinc-700/50`
               }`}>
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
                   char.previewApproved
                     ? "bg-emerald-600 shadow-[0_0_10px_rgba(52,211,153,0.5)]"
-                    : "bg-muted"
+                    : "bg-zinc-700"
                 }`}>
                   {char.previewApproved
                     ? <CheckCircle2 className="w-4 h-4 text-white" />
@@ -398,7 +398,7 @@ export default function CharacterConfirmationStep({
                     char.previewApproved ? "text-emerald-200" : "text-white"
                   }`}>{char.name}</p>
                   {char.role && <p className={`text-xs truncate ${
-                    char.previewApproved ? "text-emerald-400/70" : "text-muted-foreground"
+                    char.previewApproved ? "text-emerald-400/70" : "text-zinc-400"
                   }`}>{char.role}</p>}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
@@ -421,7 +421,7 @@ export default function CharacterConfirmationStep({
               </div>
 
               {/* ── Main preview area: reference photo + AI portrait side by side ── */}
-              <div className="bg-card">
+              <div className="bg-zinc-900">
                 {isGenerating ? (
                   <div className="flex flex-col items-center gap-3 py-14">
                     <div className="relative">
@@ -433,10 +433,10 @@ export default function CharacterConfirmationStep({
                       </div>
                       <div className="absolute inset-0 rounded-full border-2 border-[--color-gold]/50 animate-spin border-t-transparent pointer-events-none" />
                     </div>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-zinc-400 text-sm">
                       {isGeneratingMaster ? "Generating full-body portrait..." : "Generating AI preview..."}
                     </p>
-                    <p className="text-muted-foreground/50 text-xs">
+                    <p className="text-zinc-600 text-xs">
                       {isGeneratingMaster ? "Face · Hair · Outfit — 30–60 seconds" : "10–20 seconds"}
                     </p>
                   </div>
@@ -444,14 +444,14 @@ export default function CharacterConfirmationStep({
                   <div className="flex gap-0">
                     {/* Reference photo column — only shown for photo-mode characters */}
                     {isPhotoChar && char.primaryPhotoUrl && (
-                      <div className="w-1/3 flex-shrink-0 border-r border-border">
+                      <div className="w-1/3 flex-shrink-0 border-r border-zinc-800">
                         <div className="px-2 pt-2 pb-1">
-                          <p className="text-muted-foreground/70 text-[10px] font-medium uppercase tracking-wider flex items-center gap-1">
+                          <p className="text-zinc-500 text-[10px] font-medium uppercase tracking-wider flex items-center gap-1">
                             <Camera className="w-3 h-3" /> Your Photo
                           </p>
                         </div>
                         {/* Portrait aspect ratio — object-contain so face is never cropped */}
-                        <div className="mx-2 mb-2 rounded-lg overflow-hidden bg-background" style={{ aspectRatio: "3/4" }}>
+                        <div className="mx-2 mb-2 rounded-lg overflow-hidden bg-zinc-950" style={{ aspectRatio: "3/4" }}>
                           <img
                             src={char.primaryPhotoUrl}
                             alt={`${char.name} reference`}
@@ -464,12 +464,12 @@ export default function CharacterConfirmationStep({
                     {/* AI portrait column */}
                     <div className={`relative ${isPhotoChar && char.primaryPhotoUrl ? "w-2/3" : "w-full"}`}>
                       <div className="px-2 pt-2 pb-1">
-                        <p className="text-muted-foreground/70 text-[10px] font-medium uppercase tracking-wider flex items-center gap-1">
+                        <p className="text-zinc-500 text-[10px] font-medium uppercase tracking-wider flex items-center gap-1">
                           <Sparkles className="w-3 h-3" /> AI Full-Body Portrait
                         </p>
                       </div>
                       {/* Tall portrait container — object-contain so legs and feet are always visible */}
-                      <div className="mx-2 mb-2 rounded-lg overflow-hidden bg-background" style={{ aspectRatio: "3/4" }}>
+                      <div className="mx-2 mb-2 rounded-lg overflow-hidden bg-zinc-950" style={{ aspectRatio: "3/4" }}>
                         <img
                           src={char.previewImageUrl!}
                           alt={`${char.name} AI portrait`}
@@ -495,7 +495,7 @@ export default function CharacterConfirmationStep({
                       )}
                       {/* Master portrait badge */}
                       {showMasterPortraitBadge && !char.previewApproved && (
-                        <div className="absolute bottom-4 left-4 bg-card/90 rounded-lg px-2 py-1 flex items-center gap-1.5">
+                        <div className="absolute bottom-4 left-4 bg-[#1a1a1a]/90 rounded-lg px-2 py-1 flex items-center gap-1.5">
                           <Anchor className="w-3 h-3 text-[--color-gold]" />
                           <span className="text-[--color-gold] text-xs font-medium">Identity Anchor</span>
                         </div>
@@ -507,15 +507,15 @@ export default function CharacterConfirmationStep({
                     {/* Show reference photo prominently when no AI portrait yet */}
                     {char.primaryPhotoUrl ? (
                       <>
-                        <div className="w-full max-w-[160px] mx-auto rounded-xl overflow-hidden bg-background ring-1 ring-zinc-700" style={{ aspectRatio: "3/4" }}>
+                        <div className="w-full max-w-[160px] mx-auto rounded-xl overflow-hidden bg-zinc-950 ring-1 ring-zinc-700" style={{ aspectRatio: "3/4" }}>
                           <img
                             src={char.primaryPhotoUrl}
                             alt={`${char.name} reference`}
                             className="w-full h-full object-contain"
                           />
                         </div>
-                        <p className="text-muted-foreground text-sm font-medium">Reference photo uploaded</p>
-                        <p className="text-muted-foreground/50 text-xs max-w-[200px]">
+                        <p className="text-zinc-400 text-sm font-medium">Reference photo uploaded</p>
+                        <p className="text-zinc-600 text-xs max-w-[200px]">
                           {characterLockMode
                             ? `Click "Create Full-Body Portrait" to generate the AI version of ${char.name} — face, hair, and outfit`
                             : `Click "Generate Preview" to see how the AI will create ${char.name}`}
@@ -523,11 +523,11 @@ export default function CharacterConfirmationStep({
                       </>
                     ) : (
                       <>
-                        <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">
-                          <ImageIcon className="w-8 h-8 text-muted-foreground/50" />
+                        <div className="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center">
+                          <ImageIcon className="w-8 h-8 text-zinc-600" />
                         </div>
-                        <p className="text-muted-foreground text-sm font-medium">No preview yet</p>
-                        <p className="text-muted-foreground/50 text-xs">Generate a preview to confirm this character's appearance</p>
+                        <p className="text-zinc-400 text-sm font-medium">No preview yet</p>
+                        <p className="text-zinc-600 text-xs">Generate a preview to confirm this character's appearance</p>
                       </>
                     )}
                   </div>
@@ -536,11 +536,11 @@ export default function CharacterConfirmationStep({
 
               {/* ── Outfit / hair / instrument detail tags ── */}
               {detailTags.length > 0 && (
-                <div className="px-3 py-2 bg-secondary/60 border-t border-border/50 space-y-1.5">
+                <div className="px-3 py-2 bg-zinc-800/60 border-t border-zinc-700/50 space-y-1.5">
                   {detailTags.map(tag => (
                     <div key={tag.label} className="flex items-start gap-2">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70 min-w-[52px] mt-0.5">{tag.label}</span>
-                      <span className="text-foreground/80 text-xs leading-relaxed">{tag.value}</span>
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 min-w-[52px] mt-0.5">{tag.label}</span>
+                      <span className="text-zinc-300 text-xs leading-relaxed">{tag.value}</span>
                     </div>
                   ))}
                 </div>
@@ -548,15 +548,15 @@ export default function CharacterConfirmationStep({
 
               {/* Locked description / character prompt preview */}
               {!detailTags.length && (char.characterPrompt || char.lockedDescription) && (
-                <div className="px-4 py-2 bg-secondary/50 border-t border-border/50">
-                  <p className="text-muted-foreground/70 text-xs line-clamp-2">
+                <div className="px-4 py-2 bg-zinc-800/50 border-t border-zinc-700/50">
+                  <p className="text-zinc-500 text-xs line-clamp-2">
                     {char.characterPrompt ?? char.lockedDescription}
                   </p>
                 </div>
               )}
 
               {/* Action buttons */}
-              <div className="p-3 bg-card border-t border-border flex gap-2">
+              <div className="p-3 bg-zinc-900 border-t border-zinc-800 flex gap-2">
                 {/* Primary action: Create Full-Body Portrait (photo chars in lock mode) or Generate Preview */}
                 {isPhotoChar && characterLockMode ? (
                   <Button
@@ -585,7 +585,7 @@ export default function CharacterConfirmationStep({
                     variant="outline"
                     onClick={() => handleGeneratePreview(char)}
                     disabled={isGenerating || isApproving}
-                    className="flex-1 border-border bg-secondary text-foreground/80 hover:text-white hover:bg-muted gap-1.5"
+                    className="flex-1 border-zinc-700 bg-zinc-800 text-zinc-300 hover:text-white hover:bg-zinc-700 gap-1.5"
                   >
                     {isGenerating ? (
                       <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Generating...</>

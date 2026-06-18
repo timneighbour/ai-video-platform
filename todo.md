@@ -107,7 +107,7 @@
 - [x] Fix probe gate: clear idempotency records so scenes can be re-dispatched
 - [x] Fix SyncLabs audio extraction: startTime was in ms, must divide by 1000 before passing to ffmpeg
 - [x] Deploy fix to production and verify SyncLabs lip sync completes for Scene 1
-- [x] After probe approval, dispatch all 11 scenes and assemble final video — DONE (probePassed=true releases heartbeat gate for all scenes)
+- [ ] After probe approval, dispatch all 11 scenes and assemble final video
 
 ## API Integration & Real Video Generation
 - [x] Integrate Kling AI 3.0 for text-to-video generation
@@ -419,26 +419,26 @@
 - [x] /ai-kids-video-generator — "AI kids video generator" (via /seo/:slug route)
 - [x] /ai-animation-video-maker — "AI animation video maker" (via /seo/:slug route)
 - [x] /turn-audio-into-video-ai — "turn audio into video AI" (via /seo/:slug route)
-- [x] Each page: H1, intro, H2 steps, H2 why, H2 best tool, CTA, demo video embed, internal links — DONE (SeoLandingPage.tsx)
+- [ ] Each page: H1, intro, H2 steps, H2 why, H2 best tool, CTA, demo video embed, internal links
 - [x] sitemap.xml with all pages
 - [x] robots.txt
 
 ## Programmatic SEO (50 Pages)
 - [x] Dynamic SEO route /seo/:slug rendering master template
-- [x] All 50 keyword pages from the master list — DONE (seoPages.ts)
-- [x] Internal links between all pages — DONE (relatedSlugs in seoPages.ts)
-- [x] Demo video embed on every page — DONE (SeoLandingPage.tsx demo section)
+- [ ] All 50 keyword pages from the master list
+- [ ] Internal links between all pages
+- [ ] Demo video embed on every page
 - [x] sitemap.xml listing all 88 URLs (50 SEO + 38 main/tool/product pages)
 - [x] robots.txt with sitemap reference
 
 
 ## Multilingual Support (i18n)
 - [x] Install i18next + react-i18next + i18next-browser-languagedetector
-- [x] Create translation files for EN, ES, PT-BR, FR (all key UI strings) — DONE (i18n.ts)
+- [ ] Create translation files for EN, ES, PT-BR, FR (all key UI strings)
 - [x] Add LanguageSelector component to nav (flags + language names dropdown)
-- [x] Auto-detect browser language on first visit — DONE (i18next-browser-languagedetector)
+- [ ] Auto-detect browser language on first visit
 - [x] Persist language choice in localStorage
-- [x] Integrate i18n into Home.tsx nav, hero, and key sections — DONE (Nav component t() calls)
+- [ ] Integrate i18n into Home.tsx nav, hero, and key sections
 
 ## Customer Support System
 - [x] Add Crisp live chat widget to all pages (bottom right) — CrispChat component in App.tsx
@@ -737,7 +737,7 @@
 - [x] Dual CTAs: "Create Your First AI Video" + "Generate Your First Song"
 - [x] Update hero headline positioning copy site-wide (strengthened hero copy)
 - [x] Wire Suno router into main routers.ts and build Suno music creator page
-- [x] Ensure all animations are smooth, lightweight, and mobile-responsive
+- [ ] Ensure all animations are smooth, lightweight, and mobile-responsive
 
 ## MVP Enhancement: Core Flow Polish (Apr 2026)
 - [x] Step-by-step progress indicator (upload → style → storyboard → generate → export) with active/completed states
@@ -784,7 +784,7 @@
 ## Bug: Suno API callBackUrl Error
 - [x] Add callBackUrl parameter to all Suno API generation calls
 - [x] Implement /api/suno/callback endpoint to receive Suno webhook results
-- [x] Update ... (incomplete placeholder — no action required)
+- [ ] Update ...
 
 ## Ella's Homepage Feedback (8.7/10 → 10/10)
 - [x] Ella #1: Darken/blur hero background more so headline dominates
@@ -1233,9 +1233,9 @@
 - [x] Shared CreditsBanner component for reuse across all video creation pages
 
 ## Fix: Light/Dark Theme Toggle (Apr 2026)
-- [x] Fix light/dark toggle — DONE (session 4: ~1100 hardcoded colours replaced with CSS variable classes; 36 intentional accent colours retained)
-- [x] Ensure toggle works on mobile and desktop — DONE (ThemeProvider + CSS variables)
-- [x] Verify CSS variables update correctly when theme changes — DONE (CSS variable system confirmed working)
+- [ ] Fix light/dark toggle — DEFERRED: site uses 1136 hardcoded dark colors vs 74 CSS vars; full light mode requires major refactor
+- [ ] Ensure toggle works on mobile and desktop
+- [ ] Verify CSS variables update correctly when theme changes
 - [x] Fix "Failed to start scene regeneration" error on /music-video/create page
 - [x] Remove lyrics from storyboard scene cards on /music-video/create
 - [x] Add optional captions toggle so users can add captions if they want
@@ -1561,7 +1561,7 @@
 - [x] Set num_inference_steps: 35
 
 ### Step 5: Reference Reinforcement Loop
-- [x] Track previousSceneImageUrl per character in scene generation context
+- [ ] Track previousSceneImageUrl per character in scene generation context
 - [x] For scene N>1: pass both masterPortraitUrl AND previousSceneImageUrl as reference images (forgeRefs includes both; masterPortrait first = higher weight)
 - [x] Weight masterPortraitUrl higher than previousSceneImageUrl (masterPortrait is first in forgeRefs array)
 
@@ -1590,7 +1590,7 @@
 - [x] Enforce character lock: all scenes use masterPortraitUrl + seed + lockedPrompt
 - [x] Split prompts: CHARACTER (locked) / SCENE (variable) / NEGATIVE
 - [x] Lower CFG / temperature, increase identity weight in all scene generation calls (Forge API does not expose these params; identity weight is maximised via prompt engineering — EXACT LIKENESS REQUIRED block + strong negative prompts)
-- [x] Max 3-5 second clips per scene
+- [ ] Max 3-5 second clips per scene
 - [x] Chained reference: scene N uses masterPortrait + previous scene output (previousSceneImageUrl passed as secondary forgeRef)
 - [x] 3-variation generation per scene, pick best facial match (3-variation face scoring system implemented in generateScenePreview)
 - [x] Basic face consistency check: regenerate if face diverges significantly (auto-regenerate up to 2 retries if bestScore < 65)
@@ -1687,10 +1687,10 @@
 - [x] Assemble finalImagePrompt: identityBlock + visualBlock + roleBlock + sceneBlock + constraintBlock
 - [x] Add "ONLY three people on stage" to positive prompt for 3-character scenes
 - [x] Extend negative prompt: extra people, background musicians, crowd performers, duplicates, clones, multiple guitarists, extra band members
-- [x] Post-generation validation: peopleCount > 3 → regenerate
-- [x] Post-generation validation: wrong character detected → regenerate
-- [x] Post-generation validation: missing instrument → regenerate
-- [x] Apply lip sync only to scene focusCharacter (not all characters)
+- [ ] Post-generation validation: peopleCount > 3 → regenerate
+- [ ] Post-generation validation: wrong character detected → regenerate
+- [ ] Post-generation validation: missing instrument → regenerate
+- [ ] Apply lip sync only to scene focusCharacter (not all characters)
 - [x] CharacterManager UI: add Props/Outfit/Visual Details field with placeholder text
 - [x] CharacterManager UI: field order — Name, Role, Props/Outfit/Visual Details, Reference Image
 - [x] Add updateCharacterVisualDetails tRPC mutation (instrument, outfit, position, props)
@@ -1699,27 +1699,27 @@
 
 ## Bug: Greg Face Identity Not Applied in Multi-Character Scenes (Apr 12 2026)
 - [x] Diagnose why Greg's face is not being used — fixed: identity block now includes ALL scene characters
-- [x] Check if Greg has a referenceImageUrl / masterPortraitUrl in the DB
+- [ ] Check if Greg has a referenceImageUrl / masterPortraitUrl in the DB
 - [x] Check if buildIdentityBlock() correctly includes ALL scene characters (not just primary)
-- [x] Check if InstantID / face lock is only applied to the first/primary character
-- [x] Check if the scene character assignment for Greg is correct in the DB
+- [ ] Check if InstantID / face lock is only applied to the first/primary character
+- [ ] Check if the scene character assignment for Greg is correct in the DB
 - [x] Fix identity block to include Greg's lockedDescription and referenceImage in multi-char scenes
 - [x] Verify Monica's face is also correctly applied (not just Tim) — identity block includes all chars
 - [x] Add negative prompt entries: per-character dynamic negatives now generated from OUTFIT_CONSTRAINTS
 
 ## Bug: Tim Not Wearing Black Leather Jacket / Visual Details Not Applied (Apr 12 2026)
-- [x] Verify DB query in generateScenePreview fetches characterVisualDetails, characterConstraints, characterDefaultState columns
-- [x] Verify buildVisualBlock() and buildRoleBlock() are receiving non-null data from DB
-- [x] Check if characterVisualDetails column is being selected in getCharactersForJob DB query
-- [x] Add console.log to confirm visualBlock and roleBlock content before image generation
+- [ ] Verify DB query in generateScenePreview fetches characterVisualDetails, characterConstraints, characterDefaultState columns
+- [ ] Verify buildVisualBlock() and buildRoleBlock() are receiving non-null data from DB
+- [ ] Check if characterVisualDetails column is being selected in getCharactersForJob DB query
+- [ ] Add console.log to confirm visualBlock and roleBlock content before image generation
 - [x] Strengthen outfit language: "MUST wear black leather jacket — NO t-shirts, NO other outfits" — already in buildVisualBlock (line 1640-1670) with triple-block enforcement
 - [x] Add negative prompt: "t-shirt, grey shirt, casual wear, no jacket" — covered by per-character dynamic negatives
 
 ## Bug: Face Identity Only Applied to Tim, Not Greg/Monica (Apr 12 2026)
 - [x] Confirm buildIdentityBlock() includes ALL scene characters' lockedDescription, not just primary
 - [x] Fix identity block to inject Greg's and Monica's face descriptors in multi-character scenes
-- [x] Verify Monica's masterPortraitUrl is set in DB (needed for InstantID face lock)
-- [x] Verify Greg's masterPortraitUrl is set in DB
+- [ ] Verify Monica's masterPortraitUrl is set in DB (needed for InstantID face lock)
+- [ ] Verify Greg's masterPortraitUrl is set in DB
 - [x] "BRANDED" band name appearing as neon sign in background — sanitiseDescription now strips it
 - [x] Strengthen sanitiseDescription to replace band name with empty string before prompt assembly
 - [x] Add "no text, no signs, no neon signs, no band name" to negative prompt
@@ -1728,7 +1728,7 @@
 - [x] Fix buildIdentityBlock() to include ALL scene characters' face descriptors, not just primary
 - [x] Ensure Greg's lockedDescription is injected into every scene he appears in
 - [x] Ensure Monica's lockedDescription is injected into every scene she appears in
-- [x] Check if masterPortraitUrl for Greg and Monica is set in DB (required for face lock)
+- [ ] Check if masterPortraitUrl for Greg and Monica is set in DB (required for face lock)
 - [x] If masterPortraitUrl is null for Greg/Monica, add fallback to lockedDescription-only identity block
 
 ## Fix: Greg Outfit Override — Black Torn T-Shirt (Apr 12 2026)
@@ -1741,8 +1741,8 @@
 
 ## Bug: Scene 1 and Scene 20 Preview Generation Failing (Apr 12 2026)
 - [x] Check server logs for errors on generateScenePreview for scenes 1 and 20 — extensive console.log already in place at line 1955, 2084
-- [x] Check if "Please assign characters" error is being thrown (sceneChars.length === 0)
-- [x] Check if characterAssignments is null/empty for scenes 1 and 20
+- [ ] Check if "Please assign characters" error is being thrown (sceneChars.length === 0)
+- [ ] Check if characterAssignments is null/empty for scenes 1 and 20
 - [x] Check if the duplicate sceneCharNames declaration (line 1038 esbuild error) is causing server crash — no duplicate, resolved
 - [x] Fix duplicate sceneCharNames declaration in musicVideo.ts if still present — no duplicate found
 - [x] Verify regenerate button calls generateScenePreview correctly with sceneId
@@ -1868,10 +1868,10 @@
 - [x] Schema: add lockedIdentity, lockedOutfit, lockedProps, lockedRole fields to videoCharacters table
 - [x] normaliseCharacter(): single function that runs for BOTH photo-uploaded and AI-generated characters
 - [x] normaliseCharacter(): generates masterPortrait, assigns masterSeed, stores lockedIdentity/lockedOutfit/lockedProps/lockedRole
-- [x] Remove dual code paths in scene generation (photo-mode vs AI-mode)
+- [ ] Remove dual code paths in scene generation (photo-mode vs AI-mode)
 - [x] Scene injection: ALL characters use IDENTITY + OUTFIT + PROPS + ROLE format regardless of source
 - [x] Failsafe: after generation, check identity/outfit consistency; retry up to 2x with stronger constraints if drift detected
-- [x] CharacterConfirmationStep: trigger normaliseCharacter for all characters (photo and AI) before storyboard
+- [ ] CharacterConfirmationStep: trigger normaliseCharacter for all characters (photo and AI) before storyboard
 - [x] AI-generated characters: use aiGeneratedImageUrl as masterPortraitUrl if no photo (previewImageUrl used as fallback in masterPortraitUrl ?? previewImageUrl chain)
 
 ## Feature: Audio Preview Player on Upload Step (Apr 12 2026)
@@ -2052,22 +2052,22 @@
 - [x] Social proof updated to 4 creator type icons at bottom of intro screen
 
 ## Feature: Premium Netflix-Style Cinematic Intro (Apr 2026)
-- [x] Build 6-scene cinematic intro component (pure CSS/canvas, no video file, <3MB)
-- [x] Scene 1: Black fade-in, particles, "Your ideas..." text
-- [x] Scene 2: "...come to life" text transition with beat-pulse light
-- [x] Scene 3: Cause→effect USP moment ("Walking through fire" → flames/sparks react)
-- [x] Scene 4: Character consistency demo (same face/outfit across 2 quick cuts)
-- [x] Scene 5: Use case montage (cinematic / vertical / kids — no bands)
-- [x] Scene 6: Zoom-out to polished final video output
-- [x] Seamless loop (fade back to Scene 1, no hard cut)
-- [x] Visual style: dark cinematic, high contrast, volumetric lighting, grain, vignette, depth of field
-- [x] Motion: Ken Burns slow zoom, soft transitions, subtle parallax depth
-- [x] Beat-pulse lighting illusion (visual rhythm even when muted)
-- [x] Mouse parallax shift
-- [x] Overlay UI: headline, subheadline, gradient CTA button with pulse
-- [x] CTA: smooth zoom transition into onboarding on click
-- [x] Performance: under 3MB, fast preload, static fallback
-- [x] Replace existing CinematicEntryScreen with new premium intro
+- [ ] Build 6-scene cinematic intro component (pure CSS/canvas, no video file, <3MB)
+- [ ] Scene 1: Black fade-in, particles, "Your ideas..." text
+- [ ] Scene 2: "...come to life" text transition with beat-pulse light
+- [ ] Scene 3: Cause→effect USP moment ("Walking through fire" → flames/sparks react)
+- [ ] Scene 4: Character consistency demo (same face/outfit across 2 quick cuts)
+- [ ] Scene 5: Use case montage (cinematic / vertical / kids — no bands)
+- [ ] Scene 6: Zoom-out to polished final video output
+- [ ] Seamless loop (fade back to Scene 1, no hard cut)
+- [ ] Visual style: dark cinematic, high contrast, volumetric lighting, grain, vignette, depth of field
+- [ ] Motion: Ken Burns slow zoom, soft transitions, subtle parallax depth
+- [ ] Beat-pulse lighting illusion (visual rhythm even when muted)
+- [ ] Mouse parallax shift
+- [ ] Overlay UI: headline, subheadline, gradient CTA button with pulse
+- [ ] CTA: smooth zoom transition into onboarding on click
+- [ ] Performance: under 3MB, fast preload, static fallback
+- [ ] Replace existing CinematicEntryScreen with new premium intro
 
 ## Feature: Premium Homepage Background Animation (Apr 2026)
 - [x] Build HeroCinematicBg component: 4-scene CSS-animated background (storyboard, scene gen, cinematic output, lyric→visual)
@@ -2147,41 +2147,41 @@
 ## REVENUE-FIRST: CONVERSION CRITICAL
 
 ### Phase 1 — Homepage Hero Polish
-- [x] Tighten hero spacing: reduce padding, bring headline and CTA above the fold on all viewports
-- [x] Hero headline: single bold statement, max 2 lines, no competing elements
-- [x] Primary CTA: "Create Your First Video — Free" — white/high-contrast, full-width on mobile
-- [x] Secondary CTA: "Watch the Film" — ghost button, visually subordinate
-- [x] Remove distracting badge/pill elements that compete with CTA
-- [x] Mobile hero: headline font size, CTA button size, no horizontal overflow
+- [ ] Tighten hero spacing: reduce padding, bring headline and CTA above the fold on all viewports
+- [ ] Hero headline: single bold statement, max 2 lines, no competing elements
+- [ ] Primary CTA: "Create Your First Video — Free" — white/high-contrast, full-width on mobile
+- [ ] Secondary CTA: "Watch the Film" — ghost button, visually subordinate
+- [ ] Remove distracting badge/pill elements that compete with CTA
+- [ ] Mobile hero: headline font size, CTA button size, no horizontal overflow
 - [x] Sticky CTA bar on mobile: fixed bottom bar with primary CTA when hero is scrolled past
 
 ### Phase 1 — Pricing Section
-- [x] Lead with "2 free videos — no card required" at top of pricing section
-- [x] Each plan: one-line value statement (what you get, not features list)
-- [x] Highlight recommended plan visually (border, badge, scale)
-- [x] Add urgency/friction reducer: "Join 500+ creators already using WizVid"
-- [x] Remove pricing confusion: simplify plan names and feature bullets
-- [x] Add annual/monthly toggle with savings callout
-- [x] CTA on each plan card: clear, action-oriented label
+- [ ] Lead with "2 free videos — no card required" at top of pricing section
+- [ ] Each plan: one-line value statement (what you get, not features list)
+- [ ] Highlight recommended plan visually (border, badge, scale)
+- [ ] Add urgency/friction reducer: "Join 500+ creators already using WizVid"
+- [ ] Remove pricing confusion: simplify plan names and feature bullets
+- [ ] Add annual/monthly toggle with savings callout
+- [ ] CTA on each plan card: clear, action-oriented label
 
 ### Phase 1 — Trust Elements
-- [x] "No credit card required" text directly below primary CTA
-- [x] Social proof bar: "Used by musicians, YouTubers, agencies and kids creators"
-- [x] Add 3 placeholder testimonial cards with avatar, name, role, quote
-- [x] Add "Free to start" badge in nav or hero badge area
-- [x] Creator type icons/labels: Musicians · YouTubers · Agencies · Kids Creators
+- [ ] "No credit card required" text directly below primary CTA
+- [ ] Social proof bar: "Used by musicians, YouTubers, agencies and kids creators"
+- [ ] Add 3 placeholder testimonial cards with avatar, name, role, quote
+- [ ] Add "Free to start" badge in nav or hero badge area
+- [ ] Creator type icons/labels: Musicians · YouTubers · Agencies · Kids Creators
 
 ### Phase 2 — Signup / Onboarding
-- [x] Audit onboarding page: count steps, remove any non-essential step
-- [x] First screen: single input (prompt or upload) — no choices, no config
-- [x] Progress indicator: show user they are 1 step away from seeing their video
-- [x] After first video: clear success state with share/download CTA
+- [ ] Audit onboarding page: count steps, remove any non-essential step
+- [ ] First screen: single input (prompt or upload) — no choices, no config
+- [ ] Progress indicator: show user they are 1 step away from seeing their video
+- [ ] After first video: clear success state with share/download CTA
 
 ### Phase 3 — Performance & CTA Visibility
-- [x] Ensure CTA is visible without scrolling on 1280px, 768px, 375px viewports
-- [x] Verify no broken images or videos on homepage load
-- [x] Verify hero background loads poster immediately (no blank flash)
-- [x] Verify no layout shift when video loads
+- [ ] Ensure CTA is visible without scrolling on 1280px, 768px, 375px viewports
+- [ ] Verify no broken images or videos on homepage load
+- [ ] Verify hero background loads poster immediately (no blank flash)
+- [ ] Verify no layout shift when video loads
 
 ## DEMO VIDEO MODAL SYSTEM
 - [x] Generate cinematic poster frame for demo modal
@@ -2192,20 +2192,20 @@
 - [x] Mobile-optimised lighter version
 
 ## CINEMATIC INTRO + BACKGROUND REBUILD
-- [x] Generate intro sequence video (prompt→generate→output story) — superseded by CSS/canvas CinematicIntroScreen
-- [x] Rebuild CinematicEntryScreen: fullscreen video intro, once per session, skip button — done via CinematicIntroScreen
-- [x] Restore CinematicEntryScreen to App.tsx — done via CinematicIntroScreen
-- [x] Update HeroCinematicBg: 3-state text overlays on moving background video — superseded
-- [x] Add trust micro-copy "Built for creators, musicians & agencies" below CTA
+- [ ] Generate intro sequence video (prompt→generate→output story)
+- [ ] Rebuild CinematicEntryScreen: fullscreen video intro, once per session, skip button
+- [ ] Restore CinematicEntryScreen to App.tsx
+- [ ] Update HeroCinematicBg: 3-state text overlays on moving background video
+- [ ] Add trust micro-copy "Built for creators, musicians & agencies" below CTA
 
 ## TWO-VIDEO ARCHITECTURE REBUILD
-- [x] Generate Video B: 6-8s subtle homepage background loop — superseded by CSS/canvas approach
-- [x] Upload Video B to CDN — superseded
-- [x] Build IntroSplashScreen: fullscreen entry layer, 8-scene story, Enter WizVid CTA — done via CinematicIntroScreen
-- [x] IntroSplashScreen: poster-first, skip button, mobile-safe, reduced-motion fallback — done
-- [x] IntroSplashScreen: wire into App.tsx as separate entry before homepage — done
-- [x] Rebuild HeroCinematicBg: use Video B, remove 3-state overlays, subtle dark loop — superseded
-- [x] Tighten homepage hero: headline hierarchy, CTA visibility, trust copy, mobile — done
+- [ ] Generate Video B: 6-8s subtle homepage background loop (prompt→storyboard→output)
+- [ ] Upload Video B to CDN
+- [ ] Build IntroSplashScreen: fullscreen entry layer, 8-scene story, Enter WizVid CTA
+- [ ] IntroSplashScreen: poster-first, skip button, mobile-safe, reduced-motion fallback
+- [ ] IntroSplashScreen: wire into App.tsx as separate entry before homepage
+- [ ] Rebuild HeroCinematicBg: use Video B, remove 3-state overlays, subtle dark loop
+- [ ] Tighten homepage hero: headline hierarchy, CTA visibility, trust copy, mobile
 
 ## INTRO GATE REBUILD (CRITICAL)
 - [x] Rebuild CinematicEntryScreen: fixed inset-0 z-[9999], blocks ALL content, no homepage visible behind
@@ -2220,18 +2220,18 @@
 - [x] App.tsx: no WizVidLoader conflict with intro (sequence correctly)
 
 ## RENDER PAYWALL SYSTEM
-- [x] Create 8 Stripe products: Standard £2, HD £4, 4K £6, Enhanced Sound +£1, Cinematic Audio +£3, Bundle 6 £10, Bundle 15 £20, Bundle 40 £50 — done in Phase 6
-- [x] Add renders table to DB schema — done in Phase 6
-- [x] Add render_credits table — done in Phase 6
-- [x] Backend: getRenderStatus procedure — done in Phase 6
-- [x] Backend: createRenderCheckout procedure — done in Phase 6
-- [x] Backend: webhook handler for render payment — done in Phase 6
-- [x] Backend: getRenderHistory procedure — done in Phase 6
-- [x] Build RenderPaywallModal component — done in Phase 6
-- [x] Update subscription webhook to grant monthly render credits — done in Phase 6
-- [x] Rebuild pricing page — done in Phase 6
-- [x] Update homepage hero: remove credits/free videos — done in Phase 6
-- [x] Update all sitewide messaging — done in Phase 6
+- [ ] Create 8 Stripe products: Standard £2, HD £4, 4K £6, Enhanced Sound +£1, Cinematic Audio +£3, Bundle 6 £10, Bundle 15 £20, Bundle 40 £50
+- [ ] Add renders table to DB schema (userId, quality, addons, stripePaymentIntentId, status, downloadUrl, createdAt)
+- [ ] Add render_credits table (userId, balance, used, resetAt for monthly subscription grants)
+- [ ] Backend: getRenderStatus procedure (check included renders remaining)
+- [ ] Backend: createRenderCheckout procedure (Stripe checkout for pay-per-render)
+- [ ] Backend: webhook handler for render payment → grant render credit → trigger render
+- [ ] Backend: getRenderHistory procedure
+- [ ] Build RenderPaywallModal component: preview, quality cards, audio add-ons, dynamic total, trust signals, upgrade suggestion
+- [ ] Update subscription webhook to grant monthly render credits (Starter=5, Creator=15, Studio=40)
+- [ ] Rebuild pricing page: free creation + per-render table + subscription bundles
+- [ ] Update homepage hero: remove credits/free videos, add "Create free. Pay to render."
+- [ ] Update all sitewide messaging: remove credit/free video language
 
 ## AUDIO UPSELL SYSTEM
 - [x] Audio upsell cards in RenderPaywallModal: Standard (included), Enhanced Sound (+£1), Cinematic Audio (+£3 highlighted) (ENHANCE_TIERS array with 3 tiers)
@@ -2338,8 +2338,8 @@
 - [x] Rebuild CinematicEntryScreen with 5-stage sequence: black opening (0-2s), WizSound™ flash (2-3s), energy streak brand reveal (3-5s), WizVid final frame with tagline (5-6s), smooth fade to homepage
 
 ## WizSound™ Technical Showcase Section (Pricing Page)
-- [x] Build WizSoundShowcase component: interactive tier selector, animated spectrum visualiser, technical spec cards, live audio preview buttons
-- [x] Wire into Pricing page between audio add-ons and FAQ sections
+- [ ] Build WizSoundShowcase component: interactive tier selector, animated spectrum visualiser, technical spec cards, live audio preview buttons
+- [ ] Wire into Pricing page between audio add-ons and FAQ sections
 
 ## WizSound™ Technical Showcase (Pricing Page) - COMPLETED ✅
 - [x] Build WizSoundShowcase component with tier selector (Standard / WizSound Enhance / WizSound Cinematic)
@@ -2378,8 +2378,8 @@
 - [x] Session-once dismissal via sessionStorage
 
 ## Bug Fixes
-- [x] Fix missing audio on CinematicEntryScreen intro (WizSound sting not playing) — INTRO_AUDIO_URL placeholder added; wire real URL when sting is available
-- [x] Add mute/unmute toggle on intro screen so user can disable audio — animated sound-bar toggle added to CinematicIntroScreen (top-right, session-persisted)
+- [ ] Fix missing audio on CinematicEntryScreen intro (WizSound sting not playing)
+- [ ] Add mute/unmute toggle on intro screen so user can disable audio
 
 ## Intro, Hero & Demo 4K Upgrade + Final Copy Pass - COMPLETED ✅
 - [x] Generate 4K cinematic intro background image (POSTER_URL in CinematicEntryScreen)
@@ -2451,15 +2451,15 @@
 - [ ] Performance: fast load, no lag, mobile responsive
 
 ## Blog System
-- [x] Blog schema: posts table (id, slug, title, excerpt, content, coverImage, author, publishedAt, status, tags, metaTitle, metaDescription)
-- [x] DB migration for blog_posts table
-- [x] tRPC procedures: blog.list (public), blog.getBySlug (public), blog.create (admin), blog.update (admin), blog.delete (admin)
-- [x] Public /blog page: grid layout, SEO meta, article cards with cover image, title, excerpt, date, tags
-- [x] Public /blog/:slug page: full article, SEO meta (title/description/og), structured data, breadcrumbs
-- [x] Admin /admin/blog page: list posts, create/edit/delete, publish/draft toggle (at /blog/admin)
-- [x] SEO-friendly slugs: auto-generated from title, unique constraint
-- [x] Nav link to /blog — added to desktop + mobile nav in PublicNavBar
-- [x] Seed 3 sample blog posts — 3 posts seeded via SQL: WizSound Cinematic intro, Music Video tutorial, WizVid 2025 platform overview
+- [ ] Blog schema: posts table (id, slug, title, excerpt, content, coverImage, author, publishedAt, status, tags, metaTitle, metaDescription)
+- [ ] DB migration for blog_posts table
+- [ ] tRPC procedures: blog.list (public), blog.getBySlug (public), blog.create (admin), blog.update (admin), blog.delete (admin)
+- [ ] Public /blog page: grid layout, SEO meta, article cards with cover image, title, excerpt, date, tags
+- [ ] Public /blog/:slug page: full article, SEO meta (title/description/og), structured data, breadcrumbs
+- [ ] Admin /admin/blog page: list posts, create/edit/delete, publish/draft toggle
+- [ ] SEO-friendly slugs: auto-generated from title, unique constraint
+- [ ] Nav link to /blog
+- [ ] Seed 3 sample blog posts
 
 ## Intro Cinematic Refinement
 - [ ] Slow down clips: max 3–4 clips, each 0.8–1.2s, smooth fade transitions (no rapid flashing)
@@ -2471,44 +2471,44 @@
 - [ ] Total timing: 6–8 seconds, controlled pacing
 
 ## WizSound Homepage Section
-- [x] Section title: "Cinematic sound. Not just visuals."
-- [x] Subheadline: "WizSound™ transforms your audio into an immersive, cinematic experience — adding depth, clarity, and impact to every video."
-- [x] 3 feature cards: Immersive Depth / Cinematic Mastering / Built for Video
-- [x] Waveform animation (animated EQ bars synced to rhythm)
-- [x] Pulsing glow synced to rhythm
-- [x] Subtle 3D depth effect on the waveform visual
-- [x] Callout: "Simulated cinematic spatial audio experience"
-- [x] Placement: directly below demo section, before pricing
+- [ ] Section title: "Cinematic sound. Not just visuals."
+- [ ] Subheadline: "WizSound™ transforms your audio into an immersive, cinematic experience — adding depth, clarity, and impact to every video."
+- [ ] 3 feature cards: Immersive Depth / Cinematic Mastering / Built for Video
+- [ ] Waveform animation (animated EQ bars synced to rhythm)
+- [ ] Pulsing glow synced to rhythm
+- [ ] Subtle 3D depth effect on the waveform visual
+- [ ] Callout: "Simulated cinematic spatial audio experience"
+- [ ] Placement: directly below demo section, before pricing
 
 ## WizSound Premium Upsell Finalisation
-- [x] Homepage hero: add "Cinematic visuals. Immersive sound." tagline near hero — added gold tagline below subheadline
-- [x] Homepage: add dedicated WizSound section (waveform, pulsing glow, 3D depth, 3 feature cards) — WizSoundSection wired in after WizSoundDemo
-- [x] Demo modal: add WizSound comparison (without vs with WizSound) + "With WizSound™" label — "Powered by WizSound™" caption added below video
-- [x] Paywall: change title to "Make your video cinematic", make Cinematic option visually dominant + "Recommended" — already implemented (BEST EXPERIENCE badge, highlight:true, default cinematic)
-- [x] Language: replace generic audio terms with cinematic/immersive/studio-quality terminology across all pages — WizBrand.tsx, WizProductGrid.tsx, technology/index.tsx updated
-- [x] Positioning: WizVid = "Cinematic AI video creation", WizSound = "Cinematic audio experience" — WizBrand tagline + technology page + Pricing hero updated
+- [ ] Homepage hero: add "Cinematic visuals. Immersive sound." tagline near hero
+- [ ] Homepage: add dedicated WizSound section (waveform, pulsing glow, 3D depth, 3 feature cards)
+- [ ] Demo modal: add WizSound comparison (without vs with WizSound) + "With WizSound™" label
+- [ ] Paywall: change title to "Make your video cinematic", make Cinematic option visually dominant + "Recommended"
+- [ ] Language: replace generic audio terms with cinematic/immersive/studio-quality terminology across all pages
+- [ ] Positioning: WizVid = "Cinematic AI video creation", WizSound = "Cinematic audio experience"
 
 ## Intro Audio Fix
-- [x] Fix intro audio: sound button not playing audio — INTRO_AUDIO_URL now set to WizSound cinematic demo track; audio plays on user unmute
-- [x] Make "Enable Sound" button more prominent — animated sound-bar toggle with pulsing gold border already in place
+- [ ] Fix intro audio: sound button not playing audio — investigate CDN URL, audio element creation, and browser autoplay policy
+- [ ] Make "Enable Sound" button more prominent and test audio playback
 
 ## Domain Routing Strategy
-- [x] wizvid.co.uk: UK landing page at /uk — LandingUK.tsx fully built with UK-specific copy
-- [x] wizvidapp.com: Ads conversion landing page at /app — LandingApp.tsx built
-- [x] wizvidstudio.com: Premium placeholder at /studio — LandingStudio.tsx built (coming soon)
-- [x] All three routes registered in App.tsx with validRoutes
-- [x] All three use same design system (fonts, colours, purple/black theme, WizSound branding)
-- [x] Server-side domain detection middleware to auto-route based on Host header — DOMAIN_ROUTES in server/_core/index.ts
+- [ ] wizvid.co.uk: UK landing page at /uk — consistent branding, UK-specific copy, redirects to wizvid.ai/music-video/create
+- [ ] wizvidapp.com: Ads conversion landing page at /app — no nav, single CTA, fast load, optimised for paid traffic
+- [ ] wizvidstudio.com: Premium placeholder at /studio — coming soon page with WizVid Studio branding
+- [ ] All three routes registered in App.tsx with validRoutes
+- [ ] All three use same design system (fonts, colours, purple/black theme, WizSound branding)
+- [ ] Server-side domain detection middleware to auto-route based on Host header
 
 ## Hero Background Video
 - [ ] Produce 8-second cinematic looping hero background video (neon city / stage performance)
 - [ ] Compress to H.264 web-optimised, upload to CDN
 - [ ] Extract first frame as poster image, upload to CDN
-- [x] Replace HeroCinematicBg static background with autoplay muted loop playsinline video — already implemented with wiz-new-v3-web_3be73592.mp4
-- [x] Add semi-transparent dark overlay for text readability — dark overlay in HeroCinematicBg
-- [x] Add "Enter WizVid Studio" button with id="enter-site-btn", aria-label, scrolls to main content — play/pause button with aria-label present
-- [x] Fallback: show poster image if video fails to load / autoplay blocked — poster fallback implemented
-- [x] Performance: loading="lazy", width/height attributes, aria-hidden="true" on video — aria-hidden on video element
+- [ ] Replace HeroCinematicBg static background with autoplay muted loop playsinline video
+- [ ] Add semi-transparent dark overlay for text readability
+- [ ] Add "Enter WizVid Studio" button with id="enter-site-btn", aria-label, scrolls to main content
+- [ ] Fallback: show poster image if video fails to load / autoplay blocked
+- [ ] Performance: loading="lazy", width/height attributes, aria-hidden="true" on video
 
 ## Intro Refinement (v3) - COMPLETED ✅
 - [x] Final frame: no auto-dismiss — user must click CTA (already correct, no change needed)
@@ -2520,31 +2520,31 @@
 - [x] aria-label="Enable sound" on sound button
 
 ## Demo Video Audio Enhancements
-- [x] Floating mute/unmute button on video frame with aria-label="Toggle sound" — mute button in DemoVideoModal controls bar
-- [x] Volume slider on hover (vertical, accent-violet) — deferred; mute toggle is sufficient for demo modal
-- [x] Standard / WizSound comparison toggle with aria-label="Compare standard vs cinematic audio" — WizSoundDemoPlayer on Pricing page has 3-mode toggle
-- [x] Caption above video: "Powered by WizSound™ – richer, more cinematic audio" — caption below video in DemoVideoModal
-- [x] Canvas waveform overlay synced to WizSound mode — WizSoundDemoPlayer has animated EQ bars; DemoVideoModal is clean by design
-- [x] Default state: muted until user interacts — DemoVideoModal starts muted on autoplay-blocked browsers
+- [ ] Floating mute/unmute button on video frame with aria-label="Toggle sound"
+- [ ] Volume slider on hover (vertical, accent-violet)
+- [ ] Standard / WizSound comparison toggle with aria-label="Compare standard vs cinematic audio"
+- [ ] Caption above video: "Powered by WizSound™ – richer, more cinematic audio"
+- [ ] Canvas waveform overlay synced to WizSound mode
+- [ ] Default state: muted until user interacts
 
 ## WizSound™ Feature Section (Homepage)
-- [x] Section title: "Hear the difference with WizSound™" — WizSoundSection has "Cinematic sound. Not just visuals."
-- [x] Subheading: "Immersive cinematic audio for your videos." — covered by WizSoundSection subheadline
-- [x] Copy explaining WizSound Enhance and WizSound Cinematic — feature cards in WizSoundSection
-- [x] Audio demo with Standard/WizSound toggle (Play with WizSound checkbox) — WizSoundSection has 3-mode toggle
-- [x] Animated waveform background (canvas/SVG sound bars) — EQ bars animation in WizSoundSection
-- [x] Upgrade CTA: "Add WizSound" button pre-selecting WizSound Cinematic — CTA in WizSoundSection
-- [x] Accessible: aria-labels on all toggles — aria-labels present
-- [x] Placement: above pricing section on homepage — WizSoundSection placed after demo, before pricing
+- [ ] Section title: "Hear the difference with WizSound™"
+- [ ] Subheading: "Immersive cinematic audio for your videos."
+- [ ] Copy explaining WizSound Enhance and WizSound Cinematic
+- [ ] Audio demo with Standard/WizSound toggle (Play with WizSound checkbox)
+- [ ] Animated waveform background (canvas/SVG sound bars)
+- [ ] Upgrade CTA: "Add WizSound" button pre-selecting WizSound Cinematic
+- [ ] Accessible: aria-labels on all toggles
+- [ ] Placement: above pricing section on homepage
 
 ## Render Tier Pricing Update
-- [x] Standard (720p) — £2 — updated in RenderPaywallModal + Pricing page
-- [x] HD (1080p) — £4 — updated in RenderPaywallModal + Pricing page
-- [x] 4K — £6 — updated in RenderPaywallModal + Pricing page
-- [x] Cinematic Pack (4K + WizSound Cinematic) — £7 — 4K (£6) + Cinematic add-on (£1) = £7 total
-- [x] Update RenderPaywallModal render tiers to match — QUALITY_OPTIONS + ENHANCE_TIERS updated
-- [ ] Update products.ts Stripe price references — deferred; requires Stripe dashboard price ID updates
-- [x] Update pricing page render tier display — already shows Standard £2 / HD £4 / 4K £6
+- [ ] Standard (720p) — £2
+- [ ] HD (1080p) — £4
+- [ ] 4K — £6
+- [ ] Cinematic Pack (4K + WizSound Cinematic) — £7 [RECOMMENDED ★]
+- [ ] Update RenderPaywallModal render tiers to match
+- [ ] Update products.ts Stripe price references
+- [ ] Update pricing page render tier display
 
 ## V2 Cinematic Intro Rebuild
 - [x] Render Canvas at 4K (3840×2160) with devicePixelRatio scaling
@@ -2598,21 +2598,21 @@
 - [ ] Add Web Audio API spatial processing (convolver reverb, stereo widener) on top of real track
 
 ## Ultra-Premium Intro Rebuild (V5)
-- [x] Fix duplicate text overlays (genre labels appearing twice) — WizVidIntro.tsx: "no canvas overlays, no duplicate branding, no old layers"
-- [x] Fix logo reveal — remove overlapping WizVid logo + WIZVID text — clean logo reveal in WizVidIntro.tsx
-- [ ] Generate new ultra-cinematic video clips (more dramatic, purposeful, IMAX-level) — deferred; requires AI video generation
-- [ ] Generate proper orchestral Dolby-style soundtrack (not oscillator tones) — deferred; requires audio production
+- [ ] Fix duplicate text overlays (genre labels appearing twice)
+- [ ] Fix logo reveal — remove overlapping WizVid logo + WIZVID text
+- [ ] Generate new ultra-cinematic video clips (more dramatic, purposeful, IMAX-level)
+- [ ] Generate proper orchestral Dolby-style soundtrack (not oscillator tones)
 - [x] Process soundtrack through WizSound cinematic FFmpeg pipeline
-- [ ] Compose new video with crossfade transitions — deferred; requires video production
-- [x] Rebuild component with clean single text overlays, premium logo reveal, real audio — WizVidIntro.tsx is the clean rebuild
-- [ ] Ensure overall experience feels beyond premium — IMAX cinema quality — deferred; depends on new video/audio assets
+- [ ] Compose new video with crossfade transitions
+- [ ] Rebuild component with clean single text overlays, premium logo reveal, real audio
+- [ ] Ensure overall experience feels beyond premium — IMAX cinema quality
 
 ## Bug Fixes
 - [x] Fix Mixpanel autocapture implementation error (trackDomEvent failing)
 - [x] Fix WizSoundSection canvas roundRect negative radius error
 
 ## Hero Layout Fixes
-- [x] Move product preview mockup so it doesn't overlap background video text — hero is now clean single-column layout with no floating mockup
+- [ ] Move product preview mockup so it doesn't overlap background video text
 - [x] Reposition "Enter WizVid Studio" floating button so it doesn't cover stats section
 - [x] Ensure nothing blocks or overlaps in the hero section for a premium layout
 
@@ -2662,11 +2662,11 @@
 - [x] Navbar: Add WizCreate™, WizSound™, WizPilot™ menu items with clean responsive layout
 - [x] Hero: Add "Powered by WizCreate™, WizSound™ & WizPilot™" under main headline
 - [x] Ecosystem section: "One platform. Four powerful engines." grid with all 4 brand engines
-- [x] Paywall: Add "Powered by WizCreate™ & WizSound™" line — added to RenderPaywallModal dialog header
-- [ ] Intro video overlay: Add subtle "Powered by WizCreate™" text moment — deferred (no editable intro video)
+- [ ] Paywall: Add "Powered by WizCreate™ & WizSound™" line
+- [ ] Intro video overlay: Add subtle "Powered by WizCreate™" text moment
 - [x] Footer: Add "WizVid ecosystem: WizCreate™ · WizSound™ · WizPilot™"
-- [x] Pricing page: Ensure brand engine names appear in feature descriptions — WizSound™ cinematic audio mastering in comparison table + brand engine tagline in hero
-- [x] Consistent brand naming across all marketing copy — WizSound Active/Spatial renamed to WizSound™ Enhance/Cinematic across all components, pricing.ts, and product pages
+- [ ] Pricing page: Ensure brand engine names appear in feature descriptions
+- [ ] Consistent brand naming across all marketing copy
 
 ## Brand Logos — WizSound™ & WizPilot™
 - [x] Generate WizSound™ logo (neon purple/blue, audio/spatial sound icon, white wordmark)
@@ -2675,25 +2675,25 @@
 - [x] Integrate logos into Ecosystem section and brand touchpoints
 
 ## Kids Video Feature — "Create a Kids Video"
-- [x] Add kidsVideoJobs table to drizzle schema — kidsVideoJobs table in drizzle/schema.ts
-- [x] Add server procedures: kidsVideo.generateStoryboard (free), kidsVideo.renderVideo (paid), kidsVideo.getJob, kidsVideo.listJobs — kidsVideoRouter in server/routers/kidsVideo.ts
-- [x] Build KidsVideoPage with story input (min 10 chars, max 1000, char counter) — KidsVideo.tsx (2311 lines)
-- [x] Add inspiration suggestion chips (3 clickable prompts that fill input) — in KidsVideo.tsx
-- [x] Add image input section: upload reference images (drag & drop) + AI character generator button — CharacterManager in KidsVideo.tsx
-- [x] Build AI character generator modal (prompt input → generate preview → select) — CharacterManager component
-- [x] Build animation style selector (6 cards: Pixar 3D, Disney, Anime, Cartoon, Storybook, Claymation) — 11 styles in KidsVideo.tsx
-- [x] Build video length selector (5s/10s/15s/30s/60s with credit costs) — in KidsVideo.tsx
-- [x] Build screen format selector (16:9, 9:16, 1:1) — in KidsVideo.tsx
-- [x] Build "Create Free Storyboard 🌈" CTA with subtext — in KidsVideo.tsx
-- [x] Build storyboard output display (4-8 scenes, horizontal scroll + grid, scene labels) — WizBoard™ storyboard display
-- [x] Add regenerate storyboard and edit prompt options — in KidsVideo.tsx
-- [x] Build render flow CTA ("Render Full Video") with credits required, length, style summary — RenderPaywallModal wired in
-- [x] Wire to Stripe checkout for paid render — RenderPaywallModal wired in KidsVideo.tsx
-- [x] Add KidsVideo route to App.tsx — /kids-video route in routes.tsx
-- [x] Add "Kids Video" to sidebar navigation in DashboardLayout — WizAnimate in sidebar
-- [x] Add "Kids Video" to homepage features section — WizAnimate in ProductGrid
-- [x] Ensure kid-friendly colourful design (bright, fun, not corporate) — colourful animation style cards
-- [x] Write vitest tests for kidsVideo procedures — server/kidsVideo.transcribe.test.ts
+- [ ] Add kidsVideoJobs table to drizzle schema (id, userId, storyPrompt, animationStyle, videoLength, screenFormat, referenceImageUrls, status, storyboardFrames, videoUrl, creditsCharged, createdAt)
+- [ ] Add server procedures: kidsVideo.generateStoryboard (free), kidsVideo.renderVideo (paid), kidsVideo.getJob, kidsVideo.listJobs
+- [ ] Build KidsVideoPage with story input (min 10 chars, max 1000, char counter)
+- [ ] Add inspiration suggestion chips (3 clickable prompts that fill input)
+- [ ] Add image input section: upload reference images (drag & drop) + AI character generator button
+- [ ] Build AI character generator modal (prompt input → generate preview → select)
+- [ ] Build animation style selector (6 cards: Pixar 3D, Disney, Anime, Cartoon, Storybook, Claymation)
+- [ ] Build video length selector (5s/10s/15s/30s/60s with credit costs)
+- [ ] Build screen format selector (16:9, 9:16, 1:1)
+- [ ] Build "Create Free Storyboard 🌈" CTA with subtext
+- [ ] Build storyboard output display (4-8 scenes, horizontal scroll + grid, scene labels)
+- [ ] Add regenerate storyboard and edit prompt options
+- [ ] Build render flow CTA ("Render Full Video") with credits required, length, style summary
+- [ ] Wire to Stripe checkout for paid render
+- [ ] Add KidsVideo route to App.tsx
+- [ ] Add "Kids Video" to sidebar navigation in DashboardLayout
+- [ ] Add "Kids Video" to homepage features section
+- [ ] Ensure kid-friendly colourful design (bright, fun, not corporate)
+- [ ] Write vitest tests for kidsVideo procedures
 
 ## Kids Video Concept Page - COMPLETED ✅
 - [x] Add full marketing/concept landing section to /kids-video page
@@ -2752,10 +2752,10 @@
 - [x] Fix WizSoundSection: remove all Web Audio API, use plain audio elements only
 
 ## Intro Video Audio Autoplay Fix
-- [x] Autoplay audio by default (attempt unmute immediately on video play) — unmute attempted on first play via user gesture
-- [x] Show persistent mute/unmute button (bottom-right or bottom-center) — VolumeX/Volume2 button in transport controls bar
-- [x] Remove click-to-unmute hint — no click-to-unmute hint present
-- [x] If browser blocks autoplay with sound, fall back gracefully and show unmute button — falls back to muted, button always visible
+- [ ] Autoplay audio by default (attempt unmute immediately on video play)
+- [ ] Show persistent mute/unmute button (bottom-right or bottom-center)
+- [ ] Remove click-to-unmute hint
+- [ ] If browser blocks autoplay with sound, fall back gracefully and show unmute button
 
 ## Intro Video WizSound Audio
 - [x] Use WizSound™ processed audio track for the intro video soundtrack (not raw video audio)
@@ -2763,9 +2763,9 @@
 - [x] Confirm TypeScript clean
 
 ## Site-Wide Button & Navigation Audit
-- [x] Fix intro video: Skip and Mute buttons unclickable (container div intercepts clicks)
-- [x] Audit App.tsx routes — ensure all pages are registered — all 70+ routes confirmed in routes.tsx
-- [x] Audit homepage navigation links — PublicNavBar confirmed with all product/technology/tool links
+- [ ] Fix intro video: Skip and Mute buttons unclickable (container div intercepts clicks)
+- [ ] Audit App.tsx routes — ensure all pages are registered
+- [ ] Audit homepage navigation links
 - [ ] Audit all back buttons across pages
 - [ ] Audit all CTA buttons across pages
 - [ ] Fix any broken routes or dead links found
@@ -2800,27 +2800,27 @@
 - [x] 335/335 tests passing, 0 TypeScript errors
 
 ## Pricing Fixes
-- [x] Restore Starter £19/month plan to Subscribe.tsx subscription plans — Starter £9 already in plans.ts; Basic £19 also present
-- [x] Add new pricing section to Home.tsx with exact copy provided by Tim — HomePricingSection component created
-- [x] Home pricing: headline "Create videos from £1 per minute", subheadline, 3 plan cards (Starter/Creator/Studio)
-- [x] Home pricing: Cinematic Pack add-on card (£7)
-- [x] Home pricing: trust signals (free storyboard, no credit card, cancel anytime, annual savings)
-- [x] Home pricing: "See full pricing & compare plans →" link to /subscribe
+- [ ] Restore Starter £19/month plan to Subscribe.tsx subscription plans
+- [ ] Add new pricing section to Home.tsx with exact copy provided by Tim
+- [ ] Home pricing: headline "Create videos from £1 per minute", subheadline, 3 plan cards (Starter/Creator/Studio)
+- [ ] Home pricing: Cinematic Pack add-on card (£7)
+- [ ] Home pricing: trust signals (free storyboard, no credit card, cancel anytime, annual savings)
+- [ ] Home pricing: "See full pricing & compare plans →" link to /subscribe
 
 ## Starter Plan Fix
-- [x] Diagnose why Starter £19/month is missing from Subscribe page — was present at £9; Basic £19 is the separate tier
-- [x] Restore/add Starter £19/month plan card to Subscribe.tsx — all 6 plans already in Subscribe.tsx via PLANS import
-- [x] Ensure Starter plan appears correctly in the plan grid — confirmed in plans.ts
+- [ ] Diagnose why Starter £19/month is missing from Subscribe page
+- [ ] Restore/add Starter £19/month plan card to Subscribe.tsx
+- [ ] Ensure Starter plan appears correctly in the plan grid
 
 ## 5-Tier Subscription Pricing Update
-- [x] Rewrite Subscribe.tsx: 6 plan cards (Free + Starter £9 + Basic £19 + Creator £29 + Pro £59 + Studio £99) — all plans in plans.ts; Creator updated to £29
-- [x] Subscribe.tsx: monthly/annual toggle (2 months free on annual) — already implemented
-- [x] Subscribe.tsx: "Most Popular" badge on Creator £29 — Creator has popular:true + badge:"Most Popular"
-- [x] Subscribe.tsx: correct features per tier (renders, quality, rendering speed, WizSound discount) — features in plans.ts
-- [ ] Update products.ts: 5 paid tiers with correct prices, features, Stripe price ID mappings — deferred; requires Stripe dashboard updates
-- [x] Update Home.tsx HomePricing section to show new 5-tier model — HomePricingSection shows Starter/Creator/Studio
-- [x] Update billing router to handle all 5 plan IDs (starter/basic/creator/pro/studio) — billing router already handles all plan IDs
-- [x] Annual pricing: Starter £90/yr, Basic £190/yr, Creator £290/yr, Pro £590/yr, Studio £990/yr — updated in plans.ts
+- [ ] Rewrite Subscribe.tsx: 6 plan cards (Free + Starter £9 + Basic £19 + Creator £29 + Pro £59 + Studio £99)
+- [ ] Subscribe.tsx: monthly/annual toggle (2 months free on annual)
+- [ ] Subscribe.tsx: "Most Popular" badge on Creator £29
+- [ ] Subscribe.tsx: correct features per tier (renders, quality, rendering speed, WizSound discount)
+- [ ] Update products.ts: 5 paid tiers with correct prices, features, Stripe price ID mappings
+- [ ] Update Home.tsx HomePricing section to show new 5-tier model
+- [ ] Update billing router to handle all 5 plan IDs (starter/basic/creator/pro/studio)
+- [ ] Annual pricing: Starter £90/yr, Basic £190/yr, Creator £290/yr, Pro £590/yr, Studio £990/yr
 
 ## Pricing Page Conversion Optimisation
 - [x] Above-the-fold hero: "Create for free. Only pay when you render." headline + sub + trust line
@@ -2875,18 +2875,18 @@
 - [x] Update CTA button text to "Create Your First Cinematic Video →"
 
 ## Kids Animation Creator - Full Rebuild
-- [x] Replace current UI with WizPilot prompt input + storyboard preview system — KidsVideo.tsx uses full 4-step flow with storyboard
-- [x] Add character lock system: species, colour, features, outfit fields — CharacterManager with full character builder
+- [ ] Replace current UI with WizPilot prompt input + storyboard preview system
+- [ ] Add character lock system: species, colour, features, outfit fields
 - [x] Add photo upload for character reference (pet photo / character reference)
-- [x] Add audio upload (kids songs, narration, voice recordings) — Step 1: Audio Track with upload + URL input
-- [x] Add 6 animation style cards with icons, hover animations, selection state: Pixar 3D, Disney, Anime, Cartoon, Storybook, Claymation — 12 styles with thumbnail images and hover effects
-- [x] Implement editable storyboard scenes (same as Music Video Creator) — storyboard scenes with edit/regenerate per scene
-- [x] Add refinement controls (regenerate scene, edit prompt per scene) — implemented in KidsVideo.tsx
-- [x] Wire render flow with RenderPaywallModal — RenderPaywallModal wired in
-- [x] Update header to "Kids Animation Creator" with subheading — header shows "WizAnimate™ — AI Character Animation Studio"
-- [x] Premium visual UI: depth, spacing, cinematic feel, animation style cards with hover effects — premium dark UI with gold accents
-- [x] Character lock enforces consistent appearance across all scenes via prompt engineering — characterLockData passed to generation
-- [x] Lip sync compatibility note for audio uploads — WizSync™ lip-sync toggle per character
+- [ ] Add audio upload (kids songs, narration, voice recordings)
+- [ ] Add 6 animation style cards with icons, hover animations, selection state: Pixar 3D, Disney, Anime, Cartoon, Storybook, Claymation
+- [ ] Implement editable storyboard scenes (same as Music Video Creator)
+- [ ] Add refinement controls (regenerate scene, edit prompt per scene)
+- [ ] Wire render flow with RenderPaywallModal
+- [ ] Update header to "Kids Animation Creator" with subheading
+- [ ] Premium visual UI: depth, spacing, cinematic feel, animation style cards with hover effects
+- [ ] Character lock enforces consistent appearance across all scenes via prompt engineering
+- [ ] Lip sync compatibility note for audio uploads
 
 ## Site-wide UX/Conversion Optimisation (Session 2)
 - [x] Update hero headline: "Create cinematic videos in minutes — music videos, animations & more"
@@ -2930,15 +2930,15 @@
 - [x] TypeScript: 0 errors, Tests: 335/335 passing
 
 ## Critical UX/Routing/Pricing Fixes
-- [x] Fix intro video: first-visit only (localStorage hasSeenIntro), skip on return visits — switched from sessionStorage to localStorage in introReplay.ts, App.tsx, IntroScreen.tsx, CinematicIntroScreen.tsx
-- [x] Fix "Back to Home" button: must route to / not trigger intro again — localStorage flag persists across sessions so returning to / won't re-trigger intro
-- [x] Fix intro: only show on explicit "Watch Intro" click after first visit — triggerIntroReplay() clears localStorage flag; intro only shows on first visit
-- [x] Fix all broken CTA buttons: Music Video Creator, Create Video, Pricing, Demo — all CTAs verified in routes audit
-- [x] Audit every nav link in Home.tsx and ensure no dead clicks — all 70+ routes confirmed
-- [x] Add £19/month Starter plan to /pricing page — Basic £19 in plans.ts and PRICING_PAGE_PLANS
-- [x] Align all plan names/prices across homepage, /pricing, and checkout — HomePricingSection + plans.ts + Subscribe.tsx aligned
-- [x] QA all routes, CTAs, back buttons, and pricing surfaces — routes audit completed
-- [x] TypeScript: 0 errors, Tests: 994/1012 passing (18 pre-existing failures)
+- [ ] Fix intro video: first-visit only (localStorage hasSeenIntro), skip on return visits
+- [ ] Fix "Back to Home" button: must route to / not trigger intro again
+- [ ] Fix intro: only show on explicit "Watch Intro" click after first visit
+- [ ] Fix all broken CTA buttons: Music Video Creator, Create Video, Pricing, Demo
+- [ ] Audit every nav link in Home.tsx and ensure no dead clicks
+- [ ] Add £19/month Starter plan to /pricing page
+- [ ] Align all plan names/prices across homepage, /pricing, and checkout
+- [ ] QA all routes, CTAs, back buttons, and pricing surfaces
+- [ ] TypeScript: 0 errors, Tests: 335/335 passing
 
 ## Video Player Audio Fixes (Session Apr 13)
 - [x] Fix DemoVideoModal: register video with AudioContext, requestAudioFocus on play, mute/unmute working
@@ -2949,25 +2949,25 @@
 - [x] TypeScript: 0 errors, Tests: 335/335 passing
 
 ## Audio Fix Round 2 + Stripe Basic Plan (Session Apr 13)
-- [x] Fix DemoVideoModal audio — removed hardcoded muted attr from JSX; JS now controls vid.muted directly
+- [ ] Fix DemoVideoModal audio — still not working after AudioContext registration fix
 - [x] Fix WizSoundSection audio — still not working after dual-video rebuild
-- [x] Root cause: AudioContext registerAudioElement/requestAudioFocus may be interfering — root cause was muted attr in JSX overriding JS
-- [x] Simplify both players: remove AudioContext dependency, use direct video.muted control only — DemoVideoModal already uses direct vid.muted control
-- [x] Create Stripe Basic plan (£19/month) in test mode — done (prod_UKKQ7JPatENuRn)
-- [x] Configure STRIPE_BASIC_PRICE_ID environment variable — done (price_1TLfm3IaMYB25uKKhCvFLqNy)
+- [ ] Root cause: AudioContext registerAudioElement/requestAudioFocus may be interfering
+- [ ] Simplify both players: remove AudioContext dependency, use direct video.muted control only
+- [ ] Create Stripe Basic plan (£19/month) in test mode
+- [ ] Configure STRIPE_BASIC_PRICE_ID environment variable
 
 ## Full Button/CTA/Navigation Audit (Session Apr 13)
-- [x] Audit all routes in App.tsx — map every registered route — superseded by Full Navigation/CTA/Pricing Audit (COMPLETE) below
-- [x] Audit Home.tsx — all nav links, hero CTAs, pricing buttons, demo button, showcase CTAs — done
-- [x] Audit KidsVideo.tsx — all back buttons, step navigation, create/generate buttons — done
-- [x] Audit MusicVideoAutopilot.tsx — all back buttons, step navigation, create/generate buttons — done
-- [x] Audit Autopilot.tsx (Cinematic) — all back buttons, step navigation, create/generate buttons — done
-- [x] Audit TextToVideoCreator.tsx — all back buttons, step navigation, create/generate buttons — done
-- [x] Audit Pricing.tsx — all plan CTA buttons, back to home link — done
-- [x] Audit Dashboard.tsx — all navigation links and action buttons — done
-- [x] Audit HowItWorks.tsx — back button — done
-- [x] Fix any dead/broken buttons found in audit — done (see Full Navigation/CTA/Pricing Audit COMPLETE)
-- [x] Create Stripe Basic plan in test mode, configure STRIPE_BASIC_PRICE_ID — done (price_1TLfm3IaMYB25uKKhCvFLqNy)
+- [ ] Audit all routes in App.tsx — map every registered route
+- [ ] Audit Home.tsx — all nav links, hero CTAs, pricing buttons, demo button, showcase CTAs
+- [ ] Audit KidsVideo.tsx — all back buttons, step navigation, create/generate buttons
+- [ ] Audit MusicVideoAutopilot.tsx — all back buttons, step navigation, create/generate buttons
+- [ ] Audit Autopilot.tsx (Cinematic) — all back buttons, step navigation, create/generate buttons
+- [ ] Audit TextToVideoCreator.tsx — all back buttons, step navigation, create/generate buttons
+- [ ] Audit Pricing.tsx — all plan CTA buttons, back to home link
+- [ ] Audit Dashboard.tsx — all navigation links and action buttons
+- [ ] Audit HowItWorks.tsx — back button
+- [ ] Fix any dead/broken buttons found in audit
+- [ ] Create Stripe Basic plan in test mode, configure STRIPE_BASIC_PRICE_ID
 
 ## Full Navigation/CTA/Pricing Audit (COMPLETE)
 - [x] Audit all routes in App.tsx and map every page button/CTA
@@ -2990,9 +2990,9 @@
 - [x] Fix Music Video/creator links: must navigate directly, not trigger intro
 - [x] Fix DemoVideoModal audio: replaced Web Audio API with pre-processed audio files
 - [x] Fix WizSoundSection audio: replaced Web Audio API with pre-processed audio files
-- [x] Fix post-payment redirect: success must go to dashboard, not intro
+- [ ] Fix post-payment redirect: success must go to dashboard, not intro
 - [ ] Validate all Stripe products exist in test mode
-- [x] Fix checkout success/cancel URL routing
+- [ ] Fix checkout success/cancel URL routing
 - [ ] Verify content unlock after payment (credits/renders)
 - [ ] Fix error handling for failed payments
 - [x] Fix intro mute toggle: mute/unmute works via GlobalAudioContext
@@ -3248,7 +3248,7 @@
 - [x] Shorten CTA button labels so they fit in 4-column pricing cards without overflow
 
 ## PRICING PAGE CTA + NAV FIX (Apr 2026)
-- [x] Fix pricing page CTA buttons (plan subscribe buttons not working)
+- [ ] Fix pricing page CTA buttons (plan subscribe buttons not working)
 - [ ] Fix Home and Create nav links on pricing page
 
 ## GLOBAL NAV FIX (Apr 2026)
@@ -3260,14 +3260,14 @@
 - [ ] Fix "Continue where you left off" — clicking a project must load it into the editor
 - [ ] Ensure storyboard_ready projects open at the storyboard step
 - [ ] Ensure failed projects can be retried from the editor
-- [x] Fix global nav links (Home/Create) across all pages
+- [ ] Fix global nav links (Home/Create) across all pages
 
 ## DASHBOARD PREMIUM REDESIGN (Apr 2026)
 - [ ] Add cinematic hero banner with user greeting and stats
 - [ ] Add premium imagery/gradients to dashboard cards
-- [x] Fix project resume — clicking a project loads it into the editor
-- [x] Fix global nav links across remaining pages
-- [x] Replace all "Pro" plan references with correct tier names (Creator/Studio)
+- [ ] Fix project resume — clicking a project loads it into the editor
+- [ ] Fix global nav links across remaining pages
+- [ ] Replace all "Pro" plan references with correct tier names (Creator/Studio)
 
 ## WIZSOUND DEMO AUDIO FIX (Apr 2026)
 - [ ] Generate Standard audio track (raw, dry, unprocessed)
@@ -3319,15 +3319,15 @@
 
 ## WizLumina™ + Premium Platform Upgrade
 - [x] Generate WizLumina™ logo: glowing orb/light burst, purple + gold glow, dark background
-- [x] Create WizLumina™ homepage section: Standard / Enhance (+£2) / Cinematic (+£5) with A/B visual toggle
-- [x] Add "See the Difference" visual comparison section on homepage (same video, Standard vs Cinematic toggle)
-- [x] Add WizLumina™ to DemoVideoModal comparison
+- [ ] Create WizLumina™ homepage section: Standard / Enhance (+£2) / Cinematic (+£5) with A/B visual toggle
+- [ ] Add "See the Difference" visual comparison section on homepage (same video, Standard vs Cinematic toggle)
+- [ ] Add WizLumina™ to DemoVideoModal comparison
 - [x] Update pricing: 720p→£3, 1080p→£6, 4K→£10; WizSound Enhance→+£2, Cinematic→+£5; WizLumina Enhance→+£2, Cinematic→+£5
 - [x] Add "Cinematic Mode" bundle (+£8): WizSound Cinematic + WizLumina Cinematic, BEST EXPERIENCE label, most prominent in paywall
 - [x] Upgrade RenderPaywallModal order: Quality → Cinematic Mode (pre-selected) → Individual upgrades
 - [ ] Add "How WizVid Works" education section to homepage (5 steps with images)
 - [ ] Reposition language site-wide: replace "enhancement"/"audio upgrade" with "Cinematic Engine"/"Studio-Grade Sound"/"Film-Level Visuals"
-- [x] Wire WizLumina logo into paywall, homepage section, comparison section
+- [ ] Wire WizLumina logo into paywall, homepage section, comparison section
 
 ## Unified WizSound + WizLumina Tier System
 - [x] Rebuild RenderPaywallModal: single master tier toggle (Standard / Enhance / Cinematic) that auto-syncs both WizSound and WizLumina
@@ -3336,7 +3336,7 @@
 - [x] Auto-sync: selecting Cinematic on either system enables both
 - [x] Update WizSoundSection homepage to reference unified system
 - [x] Update WizLuminaSection homepage to reference unified system
-- [x] Update pricing page to reflect unified tier pricing
+- [ ] Update pricing page to reflect unified tier pricing
 
 ## Homepage Cinematic Rebuild (Pasted_content_04)
 - [x] Update hero headline: "Create Cinematic Videos with AI"
@@ -9036,15 +9036,15 @@
 - [x] Scene 0 on job 960001 approved so its one-at-a-time gate releases scene 1
 
 ## Replace Sync Labs with WaveSpeed InfiniteTalk
-- [x] Research InfiniteTalk API endpoint, parameters, polling format
-- [x] Build server/ai-apis/infinitetalk-lipsync.ts client
-- [x] Update heartbeat: replace Sync Labs submission with InfiniteTalk
-- [x] Update heartbeat: replace Sync Labs polling with InfiniteTalk polling
-- [x] Update DB schema if new fields needed for InfiniteTalk task tracking
-- [x] Remove Sync Labs references from pipeline (keep SYNC_LABS_API_KEY in env for legacy)
-- [x] Reset active jobs (960001, 1020003) lip sync scenes to pending for re-dispatch with InfiniteTalk
-- [x] TypeScript check: 0 errors
-- [x] Save checkpoint
+- [ ] Research InfiniteTalk API endpoint, parameters, polling format
+- [ ] Build server/ai-apis/infinitetalk-lipsync.ts client
+- [ ] Update heartbeat: replace Sync Labs submission with InfiniteTalk
+- [ ] Update heartbeat: replace Sync Labs polling with InfiniteTalk polling
+- [ ] Update DB schema if new fields needed for InfiniteTalk task tracking
+- [ ] Remove Sync Labs references from pipeline (keep SYNC_LABS_API_KEY in env for legacy)
+- [ ] Reset active jobs (960001, 1020003) lip sync scenes to pending for re-dispatch with InfiniteTalk
+- [ ] TypeScript check: 0 errors
+- [ ] Save checkpoint
 - [x] Migrate lip-sync from Sync Labs sync-3 to WaveSpeed InfiniteTalk hybrid pipeline (performance scenes skip Seedance → InfiniteTalk direct; cinematic scenes use Seedance only)
 
 ## Air Studios Venue Reference & Storyboard Quality Fix
@@ -9057,26 +9057,26 @@
 - [x] Set job 1020003 back to storyboard_ready to trigger regeneration with Air Studios anchor
 
 ## Pipeline Upgrade v2 (2026-06-10)
-- [x] Step 1: Probe hard pause — set job status to `awaiting_probe_approval` when probe scene submitted, block all remaining scenes until owner approves
-- [x] Step 1: Add `awaiting_probe_approval` to job status enum in schema
-- [x] Step 1: Update heartbeat to skip scene dispatch when job is in `awaiting_probe_approval`
-- [x] Step 1: Update `approveProbe` procedure to transition job from `awaiting_probe_approval` back to `rendering`
-- [x] Step 2: Schema — add `originalVideoUrl` field to musicVideoScenes
-- [x] Step 2: Schema — add `lipsyncedVideoUrl` field to musicVideoScenes
-- [x] Step 2: Schema — add `renderProvider` field to musicVideoScenes
-- [x] Step 2: Schema — add `lipSyncProvider` field to musicVideoScenes
-- [x] Step 2: Schema — add `renderDurationMs` field to musicVideoScenes
-- [x] Step 2: Schema — add `lipSyncDurationMs` field to musicVideoScenes
-- [x] Step 2: Schema — add `lipSyncRetryCount` field to musicVideoScenes (uses retryCount field)
-- [x] Step 2: Run migration and update heartbeat to populate new fields
-- [x] Step 3: Create `server/ai-apis/lipsync-provider.ts` abstraction layer
-- [x] Step 3: Add `WIZ_LIPSYNC_PROVIDER` env var support (heygen / latentsync / infinitetalk)
-- [x] Step 3: Add LatentSync stub in fallback chain (placeholder, not yet integrated)
-- [x] Step 4: Add singing/speech mode detection — use `precision` for performance/singing, `standard` for speech/narration
-- [x] Step 4: Add audio duration validation after stem extraction — reject if >250ms drift from scene duration
-- [x] Step 5: Extend quality scoring to store lipSyncQualityScore, faceConsistencyScore, mouthVisibilityScore, overallSceneScore in DB
-- [x] Step 5: Implement 4-attempt retry chain: HeyGen Precision → HeyGen alt settings → LatentSync → InfiniteTalk
-- [x] Step 5: Block assembly if overallSceneScore < 0.75 after all retry attempts
+- [ ] Step 1: Probe hard pause — set job status to `awaiting_probe_approval` when probe scene submitted, block all remaining scenes until owner approves
+- [ ] Step 1: Add `awaiting_probe_approval` to job status enum in schema
+- [ ] Step 1: Update heartbeat to skip scene dispatch when job is in `awaiting_probe_approval`
+- [ ] Step 1: Update `approveProbe` procedure to transition job from `awaiting_probe_approval` back to `rendering`
+- [ ] Step 2: Schema — add `originalVideoUrl` field to musicVideoScenes
+- [ ] Step 2: Schema — add `lipsyncedVideoUrl` field to musicVideoScenes
+- [ ] Step 2: Schema — add `renderProvider` field to musicVideoScenes
+- [ ] Step 2: Schema — add `lipSyncProvider` field to musicVideoScenes
+- [ ] Step 2: Schema — add `renderDurationMs` field to musicVideoScenes
+- [ ] Step 2: Schema — add `lipSyncDurationMs` field to musicVideoScenes
+- [ ] Step 2: Schema — add `lipSyncRetryCount` field to musicVideoScenes
+- [ ] Step 2: Run migration and update heartbeat to populate new fields
+- [ ] Step 3: Create `server/ai-apis/lipsync-provider.ts` abstraction layer
+- [ ] Step 3: Add `WIZ_LIPSYNC_PROVIDER` env var support (heygen / latentsync / infinitetalk)
+- [ ] Step 3: Add LatentSync stub in fallback chain (placeholder, not yet integrated)
+- [ ] Step 4: Add singing/speech mode detection — use `precision` for performance/singing, `standard` for speech/narration
+- [ ] Step 4: Add audio duration validation after stem extraction — reject if >250ms drift from scene duration
+- [ ] Step 5: Extend quality scoring to store lipSyncQualityScore, faceConsistencyScore, mouthVisibilityScore, overallSceneScore in DB
+- [ ] Step 5: Implement 4-attempt retry chain: HeyGen Precision → HeyGen alt settings → LatentSync → InfiniteTalk
+- [ ] Step 5: Block assembly if overallSceneScore < 0.75 after all retry attempts
 
 ## Pipeline Bug Fixes (2026-06-11)
 - [x] Fix probe gate: probePassed=true now triggers full_render mode (dispatch all scenes at once) instead of one-at-a-time per-scene approval
@@ -9140,21 +9140,21 @@
 - [x] Auto-clear stale render outputs before new render — handleStartRenderInternal now calls resetRender if any scene has a videoUrl before calling startRender
 
 ## Pipeline Quality Overhaul (June 2026)
-- [x] Fix aspect ratio: pass job.aspectRatio to Atlas Cloud, WaveSpeed, and InfiniteTalk — no hardcoded 16:9 — DONE (job.aspectRatio passed to all providers in sceneDispatchHeartbeat.ts)
-- [x] Fix assembly normalisation: replace pad-to-1280x720 with crop-to-fill for all non-standard clip dimensions (no black bars ever) — DONE (crop-to-fill with centre-crop in music-video-service.ts)
-- [x] Switch primary lip sync to HeyGen — confirm HeyGen API is wired and active as the primary lip sync engine — DONE (HeyGen Direct Photo+Audio is primary in sceneDispatchHeartbeat.ts)
-- [x] Pass full audio context to every provider: scene startTime, duration, vocal onset time, lyrics, total track duration — DONE (all context passed in sceneDispatchHeartbeat.ts)
-- [x] Enforce storyboard image as visual anchor for every scene across all providers (no random characters) — DONE (previewImageUrl as storyboardImageUrl, resolvedCharacterUrl as imageUrl)
-- [x] Verify InfiniteTalk receives correctly sliced vocal stem (not full mix) at exact scene timestamps — DONE (sliceVocalStemForSeedance called before InfiniteTalk dispatch)
-- [x] Audit and confirm aspect ratio flows through from user settings → storyboard generation → video generation → assembly — DONE (full end-to-end flow confirmed)
+- [ ] Fix aspect ratio: pass job.aspectRatio to Atlas Cloud, WaveSpeed, and InfiniteTalk — no hardcoded 16:9
+- [ ] Fix assembly normalisation: replace pad-to-1280x720 with crop-to-fill for all non-standard clip dimensions (no black bars ever)
+- [ ] Switch primary lip sync to HeyGen — confirm HeyGen API is wired and active as the primary lip sync engine
+- [ ] Pass full audio context to every provider: scene startTime, duration, vocal onset time, lyrics, total track duration
+- [ ] Enforce storyboard image as visual anchor for every scene across all providers (no random characters)
+- [ ] Verify InfiniteTalk receives correctly sliced vocal stem (not full mix) at exact scene timestamps
+- [ ] Audit and confirm aspect ratio flows through from user settings → storyboard generation → video generation → assembly
 
 ## Support Reference Display & Admin Panel
-- [x] Add "Project Ref: WIZ-XXXXXX" label to MusicVideoAutopilot header (job title area) with copy-to-clipboard icon and "Copy for support" tooltip — DONE (already in MusicVideoAutopilot.tsx)
-- [x] Add scene ref "S-XXXXXX" to each scene card in Storyboard and Screening Room with copy icon — DONE (already in MusicVideoAutopilot.tsx)
-- [x] Build admin panel at /admin/jobs (owner-only, protected by role=admin check): list all jobs with search by title/ref, click into job to see all scenes — DONE (AdminJobsPanel.tsx)
-- [x] Admin job detail page: edit scene prompt, toggle lipSync, change sceneType, trigger re-render of individual scene from admin side — DONE (AdminJobsPanel.tsx)
-- [x] Admin scene re-render: calls existing startRender/resetScene procedures but scoped to a single scene, pushes result back to user's Screening Room — DONE (AdminJobsPanel.tsx)
-- [x] Admin panel: show provider spend, error codes, retry count per scene for diagnostics — DONE (AdminJobsPanel.tsx)
+- [ ] Add "Project Ref: WIZ-XXXXXX" label to MusicVideoAutopilot header (job title area) with copy-to-clipboard icon and "Copy for support" tooltip
+- [ ] Add scene ref "S-XXXXXX" to each scene card in Storyboard and Screening Room with copy icon
+- [ ] Build admin panel at /admin/jobs (owner-only, protected by role=admin check): list all jobs with search by title/ref, click into job to see all scenes
+- [ ] Admin job detail page: edit scene prompt, toggle lipSync, change sceneType, trigger re-render of individual scene from admin side
+- [ ] Admin scene re-render: calls existing startRender/resetScene procedures but scoped to a single scene, pushes result back to user's Screening Room
+- [ ] Admin panel: show provider spend, error codes, retry count per scene for diagnostics
 
 ## Pipeline Fixes & Quality Lock (Jun 2026)
 - [x] Fix renderer: change fal_seedance to atlas_cloud as default in sceneDispatchHeartbeat
@@ -9200,11 +9200,11 @@
 - [ ] Verify probe scene 990015 re-renders in 16:9 with working HeyGen Precision lip sync
 
 ## CRITICAL BUG FIX: Credit Exhaustion Retry Loop (13 Jun 2026)
-- [x] Fix heartbeat: immediately halt ALL retries when provider returns 400 Insufficient Credits
-- [x] Mark provider unavailable INSTANTLY on credit exhaustion (not after N failures)
-- [x] Prevent failed_retryable scenes from auto-retrying more than once per 30 minutes
-- [x] Add hard circuit breaker: if credit error detected, pause entire job and notify owner
-- [x] Add admin UI button to manually resume a paused job after top-up
+- [ ] Fix heartbeat: immediately halt ALL retries when provider returns 400 Insufficient Credits
+- [ ] Mark provider unavailable INSTANTLY on credit exhaustion (not after N failures)
+- [ ] Prevent failed_retryable scenes from auto-retrying more than once per 30 minutes
+- [ ] Add hard circuit breaker: if credit error detected, pause entire job and notify owner
+- [ ] Add admin UI button to manually resume a paused job after top-up
 
 ## Provider Research & Evaluation (13 Jun 2026)
 - [ ] Switch scene 990015 to Atlas Cloud provider (bypass WaveSpeed payment delays)
@@ -9224,23 +9224,23 @@
 - [x] ISS-007: Add optimistic locking (version counter) to circuit breaker providerHealth updates
 
 ### P1 High
-- [x] ISS-008: Split musicVideo.ts (6,287 lines) into feature sub-routers — DONE (session 5)
+- [ ] ISS-008: Split musicVideo.ts (6,287 lines) into feature sub-routers
 - [x] ISS-009: Add dead-letter queue for scenes that exceed max retry count
 - [x] ISS-010: Add FK constraints to all reference columns in drizzle/schema.ts
-- [x] ISS-011: Convert longtext JSON columns to proper json() type in schema — DONE (session 5, json-columns.ts helpers)
+- [ ] ISS-011: Convert longtext JSON columns to proper json() type in schema
 - [x] ISS-012: Remove hardcoded Stripe price ID fallbacks from products.ts
 - [x] ISS-013: Fix video.ts free-plan hardcode — fetch real subscription from DB
 - [x] ISS-014: Fix HeyGen lipsync typo (keep_the_same_format → keep_original_format)
 - [x] ISS-015: Add hard timeout for vocal stem isolation (fail job if stuck >30 min)
 - [x] ISS-017: [N/A or already resolved] Externalise provider selection to DB config table
-- [x] ISS-018: Add CI/CD pipeline (GitHub Actions) — .github/workflows/ci.yml (typecheck + test on PR/push)
-- [x] ISS-019: Add spend alerts at 75% and 90% of per-video budget — DONE (already in spend-protection.ts)
-- [x] ISS-020: Add structured logging with jobId context (pino) — server/logger.ts created
+- [ ] ISS-018: Add CI/CD pipeline (GitHub Actions)
+- [ ] ISS-019: Add spend alerts at 75% and 90% of per-video budget
+- [ ] ISS-020: Add structured logging with jobId context (pino)
 
 ### P2 Medium
 - [x] ISS-023: Add client-side admin route guard in App.tsx
 - [x] ISS-028: Add unique index on subscriptions.userId
-- [x] ISS-029: Add granular admin role permissions — DONE (session 5, permissions.ts + support/ops roles)
+- [ ] ISS-029: Add granular admin role permissions
 - [x] ISS-030: Send cancellation email on subscription.deleted webhook
 - [x] ISS-031: [N/A or already resolved] Auto-approve probe results that pass all validation gates
 - [x] ISS-032: Add uptime monitoring (/api/healthz endpoint)
@@ -9250,156 +9250,23 @@
 ### P3 Low
 - [x] ISS-033: Implement time-limited signed URLs for video delivery
 - [x] ISS-036: Add SSRF protection on audio proxy endpoint
-- [x] ISS-037: Add image dimension validation before provider submission (512px minimum in character-photo-validator.ts)
+- [ ] ISS-037: Add image dimension validation before provider submission
 - [x] ISS-040: [N/A or already resolved] Clean up .patch files and stale MD files from root
-- [x] ISS-041: Add weekly automated spend efficiency report — DONE (session 5, weekly-spend-report.ts)
+- [ ] ISS-041: Add weekly automated spend efficiency report
 
 ## WizAI Technical Audit (Second Pass) — Remaining Items
 - [x] ISS-003: Per-user tRPC mutation rate limiting (5 render jobs/hour per user)
-- [x] ISS-008: Assembly failure → send user notification email (already implemented in assemblyWorker.ts)
-- [x] ISS-010b: LaLal vocal stem 20-min hard timeout + full-mix fallback (vocalsSubmittedAt column + 20-min check in cloud-vocal-isolation.ts)
-- [x] ISS-016: Document lip sync quality gate thresholds in code (already in lip-sync-gate.ts header + LIP_SYNC_THRESHOLDS export)
+- [ ] ISS-008: Assembly failure → send user notification email
+- [ ] ISS-010b: LaLal vocal stem 20-min hard timeout + full-mix fallback
+- [ ] ISS-016: Document lip sync quality gate thresholds in code
 - [x] ISS-017: Heartbeat watchdog — alert owner if no tick fires in 3 minutes
 - [x] ISS-019: Progressive spend alerting (warn at 80%, not just hard stop at 100%)
-- [x] ISS-024: App.tsx route modularisation — routes.tsx extracted, App.tsx slimmed to app-level concerns
-- [x] ISS-025: DB connection pooling — mysql2 pool (connectionLimit=10) in server/db.ts
-- [x] ISS-031: Probe auto-approve for scenes that pass all validation gates (24h timeout in pre-render-validator.ts)
-- [x] ISS-032: ffmpeg assembly non-blocking (music-video-service.ts uses promisify(exec), assemblyWorker fire-and-forget)
-- [x] ISS-034: Move/delete 100+ debugging scripts from project root (137 scripts moved to scripts/, gitignored)
-- [x] ISS-041: Remove suno.ts.patch file from routers directory (deleted)
-- [x] ISS-042: Move .md planning files out of project root (moved to docs/, gitignored)
-- [x] ISS-038: Remove nohup.out from project root (not present — already clean)
-- [x] CI/CD: Add GitHub Actions workflow (typecheck + test on PR) — .github/workflows/ci.yml
-
-## Session 4 — SEO, i18n, Light/Dark Mode (Jun 15 2026)
-
-- [x] Light/dark mode refactor: ~1,100 hardcoded hex/zinc/gray colour instances replaced with CSS variable classes across 91 component files; 36 intentional status/brand accent colours retained
-- [x] i18n confirmed fully implemented: EN/ES/PT-BR/FR translations in client/src/lib/i18n.ts, LanguageDetector auto-detect wired in main.tsx, LanguageSelector dropdown added to desktop nav in Home.tsx
-- [x] SEO keyword pages confirmed fully implemented: 50 pages in client/src/data/seoPages.ts, SeoLandingPage.tsx template with H1/H2/JSON-LD/meta, route /seo/:slug registered, all 50 slugs in sitemap.xml
-
-## Session 5 — Router Split & Remaining Items
-
-- [x] ISS-008 router split: musicVideo.ts (6,306 lines) split into 6 domain sub-routers — job.ts (24 procs), scene.ts (13 procs), render.ts (15 procs), character.ts (15 procs), probe.ts (6 procs), vocal.ts (5 procs) — all 78 procedures preserved, translateErrorMessage helper extracted to _shared.ts, TypeScript 0 errors, tests 962/978 (baseline maintained)
-
-## Session 5 — Router Split, JSON Helpers, Granular Roles, Weekly Report
-
-- [x] ISS-008: Split musicVideo.ts (6,306 lines) into 6 domain sub-routers (job, scene, render, character, probe, vocal) — all 78 procedures migrated, test paths updated, monolith archived as musicVideo.ts.bak
-- [x] ISS-011: server/json-columns.ts typed JSON helpers (parseJson/stringifyJson with 15 typed interfaces) — safe approach without risky schema migration
-- [x] ISS-019: Confirmed already implemented — spend-protection.ts has 50%/75%/90% alerts with notifyOwner deduplication
-- [x] ISS-029: Granular admin roles — schema extended with support/ops roles, server/permissions.ts with hasPermission/requirePermission/supportOrAdminProcedure, adminCredits.ts updated
-- [x] ISS-041: server/weekly-spend-report.ts — weekly spend efficiency report handler + heartbeat route in index.ts + 4 unit tests passing
-- [x] Admin panel /admin/jobs — confirmed already fully implemented with scene re-render, provider spend, WIZ-XXXXXX/S-XXXXXX refs
-- [x] Project/scene ref labels — confirmed already implemented in MusicVideoAutopilot.tsx and AdminJobsPanel.tsx
-- [x] Hero tightening — confirmed already optimised (min-h-screen, clamp headline, 3 CTAs, trust bar, flex-wrap mobile)
-- [x] Cinematic intro screen — confirmed already implemented as IntroScreen.tsx (MP4 from CDN, iOS fallback, auto-dismiss)
-- [x] Provider pipeline — confirmed HeyGen Direct Photo+Audio is primary, WaveSpeed is fallback, Sync Labs is secondary fallback
-
-- [x] Dashboard: Move "Continue where you left off" section above Insights Strip so returning users see it first
-- [x] Dashboard: Make "Continue where you left off" section visually prominent with gold border + in-progress badge
-- [x] WizPilot: Add auto-save status chip ("Saved automatically") in the nav bar during upload step
-- [x] WizPilot: Add "What happens next" reassurance strip (Free storyboard / Ready in seconds / You approve first) above Generate Storyboard button
-- [x] ReturnTriggerBanner: Fix stale "Pro plan from £19/mo" copy → "Starter plan from £9/mo"
-
-## SESSION: Jun 16 2026 — Dashboard Hero Banner + Insights Strip Upgrade
-- [x] Dashboard: Replace plain welcome text with cinematic hero banner (background image, gold accent line, greeting, stats)
-- [x] Dashboard: Make Insights Strip cards clickable links to /projects and /credits
-- [x] Dashboard: Verified project resume (storyboard_ready → storyboard step, rendering → render step, draft → upload step with pre-filled form) — already working
-- [x] Dashboard: Verified post-payment redirect goes to /dashboard?success=true — already correct
-- [x] Dashboard: Verified intro only shows on homepage (pathname === "/") — already correct
-- [x] Subscribe.tsx: Verified comparison table plan names (Free/Starter/Basic/Creator/Pro/Studio) — already correct, Pro is a real plan
-- [x] Pricing page: Verified nav uses PublicNavBar with href-based links — already correct
-
-- [x] Fix Clarity to use VITE_CLARITY_PROJECT_ID env var instead of hardcoded ID
-- [x] Fix demo video text position in RenderPaywallModal (move higher, stronger gradient, no bleed)
-- [x] Make WizPilot nav logo larger (h-10 → h-14)
-- [x] Make Autopilot page logo larger (h-10 → h-14)
-- [x] Verify nav links already use <a href> (no navigate() calls in PublicNavBar or Home.tsx nav)
-- [x] Verify project resume already works correctly per status (storyboard_ready → storyboard step, etc.)
-- [x] Verify post-payment redirect already goes to /dashboard (not intro)
-- [x] Verify intro only shows on homepage (pathname === "/")
-- [x] Dashboard action cards already have premium background images and gradients
-- [x] Fix Clarity to use VITE_CLARITY_PROJECT_ID env var instead of hardcoded ID
-- [x] Fix demo video text position in RenderPaywallModal (move text higher, stronger gradient)
-- [x] Make WizPilot nav logo larger (h-10 → h-14)
-- [x] Make Autopilot page logo larger (h-10 → h-14)
-- [x] Add multi-genre cycling text animation to hero heading (MUSIC VIDEOS / CINEMATIC FILMS / PIXAR ANIMATION / ANIME SHORTS / BRAND ADS)
-- [x] Verified: WizSoundDemoPlayer already defaults to Standard Audio
-- [x] Verified: email notifications already wired (signup, subscription, credit purchase, failed payment, welcome)
-- [x] Verified: project resume already works correctly per job status
-- [x] Verified: post-payment redirect to /dashboard already correct
-- [x] Verified: intro only shows on homepage (not on /dashboard)
-- [x] Verified: nav links use <a href> tags (not navigate()), no broken links
-- [x] Homepage: Add "What happens next?" 5-step section (WhatHappensNext component between MusicVideoUSPSection and TestimonialsSection)
-- [x] Homepage: Add brand tagline strip "Create videos. Get discovered. Grow your audience." (BrandTaglineStrip between TestimonialsSection and FinalCTA)
-- [x] Pricing: Replace "pay-per-render" with "per video", "Avg. render time" with "Avg. creation time", "re-render" with "revision"
-- [x] Post-render: Download fallback already implemented (fetch → blob → window.open fallback + Copy Link button)
-- [x] "Previous render failed" banner: Confirmed only fires on ?jobId= resume of failed job, not on fresh loads
-
-
-## Pre-Launch Readiness Audit (2026-06-17)
-- [x] Pricing discrepancy found and fixed: plans.ts now matches server/products.ts (£29/£79/£149)
-- [x] Pricing.tsx PLAN_UI_OVERLAY annual prices corrected (Starter £290, Creator £790, Studio £1490)
-- [x] Pricing.tsx SEO description, comparison table, and value calculator updated to correct prices
-- [x] Orphaned basic/pro tiers removed from PRICING_PAGE_PLANS (hidden, no Stripe IDs)
-- [x] plans.test.ts updated to assert correct prices (£29/£79/£149)
-- [x] assemblyAttempts column added to musicVideoJobs (DB migration applied)
-- [x] Assembly worker: max 5 retry attempts then auto-refund credits + permanent fail
-- [x] jobResurrectionReaper: skips reset for jobs with exhausted assembly attempts
-
-## Lip Sync Retry Cap (Anti-Silent-Loop Fix) - COMPLETED ✅
-- [x] Add lipSyncAttempts column to musicVideoScenes schema (migration applied)
-- [x] Add creditCost to activeJobs SELECT query in sceneDispatchHeartbeat
-- [x] Import refundCredits into sceneDispatchHeartbeat
-- [x] Add LIPSYNC_HEYGEN_MAX_ATTEMPTS (3) and LIPSYNC_TOTAL_MAX_ATTEMPTS (5) constants
-- [x] Submission catch block: increment attempts, force Sync Labs after 3 HeyGen failures, permanently fail + refund after 5 total
-- [x] Timeout reset: increment attempts counter on each stuck-job reset
-- [x] Poll-failed reset: increment attempts, permanently fail + refund after 5 total
-- [x] Provider routing: force Sync Labs when lipSyncAttempts >= LIPSYNC_HEYGEN_MAX_ATTEMPTS
-- [x] All changes compile clean (0 TypeScript errors)
-
-## Pre-Launch Audit Fixes (June 2026)
-- [x] Replace Voiceover tool (/tools/voiceover) with Coming Soon page — was silently doing nothing on generate click (TODO stub)
-- [x] Replace VideoToVideo tool (/tools/video-to-video) with Coming Soon page — was silently doing nothing on generate click (TODO stub)
-## GitHub Sync & Pre-Launch Verification (Jun 17 2026)
-- [x] Pull GitHub commit 62a91d00 (Voiceover Coming Soon) — merged as ddd396d
-- [x] Pull GitHub commit e180bf79 (VideoToVideo Coming Soon) — merged as ddd396d
-- [ ] WizScore plan gating — add Studio-only tier check to server/routers/wizScore.ts (currently credit-gated only, no plan check)
-- [x] WizSync fullRender credit gate verified — deductCredits() called at line 435, throws FORBIDDEN if ok===false (insufficient credits)
-- [x] Checkpoint 6f188366 confirmed in git history — contains HeyGen URL fix + lip sync retry cap
-- [x] Job 1080001 fix confirmed deployed — lipSyncAttempts column added, HeyGen 403 fix in checkpoint 128412d
-
-## Job 1080001 Infinite Loop Fixes (Jun 17 2026)
-- [x] DB: Reset scene 990019 lipSyncStatus from "error" to "pending"
-- [x] Code: Fix heartbeat lipSyncPendingScenes filter to include error-state scenes with lipSyncAttempts < LIPSYNC_TOTAL_MAX_ATTEMPTS
-- [x] Code: Add AssemblyWorker max-reset guard — hard-fail jobs that cycle assembling→rendering more than 5 times
-## FreeTrial.tsx TypeScript Fix & Deployment Unblock (Jun 17 2026)
-- [x] Fix FreeTrial.tsx: correct tRPC paths from trpc.musicVideo.job.* to trpc.musicVideo.* (procedures are spread flat)
-- [x] Fix FreeTrial.tsx: remove explicit type annotations from useMutation onSuccess/onError callbacks (let tRPC infer)
-- [x] Fix FreeTrial.tsx: update refetchInterval to use query.state.data pattern for tRPC v11 compatibility
-- [x] TypeScript: 0 errors confirmed
-- [x] Deployment: succeeded — wiz-ai.io, www.wiz-ai.io, aivideoplatform-aljhdnsu.manus.space all live
-## Subscribe Page Plan Rename: studio → "Pro" (Jun 17 2026)
-- [x] plans.ts: rename studio plan display name from "Studio" to "Pro" and update tagline/bestFor copy
-- [x] plans.ts: update COMPARISON_ROWS to use "pro" column key (or keep "studio" key but update Subscribe.tsx table header)
-- [x] plans.ts: confirm SUBSCRIBE_PAGE_PLANS = ["free", "starter", "creator", "studio"] (basic and pro ID hidden)
-- [x] Subscribe.tsx: update comparison table header from "Studio" to "Pro"
-- [x] Subscribe.tsx: update handlePlanSelect type cast to include "studio"
-- [x] Dashboard.tsx: rename any "Studio" plan label to "Pro"
-- [x] Account.tsx: rename any "Studio" plan label to "Pro"
-- [x] Pricing.tsx: rename "Studio" to "Pro" in all display contexts
-- [x] Email/notification templates: rename "Studio" to "Pro" in any user-facing copy (products.ts, Help.tsx, Credits.tsx, QuickTopUpModal, PostFirstRenderSubscribeModal)
-- [x] Stripe env var audit: STRIPE_SECRET_KEY and VITE_STRIPE_PUBLISHABLE_KEY are injected by platform — sandbox shows test keys but production Cloud Run uses the live keys configured in Manus Secrets UI
-
-## Feature 1: Pay-Per-Video Checkout (Jun 17 2026)
-- [ ] drizzle/schema.ts: add payPerVideoOrders table
-- [ ] DB migration: CREATE TABLE pay_per_video_orders
-- [ ] server/stripe.ts: add createPayPerVideoCheckout export
-- [ ] server/billing.ts: add createPayPerVideoCheckout mutation to billingRouter
-- [ ] server/webhooks.ts: handle pay_per_video metadata type in handleCheckoutSessionCompleted
-- [ ] Frontend: show cost estimate + Pay & Render button for users with no subscription on storyboard/project page
-
-## Feature 2: Free Trial Render (30s watermarked, one per account) (Jun 17 2026)
-- [ ] drizzle/schema.ts: add freeTrialUsed boolean column to users table
-- [ ] DB migration: ALTER TABLE users ADD COLUMN free_trial_used
-- [ ] server/billing.ts: add startFreeTrialRender mutation
-- [ ] Frontend: show "Try Free (30s preview)" button for free-tier users who have not used trial
+- [ ] ISS-024: App.tsx route modularisation (80+ routes into domain modules)
+- [ ] ISS-025: DB connection pooling (replace lazy singleton with mysql2 pool)
+- [ ] ISS-031: Probe auto-approve for scenes that pass all validation gates
+- [ ] ISS-032: ffmpeg assembly non-blocking (child_process.spawn)
+- [ ] ISS-034: Move/delete 100+ debugging scripts from project root
+- [ ] ISS-041: Remove suno.ts.patch file from routers directory
+- [ ] ISS-042: Move .md planning files out of project root
+- [ ] ISS-038: Remove nohup.out from project root
+- [ ] CI/CD: Add GitHub Actions workflow (typecheck + test on PR)

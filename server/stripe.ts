@@ -50,7 +50,7 @@ export async function createSubscriptionCheckout(
       },
     ],
     success_url: `${origin}/dashboard?subscription=success`,
-    cancel_url: `${origin}/pricing?subscription=canceled`,
+    cancel_url: `${origin}/subscribe?subscription=canceled`,
     allow_promotion_codes: true,
   });
 
@@ -176,46 +176,4 @@ export async function cancelSubscription(subscriptionId: string) {
  */
 export async function getInvoice(invoiceId: string) {
   return await stripe.invoices.retrieve(invoiceId);
-}
-
-/**
- * Create a one-time Stripe checkout session for pay-per-video rendering.
- * Pricing: £1.50 per scene, minimum £5.00, maximum 12 scenes (£18.00).
- */
-export async function createPayPerVideoCheckout(
-  userId: number,
-  projectId: number,
-  sceneCount: number,
-  customerEmail: string,
-  customerName: string | null,
-  origin: string
-): Promise<{ url: string; amountPence: number }> {
-  const amountPence = Math.max(500, sceneCount * 150); // £1.50/scene, £5 min
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    customer_email: customerEmail,
-    client_reference_id: userId.toString(),
-    metadata: {
-      type: "pay_per_video",
-      user_id: userId.toString(),
-      project_id: projectId.toString(),
-      scene_count: sceneCount.toString(),
-      customer_email: customerEmail,
-      customer_name: customerName || "",
-    },
-    line_items: [{
-      quantity: 1,
-      price_data: {
-        currency: "gbp",
-        unit_amount: amountPence,
-        product_data: {
-          name: `WIZ AI Video Render — ${sceneCount} scene${sceneCount !== 1 ? "s" : ""}`,
-          description: `One-time render of your ${sceneCount}-scene video`,
-        },
-      },
-    }],
-    success_url: `${origin}/dashboard?render=success&project=${projectId}`,
-    cancel_url: `${origin}/dashboard?render=canceled&project=${projectId}`,
-  });
-  return { url: session.url!, amountPence };
 }

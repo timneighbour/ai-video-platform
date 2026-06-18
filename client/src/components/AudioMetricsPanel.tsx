@@ -315,7 +315,7 @@ export default function AudioMetricsPanel({
         {metricItems.map((item) => (
           <div
             key={item.label}
-            className="bg-background px-4 py-3 flex flex-col gap-2"
+            className="bg-[#07070a] px-4 py-3 flex flex-col gap-2"
           >
             {/* Label row */}
             <div className="flex items-center justify-between gap-2">

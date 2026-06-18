@@ -5,26 +5,16 @@ import { InsertUser, users, subscriptions, credits, creditTransactions, projects
 import type { InsertSubscription, InsertProject, InsertApiKey, InsertShowcaseItem, InsertRenderJob, InsertRenderBundle, RenderJob, InsertBlogPost, BlogPost, Creator, InsertCreator } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
-// ISS-025: Use a mysql2 connection pool so concurrent heartbeat ticks and
-// API requests don't queue behind a single connection.
 let _db: ReturnType<typeof drizzle> | null = null;
-let _pool: mysql2.Pool | null = null;
 
-/** Lazily create the drizzle instance backed by a connection pool. */
+// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _pool = mysql2.createPool({
-        uri: process.env.DATABASE_URL,
-        connectionLimit: 10,
-        waitForConnections: true,
-        queueLimit: 0,
-      });
-      _db = drizzle(_pool as any);
+      _db = drizzle(process.env.DATABASE_URL);
     } catch (error) {
-      console.warn("[Database] Failed to create pool:", error);
+      console.warn("[Database] Failed to connect:", error);
       _db = null;
-      _pool = null;
     }
   }
   return _db;
@@ -36,10 +26,6 @@ export async function getDb() {
  * ETIMEDOUT, or "Failed query" after a long idle period).
  */
 export function resetDb() {
-  if (_pool) {
-    _pool.end().catch(() => {});
-    _pool = null;
-  }
   _db = null;
 }
 

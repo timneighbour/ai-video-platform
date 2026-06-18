@@ -49,7 +49,7 @@ export default function AuthGate({ open, onClose, featureName = "use this featur
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-md bg-background border border-[--color-gold]/[0.1] rounded-2xl shadow-2xl overflow-hidden">
+      <div className="relative z-10 w-full max-w-md bg-[#0a0a0a] border border-[--color-gold]/[0.1] rounded-2xl shadow-2xl overflow-hidden">
 
         {/* Gradient top bar — gold */}
         <div className="h-1 w-full bg-gradient-to-r from-[--color-gold-dark] via-[--color-gold] to-[--color-gold-dark]" />
