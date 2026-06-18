@@ -6,6 +6,7 @@ import { Pause, Play } from "@/lib/icons";
    Canvas layer: gold-dust particles, waveform, bloom orbs on top.
 ────────────────────────────────────────────────────────────────────── */
 
+
 const LS_KEY = "wizai_motion_paused";
 
 /* ── Static poster fallback ─────────────────────────────────────── */
