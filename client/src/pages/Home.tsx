@@ -939,15 +939,15 @@ function Hero() {
  {/* Stage floor reflection — bottom fade */}
  <div className="absolute bottom-0 left-0 right-0 pointer-events-none z-[1]" style={{ height: "200px", background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%)" }} />
  {/* Content */}
- <div className="relative z-10 max-w-7xl mx-auto px-6 pt-[80px] pb-16 w-full">
+ <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-[72px] sm:pt-[80px] pb-10 sm:pb-14 w-full">
  <div className="max-w-3xl">
- {/* Eyebrow */}
- <div className="inline-flex flex-wrap items-center gap-2 px-3 sm:px-5 py-2 rounded-full border border-[--color-gold]/[0.18] bg-[--color-gold]/[0.04] backdrop-blur-sm mb-5 shadow-[0_0_24px_rgba(196,164,100,0.08)]">
+ {/* Eyebrow — minimal, non-competing */}
+ <div className="inline-flex items-center gap-2 mb-4">
  <span className="relative flex items-center justify-center w-2 h-2">
  <span className="absolute w-full h-full rounded-full bg-[--color-gold] animate-ping opacity-60" style={{ animationDuration: "2s" }} />
  <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold]" />
  </span>
- <span className="text-[11px] font-bold tracking-[0.28em] uppercase text-white/50">✦ AI CREATIVE STUDIO ✦</span>
+ <span className="text-[10px] font-bold tracking-[0.28em] uppercase text-white/40">AI CREATIVE STUDIO</span>
  </div>
 
  {/* Headline */}
@@ -959,11 +959,11 @@ function Hero() {
  </p>
 
  {/* CTAs */}
- <div className="relative z-20 mb-8">
- <div className="flex flex-wrap items-center gap-4 mb-2">
+ <div className="relative z-20 mb-6">
+ <div className="flex flex-wrap items-center gap-3 mb-2">
  <a
  href="/music-video/create"
- className="btn-primary btn-sheen btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
+ className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl text-base w-full sm:w-auto justify-center"
  style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
  onClick={() => { mp.heroCTAClicked?.(); mp.startCreatingClicked("hero"); }}
  >
@@ -971,13 +971,14 @@ function Hero() {
  </a>
  <a
  href="#products"
- className="btn-secondary inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-base"
+ className="btn-secondary inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl text-base"
  style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
  >Explore the Studios
  <ArrowSVG className="w-4 h-4" />
  </a>
  </div>
- <a href="/onboarding" className="text-[13px] text-white/35 hover:text-white/60 transition-colors mt-1 inline-block">Explore all tools &rarr;</a>
+ {/* Trust micro-copy — directly below primary CTA */}
+ <p className="text-[12px] text-white/40 mt-1 mb-3">No credit card required &middot; 2 free projects included &middot; Built for creators, musicians &amp; agencies</p>
  <div className="flex flex-wrap items-center gap-4 mb-2">
  {/* ── WATCH DEMO — ultra-premium screaming CTA ── */}
  <button
@@ -2758,6 +2759,139 @@ function WhyWizAI() {
  );
 }
 
+// WizSound Feature Section — marketing intro with waveform, pulsing glow, 3 feature cards
+function WizSoundFeatureSection() {
+  const WIZSOUND_FEATURE_CARDS = [
+    {
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" stroke="rgba(212,175,55,0.9)" strokeWidth="1.5" strokeLinecap="round">
+          <path d="M9 18V5l12-2v13" />
+          <circle cx="6" cy="18" r="3" />
+          <circle cx="18" cy="16" r="3" />
+        </svg>
+      ),
+      title: "Spatial 3D Audio",
+      desc: "Every track is processed with spatial depth algorithms that place instruments in a three-dimensional field — left, right, front, and behind.",
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" stroke="rgba(212,175,55,0.9)" strokeWidth="1.5" strokeLinecap="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+        </svg>
+      ),
+      title: "Cinematic Mastering",
+      desc: "Studio-grade EQ, compression, and stereo widening applied automatically. The result sounds like a professionally mastered record — not AI output.",
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6" stroke="rgba(212,175,55,0.9)" strokeWidth="1.5" strokeLinecap="round">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+          <line x1="12" y1="19" x2="12" y2="22" />
+        </svg>
+      ),
+      title: "Vocal Isolation & Clarity",
+      desc: "WizSound™ separates and enhances vocal presence, removing muddiness and ensuring the lead sits perfectly in the mix at every frequency.",
+    },
+  ];
+
+  const BARS = Array.from({ length: 32 }, (_, i) => {
+    const base = 0.3 + 0.5 * Math.sin((i / 32) * Math.PI * 2.5);
+    return Math.max(0.15, Math.min(0.95, base + (i % 3 === 0 ? 0.15 : i % 5 === 0 ? -0.1 : 0)));
+  });
+
+  return (
+    <section className="relative overflow-hidden" style={{ background: "#020202" }}>
+      <div className="luxury-divider absolute top-0 left-0 right-0 z-10" />
+
+      {/* Pulsing ambient glow */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] rounded-full"
+          style={{ background: "radial-gradient(ellipse, rgba(212,175,55,0.10) 0%, transparent 65%)", animation: "orbDriftA 8s ease-in-out infinite" }}
+        />
+        <div
+          className="absolute bottom-0 right-1/4 w-[400px] h-[300px] rounded-full"
+          style={{ background: "radial-gradient(ellipse, rgba(196,164,100,0.06) 0%, transparent 70%)", animation: "orbDriftC 11s ease-in-out infinite" }}
+        />
+      </div>
+
+      <div className="relative z-10 py-24 px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto">
+
+          {/* Header */}
+          <div className="text-center mb-14 reveal">
+            <div className="inline-flex items-center gap-3 mb-6 px-5 py-2.5 rounded-full" style={{ border: "1px solid rgba(212,175,55,0.18)", background: "rgba(212,175,55,0.05)", backdropFilter: "blur(12px)" }}>
+              <img src={WIZSOUND_LOGO} alt="WizSound™" className="h-6 w-auto" loading="lazy" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.22em]" style={{ color: "rgba(212,175,55,0.75)" }}>WizSound™ — Premium Audio Engine</span>
+            </div>
+            <h2 className="text-[clamp(2.2rem,5vw,3.8rem)] font-black tracking-tight text-white mb-4 leading-[1.05]">
+              Cinematic visuals.<br />
+              <span style={{ background: "linear-gradient(90deg, #c4a464, #e8c97a, #c4a464)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>Immersive sound.</span>
+            </h2>
+            <p className="text-white/45 text-base max-w-2xl mx-auto leading-relaxed">
+              Every WIZ AI video is mastered with WizSound™ — our proprietary audio engine that transforms flat AI-generated audio into a spatial, broadcast-ready mix. Automatically.
+            </p>
+          </div>
+
+          {/* Animated waveform visualiser */}
+          <div className="flex items-end justify-center gap-[3px] h-20 mb-14 reveal" aria-hidden="true">
+            {BARS.map((h, i) => (
+              <div
+                key={i}
+                className="rounded-full flex-shrink-0"
+                style={{
+                  width: "6px",
+                  height: `${h * 80}px`,
+                  background: "linear-gradient(to top, rgba(212,175,55,0.85), rgba(232,201,122,0.4))",
+                  boxShadow: h > 0.7 ? "0 0 8px rgba(212,175,55,0.5)" : "none",
+                  animation: `orbDriftA ${1.8 + (i % 7) * 0.3}s ease-in-out infinite alternate`,
+                  animationDelay: `${(i * 0.06).toFixed(2)}s`,
+                  opacity: 0.7 + h * 0.3,
+                }}
+              />
+            ))}
+          </div>
+
+          {/* 3 Feature Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14 reveal">
+            {WIZSOUND_FEATURE_CARDS.map((card, i) => (
+              <div
+                key={i}
+                className="rounded-2xl p-7 transition-all duration-300 hover:scale-[1.02]"
+                style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(212,175,55,0.12)", backdropFilter: "blur(12px)", boxShadow: "0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.border = "1px solid rgba(212,175,55,0.28)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 40px rgba(0,0,0,0.5), 0 0 40px rgba(212,175,55,0.08), inset 0 1px 0 rgba(255,255,255,0.06)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.border = "1px solid rgba(212,175,55,0.12)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)"; }}
+              >
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-5" style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.18)" }}>
+                  {card.icon}
+                </div>
+                <h3 className="text-white font-bold text-lg mb-3 leading-tight">{card.title}</h3>
+                <p className="text-white/45 text-sm leading-relaxed">{card.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="text-center reveal">
+            <a
+              href="/products/wizsound"
+              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-2xl text-sm font-bold transition-all duration-200 hover:scale-[1.03]"
+              style={{ background: "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.08))", border: "1.5px solid rgba(212,175,55,0.45)", color: "rgba(212,175,55,0.95)", boxShadow: "0 0 24px rgba(212,175,55,0.12)" }}
+            >
+              <img src={WIZSOUND_LOGO} alt="" aria-hidden="true" className="w-5 h-5 object-contain" />
+              Explore WizSound™
+              <ArrowSVG className="w-4 h-4" />
+            </a>
+          </div>
+
+        </div>
+      </div>
+      <div className="luxury-divider absolute bottom-0 left-0 right-0 z-10" />
+    </section>
+  );
+}
+
 // WizSound Demo 
 const AUDIO_TIERS = [
  {
@@ -4401,7 +4535,9 @@ export default function Home() {
  <WorkflowJourney />
  {/* 4. Studios Grid — 9 product cards */}
  <ProductGrid />
- {/* 5. Audio Demo — WizSound */}
+ {/* 5a. WizSound Feature — intro with waveform, pulsing glow, 3 feature cards */}
+ <WizSoundFeatureSection />
+ {/* 5b. Audio Demo — WizSound interactive tier player */}
  <WizSoundDemo />
  {/* 6. How It Works — 4-step process */}
  <HowItWorks />
