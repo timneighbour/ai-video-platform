@@ -73,7 +73,7 @@ export const appRouter = router({
         const { getDb } = await import("./db");
         const { sql } = await import("drizzle-orm");
         const db = await getDb();
-        if (!db) return { creators: 120, videosCreated: 340 };
+        if (!db) return { creators: 0, videosCreated: 0 };
         const [userRows, videoRows] = await Promise.all([
           db.execute(sql`SELECT COUNT(*) as cnt FROM users`),
           db.execute(sql`SELECT COUNT(*) as cnt FROM musicVideoJobs WHERE status = 'completed' AND finalVideoProduced = 1`),
@@ -81,11 +81,11 @@ export const appRouter = router({
         const userCount = Number((userRows as any)[0]?.[0]?.cnt ?? 0);
         const videoCount = Number((videoRows as any)[0]?.[0]?.cnt ?? 0);
         return {
-          creators: Math.max(userCount, 120),
-          videosCreated: Math.max(videoCount, 340),
+          creators: userCount,
+          videosCreated: videoCount,
         };
       } catch {
-        return { creators: 120, videosCreated: 340 };
+        return { creators: 0, videosCreated: 0 };
       }
     }),
   }),

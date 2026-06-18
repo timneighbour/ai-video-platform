@@ -17,7 +17,7 @@ const COMPARISON_ROWS = [
   { feature: "Upload your own reference photo for character", category: "Workflow", wizAI: true, competitor: true },
   { feature: "Storyboard preview before rendering", category: "Workflow", wizAI: true, competitor: false },
   { feature: "Scene-level editing before final render", category: "Workflow", wizAI: true, competitor: false },
-  { feature: "Free tier available — no credit card required", category: "Pricing", wizAI: true, competitor: false },
+  { feature: "Free tier available — no credit card required", category: "Pricing", wizAI: true, competitor: true },
 ];
 
 const CATEGORIES = ["Character Consistency", "Lip Sync", "Production Quality", "Audio", "Workflow", "Pricing"];
