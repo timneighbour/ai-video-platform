@@ -4393,13 +4393,24 @@ function Footer() {
  { label: "AI Video Generator", href: "/ai-video-generator" },
  { label: "AI Music Video", href: "/music-video-ai" },
  { label: "AI Animation Maker", href: "/ai-animation-maker" },
- { label: "Text to Video", href: "/text-to-video" },
- ].map((l) => (
- <a key={l.label} href={l.href} className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">{l.label}</a>
- ))}
- </div>
- </div>
- {/* Support / Legal */}
+        { label: "Text to Video", href: "/text-to-video" },
+        ].map((l) => (
+          <a key={l.label} href={l.href} className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">{l.label}</a>
+        ))}
+        </div>
+        {/* Guides — internal links to /seo/ pages for crawl depth */}
+        <div className="mt-6 pt-5 border-t border-white/[0.04]">
+          <h4 className="text-[--color-gold-dark]/40 text-[10px] font-bold uppercase tracking-widest mb-4">Guides</h4>
+          <div className="flex flex-col gap-3">
+            <a href="/seo/ai-music-video-generator" className="text-[--color-silver-dark]/30 text-sm hover:text-[--color-gold-dark] transition-colors">AI music video generator</a>
+            <a href="/seo/create-music-video-with-ai" className="text-[--color-silver-dark]/30 text-sm hover:text-[--color-gold-dark] transition-colors">Create music video with AI</a>
+            <a href="/seo/ai-music-video-generator-for-youtube" className="text-[--color-silver-dark]/30 text-sm hover:text-[--color-gold-dark] transition-colors">AI music video for YouTube</a>
+            <a href="/seo/lip-sync-ai-video" className="text-[--color-silver-dark]/30 text-sm hover:text-[--color-gold-dark] transition-colors">Lip sync AI video</a>
+            <a href="/seo/ai-video-maker-for-musicians" className="text-[--color-silver-dark]/30 text-sm hover:text-[--color-gold-dark] transition-colors">AI video maker for musicians</a>
+          </div>
+        </div>
+        </div>
+        {/* Support / Legal */}
  <div>
  <h4 className="text-[--color-gold-dark]/60 text-xs font-bold uppercase tracking-widest mb-5">Support</h4>
  <div className="flex flex-col gap-3 mb-8">

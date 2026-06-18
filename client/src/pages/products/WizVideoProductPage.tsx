@@ -537,8 +537,22 @@ export default function WizVideoProductPage() {
  </div>
  </section>
 
- {/* Footer */}
- <footer className="py-8 px-6 border-t border-white/[0.04]">
+      {/* Related Resources — internal links to SEO landing pages */}
+      <section className="py-10 px-6 border-t border-white/[0.04]">
+        <div className="max-w-6xl mx-auto">
+          <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-white/30 mb-4">Related guides</p>
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <a href="/seo/ai-music-video-generator" className="text-sm text-white/40 hover:text-[--color-gold] transition-colors">AI music video generator &rarr;</a>
+            <a href="/seo/create-music-video-with-ai" className="text-sm text-white/40 hover:text-[--color-gold] transition-colors">How to create a music video with AI &rarr;</a>
+            <a href="/seo/ai-music-video-generator-for-youtube" className="text-sm text-white/40 hover:text-[--color-gold] transition-colors">AI music video generator for YouTube &rarr;</a>
+            <a href="/seo/lip-sync-ai-video" className="text-sm text-white/40 hover:text-[--color-gold] transition-colors">Lip sync AI video &rarr;</a>
+            <a href="/seo/ai-video-maker-for-musicians" className="text-sm text-white/40 hover:text-[--color-gold] transition-colors">AI video maker for musicians &rarr;</a>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-8 px-6 border-t border-white/[0.04]">
  <div className="max-w-6xl mx-auto flex items-center justify-between">
  <img src={WIZAI_LOGO} alt="WIZ AI" className="h-6 w-auto opacity-40" loading="lazy" />
  <div className="text-[11px] text-white/20">© 2025 WIZ AI. All rights reserved.</div>
