@@ -1265,37 +1265,99 @@ function HeroDemoSection() {
 // Character Lock — core differentiator section
 function CharacterLockSection() {
  return (
- <section className="relative bg-[#030303] py-20 px-6 overflow-hidden">
- {/* Subtle ambient glow */}
- <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 50% at 50% 50%, oklch(0.72 0.14 70 / 0.04), transparent 70%)" }} />
+ <section className="relative py-24 px-6 overflow-hidden" style={{ background: "#07050a" }}>
+
+ {/* ── Cinematic background: deep dark with warm amber glow pools ── */}
+ <div className="absolute inset-0 pointer-events-none" style={{
+ background: [
+ "radial-gradient(ellipse 70% 55% at 50% 50%, oklch(0.45 0.12 70 / 0.12), transparent 65%)",
+ "radial-gradient(ellipse 40% 30% at 20% 80%, oklch(0.55 0.14 65 / 0.08), transparent 60%)",
+ "radial-gradient(ellipse 35% 25% at 80% 20%, oklch(0.50 0.13 72 / 0.07), transparent 55%)",
+ ].join(", ")
+ }} />
+
+ {/* ── Film strip motif: horizontal lines representing frames/scenes ── */}
+ <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+ {/* Top film strip */}
+ <div className="absolute top-0 left-0 right-0 h-[52px] flex items-center" style={{ borderBottom: "1px solid oklch(0.78 0.11 75 / 0.06)" }}>
+ <div className="flex gap-[6px] px-8 opacity-20">
+ {Array.from({ length: 28 }).map((_, i) => (
+ <div key={i} className="flex-shrink-0 w-[28px] h-[20px] rounded-[2px]" style={{
+ background: i % 3 === 0
+ ? "oklch(0.72 0.14 70 / 0.35)"
+ : i % 3 === 1
+ ? "oklch(0.72 0.14 70 / 0.18)"
+ : "oklch(0.72 0.14 70 / 0.10)",
+ border: "1px solid oklch(0.78 0.11 75 / 0.25)",
+ }} />
+ ))}
+ </div>
+ </div>
+ {/* Bottom film strip */}
+ <div className="absolute bottom-0 left-0 right-0 h-[52px] flex items-center" style={{ borderTop: "1px solid oklch(0.78 0.11 75 / 0.06)" }}>
+ <div className="flex gap-[6px] px-8 opacity-20 justify-end w-full">
+ {Array.from({ length: 28 }).map((_, i) => (
+ <div key={i} className="flex-shrink-0 w-[28px] h-[20px] rounded-[2px]" style={{
+ background: i % 3 === 0
+ ? "oklch(0.72 0.14 70 / 0.10)"
+ : i % 3 === 1
+ ? "oklch(0.72 0.14 70 / 0.18)"
+ : "oklch(0.72 0.14 70 / 0.35)",
+ border: "1px solid oklch(0.78 0.11 75 / 0.25)",
+ }} />
+ ))}
+ </div>
+ </div>
+ {/* Vertical frame lines — subtle grid suggesting multiple scenes */}
+ {["15%", "30%", "50%", "70%", "85%"].map((left) => (
+ <div key={left} className="absolute top-[52px] bottom-[52px]" style={{
+ left,
+ width: "1px",
+ background: "linear-gradient(to bottom, transparent, oklch(0.78 0.11 75 / 0.06) 30%, oklch(0.78 0.11 75 / 0.06) 70%, transparent)",
+ }} />
+ ))}
+ </div>
+
  <div className="luxury-divider absolute top-0 left-0 right-0" />
+
  <div className="max-w-[720px] mx-auto relative z-10 text-center">
- {/* Small label */}
- <p className="text-[10px] font-bold tracking-[0.3em] uppercase mb-8" style={{ color: "oklch(0.78 0.11 75 / 0.5)" }}>
- THE PROBLEM WITH EVERY OTHER AI VIDEO TOOL
+
+ {/* ── Section label — now properly visible ── */}
+ <div className="inline-flex items-center gap-3 mb-10">
+ <div className="h-px w-12" style={{ background: "oklch(0.78 0.11 75 / 0.5)" }} />
+ <p className="text-[13px] font-bold tracking-[0.25em] uppercase" style={{ color: "oklch(0.82 0.11 75 / 0.85)" }}>
+ The problem with every other AI video tool
  </p>
+ <div className="h-px w-12" style={{ background: "oklch(0.78 0.11 75 / 0.5)" }} />
+ </div>
+
  {/* Problem headline */}
- <h2 className="text-[clamp(1.6rem,4vw,2.8rem)] font-black tracking-tight text-white leading-[1.15] mb-6">
+ <h2 className="text-[clamp(1.8rem,4.5vw,3.2rem)] font-black tracking-tight text-white leading-[1.15] mb-6">
  Your character changes face between scenes.<br />
  The guitarist becomes someone else.<br />
  The styling drifts. The magic breaks.
  </h2>
+
  {/* Thin rule */}
- <div className="w-[120px] h-px mx-auto mb-6" style={{ background: "oklch(0.78 0.11 75 / 0.4)" }} />
+ <div className="w-[120px] h-px mx-auto mb-8" style={{ background: "oklch(0.78 0.11 75 / 0.4)" }} />
+
  {/* Resolution */}
- <h3 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight mb-6" style={{ color: "oklch(0.82 0.11 75)" }}>
+ <h3 className="text-[clamp(2.4rem,6vw,4rem)] font-black tracking-tight mb-6" style={{ color: "oklch(0.82 0.11 75)" }}>
  Not here.
  </h3>
+
  {/* Body */}
- <p className="text-white/60 text-base leading-relaxed max-w-[560px] mx-auto mb-8">
+ <p className="text-white/65 text-[1.05rem] leading-relaxed max-w-[560px] mx-auto mb-10">
  Character Lock&#8482; holds your artist, your performers, your instruments &mdash;
  consistent in every scene, from the first cut to the final frame.<br />
- <span className="text-white/80 font-semibold">No other AI music video platform does this.</span>
+ <span className="text-white/85 font-semibold">No other AI music video platform does this.</span>
  </p>
+
  {/* Pill */}
- <div className="inline-flex items-center px-5 py-2 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.4)", color: "oklch(0.82 0.11 75)" }}>
+ <div className="inline-flex items-center px-6 py-2.5 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.5)", color: "oklch(0.85 0.12 75)", background: "oklch(0.72 0.14 70 / 0.08)" }}>
  Character Lock&#8482; &mdash; exclusive to WIZ AI
  </div>
+
  </div>
  <div className="luxury-divider absolute bottom-0 left-0 right-0" />
  </section>
@@ -1374,39 +1436,169 @@ function USPGridSection() {
 // Pipeline Section — From idea to finished video (Change 10)
 function PipelineSection() {
  const steps = [
- { num: "01", title: "Describe your idea", desc: "Speak it or type it. WizGenesis\u2122 refines your creative direction and builds a complete production brief." },
- { num: "02", title: "Create your music", desc: "Generate an original track in any genre, any style — matched exactly to your required duration. 3 minutes 12 seconds? Done." },
- { num: "03", title: "Build your characters", desc: "Upload reference photos, describe your performers, specify their styling, instruments, and look. Locked in for every scene." },
- { num: "04", title: "Direct your music video", desc: "WizVideo builds your full cinematic music video — BPM-synced, lip-synced, character-consistent, scene by scene." },
- { num: "05", title: "Cut your short-form content", desc: "WizShorts cuts your video into platform-ready clips for social — automatically." },
- { num: "06", title: "Download and distribute", desc: "Your complete music video package, ready to publish. No editing software. No crew. No studio hire." },
+ {
+ num: "01",
+ title: "Describe your idea",
+ desc: "Speak it or type it. WizGenesis\u2122 refines your creative direction and builds a complete production brief.",
+ icon: (
+ <svg viewBox="0 0 40 40" fill="none" className="w-full h-full">
+ <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="1" strokeOpacity="0.3" />
+ <path d="M12 14h16M12 20h12M12 26h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+ <circle cx="28" cy="26" r="4" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="1.5" />
+ <path d="M27 26l1 1 2-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+ </svg>
+ ),
+ glow: "oklch(0.65 0.15 240 / 0.12)",
+ },
+ {
+ num: "02",
+ title: "Create your music",
+ desc: "Generate an original track in any genre, any style — matched exactly to your required duration. 3 minutes 12 seconds? Done.",
+ icon: (
+ <svg viewBox="0 0 40 40" fill="none" className="w-full h-full">
+ <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="1" strokeOpacity="0.3" />
+ <path d="M8 22q3-6 6 0t6 0 6 0 6 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+ <path d="M8 26q3-4 6 0t6 0 6 0 6 0" stroke="currentColor" strokeWidth="1" strokeLinecap="round" fill="none" strokeOpacity="0.4" />
+ <circle cx="20" cy="14" r="3" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.5" />
+ </svg>
+ ),
+ glow: "oklch(0.65 0.18 70 / 0.14)",
+ },
+ {
+ num: "03",
+ title: "Build your characters",
+ desc: "Upload reference photos, describe your performers, specify their styling, instruments, and look. Locked in for every scene.",
+ icon: (
+ <svg viewBox="0 0 40 40" fill="none" className="w-full h-full">
+ <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="1" strokeOpacity="0.3" />
+ <circle cx="20" cy="15" r="5" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="1.5" />
+ <path d="M11 30c0-5 4-8 9-8s9 3 9 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+ <path d="M28 18l2 2-2 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.6" />
+ <path d="M32 20h-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.6" />
+ </svg>
+ ),
+ glow: "oklch(0.60 0.14 320 / 0.12)",
+ },
+ {
+ num: "04",
+ title: "Direct your music video",
+ desc: "WizVideo builds your full cinematic music video — BPM-synced, lip-synced, character-consistent, scene by scene.",
+ icon: (
+ <svg viewBox="0 0 40 40" fill="none" className="w-full h-full">
+ <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="1" strokeOpacity="0.3" />
+ <rect x="9" y="13" width="16" height="14" rx="2" fill="currentColor" fillOpacity="0.12" stroke="currentColor" strokeWidth="1.5" />
+ <path d="M25 17l7-4v14l-7-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+ <circle cx="17" cy="20" r="3" fill="currentColor" fillOpacity="0.25" />
+ </svg>
+ ),
+ glow: "oklch(0.62 0.16 50 / 0.15)",
+ },
+ {
+ num: "05",
+ title: "Cut your short-form content",
+ desc: "WizShorts cuts your video into platform-ready clips for social — automatically.",
+ icon: (
+ <svg viewBox="0 0 40 40" fill="none" className="w-full h-full">
+ <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="1" strokeOpacity="0.3" />
+ <rect x="10" y="10" width="10" height="20" rx="2" fill="currentColor" fillOpacity="0.12" stroke="currentColor" strokeWidth="1.5" />
+ <rect x="23" y="13" width="8" height="14" rx="2" fill="currentColor" fillOpacity="0.08" stroke="currentColor" strokeWidth="1" strokeOpacity="0.5" />
+ <path d="M13 22l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+ </svg>
+ ),
+ glow: "oklch(0.60 0.14 160 / 0.12)",
+ },
+ {
+ num: "06",
+ title: "Download and distribute",
+ desc: "Your complete music video package, ready to publish. No editing software. No crew. No studio hire.",
+ icon: (
+ <svg viewBox="0 0 40 40" fill="none" className="w-full h-full">
+ <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="1" strokeOpacity="0.3" />
+ <path d="M20 10v14M14 18l6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+ <path d="M11 28h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+ </svg>
+ ),
+ glow: "oklch(0.72 0.14 70 / 0.16)",
+ },
  ];
+
  return (
- <section className="relative bg-[#030303] py-24 px-6 overflow-hidden">
+ <section className="relative py-24 px-6 overflow-hidden" style={{ background: "#07050a" }}>
+
+ {/* ── Cinematic background ── */}
+ <div className="absolute inset-0 pointer-events-none" style={{
+ background: [
+ "radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.45 0.12 70 / 0.10), transparent 60%)",
+ "radial-gradient(ellipse 50% 40% at 15% 60%, oklch(0.40 0.10 240 / 0.07), transparent 55%)",
+ "radial-gradient(ellipse 40% 35% at 85% 80%, oklch(0.45 0.12 70 / 0.08), transparent 50%)",
+ ].join(", ")
+ }} />
+
+ {/* Subtle horizontal scan lines */}
+ <div className="absolute inset-0 pointer-events-none" style={{
+ backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 3px, oklch(0.78 0.11 75 / 0.012) 3px, oklch(0.78 0.11 75 / 0.012) 4px)",
+ }} />
+
  <div className="luxury-divider absolute top-0 left-0 right-0" />
- <div className="relative z-10 max-w-[860px] mx-auto">
- <div className="text-center mb-14">
- <p className="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>THE FULL PIPELINE</p>
- <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-black tracking-tight text-white leading-tight">
- From a blank page to a finished music video.<br />
- <span className="text-white/50">Everything in one studio.</span>
+
+ <div className="relative z-10 max-w-[1000px] mx-auto">
+
+ {/* Header */}
+ <div className="text-center mb-16">
+ <div className="inline-flex items-center gap-3 mb-6">
+ <div className="h-px w-10" style={{ background: "oklch(0.78 0.11 75 / 0.5)" }} />
+ <p className="text-[12px] font-bold tracking-[0.25em] uppercase" style={{ color: "oklch(0.82 0.11 75 / 0.85)" }}>The full pipeline</p>
+ <div className="h-px w-10" style={{ background: "oklch(0.78 0.11 75 / 0.5)" }} />
+ </div>
+ <h2 className="text-[clamp(2rem,4.5vw,3.4rem)] font-black tracking-tight text-white leading-tight">
+ From a blank page to a finished music video.
  </h2>
+ <p className="text-[clamp(1.2rem,2.5vw,1.8rem)] font-black tracking-tight mt-2" style={{ color: "oklch(0.78 0.11 75 / 0.55)" }}>
+ Everything in one studio.
+ </p>
  </div>
- <div className="relative">
- {/* Vertical connector line */}
- <div className="absolute left-[19px] top-6 bottom-6 w-px hidden sm:block" style={{ background: "linear-gradient(to bottom, oklch(0.78 0.11 75 / 0.25), oklch(0.78 0.11 75 / 0.05))" }} />
- <div className="flex flex-col gap-8">
+
+ {/* Steps grid — 2 columns on desktop, 1 on mobile */}
+ <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
  {steps.map((s, i) => (
- <div key={i} className="flex items-start gap-5">
- <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-[11px] font-black tracking-widest" style={{ border: "1px solid oklch(0.78 0.11 75 / 0.3)", color: "oklch(0.82 0.11 75)", background: "oklch(0.78 0.11 75 / 0.06)" }}>{s.num}</div>
- <div className="pt-1.5">
- <p className="text-[16px] font-bold text-white mb-1">{s.title}</p>
- <p className="text-[13px] text-white/45 leading-relaxed">{s.desc}</p>
+ <div
+ key={i}
+ className="relative flex items-start gap-5 rounded-2xl p-6 group"
+ style={{
+ background: `radial-gradient(ellipse 80% 80% at 10% 20%, ${s.glow}, transparent 70%), oklch(0.12 0.02 70 / 0.6)`,
+ border: "1px solid oklch(0.78 0.11 75 / 0.10)",
+ backdropFilter: "blur(8px)",
+ }}
+ >
+ {/* Step icon */}
+ <div
+ className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
+ style={{ color: "oklch(0.82 0.11 75)", background: "oklch(0.78 0.11 75 / 0.08)", border: "1px solid oklch(0.78 0.11 75 / 0.18)" }}
+ >
+ {s.icon}
  </div>
+
+ {/* Text */}
+ <div className="flex-1 min-w-0">
+ <div className="flex items-center gap-2 mb-1.5">
+ <span className="text-[10px] font-black tracking-[0.2em]" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>{s.num}</span>
+ <p className="text-[15px] font-bold text-white leading-snug">{s.title}</p>
+ </div>
+ <p className="text-[13px] leading-relaxed" style={{ color: "oklch(0.85 0.02 70 / 0.55)" }}>{s.desc}</p>
+ </div>
+
+ {/* Connector arrow for non-last items on desktop */}
+ {i < steps.length - 1 && i % 2 === 0 && (
+ <div className="absolute -right-3 top-1/2 -translate-y-1/2 hidden sm:flex items-center justify-center w-6 h-6 rounded-full z-10" style={{ background: "#07050a", border: "1px solid oklch(0.78 0.11 75 / 0.2)" }}>
+ <svg viewBox="0 0 12 12" fill="none" className="w-3 h-3" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>
+ <path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+ </svg>
+ </div>
+ )}
  </div>
  ))}
  </div>
- </div>
+
  </div>
  <div className="luxury-divider absolute bottom-0 left-0 right-0" />
  </section>
