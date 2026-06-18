@@ -142,6 +142,7 @@ export default function Dashboard() {
   const { data: recentJobsData } = trpc.musicVideo.listJobs.useQuery(undefined, { enabled: isAuthenticated, staleTime: 60_000 });
   const [deleteTarget, setDeleteTarget] = useState<{ jobId: number; title: string } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const triggerPayPerVideoRenderMutation = trpc.billing.triggerPayPerVideoRender.useMutation();
   const deleteJobMutation = trpc.musicVideo.deleteJob.useMutation({
     onSuccess: () => {
       toast.success("Project deleted");
@@ -175,6 +176,60 @@ export default function Dashboard() {
   useEffect(() => {
     if (!isAuthenticated) setLocation("/");
   }, [isAuthenticated, setLocation]);
+
+  // Handle pay-per-video success redirect: ?render=success&project=X
+  // Fires triggerPayPerVideoRender to start the render pipeline, then shows a toast.
+  // Deduplication: sessionStorage key prevents duplicate calls on re-render.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("render") !== "success") return;
+    const projectIdStr = params.get("project");
+    const projectId = projectIdStr ? parseInt(projectIdStr, 10) : NaN;
+    if (isNaN(projectId)) return;
+    // Remove params immediately so back-navigation cannot retrigger
+    const url = new URL(window.location.href);
+    url.searchParams.delete("render");
+    url.searchParams.delete("project");
+    window.history.replaceState({}, "", url.toString());
+    // Guard against duplicate fires within the same browser session
+    const dedupKey = `ppv_render_triggered_${projectId}`;
+    if (sessionStorage.getItem(dedupKey)) {
+      toast.success("Payment confirmed!", { description: "Your video is being rendered. Check your projects for progress." });
+      return;
+    }
+    sessionStorage.setItem(dedupKey, "1");
+    // Trigger the render pipeline
+    triggerPayPerVideoRenderMutation.mutate(
+      { projectId },
+      {
+        onSuccess: (result) => {
+          if (result.alreadyTriggered) {
+            toast.success("Payment confirmed!", { description: "Your video render is already in progress. Check your projects for updates." });
+          } else if (result.success) {
+            toast.success("Payment confirmed! Your video is being queued for render.", {
+              description: "We'll notify you when it's ready. You can track progress in your projects.",
+              duration: 8000,
+            });
+          } else {
+            toast.warning("Payment received, but render could not start automatically.", {
+              description: (result as any).reason ?? "Please open your project and click Build to start rendering.",
+              duration: 10000,
+            });
+          }
+        },
+        onError: (err) => {
+          // Payment is confirmed — don't show a scary error, just guide them
+          toast.info("Payment confirmed!", {
+            description: err.message.includes("still be processing")
+              ? "Your payment is still being confirmed. Please wait a moment and refresh the page."
+              : "Please open your project and click Build to start rendering.",
+            duration: 10000,
+          });
+        },
+      }
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Fire Purchase Completed (client-side confirmation) when Stripe redirects back with ?success=true.
   // The authoritative server-side Purchase Completed fires from the Stripe webhook in webhooks.ts.
