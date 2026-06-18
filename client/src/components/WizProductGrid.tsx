@@ -285,7 +285,7 @@ export default function WizProductGrid() {
       <div className="max-w-7xl mx-auto relative">
         {/* ── Section header ──────────────────────────────────────────────── */}
         <div className="mb-16 reveal text-center">
-          <p className="text-[11px] font-bold tracking-[0.3em] uppercase text-[--color-gold-dark] mb-4">
+          <p className="text-[clamp(1rem,2.5vw,1.5rem)] font-black tracking-[0.35em] uppercase text-[--color-gold-dark] mb-5">
             YOUR STUDIO
           </p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white leading-tight mb-3">
