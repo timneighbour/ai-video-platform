@@ -9,6 +9,7 @@
  */
 
 import axios from "axios";
+import { classifySyncLabsError, formatSyncLabsError } from "./synclabs-errors";
 
 const SYNCLABS_API_BASE = "https://api.sync.so/v2";
 
@@ -34,6 +35,8 @@ export interface SyncLabsDirectResult {
   status: "pending" | "processing" | "completed" | "failed";
   videoUrl?: string;
   errorMessage?: string;
+  /** Machine-readable error code from /v2/errors catalog — use classifySyncLabsError() to determine retry action */
+  errorCode?: string;
 }
 
 export async function submitSyncLabsDirect(input: SyncLabsDirectInput): Promise<string> {
@@ -82,9 +85,12 @@ export async function pollSyncLabsDirect(jobId: string, sceneId: number | string
   }
 
   if (status === "failed" || status === "error") {
-    const errorMessage: string = data?.error ?? data?.message ?? "Unknown error";
-    console.error(`[SyncLabsDirect] Scene ${sceneId} job ${jobId} FAILED — ${errorMessage}`);
-    return { jobId, status: "failed", errorMessage };
+    const rawError: string = data?.error ?? data?.message ?? "Unknown error";
+    const errorCode: string | undefined = data?.errorCode;
+    // Resolve structured error code for retry classification
+    const errLog = await formatSyncLabsError(errorCode, jobId).catch(() => rawError);
+    console.error(`[SyncLabsDirect] Scene ${sceneId} job ${jobId} FAILED — ${errLog}`);
+    return { jobId, status: "failed", errorMessage: rawError, errorCode };
   }
 
   return { jobId, status: status as "pending" | "processing" };
