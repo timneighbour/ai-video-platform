@@ -2769,6 +2769,82 @@ function WhyWizAI() {
 }
 
 // WizSound Feature Section — marketing intro with waveform, pulsing glow, 3 feature cards
+
+// ─── Real Output Section ─────────────────────────────────────────────────────
+function RealOutputSection() {
+  const { data: stats } = trpc.platform.stats.useQuery();
+  const videoCount = stats?.videosCreated ?? 0;
+  const formattedCount = videoCount > 0 ? videoCount.toLocaleString("en-US") : null;
+
+  // Scene stills — replace these CDN URLs with real WIZ AI project output when available
+  // TODO: Tim to provide 3-4 scene stills from a single project (same character, different scenes)
+  const SCENE_STILLS: Array<{ label: string; caption: string; placeholder: true }> = [
+    { label: "Scene 1", caption: "Opening — indoor stage, spotlight", placeholder: true },
+    { label: "Scene 4", caption: "Mid-video — outdoor location, golden hour", placeholder: true },
+    { label: "Scene 8", caption: "Close-up performance — same costume, no drift", placeholder: true },
+  ];
+
+  return (
+    <section className="py-16 bg-black border-t border-white/5">
+      <div className="max-w-6xl mx-auto px-6">
+        {/* Section header */}
+        <div className="text-center mb-10">
+          <p className="text-xs tracking-[0.2em] text-amber-400/70 uppercase mb-3 font-medium">Real Output</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Same character. Every scene.
+          </h2>
+          <p className="text-white/60 text-base max-w-xl mx-auto">
+            Character Lock™ keeps your artist's face, hair, and costume consistent from scene one to the final frame — no drift, no resets.
+          </p>
+        </div>
+
+        {/* Scene stills grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+          {SCENE_STILLS.map((scene) => (
+            <div key={scene.label} className="relative group">
+              {/* Placeholder — replace with real <img> when assets are available */}
+              <div className="aspect-video bg-white/5 border border-white/10 rounded-xl flex flex-col items-center justify-center text-white/30 text-sm gap-2 group-hover:border-amber-400/30 transition-colors">
+                <svg className="w-8 h-8 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span className="text-xs opacity-60">Scene still coming soon</span>
+              </div>
+              <div className="mt-2 px-1">
+                <p className="text-white/80 text-sm font-medium">{scene.label}</p>
+                <p className="text-white/40 text-xs mt-0.5">{scene.caption}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Caption strip */}
+        <p className="text-center text-white/40 text-xs tracking-wide mb-10">
+          Scene 1 / Scene 4 / Scene 8 — same character, same costume, no drift.
+        </p>
+
+        {/* Live stats trust bar */}
+        <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-white/50">
+          {formattedCount && (
+            <span className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              <span className="text-white/80 font-semibold">{formattedCount}</span>
+              <span>videos generated</span>
+            </span>
+          )}
+          <span className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-white/30" />
+            No credit card required
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-white/30" />
+            Free to start
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function WizSoundFeatureSection() {
   const WIZSOUND_FEATURE_CARDS = [
     {
@@ -4393,13 +4469,24 @@ function Footer() {
  { label: "AI Video Generator", href: "/ai-video-generator" },
  { label: "AI Music Video", href: "/music-video-ai" },
  { label: "AI Animation Maker", href: "/ai-animation-maker" },
- { label: "Text to Video", href: "/text-to-video" },
- ].map((l) => (
- <a key={l.label} href={l.href} className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">{l.label}</a>
- ))}
- </div>
- </div>
- {/* Support / Legal */}
+        { label: "Text to Video", href: "/text-to-video" },
+        ].map((l) => (
+          <a key={l.label} href={l.href} className="text-[--color-silver-dark]/35 text-sm hover:text-[--color-gold-dark] transition-colors">{l.label}</a>
+        ))}
+        </div>
+        {/* Guides — internal links to /seo/ pages for crawl depth */}
+        <div className="mt-6 pt-5 border-t border-white/[0.04]">
+          <h4 className="text-[--color-gold-dark]/40 text-[10px] font-bold uppercase tracking-widest mb-4">Guides</h4>
+          <div className="flex flex-col gap-3">
+            <a href="/seo/ai-music-video-generator" className="text-[--color-silver-dark]/30 text-sm hover:text-[--color-gold-dark] transition-colors">AI music video generator</a>
+            <a href="/seo/create-music-video-with-ai" className="text-[--color-silver-dark]/30 text-sm hover:text-[--color-gold-dark] transition-colors">Create music video with AI</a>
+            <a href="/seo/ai-music-video-generator-for-youtube" className="text-[--color-silver-dark]/30 text-sm hover:text-[--color-gold-dark] transition-colors">AI music video for YouTube</a>
+            <a href="/seo/lip-sync-ai-video" className="text-[--color-silver-dark]/30 text-sm hover:text-[--color-gold-dark] transition-colors">Lip sync AI video</a>
+            <a href="/seo/ai-video-maker-for-musicians" className="text-[--color-silver-dark]/30 text-sm hover:text-[--color-gold-dark] transition-colors">AI video maker for musicians</a>
+          </div>
+        </div>
+        </div>
+        {/* Support / Legal */}
  <div>
  <h4 className="text-[--color-gold-dark]/60 text-xs font-bold uppercase tracking-widest mb-5">Support</h4>
  <div className="flex flex-col gap-3 mb-8">
@@ -4530,6 +4617,8 @@ export default function Home() {
  <main id="main-content">
  {/* 1. Hero — 5-second positioning */}
  <Hero />
+ {/* 1a. Real Output — proof section with live video count */}
+ <RealOutputSection />
  {/* 1b. Character Lock — core differentiator */}
  <CharacterLockSection />
  {/* 1c. USP Grid — Built like a real studio */}

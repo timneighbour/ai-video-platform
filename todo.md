@@ -2147,12 +2147,12 @@
 ## REVENUE-FIRST: CONVERSION CRITICAL
 
 ### Phase 1 — Homepage Hero Polish
-- [ ] Tighten hero spacing: reduce padding, bring headline and CTA above the fold on all viewports
+- [x] Tighten hero spacing: reduce padding, bring headline and CTA above the fold on all viewports
 - [ ] Hero headline: single bold statement, max 2 lines, no competing elements
 - [ ] Primary CTA: "Create Your First Video — Free" — white/high-contrast, full-width on mobile
 - [ ] Secondary CTA: "Watch the Film" — ghost button, visually subordinate
 - [ ] Remove distracting badge/pill elements that compete with CTA
-- [ ] Mobile hero: headline font size, CTA button size, no horizontal overflow
+- [x] Mobile hero: headline font size, CTA button size, no horizontal overflow
 - [x] Sticky CTA bar on mobile: fixed bottom bar with primary CTA when hero is scrolled past
 
 ### Phase 1 — Pricing Section
@@ -2205,7 +2205,7 @@
 - [ ] IntroSplashScreen: poster-first, skip button, mobile-safe, reduced-motion fallback
 - [ ] IntroSplashScreen: wire into App.tsx as separate entry before homepage
 - [ ] Rebuild HeroCinematicBg: use Video B, remove 3-state overlays, subtle dark loop
-- [ ] Tighten homepage hero: headline hierarchy, CTA visibility, trust copy, mobile
+- [x] Tighten homepage hero: headline hierarchy, CTA visibility, trust copy, mobile
 
 ## INTRO GATE REBUILD (CRITICAL)
 - [x] Rebuild CinematicEntryScreen: fixed inset-0 z-[9999], blocks ALL content, no homepage visible behind
@@ -2482,7 +2482,7 @@
 
 ## WizSound Premium Upsell Finalisation
 - [ ] Homepage hero: add "Cinematic visuals. Immersive sound." tagline near hero
-- [ ] Homepage: add dedicated WizSound section (waveform, pulsing glow, 3D depth, 3 feature cards)
+- [x] Homepage: add dedicated WizSound section (waveform, pulsing glow, 3D depth, 3 feature cards)
 - [ ] Demo modal: add WizSound comparison (without vs with WizSound) + "With WizSound™" label
 - [ ] Paywall: change title to "Make your video cinematic", make Cinematic option visually dominant + "Recommended"
 - [ ] Language: replace generic audio terms with cinematic/immersive/studio-quality terminology across all pages

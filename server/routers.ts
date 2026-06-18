@@ -76,7 +76,7 @@ export const appRouter = router({
         if (!db) return { creators: 120, videosCreated: 340 };
         const [userRows, videoRows] = await Promise.all([
           db.execute(sql`SELECT COUNT(*) as cnt FROM users`),
-          db.execute(sql`SELECT COUNT(*) as cnt FROM music_video_jobs WHERE status = 'completed'`),
+          db.execute(sql`SELECT COUNT(*) as cnt FROM musicVideoJobs WHERE status = 'completed' AND finalVideoProduced = 1`),
         ]);
         const userCount = Number((userRows as any)[0]?.[0]?.cnt ?? 0);
         const videoCount = Number((videoRows as any)[0]?.[0]?.cnt ?? 0);
