@@ -7,6 +7,9 @@ import { Pause, Play } from "@/lib/icons";
                  continuous, gold, flowing through the studio like
                  the sound signal itself is alive in the room.
                  Subtle gold glitter particles drift off the peaks.
+                 Mouse reactivity: cursor position gently shifts the
+                 wave amplitude and vertical position so the studio
+                 feels alive and interactive.
 ────────────────────────────────────────────────────────────────────── */
 
 const STUDIO_BG = "/manus-storage/recording-studio-hero_944057cd.png";
@@ -22,12 +25,16 @@ interface Glitter {
 
 /* ── Component ───────────────────────────────────────────────────── */
 export default function HeroCinematicBg() {
-  const canvasRef  = useRef<HTMLCanvasElement>(null);
-  const pausedRef  = useRef(false);
-  const rafRef     = useRef<number>(0);
-  const phaseRef   = useRef(0);
-  const glitters   = useRef<Glitter[]>([]);
+  const canvasRef   = useRef<HTMLCanvasElement>(null);
+  const pausedRef   = useRef(false);
+  const rafRef      = useRef<number>(0);
+  const phaseRef    = useRef(0);
+  const glitters    = useRef<Glitter[]>([]);
   const [paused, setPaused] = useState(false);
+
+  /* Smoothed mouse influence — avoids jerky jumps */
+  const mouseRef = useRef({ x: 0.5, y: 0.5 });        // normalised 0-1
+  const smoothRef = useRef({ x: 0.5, y: 0.5 });        // lerped target
 
   /* Pause toggle — persisted in localStorage */
   const togglePause = useCallback(() => {
@@ -41,6 +48,37 @@ export default function HeroCinematicBg() {
     const stored = localStorage.getItem(LS_KEY) === "1";
     pausedRef.current = stored;
     setPaused(stored);
+  }, []);
+
+  /* ── Mouse tracking ─────────────────────────────────────────────── */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const onMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseRef.current = {
+        x: (e.clientX - rect.left) / rect.width,
+        y: (e.clientY - rect.top)  / rect.height,
+      };
+    };
+
+    /* Touch support */
+    const onTouch = (e: TouchEvent) => {
+      if (e.touches.length === 0) return;
+      const rect = canvas.getBoundingClientRect();
+      mouseRef.current = {
+        x: (e.touches[0].clientX - rect.left) / rect.width,
+        y: (e.touches[0].clientY - rect.top)  / rect.height,
+      };
+    };
+
+    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("touchmove", onTouch, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("touchmove", onTouch);
+    };
   }, []);
 
   /* ── Canvas render loop ─────────────────────────────────────────── */
@@ -77,16 +115,33 @@ export default function HeroCinematicBg() {
       const H = canvas.height;
       ctx.clearRect(0, 0, W, H);
 
+      /* ── Smooth mouse lerp (runs every frame) ── */
+      const LERP = 0.045; // lower = smoother/slower response
+      smoothRef.current.x += (mouseRef.current.x - smoothRef.current.x) * LERP;
+      smoothRef.current.y += (mouseRef.current.y - smoothRef.current.y) * LERP;
+
+      const mx = smoothRef.current.x; // 0 = left edge, 1 = right edge
+      const my = smoothRef.current.y; // 0 = top,       1 = bottom
+
       if (!pausedRef.current) {
         phaseRef.current += 0.012; // wave travel speed
       }
       const phase = phaseRef.current;
 
+      /* ── Mouse influence parameters ──
+         - Amplitude: cursor near top → bigger wave; near bottom → quieter
+         - Vertical shift: cursor left/right nudges the wave slightly up/down
+         - Frequency multiplier: cursor X adds a subtle harmonic richness
+      ── */
+      const ampInfluence   = 1 + (0.5 - my) * 0.6;        // ±30% amplitude
+      const vertShift      = (mx - 0.5) * H * 0.035;       // ±1.75% height shift
+      const freqInfluence  = 1 + (mx - 0.5) * 0.18;        // ±9% frequency nudge
+
       /* ── Waveform line ── */
       /* Positioned at ~62% down the canvas — passes through the
          mixing desk area so it looks like it's flowing through the room */
-      const centreY = H * 0.62;
-      const maxAmp  = H * 0.055; // subtle amplitude — not too tall
+      const centreY = H * 0.62 + vertShift;
+      const maxAmp  = H * 0.055 * ampInfluence;
 
       /* Build the waveform path with many points for smoothness */
       const POINTS = 300;
@@ -97,9 +152,9 @@ export default function HeroCinematicBg() {
         const x = t * W;
 
         /* Composite wave: primary sine + two harmonics for organic feel */
-        const w1 = Math.sin(t * Math.PI * 6  + phase * 2.8) * 0.55;
-        const w2 = Math.sin(t * Math.PI * 11 + phase * 4.9) * 0.28;
-        const w3 = Math.sin(t * Math.PI * 19 + phase * 8.1) * 0.17;
+        const w1 = Math.sin(t * Math.PI * 6  * freqInfluence + phase * 2.8) * 0.55;
+        const w2 = Math.sin(t * Math.PI * 11 * freqInfluence + phase * 4.9) * 0.28;
+        const w3 = Math.sin(t * Math.PI * 19 * freqInfluence + phase * 8.1) * 0.17;
 
         /* Envelope: fade in/out at edges so the line appears to emerge
            from the left side of the studio and dissolve into the right */
@@ -109,18 +164,21 @@ export default function HeroCinematicBg() {
         points.push({ x, y: centreY + amp * maxAmp });
       }
 
+      /* ── Glow intensity: brighter when mouse is near the wave ── */
+      const glowBoost = 1 + Math.max(0, 0.5 - Math.abs(my - 0.62)) * 0.8;
+
       /* ── Draw outer glow pass (wide, very soft) ── */
       ctx.save();
       ctx.lineWidth   = 6;
-      ctx.strokeStyle = "hsla(45,100%,65%,0.08)";
+      ctx.strokeStyle = `hsla(45,100%,65%,${0.08 * glowBoost})`;
       ctx.shadowColor = "hsla(45,100%,65%,0.0)";
       ctx.shadowBlur  = 0;
       ctx.beginPath();
       ctx.moveTo(points[0].x, points[0].y);
       for (let i = 1; i < points.length - 1; i++) {
-        const mx = (points[i].x + points[i + 1].x) / 2;
-        const my = (points[i].y + points[i + 1].y) / 2;
-        ctx.quadraticCurveTo(points[i].x, points[i].y, mx, my);
+        const mx2 = (points[i].x + points[i + 1].x) / 2;
+        const my2 = (points[i].y + points[i + 1].y) / 2;
+        ctx.quadraticCurveTo(points[i].x, points[i].y, mx2, my2);
       }
       ctx.stroke();
       ctx.restore();
@@ -128,15 +186,15 @@ export default function HeroCinematicBg() {
       /* ── Draw mid glow pass ── */
       ctx.save();
       ctx.lineWidth   = 3;
-      ctx.strokeStyle = "hsla(45,100%,70%,0.22)";
-      ctx.shadowColor = "hsla(45,100%,65%,0.5)";
+      ctx.strokeStyle = `hsla(45,100%,70%,${0.22 * glowBoost})`;
+      ctx.shadowColor = `hsla(45,100%,65%,${0.5 * glowBoost})`;
       ctx.shadowBlur  = 14;
       ctx.beginPath();
       ctx.moveTo(points[0].x, points[0].y);
       for (let i = 1; i < points.length - 1; i++) {
-        const mx = (points[i].x + points[i + 1].x) / 2;
-        const my = (points[i].y + points[i + 1].y) / 2;
-        ctx.quadraticCurveTo(points[i].x, points[i].y, mx, my);
+        const mx2 = (points[i].x + points[i + 1].x) / 2;
+        const my2 = (points[i].y + points[i + 1].y) / 2;
+        ctx.quadraticCurveTo(points[i].x, points[i].y, mx2, my2);
       }
       ctx.stroke();
       ctx.restore();
@@ -144,29 +202,30 @@ export default function HeroCinematicBg() {
       /* ── Draw core line (sharp, bright gold) ── */
       ctx.save();
       ctx.lineWidth   = 1.5;
-      ctx.strokeStyle = "hsla(48,100%,78%,0.75)";
-      ctx.shadowColor = "hsla(48,100%,72%,0.9)";
+      ctx.strokeStyle = `hsla(48,100%,78%,${0.75 * Math.min(1.3, glowBoost)})`;
+      ctx.shadowColor = `hsla(48,100%,72%,${0.9 * glowBoost})`;
       ctx.shadowBlur  = 8;
       ctx.beginPath();
       ctx.moveTo(points[0].x, points[0].y);
       for (let i = 1; i < points.length - 1; i++) {
-        const mx = (points[i].x + points[i + 1].x) / 2;
-        const my = (points[i].y + points[i + 1].y) / 2;
-        ctx.quadraticCurveTo(points[i].x, points[i].y, mx, my);
+        const mx2 = (points[i].x + points[i + 1].x) / 2;
+        const my2 = (points[i].y + points[i + 1].y) / 2;
+        ctx.quadraticCurveTo(points[i].x, points[i].y, mx2, my2);
       }
       ctx.stroke();
       ctx.restore();
 
       /* ── Spawn glitter at wave peaks ── */
       if (!pausedRef.current) {
+        /* More glitter when mouse is near the wave */
+        const spawnRate = 0.06 * glowBoost;
         for (let i = 2; i < points.length - 2; i += 8) {
           const prev = points[i - 2].y;
           const curr = points[i].y;
           const next = points[i + 2].y;
-          // spawn at local peaks (where wave is at maximum displacement)
           const displacement = Math.abs(curr - centreY);
           if (curr < prev && curr < next && displacement > maxAmp * 0.4) {
-            if (Math.random() < 0.06) {
+            if (Math.random() < spawnRate) {
               spawnGlitter(points[i].x, points[i].y);
             }
           }
