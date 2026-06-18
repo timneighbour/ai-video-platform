@@ -71,7 +71,7 @@ const WIZBOOST_LOGO = `${CDN}/wizboost-logo-new_93f2b48b_b731a139.png`;
 const WIZCREATE_LOGO = `${CDN}/wizcreate-logo-new_85a25756_f4aa29bb.png`;
 const WIZANIMATE_LOGO = `${CDN}/wizanimate-logo-new_a84f9808_a089857a.png`;
 const WIZSYNC_LOGO = `${CDN}/wizsync-logo-new_9563f007_70cef76a.png`;
-const HERO_BG_VIDEO = `${CDN}/hero-bg-v2_737633d7.mp4`;
+const HERO_BG_VIDEO = `${CDN}/hero-bg-bokeh-warm-1080_14ca374a.mp4`;
 const HERO_BG_POSTER = `${CDN}/concert-hall_2b6b946b.jpg`;
 const DEMO_POSTER = `${CDN}/trailer-v2-poster_4a74cc1c.jpg`;
 
