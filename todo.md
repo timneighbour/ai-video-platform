@@ -9279,3 +9279,11 @@
 - [x] Enforce sceneType=performance and lipSync=true when a scene window has lyrics (100% vocal onset guarantee)
 - [x] Fix scene 11 (idx=10) for job 1080001: Zara sings 'Behind the lies' (was Concertmaster)
 - [x] Fix scene 12 (idx=11) for job 1080001: orchestra pull-back with explicit fade-to-black instruction
+
+## Storyboard Regenerate Buttons (Jun 19 2026)
+- [x] Add regenerateSingleScenePreview tRPC procedure (force-regenerates one scene's storyboard image)
+- [x] Add regenerateAllScenePreviews tRPC procedure (force-regenerates all scenes' storyboard images)
+- [x] Add per-scene regenerate preview button (purple RefreshCw icon, top-right of each scene card image)
+- [x] Add Regen All Previews toolbar button (purple, next to Fix Previews button in storyboard toolbar)
+- [x] Provider comparison: Grok grok-imagine-image-quality — 3 runs, Lyndhurst Hall / Zara scene
+- [x] Add /api/debug/provider-comparison endpoint (owner-only, supports ?provider=grok|gpt|auto)

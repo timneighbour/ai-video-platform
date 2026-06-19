@@ -1587,6 +1587,14 @@ export default function MusicVideoAutopilot() {
     },
     onError: (e) => toast.error(`Failed to generate previews: ${e.message}`),
   });
+  const regenerateSingleScenePreviewMutation = trpc.musicVideo.regenerateSingleScenePreview.useMutation();
+  const regenerateAllScenePreviewsMutation = trpc.musicVideo.regenerateAllScenePreviews.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Regenerating all previews`, { description: data.message });
+      trpcUtils.musicVideo.getJob.invalidate();
+    },
+    onError: (e) => toast.error(`Failed to regenerate all previews: ${e.message}`),
+  });
   const resetRenderMutation = trpc.musicVideo.resetRender.useMutation();
   const resetSceneMutation = trpc.musicVideo.resetScene.useMutation();
   const deleteSceneMutation = trpc.musicVideo.deleteScene.useMutation();
@@ -4826,6 +4834,40 @@ export default function MusicVideoAutopilot() {
                     Fix Previews ({scenes.filter(sc => !sc.previewImageUrl).length})
                   </Button>
                 )}
+                {/* Regenerate ALL preview images — force-refresh every scene's storyboard image */}
+                {jobId && scenes.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-purple-500/40 text-purple-400 hover:bg-purple-500/10 bg-transparent text-xs"
+                    onClick={async () => {
+                      if (!jobId) return;
+                      if (!confirm(`Regenerate all ${scenes.length} storyboard previews? This will replace every current image.`)) return;
+                      // Optimistically clear all preview images so the UI shows loading state immediately
+                      setScenes(prev => prev.map(s => ({ ...s, previewImageUrl: undefined, previewImageLoading: true })));
+                      try {
+                        const result = await regenerateAllScenePreviewsMutation.mutateAsync({ jobId });
+                        // Refresh from server to get the new URLs
+                        trpcUtils.musicVideo.getJob.invalidate();
+                        toast.success(`Regenerated ${result.generated}/${result.total} previews`, {
+                          description: result.errors.length > 0 ? `${result.errors.length} failed` : "All done!",
+                        });
+                      } catch (err: any) {
+                        setScenes(prev => prev.map(s => ({ ...s, previewImageLoading: false })));
+                        toast.error("Failed to regenerate all previews", { description: err?.message });
+                      }
+                    }}
+                    disabled={regenerateAllScenePreviewsMutation.isPending}
+                    title="Force-regenerate all storyboard preview images using the current FLUX model"
+                  >
+                    {regenerateAllScenePreviewsMutation.isPending ? (
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    ) : (
+                      <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    Regen All Previews
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   className="border-[rgba(184,137,42,0.12)] text-white/70 hover:bg-[rgba(24,20,16,0.9)] bg-transparent"
@@ -5402,6 +5444,35 @@ export default function MusicVideoAutopilot() {
                         <Maximize2 className="w-3.5 h-3.5" />
                       </button>
                     )}
+                    {/* Per-scene regenerate preview button — force-regenerates this scene's storyboard image */}
+                    <button
+                      className="absolute top-2 right-16 flex items-center justify-center w-7 h-7 rounded-full bg-black/60 text-white/70 hover:bg-purple-500/30 hover:text-purple-300 backdrop-blur-sm transition-all"
+                      title="Regenerate this scene's preview image"
+                      style={{ zIndex: 10 }}
+                      disabled={scene.regenerating || regenerateSingleScenePreviewMutation.isPending}
+                      onClick={async () => {
+                        if (!jobId || scene.regenerating) return;
+                        setScenes(prev => prev.map(s => s.id === scene.id ? { ...s, regenerating: true, previewImageUrl: undefined, previewImageLoading: true } : s));
+                        try {
+                          const result = await regenerateSingleScenePreviewMutation.mutateAsync({ jobId, sceneId: scene.id });
+                          setScenes(prev => prev.map(s => s.id === scene.id
+                            ? { ...s, regenerating: false, previewImageLoading: false, previewImageUrl: result.url ?? undefined }
+                            : s
+                          ));
+                          if (result.url) toast.success(`Scene ${scene.sceneIndex + 1} preview regenerated`);
+                          else toast.error(`Scene ${scene.sceneIndex + 1} preview failed`);
+                        } catch (err: any) {
+                          setScenes(prev => prev.map(s => s.id === scene.id ? { ...s, regenerating: false, previewImageLoading: false } : s));
+                          toast.error(`Failed to regenerate scene ${scene.sceneIndex + 1}`, { description: err?.message });
+                        }
+                      }}
+                    >
+                      {scene.regenerating ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <RefreshCw className="w-3.5 h-3.5" />
+                      )}
+                    </button>
                   </div>
                   <CardContent className="pt-3 pb-4 px-4">
                     <div className="flex items-start justify-between mb-2">

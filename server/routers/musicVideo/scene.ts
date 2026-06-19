@@ -644,4 +644,116 @@ Your task:
         message: `Generated ${generated}/${scenesNeedingImage.length} storyboard images${errors.length > 0 ? ` (${errors.length} failed)` : ""}`,
       };
     }),
+
+  // ── Regenerate a single scene's preview image (force, even if one exists) ─
+  regenerateSingleScenePreview: protectedProcedure
+    .input(z.object({ jobId: z.number(), sceneId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+
+      const [scene] = await db.select().from(musicVideoScenes)
+        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
+      if (!scene) throw new TRPCError({ code: "NOT_FOUND", message: "Scene not found" });
+
+      // Clear existing preview so the UI shows loading state immediately
+      await db.update(musicVideoScenes)
+        .set({ previewImageUrl: null, updatedAt: new Date() })
+        .where(eq(musicVideoScenes.id, scene.id));
+
+      const jobAspectRatio = (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
+      const { generateCinematicStoryboardImage } = await import("../../ai-apis/fal-image-gen");
+      const { resolveVenueReferenceUrl } = await import("../../music-video-service");
+      const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
+
+      console.log(`[RegenerateSinglePreview] Regenerating scene ${scene.id} (index ${scene.sceneIndex}) for job ${input.jobId}`);
+
+      const { url } = await generateCinematicStoryboardImage({
+        prompt: scene.prompt,
+        aspectRatio: jobAspectRatio,
+        storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${scene.id}-cinematic`,
+        venueReferenceUrl: venueRefUrl ?? undefined,
+        sceneIndex: scene.sceneIndex ?? 0,
+      });
+
+      if (url) {
+        await db.update(musicVideoScenes)
+          .set({ previewImageUrl: url, updatedAt: new Date() })
+          .where(eq(musicVideoScenes.id, scene.id));
+        console.log(`[RegenerateSinglePreview] Scene ${scene.id} -> ${url.slice(0, 80)}...`);
+      }
+
+      return { success: !!url, url: url ?? null };
+    }),
+
+  // ── Regenerate ALL scene previews for a job (force-clears all existing) ───
+  regenerateAllScenePreviews: protectedProcedure
+    .input(z.object({ jobId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+
+      const scenes = await db.select().from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, input.jobId));
+
+      if (scenes.length === 0) {
+        return { success: true, generated: 0, total: 0, errors: [], message: "No scenes found" };
+      }
+
+      // Clear all preview images upfront so the UI shows loading states immediately
+      await db.update(musicVideoScenes)
+        .set({ previewImageUrl: null, updatedAt: new Date() })
+        .where(eq(musicVideoScenes.jobId, input.jobId));
+
+      const jobAspectRatio = (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
+      const { generateCinematicStoryboardImage } = await import("../../ai-apis/fal-image-gen");
+      const { resolveVenueReferenceUrl } = await import("../../music-video-service");
+      const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
+
+      console.log(`[RegenerateAllPreviews] Regenerating all ${scenes.length} scenes for job ${input.jobId}`);
+
+      let generated = 0;
+      const errors: string[] = [];
+
+      await Promise.allSettled(
+        scenes.map(async (scene) => {
+          try {
+            const { url } = await generateCinematicStoryboardImage({
+              prompt: scene.prompt,
+              aspectRatio: jobAspectRatio,
+              storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${scene.id}-cinematic`,
+              venueReferenceUrl: venueRefUrl ?? undefined,
+              sceneIndex: scene.sceneIndex ?? 0,
+            });
+            if (url) {
+              await db!.update(musicVideoScenes)
+                .set({ previewImageUrl: url, updatedAt: new Date() })
+                .where(eq(musicVideoScenes.id, scene.id));
+              generated++;
+              console.log(`[RegenerateAllPreviews] Scene ${scene.id} (index ${scene.sceneIndex}) -> ${url.slice(0, 80)}...`);
+            }
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            errors.push(`Scene ${scene.id}: ${msg.slice(0, 80)}`);
+            console.warn(`[RegenerateAllPreviews] Scene ${scene.id} failed:`, msg);
+          }
+        })
+      );
+
+      return {
+        success: errors.length === 0,
+        generated,
+        total: scenes.length,
+        errors,
+        message: `Regenerated ${generated}/${scenes.length} storyboard images${errors.length > 0 ? ` (${errors.length} failed)` : ""}`,
+      };
+    }),
 });

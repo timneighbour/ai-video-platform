@@ -478,6 +478,76 @@ async function startServer() {
     }
   });
 
+  // ── Debug: provider comparison (owner-only) ────────────────────────────────
+  app.get("/api/debug/provider-comparison", async (req, res) => {
+    try {
+      const secret = req.query.secret as string;
+      if (!secret || secret !== process.env.JWT_SECRET?.slice(0, 16)) {
+        return res.status(403).json({ error: "forbidden" });
+      }
+      const provider = (req.query.provider as string) || "auto";
+      const prompt = (req.query.prompt as string) || "Zara stands centre-stage at a grand piano in Lyndhurst Hall, Air Studios. She wears an elegant black gown with subtle gold accents. Warm amber spotlights illuminate her from above. The full orchestra is seated behind her. She faces the camera directly, singing with emotional intensity. Close-up cinematic framing, shallow depth of field, film grain.";
+      const aspectRatio = (req.query.ar as string || "16:9") as "16:9" | "9:16" | "1:1";
+      const { storagePut } = await import("../storage");
+
+      console.log(`[ProviderComparison] Starting ${provider} comparison for prompt: ${prompt.slice(0, 60)}...`);
+      const startTime = Date.now();
+
+      if (provider === "gpt") {
+        // GPT-Image-2 direct
+        const { generateGptImage } = await import("../ai-apis/gpt-image");
+        const results = await generateGptImage({ prompt, quality: "high", size: "1536x1024" });
+        const result = results[0];
+        if (!result) throw new Error("GPT-Image-2 returned no results");
+        const buffer = Buffer.from(result.b64Json, "base64");
+        const { url } = await storagePut(`debug/provider-comparison-gpt-${Date.now()}.png`, buffer, "image/png");
+        const elapsed = Math.round((Date.now() - startTime) / 1000);
+        console.log(`[ProviderComparison] GPT-Image-2 done in ${elapsed}s: ${url.slice(0, 80)}`);
+        return res.json({ success: true, provider: "gpt-image-2", url, width: 1536, height: 1024, elapsed });
+      } else if (provider === "grok") {
+        // Grok only
+        const xaiKey = process.env.XAI_API_KEY;
+        if (!xaiKey) return res.status(500).json({ error: "XAI_API_KEY not configured" });
+        const LYNDHURST_DNA = `grand Victorian concert hall interior, soaring vaulted ceiling painted deep midnight blue with gold leaf star motifs, ornate Gothic arched clerestory windows with amber stained glass casting warm honeyed light, rich dark mahogany wood panelling on walls, tiered gallery balconies with carved wooden balustrades, a full symphony orchestra seated on a raised wooden stage, conductor's podium centre-stage, warm amber and gold stage lighting, polished parquet hardwood floor, massive pipe organ visible at the far end, atmospheric haze, cinematic depth of field`;
+        const cinematicPrompt = `${prompt}\n\nVENUE: ${LYNDHURST_DNA}\n\nCINEMATOGRAPHY: cinematic 35mm film, anamorphic lens, shallow depth of field, warm golden-hour lighting, no text, no watermarks, photorealistic, ultra-detailed, 8K`;
+        const grokRes = await fetch("https://api.x.ai/v1/images/generations", {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${xaiKey}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ model: "grok-imagine-image-quality", prompt: cinematicPrompt, n: 1, response_format: "url" }),
+          signal: AbortSignal.timeout(90_000),
+        });
+        if (!grokRes.ok) {
+          const errText = await grokRes.text().catch(() => "");
+          return res.status(500).json({ error: `Grok HTTP ${grokRes.status}: ${errText.slice(0, 200)}` });
+        }
+        const grokJson = (await grokRes.json()) as { data?: Array<{ url?: string }> };
+        const grokUrl = grokJson?.data?.[0]?.url;
+        if (!grokUrl) return res.status(500).json({ error: "No URL from Grok" });
+        // Download and re-upload to S3
+        const grokImgRes = await fetch(grokUrl, { signal: AbortSignal.timeout(30_000) });
+        const grokBuffer = Buffer.from(await grokImgRes.arrayBuffer());
+        const { url } = await storagePut(`debug/provider-comparison-grok-${Date.now()}.jpg`, grokBuffer, "image/jpeg");
+        const elapsed = Math.round((Date.now() - startTime) / 1000);
+        console.log(`[ProviderComparison] Grok done in ${elapsed}s: ${url.slice(0, 80)}`);
+        return res.json({ success: true, provider: "grok-imagine-image-quality", url, width: 1344, height: 768, elapsed });
+      } else {
+        // Auto (BFL -> Grok -> Forge)
+        const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
+        const result = await generateCinematicStoryboardImage({
+          prompt,
+          aspectRatio,
+          storageKeyPrefix: `debug/provider-comparison-${Date.now()}`,
+          sceneIndex: 0,
+        });
+        const elapsed = Math.round((Date.now() - startTime) / 1000);
+        console.log(`[ProviderComparison] Auto done in ${elapsed}s: ${result.url.slice(0, 80)}`);
+        return res.json({ success: true, provider: "auto", url: result.url, width: result.width, height: result.height, elapsed });
+      }
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
+    }
+  });
+
   // ── Debug: circuit breaker reset (owner-only, temporary) ──────────────────
   app.post("/api/debug/reset-circuit/:provider", async (req, res) => {
     try {
