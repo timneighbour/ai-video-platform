@@ -178,31 +178,61 @@ async function generateScenePreviewCore(opts: {
     "FRAMING: full head and body visible within frame, generous headroom above subject",
   ].filter(Boolean).join("\n\n");
 
-  console.log(`[generateScenePreviewCore] Scene ${sceneId}: charCount=${charCount}, isEnv=${isEnvironmentScene}, promptLen=${finalPrompt.length}`);
-
-  const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
   const jobAspectRatio = (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
 
-  // Only inject character reference for character scenes (not environment/atmosphere shots)
-  const charRefUrl = !isEnvironmentScene && (masterPortraitUrl ?? referenceImages[0]?.url)
-    ? (masterPortraitUrl ?? referenceImages[0]?.url)
-    : undefined;
+  // Build Forge API reference list — one entry per scene character (master portrait > primary photo > previewImageUrl)
+  // This is the same face-consistent path used by the full generateScenePreview pipeline.
+  const forgeRefs: Array<{ url: string; mimeType: string }> = [];
+  if (!isEnvironmentScene) {
+    const seenUrls = new Set<string>();
+    for (const char of resolvedSceneChars) {
+      const charPrimaryPhoto = allPhotos.find(p => p.characterId === char.id && p.isPrimary) ??
+                               allPhotos.find(p => p.characterId === char.id);
+      const charRefUrl = char.masterPortraitUrl ?? charPrimaryPhoto?.photoUrl ?? char.previewImageUrl ?? null;
+      if (charRefUrl && !seenUrls.has(charRefUrl)) {
+        seenUrls.add(charRefUrl);
+        const mime = charRefUrl.match(/\.png(\?|$)/i) ? "image/png" :
+                     charRefUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
+        forgeRefs.push({ url: charRefUrl, mimeType: mime });
+        const refSource = char.masterPortraitUrl ? "masterPortrait" : charPrimaryPhoto?.photoUrl ? "primaryPhoto" : "previewImageUrl";
+        console.log(`[generateScenePreviewCore] Scene ${sceneId}: face ref for ${char.name} via ${refSource}`);
+      }
+    }
+  }
 
-  const { url } = await generateCinematicStoryboardImage({
-    prompt: finalPrompt,
-    aspectRatio: jobAspectRatio,
-    storageKeyPrefix: `music-video-storyboard/${jobId}-scene-${sceneId}-cinematic`,
-    venueReferenceUrl: venueRefUrl ?? undefined,
-    characterReferenceUrl: charRefUrl,
-    sceneIndex: scene.sceneIndex ?? 0,
-    sceneType: venueType,
-  });
+  const hasFaceReference = forgeRefs.length > 0;
+  console.log(`[generateScenePreviewCore] Scene ${sceneId}: charCount=${charCount}, isEnv=${isEnvironmentScene}, hasFaceRef=${hasFaceReference}, promptLen=${finalPrompt.length}`);
+
+  let url: string | undefined;
+
+  if (hasFaceReference) {
+    // Use Forge API (InstantID / face-consistent generation) — same path as full generateScenePreview
+    const { url: forgeUrl } = await withQuotaGuard(() => generateImage({
+      prompt: finalPrompt,
+      originalImages: forgeRefs,
+    }));
+    url = forgeUrl;
+    console.log(`[generateScenePreviewCore] Scene ${sceneId}: Forge API result -> ${url ? url.slice(0, 80) + "..." : "null"}`);
+  } else {
+    // No face reference — fall back to BFL cinematic generation (environment/atmosphere shots)
+    const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
+    const { url: bflUrl } = await generateCinematicStoryboardImage({
+      prompt: finalPrompt,
+      aspectRatio: jobAspectRatio,
+      storageKeyPrefix: `music-video-storyboard/${jobId}-scene-${sceneId}-cinematic`,
+      venueReferenceUrl: venueRefUrl ?? undefined,
+      sceneIndex: scene.sceneIndex ?? 0,
+      sceneType: venueType,
+    });
+    url = bflUrl;
+    console.log(`[generateScenePreviewCore] Scene ${sceneId}: BFL fallback result -> ${url ? url.slice(0, 80) + "..." : "null"}`);
+  }
 
   if (url) {
     await db.update(musicVideoScenes)
       .set({ previewImageUrl: url, updatedAt: new Date() })
       .where(eq(musicVideoScenes.id, sceneId));
-    console.log(`[generateScenePreviewCore] Scene ${sceneId} -> ${url.slice(0, 80)}...`);
+    console.log(`[generateScenePreviewCore] Scene ${sceneId} saved -> ${url.slice(0, 80)}...`);
   }
 
   return url ?? null;
