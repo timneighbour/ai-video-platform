@@ -931,6 +931,24 @@ export const wizImages = mysqlTable("wizImages", {
   imageKey: varchar("imageKey", { length: 512 }),
   /** Grok-revised prompt (if returned) */
   revisedPrompt: text("revisedPrompt"),
+  /** Provider used: openai | grok | forge */
+  provider: varchar("provider", { length: 64 }).default("openai").notNull(),
+  /** Model used */
+  model: varchar("model", { length: 64 }).default("gpt-image-2").notNull(),
+  /** Mode: generate or edit */
+  mode: mysqlEnum("mode", ["generate", "edit"]).default("generate").notNull(),
+  /** Quality tier */
+  quality: mysqlEnum("quality", ["low", "medium", "high", "auto"]).default("medium").notNull(),
+  /** Size string e.g. 1024x1024 */
+  size: varchar("size", { length: 32 }).default("1024x1024").notNull(),
+  /** Credits charged for this image */
+  creditsUsed: int("creditsUsed").default(0).notNull(),
+  /** Status */
+  status: mysqlEnum("status", ["pending", "completed", "failed"]).default("completed").notNull(),
+  /** Error message if failed */
+  errorMessage: text("errorMessage"),
+  /** FK to imageGenerationLogs */
+  logId: int("logId"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type WizImage = typeof wizImages.$inferSelect;
@@ -1891,3 +1909,46 @@ export const creatorNetworkWaitlist = mysqlTable("creator_network_waitlist", {
 });
 export type CreatorNetworkWaitlist = typeof creatorNetworkWaitlist.$inferSelect;
 export type InsertCreatorNetworkWaitlist = typeof creatorNetworkWaitlist.$inferInsert;
+
+// ─── GPT-Image-2 / WIZ Image — generation logs & admin settings ────────────
+
+export const imageGenerationLogs = mysqlTable("imageGenerationLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  provider: varchar("provider", { length: 64 }).notNull().default("openai"),
+  model: varchar("model", { length: 64 }).notNull().default("gpt-image-2"),
+  mode: mysqlEnum("mode", ["generate", "edit"]).notNull().default("generate"),
+  prompt: text("prompt").notNull(),
+  promptLength: int("promptLength").notNull().default(0),
+  stylePreset: varchar("stylePreset", { length: 64 }),
+  size: varchar("size", { length: 32 }).notNull().default("1536x1024"),
+  quality: mysqlEnum("quality", ["low", "medium", "high", "auto"]).notNull().default("medium"),
+  creditsCharged: int("creditsCharged").notNull().default(0),
+  creditsRefunded: int("creditsRefunded").notNull().default(0),
+  requestId: varchar("requestId", { length: 255 }),
+  status: mysqlEnum("status", ["pending", "completed", "failed"]).notNull().default("pending"),
+  errorCode: varchar("errorCode", { length: 64 }),
+  errorMessage: text("errorMessage"),
+  imageUrl: varchar("imageUrl", { length: 1024 }),
+  storagePath: varchar("storagePath", { length: 512 }),
+  durationMs: int("durationMs"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+});
+export type ImageGenerationLog = typeof imageGenerationLogs.$inferSelect;
+export type InsertImageGenerationLog = typeof imageGenerationLogs.$inferInsert;
+
+export const imageGenSettings = mysqlTable("imageGenSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  enabled: boolean("enabled").notNull().default(true),
+  defaultQuality: mysqlEnum("defaultQuality", ["low", "medium", "high", "auto"]).notNull().default("medium"),
+  defaultSize: varchar("defaultSize", { length: 32 }).notNull().default("1536x1024"),
+  freeUserDailyLimit: int("freeUserDailyLimit").notNull().default(3),
+  freeUserQuality: mysqlEnum("freeUserQuality", ["low", "medium", "high", "auto"]).notNull().default("low"),
+  maxPromptLength: int("maxPromptLength").notNull().default(4000),
+  maxUploadSizeMb: int("maxUploadSizeMb").notNull().default(20),
+  providerFallbackEnabled: boolean("providerFallbackEnabled").notNull().default(true),
+  creditCosts: text("creditCosts").notNull().default('{"low":1,"medium":4,"high":12,"edit_low":5,"edit_medium":10,"edit_high":20}'),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type ImageGenSettings = typeof imageGenSettings.$inferSelect;

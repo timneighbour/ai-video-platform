@@ -85,6 +85,13 @@ export default function WizImage() {
   useEffect(() => { if (user) { mp.studioEntered("WizImage"); } }, [user]);
   const { balance: creditBalance } = useCreditGuard();
   const [topUpOpen, setTopUpOpen] = useState(false);
+  // Quality mapping: standard→low, hd→medium, 4k/8k→high
+  const QUALITY_MAP: Record<string, "low" | "medium" | "high"> = {
+    standard: "low",
+    hd: "medium",
+    "4k": "high",
+    "8k": "high",
+  };
   const CREDITS_PER_IMAGE = 2;
   // ── State ──
   const [prompt, setPrompt] = useState("Dark cinematic album cover for a five-piece rock band. Dramatic stage lighting with deep purple and gold tones. Smoke and haze effects. Gothic atmosphere. Ultra-realistic, 8K quality, professional photography style.");
@@ -152,7 +159,7 @@ export default function WizImage() {
     mp.buildStarted("WizImage");
     const stylePrefix = styleTags.length > 0 ? `${styleTags.join(", ")} style. ` : "";
     generateMutation.mutate(
-      { prompt: stylePrefix + prompt.trim(), style: imageType, aspectRatio },
+      { prompt: stylePrefix + prompt.trim(), style: imageType, aspectRatio, quality: QUALITY_MAP[renderQuality] ?? "medium" },
       {
         onSuccess: () => {
           // Auto-prompt save to library when Character type is selected
@@ -335,7 +342,7 @@ export default function WizImage() {
         {/* Studio-info stats — bottom-left */}
         <div className="absolute flex gap-3 items-end" style={{ bottom: 16, left: 20 }}>
           {[
-            { label: "Images Created", val: history?.length ?? 0, sub: "This session" },
+            { label: "Images Created", val: history?.images?.length ?? 0, sub: "This session" },
             { label: "Style", val: styleTags[0] ?? "Cinematic", sub: "Active preset", small: true },
             { label: "Resolution", val: renderQuality === "8k" ? "8K" : renderQuality === "4k" ? "4K" : renderQuality === "hd" ? "HD" : "STD", sub: renderQuality === "8k" ? "7680×7680px" : renderQuality === "4k" ? "3840×3840px" : renderQuality === "hd" ? "2048×2048px" : "1024×1024px" },
           ].map((stat) => (
@@ -1072,14 +1079,14 @@ export default function WizImage() {
           </button>
 
           {/* History */}
-          {history && history.length > 0 && (
+          {history && history.images && history.images.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-[9px] text-white/30 tracking-[2px] uppercase">Recent Generations</span>
                 <div className="flex-1 h-px" style={{ background: A_BORDER }} />
               </div>
               <div className="grid grid-cols-3 gap-1">
-                {history.slice(0, 6).map((item: any) => (
+                {history.images.slice(0, 6).map((item: any) => (
                   <div key={item.id} className="relative aspect-square rounded-md overflow-hidden group cursor-pointer border transition-all"
                     style={{ background: "#0d0d20", borderColor: A_BORDER }}
                     onMouseEnter={(e) => (e.currentTarget.style.borderColor = A)}
