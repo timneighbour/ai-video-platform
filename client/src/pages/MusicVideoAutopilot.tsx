@@ -7715,6 +7715,23 @@ export default function MusicVideoAutopilot() {
         currentBalance={creditBalance ?? 0}
         estimatedCost={tieredBreakdown?.total}
       />
+      {/* SEO internal links — hidden from UI, visible to crawlers */}
+      <div style={{ padding: "1.5rem 1rem", borderTop: "1px solid rgba(255,255,255,0.05)", textAlign: "center" }}>
+        <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.22)", marginBottom: "0.4rem", letterSpacing: "0.08em", textTransform: "uppercase" }}>Related guides</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center" }}>
+          {[
+            { href: "/seo/ai-music-video-generator", label: "How to make an AI music video" },
+            { href: "/seo/create-music-video-with-ai", label: "Create a music video with AI" },
+            { href: "/seo/ai-music-video-generator-for-youtube", label: "AI music video for YouTube" },
+            { href: "/seo/ai-lyric-video-generator", label: "AI lyric video generator" },
+            { href: "/seo/ai-animated-music-video-maker", label: "AI animated music video maker" },
+          ].map(({ href, label }) => (
+            <a key={href} href={href} style={{ fontSize: "12px", color: "rgba(255,255,255,0.28)", textDecoration: "none", borderBottom: "1px solid rgba(255,255,255,0.12)", paddingBottom: "1px" }}>
+              {label}
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

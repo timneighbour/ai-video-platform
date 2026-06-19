@@ -27,7 +27,7 @@ export default function WhyWizAI() {
     title: "Why WIZ AI — vs One More Shot AI",
     path: "/why-wiz-ai",
     description:
-      "WIZ AI vs One More Shot AI: Character Lock™ keeps your character consistent across every scene. Compare features, lip sync quality, and pricing.",
+      "WIZ AI keeps your character's face, costume and performance identical across every scene. Compare features, lip sync quality and pricing — and see why creators choose WIZ AI.",
   });
 
   return (
@@ -45,7 +45,7 @@ export default function WhyWizAI() {
           costume change between scenes, the illusion breaks. WIZ AI's Character Lock™ solves this —
           keeping your artist identical from scene one to the final frame.
         </p>
-        <Link href="/music-video">
+        <Link href="/music-video/create">
           <button className="px-8 py-3 bg-amber-400 text-black font-semibold rounded-lg hover:bg-amber-300 transition-colors text-sm tracking-wide">
             Try WIZ AI Free
           </button>
@@ -167,11 +167,31 @@ export default function WhyWizAI() {
             <span className="text-amber-400">that keeps your character consistent?</span>
           </h2>
           <p className="text-white/50 mb-8">Free to start. No credit card required. Character Lock™ is included on every plan.</p>
-          <Link href="/music-video">
+          <Link href="/music-video/create">
             <button className="px-10 py-4 bg-amber-400 text-black font-bold rounded-lg hover:bg-amber-300 transition-colors">
               Start for Free
             </button>
           </Link>
+        </div>
+      </section>
+
+      {/* SEO internal links */}
+      <section className="py-8 px-6 border-t border-white/5">
+        <div className="max-w-3xl mx-auto text-center">
+          <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.28)", marginBottom: "0.5rem", letterSpacing: "0.08em", textTransform: "uppercase" }}>Related guides</p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center" }}>
+            {[
+              { href: "/seo/ai-music-video-generator", label: "How to make an AI music video" },
+              { href: "/seo/create-music-video-with-ai", label: "Create a music video with AI" },
+              { href: "/seo/ai-music-video-generator-for-youtube", label: "AI music video for YouTube" },
+              { href: "/seo/ai-lyric-video-generator", label: "AI lyric video generator" },
+              { href: "/seo/ai-animated-music-video-maker", label: "AI animated music video maker" },
+            ].map(({ href, label }) => (
+              <a key={href} href={href} style={{ fontSize: "12px", color: "rgba(255,255,255,0.38)", textDecoration: "none", borderBottom: "1px solid rgba(255,255,255,0.15)", paddingBottom: "1px" }}>
+                {label}
+              </a>
+            ))}
+          </div>
         </div>
       </section>
     </div>

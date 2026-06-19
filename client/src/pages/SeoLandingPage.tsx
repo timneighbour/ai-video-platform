@@ -116,7 +116,7 @@ function CTAButton({
     : text;
   return (
     <div className={`flex flex-col sm:flex-row gap-3 ${className}`}>
-      <Link href="/music-video">
+      <Link href="/music-video/create">
         <Button
           size="lg"
           className="bg-gradient-to-r from-[#9090a0] to-[#4a3010] hover:from-[#9090a0] hover:to-[#4a3010] text-white font-bold px-8 py-4 rounded-xl text-lg shadow-lg shadow-pink-500/25 w-full sm:w-auto"
@@ -304,7 +304,7 @@ export default function SeoLandingPage() {
             </div>
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm text-white/60">
-            <Link href="/music-video" className="hover:text-white transition-all duration-200 hover:scale-105 hover:-translate-y-0.5">WizVideo</Link>
+            <Link href="/music-video/create" className="hover:text-white transition-all duration-200 hover:scale-105 hover:-translate-y-0.5">WizVideo</Link>
             <Link href={WIZPILOT_STUDIO_PAGE} className="hover:text-white transition-all duration-200 hover:scale-105 hover:-translate-y-0.5">WizScript</Link>
             <Link href="/pricing" className="hover:text-white transition-all duration-200 hover:scale-105 hover:-translate-y-0.5">Pricing</Link>
           </div>
@@ -487,6 +487,11 @@ export default function SeoLandingPage() {
           </p>
           <CTAButton text="Create Your First AI Video Now — Free" keyword={page.keyword} className="justify-center" />
           <p className="text-white/30 text-sm mt-4">No credit card required • Free to create • Only pay to build</p>
+          <div className="mt-6">
+            <Link href="/music-video/create" className="text-amber-400/70 hover:text-amber-400 text-sm transition-colors">
+              Start creating →
+            </Link>
+          </div>
         </div>
 
         {/* SEO paragraph */}
@@ -514,7 +519,7 @@ export default function SeoLandingPage() {
           <p className="text-white/40 text-sm mt-2">AI Music Video Generator • Create Videos in Minutes</p>
           <div className="flex flex-wrap justify-center gap-4 mt-6 text-sm text-white/40">
             <Link href="/" className="hover:text-white/70 transition-colors">Home</Link>
-            <Link href="/music-video" className="hover:text-white/70 transition-colors">WizVideo</Link>
+            <Link href="/music-video/create" className="hover:text-white/70 transition-colors">Start creating →</Link>
             <Link href={WIZPILOT_STUDIO_PAGE} className="hover:text-white/70 transition-colors">WizScript</Link>
             <Link href="/pricing" className="hover:text-white/70 transition-colors">Pricing</Link>
           </div>

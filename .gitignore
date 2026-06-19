@@ -112,3 +112,12 @@ temp/
 # Manus version file (auto-generated, not part of source)
 client/public/__manus__/version.json
 .project-config.json
+
+# Internal project files — not for public repo
+todo.md
+research/
+*.mjs
+check-*.mjs
+soft-delete-*.mjs
+reset-*.mjs
+migrate-*.mjs

@@ -1113,6 +1113,25 @@ function Hero() {
         AI-generated music videos with lip sync AI, Character Lock™ identity consistency, and cinematic scene
         direction — no editing experience required. Upload your track and produce a full music video in minutes.
       </p>
+      {/* Related guides — SEO internal links */}
+      <div className="text-center max-w-2xl mx-auto px-6" style={{ marginTop: "1rem", marginBottom: "0.5rem" }}>
+        <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.28)", marginBottom: "0.4rem", letterSpacing: "0.08em", textTransform: "uppercase" }}>Related guides</p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center" }}>
+          {[
+            { href: "/seo/ai-music-video-generator", label: "How to make an AI music video" },
+            { href: "/seo/create-music-video-with-ai", label: "Create a music video with AI" },
+            { href: "/seo/ai-music-video-generator-for-youtube", label: "AI music video for YouTube" },
+            { href: "/seo/ai-lyric-video-generator", label: "AI lyric video generator" },
+            { href: "/seo/ai-animated-music-video-maker", label: "AI animated music video maker" },
+          ].map(({ href, label }) => (
+            <a key={href} href={href} style={{ fontSize: "12px", color: "rgba(255,255,255,0.38)", textDecoration: "none", borderBottom: "1px solid rgba(255,255,255,0.15)", paddingBottom: "1px", transition: "color 0.2s" }}
+              onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,255,255,0.65)")}
+              onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.38)")}>
+              {label}
+            </a>
+          ))}
+        </div>
+      </div>
  <DemoVideoModal open={demoOpen} onClose={() => setDemoOpen(false)} />
  </section>
  );
