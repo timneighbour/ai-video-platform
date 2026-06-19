@@ -9295,3 +9295,11 @@
 - [x] Update polling to use returned polling_url (api.us3.bfl.ai)
 - [x] Verify BFL FLUX.1 Pro Ultra working end-to-end (~8s, 2752x1536)
 - [x] Run BFL vs Grok side-by-side comparison on Lyndhurst Hall / Zara prompt
+
+## Character Reference Injection & Scene-Type Venue DNA (Jun 19 2026)
+- [ ] Audit locked character image URL flow: confirm characterLockImageUrl is passed through to generateCinematicStoryboardImage
+- [ ] Implement BFL image_prompt reference injection: pass locked character image URL as image_prompt with image_prompt_strength=0.15-0.25
+- [ ] Add scene-type venue DNA variants: concert_hall, live_arena, music_video_studio, outdoor_festival, recording_studio
+- [ ] Wire scene-type selection to the prompt builder so venue DNA matches the project's chosen environment
+- [ ] Run end-to-end test: generate storyboard with character reference photo, verify likeness consistency across 3+ scenes
+- [ ] Validate lip sync quality gate: confirm HeyGen receives correctly framed 16:9 storyboard images

@@ -171,6 +171,22 @@ export function resolveVenueDescription(sceneSetting?: string | null): string | 
   return undefined;
 }
 
+/**
+ * Map a free-text sceneSetting string to a VENUE_DNA key from fal-image-gen.ts.
+ * Returns 'concert_hall' as the default if no match is found.
+ * Keys: 'concert_hall' | 'live_arena' | 'music_video_studio' | 'outdoor_festival' | 'recording_studio'
+ */
+export function sceneSettingToVenueType(sceneSetting?: string | null): string {
+  if (!sceneSetting) return "concert_hall";
+  const lower = sceneSetting.toLowerCase();
+  if (/arena|stadium|wembley|o2 |madison square|sold.?out/.test(lower)) return "live_arena";
+  if (/festival|open.?air|glastonbury|coachella|outdoor stage/.test(lower)) return "outdoor_festival";
+  if (/recording studio|control room|mixing desk|studio session/.test(lower)) return "recording_studio";
+  if (/music video|mv studio|warehouse|loft|brick wall|industrial/.test(lower)) return "music_video_studio";
+  // concert hall / classical / orchestral / air studios / lyndhurst — default
+  return "concert_hall";
+}
+
 export function calculateSceneCount(audioDurationSeconds: number): number {
   // Target 6 seconds per scene for natural music video pacing.
   // Short tracks (<= 90s): cap at 15 scenes so it doesn't feel choppy.

@@ -20,6 +20,7 @@ import {
   transcribeJobAudio,
   mapModelAssignmentToWaveSpeed,
   pollPerSceneLipSyncJobs,
+  sceneSettingToVenueType,
 } from "../music-video-service";
 import { deductCredits, getUserCredits, refundCredits } from "../credit-service";
 import { transcribeAudio } from "../_core/voiceTranscription";
@@ -2686,6 +2687,8 @@ Rules:
                 aspectRatio: (job.aspectRatio as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9") ?? "16:9",
                 storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${input.sceneId}-pulid-fallback`,
                 venueReferenceUrl: referenceImages[0]?.url,
+                characterReferenceUrl: masterPortraitUrl ?? referenceImages[0]?.url,
+                sceneType: sceneSettingToVenueType(job.sceneSetting),
               }));
               url = fallbackResult.url;
             }
@@ -2703,6 +2706,8 @@ Rules:
                 aspectRatio: (job.aspectRatio as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9") ?? "16:9",
                 storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${input.sceneId}-cinematic`,
                 venueReferenceUrl: referenceImages[0]?.url, // anchor to first character reference
+                characterReferenceUrl: referenceImages[0]?.url, // BFL image_prompt for face anchoring
+                sceneType: sceneSettingToVenueType(job.sceneSetting),
               }));
               url = cinematicResult.url;
             } else {
@@ -2712,6 +2717,7 @@ Rules:
                 prompt: finalImagePrompt,
                 aspectRatio: (job.aspectRatio as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9") ?? "16:9",
                 storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${input.sceneId}`,
+                sceneType: sceneSettingToVenueType(job.sceneSetting),
               }));
               url = cinematicResult.url;
             }
@@ -6256,12 +6262,15 @@ Your task:
       const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
       const { resolveVenueReferenceUrl } = await import("../music-video-service");
       const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
-
-      console.log(`[GenerateMissingPreviews] Generating ${scenesNeedingImage.length} missing storyboard images for job ${input.jobId}`);
-
+      // Resolve character reference for BFL image_prompt injection
+      const charRows = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true)))
+        .limit(1);
+      const charRefUrl = charRows[0]?.masterPortraitUrl ?? charRows[0]?.previewImageUrl ?? undefined;
+      const venueTypeKey = sceneSettingToVenueType(job.sceneSetting);
+      console.log(`[GenerateMissingPreviews] Generating ${scenesNeedingImage.length} missing storyboard images for job ${input.jobId} (charRef=${charRefUrl ? 'yes' : 'none'}, venue=${venueTypeKey})`);
       let generated = 0;
       const errors: string[] = [];
-
       await Promise.allSettled(
         scenesNeedingImage.map(async (scene) => {
           try {
@@ -6270,6 +6279,8 @@ Your task:
               aspectRatio: jobAspectRatio,
               storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${scene.id}-cinematic`,
               venueReferenceUrl: venueRefUrl ?? undefined,
+              characterReferenceUrl: charRefUrl,
+              sceneType: venueTypeKey,
             });
             if (url) {
               await db!.update(musicVideoScenes)
@@ -6319,15 +6330,21 @@ Your task:
       const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
       const { resolveVenueReferenceUrl } = await import("../music-video-service");
       const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
-
-      console.log(`[RegenerateSinglePreview] Regenerating scene ${scene.id} (index ${scene.sceneIndex}) for job ${input.jobId}`);
-
+      // Resolve character reference for BFL image_prompt injection
+      const charRowsSingle = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true)))
+        .limit(1);
+      const charRefUrlSingle = charRowsSingle[0]?.masterPortraitUrl ?? charRowsSingle[0]?.previewImageUrl ?? undefined;
+      const venueTypeSingle = sceneSettingToVenueType(job.sceneSetting);
+      console.log(`[RegenerateSinglePreview] Regenerating scene ${scene.id} (index ${scene.sceneIndex}) for job ${input.jobId} (charRef=${charRefUrlSingle ? 'yes' : 'none'}, venue=${venueTypeSingle})`);
       const { url } = await generateCinematicStoryboardImage({
         prompt: scene.prompt,
         aspectRatio: jobAspectRatio,
         storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${scene.id}-cinematic`,
         venueReferenceUrl: venueRefUrl ?? undefined,
+        characterReferenceUrl: charRefUrlSingle,
         sceneIndex: scene.sceneIndex ?? 0,
+        sceneType: venueTypeSingle,
       });
 
       if (url) {
@@ -6367,12 +6384,15 @@ Your task:
       const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
       const { resolveVenueReferenceUrl } = await import("../music-video-service");
       const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
-
-      console.log(`[RegenerateAllPreviews] Regenerating all ${scenes.length} scenes for job ${input.jobId}`);
-
+      // Resolve character reference for BFL image_prompt injection
+      const charRowsAll = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true)))
+        .limit(1);
+      const charRefUrlAll = charRowsAll[0]?.masterPortraitUrl ?? charRowsAll[0]?.previewImageUrl ?? undefined;
+      const venueTypeAll = sceneSettingToVenueType(job.sceneSetting);
+      console.log(`[RegenerateAllPreviews] Regenerating all ${scenes.length} scenes for job ${input.jobId} (charRef=${charRefUrlAll ? 'yes' : 'none'}, venue=${venueTypeAll})`);
       let generated = 0;
       const errors: string[] = [];
-
       await Promise.allSettled(
         scenes.map(async (scene) => {
           try {
@@ -6381,7 +6401,9 @@ Your task:
               aspectRatio: jobAspectRatio,
               storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${scene.id}-cinematic`,
               venueReferenceUrl: venueRefUrl ?? undefined,
+              characterReferenceUrl: charRefUrlAll,
               sceneIndex: scene.sceneIndex ?? 0,
+              sceneType: venueTypeAll,
             });
             if (url) {
               await db!.update(musicVideoScenes)

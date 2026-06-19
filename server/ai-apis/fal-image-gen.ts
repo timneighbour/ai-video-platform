@@ -20,11 +20,23 @@ import axios from "axios";
 const BFL_API_BASE = "https://api.bfl.ai/v1";
 
 /**
- * Locked venue DNA — Lyndhurst Hall, Air Studios
- * This description is injected into every scene prompt to guarantee
- * every generated image depicts the same room.
+ * Scene-type venue DNA variants.
+ * Each entry is injected into the prompt to anchor the environment.
+ * The default (concert_hall) is Lyndhurst Hall / Air Studios.
  */
-const LYNDHURST_HALL_DNA = `grand Victorian concert hall interior, soaring vaulted ceiling painted deep midnight blue with gold leaf star motifs, ornate Gothic arched clerestory windows with amber stained glass casting warm honeyed light, rich dark mahogany wood panelling on walls, tiered gallery balconies with carved wooden balustrades, a full symphony orchestra seated on a raised wooden stage, conductor's podium centre-stage, warm amber and gold stage lighting, polished parquet hardwood floor, massive pipe organ visible at the far end, atmospheric haze, cinematic depth of field`;
+export const VENUE_DNA: Record<string, string> = {
+  concert_hall: `grand Victorian concert hall interior, soaring vaulted ceiling painted deep midnight blue with gold leaf star motifs, ornate Gothic arched clerestory windows with amber stained glass casting warm honeyed light, rich dark mahogany wood panelling on walls, tiered gallery balconies with carved wooden balustrades, a full symphony orchestra seated on a raised wooden stage, conductor's podium centre-stage, warm amber and gold stage lighting, polished parquet hardwood floor, massive pipe organ visible at the far end, atmospheric haze, cinematic depth of field`,
+  live_arena: `massive indoor arena concert, sold-out crowd of tens of thousands, enormous LED video wall backdrop, dramatic overhead rig with moving lights and lasers, smoke machines, confetti cannons, stage monitors and speaker stacks, pyrotechnic bursts, high-energy atmosphere, cinematic wide shot`,
+  music_video_studio: `sleek modern recording studio performance space, exposed brick walls, warm Edison bulb string lights, vintage microphone on stand, grand piano in background, moody directional lighting, intimate atmosphere, cinematic depth of field, photorealistic`,
+  outdoor_festival: `outdoor music festival main stage, golden hour sunlight, vast open-air crowd, festival flags and banners, dramatic sky with clouds, wide stage with production lighting rig, natural landscape backdrop, cinematic widescreen`,
+  recording_studio: `professional recording studio control room, mixing desk with glowing faders, acoustic foam panels, warm amber studio lighting, through-glass view of live room, vintage outboard gear, intimate professional atmosphere, cinematic depth of field`,
+};
+
+/**
+ * Locked venue DNA — Lyndhurst Hall, Air Studios (default)
+ * Also available as VENUE_DNA['concert_hall'] for explicit selection.
+ */
+const LYNDHURST_HALL_DNA = VENUE_DNA.concert_hall;
 
 /** Map export aspect ratio to BFL width/height */
 function aspectRatioToBflDimensions(
@@ -65,6 +77,18 @@ export interface CinematicImageOptions {
   venueReferenceUrl?: string;
   /** Scene index used to vary the seed for diversity across scenes */
   sceneIndex?: number;
+  /**
+   * Character reference image URL — passed to BFL as `image_prompt` with low strength (0.15)
+   * to anchor the character's face/appearance without overriding the scene composition.
+   * Use the character's masterPortraitUrl or primary uploaded photo.
+   */
+  characterReferenceUrl?: string;
+  /**
+   * Scene-type key for venue DNA selection.
+   * One of: 'concert_hall' | 'live_arena' | 'music_video_studio' | 'outdoor_festival' | 'recording_studio'
+   * Defaults to 'concert_hall' (Lyndhurst Hall / Air Studios).
+   */
+  sceneType?: string;
 }
 
 export interface CinematicImageResult {
@@ -75,9 +99,9 @@ export interface CinematicImageResult {
 
 /**
  * Sanitise a scene prompt — strip crop-inducing framing terms, inject
- * the Lyndhurst Hall venue DNA, and append no-crop constraints.
+ * venue DNA (defaulting to Lyndhurst Hall), and append no-crop constraints.
  */
-function buildCinematicPrompt(rawPrompt: string): string {
+function buildCinematicPrompt(rawPrompt: string, sceneType?: string): string {
   const safened = rawPrompt
     .replace(/\bextreme close[- ]?up\b/gi, "medium shot")
     .replace(/\bclose[- ]?up\b/gi, "medium shot")
@@ -87,9 +111,10 @@ function buildCinematicPrompt(rawPrompt: string): string {
     .replace(/\btight shot\b/gi, "medium shot")
     .replace(/\bface[- ]?only\b/gi, "medium shot");
 
+  const venueDna = (sceneType && VENUE_DNA[sceneType]) ? VENUE_DNA[sceneType] : LYNDHURST_HALL_DNA;
   return [
     safened,
-    LYNDHURST_HALL_DNA,
+    venueDna,
     "FULL HEAD VISIBLE with generous headroom above the subject, entire head and hair fully within frame, subject NOT cropped at top",
     "medium wide shot composition, cinematic widescreen, professional film lighting, photorealistic, 8K quality, dramatic depth of field, movie still",
   ].join(", ");
@@ -103,7 +128,8 @@ function buildCinematicPrompt(rawPrompt: string): string {
 async function tryBfl(
   cinematicPrompt: string,
   dimensions: { width: number; height: number },
-  sceneIndex: number
+  sceneIndex: number,
+  characterReferenceUrl?: string
 ): Promise<string | undefined> {
   const bflKey = process.env.BFL_API_KEY;
   if (!bflKey) return undefined;
@@ -127,6 +153,12 @@ async function tryBfl(
         output_format: "jpeg",
         safety_tolerance: 6,
         raw: false,
+        // Character reference injection: subtle face/appearance anchor (0.15 = minimal influence)
+        // Keeps scene composition intact while nudging the model toward the character's likeness
+        ...(characterReferenceUrl ? {
+          image_prompt: characterReferenceUrl,
+          image_prompt_strength: 0.15,
+        } : {}),
       }),
       signal: AbortSignal.timeout(30_000),
     });
@@ -241,14 +273,15 @@ export async function generateCinematicStoryboardImage(
   const aspectRatio = options.aspectRatio ?? "16:9";
   const dimensions = aspectRatioToBflDimensions(aspectRatio);
   const imageSize = aspectRatioToFluxSize(aspectRatio);
-  const cinematicPrompt = buildCinematicPrompt(options.prompt ?? "");
+    const cinematicPrompt = buildCinematicPrompt(options.prompt ?? "", options.sceneType);
   const sceneIndex = options.sceneIndex ?? 0;
-
   let imageUrl: string | undefined;
   let lastError: Error | null = null;
-
+  if (options.characterReferenceUrl) {
+    console.log(`[CinematicImageGen] Character reference injection active → ${options.characterReferenceUrl.slice(0, 80)}... (strength=0.15)`);
+  }
   // ── 1. BFL FLUX.1 Pro Ultra (primary — best quality, no restrictions) ────────
-  imageUrl = await tryBfl(cinematicPrompt, dimensions, sceneIndex);
+  imageUrl = await tryBfl(cinematicPrompt, dimensions, sceneIndex, options.characterReferenceUrl);
 
   // ── 2. Grok (fallback) ───────────────────────────────────────────────────────
   if (!imageUrl) {
