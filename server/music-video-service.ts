@@ -322,7 +322,7 @@ export async function generateStoryboard(
   audioDurationSeconds: number,
   title: string,
   lyricsSegments?: Array<{ start: number; end: number; text: string }>,
-  lockedCharacters?: Array<{ name: string; role: string | null; lockedDescription: string }>,
+  lockedCharacters?: Array<{ name: string; role: string | null; lockedDescription: string; characterVisualDetails?: string | null }>,
   sceneSetting?: string | null,
   existingContentAnalysis?: ContentAnalysis | null,
   enableLipSync?: boolean,
@@ -495,7 +495,7 @@ Return a JSON object with a "characters" array. Each character must have:
   if (!rosterRaw) throw new Error("LLM returned empty roster response");
   const rosterContent = typeof rosterRaw === "string" ? rosterRaw : JSON.stringify(rosterRaw);
   const rosterParsed = JSON.parse(rosterContent);
-  let fullRoster: Array<{ name: string; role: string; isLocked: boolean; description: string }> =
+  let fullRoster: Array<{ name: string; role: string; isLocked: boolean; description: string; characterVisualDetails?: string | null }> =
     rosterParsed.characters ?? [];
 
   // ─── SERVER-SIDE ROSTER VALIDATION ───────────────────────────────────────────
@@ -544,6 +544,7 @@ Return a JSON object with a "characters" array. Each character must have:
       role: c.role ?? "",
       isLocked: true,
       description: c.lockedDescription, // ALWAYS use the frozen description, never the LLM's version
+      characterVisualDetails: c.characterVisualDetails ?? null, // structured visual lock fields
     }));
 
     fullRoster = [...authorativeLockedChars, ...inventedCharacters];
@@ -975,12 +976,50 @@ This is the cinematic world-reveal that sets the entire tone of the video. It MU
     // Build a character identity prefix for the prompt.
     // For each assigned character, prepend their EXACT description so the AI video model
     // always receives the correct appearance — even if the LLM paraphrased it.
+    // We also inject structured visual lock fields (hair, clothing, instrument posture) for maximum precision.
     const characterPrefixes = validAssignments
       .map(name => {
         const char = rosterByName.get(name.toLowerCase());
         if (!char) return null;
-        // No lock tag in the stored prompt — it's internal LLM guidance only, not user-visible
-        return `${char.name} (${char.role}): ${char.description}`;
+        let prefix = `${char.name} (${char.role}): ${char.description}`;
+        // Append structured visual lock fields if available (extracted from photo analysis)
+        if (char.characterVisualDetails) {
+          try {
+            const vd: Record<string, string> = typeof char.characterVisualDetails === 'string'
+              ? JSON.parse(char.characterVisualDetails)
+              : char.characterVisualDetails;
+            const lockLines: string[] = [];
+            if (vd.hairColour && vd.hairLength && vd.hairStyle) {
+              lockLines.push(`HAIR LOCK: ${vd.hairColour}, ${vd.hairLength}, ${vd.hairStyle} — MUST match exactly in every scene`);
+            }
+            if (vd.clothingDescription) {
+              lockLines.push(`COSTUME LOCK: ${vd.clothingDescription} — MUST wear EXACTLY this outfit in every scene, no changes`);
+            }
+            if (vd.instrumentModel) {
+              const instrDesc = [vd.instrumentModel, vd.instrumentColour, vd.instrumentFinish].filter(Boolean).join(', ');
+              const instrLower = vd.instrumentModel.toLowerCase();
+              let posture = '';
+              if (instrLower.includes('piano') || instrLower.includes('keyboard')) {
+                posture = 'ALWAYS SEATED at the piano bench, hands actively on the keys, playing';
+              } else if (instrLower.includes('cello')) {
+                posture = 'ALWAYS SEATED with the cello upright between the knees, bow drawn across the strings';
+              } else if (instrLower.includes('violin') || instrLower.includes('viola')) {
+                posture = 'instrument tucked under the chin, bow on the strings, playing posture';
+              } else if (instrLower.includes('harp')) {
+                posture = 'ALWAYS SEATED behind the harp, fingers on the strings, playing posture';
+              } else if (instrLower.includes('drum')) {
+                posture = 'ALWAYS SEATED behind the full drum kit, sticks in hand, playing';
+              } else if (instrLower.includes('guitar') || instrLower.includes('bass')) {
+                posture = 'guitar in playing position, fingers on frets/strings';
+              }
+              lockLines.push(`INSTRUMENT LOCK: ${instrDesc}${posture ? ` — ${posture}` : ''}`);
+            }
+            if (lockLines.length > 0) {
+              prefix += `\n${lockLines.join('\n')}`;
+            }
+          } catch { /* ignore malformed JSON */ }
+        }
+        return prefix;
       })
       .filter(Boolean);
 

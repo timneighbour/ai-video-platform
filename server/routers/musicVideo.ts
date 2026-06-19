@@ -460,7 +460,7 @@ Rules:
         .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id), isNull(videoCharacters.deletedAt)));
       const lockedCharacters = refreshedCharacters
         .filter((c) => c.isLocked && c.lockedDescription)
-        .map((c) => ({ name: c.name, role: c.role, lockedDescription: c.lockedDescription! }));
+        .map((c) => ({ name: c.name, role: c.role, lockedDescription: c.lockedDescription!, characterVisualDetails: c.characterVisualDetails ?? null }));
       console.log(`[MusicVideo] Locked characters for job ${input.jobId}: ${lockedCharacters.map(c => c.name).join(", ") || "none"} (includes AI-invented if previously frozen)`);
 
       // Generate scenes via LLM — lyrics-driven if available, theme-only otherwise
