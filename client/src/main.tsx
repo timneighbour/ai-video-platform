@@ -39,7 +39,24 @@ if (storedConsent) {
   applyConsentToTrackers(storedConsent.preferences);
 }
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Retry once on failure (not 3 times) — reduces cascading errors that hit ErrorBoundary
+      retry: 1,
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
+      // Don't throw to ErrorBoundary — let components handle errors locally via isError state
+      throwOnError: false,
+      // 30s stale time so rapid navigation doesn't re-fetch everything
+      staleTime: 30_000,
+    },
+    mutations: {
+      // Never auto-retry mutations — they may have side effects
+      retry: 0,
+      throwOnError: false,
+    },
+  },
+});
 
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;
