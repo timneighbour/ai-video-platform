@@ -2,30 +2,56 @@
  * Cinematic Storyboard Image Generator
  *
  * Provider priority:
- *   1. Grok (grok-imagine-image-quality) — primary, best cinematic quality, no fal.ai dependency
- *   2. fal.ai Flux Pro 1.1 Ultra (img2img with venue reference, if available)
- *   3. fal.ai Flux Pro 1.1 / Flux Dev (text-to-image fallback)
- *   4. Built-in Forge image API — final fallback, always available
+ *   1. Black Forest Labs FLUX.1 Pro Ultra (direct API — best quality, no restrictions)
+ *   2. Grok grok-imagine-image-quality (fallback)
+ *   3. Built-in Forge image API — final fallback, always available
+ *
+ * Venue DNA: Lyndhurst Hall, Air Studios — locked architectural description
+ * injected into every prompt to ensure scene-to-scene consistency.
  *
  * Output images match the target aspect ratio so WaveSpeed i2v / Seedance
  * inherits the correct frame dimensions natively.
  */
 
-import { fal } from "@fal-ai/client";
 import { storagePut } from "../storage";
 import axios from "axios";
 
-/** Map export aspect ratio to fal.ai Flux image_size */
+/** BFL API base URL */
+const BFL_API_BASE = "https://api.bfl.ml/v1";
+
+/**
+ * Locked venue DNA — Lyndhurst Hall, Air Studios
+ * This description is injected into every scene prompt to guarantee
+ * every generated image depicts the same room.
+ */
+const LYNDHURST_HALL_DNA = `grand Victorian concert hall interior, soaring vaulted ceiling painted deep midnight blue with gold leaf star motifs, ornate Gothic arched clerestory windows with amber stained glass casting warm honeyed light, rich dark mahogany wood panelling on walls, tiered gallery balconies with carved wooden balustrades, a full symphony orchestra seated on a raised wooden stage, conductor's podium centre-stage, warm amber and gold stage lighting, polished parquet hardwood floor, massive pipe organ visible at the far end, atmospheric haze, cinematic depth of field`;
+
+/** Map export aspect ratio to BFL width/height */
+function aspectRatioToBflDimensions(
+  aspectRatio: "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9"
+): { width: number; height: number } {
+  switch (aspectRatio) {
+    case "16:9":  return { width: 1344, height: 768 };
+    case "9:16":  return { width: 768, height: 1344 };
+    case "1:1":   return { width: 1024, height: 1024 };
+    case "4:3":   return { width: 1365, height: 1024 };
+    case "3:4":   return { width: 1024, height: 1365 };
+    case "21:9":  return { width: 2048, height: 877 };
+    default:      return { width: 1344, height: 768 };
+  }
+}
+
+/** Map aspect ratio to fal.ai image_size string (kept for reference) */
 function aspectRatioToFluxSize(
   aspectRatio: "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9"
 ): string {
   switch (aspectRatio) {
-    case "16:9":  return "landscape_16_9";   // 1344×768
-    case "9:16":  return "portrait_16_9";    // 768×1344
-    case "1:1":   return "square_hd";        // 1024×1024
-    case "4:3":   return "landscape_4_3";    // 1365×1024
-    case "3:4":   return "portrait_4_3";     // 1024×1365
-    case "21:9":  return "custom_21_9";      // 2048×877 ultra-wide cinematic
+    case "16:9":  return "landscape_16_9";
+    case "9:16":  return "portrait_16_9";
+    case "1:1":   return "square_hd";
+    case "4:3":   return "landscape_4_3";
+    case "3:4":   return "portrait_4_3";
+    case "21:9":  return "custom_21_9";
     default:      return "landscape_16_9";
   }
 }
@@ -35,12 +61,9 @@ export interface CinematicImageOptions {
   aspectRatio?: "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
   /** S3 key prefix for storage (e.g. "music-video-storyboard/660001-scene-1") */
   storageKeyPrefix?: string;
-  /**
-   * Optional venue/environment reference image URL.
-   * Used by fal.ai img2img path only — Grok generates from prompt alone.
-   */
+  /** Optional venue/environment reference image URL (used by fal.ai img2img path only) */
   venueReferenceUrl?: string;
-  /** Scene index used to vary the seed and pick different venue reference angles */
+  /** Scene index used to vary the seed for diversity across scenes */
   sceneIndex?: number;
 }
 
@@ -50,19 +73,9 @@ export interface CinematicImageResult {
   height: number;
 }
 
-// Dimension map — used for aspect ratio guard and return value
-const dimensionMap: Record<string, { width: number; height: number }> = {
-  "landscape_16_9": { width: 1344, height: 768 },
-  "portrait_16_9":  { width: 768, height: 1344 },
-  "square_hd":      { width: 1024, height: 1024 },
-  "landscape_4_3":  { width: 1365, height: 1024 },
-  "portrait_4_3":   { width: 1024, height: 1365 },
-  "custom_21_9":    { width: 2048, height: 877 },
-};
-
 /**
- * Sanitise a scene prompt — strip crop-inducing framing terms and append
- * the no-crop / full-head constraint that all providers must respect.
+ * Sanitise a scene prompt — strip crop-inducing framing terms, inject
+ * the Lyndhurst Hall venue DNA, and append no-crop constraints.
  */
 function buildCinematicPrompt(rawPrompt: string): string {
   const safened = rawPrompt
@@ -73,18 +86,111 @@ function buildCinematicPrompt(rawPrompt: string): string {
     .replace(/\bmedium close[- ]?up\b/gi, "medium wide shot")
     .replace(/\btight shot\b/gi, "medium shot")
     .replace(/\bface[- ]?only\b/gi, "medium shot");
-  return `${safened}, FULL HEAD VISIBLE with generous headroom above the subject, entire head and hair fully within frame, subject NOT cropped at top, medium wide shot composition, cinematic widescreen, professional film lighting, photorealistic, 8K quality, dramatic depth of field, movie still`;
+
+  return [
+    safened,
+    LYNDHURST_HALL_DNA,
+    "FULL HEAD VISIBLE with generous headroom above the subject, entire head and hair fully within frame, subject NOT cropped at top",
+    "medium wide shot composition, cinematic widescreen, professional film lighting, photorealistic, 8K quality, dramatic depth of field, movie still",
+  ].join(", ");
 }
 
 /**
- * ── Provider 1: Grok grok-imagine-image-quality ──────────────────────────────
- * Best cinematic quality. Returns a temporary URL that we download and re-upload.
- * Native output is 1280×720 (16:9) — we use it for all aspect ratios as it
- * consistently produces the best framing and venue accuracy.
+ * ── Provider 1: Black Forest Labs FLUX.1 Pro Ultra ───────────────────────────
+ * Direct API — no proxy, no middleman. Best photorealistic quality available.
+ * Uses async polling: POST to /flux-pro-1.1-ultra → poll /get_result until ready.
+ */
+async function tryBfl(
+  cinematicPrompt: string,
+  dimensions: { width: number; height: number },
+  sceneIndex: number
+): Promise<string | undefined> {
+  const bflKey = process.env.BFL_API_KEY;
+  if (!bflKey) return undefined;
+
+  try {
+    // Step 1: Submit the generation request
+    const submitRes = await fetch(`${BFL_API_BASE}/flux-pro-1.1-ultra`, {
+      method: "POST",
+      headers: {
+        "x-key": bflKey,
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: cinematicPrompt,
+        width: dimensions.width,
+        height: dimensions.height,
+        steps: 40,
+        guidance: 3.5,
+        seed: 42 + sceneIndex * 7, // deterministic but varied per scene
+        output_format: "jpeg",
+        safety_tolerance: 6,
+        raw: false,
+      }),
+      signal: AbortSignal.timeout(30_000),
+    });
+
+    if (!submitRes.ok) {
+      const errText = await submitRes.text().catch(() => "");
+      console.warn(`[CinematicImageGen] BFL submit HTTP ${submitRes.status}: ${errText.slice(0, 200)}`);
+      return undefined;
+    }
+
+    const submitJson = (await submitRes.json()) as { id?: string };
+    const taskId = submitJson?.id;
+    if (!taskId) {
+      console.warn(`[CinematicImageGen] BFL submit returned no task ID`);
+      return undefined;
+    }
+
+    console.log(`[CinematicImageGen] BFL task submitted: ${taskId}`);
+
+    // Step 2: Poll for result (max 120s, 3s intervals)
+    const maxAttempts = 40;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      await new Promise((r) => setTimeout(r, 3000));
+
+      const pollRes = await fetch(`${BFL_API_BASE}/get_result?id=${taskId}`, {
+        headers: { "x-key": bflKey, "Accept": "application/json" },
+        signal: AbortSignal.timeout(15_000),
+      });
+
+      if (!pollRes.ok) continue;
+
+      const pollJson = (await pollRes.json()) as {
+        status?: string;
+        result?: { sample?: string; url?: string };
+      };
+
+      const status = pollJson?.status;
+      if (status === "Ready") {
+        const imageUrl = pollJson?.result?.sample ?? pollJson?.result?.url;
+        if (imageUrl) {
+          console.log(`[CinematicImageGen] BFL FLUX.1 Pro Ultra succeeded (attempt ${attempt + 1}) → ${imageUrl.slice(0, 80)}...`);
+          return imageUrl;
+        }
+      } else if (status === "Error" || status === "Content Moderated" || status === "Request Moderated") {
+        console.warn(`[CinematicImageGen] BFL task ${taskId} ended with status: ${status}`);
+        return undefined;
+      }
+      // else: Pending / Processing — keep polling
+    }
+
+    console.warn(`[CinematicImageGen] BFL task ${taskId} timed out after ${maxAttempts} polls`);
+    return undefined;
+  } catch (err: any) {
+    console.warn(`[CinematicImageGen] BFL failed: ${err?.message?.slice(0, 100)}`);
+    return undefined;
+  }
+}
+
+/**
+ * ── Provider 2: Grok grok-imagine-image-quality ──────────────────────────────
+ * Fallback if BFL is unavailable. Returns a temporary URL.
  */
 async function tryGrok(
-  cinematicPrompt: string,
-  imageSize: string
+  cinematicPrompt: string
 ): Promise<string | undefined> {
   const xaiKey = process.env.XAI_API_KEY;
   if (!xaiKey) return undefined;
@@ -125,105 +231,30 @@ async function tryGrok(
 
 /**
  * Generate a cinematic storyboard image.
- * Provider priority: Grok → fal.ai (img2img + text) → Forge
+ * Provider priority: BFL FLUX.1 Pro Ultra → Grok → Forge
  */
 export async function generateCinematicStoryboardImage(
   options: CinematicImageOptions
 ): Promise<CinematicImageResult> {
-  const imageSize = aspectRatioToFluxSize(options.aspectRatio ?? "16:9");
+  const aspectRatio = options.aspectRatio ?? "16:9";
+  const dimensions = aspectRatioToBflDimensions(aspectRatio);
+  const imageSize = aspectRatioToFluxSize(aspectRatio);
   const cinematicPrompt = buildCinematicPrompt(options.prompt ?? "");
+  const sceneIndex = options.sceneIndex ?? 0;
 
   let imageUrl: string | undefined;
   let lastError: Error | null = null;
 
-  // ── 1. Grok (primary — best quality) ────────────────────────────────────────
-  imageUrl = await tryGrok(cinematicPrompt, imageSize);
+  // ── 1. BFL FLUX.1 Pro Ultra (primary — best quality, no restrictions) ────────
+  imageUrl = await tryBfl(cinematicPrompt, dimensions, sceneIndex);
 
-  // ── 2. fal.ai img2img with venue reference (if Grok failed + reference available) ──
-  if (!imageUrl && options.venueReferenceUrl) {
-    const falKey = process.env.FAL_AI_API_KEY;
-    if (falKey) {
-      fal.config({ credentials: falKey });
-      try {
-        const result = await fal.subscribe("fal-ai/flux-pro/v1.1-ultra", {
-          input: {
-            prompt: cinematicPrompt,
-            image_url: options.venueReferenceUrl,
-            image_prompt_strength: 0.12, // 12% venue anchor — prompt must dominate
-            aspect_ratio: imageSize === "landscape_16_9" ? "16:9" : imageSize === "portrait_16_9" ? "9:16" : "1:1",
-            num_images: 1,
-            enable_safety_checker: false,
-            safety_tolerance: "5",
-            output_format: "jpeg",
-          },
-          logs: false,
-          pollInterval: 3000,
-        }) as any;
-        const images = result?.data?.images ?? result?.images;
-        if (images?.[0]?.url) {
-          imageUrl = images[0].url;
-          console.log(`[CinematicImageGen] fal.ai img2img succeeded → ${(imageUrl ?? "").slice(0, 80)}...`);
-        }
-      } catch (refErr: any) {
-        lastError = refErr;
-        console.warn(`[CinematicImageGen] fal.ai img2img failed: ${refErr?.message?.slice(0, 100)}`);
-      }
-    }
-  }
-
-  // ── 3. fal.ai text-to-image fallback ────────────────────────────────────────
+  // ── 2. Grok (fallback) ───────────────────────────────────────────────────────
   if (!imageUrl) {
-    const falKey = process.env.FAL_AI_API_KEY;
-    if (falKey) {
-      fal.config({ credentials: falKey });
-      const models = ["fal-ai/flux-pro/v1.1", "fal-ai/flux/dev"] as const;
-      for (const modelId of models) {
-        if (imageUrl) break;
-        try {
-          const isCustomSize = imageSize === "custom_21_9";
-          const customDims = isCustomSize ? dimensionMap["custom_21_9"] : null;
-          const result = await fal.subscribe(modelId, {
-            input: {
-              prompt: cinematicPrompt,
-              ...(isCustomSize && customDims
-                ? { image_size: { width: customDims.width, height: customDims.height } }
-                : { image_size: imageSize as any }
-              ),
-              num_images: 1,
-              enable_safety_checker: false,
-              safety_tolerance: "5",
-              output_format: "jpeg",
-            },
-            logs: false,
-            pollInterval: 3000,
-          }) as any;
-          const images = result?.data?.images ?? result?.images;
-          if (images?.[0]?.url) {
-            const returnedW = images[0].width ?? 0;
-            const returnedH = images[0].height ?? 0;
-            const expectedDims = dimensionMap[imageSize];
-            if (returnedW > 0 && returnedH > 0 && expectedDims) {
-              const expectedRatio = expectedDims.width / expectedDims.height;
-              const actualRatio = returnedW / returnedH;
-              const ratioDiff = Math.abs(actualRatio - expectedRatio) / expectedRatio;
-              if (ratioDiff > 0.05) {
-                console.warn(`[CinematicImageGen] ${modelId} wrong aspect ratio ${returnedW}×${returnedH}. Trying next.`);
-                continue;
-              }
-            }
-            imageUrl = images[0].url;
-            console.log(`[CinematicImageGen] fal.ai ${modelId} succeeded ${returnedW}×${returnedH} ✓`);
-            break;
-          }
-        } catch (err: any) {
-          lastError = err;
-          console.warn(`[CinematicImageGen] fal.ai ${modelId} failed: ${err?.message?.slice(0, 100)}`);
-        }
-      }
-    }
+    console.warn(`[CinematicImageGen] BFL unavailable — trying Grok fallback`);
+    imageUrl = await tryGrok(cinematicPrompt);
   }
 
-  // ── 4. Built-in Forge fallback (always available) ───────────────────────────
+  // ── 3. Built-in Forge fallback (always available) ───────────────────────────
   if (!imageUrl) {
     try {
       console.warn(`[CinematicImageGen] All external providers failed — falling back to built-in Forge`);
@@ -231,13 +262,12 @@ export async function generateCinematicStoryboardImage(
       const forgeResult = await generateImage({ prompt: cinematicPrompt });
       if (forgeResult.url) {
         console.log(`[CinematicImageGen] Forge fallback succeeded → ${forgeResult.url.slice(0, 80)}...`);
-        const dims = dimensionMap[imageSize] ?? { width: 1344, height: 768 };
-        return { url: forgeResult.url, ...dims };
+        return { url: forgeResult.url, ...dimensions };
       }
     } catch (forgeErr: any) {
       console.warn(`[CinematicImageGen] Forge fallback failed: ${forgeErr?.message?.slice(0, 100)}`);
     }
-    throw lastError ?? new Error("All image generation providers failed (Grok + fal.ai + Forge)");
+    throw lastError ?? new Error("All image generation providers failed (BFL + Grok + Forge)");
   }
 
   // Download and re-upload to S3 for permanent storage
@@ -247,7 +277,6 @@ export async function generateCinematicStoryboardImage(
   const keyPrefix = options.storageKeyPrefix ?? `music-video-storyboard/${Date.now()}`;
   const { url: s3Url } = await storagePut(`${keyPrefix}.jpg`, buffer, "image/jpeg");
 
-  const dims = dimensionMap[imageSize] ?? { width: 1344, height: 768 };
   console.log(`[CinematicImageGen] Saved ${imageSize} storyboard → ${s3Url.slice(0, 80)}...`);
-  return { url: s3Url, ...dims };
+  return { url: s3Url, ...dimensions };
 }
