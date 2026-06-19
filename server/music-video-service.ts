@@ -405,7 +405,17 @@ Your job is to define the COMPLETE cast of characters for a music video.
 ⚠️ MOST IMPORTANT RULE — READ CAREFULLY:
 The user has already defined ${lockedCount} character(s): ${lockedRoleList}.
 These characters ALREADY COVER their roles. You MUST NOT invent any new character that performs a role already covered by a locked character.
-If the theme mentions "3 piece rock band" but the user only uploaded 2 characters (e.g. singer and drummer), you should ONLY add a 3rd character for the missing role (e.g. bassist) — and ONLY if the theme explicitly requires it.
+
+🚫 SOLO ARTIST RULE (HIGHEST PRIORITY — OVERRIDES ALL OTHER RULES):
+If the user has defined ONLY ONE character (a solo artist / lead vocalist), this is a SOLO ARTIST video.
+In a solo artist video:
+- The video features ONLY that one artist. Full stop.
+- Do NOT invent backing musicians, session players, orchestra members, dancers, or any other named character.
+- The orchestra, session musicians, and venue atmosphere are ENVIRONMENT ELEMENTS — they are part of the background world, NOT named characters in the roster.
+- Return ONLY the single locked character. The roster has exactly 1 entry.
+- Any scene that shows an orchestra or musicians in the background does NOT require those musicians to be named characters.
+
+If the theme mentions a band or multiple musicians but the user only uploaded ONE character, treat it as a solo artist video. The other musicians are anonymous background atmosphere, not named characters.
 If all roles are covered by locked characters, return ONLY the locked characters — do NOT add anyone.
 
 CRITICAL RULES — MUST FOLLOW:
@@ -489,6 +499,17 @@ Return a JSON object with a "characters" array. Each character must have:
     rosterParsed.characters ?? [];
 
   // ─── SERVER-SIDE ROSTER VALIDATION ───────────────────────────────────────────
+  // 0. SOLO ARTIST ENFORCEMENT: if only 1 locked character exists, strip ALL invented characters.
+  //    The LLM sometimes invents orchestra musicians or backing vocalists even when told not to.
+  //    This server-side guard is the final safety net.
+  if (hasLockedCharacters && lockedCharacters!.length === 1) {
+    const inventedCount = fullRoster.filter(c => !c.isLocked).length;
+    if (inventedCount > 0) {
+      console.log(`[Storyboard] SOLO ARTIST ENFORCEMENT: stripping ${inventedCount} invented character(s) — only 1 locked character defined`);
+      fullRoster = fullRoster.filter(c => c.isLocked);
+    }
+  }
+
   // 1. Always start with the locked characters using their EXACT frozen descriptions
   //    (never trust the LLM to copy them correctly)
   if (hasLockedCharacters) {
@@ -788,6 +809,18 @@ RULE 8 — INSTRUMENT PLAYING POSTURE (NON-NEGOTIABLE):
   const systemPrompt = `You are a premium cinematic music video director — not an AI avatar generator.
 Your job is to create detailed, emotionally directed scene descriptions for AI video generation.
 Think: Hype Williams, David Fincher, Anton Corbijn. Every scene must feel like it belongs in a premium music video, not a generic AI singing clip.
+
+🚫 SOLO ARTIST RULE (HIGHEST PRIORITY — READ THIS BEFORE WRITING ANY SCENE):
+${hasLockedCharacters && lockedCharacters!.length === 1 ? `
+This is a SOLO ARTIST video. There is ONLY ONE character: ${lockedCharacters![0].name} (${lockedCharacters![0].role}).
+ABSOLUTE RULES — NO EXCEPTIONS:
+1. EVERY scene that features a person MUST feature ONLY ${lockedCharacters![0].name}. No other named person exists in this video.
+2. Do NOT invent, reference, or assign any other named character to any scene.
+3. Orchestra musicians, session players, backing vocalists, conductors, and other performers are ANONYMOUS BACKGROUND ATMOSPHERE — they are part of the environment world, NOT named characters. They have no names. They are scenery.
+4. characterAssignments for every performance scene MUST contain ONLY ["${lockedCharacters![0].name}"] or [] (for pure environment/atmosphere shots).
+5. NEVER put any other name in characterAssignments. If you do, the scene will fail validation.
+6. The word "orchestra" or "musicians" in a prompt refers to anonymous background atmosphere — not named characters.
+` : 'Multiple characters are defined. Follow the roster rules below.'}
 
 ⚠️ MOST IMPORTANT RULE — THE USER'S VISION IS SACRED:
 You are directing the user's creative vision, not inventing your own.
