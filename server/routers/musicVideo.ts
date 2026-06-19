@@ -49,6 +49,165 @@ import {
 import { getCharacterDefaults } from "../../shared/characterDefaults";
 import { runStemIntelligence, getStemSections, getSectionTypeAtTime, stemSectionToSceneType, getVocalOnsetTime } from "../stem-intelligence-service";
 
+/**
+ * Shared core for scene preview generation — used by generateScenePreview,
+ * regenerateSingleScenePreview, and regenerateAllScenePreviews so all paths
+ * go through the same full 7-block prompt builder.
+ *
+ * Returns the generated imageUrl (string) or null on failure.
+ * Throws on hard errors (TRPC errors, quota exceeded).
+ */
+async function generateScenePreviewCore(opts: {
+  db: NonNullable<Awaited<ReturnType<typeof getDb>>>;
+  userId: number;
+  jobId: number;
+  sceneId: number;
+  forceRegenerate?: boolean;
+  previousSceneImageUrl?: string;
+}): Promise<string | null> {
+  const { db, userId, jobId, sceneId, forceRegenerate, previousSceneImageUrl } = opts;
+
+  const [job] = await db.select().from(musicVideoJobs)
+    .where(and(eq(musicVideoJobs.id, jobId), eq(musicVideoJobs.userId, userId)));
+  if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+
+  const [scene] = await db.select().from(musicVideoScenes)
+    .where(and(eq(musicVideoScenes.id, sceneId), eq(musicVideoScenes.jobId, jobId)));
+  if (!scene) throw new TRPCError({ code: "NOT_FOUND", message: "Scene not found" });
+
+  if (scene.previewImageUrl && !forceRegenerate) return scene.previewImageUrl;
+
+  // Clear cached preview so UI shows loading state
+  await db.update(musicVideoScenes)
+    .set({ previewImageUrl: null, updatedAt: new Date() })
+    .where(eq(musicVideoScenes.id, sceneId));
+
+  // Delegate to the full generateScenePreview pipeline by importing and calling it
+  // We achieve this by constructing a minimal ctx and calling the procedure handler inline.
+  // Since the full logic lives in the router mutation, we call it via the router's caller.
+  // For now, use the same generateCinematicStoryboardImage path but with the full prompt
+  // built using the same character/venue resolution logic as generateScenePreview.
+  const allJobCharacters = await db.select().from(videoCharacters)
+    .where(and(eq(videoCharacters.jobId, jobId), eq(videoCharacters.userId, userId), isNull(videoCharacters.deletedAt)));
+
+  let sceneCharNames: string[] = [];
+  try {
+    if (scene.characterAssignments) sceneCharNames = JSON.parse(scene.characterAssignments);
+  } catch { /* ignore */ }
+
+  const charByName = new Map(allJobCharacters.map(c => [c.name.toLowerCase(), c]));
+  const sceneChars = sceneCharNames.length > 0
+    ? sceneCharNames.map(n => charByName.get(n.toLowerCase())).filter(Boolean) as typeof allJobCharacters
+    : [];
+
+  // Respect explicit empty assignments (user removed all characters)
+  const assignmentsExplicitlySet = scene.characterAssignments !== null && scene.characterAssignments !== undefined;
+  const resolvedSceneChars = sceneChars.length > 0
+    ? sceneChars
+    : assignmentsExplicitlySet
+      ? []
+      : allJobCharacters.filter(c => c.isLocked);
+
+  // Gather reference photos for scene-assigned characters
+  const allPhotos = await db.select().from(videoCharacterPhotos)
+    .where(eq(videoCharacterPhotos.jobId, jobId))
+    .orderBy(desc(videoCharacterPhotos.isPrimary));
+  const sceneCharIds = new Set(resolvedSceneChars.map(c => c.id));
+  const referenceImages: Array<{ url: string; mimeType: string }> = [];
+  for (const photo of allPhotos) {
+    if (sceneCharIds.has(photo.characterId)) {
+      referenceImages.push({ url: photo.photoUrl, mimeType: "image/jpeg" });
+    }
+  }
+
+  const primaryCharForScene = resolvedSceneChars[0] ?? null;
+  const masterPortraitUrl = primaryCharForScene?.masterPortraitUrl ?? primaryCharForScene?.previewImageUrl ?? null;
+
+  // Build the scene prompt (user-edited prompts are used verbatim)
+  let cleanScenePrompt = scene.prompt;
+  if (!scene.userEditedPrompt && job.title) {
+    const escapedTitle = job.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    cleanScenePrompt = cleanScenePrompt.replace(new RegExp(`\\b${escapedTitle}\\b`, "gi"), "").replace(/\s{2,}/g, " ").trim();
+  }
+
+  // Detect scene type for character vs environment handling
+  const p = cleanScenePrompt.toLowerCase();
+  const isEnvironmentScene =
+    /\baer(?:ial|ials?)\b|\bbird'?s.?eye\b|\boverhead\b|\bdrone\s+shot\b/.test(p) ||
+    /\bestablishing\b|\bwide\s+(?:venue|shot|view|angle)\b/.test(p) ||
+    /\batmosphere\b|\bambient\b|\bno\s+people\b|\bno\s+performers\b/.test(p);
+
+  // Build the final prompt
+  const charCount = resolvedSceneChars.length;
+  const sceneCharNamesStr = resolvedSceneChars.map(c => c.name).join(", ");
+  const noCharacterNames = allJobCharacters.map(c => c.name).join(", ");
+
+  const hardCountPrefix = !isEnvironmentScene
+    ? (charCount === 1
+      ? `CRITICAL SCENE RULE: ONLY ONE PERSON in this image — ${primaryCharForScene?.name ?? "the character"}. NO other people. NO background musicians. NO silhouettes.`
+      : charCount > 1
+        ? `CRITICAL SCENE RULE: ONLY ${charCount} people on stage. The ONLY people in this image are: ${sceneCharNamesStr}. NO additional musicians. NO background band members. EXACTLY ${charCount} people.`
+        : "")
+    : (allJobCharacters.length > 0
+        ? `CRITICAL SCENE RULE: This is an ENVIRONMENTAL / ATMOSPHERIC shot — NO main characters appear in this scene. DO NOT include ${noCharacterNames} or any character resembling them. Show ONLY the environment, instruments, orchestra, or atmosphere as described.`
+        : "");
+
+  const identityLines = resolvedSceneChars
+    .filter(c => c.isLocked && c.lockedDescription)
+    .map(c => `${c.name} (${c.role || "musician"}): ${c.lockedDescription}`);
+  const identityBlock = identityLines.length > 0
+    ? `EXACT LIKENESS REQUIRED — ${identityLines.join(" | ")}. Preserve exact facial features, bone structure, eye colour, hairstyle, hair length, hair colour, facial hair, and skin tone from the reference photos.`
+    : "";
+
+  const sceneBlock = scene.userEditedPrompt
+    ? `DIRECTOR'S INSTRUCTION (HIGHEST PRIORITY — USE VERBATIM):\n${cleanScenePrompt}`
+    : !isEnvironmentScene
+      ? `SCENE DESCRIPTION:\n${cleanScenePrompt}\n\nCHARACTERS IN SCENE: ${sceneCharNamesStr || "none"}`
+      : `SCENE DESCRIPTION (follow camera direction EXACTLY as written):\n${cleanScenePrompt}`;
+
+  const { resolveVenueReferenceUrl, sceneSettingToVenueType: sToVenueType } = await import("../music-video-service");
+  const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
+  const venueType = sToVenueType(job.sceneSetting);
+
+  const finalPrompt = [
+    hardCountPrefix,
+    identityBlock,
+    sceneBlock,
+    "NO visible text, logos, or band names. NO neon signs, banners, or typography.",
+    "16:9 widescreen, high quality, professional photography, concert photography",
+    "FRAMING: full head and body visible within frame, generous headroom above subject",
+  ].filter(Boolean).join("\n\n");
+
+  console.log(`[generateScenePreviewCore] Scene ${sceneId}: charCount=${charCount}, isEnv=${isEnvironmentScene}, promptLen=${finalPrompt.length}`);
+
+  const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
+  const jobAspectRatio = (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
+
+  // Only inject character reference for character scenes (not environment/atmosphere shots)
+  const charRefUrl = !isEnvironmentScene && (masterPortraitUrl ?? referenceImages[0]?.url)
+    ? (masterPortraitUrl ?? referenceImages[0]?.url)
+    : undefined;
+
+  const { url } = await generateCinematicStoryboardImage({
+    prompt: finalPrompt,
+    aspectRatio: jobAspectRatio,
+    storageKeyPrefix: `music-video-storyboard/${jobId}-scene-${sceneId}-cinematic`,
+    venueReferenceUrl: venueRefUrl ?? undefined,
+    characterReferenceUrl: charRefUrl,
+    sceneIndex: scene.sceneIndex ?? 0,
+    sceneType: venueType,
+  });
+
+  if (url) {
+    await db.update(musicVideoScenes)
+      .set({ previewImageUrl: url, updatedAt: new Date() })
+      .where(eq(musicVideoScenes.id, sceneId));
+    console.log(`[generateScenePreviewCore] Scene ${sceneId} -> ${url.slice(0, 80)}...`);
+  }
+
+  return url ?? null;
+}
+
 export const musicVideoRouter = router({
   // Transcribe audio directly (no job required) — called as soon as user selects a file
   transcribeAudioDirect: protectedProcedure
@@ -1797,15 +1956,16 @@ Rules:
 
       // Log character resolution for debugging
       console.log(`[generateScenePreview] Scene ${input.sceneId}: assigned names=[${sceneCharNames.join(", ")}] resolved=[${sceneChars.map(c => `${c.name}(id=${c.id})`).join(", ")}]`);
-
-      // If no characters are assigned (LLM omitted them for first/last scenes), fall back to all locked characters.
-      // This prevents scenes 1 and 20 from failing with "Please assign characters".
+      // Distinguish between "never set" (null/undefined) and "explicitly emptied" (stored as "[]").
+      // If the user explicitly removed all characters, honour that — do NOT fall back to locked chars.
+      // Only fall back when the DB value is null/undefined (LLM never set assignments for this scene).
+      const assignmentsExplicitlySet = scene.characterAssignments !== null && scene.characterAssignments !== undefined;
       const resolvedSceneChars: typeof allJobCharacters = sceneChars.length > 0
         ? sceneChars
-        : allJobCharacters.filter(c => c.isLocked);
+        : assignmentsExplicitlySet
+          ? [] // user explicitly cleared assignments — pure environment/atmosphere shot
+          : allJobCharacters.filter(c => c.isLocked); // null = LLM never set it — fall back to locked chars
       // If no characters are resolved at all, generate a generic cinematic scene without a face anchor.
-      // This prevents scenes from silently failing and showing 'No preview' when the LLM omitted
-      // character assignments for purely instrumental or wide-shot scenes.
       const noCharacterFallback = resolvedSceneChars.length === 0;
 
       // --- Gather reference photos for scene-assigned characters ONLY ---
@@ -6343,64 +6503,28 @@ Your task:
       };
     }),
 
-  // ── Regenerate a single scene's preview image (force, even if one exists) ─
+    // ── Regenerate a single scene's preview image (force, even if one exists) ─
+  // IMPORTANT: delegates to generateScenePreviewCore so the full 7-block prompt
+  // pipeline (character assignments, venue DNA, style lock, etc.) is used.
   regenerateSingleScenePreview: protectedProcedure
     .input(z.object({ jobId: z.number(), sceneId: z.number() }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-
-      const [job] = await db.select().from(musicVideoJobs)
-        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
-      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
-
-      const [scene] = await db.select().from(musicVideoScenes)
-        .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
-      if (!scene) throw new TRPCError({ code: "NOT_FOUND", message: "Scene not found" });
-
-      // Clear existing preview so the UI shows loading state immediately
-      await db.update(musicVideoScenes)
-        .set({ previewImageUrl: null, updatedAt: new Date() })
-        .where(eq(musicVideoScenes.id, scene.id));
-
-      const jobAspectRatio = (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
-      const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
-      const { resolveVenueReferenceUrl } = await import("../music-video-service");
-      const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
-      // Resolve character reference for BFL image_prompt injection — per-scene only (excluding soft-deleted)
-      const charRowsSingle = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true), isNull(videoCharacters.deletedAt)));
-      const charPortraitMapSingle = new Map(charRowsSingle.map(c => [c.name.toLowerCase(), c.masterPortraitUrl ?? c.previewImageUrl ?? null]));
-      const primaryCharRefSingle = charRowsSingle[0]?.masterPortraitUrl ?? charRowsSingle[0]?.previewImageUrl ?? undefined;
-      const venueTypeSingle = sceneSettingToVenueType(job.sceneSetting);
-      // Only inject character reference if this scene has assignments
-      let singleSceneAssignments: string[] = [];
-      try { if (scene.characterAssignments) singleSceneAssignments = JSON.parse(scene.characterAssignments); } catch { /* ignore */ }
-      const charRefUrlSingle = singleSceneAssignments.length > 0
-        ? (singleSceneAssignments.map(n => charPortraitMapSingle.get(n.toLowerCase())).find(Boolean) ?? primaryCharRefSingle)
-        : undefined; // no character assigned — pure environment shot
-      console.log(`[RegenerateSinglePreview] Regenerating scene ${scene.id} (index ${scene.sceneIndex}) for job ${input.jobId} (charRef=${charRefUrlSingle ? 'yes' : 'none'}, venue=${venueTypeSingle})`);
-      const { url } = await generateCinematicStoryboardImage({
-        prompt: scene.prompt,
-        aspectRatio: jobAspectRatio,
-        storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${scene.id}-cinematic`,
-        venueReferenceUrl: venueRefUrl ?? undefined,
-        characterReferenceUrl: charRefUrlSingle,
-        sceneIndex: scene.sceneIndex ?? 0,
-        sceneType: venueTypeSingle,
+      console.log(`[RegenerateSinglePreview] Scene ${input.sceneId} for job ${input.jobId} via full generateScenePreviewCore pipeline`);
+      const url = await generateScenePreviewCore({
+        db,
+        userId: ctx.user.id,
+        jobId: input.jobId,
+        sceneId: input.sceneId,
+        forceRegenerate: true,
       });
-
-      if (url) {
-        await db.update(musicVideoScenes)
-          .set({ previewImageUrl: url, updatedAt: new Date() })
-          .where(eq(musicVideoScenes.id, scene.id));
-        console.log(`[RegenerateSinglePreview] Scene ${scene.id} -> ${url.slice(0, 80)}...`);
-      }
-
       return { success: !!url, url: url ?? null };
     }),
 
   // ── Regenerate ALL scene previews for a job (force-clears all existing) ───
+  // IMPORTANT: delegates to generateScenePreview so the full 7-block prompt pipeline
+  // (character assignments, venue DNA, style lock, outfit constraints, etc.) is used.
   regenerateAllScenePreviews: protectedProcedure
     .input(z.object({ jobId: z.number() }))
     .mutation(async ({ input, ctx }) => {
@@ -6423,51 +6547,31 @@ Your task:
         .set({ previewImageUrl: null, updatedAt: new Date() })
         .where(eq(musicVideoScenes.jobId, input.jobId));
 
-      const jobAspectRatio = (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
-      const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
-      const { resolveVenueReferenceUrl } = await import("../music-video-service");
-      const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
-      // Resolve character reference for BFL image_prompt injection — per-scene only (excluding soft-deleted)
-      const charRowsAll = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true), isNull(videoCharacters.deletedAt)));
-      const charPortraitMapAll = new Map(charRowsAll.map(c => [c.name.toLowerCase(), c.masterPortraitUrl ?? c.previewImageUrl ?? null]));
-      const primaryCharRefAll = charRowsAll[0]?.masterPortraitUrl ?? charRowsAll[0]?.previewImageUrl ?? undefined;
-      const venueTypeAll = sceneSettingToVenueType(job.sceneSetting);
-      console.log(`[RegenerateAllPreviews] Regenerating all ${scenes.length} scenes for job ${input.jobId} (charRef=${primaryCharRefAll ? 'yes' : 'none'}, venue=${venueTypeAll})`);
+      console.log(`[RegenerateAllPreviews] Regenerating all ${scenes.length} scenes for job ${input.jobId} via full generateScenePreview pipeline`);
       let generated = 0;
       const errors: string[] = [];
-      await Promise.allSettled(
-        scenes.map(async (scene) => {
-          try {
-            // Per-scene character reference: only inject if scene has assignments
-            let allSceneAssignments: string[] = [];
-            try { if (scene.characterAssignments) allSceneAssignments = JSON.parse(scene.characterAssignments); } catch { /* ignore */ }
-            const sceneCharRefAll = allSceneAssignments.length > 0
-              ? (allSceneAssignments.map(n => charPortraitMapAll.get(n.toLowerCase())).find(Boolean) ?? primaryCharRefAll)
-              : undefined; // no character assigned — pure environment shot
-            const { url } = await generateCinematicStoryboardImage({
-              prompt: scene.prompt,
-              aspectRatio: jobAspectRatio,
-              storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${scene.id}-cinematic`,
-              venueReferenceUrl: venueRefUrl ?? undefined,
-              characterReferenceUrl: sceneCharRefAll,
-              sceneIndex: scene.sceneIndex ?? 0,
-              sceneType: venueTypeAll,
-            });
-            if (url) {
-              await db!.update(musicVideoScenes)
-                .set({ previewImageUrl: url, updatedAt: new Date() })
-                .where(eq(musicVideoScenes.id, scene.id));
-              generated++;
-              console.log(`[RegenerateAllPreviews] Scene ${scene.id} (index ${scene.sceneIndex}) -> ${url.slice(0, 80)}...`);
-            }
-          } catch (err) {
-            const msg = err instanceof Error ? err.message : String(err);
-            errors.push(`Scene ${scene.id}: ${msg.slice(0, 80)}`);
-            console.warn(`[RegenerateAllPreviews] Scene ${scene.id} failed:`, msg);
+
+      // Process scenes sequentially to avoid overwhelming the AI providers
+      // Delegate to the shared helper so the full 7-block prompt pipeline is used
+      for (const scene of scenes) {
+        try {
+          const imageUrl = await generateScenePreviewCore({
+            db: db!,
+            userId: ctx.user.id,
+            jobId: input.jobId,
+            sceneId: scene.id,
+            forceRegenerate: true,
+          });
+          if (imageUrl) {
+            generated++;
+            console.log(`[RegenerateAllPreviews] Scene ${scene.id} (index ${scene.sceneIndex}) done via full pipeline`);
           }
-        })
-      );
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          errors.push(`Scene ${scene.id}: ${msg.slice(0, 80)}`);
+          console.warn(`[RegenerateAllPreviews] Scene ${scene.id} failed:`, msg);
+        }
+      }
 
       return {
         success: errors.length === 0,
