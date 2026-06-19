@@ -46,7 +46,9 @@ export interface GptImageResult {
 function getClient(): OpenAI {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
-  return new OpenAI({ apiKey });
+  // Explicitly set baseURL to OpenAI directly — bypasses any OPENAI_BASE_URL proxy
+  // that may be set in the environment (e.g. Manus LLM proxy which doesn't support images API)
+  return new OpenAI({ apiKey, baseURL: "https://api.openai.com/v1" });
 }
 
 /**
