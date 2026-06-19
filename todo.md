@@ -9303,3 +9303,7 @@
 - [ ] Wire scene-type selection to the prompt builder so venue DNA matches the project's chosen environment
 - [ ] Run end-to-end test: generate storyboard with character reference photo, verify likeness consistency across 3+ scenes
 - [ ] Validate lip sync quality gate: confirm HeyGen receives correctly framed 16:9 storyboard images
+
+## Character Soft-Delete Fix
+- [x] Fix: deleted characters reappearing on storyboard reset — implement proper soft-delete (deletedAt column) on videoCharacters, add deleteCharacter tRPC procedure, filter all character queries with isNull(deletedAt), guard invented-character re-insert loop to skip soft-deleted rows
+- [x] Soft-delete 5 unwanted orchestra musicians from job 1080001 (keep only Zara id=720001)

@@ -476,6 +476,9 @@ export const videoCharacters = mysqlTable("videoCharacters", {
   autoPrepStatus: mysqlEnum("autoPrepStatus", ["pending", "stage1_processing", "stage1_done", "stage2_processing", "complete", "failed"]).default("pending"),
   autoPrepStartedAt: timestamp("autoPrepStartedAt"),
   autoPrepCompletedAt: timestamp("autoPrepCompletedAt"),
+  // Soft-delete: set this timestamp to remove a character without hard-deleting.
+  // Soft-deleted characters are excluded from all queries and will NOT reappear on storyboard regeneration.
+  deletedAt: timestamp("deletedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });

@@ -7,7 +7,7 @@ import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters, renderJobs, kidsVideoJobs, wizShortsJobs, characterScenes, providerJobLogs, sceneActionLogs } from "../../drizzle/schema";
 import { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../_core/quotaError";
-import { eq, and, desc, inArray, gte, sql } from "drizzle-orm";
+import { eq, and, desc, inArray, gte, sql, isNull } from "drizzle-orm";
 
 import { storagePut } from "../storage";
 import {
@@ -319,9 +319,9 @@ export const musicVideoRouter = router({
         }
       }
 
-      // Fetch ALL characters for this job — locked and unlocked
+      // Fetch ALL characters for this job — locked and unlocked (excluding soft-deleted)
       const allCharacters = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id), isNull(videoCharacters.deletedAt)));
 
       // Auto-analyse and lock any characters that have photos but no locked description yet.
       // Also re-analyse if the existing description is too short/vague to be useful for AI image generation.
@@ -455,8 +455,9 @@ Rules:
 
       // Re-fetch characters after auto-locking to get updated locked descriptions
       // This now includes any previously-frozen AI-invented characters (e.g. Mike the bassist)
+      // Exclude soft-deleted characters so they don't appear in the storyboard
       const refreshedCharacters = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id), isNull(videoCharacters.deletedAt)));
       const lockedCharacters = refreshedCharacters
         .filter((c) => c.isLocked && c.lockedDescription)
         .map((c) => ({ name: c.name, role: c.role, lockedDescription: c.lockedDescription! }));
@@ -519,9 +520,11 @@ Rules:
       // ── Persist AI-invented characters to videoCharacters so their descriptions are frozen ──
       // Invented characters (isLocked=false in roster) need a stable description stored in the DB.
       // On subsequent storyboard regenerations, we check if they already exist and reuse the frozen description.
+      // SOFT-DELETE GUARD: if a character with this name was previously soft-deleted, do NOT re-insert it.
       const inventedInRoster = roster.filter(c => !c.isLocked);
       for (const invented of inventedInRoster) {
         // Check if this invented character already exists in videoCharacters for this job
+        // Include soft-deleted rows so we can detect and skip re-insertion of deleted characters
         const existing = await db.select().from(videoCharacters)
           .where(and(
             eq(videoCharacters.jobId, input.jobId),
@@ -529,6 +532,11 @@ Rules:
           ));
         const alreadyExists = existing.find(c => c.name.toLowerCase() === invented.name.toLowerCase());
         if (alreadyExists) {
+          // If this character was soft-deleted, skip it — user intentionally removed them
+          if (alreadyExists.deletedAt) {
+            console.log(`[MusicVideo] Skipping soft-deleted invented character ${invented.name} — user removed them`);
+            continue;
+          }
           // Already exists — update the description only if not already locked
           if (!alreadyExists.isLocked) {
             await db.update(videoCharacters)
@@ -540,7 +548,8 @@ Rules:
           }
         } else {
           // New invented character — insert with locked description so it's frozen for future runs
-          const nextSlot = existing.length; // use next available slot index
+          const activeExisting = existing.filter(c => !c.deletedAt);
+          const nextSlot = activeExisting.length; // use next available slot index (active only)
           await db.insert(videoCharacters).values({
             jobId: input.jobId,
             userId: ctx.user.id,
@@ -970,8 +979,9 @@ Rules:
 
       // Second: override/supplement with locked character descriptions from videoCharacters table
       // (These are the user-uploaded photo descriptions — they take precedence over AI-generated ones)
+      // Exclude soft-deleted characters so they don't appear in the storyboard
       const allJobCharsForRender = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id), isNull(videoCharacters.deletedAt)));
       for (const c of allJobCharsForRender) {
         if (c.isLocked && c.lockedDescription) {
           fullCharMap.set(c.name.toLowerCase(), { name: c.name, role: c.role ?? "", brief: c.lockedDescription });
@@ -1762,9 +1772,9 @@ Rules:
           .where(eq(musicVideoScenes.id, input.sceneId));
       }
 
-      // --- Gather ALL locked characters for this job ---
+      // --- Gather ALL locked characters for this job (excluding soft-deleted) ---
       const allJobCharacters = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id), isNull(videoCharacters.deletedAt)));
 
       // --- Determine which characters are assigned to THIS scene ---
       let sceneCharNames: string[] = [];
@@ -2965,9 +2975,9 @@ Rules:
       // Reset spend-protection attempt counter so the re-render is not blocked
       await resetSceneAttempts(input.sceneId);
 
-      // Fetch locked character briefs for this job
+      // Fetch locked character briefs for this job (excluding soft-deleted)
       const allJobCharacters = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)));
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id), isNull(videoCharacters.deletedAt)));
       const lockedBriefs = allJobCharacters
         .filter((c) => c.isLocked && c.lockedDescription)
         .map((c) => `${c.name}${c.role ? ` (${c.role})` : ""}: ${c.lockedDescription!}`);
@@ -3843,7 +3853,7 @@ Rules:
       if (!job) throw new TRPCError({ code: "NOT_FOUND" });
 
       const chars = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)))
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id), isNull(videoCharacters.deletedAt)))
         .orderBy(videoCharacters.slotIndex);
 
       // Attach photo count per character
@@ -4160,6 +4170,25 @@ Return ONLY valid JSON, no markdown.`,
       return { success: true };
     }),
 
+  // Soft-delete a character — sets deletedAt so it is excluded from all queries
+  // and will NOT reappear when the storyboard is regenerated.
+  deleteCharacter: protectedProcedure
+    .input(z.object({ characterId: z.number().int(), jobId: z.number().int().optional() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      // Verify ownership
+      const [char] = await db.select().from(videoCharacters)
+        .where(and(eq(videoCharacters.id, input.characterId), eq(videoCharacters.userId, ctx.user.id)));
+      if (!char) throw new TRPCError({ code: "NOT_FOUND" });
+      // Soft-delete: stamp deletedAt so the character is hidden but recoverable
+      await db.update(videoCharacters)
+        .set({ deletedAt: new Date(), updatedAt: new Date() })
+        .where(eq(videoCharacters.id, input.characterId));
+      console.log(`[deleteCharacter] Character ${input.characterId} (${char.name}) soft-deleted by user ${ctx.user.id}`);
+      return { success: true };
+    }),
+
   // Analyse lyrics — break into blocks with emotion, scene type, visual cues
   analyseLyrics: protectedProcedure
     .input(z.object({
@@ -4356,7 +4385,7 @@ Return a JSON array of objects matching the lyric lines provided.`;
       if (!job) throw new TRPCError({ code: "NOT_FOUND" });
 
       const characters = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)))
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id), isNull(videoCharacters.deletedAt)))
         .orderBy(videoCharacters.slotIndex);
 
       // Parse stored instrument analysis if available
@@ -5873,11 +5902,12 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
         .set({ sceneSetting: input.sceneStyle })
         .where(eq(musicVideoJobs.id, input.jobId));
 
-      // Fetch all approved characters for this job
+      // Fetch all approved characters for this job (excluding soft-deleted)
       const chars = await db.select().from(videoCharacters)
         .where(and(
           eq(videoCharacters.jobId, input.jobId),
           eq(videoCharacters.userId, ctx.user.id),
+          isNull(videoCharacters.deletedAt),
         ));
 
       const approvedChars = chars.filter((c) => c.previewApproved);
@@ -6262,9 +6292,9 @@ Your task:
       const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
       const { resolveVenueReferenceUrl } = await import("../music-video-service");
       const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
-      // Resolve character reference for BFL image_prompt injection
+      // Resolve character reference for BFL image_prompt injection (excluding soft-deleted)
       const charRows = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true)));
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true), isNull(videoCharacters.deletedAt)));
       // Build a map of character name -> portrait URL for per-scene lookup
       const charPortraitByName = new Map(charRows.map(c => [c.name.toLowerCase(), c.masterPortraitUrl ?? c.previewImageUrl ?? null]));
       const primaryCharRef = charRows[0]?.masterPortraitUrl ?? charRows[0]?.previewImageUrl ?? undefined;
@@ -6337,9 +6367,9 @@ Your task:
       const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
       const { resolveVenueReferenceUrl } = await import("../music-video-service");
       const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
-      // Resolve character reference for BFL image_prompt injection — per-scene only
+      // Resolve character reference for BFL image_prompt injection — per-scene only (excluding soft-deleted)
       const charRowsSingle = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true)));
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true), isNull(videoCharacters.deletedAt)));
       const charPortraitMapSingle = new Map(charRowsSingle.map(c => [c.name.toLowerCase(), c.masterPortraitUrl ?? c.previewImageUrl ?? null]));
       const primaryCharRefSingle = charRowsSingle[0]?.masterPortraitUrl ?? charRowsSingle[0]?.previewImageUrl ?? undefined;
       const venueTypeSingle = sceneSettingToVenueType(job.sceneSetting);
@@ -6397,9 +6427,9 @@ Your task:
       const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
       const { resolveVenueReferenceUrl } = await import("../music-video-service");
       const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
-      // Resolve character reference for BFL image_prompt injection — per-scene only
+      // Resolve character reference for BFL image_prompt injection — per-scene only (excluding soft-deleted)
       const charRowsAll = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true)));
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true), isNull(videoCharacters.deletedAt)));
       const charPortraitMapAll = new Map(charRowsAll.map(c => [c.name.toLowerCase(), c.masterPortraitUrl ?? c.previewImageUrl ?? null]));
       const primaryCharRefAll = charRowsAll[0]?.masterPortraitUrl ?? charRowsAll[0]?.previewImageUrl ?? undefined;
       const venueTypeAll = sceneSettingToVenueType(job.sceneSetting);

@@ -23,7 +23,7 @@ try {
 } catch { /* fall back to system ffmpeg */ }
 import { getDb } from "./db";
 import { musicVideoJobs, musicVideoScenes, videoCharacters } from "../drizzle/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, isNull } from "drizzle-orm";
 import { storagePut } from "./storage";
 import { randomUUID } from "crypto";
 import { validateExport } from "./export-validator";
@@ -2309,12 +2309,11 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
   );
   if (performanceScenes.length > 0) {
     console.log(`[IdentityGate] Job ${jobId}: running face validation on ${performanceScenes.length} performance scene(s)...`);
-    // Fetch characters assigned to this job
+        // Fetch characters assigned to this job (excluding soft-deleted)
     const jobCharacters = await dbConn
       .select()
       .from(videoCharacters)
-      .where(eq(videoCharacters.jobId, jobId));
-
+      .where(and(eq(videoCharacters.jobId, jobId), isNull(videoCharacters.deletedAt)));
     const charData = jobCharacters
       .filter(c => c.referencePhotoBase64) // only characters with a reference photo
       .map(c => ({
@@ -2583,7 +2582,7 @@ export async function assembleMusicVideo(jobId: number, audioTier: AudioTier = "
     const { isSyncLabsConfigured } = await import("./ai-apis/synclabs-lipsync");
     const lipSyncChars = await dbConn.select()
       .from(videoCharacters)
-      .where(and(eq(videoCharacters.jobId, jobId), eq(videoCharacters.enableLipSync, true)));
+      .where(and(eq(videoCharacters.jobId, jobId), eq(videoCharacters.enableLipSync, true), isNull(videoCharacters.deletedAt)));
 
     const hasLipSyncCharacter = lipSyncChars.length > 0;
 
@@ -2957,9 +2956,8 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
   // was the root cause of character inconsistency (e.g. Tim appearing in Greg's drummer scenes).
   //
   // Resolution priority per character: masterPortraitUrl > previewImageUrl > job.characterImageUrl
-  const jobCharacters = await db.select().from(videoCharacters)
-    .where(eq(videoCharacters.jobId, musicVideoJobId));
-
+    const jobCharacters = await db.select().from(videoCharacters)
+    .where(and(eq(videoCharacters.jobId, musicVideoJobId), isNull(videoCharacters.deletedAt)));
   // Build a name→character map for O(1) lookup (case-insensitive)
   const charByName = new Map(
     jobCharacters.map(c => [c.name.toLowerCase().trim(), c])
