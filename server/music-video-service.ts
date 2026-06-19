@@ -561,10 +561,10 @@ CHARACTER ASSIGNMENT RULES — STRICTLY ENFORCED:
 3. DO NOT include character appearance descriptions in the "prompt" field — character descriptions will be injected automatically by the system
 4. The "prompt" field should contain ONLY the scene direction: camera angle, lighting, setting, action, atmosphere, mood
 5. You may refer to characters by NAME (e.g. "Tim plays guitar centre stage") but do NOT describe their appearance
-6. NEVER invent characters not in the roster above
+6. NEVER invent additional NAMED characters not in the roster above. HOWEVER: the orchestra, session musicians, conductor, and venue atmosphere are part of the ENVIRONMENT — they are NOT named characters and MUST remain visible in every hall/studio scene. Always describe the orchestra as present in the background.
 7. NEVER put two characters in the same scene performing the same role (e.g. two guitarists, two singers)
 8. Each character must appear in at least 2 scenes
-9. Prefer solo scenes (one character) — they produce the most consistent results`;
+9. Prefer solo scenes (one named character in the foreground) — they produce the most consistent results. The orchestra and session musicians in the background are always present and do NOT count as additional named characters.`;
 
   // Inject venue description if the setting matches a known venue (e.g. Air Studios Lyndhurst Hall)
   const venueDesc = resolveVenueDescription(sceneSetting);
@@ -958,7 +958,12 @@ Distribute characters thoughtfully — each must appear in at least 2 scenes. So
     // extra background musicians, crowd members, or additional performers.
     if (characterPrefixes.length > 0) {
       const charNames = validAssignments.join(" and ");
-      finalPrompt = `${characterPrefixes.join(" | ")}\n\n${finalPrompt}\n\nIMPORTANT: ONLY ${charNames} appear in this scene. No additional people, musicians, background performers, or crowd members. Exactly ${validAssignments.length} person${validAssignments.length === 1 ? "" : "s"} visible.`;
+      // IMPORTANT: The constraint below prevents DUPLICATE NAMED CHARACTERS only.
+      // It must NOT remove the orchestra, session musicians, or venue atmosphere —
+      // those are part of the venue DNA (Lyndhurst Hall, Air Studios) and must remain visible.
+      // The image model should show: named character(s) as the focal subject(s),
+      // PLUS the full orchestral/venue environment behind them.
+      finalPrompt = `${characterPrefixes.join(" | ")}\n\n${finalPrompt}\n\nFOCAL SUBJECT${validAssignments.length === 1 ? "" : "S"}: ${charNames}. These are the ONLY named characters — do NOT add other singers, soloists, or duplicate performers. HOWEVER: the full orchestra, session musicians, conductor, and venue atmosphere (Lyndhurst Hall, Air Studios) MUST remain visible in the background as part of the environment. The named character(s) perform in front of the orchestra, not in an empty room.`;
     }
 
     // ENFORCE pre-calculated startTime and duration from sceneWindows.
@@ -3035,7 +3040,10 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
     if (venueRefUrl) {
       console.log(`[triggerMusicVideoRender] Venue reference resolved for job ${musicVideoJobId}: ${venueRefUrl.slice(0, 80)}...`);
     }
-    console.log(`[triggerMusicVideoRender] Generating ${scenesNeedingStoryboard.length} cinematic storyboard images for job ${musicVideoJobId} (aspect: ${jobAspectRatio}${venueRefUrl ? ", venue-anchored" : ""})`);
+    const jobVenueType = sceneSettingToVenueType(job.sceneSetting);
+    // Resolve character reference: prefer the job's locked character image for BFL face anchoring
+    const jobCharRef = (job as any).characterImageUrl ?? (job as any).characterLockImageUrl ?? undefined;
+    console.log(`[triggerMusicVideoRender] Generating ${scenesNeedingStoryboard.length} cinematic storyboard images for job ${musicVideoJobId} (aspect: ${jobAspectRatio}, venueType: ${jobVenueType}${venueRefUrl ? ", venue-anchored" : ""}${jobCharRef ? ", char-ref" : ""})`);
     const { generateCinematicStoryboardImage } = await import("./ai-apis/fal-image-gen");
     await Promise.allSettled(
       scenesNeedingStoryboard.map(async (scene) => {
@@ -3045,6 +3053,9 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
             aspectRatio: jobAspectRatio,
             storageKeyPrefix: `music-video-storyboard/${musicVideoJobId}-scene-${scene.id}-cinematic`,
             venueReferenceUrl: venueRefUrl,
+            sceneType: jobVenueType,
+            characterReferenceUrl: jobCharRef,
+            sceneIndex: scene.sceneIndex,
           });
           if (url) {
             await db!.update(musicVideoScenes)
@@ -3062,6 +3073,9 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
               aspectRatio: jobAspectRatio,
               storageKeyPrefix: `music-video-storyboard/${musicVideoJobId}-scene-${scene.id}-fallback`,
               venueReferenceUrl: venueRefUrl,
+              sceneType: jobVenueType,
+              characterReferenceUrl: jobCharRef,
+              sceneIndex: scene.sceneIndex,
             });
             if (url) {
               await db!.update(musicVideoScenes)

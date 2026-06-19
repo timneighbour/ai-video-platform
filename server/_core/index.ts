@@ -460,6 +460,74 @@ async function startServer() {
   // dead rendering jobs, and SLA breach alerts.
   app.post("/api/scheduled/jobResurrectionReaper", jobResurrectionReaperHandler);
 
+  // ── Debug: list all music video jobs (owner-only) ──────────────────────────
+  app.get("/api/debug/list-jobs", async (req, res) => {
+    try {
+      const secret = req.query.secret as string;
+      if (!secret || secret !== process.env.JWT_SECRET?.slice(0, 16)) {
+        return res.status(403).json({ error: "forbidden" });
+      }
+      const db = await getDb();
+      if (!db) return res.status(500).json({ error: "db unavailable" });
+      const { musicVideoJobs } = await import("../../drizzle/schema");
+      const { desc } = await import("drizzle-orm");
+      const jobs = await db.select({
+        id: musicVideoJobs.id,
+        title: musicVideoJobs.title,
+        status: musicVideoJobs.status,
+        totalScenes: musicVideoJobs.totalScenes,
+        completedScenes: musicVideoJobs.completedScenes,
+        sceneSetting: musicVideoJobs.sceneSetting,
+        aspectRatio: musicVideoJobs.aspectRatio,
+        characterImageUrl: musicVideoJobs.characterImageUrl,
+        createdAt: musicVideoJobs.createdAt,
+      }).from(musicVideoJobs).orderBy(desc(musicVideoJobs.createdAt)).limit(20);
+      return res.json({ jobs });
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
+    }
+  });
+
+  // ── Debug: reset a job to storyboard stage (owner-only) ──────────────────────
+  app.post("/api/debug/reset-job/:jobId", async (req, res) => {
+    try {
+      const secret = req.query.secret as string;
+      if (!secret || secret !== process.env.JWT_SECRET?.slice(0, 16)) {
+        return res.status(403).json({ error: "forbidden" });
+      }
+      const db = await getDb();
+      if (!db) return res.status(500).json({ error: "db unavailable" });
+      const { musicVideoJobs, musicVideoScenes } = await import("../../drizzle/schema");
+      const { eq } = await import("drizzle-orm");
+      const jobId = parseInt(req.params.jobId, 10);
+      if (isNaN(jobId)) return res.status(400).json({ error: "Invalid jobId" });
+      // Reset all scenes: clear storyboard images, video URLs, lip sync, composite
+      const { sql } = await import("drizzle-orm");
+      await db.update(musicVideoScenes).set({
+        previewImageUrl: null,
+        videoUrl: null,
+        lipSyncVideoUrl: null,
+        compositeVideoUrl: null,
+        compositeStatus: "pending" as const,
+        lipSyncStatus: "pending" as const,
+        status: "pending" as const,
+        updatedAt: new Date(),
+      }).where(eq(musicVideoScenes.jobId, jobId));
+      // Reset job to storyboard stage (draft = start from character confirmation)
+      await db.update(musicVideoJobs).set({
+        status: "draft" as const,
+        completedScenes: 0,
+        finalVideoUrl: null,
+        errorMessage: null,
+        updatedAt: new Date(),
+      }).where(eq(musicVideoJobs.id, jobId));
+      console.log(`[Debug] Job ${jobId} reset to storyboard stage`);
+      return res.json({ ok: true, jobId, message: "Job reset to storyboard stage — all scene images and videos cleared" });
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
+    }
+  });
+
   // ── Debug: pre-render validation check (owner-only, temporary) ─────────────
   app.get("/api/debug/validate/:jobId", async (req, res) => {
     try {
