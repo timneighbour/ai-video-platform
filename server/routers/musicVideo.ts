@@ -169,9 +169,22 @@ async function generateScenePreviewCore(opts: {
   const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
   const venueType = sToVenueType(job.sceneSetting);
 
+  // Location Lock: if a venue is locked, inject its interior DNA as the highest-priority
+  // location constraint so every scene is anchored to that specific interior.
+  let locationLockBlock = "";
+  if (job.venueLockedKey) {
+    const { getVenueInteriorDNA } = await import("../venue-library.js");
+    const dna = getVenueInteriorDNA(job.venueLockedKey);
+    if (dna) {
+      locationLockBlock = dna;
+      console.log(`[generateScenePreviewCore] Scene ${sceneId}: Location Lock active — ${job.venueLockedDisplayName ?? job.venueLockedKey}`);
+    }
+  }
+
   const finalPrompt = [
     hardCountPrefix,
     identityBlock,
+    locationLockBlock,
     sceneBlock,
     "NO visible text, logos, or band names. NO neon signs, banners, or typography.",
     "16:9 widescreen, high quality, professional photography, concert photography",
@@ -2408,6 +2421,23 @@ Rules:
       const styleDescriptor = styleMap[styleKey] || styleMap["cinematic"];
       const moodContext = [job.genre, job.mood].filter(Boolean).join(", ");
 
+      // ── Location Lock DNA ─────────────────────────────────────────────────────
+      // When a venue is locked, its interior DNA overrides the free-text sceneSetting
+      // and is injected as a mandatory location constraint in every scene prompt.
+      let locationLockDNA = "";
+      if (job.venueLockedKey) {
+        try {
+          const { getVenueInteriorDNA } = await import("../venue-library.js");
+          const dna = getVenueInteriorDNA(job.venueLockedKey);
+          if (dna) {
+            locationLockDNA = dna;
+            console.log(`[generateScenePreview] Scene ${input.sceneId}: Location Lock active — ${job.venueLockedDisplayName ?? job.venueLockedKey}`);
+          }
+        } catch (err) {
+          console.warn(`[generateScenePreview] Scene ${input.sceneId}: failed to load venue library`, err);
+        }
+      }
+
       // ── Style Lock suffix ─────────────────────────────────────────────────────
       let styleLockSuffix: string | null = null;
       if (job.lockedStyle) {
@@ -2645,6 +2675,7 @@ Rules:
         visualBlock,
         roleBlock,
         performanceBlock,
+        locationLockDNA,
         sceneBlock,
         continuityBlock,
         constraintBlock,
@@ -4285,7 +4316,68 @@ Return ONLY valid JSON, no markdown.`,
         isLocked: !!style,
         style,
         likedSceneId: job.likedSceneId ?? null,
-        likedSceneImageUrl: job.likedSceneImageUrl ?? null,
+                likedSceneImageUrl: job.likedSceneImageUrl ?? null,
+      };
+    }),
+
+  // --- Location Lock procedures -------------------------------------------
+  lockLocation: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      venueKey: z.string().min(1),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      const { getVenueByKey } = await import("../venue-library.js");
+      const venue = getVenueByKey(input.venueKey);
+      if (!venue) throw new TRPCError({ code: "BAD_REQUEST", message: `Unknown venue key: ${input.venueKey}` });
+      await db.update(musicVideoJobs)
+        .set({ venueLockedKey: venue.key, venueLockedDisplayName: venue.displayName, venueLockedAt: new Date() })
+        .where(eq(musicVideoJobs.id, input.jobId));
+      console.log(`[lockLocation] Job ${input.jobId}: location locked to "${venue.displayName}"`);
+      return { success: true, venue: { key: venue.key, displayName: venue.displayName, emoji: venue.emoji } };
+    }),
+
+  unlockLocation: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select().from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      await db.update(musicVideoJobs)
+        .set({ venueLockedKey: null, venueLockedDisplayName: null, venueLockedAt: null })
+        .where(eq(musicVideoJobs.id, input.jobId));
+      console.log(`[unlockLocation] Job ${input.jobId}: location lock cleared`);
+      return { success: true };
+    }),
+
+  getLockedLocation: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      const [job] = await db.select({
+        venueLockedKey: musicVideoJobs.venueLockedKey,
+        venueLockedDisplayName: musicVideoJobs.venueLockedDisplayName,
+        venueLockedAt: musicVideoJobs.venueLockedAt,
+      }).from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      const { getVenueByKey, VENUE_LIBRARY } = await import("../venue-library.js");
+      const venue = job.venueLockedKey ? getVenueByKey(job.venueLockedKey) : undefined;
+      return {
+        isLocked: !!job.venueLockedKey,
+        venueKey: job.venueLockedKey ?? null,
+        displayName: job.venueLockedDisplayName ?? null,
+        lockedAt: job.venueLockedAt ?? null,
+        emoji: venue?.emoji ?? null,
+        allVenues: VENUE_LIBRARY.map(v => ({ key: v.key, displayName: v.displayName, category: v.category, emoji: v.emoji })),
       };
     }),
 

@@ -256,6 +256,13 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   upsellProcessedAt: timestamp("upsellProcessedAt"),            // When upsell processing completed
   /** Whether this job is a free trial (30s watermarked render) */
   isFreeTrial: boolean("isFreeTrial").default(false).notNull(),
+  // --- Location Lock ---------------------------------------------------
+  // Once the user confirms a venue, venueLockedKey is set and every scene
+  // prompt is anchored to that venue's interior DNA (architecture, lighting,
+  // colour palette, materials). Unlock resets to free-text sceneSetting.
+  venueLockedKey: varchar("venueLockedKey", { length: 64 }),              // e.g. "air_studios_lyndhurst"
+  venueLockedDisplayName: varchar("venueLockedDisplayName", { length: 255 }), // e.g. "Air Studios, Lyndhurst Hall"
+  venueLockedAt: timestamp("venueLockedAt"),                               // When the lock was applied
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

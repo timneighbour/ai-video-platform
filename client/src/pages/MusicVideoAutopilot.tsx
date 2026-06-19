@@ -103,6 +103,7 @@ import {
   Maximize2,
   RotateCcw,
   PlayCircle,
+  MapPin,
 } from "@/lib/icons";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
 import { StarterTemplates } from "@/components/StarterTemplates";
@@ -110,6 +111,7 @@ import { LyricTimelineBar } from "@/components/LyricTimelineBar";
 import { InstrumentAccuracyPanel } from "@/components/InstrumentAccuracyPanel";
 import { VocalStemAssignmentPanel } from "@/components/VocalStemAssignmentPanel";
 import { SceneLipSyncPreviewModal } from "@/components/SceneLipSyncPreviewModal";
+import { LocationVenuePicker } from "@/components/LocationVenuePicker";
 
 type Step = "upload" | "character_confirmation" | "storyboard" | "render";
 
@@ -1719,6 +1721,40 @@ export default function MusicVideoAutopilot() {
       toast.error("Failed to remove style lock.");
     }
   };
+
+  // Location Lock
+  const lockLocationMutation = trpc.musicVideo.lockLocation.useMutation();
+  const unlockLocationMutation = trpc.musicVideo.unlockLocation.useMutation();
+  const lockedLocationQuery = trpc.musicVideo.getLockedLocation.useQuery(
+    { jobId: jobId! },
+    { enabled: !!jobId && step === "storyboard", staleTime: 10000 }
+  );
+  const lockedLocation = lockedLocationQuery.data;
+  const [locationPickerOpen, setLocationPickerOpen] = useState(false);
+
+  const handleLockLocation = async (venueKey: string) => {
+    if (!jobId) return;
+    try {
+      const result = await lockLocationMutation.mutateAsync({ jobId, venueKey });
+      await lockedLocationQuery.refetch();
+      setLocationPickerOpen(false);
+      toast.success(`Location locked: ${result.venue.displayName}`);
+    } catch {
+      toast.error("Failed to lock location. Please try again.");
+    }
+  };
+
+  const handleUnlockLocation = async () => {
+    if (!jobId) return;
+    try {
+      await unlockLocationMutation.mutateAsync({ jobId });
+      await lockedLocationQuery.refetch();
+      toast.success("Location lock removed.");
+    } catch {
+      toast.error("Failed to remove location lock.");
+    }
+  };
+
   // Character roster for storyboard @-tag display and per-scene assignment
   const jobCharactersQuery = trpc.musicVideo.getCharactersForJob.useQuery(
     { jobId: jobId! },
@@ -5258,6 +5294,60 @@ export default function MusicVideoAutopilot() {
                 </Button>
               </div>
             )}
+
+            {/* Location Lock Banner + Picker */}
+            <div className="mb-4">
+              {lockedLocation?.isLocked && lockedLocation.displayName ? (
+                <div className="flex items-center gap-3 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-900/30 to-[#2e2e36]/20 px-4 py-3">
+                  <MapPin className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-amber-300">Location Locked</p>
+                    <p className="text-xs text-amber-200/70 truncate">{lockedLocation.displayName}</p>
+                    <p className="text-[10px] text-amber-200/40 truncate mt-0.5">{lockedLocation.emoji}</p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-white/50 hover:text-white hover:bg-[rgba(24,20,16,0.9)] text-xs shrink-0 gap-1"
+                    onClick={handleUnlockLocation}
+                    disabled={unlockLocationMutation.isPending}
+                  >
+                    {unlockLocationMutation.isPending ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Unlock className="w-3 h-3" />
+                    )}
+                    Unlock
+                  </Button>
+                </div>
+              ) : (
+                <div>
+                  {!locationPickerOpen ? (
+                    <button
+                      onClick={() => setLocationPickerOpen(true)}
+                      className="w-full flex items-center gap-2 rounded-xl border border-dashed border-white/10 hover:border-amber-500/40 bg-transparent hover:bg-amber-900/10 px-4 py-2.5 text-white/40 hover:text-amber-300 transition-all text-sm"
+                    >
+                      <MapPin className="w-3.5 h-3.5" />
+                      <span>Lock a location for all scenes...</span>
+                    </button>
+                  ) : (
+                    <div className="rounded-xl border border-amber-500/30 bg-[rgba(10,8,6,0.97)] p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-amber-400" />
+                          <p className="text-sm font-semibold text-amber-300">Choose a Location</p>
+                        </div>
+                        <button onClick={() => setLocationPickerOpen(false)} className="text-white/30 hover:text-white/70">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <p className="text-xs text-white/40 mb-3">All scenes will be anchored to this venue's interior — architecture, lighting, and materials will stay consistent throughout.</p>
+                      <LocationVenuePicker onSelect={handleLockLocation} isPending={lockLocationMutation.isPending} />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             <div className="grid grid-cols-1 gap-5">
               {scenes.map((scene) => (
