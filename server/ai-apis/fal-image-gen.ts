@@ -16,8 +16,8 @@
 import { storagePut } from "../storage";
 import axios from "axios";
 
-/** BFL API base URL */
-const BFL_API_BASE = "https://api.bfl.ml/v1";
+/** BFL API base URL — api.bfl.ai works from Manus hosting; api.bfl.ml is TLS-blocked */
+const BFL_API_BASE = "https://api.bfl.ai/v1";
 
 /**
  * Locked venue DNA — Lyndhurst Hall, Air Studios
@@ -137,21 +137,23 @@ async function tryBfl(
       return undefined;
     }
 
-    const submitJson = (await submitRes.json()) as { id?: string };
+    const submitJson = (await submitRes.json()) as { id?: string; polling_url?: string };
     const taskId = submitJson?.id;
+    // Use the returned polling_url if present (may point to regional endpoint like api.us3.bfl.ai)
+    const pollBaseUrl = submitJson?.polling_url ?? `${BFL_API_BASE}/get_result?id=${taskId}`;
     if (!taskId) {
       console.warn(`[CinematicImageGen] BFL submit returned no task ID`);
       return undefined;
     }
 
-    console.log(`[CinematicImageGen] BFL task submitted: ${taskId}`);
+    console.log(`[CinematicImageGen] BFL task submitted: ${taskId} (polling: ${pollBaseUrl.slice(0, 60)})`);
 
     // Step 2: Poll for result (max 120s, 3s intervals)
     const maxAttempts = 40;
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       await new Promise((r) => setTimeout(r, 3000));
 
-      const pollRes = await fetch(`${BFL_API_BASE}/get_result?id=${taskId}`, {
+      const pollRes = await fetch(pollBaseUrl, {
         headers: { "x-key": bflKey, "Accept": "application/json" },
         signal: AbortSignal.timeout(15_000),
       });

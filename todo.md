@@ -9287,3 +9287,11 @@
 - [x] Add Regen All Previews toolbar button (purple, next to Fix Previews button in storyboard toolbar)
 - [x] Provider comparison: Grok grok-imagine-image-quality — 3 runs, Lyndhurst Hall / Zara scene
 - [x] Add /api/debug/provider-comparison endpoint (owner-only, supports ?provider=grok|gpt|auto)
+
+## BFL FLUX.1 Pro Ultra Fix (2026-06-19)
+- [x] Diagnose BFL api.bfl.ml TLS block from Manus hosting environment
+- [x] Discover api.bfl.ai as working alternative endpoint
+- [x] Update BFL_API_BASE in fal-image-gen.ts to use api.bfl.ai
+- [x] Update polling to use returned polling_url (api.us3.bfl.ai)
+- [x] Verify BFL FLUX.1 Pro Ultra working end-to-end (~8s, 2752x1536)
+- [x] Run BFL vs Grok side-by-side comparison on Lyndhurst Hall / Zara prompt
