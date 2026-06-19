@@ -110,6 +110,7 @@ async function generateWithFallback(
 
   // 3. Try built-in Forge
   const { url: forgeUrl } = await generateForgeImage({ prompt });
+  if (!forgeUrl) throw new Error("All image providers failed");
   const resp = await fetch(forgeUrl);
   if (!resp.ok) throw new Error("All image providers failed");
   const buf = Buffer.from(await resp.arrayBuffer());
