@@ -6264,22 +6264,29 @@ Your task:
       const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
       // Resolve character reference for BFL image_prompt injection
       const charRows = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true)))
-        .limit(1);
-      const charRefUrl = charRows[0]?.masterPortraitUrl ?? charRows[0]?.previewImageUrl ?? undefined;
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true)));
+      // Build a map of character name -> portrait URL for per-scene lookup
+      const charPortraitByName = new Map(charRows.map(c => [c.name.toLowerCase(), c.masterPortraitUrl ?? c.previewImageUrl ?? null]));
+      const primaryCharRef = charRows[0]?.masterPortraitUrl ?? charRows[0]?.previewImageUrl ?? undefined;
       const venueTypeKey = sceneSettingToVenueType(job.sceneSetting);
-      console.log(`[GenerateMissingPreviews] Generating ${scenesNeedingImage.length} missing storyboard images for job ${input.jobId} (charRef=${charRefUrl ? 'yes' : 'none'}, venue=${venueTypeKey})`);
+      console.log(`[GenerateMissingPreviews] Generating ${scenesNeedingImage.length} missing storyboard images for job ${input.jobId} (charRef=${primaryCharRef ? 'yes' : 'none'}, venue=${venueTypeKey})`);
       let generated = 0;
       const errors: string[] = [];
       await Promise.allSettled(
         scenesNeedingImage.map(async (scene) => {
           try {
+            // Per-scene character reference: only inject if scene has character assignments
+            let sceneAssignments: string[] = [];
+            try { if (scene.characterAssignments) sceneAssignments = JSON.parse(scene.characterAssignments); } catch { /* ignore */ }
+            const sceneCharRef = sceneAssignments.length > 0
+              ? (sceneAssignments.map(n => charPortraitByName.get(n.toLowerCase())).find(Boolean) ?? primaryCharRef)
+              : undefined; // no character assigned — pure environment shot
             const { url } = await generateCinematicStoryboardImage({
               prompt: scene.prompt,
               aspectRatio: jobAspectRatio,
               storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${scene.id}-cinematic`,
               venueReferenceUrl: venueRefUrl ?? undefined,
-              characterReferenceUrl: charRefUrl,
+              characterReferenceUrl: sceneCharRef,
               sceneType: venueTypeKey,
             });
             if (url) {
@@ -6330,12 +6337,18 @@ Your task:
       const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
       const { resolveVenueReferenceUrl } = await import("../music-video-service");
       const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
-      // Resolve character reference for BFL image_prompt injection
+      // Resolve character reference for BFL image_prompt injection — per-scene only
       const charRowsSingle = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true)))
-        .limit(1);
-      const charRefUrlSingle = charRowsSingle[0]?.masterPortraitUrl ?? charRowsSingle[0]?.previewImageUrl ?? undefined;
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true)));
+      const charPortraitMapSingle = new Map(charRowsSingle.map(c => [c.name.toLowerCase(), c.masterPortraitUrl ?? c.previewImageUrl ?? null]));
+      const primaryCharRefSingle = charRowsSingle[0]?.masterPortraitUrl ?? charRowsSingle[0]?.previewImageUrl ?? undefined;
       const venueTypeSingle = sceneSettingToVenueType(job.sceneSetting);
+      // Only inject character reference if this scene has assignments
+      let singleSceneAssignments: string[] = [];
+      try { if (scene.characterAssignments) singleSceneAssignments = JSON.parse(scene.characterAssignments); } catch { /* ignore */ }
+      const charRefUrlSingle = singleSceneAssignments.length > 0
+        ? (singleSceneAssignments.map(n => charPortraitMapSingle.get(n.toLowerCase())).find(Boolean) ?? primaryCharRefSingle)
+        : undefined; // no character assigned — pure environment shot
       console.log(`[RegenerateSinglePreview] Regenerating scene ${scene.id} (index ${scene.sceneIndex}) for job ${input.jobId} (charRef=${charRefUrlSingle ? 'yes' : 'none'}, venue=${venueTypeSingle})`);
       const { url } = await generateCinematicStoryboardImage({
         prompt: scene.prompt,
@@ -6384,24 +6397,30 @@ Your task:
       const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
       const { resolveVenueReferenceUrl } = await import("../music-video-service");
       const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
-      // Resolve character reference for BFL image_prompt injection
+      // Resolve character reference for BFL image_prompt injection — per-scene only
       const charRowsAll = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true)))
-        .limit(1);
-      const charRefUrlAll = charRowsAll[0]?.masterPortraitUrl ?? charRowsAll[0]?.previewImageUrl ?? undefined;
+        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true)));
+      const charPortraitMapAll = new Map(charRowsAll.map(c => [c.name.toLowerCase(), c.masterPortraitUrl ?? c.previewImageUrl ?? null]));
+      const primaryCharRefAll = charRowsAll[0]?.masterPortraitUrl ?? charRowsAll[0]?.previewImageUrl ?? undefined;
       const venueTypeAll = sceneSettingToVenueType(job.sceneSetting);
-      console.log(`[RegenerateAllPreviews] Regenerating all ${scenes.length} scenes for job ${input.jobId} (charRef=${charRefUrlAll ? 'yes' : 'none'}, venue=${venueTypeAll})`);
+      console.log(`[RegenerateAllPreviews] Regenerating all ${scenes.length} scenes for job ${input.jobId} (charRef=${primaryCharRefAll ? 'yes' : 'none'}, venue=${venueTypeAll})`);
       let generated = 0;
       const errors: string[] = [];
       await Promise.allSettled(
         scenes.map(async (scene) => {
           try {
+            // Per-scene character reference: only inject if scene has assignments
+            let allSceneAssignments: string[] = [];
+            try { if (scene.characterAssignments) allSceneAssignments = JSON.parse(scene.characterAssignments); } catch { /* ignore */ }
+            const sceneCharRefAll = allSceneAssignments.length > 0
+              ? (allSceneAssignments.map(n => charPortraitMapAll.get(n.toLowerCase())).find(Boolean) ?? primaryCharRefAll)
+              : undefined; // no character assigned — pure environment shot
             const { url } = await generateCinematicStoryboardImage({
               prompt: scene.prompt,
               aspectRatio: jobAspectRatio,
               storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${scene.id}-cinematic`,
               venueReferenceUrl: venueRefUrl ?? undefined,
-              characterReferenceUrl: charRefUrlAll,
+              characterReferenceUrl: sceneCharRefAll,
               sceneIndex: scene.sceneIndex ?? 0,
               sceneType: venueTypeAll,
             });

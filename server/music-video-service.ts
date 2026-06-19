@@ -872,7 +872,13 @@ ${(enableLipSync && hasCharacterImage) ? `  ⚠️ NEW PIPELINE — CHARACTER IN
   • Default to "hailuo-minimax" unless the scene specifically requires a close-up character face — this produces better cinematic results
   • Aim for no more than 30–40% of scenes using "seedance-2.0"` }
 
-Distribute characters thoughtfully — each must appear in at least 2 scenes. Solo scenes are encouraged.`
+Distribute characters thoughtfully — each must appear in at least 2 scenes. Solo scenes are encouraged.
+
+⚠️ MANDATORY SCENE 0 (FIRST SCENE) OVERRIDE — NON-NEGOTIABLE:
+Scene 0 (sceneIndex: 0) MUST be a cinematic establishing shot of the venue/environment with NO character assigned.
+${sceneSetting ? `The setting is: "${sceneSetting}". Scene 0 must open with a sweeping wide shot of this exact environment.` : ''}
+For concert hall / Air Studios / Lyndhurst Hall settings: Scene 0 MUST be a slow crane or dolly shot revealing the full hall — high vaulted ceiling, stained glass windows, full orchestra seated at their stands, grand piano on stage, warm amber lighting, dust particles in light beams. The hall must feel alive and populated. NO character in frame. modelAssignment: "hailuo-minimax". characterAssignments: [].
+This is the cinematic world-reveal that sets the entire tone of the video. It MUST be breathtaking.`
 
   const response = await invokeLLM({
     messages: [
@@ -3002,7 +3008,11 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
       console.warn(`[triggerMusicVideoRender] Scene assignments [${assignments.join(", ")}] had no portraits — using fallback`);
     }
 
-    // No assignments or no portraits found — use primary vocalist fallback
+    // Scene has NO character assignments — this is intentional (e.g. establishing shot, B-roll)
+    // Return null so BFL generates a pure environment/venue shot with NO character injected
+    if (assignments.length === 0) return null;
+
+    // Assignments exist but none had a portrait — fall back to job-level portrait
     return fallbackCharacterImageUrl;
   }
 
@@ -3054,7 +3064,8 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
             storageKeyPrefix: `music-video-storyboard/${musicVideoJobId}-scene-${scene.id}-cinematic`,
             venueReferenceUrl: venueRefUrl,
             sceneType: jobVenueType,
-            characterReferenceUrl: jobCharRef,
+            // Per-scene character reference: null for zero-assignment scenes (pure environment shots)
+            characterReferenceUrl: resolveSceneCharacterImageUrl(scene) ?? undefined,
             sceneIndex: scene.sceneIndex,
           });
           if (url) {

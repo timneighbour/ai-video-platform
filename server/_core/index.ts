@@ -488,6 +488,34 @@ async function startServer() {
     }
   });
 
+  // ── Debug: get scene details (prompts + images) for a specific job ─────────────
+  app.get("/api/debug/job-scenes/:jobId", async (req, res) => {
+    try {
+      const secret = req.query.secret as string;
+      if (!secret || secret !== process.env.JWT_SECRET?.slice(0, 16)) {
+        return res.status(403).json({ error: "forbidden" });
+      }
+      const jobId = parseInt(req.params.jobId);
+      const db = await getDb();
+      if (!db) return res.status(500).json({ error: "db unavailable" });
+      const { musicVideoScenes } = await import("../../drizzle/schema");
+      const { eq, asc } = await import("drizzle-orm");
+      const scenes = await db.select({
+        sceneIndex: musicVideoScenes.sceneIndex,
+        sceneType: musicVideoScenes.sceneType,
+        previewImageUrl: musicVideoScenes.previewImageUrl,
+        prompt: musicVideoScenes.prompt,
+        lipSync: musicVideoScenes.lipSync,
+        lyrics: musicVideoScenes.lyrics,
+      }).from(musicVideoScenes)
+        .where(eq(musicVideoScenes.jobId, jobId))
+        .orderBy(asc(musicVideoScenes.sceneIndex));
+      return res.json({ jobId, scenes });
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message });
+    }
+  });
+
   // ── Debug: reset a job to storyboard stage (owner-only) ──────────────────────
   app.post("/api/debug/reset-job/:jobId", async (req, res) => {
     try {

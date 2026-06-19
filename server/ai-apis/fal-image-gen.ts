@@ -179,6 +179,7 @@ async function tryBfl(
     }
 
     console.log(`[CinematicImageGen] BFL task submitted: ${taskId} (polling: ${pollBaseUrl.slice(0, 60)})`);
+    console.log(`[CinematicImageGen] BFL prompt (first 300): ${cinematicPrompt.slice(0, 300)}`);
 
     // Step 2: Poll for result (max 120s, 3s intervals)
     const maxAttempts = 40;
