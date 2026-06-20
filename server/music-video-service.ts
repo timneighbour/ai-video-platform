@@ -225,11 +225,18 @@ export async function transcribeJobAudio(
     .where(eq(musicVideoJobs.id, jobId));
 
   try {
-    const result = await transcribeAudio({ audioUrl });
+    const { withSelfHeal } = await import("./_core/selfHeal");
+    const result = await withSelfHeal(
+      () => transcribeAudio({ audioUrl }).then(r => {
+        if ('error' in r) throw new Error((r as any).error);
+        return r;
+      }),
+      { maxAttempts: 3, baseDelayMs: 5000, maxDelayMs: 20000, label: `transcribeJobAudio(job=${jobId})` }
+    );
 
-    // Type-narrow: check for error response
+    // Type-narrow: check for error response (kept for safety)
     if ('error' in result) {
-      throw new Error(result.error);
+      throw new Error((result as any).error);
     }
 
     const segments = (result.segments || []).map((s) => ({

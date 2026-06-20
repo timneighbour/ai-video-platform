@@ -20,8 +20,15 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    // Log to console for debugging — Sentry will also pick this up
+    // Log to console for debugging
     console.error("[ErrorBoundary] Caught error:", error, info.componentStack);
+    // Forward to Sentry if available
+    try {
+      const w = window as any;
+      if (w.Sentry?.captureException) {
+        w.Sentry.captureException(error, { extra: { componentStack: info.componentStack } });
+      }
+    } catch { /* Sentry not available */ }
   }
 
   handleReset = () => {

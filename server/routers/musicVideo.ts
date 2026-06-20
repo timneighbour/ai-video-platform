@@ -7,6 +7,7 @@ import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
 import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters, renderJobs, kidsVideoJobs, wizShortsJobs, characterScenes, providerJobLogs, sceneActionLogs } from "../../drizzle/schema";
 import { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../_core/quotaError";
+import { withSelfHeal, assertNonEmptyArray } from "../_core/selfHeal";
 import { eq, and, desc, inArray, gte, sql, isNull } from "drizzle-orm";
 
 import { storagePut } from "../storage";
@@ -883,22 +884,29 @@ Rules:
         console.log(`[MusicVideo] Vocal onset gate for job ${input.jobId}: lipSync disabled for scenes before ${vocalOnsetTime.toFixed(2)}s`);
       }
 
-      const { scenes, roster } = await withQuotaGuard(() => generateStoryboard(
-        enrichedThemePrompt,
-        job.genre,
-        job.mood,
-        job.audioDuration,
-        job.title,
-        lyricsSegments,
-        lockedCharacters.length > 0 ? lockedCharacters : undefined,
-        job.sceneSetting ?? undefined,
-        undefined, // existingContentAnalysis
-        job.enableLipSync ?? false,
-        job.songBpm ?? null,
-        job.performanceShotRatio ?? 75,
-        undefined, // directorMode
-        vocalOnsetTime // precise vocal start time — prevents lyric misassignment on instrumental intros
-      ));
+      const { scenes, roster } = await withSelfHeal(
+        () => withQuotaGuard(() => generateStoryboard(
+          enrichedThemePrompt,
+          job.genre,
+          job.mood,
+          job.audioDuration,
+          job.title,
+          lyricsSegments,
+          lockedCharacters.length > 0 ? lockedCharacters : undefined,
+          job.sceneSetting ?? undefined,
+          undefined, // existingContentAnalysis
+          job.enableLipSync ?? false,
+          job.songBpm ?? null,
+          job.performanceShotRatio ?? 75,
+          undefined, // directorMode
+          vocalOnsetTime // precise vocal start time — prevents lyric misassignment on instrumental intros
+        )).then(result => {
+          // Validate scenes is a non-empty array — triggers retry if malformed
+          assertNonEmptyArray(result.scenes, "generateStoryboard.scenes");
+          return result;
+        }),
+        { maxAttempts: 3, baseDelayMs: 3000, label: `generateStoryboard(job=${input.jobId})` }
+      );
 
       console.log(`[MusicVideo] Roster for job ${input.jobId}: ${roster.map(c => c.name).join(", ")}`);
 

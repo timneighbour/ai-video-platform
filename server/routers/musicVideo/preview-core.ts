@@ -19,6 +19,7 @@ import { and, desc, eq, isNull } from "drizzle-orm";
 import { getDb } from "../../db";
 import { musicVideoJobs, musicVideoScenes, videoCharacterPhotos, videoCharacters } from "../../../drizzle/schema";
 import { withQuotaGuard } from "../../_core/quotaError";
+import { withSelfHeal } from "../../_core/selfHeal";
 import { generateImage } from "../../_core/imageGeneration";
 
 // ── CANONICAL OUTFIT CONSTRAINTS ─────────────────────────────────────────────
@@ -443,37 +444,43 @@ export async function generateScenePreviewCore(opts: {
   let url: string | undefined;
 
   if (hasFaceReference) {
-    // Forge API (InstantID / face-consistent generation)
+    // Forge API (InstantID / face-consistent generation) — with self-healing retry
     try {
-      const { url: forgeUrl } = await withQuotaGuard(() => generateImage({
-        prompt: finalPrompt,
-        originalImages: forgeRefs,
-      }));
+      const { url: forgeUrl } = await withSelfHeal(
+        () => withQuotaGuard(() => generateImage({
+          prompt: finalPrompt,
+          originalImages: forgeRefs,
+        })),
+        { maxAttempts: 3, baseDelayMs: 2000, label: `ForgeAPI(scene=${sceneId})` }
+      );
       url = forgeUrl;
       console.log(`[generateScenePreviewCore] Scene ${sceneId}: Forge API result -> ${url ? url.slice(0, 80) + "..." : "null"}`);
     } catch (forgeErr: any) {
-      console.error(`[generateScenePreviewCore] Scene ${sceneId}: Forge API failed (${forgeErr?.message ?? String(forgeErr)}), falling back to BFL cinematic`);
+      console.error(`[generateScenePreviewCore] Scene ${sceneId}: Forge API failed after retries (${forgeErr?.message ?? String(forgeErr)}), falling back to BFL cinematic`);
     }
   }
 
   if (!url) {
-    // BFL cinematic path: no face reference, Forge failed, or AI-generated character
+    // BFL cinematic path: no face reference, Forge failed, or AI-generated character — with self-healing retry
     const { generateCinematicStoryboardImage } = await import("../../ai-apis/fal-image-gen");
     const bflCostumeLockBlock = costumeLockBlock
       ? costumeLockBlock.split('\n\n').map(block =>
           block.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim()
         ).join(' ')
       : undefined;
-    const { url: bflUrl } = await generateCinematicStoryboardImage({
-      prompt: finalPrompt,
-      aspectRatio: jobAspectRatio,
-      storageKeyPrefix: `music-video-storyboard/${jobId}-scene-${sceneId}-cinematic`,
-      venueReferenceUrl: venueRefUrl ?? undefined,
-      characterReferenceUrl: bflCharRefUrl ?? undefined,
-      characterLockBlock: bflCostumeLockBlock,
-      sceneIndex: scene.sceneIndex ?? 0,
-      sceneType: venueType,
-    });
+    const { url: bflUrl } = await withSelfHeal(
+      () => generateCinematicStoryboardImage({
+        prompt: finalPrompt,
+        aspectRatio: jobAspectRatio,
+        storageKeyPrefix: `music-video-storyboard/${jobId}-scene-${sceneId}-cinematic`,
+        venueReferenceUrl: venueRefUrl ?? undefined,
+        characterReferenceUrl: bflCharRefUrl ?? undefined,
+        characterLockBlock: bflCostumeLockBlock,
+        sceneIndex: scene.sceneIndex ?? 0,
+        sceneType: venueType,
+      }),
+      { maxAttempts: 3, baseDelayMs: 2000, label: `BFL-cinematic(scene=${sceneId})` }
+    );
     url = bflUrl;
     console.log(`[generateScenePreviewCore] Scene ${sceneId}: BFL result -> ${url ? url.slice(0, 80) + "..." : "null"}`);
   }

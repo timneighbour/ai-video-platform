@@ -2405,14 +2405,31 @@ export default function MusicVideoAutopilot() {
         storyboardStepTimerRef.current = setTimeout(advanceStep, STEP_DELAYS[0]);
         const STORYBOARD_TOAST_ID = "storyboard-generating";
         toast.loading("Generating storyboard...", { id: STORYBOARD_TOAST_ID, description: "Our AI director is crafting your scenes." });
-        const storyboard = await generateStoryboardMutation.mutateAsync({ jobId: result.jobId });
+        // Self-healing: auto-retry up to 3× on transient failures before surfacing error
+        let storyboard: any = null;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          try {
+            storyboard = await generateStoryboardMutation.mutateAsync({ jobId: result.jobId });
+            if (Array.isArray(storyboard?.scenes) && storyboard.scenes.length > 0) break;
+            // Empty scenes — treat as transient and retry
+            if (attempt < 3) {
+              toast.loading(`Generating storyboard… (retry ${attempt}/3)`, { id: STORYBOARD_TOAST_ID, description: "Retrying automatically — almost there." });
+              await new Promise(r => setTimeout(r, 3000 * attempt));
+            }
+          } catch (retryErr: any) {
+            const isTransient = /rate.?limit|503|502|timeout|unavailable|quota|500/i.test(retryErr?.message ?? "");
+            if (!isTransient || attempt === 3) throw retryErr;
+            toast.loading(`Generating storyboard… (retry ${attempt}/3)`, { id: STORYBOARD_TOAST_ID, description: "Retrying automatically — almost there." });
+            await new Promise(r => setTimeout(r, 3000 * attempt));
+          }
+        }
         // storyboard.scenes now returns actual DB rows with real IDs (not sceneIndex)
         const rawScenesNoChar = Array.isArray(storyboard?.scenes) ? storyboard.scenes : [];
         if (rawScenesNoChar.length === 0) {
           toast.dismiss(STORYBOARD_TOAST_ID);
           if (storyboardStepTimerRef.current) clearTimeout(storyboardStepTimerRef.current);
           setStoryboardGenerating(false);
-          toast.error("Storyboard generation failed", { description: "No scenes were returned. Please try again." });
+          toast.error("Storyboard generation failed", { description: "No scenes were returned after 3 attempts. Please try again." });
           return;
         }
         setScenes(rawScenesNoChar.map((s: any) => ({
@@ -4801,27 +4818,44 @@ export default function MusicVideoAutopilot() {
               setStoryboardGenerating(true);
               const STORYBOARD_TOAST_ID = "storyboard-generating";
               toast.loading("Generating storyboard...", { id: STORYBOARD_TOAST_ID, description: "Our AI director is crafting your scenes." });
-              generateStoryboardMutation.mutateAsync({ jobId: jobId! })
-                .then((storyboard) => {
-                  // Use real DB ids so generateScenePreview calls use correct scene IDs
-                  const rawScenes = Array.isArray(storyboard?.scenes) ? storyboard.scenes : [];
-                  if (rawScenes.length === 0) {
-                    toast.error("Storyboard generation failed", { description: "No scenes were returned. Please try again." });
-                    setStoryboardGenerating(false);
-                    return;
+              // Self-healing: auto-retry up to 3× on transient failures
+              (async () => {
+                let storyboard: any = null;
+                for (let attempt = 1; attempt <= 3; attempt++) {
+                  try {
+                    storyboard = await generateStoryboardMutation.mutateAsync({ jobId: jobId! });
+                    if (Array.isArray(storyboard?.scenes) && storyboard.scenes.length > 0) break;
+                    if (attempt < 3) {
+                      toast.loading(`Generating storyboard… (retry ${attempt}/3)`, { id: STORYBOARD_TOAST_ID, description: "Retrying automatically — almost there." });
+                      await new Promise(r => setTimeout(r, 3000 * attempt));
+                    }
+                  } catch (retryErr: any) {
+                    const isTransient = /rate.?limit|503|502|timeout|unavailable|quota|500/i.test(retryErr?.message ?? "");
+                    if (!isTransient || attempt === 3) {
+                      toast.dismiss(STORYBOARD_TOAST_ID);
+                      setStoryboardGenerating(false);
+                      toast.error("Storyboard generation failed", { description: retryErr?.message ?? "Please try again." });
+                      return;
+                    }
+                    toast.loading(`Generating storyboard… (retry ${attempt}/3)`, { id: STORYBOARD_TOAST_ID, description: "Retrying automatically — almost there." });
+                    await new Promise(r => setTimeout(r, 3000 * attempt));
                   }
-                  const initialScenes = rawScenes.map((s: any) => ({ ...s, id: s.id, status: "pending", previewImageUrl: null, previewImageLoading: true }));
-                  setScenes(initialScenes);
+                }
+                // Use real DB ids so generateScenePreview calls use correct scene IDs
+                const rawScenes = Array.isArray(storyboard?.scenes) ? storyboard.scenes : [];
+                if (rawScenes.length === 0) {
                   toast.dismiss(STORYBOARD_TOAST_ID);
+                  toast.error("Storyboard generation failed", { description: "No scenes were returned after 3 attempts. Please try again." });
                   setStoryboardGenerating(false);
-                  setStep("storyboard");
-                  toast.success("Storyboard ready!", { description: `${rawScenes.length} scenes created.` });
-                })
-                .catch((err: any) => {
-                  toast.dismiss(STORYBOARD_TOAST_ID);
-                  setStoryboardGenerating(false);
-                  toast.error("Storyboard generation failed", { description: err?.message ?? "Please try again." });
-                });
+                  return;
+                }
+                const initialScenes = rawScenes.map((s: any) => ({ ...s, id: s.id, status: "pending", previewImageUrl: null, previewImageLoading: true }));
+                setScenes(initialScenes);
+                toast.dismiss(STORYBOARD_TOAST_ID);
+                setStoryboardGenerating(false);
+                setStep("storyboard");
+                toast.success("Storyboard ready!", { description: `${rawScenes.length} scenes created.` });
+              })();
             }}
             onBack={() => setStep("upload")}
             isGeneratingStoryboard={storyboardGenerating}
