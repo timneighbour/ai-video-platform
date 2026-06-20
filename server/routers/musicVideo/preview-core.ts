@@ -289,16 +289,18 @@ export async function generateScenePreviewCore(opts: {
 
   // ── BODY BUILD BLOCK ─────────────────────────────────────────────────────────
   const bodyBuildDescriptions: Record<string, string> = {
-    slim: "slim, slender figure",
-    lean: "lean, toned figure",
-    average: "average build",
-    athletic: "fit, athletic figure",
-    stocky: "broad, heavier-set stocky figure",
-    muscular: "very muscular, large-framed figure",
+    slim: "slender, graceful figure with elegant slim silhouette — willowy and refined, pop-star elegance",
+    lean: "lean, toned figure with athletic elegance — lithe, graceful, and beautifully proportioned",
+    average: "graceful, healthy figure with natural elegance and beautiful proportions — radiant, poised, and photogenic, NOT generic or unflattering",
+    athletic: "athletic, toned figure — strong and graceful, fit and elegant, beautifully defined",
+    stocky: "strong, confident figure with powerful and commanding presence — poised and professionally presented",
+    muscular: "strong, muscular figure — powerful and confident, commanding physique, elegantly presented",
+    curvy: "curvaceous, confident figure with beautiful curves — glamorous, radiant, and elegantly proportioned",
+    petite: "petite, delicate figure — graceful and refined, elegant small frame, beautifully proportioned",
   };
   const bodyBuildLines = resolvedSceneChars
-    .filter(c => c.isLocked && c.bodyBuild && c.bodyBuild !== "average")
-    .map(c => `${c.name} has a ${bodyBuildDescriptions[c.bodyBuild ?? "average"] ?? c.bodyBuild} body type. Maintain this physique consistently.`);
+    .filter(c => c.isLocked && c.bodyBuild)
+    .map(c => `${c.name} has a ${bodyBuildDescriptions[c.bodyBuild ?? "average"] ?? c.bodyBuild} body type. Maintain this physique consistently. Present with pop-star poise and confidence.`);
   const bodyBuildBlock = bodyBuildLines.length > 0 ? bodyBuildLines.join("\n") : "";
 
   // ── PROPS / INSTRUMENTS BLOCK ─────────────────────────────────────────────────
@@ -378,18 +380,33 @@ export async function generateScenePreviewCore(opts: {
       : `SCENE DESCRIPTION (follow camera direction EXACTLY as written):\n${cleanScenePrompt}`;
 
   const { resolveVenueReferenceUrl, sceneSettingToVenueType: sToVenueType } = await import("../../music-video-service");
-  const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
   const venueType = sToVenueType(job.sceneSetting);
 
   // ── LOCATION LOCK ─────────────────────────────────────────────────────────────
   let locationLockBlock = "";
+  let venueRefUrl: string | null = null;
   if (job.venueLockedKey) {
     let dna: string | undefined;
     if (job.venueLockedKey === "custom") {
       dna = (job as any).venueCustomDNA ?? undefined;
     } else {
-      const { getVenueInteriorDNA } = await import("../../venue-library.js");
+      const { getVenueInteriorDNA, VENUE_LIBRARY } = await import("../../venue-library.js");
       dna = getVenueInteriorDNA(job.venueLockedKey);
+      // Use the real reference photo from the venue library if available
+      const venueEntry = VENUE_LIBRARY.find((v: any) => v.key === job.venueLockedKey);
+      if (venueEntry?.referenceImageUrl) {
+        // Build the full URL using the deployed domain so the image API can fetch it
+        const deployedBase = process.env.VITE_FRONTEND_FORGE_API_URL
+          ? new URL(process.env.VITE_FRONTEND_FORGE_API_URL).origin
+          : "https://aivideoplatform-aljhdnsu.manus.space";
+        venueRefUrl = venueEntry.referenceImageUrl.startsWith("http")
+          ? venueEntry.referenceImageUrl
+          : `${deployedBase}${venueEntry.referenceImageUrl}`;
+        console.log(`[generateScenePreviewCore] Scene ${sceneId}: Venue reference image -> ${venueRefUrl}`);
+      }
+    }
+    if (!venueRefUrl) {
+      venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
     }
     if (dna) {
       locationLockBlock = `LOCATION LOCK (MANDATORY — EVERY SCENE MUST BE SET HERE):\n${dna}\n\nThis location is LOCKED. Every image MUST show this specific interior. DO NOT substitute any other venue, stage, or setting.`;

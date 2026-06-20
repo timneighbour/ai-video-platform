@@ -17,6 +17,8 @@ export interface VenueEntry {
   emoji: string;
   interiorDNA: string;
   venueType: string; // maps to VENUE_DNA key
+  /** Optional real reference photo URL — passed to image generation as visual background anchor */
+  referenceImageUrl?: string;
 }
 
 export const VENUE_LIBRARY: VenueEntry[] = [
@@ -27,6 +29,7 @@ export const VENUE_LIBRARY: VenueEntry[] = [
     category: "recording_studio",
     emoji: "🎼",
     venueType: "concert_hall",
+    referenceImageUrl: "/manus-storage/air-studios-lyndhurst-hall_c3992593.jpg",
     interiorDNA: `LOCATION LOCK — AIR STUDIOS, LYNDHURST HALL, LONDON. This is a converted Victorian Gothic church. MANDATORY ARCHITECTURAL ELEMENTS that MUST appear in EVERY scene: (1) Large suspended hexagonal wooden acoustic canopy with geometric triangular lattice of dark warm mahogany beams hanging centrally from ceiling — this is the most distinctive element. (2) Fan-vaulted Gothic ceiling painted pale periwinkle blue/lavender between white plaster fan-vault ribs. (3) Multiple tall Gothic-arched windows with decorative tracery in two tiers, letting in cool blue-white diffused daylight through frosted/leaded glass. (4) Continuous curved wooden balcony/gallery at mid-height with warm honey/oak wood panelling and ornate carved decorative arches. (5) Classical pipe organ in dark mahogany housing with silver-grey metal pipes at far end. (6) Warm honey-brown herringbone parquet floor, highly polished. LIGHTING: warm golden/amber tungsten spotlights contrasting with cool blue-white window light. ATMOSPHERE: full symphony orchestra in traditional formation, music stands, conductor's podium, Steinway concert grand piano in black lacquer. NO chandeliers. NO tiered audience seating. NO dark ceiling. Ceiling is ALWAYS pale blue/lavender.`,
   },
   {
