@@ -100,13 +100,11 @@ async function generateScenePreviewCore(opts: {
     ? sceneCharNames.map(n => charByName.get(n.toLowerCase())).filter(Boolean) as typeof allJobCharacters
     : [];
 
-  // Respect explicit empty assignments (user removed all characters)
-  const assignmentsExplicitlySet = scene.characterAssignments !== null && scene.characterAssignments !== undefined;
-  const resolvedSceneChars = sceneChars.length > 0
-    ? sceneChars
-    : assignmentsExplicitlySet
-      ? []
-      : allJobCharacters.filter(c => c.isLocked);
+  // CRITICAL: never fall back to locked characters.
+  // Since the persistence loop now always stores JSON.stringify(assignedNames) (even '[]'),
+  // null only appears for legacy rows created before this fix. Treat null as empty (no character)
+  // to prevent Zara leaking into environment/atmosphere scenes.
+  const resolvedSceneChars = sceneChars;
 
   // Gather reference photos for scene-assigned characters
   const allPhotos = await db.select().from(videoCharacterPhotos)
@@ -130,12 +128,17 @@ async function generateScenePreviewCore(opts: {
     cleanScenePrompt = cleanScenePrompt.replace(new RegExp(`\\b${escapedTitle}\\b`, "gi"), "").replace(/\s{2,}/g, " ").trim();
   }
 
-  // Detect scene type for character vs environment handling
+  // Detect scene type for character vs environment handling.
+  // An environment scene is one where NO character is assigned (most reliable signal)
+  // OR where the prompt describes a camera move / shot type that excludes people.
   const p = cleanScenePrompt.toLowerCase();
   const isEnvironmentScene =
+    resolvedSceneChars.length === 0 || // ← definitive: no character assigned = environment shot
     /\baer(?:ial|ials?)\b|\bbird'?s.?eye\b|\boverhead\b|\bdrone\s+shot\b/.test(p) ||
     /\bestablishing\b|\bwide\s+(?:venue|shot|view|angle)\b/.test(p) ||
-    /\batmosphere\b|\bambient\b|\bno\s+people\b|\bno\s+performers\b/.test(p);
+    /\bcrane\s+shot\b|\bcrane\s+move\b|\bsoaring\s+through\b|\bfly.?through\b|\bfly.?past\b/.test(p) ||
+    /\batmosphere\b|\bambient\b|\bno\s+people\b|\bno\s+performers\b/.test(p) ||
+    /\bno\s+characters?\b|\bno\s+singer\b|\bno\s+vocalist\b/.test(p);
 
   // Build the final prompt
   const charCount = resolvedSceneChars.length;
@@ -858,7 +861,10 @@ Rules:
           prompt: scene.cleanPrompt || scene.prompt,
           lyrics: scene.lyrics || null,
           visualStyle: scene.visualStyle,
-          characterAssignments: assignedNames.length > 0 ? JSON.stringify(assignedNames) : null,
+          // CRITICAL: store '[]' (not null) when LLM explicitly assigned no characters.
+          // null means "never set" (fallback to locked chars); '[]' means "explicitly empty" (no character in this scene).
+          // The LLM always provides characterAssignments (even empty), so we always store the JSON.
+          characterAssignments: JSON.stringify(assignedNames),
           status: "pending",
           lipSync: smartLipSync,
           sceneType: detectedSceneType,
@@ -2015,12 +2021,10 @@ Rules:
       // Distinguish between "never set" (null/undefined) and "explicitly emptied" (stored as "[]").
       // If the user explicitly removed all characters, honour that — do NOT fall back to locked chars.
       // Only fall back when the DB value is null/undefined (LLM never set assignments for this scene).
-      const assignmentsExplicitlySet = scene.characterAssignments !== null && scene.characterAssignments !== undefined;
-      const resolvedSceneChars: typeof allJobCharacters = sceneChars.length > 0
-        ? sceneChars
-        : assignmentsExplicitlySet
-          ? [] // user explicitly cleared assignments — pure environment/atmosphere shot
-          : allJobCharacters.filter(c => c.isLocked); // null = LLM never set it — fall back to locked chars
+      // CRITICAL: never fall back to locked characters for scene generation.
+      // The persistence loop now always stores JSON.stringify(assignedNames) (even '[]').
+      // Legacy null rows are treated as empty (no character) to prevent character leakage.
+      const resolvedSceneChars: typeof allJobCharacters = sceneChars;
       // If no characters are resolved at all, generate a generic cinematic scene without a face anchor.
       const noCharacterFallback = resolvedSceneChars.length === 0;
 
@@ -2378,6 +2382,8 @@ Rules:
         if (/\baer(?:ial|ials?)\b|\bbird'?s.?eye\b|\boverhead\b|\bdrone\s+shot\b|\bfrom\s+above\b/.test(p)) return "aerial_scene";
         // Establishing / wide venue shots
         if (/\bestablishing\b|\bwide\s+(?:venue|shot|view|angle)\b|\bvenue\s+exterior\b|\bopening\s+shot\b|\bpanorama\b/.test(p)) return "establishing_scene";
+        // Crane shots / fly-through / soaring camera moves (no character needed)
+        if (/\bcrane\s+shot\b|\bcrane\s+move\b|\bsoaring\s+through\b|\bfly.?through\b|\bfly.?past\b|\bglides?\s+(?:past|through|over)\b/.test(p)) return "aerial_scene";
         // Crowd / audience shots
         if (/\bcrowd\s+(?:pan|shot|view|cheering|waving|moshing)\b|\baudience\s+(?:pan|shot|view|cheering|waving)\b|\bfans?\s+(?:cheering|waving|moshing|screaming)\b|\bcrowd\s+only\b/.test(p)) return "crowd_scene";
         // Atmosphere / abstract / no people
@@ -2386,7 +2392,9 @@ Rules:
         return "character_scene";
       };
       const sceneType: SceneType = detectSceneType(scene.prompt);
-      const isCharacterScene = sceneType === "character_scene";
+      // CRITICAL: if no character is assigned to this scene, it is NEVER a character scene
+      // regardless of what the prompt says. This prevents Zara leaking into environment shots.
+      const isCharacterScene = sceneType === "character_scene" && resolvedSceneChars.length > 0;
       console.log(`[generateScenePreview] Scene ${input.sceneId}: sceneType=${sceneType}, userEditedPrompt=${scene.userEditedPrompt}`);
 
       // ── Clean scene prompt (BLOCK 4 source) ──────────────────────────────────
