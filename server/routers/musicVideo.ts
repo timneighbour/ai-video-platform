@@ -3123,17 +3123,25 @@ Rules:
               }).join("\n");
               const retryPrompt = `${outfitEnforcementPrefix}\n\n${finalImagePrompt}`;
               try {
-                // CRITICAL: use generateCinematicStoryboardImage for outfit retries too —
-                // Forge does not enforce aspect ratio, causing square/portrait images for 16:9 jobs.
-                const { generateCinematicStoryboardImage: genOutfitRetry } = await import("../ai-apis/fal-image-gen");
-                const refUrl = hasFaceReference
-                  ? (hoistedForgeRefs[0]?.url ?? referenceImages[0]?.url)
-                  : referenceImages[0]?.url;
-                const { url: retryUrl } = await withQuotaGuard(() => genOutfitRetry({
+                // CRITICAL FIX: outfit retry MUST use Forge API with character reference photos.
+                // Previously used generateCinematicStoryboardImage which dropped the face reference,
+                // causing a completely different person to be generated on retry.
+                // We use the same hoistedForgeRefs (character portrait refs) as the initial generation.
+                // Aspect ratio is handled by the Forge API's aspect_ratio parameter.
+                const { generateImage: generateImageForOutfitRetry } = await import("../_core/imageGeneration");
+                const outfitRetryRefs = hoistedForgeRefs.length > 0
+                  ? hoistedForgeRefs
+                  : referenceImages.length > 0
+                    ? [{ url: referenceImages[0].url, mimeType: "image/jpeg" }]
+                    : [];
+                if (outfitRetryRefs.length === 0) {
+                  console.warn(`[generateScenePreview] Scene ${input.sceneId}: no face refs for outfit retry — skipping retry to avoid generating wrong person`);
+                  break;
+                }
+                console.log(`[generateScenePreview] Scene ${input.sceneId}: outfit retry ${outfitAttempt + 1} — using Forge API with ${outfitRetryRefs.length} face ref(s) to preserve identity`);
+                const { url: retryUrl } = await withQuotaGuard(() => generateImageForOutfitRetry({
                   prompt: retryPrompt,
-                  aspectRatio: (job.aspectRatio as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9") ?? "16:9",
-                  storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${input.sceneId}-outfit-retry`,
-                  venueReferenceUrl: refUrl,
+                  originalImages: outfitRetryRefs,
                 }));
                 if (retryUrl) { currentUrl = retryUrl; url = retryUrl; }
               } catch (retryErr) {
