@@ -216,12 +216,94 @@ export const MONICA_DEFAULTS: CharacterDefaults = {
   },
 };
 
+// ─── Zara (Lead Vocalist) ────────────────────────────────────────────────────
+
+export const ZARA_DEFAULTS: CharacterDefaults = {
+  lockedRules: {
+    role: "lead vocalist",
+    mustHave: [
+      "simple short black mini dress — thin shoulder straps, MODEST conservative neckline (NOT low-cut, NOT revealing, NO cleavage)",
+      "sleek pointed-toe black ankle boots",
+      "long straight jet-black hair past shoulders",
+      "emerald green eyes",
+      "slim slender build",
+    ],
+    allowedProps: [
+      "microphone",
+      "stage lighting",
+      "stage props",
+    ],
+    forbidden: [
+      "long sleeves",
+      "lace sleeves",
+      "lace overlay",
+      "sequins",
+      "sequined dress",
+      "embellished dress",
+      "low-cut neckline",
+      "deep neckline",
+      "plunging neckline",
+      "revealing neckline",
+      "cleavage showing",
+      "PVC dress",
+      "vinyl dress",
+      "latex dress",
+      "shiny plastic dress",
+      "gloves of any kind",
+      "PVC gloves",
+      "leather gloves",
+      "opera gloves",
+      "trousers",
+      "jeans",
+      "sneakers",
+      "casual attire",
+      "bulky clothing",
+      "hats",
+      "glasses",
+      "long gown",
+      "floor-length dress",
+      "different colour dress",
+    ],
+  },
+  lockedOutfit: {
+    jacket: "none",
+    shirt: "simple short black mini dress with thin shoulder straps and modest conservative neckline — NO low-cut, NO revealing",
+    trousers: "none — dress only",
+    shoes: "sleek pointed-toe black ankle boots",
+    accessories: "minimal — small necklace only if visible in reference",
+  },
+  lockedProps: {
+    instrument: "none (vocalist only)",
+    mic: "microphone (optional — only if scene calls for it)",
+    other: "none",
+  },
+  lockedPosition: "centre stage, front",
+  lockedRole: "Lead Vocalist",
+  characterDefaultState: "Standing centre stage, singing with emotion, facing camera",
+  characterConstraints:
+    "MUST wear simple short black mini dress with modest neckline. " +
+    "MUST wear black ankle boots. " +
+    "NEVER low-cut neckline. NEVER revealing dress. NEVER lace sleeves. NEVER sequins. NEVER gloves. " +
+    "NEVER PVC or vinyl fabric. NEVER long gown. NEVER different colour dress.",
+  characterVisualDetails: {
+    outfit:
+      "simple short black mini dress with thin shoulder straps and a modest conservative neckline, subtly ruched fabric, no sleeves, no gloves, no lace, no sequins",
+    props: "none",
+    position: "centre stage, front",
+    // Hair lock
+    hairColour: "jet black",
+    hairLength: "long straight past shoulders",
+    hairStyle: "straight sleek",
+  },
+};
+
 // ─── Lookup Map ──────────────────────────────────────────────────────────────
 
 const DEFAULTS_MAP: Record<string, CharacterDefaults> = {
   tim: TIM_DEFAULTS,
   greg: GREG_DEFAULTS,
   monica: MONICA_DEFAULTS,
+  zara: ZARA_DEFAULTS,
 };
 
 /**

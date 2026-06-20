@@ -2250,17 +2250,21 @@ Rules:
       if (!OUTFIT_CONSTRAINTS["zara"]) {
         OUTFIT_CONSTRAINTS["zara"] = {
           positive: [
-            "simple short black mini dress — thin shoulder straps, MODEST V-neckline (NOT low-cut, NOT revealing)",
-            "subtly ruched black fabric texture on the dress body",
+            "simple short black mini dress — thin shoulder straps, MODEST conservative neckline (NOT low-cut, NOT revealing, NO cleavage)",
+            "subtly ruched black fabric texture on the dress body — plain matte fabric, NO sequins, NO lace, NO embellishments",
             "sleek pointed-toe black ankle boots",
             "minimal jewellery — small necklace only if visible in reference",
           ],
           negative: [
             "ABSOLUTELY NO PVC, vinyl, latex, or shiny plastic material on the dress",
-            "ABSOLUTELY NO low-cut neckline showing cleavage or breasts",
-            "ABSOLUTELY NO gloves of any kind (no PVC gloves, no leather gloves, no opera gloves)",
+            "ABSOLUTELY NO low-cut neckline, deep neckline, plunging neckline, or revealing neckline",
+            "ABSOLUTELY NO cleavage or chest exposure",
+            "ABSOLUTELY NO gloves of any kind (no PVC gloves, no leather gloves, no opera gloves, no long gloves)",
             "ABSOLUTELY NO revealing or see-through fabric",
             "ABSOLUTELY NO corset, bustier, or structured bodice",
+            "ABSOLUTELY NO sequins, embellishments, beading, or sparkle on the dress",
+            "ABSOLUTELY NO lace, lace overlay, lace sleeves, or lace trim",
+            "ABSOLUTELY NO long sleeves or sleeves of any kind — dress is SLEEVELESS with thin straps only",
             "ABSOLUTELY NO long dress or gown — dress must be SHORT (above knee)",
             "ABSOLUTELY NO different colour dress — dress is BLACK only",
             "ABSOLUTELY NO boots above ankle height",
@@ -2714,8 +2718,12 @@ Rules:
         "jacket on Monica", "plain clothing on Monica",
         // Zara: prevent AI from generating inappropriate/revealing outfit variations
         "PVC dress on Zara", "vinyl dress on Zara", "latex dress on Zara", "shiny plastic dress on Zara",
-        "low-cut neckline on Zara", "revealing neckline on Zara", "cleavage on Zara", "exposed chest on Zara",
-        "gloves on Zara", "PVC gloves on Zara", "leather gloves on Zara", "opera gloves on Zara",
+        "low-cut neckline on Zara", "deep neckline on Zara", "plunging neckline on Zara", "revealing neckline on Zara",
+        "cleavage on Zara", "exposed chest on Zara", "chest exposure on Zara",
+        "gloves on Zara", "PVC gloves on Zara", "leather gloves on Zara", "opera gloves on Zara", "long gloves on Zara",
+        "sequins on Zara", "sequined dress on Zara", "embellished dress on Zara", "beaded dress on Zara", "sparkle dress on Zara",
+        "lace on Zara", "lace sleeves on Zara", "lace overlay on Zara", "lace trim on Zara",
+        "long sleeves on Zara", "sleeves on Zara",
         "see-through dress on Zara", "transparent fabric on Zara", "corset on Zara", "bustier on Zara",
         "long gown on Zara", "floor-length dress on Zara", "different colour dress on Zara",
         // Duplicate person / clone prevention
