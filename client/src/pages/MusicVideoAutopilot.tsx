@@ -2407,7 +2407,15 @@ export default function MusicVideoAutopilot() {
         toast.loading("Generating storyboard...", { id: STORYBOARD_TOAST_ID, description: "Our AI director is crafting your scenes." });
         const storyboard = await generateStoryboardMutation.mutateAsync({ jobId: result.jobId });
         // storyboard.scenes now returns actual DB rows with real IDs (not sceneIndex)
-        setScenes(storyboard.scenes.map((s: any) => ({
+        const rawScenesNoChar = Array.isArray(storyboard?.scenes) ? storyboard.scenes : [];
+        if (rawScenesNoChar.length === 0) {
+          toast.dismiss(STORYBOARD_TOAST_ID);
+          if (storyboardStepTimerRef.current) clearTimeout(storyboardStepTimerRef.current);
+          setStoryboardGenerating(false);
+          toast.error("Storyboard generation failed", { description: "No scenes were returned. Please try again." });
+          return;
+        }
+        setScenes(rawScenesNoChar.map((s: any) => ({
           id: s.id ?? s.sceneIndex,
           sceneIndex: s.sceneIndex,
           startTime: s.startTime,
@@ -2434,9 +2442,9 @@ export default function MusicVideoAutopilot() {
         setStoryboardStep(5); // all steps done
         setStoryboardGenerating(false);
         setStep("storyboard");
-        mp.storyboardGenerated(storyboard.scenes.length);
-        mp.storyboardViewed({ sceneCount: storyboard.scenes.length, jobId: result.jobId });
-        toast.success("Storyboard ready!", { description: `${storyboard.scenes.length} scenes created. Review and edit before building.` });
+        mp.storyboardGenerated(rawScenesNoChar.length);
+        mp.storyboardViewed({ sceneCount: rawScenesNoChar.length, jobId: result.jobId });
+        toast.success("Storyboard ready!", { description: `${rawScenesNoChar.length} scenes created. Review and edit before building.` });
       }
     } catch (err: any) {
       toast.dismiss(UPLOAD_TOAST_ID);
@@ -4807,7 +4815,7 @@ export default function MusicVideoAutopilot() {
                   toast.dismiss(STORYBOARD_TOAST_ID);
                   setStoryboardGenerating(false);
                   setStep("storyboard");
-                  toast.success("Storyboard ready!", { description: `${storyboard.scenes.length} scenes created.` });
+                  toast.success("Storyboard ready!", { description: `${rawScenes.length} scenes created.` });
                 })
                 .catch((err: any) => {
                   toast.dismiss(STORYBOARD_TOAST_ID);
