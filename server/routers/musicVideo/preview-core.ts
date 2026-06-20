@@ -406,7 +406,7 @@ export async function generateScenePreviewCore(opts: {
       }
     }
     if (!venueRefUrl) {
-      venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
+      venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting) ?? null;
     }
     if (dna) {
       locationLockBlock = `LOCATION LOCK (MANDATORY — EVERY SCENE MUST BE SET HERE):\n${dna}\n\nThis location is LOCKED. Every image MUST show this specific interior. DO NOT substitute any other venue, stage, or setting.`;
