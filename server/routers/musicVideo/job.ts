@@ -662,13 +662,55 @@ Rules:
       // Insert new scenes
       // Store the CLEAN prompt (scene direction only) in the DB — this is what users see.
       // The full render prompt (with character descriptions prepended) is built on-the-fly at render time.
+      // Identify the primary vocalist for vocal-scene auto-assignment.
+      // This is the locked singer/vocalist character — used to fill in empty characterAssignments
+      // when the scene's time window has active vocals but the LLM left assignments empty.
+      const primaryVocalistName: string | null =
+        roster.find((c: { isLocked?: boolean; role?: string }) =>
+          c.isLocked && (
+            (c.role ?? '').toLowerCase().includes('singer') ||
+            (c.role ?? '').toLowerCase().includes('vocalist')
+          )
+        )?.name ??
+        roster.find((c: { isLocked?: boolean }) => c.isLocked)?.name ??
+        null;
+
       for (const scene of scenes) {
-        // Determine character assignments for this scene
-        const assignedNames: string[] = scene.characterAssignments && scene.characterAssignments.length > 0
+        // Determine character assignments for this scene.
+        // IMPORTANT: We respect the LLM's explicit empty [] assignments — we do NOT
+        // blindly override them with the first locked character.
+        // EXCEPTION: If the scene's time window has active vocals AND no character is assigned,
+        // we auto-assign the primary vocalist so the singer is always present during singing.
+        const llmAssignedNames: string[] = scene.characterAssignments && scene.characterAssignments.length > 0
           ? scene.characterAssignments
-          : roster.length > 0
-            ? [roster.find((c: { isLocked?: boolean }) => c.isLocked)?.name ?? roster[0].name]
-            : [];
+          : [];
+
+        // Vocal-scene auto-assignment: check if this scene's window has active vocals
+        // using the same logic as the vocal detection below (pre-compute sceneEnd for this check).
+        const sceneEndForVocalCheck = (scene.startTime ?? 0) + (scene.duration ?? 6);
+        const sceneHasVocalsForAssignment = lyricsSegments && lyricsSegments.length > 0
+          ? lyricsSegments.some(seg =>
+              seg.text && seg.text.trim().length > 0 &&
+              seg.start < sceneEndForVocalCheck &&
+              seg.end > (scene.startTime ?? 0)
+            )
+          : false; // if no transcription, don't auto-assign (safe default)
+
+        // Auto-assign primary vocalist when: vocals active + no character assigned + vocalist known
+        // Exception: Scene 0 is always the cinematic world-reveal (no character), never override it.
+        const shouldAutoAssignVocalist =
+          llmAssignedNames.length === 0 &&
+          sceneHasVocalsForAssignment &&
+          primaryVocalistName !== null &&
+          scene.sceneIndex !== 0;
+
+        const assignedNames: string[] = shouldAutoAssignVocalist
+          ? [primaryVocalistName!]
+          : llmAssignedNames;
+
+        if (shouldAutoAssignVocalist) {
+          console.log(`[MusicVideo] Scene ${scene.sceneIndex} @${(scene.startTime ?? 0).toFixed(1)}s: vocals active but no character assigned — auto-assigning primary vocalist "${primaryVocalistName}"`);
+        }
         // ── WizSync™ Vocal-Aware Orchestration ─────────────────────────────────────
         // Primary signal: Demucs stem section classification (if available)
         // Fallback signal: Whisper transcription segment overlap
@@ -725,7 +767,7 @@ Rules:
           prompt: scene.cleanPrompt || scene.prompt,
           lyrics: scene.lyrics || null,
           visualStyle: scene.visualStyle,
-          characterAssignments: assignedNames.length > 0 ? JSON.stringify(assignedNames) : null,
+          characterAssignments: JSON.stringify(assignedNames), // always store valid JSON: '[]' for empty, never null
           status: "pending",
           lipSync: smartLipSync,
           sceneType: detectedSceneType,

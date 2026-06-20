@@ -646,12 +646,15 @@ Your task:
     }),
 
   // ── Regenerate a single scene's preview image (force, even if one exists) ─
+  // Uses the full character-lock pipeline (identity block, costume lock, face reference,
+  // location lock) via generateScenePreviewCore — NOT the bare generateCinematicStoryboardImage.
   regenerateSingleScenePreview: protectedProcedure
     .input(z.object({ jobId: z.number(), sceneId: z.number() }))
     .mutation(async ({ input, ctx }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
+      // Ownership check
       const [job] = await db.select().from(musicVideoJobs)
         .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
       if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
@@ -660,37 +663,23 @@ Your task:
         .where(and(eq(musicVideoScenes.id, input.sceneId), eq(musicVideoScenes.jobId, input.jobId)));
       if (!scene) throw new TRPCError({ code: "NOT_FOUND", message: "Scene not found" });
 
-      // Clear existing preview so the UI shows loading state immediately
-      await db.update(musicVideoScenes)
-        .set({ previewImageUrl: null, updatedAt: new Date() })
-        .where(eq(musicVideoScenes.id, scene.id));
+      console.log(`[RegenerateSinglePreview] Regenerating scene ${scene.id} (index ${scene.sceneIndex}) for job ${input.jobId} via full character-lock pipeline`);
 
-      const jobAspectRatio = (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
-      const { generateCinematicStoryboardImage } = await import("../../ai-apis/fal-image-gen");
-      const { resolveVenueReferenceUrl } = await import("../../music-video-service");
-      const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
-
-      console.log(`[RegenerateSinglePreview] Regenerating scene ${scene.id} (index ${scene.sceneIndex}) for job ${input.jobId}`);
-
-      const { url } = await generateCinematicStoryboardImage({
-        prompt: scene.prompt,
-        aspectRatio: jobAspectRatio,
-        storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${scene.id}-cinematic`,
-        venueReferenceUrl: venueRefUrl ?? undefined,
-        sceneIndex: scene.sceneIndex ?? 0,
+      const { generateScenePreviewCore } = await import("./preview-core");
+      const url = await generateScenePreviewCore({
+        db,
+        userId: ctx.user.id,
+        jobId: input.jobId,
+        sceneId: input.sceneId,
+        forceRegenerate: true,
       });
-
-      if (url) {
-        await db.update(musicVideoScenes)
-          .set({ previewImageUrl: url, updatedAt: new Date() })
-          .where(eq(musicVideoScenes.id, scene.id));
-        console.log(`[RegenerateSinglePreview] Scene ${scene.id} -> ${url.slice(0, 80)}...`);
-      }
 
       return { success: !!url, url: url ?? null };
     }),
 
   // ── Regenerate ALL scene previews for a job (force-clears all existing) ───
+  // Uses the full character-lock pipeline via generateScenePreviewCore for every scene.
+  // Processes scenes sequentially to avoid Forge API rate limits.
   regenerateAllScenePreviews: protectedProcedure
     .input(z.object({ jobId: z.number() }))
     .mutation(async ({ input, ctx }) => {
@@ -713,40 +702,32 @@ Your task:
         .set({ previewImageUrl: null, updatedAt: new Date() })
         .where(eq(musicVideoScenes.jobId, input.jobId));
 
-      const jobAspectRatio = (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
-      const { generateCinematicStoryboardImage } = await import("../../ai-apis/fal-image-gen");
-      const { resolveVenueReferenceUrl } = await import("../../music-video-service");
-      const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
+      console.log(`[RegenerateAllPreviews] Regenerating all ${scenes.length} scenes for job ${input.jobId} via full character-lock pipeline`);
 
-      console.log(`[RegenerateAllPreviews] Regenerating all ${scenes.length} scenes for job ${input.jobId}`);
-
+      const { generateScenePreviewCore } = await import("./preview-core");
       let generated = 0;
       const errors: string[] = [];
 
-      await Promise.allSettled(
-        scenes.map(async (scene) => {
-          try {
-            const { url } = await generateCinematicStoryboardImage({
-              prompt: scene.prompt,
-              aspectRatio: jobAspectRatio,
-              storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${scene.id}-cinematic`,
-              venueReferenceUrl: venueRefUrl ?? undefined,
-              sceneIndex: scene.sceneIndex ?? 0,
-            });
-            if (url) {
-              await db!.update(musicVideoScenes)
-                .set({ previewImageUrl: url, updatedAt: new Date() })
-                .where(eq(musicVideoScenes.id, scene.id));
-              generated++;
-              console.log(`[RegenerateAllPreviews] Scene ${scene.id} (index ${scene.sceneIndex}) -> ${url.slice(0, 80)}...`);
-            }
-          } catch (err) {
-            const msg = err instanceof Error ? err.message : String(err);
-            errors.push(`Scene ${scene.id}: ${msg.slice(0, 80)}`);
-            console.warn(`[RegenerateAllPreviews] Scene ${scene.id} failed:`, msg);
+      // Sequential processing to avoid Forge API rate limits
+      for (const scene of scenes) {
+        try {
+          const url = await generateScenePreviewCore({
+            db,
+            userId: ctx.user.id,
+            jobId: input.jobId,
+            sceneId: scene.id,
+            forceRegenerate: true,
+          });
+          if (url) {
+            generated++;
+            console.log(`[RegenerateAllPreviews] Scene ${scene.id} (index ${scene.sceneIndex}) -> ${url.slice(0, 80)}...`);
           }
-        })
-      );
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          errors.push(`Scene ${scene.id}: ${msg.slice(0, 80)}`);
+          console.warn(`[RegenerateAllPreviews] Scene ${scene.id} failed:`, msg);
+        }
+      }
 
       return {
         success: errors.length === 0,
