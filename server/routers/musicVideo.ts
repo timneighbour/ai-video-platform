@@ -254,17 +254,18 @@ async function generateScenePreviewCore(opts: {
   const CORE_OUTFIT_CONSTRAINTS: Record<string, { positive: string[]; negative: string[] }> = {
     zara: {
       positive: [
-        "simple short black mini dress — thin shoulder straps, MODEST V-neckline (NOT low-cut, NOT revealing)",
-        "subtly ruched black fabric texture on the dress body",
-        "sleek pointed-toe black ankle boots",
+        "long-sleeve fitted black mini dress with a square neckline",
+        "knee-high black patent leather boots",
+        "simple, elegant, no accessories",
       ],
       negative: [
+        "ABSOLUTELY NO sleeveless or thin-strap dress",
+        "ABSOLUTELY NO ankle boots — boots must be KNEE-HIGH",
+        "ABSOLUTELY NO low-cut or V-neckline — neckline is SQUARE",
         "ABSOLUTELY NO PVC, vinyl, latex, or shiny plastic material on the dress",
-        "ABSOLUTELY NO low-cut neckline showing cleavage or breasts",
-        "ABSOLUTELY NO gloves of any kind (no PVC gloves, no leather gloves, no opera gloves)",
+        "ABSOLUTELY NO gloves of any kind",
         "ABSOLUTELY NO revealing or see-through fabric",
-        "ABSOLUTELY NO corset, bustier, or structured bodice",
-        "ABSOLUTELY NO long dress or gown — dress must be SHORT (above knee)",
+        "ABSOLUTELY NO sequins, lace, or embellishments",
         "ABSOLUTELY NO different colour dress — dress is BLACK only",
       ],
     },
@@ -357,15 +358,21 @@ async function generateScenePreviewCore(opts: {
 
   if (hasFaceReference) {
     // Use Forge API (InstantID / face-consistent generation) — same path as full generateScenePreview
-    const { url: forgeUrl } = await withQuotaGuard(() => generateImage({
-      prompt: finalPrompt,
-      originalImages: forgeRefs,
-    }));
-    url = forgeUrl;
-    console.log(`[generateScenePreviewCore] Scene ${sceneId}: Forge API result -> ${url ? url.slice(0, 80) + "..." : "null"}`);
-  } else {
-    // No face reference — fall back to BFL cinematic generation (environment/atmosphere shots)
-    // Also used when the character has no uploaded photos (AI-generated character path)
+    try {
+      const { url: forgeUrl } = await withQuotaGuard(() => generateImage({
+        prompt: finalPrompt,
+        originalImages: forgeRefs,
+      }));
+      url = forgeUrl;
+      console.log(`[generateScenePreviewCore] Scene ${sceneId}: Forge API result -> ${url ? url.slice(0, 80) + "..." : "null"}`);
+    } catch (forgeErr: any) {
+      console.error(`[generateScenePreviewCore] Scene ${sceneId}: Forge API failed (${forgeErr?.message ?? String(forgeErr)}), falling back to BFL cinematic`);
+      // url remains undefined — falls through to BFL block below
+    }
+  }
+
+  if (!url) {
+    // BFL cinematic path: used when (a) no face reference, (b) Forge API failed, or (c) AI-generated character
     const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
     // Build costume lock block for BFL prompt (injected as first line)
     const bflCostumeLockBlock = costumeLockBlock
@@ -385,7 +392,7 @@ async function generateScenePreviewCore(opts: {
       sceneType: venueType,
     });
     url = bflUrl;
-    console.log(`[generateScenePreviewCore] Scene ${sceneId}: BFL fallback result -> ${url ? url.slice(0, 80) + "..." : "null"}`);
+    console.log(`[generateScenePreviewCore] Scene ${sceneId}: BFL result -> ${url ? url.slice(0, 80) + "..." : "null"}`);
   }
 
   if (url) {

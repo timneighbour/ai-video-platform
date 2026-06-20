@@ -5546,17 +5546,20 @@ export default function MusicVideoAutopilot() {
                       disabled={scene.regenerating || regenerateSingleScenePreviewMutation.isPending}
                       onClick={async () => {
                         if (!jobId || scene.regenerating) return;
+                        // Save the current previewImageUrl so we can restore it on error
+                        const previousPreviewUrl = scene.previewImageUrl;
                         setScenes(prev => prev.map(s => s.id === scene.id ? { ...s, regenerating: true, previewImageUrl: undefined, previewImageLoading: true } : s));
                         try {
                           const result = await regenerateSingleScenePreviewMutation.mutateAsync({ jobId, sceneId: scene.id });
                           setScenes(prev => prev.map(s => s.id === scene.id
-                            ? { ...s, regenerating: false, previewImageLoading: false, previewImageUrl: result.url ?? undefined }
+                            ? { ...s, regenerating: false, previewImageLoading: false, previewImageUrl: result.url ?? previousPreviewUrl ?? undefined }
                             : s
                           ));
                           if (result.url) toast.success(`Scene ${scene.sceneIndex + 1} preview regenerated`);
-                          else toast.error(`Scene ${scene.sceneIndex + 1} preview failed`);
+                          else toast.error(`Scene ${scene.sceneIndex + 1} preview failed — previous image restored`);
                         } catch (err: any) {
-                          setScenes(prev => prev.map(s => s.id === scene.id ? { ...s, regenerating: false, previewImageLoading: false } : s));
+                          // Restore previous image so the scene doesn't go permanently blank
+                          setScenes(prev => prev.map(s => s.id === scene.id ? { ...s, regenerating: false, previewImageLoading: false, previewImageUrl: previousPreviewUrl ?? undefined } : s));
                           toast.error(`Failed to regenerate scene ${scene.sceneIndex + 1}`, { description: err?.message });
                         }
                       }}
