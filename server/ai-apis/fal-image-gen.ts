@@ -89,6 +89,13 @@ export interface CinematicImageOptions {
    * Defaults to 'concert_hall' (Lyndhurst Hall / Air Studios).
    */
   sceneType?: string;
+  /**
+   * Character appearance lock block — injected as the FIRST line of the BFL prompt.
+   * Format: "CHARACTER LOCK — Zara: simple short black mini dress, thin straps, modest neckline.
+   * FORBIDDEN: low-cut neckline, PVC, gloves, sequins, lace, revealing fabric."
+   * When provided, this overrides any outfit-related language in the scene description.
+   */
+  characterLockBlock?: string;
 }
 
 export interface CinematicImageResult {
@@ -100,8 +107,12 @@ export interface CinematicImageResult {
 /**
  * Sanitise a scene prompt — strip crop-inducing framing terms, inject
  * venue DNA (defaulting to Lyndhurst Hall), and append no-crop constraints.
+ *
+ * @param characterLockBlock  Optional character appearance constraint injected FIRST in the prompt.
+ *   This ensures the AI sees the outfit/appearance lock before any other instruction.
+ *   Format: "CHARACTER LOCK — [Name]: [outfit description]. FORBIDDEN: [negatives]."
  */
-function buildCinematicPrompt(rawPrompt: string, sceneType?: string): string {
+function buildCinematicPrompt(rawPrompt: string, sceneType?: string, characterLockBlock?: string): string {
   const safened = rawPrompt
     .replace(/\bextreme close[- ]?up\b/gi, "medium shot")
     .replace(/\bclose[- ]?up\b/gi, "medium shot")
@@ -112,12 +123,14 @@ function buildCinematicPrompt(rawPrompt: string, sceneType?: string): string {
     .replace(/\bface[- ]?only\b/gi, "medium shot");
 
   const venueDna = (sceneType && VENUE_DNA[sceneType]) ? VENUE_DNA[sceneType] : LYNDHURST_HALL_DNA;
-  return [
-    safened,
-    venueDna,
-    "FULL HEAD VISIBLE with generous headroom above the subject, entire head and hair fully within frame, subject NOT cropped at top",
-    "medium wide shot composition, cinematic widescreen, professional film lighting, photorealistic, 8K quality, dramatic depth of field, movie still",
-  ].join(", ");
+  const parts: string[] = [];
+  // CHARACTER LOCK goes FIRST — before scene description — so AI sees it as highest priority
+  if (characterLockBlock) parts.push(characterLockBlock);
+  parts.push(safened);
+  parts.push(venueDna);
+  parts.push("FULL HEAD VISIBLE with generous headroom above the subject, entire head and hair fully within frame, subject NOT cropped at top");
+  parts.push("medium wide shot composition, cinematic widescreen, professional film lighting, photorealistic, 8K quality, dramatic depth of field, movie still");
+  return parts.join(", ");
 }
 
 /**
@@ -153,11 +166,12 @@ async function tryBfl(
         output_format: "jpeg",
         safety_tolerance: 6,
         raw: false,
-        // Character reference injection: subtle face/appearance anchor (0.15 = minimal influence)
-        // Keeps scene composition intact while nudging the model toward the character's likeness
+        // Character reference injection: moderate face/appearance anchor (0.35 = firm but not overriding)
+        // Keeps scene composition intact while strongly anchoring the character's face, hair and outfit.
+        // 0.15 was too weak — outfit was being ignored. 0.35 enforces identity without killing composition.
         ...(characterReferenceUrl ? {
           image_prompt: characterReferenceUrl,
-          image_prompt_strength: 0.15,
+          image_prompt_strength: 0.35,
         } : {}),
       }),
       signal: AbortSignal.timeout(30_000),
@@ -274,7 +288,7 @@ export async function generateCinematicStoryboardImage(
   const aspectRatio = options.aspectRatio ?? "16:9";
   const dimensions = aspectRatioToBflDimensions(aspectRatio);
   const imageSize = aspectRatioToFluxSize(aspectRatio);
-    const cinematicPrompt = buildCinematicPrompt(options.prompt ?? "", options.sceneType);
+  const cinematicPrompt = buildCinematicPrompt(options.prompt ?? "", options.sceneType, options.characterLockBlock);
   const sceneIndex = options.sceneIndex ?? 0;
   let imageUrl: string | undefined;
   let lastError: Error | null = null;

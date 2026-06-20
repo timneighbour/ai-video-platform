@@ -120,6 +120,11 @@ async function generateScenePreviewCore(opts: {
 
   const primaryCharForScene = resolvedSceneChars[0] ?? null;
   const masterPortraitUrl = primaryCharForScene?.masterPortraitUrl ?? primaryCharForScene?.previewImageUrl ?? null;
+  // Best reference for BFL image_prompt: environmentRefUrl shows full outfit in correct env
+  // Priority: environmentRefUrl > performanceRefUrl > masterPortraitUrl > previewImageUrl
+  const bflCharRefUrl = primaryCharForScene
+    ? ((primaryCharForScene as any).environmentRefUrl ?? (primaryCharForScene as any).performanceRefUrl ?? primaryCharForScene.masterPortraitUrl ?? primaryCharForScene.previewImageUrl ?? null)
+    : null;
 
   // Build the scene prompt (user-edited prompts are used verbatim)
   let cleanScenePrompt = scene.prompt;
@@ -281,12 +286,22 @@ async function generateScenePreviewCore(opts: {
     console.log(`[generateScenePreviewCore] Scene ${sceneId}: Forge API result -> ${url ? url.slice(0, 80) + "..." : "null"}`);
   } else {
     // No face reference — fall back to BFL cinematic generation (environment/atmosphere shots)
+    // Also used when the character has no uploaded photos (AI-generated character path)
     const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
+    // Build costume lock block for BFL prompt (injected as first line)
+    const bflCostumeLockBlock = costumeLockBlock
+      ? costumeLockBlock.split('\n\n').map(block => {
+          // Condense multi-line block to single line for BFL prompt
+          return block.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+        }).join(' ')
+      : undefined;
     const { url: bflUrl } = await generateCinematicStoryboardImage({
       prompt: finalPrompt,
       aspectRatio: jobAspectRatio,
       storageKeyPrefix: `music-video-storyboard/${jobId}-scene-${sceneId}-cinematic`,
       venueReferenceUrl: venueRefUrl ?? undefined,
+      characterReferenceUrl: bflCharRefUrl ?? undefined,
+      characterLockBlock: bflCostumeLockBlock,
       sceneIndex: scene.sceneIndex ?? 0,
       sceneType: venueType,
     });
@@ -6715,9 +6730,23 @@ Your task:
       // Resolve character reference for BFL image_prompt injection (excluding soft-deleted)
       const charRows = await db.select().from(videoCharacters)
         .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true), isNull(videoCharacters.deletedAt)));
-      // Build a map of character name -> portrait URL for per-scene lookup
-      const charPortraitByName = new Map(charRows.map(c => [c.name.toLowerCase(), c.masterPortraitUrl ?? c.previewImageUrl ?? null]));
-      const primaryCharRef = charRows[0]?.masterPortraitUrl ?? charRows[0]?.previewImageUrl ?? undefined;
+      // Build a map of character name -> best reference URL for per-scene lookup
+      // Priority: environmentRefUrl (full outfit in correct env) > performanceRefUrl > masterPortraitUrl > previewImageUrl
+      const charRefByName = new Map(charRows.map(c => [
+        c.name.toLowerCase(),
+        (c as any).environmentRefUrl ?? (c as any).performanceRefUrl ?? c.masterPortraitUrl ?? c.previewImageUrl ?? null
+      ]));
+      // Also build outfit lock blocks for each locked character
+      const charLockBlockByName = new Map(charRows.map(c => {
+        const key = c.name.toLowerCase();
+        const constraints = OUTFIT_CONSTRAINTS[key];
+        if (!constraints) return [key, null] as [string, string | null];
+        const positiveList = constraints.positive.join("; ");
+        const negativeList = constraints.negative.map(n => n.replace(/^ABSOLUTELY NO /i, "")).join(", ");
+        const block = `CHARACTER LOCK — ${c.name}: MUST wear [${positiveList}]. FORBIDDEN: [${negativeList}].`;
+        return [key, block] as [string, string | null];
+      }));
+      const primaryCharRef = (charRows[0] as any)?.environmentRefUrl ?? (charRows[0] as any)?.performanceRefUrl ?? charRows[0]?.masterPortraitUrl ?? charRows[0]?.previewImageUrl ?? undefined;
       const venueTypeKey = sceneSettingToVenueType(job.sceneSetting);
       console.log(`[GenerateMissingPreviews] Generating ${scenesNeedingImage.length} missing storyboard images for job ${input.jobId} (charRef=${primaryCharRef ? 'yes' : 'none'}, venue=${venueTypeKey})`);
       let generated = 0;
@@ -6729,14 +6758,19 @@ Your task:
             let sceneAssignments: string[] = [];
             try { if (scene.characterAssignments) sceneAssignments = JSON.parse(scene.characterAssignments); } catch { /* ignore */ }
             const sceneCharRef = sceneAssignments.length > 0
-              ? (sceneAssignments.map(n => charPortraitByName.get(n.toLowerCase())).find(Boolean) ?? primaryCharRef)
+              ? (sceneAssignments.map(n => charRefByName.get(n.toLowerCase())).find(Boolean) ?? primaryCharRef)
               : undefined; // no character assigned — pure environment shot
+            // Build combined character lock block for all assigned characters
+            const assignedLockBlocks = sceneAssignments.length > 0
+              ? sceneAssignments.map(n => charLockBlockByName.get(n.toLowerCase())).filter(Boolean).join(" ")
+              : undefined;
             const { url } = await generateCinematicStoryboardImage({
               prompt: scene.prompt,
               aspectRatio: jobAspectRatio,
               storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${scene.id}-cinematic`,
               venueReferenceUrl: venueRefUrl ?? undefined,
               characterReferenceUrl: sceneCharRef,
+              characterLockBlock: assignedLockBlocks || undefined,
               sceneType: venueTypeKey,
             });
             if (url) {
