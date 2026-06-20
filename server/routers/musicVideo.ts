@@ -49,6 +49,88 @@ import {
 import { getCharacterDefaults } from "../../shared/characterDefaults";
 import { runStemIntelligence, getStemSections, getSectionTypeAtTime, stemSectionToSceneType, getVocalOnsetTime } from "../stem-intelligence-service";
 
+// ── MODULE-LEVEL OUTFIT CONSTRAINTS ──────────────────────────────────────────
+// Hoisted to module scope so both generateScenePreview and regenerateAllScenePreviews
+// can reference the same definitions. These are the canonical outfit locks per character.
+const OUTFIT_CONSTRAINTS: Record<string, { positive: string[]; negative: string[] }> = {
+  tim: {
+    positive: [
+      "BLACK LEATHER JACKET — this is MANDATORY and the single most important outfit element",
+      "dark t-shirt or shirt UNDERNEATH the leather jacket (jacket is ALWAYS on top)",
+      "dark jeans or dark trousers with a key chain hanging from belt loop",
+      "black boots or dark shoes",
+    ],
+    negative: [
+      "ABSOLUTELY NO t-shirt without a jacket over it",
+      "ABSOLUTELY NO hoodie",
+      "ABSOLUTELY NO vest",
+      "ABSOLUTELY NO blazer",
+      "ABSOLUTELY NO suit jacket",
+      "ABSOLUTELY NO coat",
+      "ABSOLUTELY NO sleeveless top",
+      "ABSOLUTELY NO open shirt without leather jacket",
+    ],
+  },
+  greg: {
+    positive: [
+      "black short-sleeve torn t-shirt — SHORT SLEEVES MUST BE VISIBLE",
+      "dark jeans or dark trousers",
+      "trainers or boots",
+    ],
+    negative: [
+      "ABSOLUTELY NO leather jacket",
+      "ABSOLUTELY NO jacket of any kind",
+      "ABSOLUTELY NO sleeveless top",
+      "ABSOLUTELY NO tank top",
+      "ABSOLUTELY NO vest",
+      "ABSOLUTELY NO long-sleeve shirt",
+      "ABSOLUTELY NO blazer",
+      "ABSOLUTELY NO coat",
+    ],
+  },
+  monica: {
+    positive: [
+      "form-fitting black leather trousers — MUST be visible from waist to ankle",
+      "distressed charcoal grey V-neck t-shirt cut low",
+      "black stiletto-heeled ankle boots — MUST be visible",
+      "long silver chain necklace with prominent ornate silver cross pendant — MUST be visible",
+      "full sleeve tattoos on both forearms — MUST be visible",
+    ],
+    negative: [
+      "ABSOLUTELY NO leather jacket",
+      "ABSOLUTELY NO jacket of any kind",
+      "ABSOLUTELY NO generic plain clothing",
+      "ABSOLUTELY NO hidden tattoos",
+      "ABSOLUTELY NO hidden necklace",
+      "ABSOLUTELY NO jeans",
+      "ABSOLUTELY NO shorts",
+      "ABSOLUTELY NO skirt",
+    ],
+  },
+  zara: {
+    positive: [
+      "simple short black mini dress — thin shoulder straps, MODEST conservative neckline (NOT low-cut, NOT revealing, NO cleavage)",
+      "subtly ruched black fabric texture on the dress body — plain matte fabric, NO sequins, NO lace, NO embellishments",
+      "sleek pointed-toe black ankle boots",
+      "minimal jewellery — small necklace only if visible in reference",
+    ],
+    negative: [
+      "ABSOLUTELY NO PVC, vinyl, latex, or shiny plastic material on the dress",
+      "ABSOLUTELY NO low-cut neckline, deep neckline, plunging neckline, or revealing neckline",
+      "ABSOLUTELY NO cleavage or chest exposure",
+      "ABSOLUTELY NO gloves of any kind (no PVC gloves, no leather gloves, no opera gloves, no long gloves)",
+      "ABSOLUTELY NO revealing or see-through fabric",
+      "ABSOLUTELY NO corset, bustier, or structured bodice",
+      "ABSOLUTELY NO sequins, embellishments, beading, or sparkle on the dress",
+      "ABSOLUTELY NO lace, lace overlay, lace sleeves, or lace trim",
+      "ABSOLUTELY NO long sleeves or sleeves of any kind — dress is SLEEVELESS with thin straps only",
+      "ABSOLUTELY NO long dress or gown — dress must be SHORT (above knee)",
+      "ABSOLUTELY NO different colour dress — dress is BLACK only",
+      "ABSOLUTELY NO boots above ankle height",
+    ],
+  },
+};
+
 /**
  * Shared core for scene preview generation — used by generateScenePreview,
  * regenerateSingleScenePreview, and regenerateAllScenePreviews so all paths
@@ -120,10 +202,10 @@ async function generateScenePreviewCore(opts: {
 
   const primaryCharForScene = resolvedSceneChars[0] ?? null;
   const masterPortraitUrl = primaryCharForScene?.masterPortraitUrl ?? primaryCharForScene?.previewImageUrl ?? null;
-  // Best reference for BFL image_prompt: environmentRefUrl shows full outfit in correct env
-  // Priority: environmentRefUrl > performanceRefUrl > masterPortraitUrl > previewImageUrl
+  // Best reference for BFL image_prompt: masterPortraitUrl is now set to the full-body dress image
+  // Priority: masterPortraitUrl (full-body outfit) > environmentRefUrl > performanceRefUrl > previewImageUrl
   const bflCharRefUrl = primaryCharForScene
-    ? ((primaryCharForScene as any).environmentRefUrl ?? (primaryCharForScene as any).performanceRefUrl ?? primaryCharForScene.masterPortraitUrl ?? primaryCharForScene.previewImageUrl ?? null)
+    ? (primaryCharForScene.masterPortraitUrl ?? (primaryCharForScene as any).environmentRefUrl ?? (primaryCharForScene as any).performanceRefUrl ?? primaryCharForScene.previewImageUrl ?? null)
     : null;
 
   // Build the scene prompt (user-edited prompts are used verbatim)
@@ -2199,93 +2281,7 @@ Rules:
       // ── BLOCK 2: Visual Block (CHARACTER VISUAL DETAILS — ABSOLUTE TRUTH) ────
       // DUAL-CONSTRAINT OUTFIT ENFORCEMENT: positive (WEARS) + negative (NEVER WEARS)
       // Repeated TWICE in the prompt to maximise model compliance.
-
-      // Per-character outfit constraint definitions
-      const OUTFIT_CONSTRAINTS: Record<string, { positive: string[]; negative: string[] }> = {
-        tim: {
-          positive: [
-            "BLACK LEATHER JACKET — this is MANDATORY and the single most important outfit element",
-            "dark t-shirt or shirt UNDERNEATH the leather jacket (jacket is ALWAYS on top)",
-            "dark jeans or dark trousers with a key chain hanging from belt loop",
-            "black boots or dark shoes",
-          ],
-          negative: [
-            "ABSOLUTELY NO t-shirt without a jacket over it",
-            "ABSOLUTELY NO hoodie",
-            "ABSOLUTELY NO vest",
-            "ABSOLUTELY NO blazer",
-            "ABSOLUTELY NO suit jacket",
-            "ABSOLUTELY NO coat",
-            "ABSOLUTELY NO sleeveless top",
-            "ABSOLUTELY NO open shirt without leather jacket",
-          ],
-        },
-        greg: {
-          positive: [
-            "black short-sleeve torn t-shirt — SHORT SLEEVES MUST BE VISIBLE",
-            "dark jeans or dark trousers",
-            "trainers or boots",
-          ],
-          negative: [
-            "ABSOLUTELY NO leather jacket",
-            "ABSOLUTELY NO jacket of any kind",
-            "ABSOLUTELY NO sleeveless top",
-            "ABSOLUTELY NO tank top",
-            "ABSOLUTELY NO vest",
-            "ABSOLUTELY NO long-sleeve shirt",
-            "ABSOLUTELY NO blazer",
-            "ABSOLUTELY NO coat",
-          ],
-        },
-        monica: {
-          positive: [
-            "form-fitting black leather trousers — MUST be visible from waist to ankle",
-            "distressed charcoal grey V-neck t-shirt cut low",
-            "black stiletto-heeled ankle boots — MUST be visible",
-            "long silver chain necklace with prominent ornate silver cross pendant — MUST be visible",
-            "full sleeve tattoos on both forearms — MUST be visible",
-          ],
-          negative: [
-            "ABSOLUTELY NO leather jacket",
-            "ABSOLUTELY NO jacket of any kind",
-            "ABSOLUTELY NO generic plain clothing",
-            "ABSOLUTELY NO hidden tattoos",
-            "ABSOLUTELY NO hidden necklace",
-            "ABSOLUTELY NO jeans",
-            "ABSOLUTELY NO shorts",
-            "ABSOLUTELY NO skirt",
-          ],
-        },
-      };
-
-      // Per-character outfit constraint definitions
-      // ZARA: derived from her locked reference photo — simple black mini dress, thin straps, modest V-neckline, black ankle boots.
-      // The lockedDescription text contains "sexy", "low neckline" which causes the AI to generate UPVC/revealing outfits.
-      // These hard constraints override the text description and anchor to the visual reference.
-      if (!OUTFIT_CONSTRAINTS["zara"]) {
-        OUTFIT_CONSTRAINTS["zara"] = {
-          positive: [
-            "simple short black mini dress — thin shoulder straps, MODEST conservative neckline (NOT low-cut, NOT revealing, NO cleavage)",
-            "subtly ruched black fabric texture on the dress body — plain matte fabric, NO sequins, NO lace, NO embellishments",
-            "sleek pointed-toe black ankle boots",
-            "minimal jewellery — small necklace only if visible in reference",
-          ],
-          negative: [
-            "ABSOLUTELY NO PVC, vinyl, latex, or shiny plastic material on the dress",
-            "ABSOLUTELY NO low-cut neckline, deep neckline, plunging neckline, or revealing neckline",
-            "ABSOLUTELY NO cleavage or chest exposure",
-            "ABSOLUTELY NO gloves of any kind (no PVC gloves, no leather gloves, no opera gloves, no long gloves)",
-            "ABSOLUTELY NO revealing or see-through fabric",
-            "ABSOLUTELY NO corset, bustier, or structured bodice",
-            "ABSOLUTELY NO sequins, embellishments, beading, or sparkle on the dress",
-            "ABSOLUTELY NO lace, lace overlay, lace sleeves, or lace trim",
-            "ABSOLUTELY NO long sleeves or sleeves of any kind — dress is SLEEVELESS with thin straps only",
-            "ABSOLUTELY NO long dress or gown — dress must be SHORT (above knee)",
-            "ABSOLUTELY NO different colour dress — dress is BLACK only",
-            "ABSOLUTELY NO boots above ankle height",
-          ],
-        };
-      }
+      // OUTFIT_CONSTRAINTS is defined at module scope (top of file) — accessible here.
 
       // Build dual-constraint outfit block for a character
       const buildOutfitConstraintBlock = (charName: string, storedOutfit?: string): string => {
@@ -6731,10 +6727,10 @@ Your task:
       const charRows = await db.select().from(videoCharacters)
         .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true), isNull(videoCharacters.deletedAt)));
       // Build a map of character name -> best reference URL for per-scene lookup
-      // Priority: environmentRefUrl (full outfit in correct env) > performanceRefUrl > masterPortraitUrl > previewImageUrl
+      // Priority: masterPortraitUrl (full-body outfit) > environmentRefUrl > performanceRefUrl > previewImageUrl
       const charRefByName = new Map(charRows.map(c => [
         c.name.toLowerCase(),
-        (c as any).environmentRefUrl ?? (c as any).performanceRefUrl ?? c.masterPortraitUrl ?? c.previewImageUrl ?? null
+        c.masterPortraitUrl ?? (c as any).environmentRefUrl ?? (c as any).performanceRefUrl ?? c.previewImageUrl ?? null
       ]));
       // Also build outfit lock blocks for each locked character
       const charLockBlockByName = new Map(charRows.map(c => {
@@ -6746,7 +6742,7 @@ Your task:
         const block = `CHARACTER LOCK — ${c.name}: MUST wear [${positiveList}]. FORBIDDEN: [${negativeList}].`;
         return [key, block] as [string, string | null];
       }));
-      const primaryCharRef = (charRows[0] as any)?.environmentRefUrl ?? (charRows[0] as any)?.performanceRefUrl ?? charRows[0]?.masterPortraitUrl ?? charRows[0]?.previewImageUrl ?? undefined;
+      const primaryCharRef = charRows[0]?.masterPortraitUrl ?? (charRows[0] as any)?.environmentRefUrl ?? (charRows[0] as any)?.performanceRefUrl ?? charRows[0]?.previewImageUrl ?? undefined;
       const venueTypeKey = sceneSettingToVenueType(job.sceneSetting);
       console.log(`[GenerateMissingPreviews] Generating ${scenesNeedingImage.length} missing storyboard images for job ${input.jobId} (charRef=${primaryCharRef ? 'yes' : 'none'}, venue=${venueTypeKey})`);
       let generated = 0;
