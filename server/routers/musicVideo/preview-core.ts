@@ -218,6 +218,7 @@ export async function generateScenePreviewCore(opts: {
       const key = c.name.toLowerCase();
 
       // ── 1. User-entered outfit from characterVisualDetails ──────────────────
+      // characterVisualDetails can be either a JSON string {"outfit":"..."} or a plain string
       let userOutfit: string | null = null;
       if (c.characterVisualDetails) {
         try {
@@ -225,36 +226,47 @@ export async function generateScenePreviewCore(opts: {
           if (vd?.outfit && typeof vd.outfit === "string" && vd.outfit.trim().length > 3) {
             userOutfit = vd.outfit.trim();
           }
-        } catch { /* ignore */ }
+        } catch {
+          // Plain string stored directly — use as-is if it looks like an outfit description
+          const plain = c.characterVisualDetails.trim();
+          if (plain.length > 3) userOutfit = plain;
+        }
       }
 
-      // ── 2. lockedOutfit JSON (normalised structured outfit) ─────────────────
+      // ── 2. lockedOutfit JSON (user-entered in Character Lock "Outfit" field) ──
+      // CRITICAL: This takes priority over hardcoded OUTFIT_CONSTRAINTS.
+      // When the user explicitly sets an outfit in Character Lock, it MUST win.
       let lockedOutfitStr: string | null = null;
-      if (!userOutfit && c.lockedOutfit) {
+      if (c.lockedOutfit) {
         try {
           const lo = JSON.parse(c.lockedOutfit);
-          // Flatten the JSON fields into a readable description
+          // The frontend stores the outfit as {jacket: "outfit description"}
+          // Extract all non-empty values and join them
           const parts = Object.values(lo).filter((v): v is string => typeof v === "string" && v.trim().length > 0);
           if (parts.length > 0) lockedOutfitStr = parts.join(", ");
         } catch { /* ignore */ }
       }
 
-      // ── 3. Hardcoded OUTFIT_CONSTRAINTS dictionary ──────────────────────────
-      const constraints = OUTFIT_CONSTRAINTS[key];
+      // ── 3. Hardcoded OUTFIT_CONSTRAINTS dictionary (last resort for named chars) ──
+      // Only used when the user has NOT set any outfit in Character Lock.
+      const constraints = (!lockedOutfitStr && !userOutfit) ? OUTFIT_CONSTRAINTS[key] : null;
 
       // ── 4. lockedDescription free-text fallback ─────────────────────────────
       const descFallback = c.lockedDescription ?? null;
 
       // Build the costume lock block from the best available source
-      if (userOutfit) {
+      // Priority: lockedOutfit (user-entered) > userOutfit (visual details) > hardcoded > description
+      console.log(`[OUTFIT DEBUG preview-core] ${c.name}: lockedOutfit=${c.lockedOutfit?.slice(0,60)}, lockedOutfitStr=${lockedOutfitStr?.slice(0,60)}, userOutfit=${userOutfit?.slice(0,40)}, constraints=${constraints ? 'yes' : 'no'}`);
+      const primaryOutfit = lockedOutfitStr || userOutfit;
+      if (primaryOutfit) {
         // User explicitly entered outfit — highest priority, use verbatim with strong enforcement
         return [
           `COSTUME LOCK — ${c.name} (MANDATORY — DO NOT DEVIATE):`,
-          `${c.name} is wearing EXACTLY: ${userOutfit}`,
-          `FINAL RULE: ${c.name}'s outfit MUST be: ${userOutfit}. DO NOT change any garment. DO NOT substitute. DO NOT add or remove items. This is the ONLY acceptable outfit.`,
+          `${c.name} is wearing EXACTLY: ${primaryOutfit}`,
+          `FINAL RULE: ${c.name}'s outfit MUST be: ${primaryOutfit}. DO NOT change any garment. DO NOT substitute. DO NOT add or remove items. This is the ONLY acceptable outfit.`,
         ].join("\n");
       } else if (constraints) {
-        // Hardcoded constraints for known characters
+        // Hardcoded constraints for known characters (only when user has set no outfit)
         const positiveList = constraints.positive.map(pos => `  + ${pos}`).join("\n");
         const negativeList = constraints.negative.map(neg => `  ${neg}`).join("\n");
         return [
@@ -262,12 +274,6 @@ export async function generateScenePreviewCore(opts: {
           `${c.name} is wearing:\n${positiveList}`,
           `${c.name} is ABSOLUTELY NOT wearing:\n${negativeList}`,
           `FINAL RULE: ${c.name}'s outfit MUST match the above in EVERY SCENE. The reference photo shows the EXACT outfit. DO NOT substitute any garment. DO NOT add gloves. DO NOT make the neckline lower.`,
-        ].join("\n");
-      } else if (lockedOutfitStr) {
-        return [
-          `COSTUME LOCK — ${c.name} (MANDATORY — DO NOT DEVIATE):`,
-          `${c.name} is wearing EXACTLY: ${lockedOutfitStr}`,
-          `FINAL RULE: ${c.name}'s outfit MUST be: ${lockedOutfitStr}. DO NOT change any garment.`,
         ].join("\n");
       } else if (descFallback) {
         // Last resort: inject the full lockedDescription which usually contains outfit info
@@ -394,6 +400,8 @@ export async function generateScenePreviewCore(opts: {
   }
 
   const finalPrompt = [
+    // LOCATION LOCK first — gives maximum model weight to the background/environment
+    locationLockBlock,
     hardCountPrefix,
     identityBlock,
     bodyBuildBlock,
@@ -401,7 +409,6 @@ export async function generateScenePreviewCore(opts: {
     propsBlock,
     positionBlock,
     mustHaveBlock,
-    locationLockBlock,
     sceneBlock,
     forbiddenBlock,
     "NO visible text, logos, or band names. NO neon signs, banners, or typography.",

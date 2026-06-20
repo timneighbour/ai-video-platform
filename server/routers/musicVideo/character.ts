@@ -371,14 +371,27 @@ export const musicVideoCharacterRouter = router({
           if (c.characterVisualDetails) {
             try { details = JSON.parse(c.characterVisualDetails!); } catch {}
           }
-          // Fallback to canonical defaults if no visual details stored in DB
+          // Resolve outfit with strict priority:
+          // 1. characterVisualDetails.outfit (structured DB field)
+          // 2. lockedOutfit JSON (user-entered in Character Lock form)
+          // 3. charDefaults (hardcoded fallback for named characters — LOWEST priority)
+          let resolvedOutfit: string | undefined = details.outfit;
+          if (!resolvedOutfit && c.lockedOutfit) {
+            try {
+              const lo = JSON.parse(c.lockedOutfit);
+              const parts2 = Object.values(lo).filter((v): v is string => typeof v === "string" && v.trim().length > 0);
+              if (parts2.length > 0) resolvedOutfit = parts2.join(", ");
+            } catch { /* ignore */ }
+          }
+          // Only fall back to canonical defaults if user has NOT entered any outfit data
           const charDefaults = getCharacterDefaults(c.name);
-          if (!details.instrument && !details.outfit && !details.position && charDefaults) {
+          if (!details.instrument && !details.outfit && !details.position && !resolvedOutfit && charDefaults) {
             details = charDefaults.characterVisualDetails;
+            if (!resolvedOutfit) resolvedOutfit = details.outfit;
           }
           const parts: string[] = [];
           // Dual-constraint outfit block (positive + negative, repeated twice)
-          const outfitConstraintBlock = buildOutfitConstraintBlock(c.name, details.outfit);
+          const outfitConstraintBlock = buildOutfitConstraintBlock(c.name, resolvedOutfit);
           if (outfitConstraintBlock) parts.push(outfitConstraintBlock);
 
           // ── HAIR LOCK ───────────────────────────────────────────────────────────────────────────────────────

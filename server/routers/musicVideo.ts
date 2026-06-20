@@ -247,10 +247,10 @@ async function generateScenePreviewCore(opts: {
     : "";
 
   // ── COSTUME LOCK BLOCK ────────────────────────────────────────────────────────
-  // Build a hard outfit constraint for each assigned locked character.
-  // This is critical for Zara: her lockedDescription contains "sexy", "low neckline"
-  // which causes the AI to generate UPVC/revealing outfits. The costume lock overrides
-  // the text description with precise positive+negative constraints from the reference photo.
+  // Priority order for outfit data:
+  //   1. lockedOutfit JSON (user-entered in Character Lock form) — HIGHEST PRIORITY
+  //   2. OUTFIT_CONSTRAINTS hardcoded dictionary (fallback for named characters)
+  //   3. lockedDescription free-text (last resort)
   const CORE_OUTFIT_CONSTRAINTS: Record<string, { positive: string[]; negative: string[] }> = {
     zara: {
       positive: [
@@ -274,6 +274,27 @@ async function generateScenePreviewCore(opts: {
     .filter(c => c.isLocked)
     .map(c => {
       const key = c.name.toLowerCase();
+
+      // ── 1. lockedOutfit JSON (user-entered in Character Lock) — HIGHEST PRIORITY ──
+      let lockedOutfitStr: string | null = null;
+      if (c.lockedOutfit) {
+        try {
+          const lo = JSON.parse(c.lockedOutfit);
+          const parts = Object.values(lo).filter((v): v is string => typeof v === "string" && v.trim().length > 0 && v.trim().toLowerCase() !== "none");
+          if (parts.length > 0) lockedOutfitStr = parts.join(", ");
+        } catch { /* ignore */ }
+      }
+
+      if (lockedOutfitStr) {
+        // User explicitly set an outfit — use it verbatim, highest priority
+        return [
+          `COSTUME LOCK — ${c.name} (MANDATORY — DO NOT DEVIATE):`,
+          `${c.name} is wearing EXACTLY: ${lockedOutfitStr}`,
+          `FINAL RULE: ${c.name}'s outfit MUST be: ${lockedOutfitStr}. DO NOT change any garment. DO NOT substitute. DO NOT add or remove items. This is the ONLY acceptable outfit.`,
+        ].join("\n");
+      }
+
+      // ── 2. Hardcoded CORE_OUTFIT_CONSTRAINTS (only when user has set NO outfit) ──
       const constraints = CORE_OUTFIT_CONSTRAINTS[key];
       if (!constraints) return null;
       const positiveList = constraints.positive.map(p => `  + ${p}`).join("\n");
@@ -326,10 +347,11 @@ async function generateScenePreviewCore(opts: {
   }
 
   const finalPrompt = [
+    // LOCATION LOCK first — gives maximum model weight to the background/environment
+    locationLockBlock,
     hardCountPrefix,
     identityBlock,
     costumeLockBlock,  // COSTUME LOCK: must come immediately after identity to override lockedDescription text
-    locationLockBlock,
     sceneBlock,
     "NO visible text, logos, or band names. NO neon signs, banners, or typography.",
     "16:9 widescreen, high quality, professional photography, concert photography",
@@ -2295,12 +2317,33 @@ Rules:
       // OUTFIT_CONSTRAINTS is defined at module scope (top of file) — accessible here.
 
       // Build dual-constraint outfit block for a character
-      const buildOutfitConstraintBlock = (charName: string, storedOutfit?: string): string => {
+      // PRIORITY: lockedOutfit (user-entered) > storedOutfit (visual details) > hardcoded OUTFIT_CONSTRAINTS
+      const buildOutfitConstraintBlock = (charName: string, storedOutfit?: string, lockedOutfitJson?: string | null): string => {
         const key = charName.toLowerCase();
-        const constraints = OUTFIT_CONSTRAINTS[key];
-        if (!constraints) {
-          return storedOutfit ? `${charName} is wearing: ${storedOutfit}. MUST wear this exact outfit. DO NOT change any garment.` : "";
+
+        // ── 1. lockedOutfit JSON (user-entered in Character Lock) — HIGHEST PRIORITY ──
+        let lockedOutfitStr: string | null = null;
+        if (lockedOutfitJson) {
+          try {
+            const lo = JSON.parse(lockedOutfitJson);
+            const parts = Object.values(lo).filter((v): v is string => typeof v === "string" && v.trim().length > 0 && v.trim().toLowerCase() !== "none");
+            if (parts.length > 0) lockedOutfitStr = parts.join(", ");
+          } catch { /* ignore */ }
         }
+
+        // ── 2. If user explicitly set an outfit, use it verbatim ──
+        const userOutfit = lockedOutfitStr || storedOutfit;
+        if (userOutfit) {
+          return [
+            `COSTUME LOCK — ${charName} (MANDATORY — DO NOT DEVIATE):`,
+            `${charName} is wearing EXACTLY: ${userOutfit}`,
+            `FINAL RULE: ${charName}'s outfit MUST be: ${userOutfit}. DO NOT change any garment. DO NOT substitute. DO NOT add or remove items. This is the ONLY acceptable outfit.`,
+          ].join("\n");
+        }
+
+        // ── 3. Hardcoded OUTFIT_CONSTRAINTS (only when user has set NO outfit) ──
+        const constraints = OUTFIT_CONSTRAINTS[key];
+        if (!constraints) return "";
         const positiveList = constraints.positive.map(p => `  + ${p}`).join("\n");
         const negativeList = constraints.negative.map(n => `  ${n}`).join("\n");
         // First statement — detailed list
@@ -2325,7 +2368,8 @@ Rules:
           }
           const parts: string[] = [];
           // Dual-constraint outfit block (positive + negative, repeated twice)
-          const outfitConstraintBlock = buildOutfitConstraintBlock(c.name, details.outfit);
+          // Pass lockedOutfit JSON so user-entered outfit takes priority over hardcoded constraints
+          const outfitConstraintBlock = buildOutfitConstraintBlock(c.name, details.outfit, c.lockedOutfit ?? null);
           if (outfitConstraintBlock) parts.push(outfitConstraintBlock);
 
           // ── HAIR LOCK ───────────────────────────────────────────────────────────────────────────────────────
@@ -2810,12 +2854,13 @@ Rules:
       // ── V3 Final Prompt Assembly: 7 blocks ───────────────────────────────────────────
       // Order: hardCount → identity → visual (OVERRIDE) → role → performance → scene → continuity → constraints → style
       const finalImagePrompt = [
+        // LOCATION LOCK first — gives maximum model weight to the background/environment
+        locationLockDNA,
         hardCountPrefix,
         characterBlock,
         visualBlock,
         roleBlock,
         performanceBlock,
-        locationLockDNA,
         sceneBlock,
         continuityBlock,
         constraintBlock,
