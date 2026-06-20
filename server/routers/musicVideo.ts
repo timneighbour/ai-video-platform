@@ -791,12 +791,11 @@ Rules:
       // Store the CLEAN prompt (scene direction only) in the DB — this is what users see.
       // The full render prompt (with character descriptions prepended) is built on-the-fly at render time.
       for (const scene of scenes) {
-        // Determine character assignments for this scene
-        const assignedNames: string[] = scene.characterAssignments && scene.characterAssignments.length > 0
-          ? scene.characterAssignments
-          : roster.length > 0
-            ? [roster.find((c: { isLocked?: boolean }) => c.isLocked)?.name ?? roster[0].name]
-            : [];
+        // Determine character assignments for this scene.
+        // IMPORTANT: respect the LLM's explicit empty [] — it means "no character in this scene" (atmosphere/intercut).
+        // Do NOT fall back to injecting Zara/locked character when the LLM intentionally left the scene empty.
+        // The old fallback caused 3-4 identical Zara scenes because every atmosphere scene got her assigned.
+        const assignedNames: string[] = scene.characterAssignments ?? [];
         // ── WizSync™ Vocal-Aware Orchestration ─────────────────────────────────────
         // Primary signal: Demucs stem section classification (if available)
         // Fallback signal: Whisper transcription segment overlap
@@ -1103,25 +1102,38 @@ Rules:
       // ── STORYBOARD LOCK: Auto-generate missing previews ──────────────────────
       // If scenes are missing preview images, generate them automatically so the
       // user doesn't have to manually click "Generate Preview" for each scene.
+      // IMPORTANT: use generateScenePreviewCore (not raw generateImage) so character
+      // reference images are injected correctly and we don't get duplicate Zara shots.
       const scenesWithoutPreview = scenes.filter(s => !s.previewImageUrl);
       if (scenesWithoutPreview.length > 0) {
-        console.log(`[MusicVideo] Auto-generating ${scenesWithoutPreview.length} missing scene previews for job ${input.jobId}...`);
-        await Promise.allSettled(
-          scenesWithoutPreview.map(async (scene) => {
-            try {
-              const { url } = await generateImage({ prompt: scene.prompt });
-              if (url) {
-                await db.update(musicVideoScenes)
-                  .set({ previewImageUrl: url })
-                  .where(eq(musicVideoScenes.id, scene.id));
-                console.log(`[MusicVideo] Auto-preview generated for scene ${scene.sceneIndex + 1}`);
-              }
-            } catch (previewErr) {
-              // Non-fatal: if auto-preview fails, proceed without it
-              console.warn(`[MusicVideo] Auto-preview failed for scene ${scene.sceneIndex + 1}:`, previewErr);
+        console.log(`[MusicVideo] Auto-generating ${scenesWithoutPreview.length} missing scene previews for job ${input.jobId} (using full pipeline)...`);
+        // Fetch job characters once for the whole batch
+        const autoPreviewJobChars = await db.select().from(videoCharacters)
+          .where(eq(videoCharacters.jobId, input.jobId));
+        // Fetch the job for venue lock info
+        const autoPreviewJob = await db.select().from(musicVideoJobs)
+          .where(eq(musicVideoJobs.id, input.jobId))
+          .then(rows => rows[0]);
+        // Run sequentially to avoid hammering the image API
+        for (const scene of scenesWithoutPreview) {
+          try {
+            const url = await generateScenePreviewCore({
+              scene,
+              jobCharacters: autoPreviewJobChars,
+              userId: ctx.user.id,
+              venueLockedKey: autoPreviewJob?.venueLockedKey ?? null,
+            });
+            if (url) {
+              await db.update(musicVideoScenes)
+                .set({ previewImageUrl: url })
+                .where(eq(musicVideoScenes.id, scene.id));
+              console.log(`[MusicVideo] Auto-preview generated for scene ${scene.sceneIndex + 1}`);
             }
-          })
-        );
+          } catch (previewErr) {
+            // Non-fatal: if auto-preview fails, proceed without it
+            console.warn(`[MusicVideo] Auto-preview failed for scene ${scene.sceneIndex + 1}:`, previewErr);
+          }
+        }
         // Reload scenes with fresh preview URLs
         const refreshedScenes = await db.select().from(musicVideoScenes)
           .where(eq(musicVideoScenes.jobId, input.jobId));

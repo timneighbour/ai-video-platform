@@ -1070,6 +1070,63 @@ This is the cinematic world-reveal that sets the entire tone of the video. It MU
     };
   });
 
+  // ── CROSS-SCENE UNIQUENESS GUARD ─────────────────────────────────────────────
+  // Detect near-duplicate prompts across scenes with the same character assignment.
+  // If two or more scenes share >60% of their key visual words, flag the duplicates
+  // and inject a forced variation directive into their cleanPrompt so the image generator
+  // produces a visually distinct result.
+  const extractKeywords = (prompt: string): Set<string> => {
+    const stopWords = new Set(['the','a','an','and','or','of','in','on','at','to','for','with','by','from','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','could','should','may','might','shall','can','into','through','during','before','after','above','below','between','out','off','over','under','again','then','once','here','there','when','where','why','how','all','both','each','few','more','most','other','some','such','no','nor','not','only','own','same','so','than','too','very','just','but','if','as','up','about','against','while']);
+    return new Set(
+      prompt.toLowerCase()
+        .replace(/[^a-z\s]/g, '')
+        .split(/\s+/)
+        .filter(w => w.length > 3 && !stopWords.has(w))
+    );
+  };
+
+  const jaccardSimilarity = (a: Set<string>, b: Set<string>): number => {
+    const intersection = new Set([...a].filter(x => b.has(x)));
+    const union = new Set([...a, ...b]);
+    return union.size === 0 ? 0 : intersection.size / union.size;
+  };
+
+  const cameraVariations = [
+    'extreme wide establishing shot, camera slowly craning upward',
+    'low angle dutch tilt, camera tracking laterally',
+    'overhead bird\'s-eye view, slowly descending',
+    'extreme close-up on hands and instrument detail, rack focus to background',
+    'silhouette against backlit window, camera drifting right',
+    'over-the-shoulder perspective, shallow depth of field',
+    'handheld intimate close-up, slight lens breathing',
+    'wide-angle distortion, camera pulling back dramatically',
+    'profile shot from stage left, camera slowly rotating',
+    'high angle from balcony level, looking down at performer',
+  ];
+
+  let variationIndex = 0;
+  for (let i = 0; i < scenes.length; i++) {
+    const sceneA = scenes[i];
+    const keywordsA = extractKeywords(sceneA.cleanPrompt);
+    for (let j = i + 1; j < scenes.length; j++) {
+      const sceneB = scenes[j];
+      // Only check scenes with the same character assignments (duplicates across different characters are fine)
+      const sameChars = JSON.stringify(sceneA.characterAssignments.sort()) === JSON.stringify(sceneB.characterAssignments.sort());
+      if (!sameChars) continue;
+      const keywordsB = extractKeywords(sceneB.cleanPrompt);
+      const similarity = jaccardSimilarity(keywordsA, keywordsB);
+      if (similarity > 0.60) {
+        // Force a distinct camera angle/composition on the later scene
+        const variation = cameraVariations[variationIndex % cameraVariations.length];
+        variationIndex++;
+        const originalClean = sceneB.cleanPrompt;
+        sceneB.cleanPrompt = `${originalClean} [FORCED VARIATION — UNIQUE ANGLE: ${variation}]`;
+        sceneB.prompt = sceneB.prompt.replace(originalClean, sceneB.cleanPrompt);
+        console.log(`[Storyboard] Duplicate detected: scene ${i} ↔ scene ${j} (similarity ${(similarity * 100).toFixed(0)}%) — injecting variation: "${variation}"`);
+      }
+    }
+  }
+
   return { scenes, roster: fullRoster };
 }
 
