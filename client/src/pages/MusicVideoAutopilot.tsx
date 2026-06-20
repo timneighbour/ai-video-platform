@@ -2475,7 +2475,7 @@ export default function MusicVideoAutopilot() {
   }, [jobQuery.data?.job?.contextAssetUrls, jobQuery.data?.job?.artistType, jobQuery.data?.job?.aspectRatio]);
 
   useEffect(() => {
-    if (jobQuery.data?.scenes) {
+    if (Array.isArray(jobQuery.data?.scenes) && jobQuery.data.scenes.length > 0) {
       const mappedScenes = jobQuery.data.scenes.map((s: any) => ({
         id: s.id,
         sceneIndex: s.sceneIndex,
@@ -2614,14 +2614,22 @@ export default function MusicVideoAutopilot() {
       toast.loading("Regenerating storyboard...", { id: REGEN_TOAST_ID, description: "Our AI director is crafting your scenes." });
       const storyboard = await generateStoryboardMutation.mutateAsync({ jobId });
       // Use real DB ids (not sceneIndex) so generateScenePreview calls use correct scene IDs
-      const newScenes = storyboard.scenes.map((s: any) => ({ ...s, id: s.id, status: "pending", previewImageUrl: null, previewImageLoading: true }));
+      const rawScenes = Array.isArray(storyboard?.scenes) ? storyboard.scenes : [];
+      if (rawScenes.length === 0) {
+        toast.dismiss(REGEN_TOAST_ID);
+        if (storyboardStepTimerRef.current) clearTimeout(storyboardStepTimerRef.current);
+        setStoryboardGenerating(false);
+        toast.error("Storyboard generation failed", { description: "No scenes were returned. Please try again." });
+        return;
+      }
+      const newScenes = rawScenes.map((s: any) => ({ ...s, id: s.id, status: "pending", previewImageUrl: null, previewImageLoading: true }));
       setScenes(newScenes);
       toast.dismiss(REGEN_TOAST_ID);
       if (storyboardStepTimerRef.current) clearTimeout(storyboardStepTimerRef.current);
       setStoryboardStep(5);
       setStoryboardGenerating(false);
-      mp.storyboardRegenerated(storyboard.scenes.length);
-      toast.success("Storyboard regenerated!", { description: `${storyboard.scenes.length} scenes ready.` });
+      mp.storyboardRegenerated(rawScenes.length);
+      toast.success("Storyboard regenerated!", { description: `${rawScenes.length} scenes ready.` });
       // Trigger sequential preview image generation for all new scenes
       if (jobId && newScenes.length > 0) {
         (async () => {
@@ -4788,7 +4796,13 @@ export default function MusicVideoAutopilot() {
               generateStoryboardMutation.mutateAsync({ jobId: jobId! })
                 .then((storyboard) => {
                   // Use real DB ids so generateScenePreview calls use correct scene IDs
-                  const initialScenes = storyboard.scenes.map((s: any) => ({ ...s, id: s.id, status: "pending", previewImageUrl: null, previewImageLoading: true }));
+                  const rawScenes = Array.isArray(storyboard?.scenes) ? storyboard.scenes : [];
+                  if (rawScenes.length === 0) {
+                    toast.error("Storyboard generation failed", { description: "No scenes were returned. Please try again." });
+                    setStoryboardGenerating(false);
+                    return;
+                  }
+                  const initialScenes = rawScenes.map((s: any) => ({ ...s, id: s.id, status: "pending", previewImageUrl: null, previewImageLoading: true }));
                   setScenes(initialScenes);
                   toast.dismiss(STORYBOARD_TOAST_ID);
                   setStoryboardGenerating(false);
