@@ -1086,8 +1086,10 @@ This is the cinematic world-reveal that sets the entire tone of the video. It MU
   };
 
   const jaccardSimilarity = (a: Set<string>, b: Set<string>): number => {
-    const intersection = new Set([...a].filter(x => b.has(x)));
-    const union = new Set([...a, ...b]);
+    const aArr = Array.from(a);
+    const bArr = Array.from(b);
+    const intersection = new Set(aArr.filter(x => b.has(x)));
+    const union = new Set([...aArr, ...bArr]);
     return union.size === 0 ? 0 : intersection.size / union.size;
   };
 

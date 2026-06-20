@@ -1107,21 +1107,16 @@ Rules:
       const scenesWithoutPreview = scenes.filter(s => !s.previewImageUrl);
       if (scenesWithoutPreview.length > 0) {
         console.log(`[MusicVideo] Auto-generating ${scenesWithoutPreview.length} missing scene previews for job ${input.jobId} (using full pipeline)...`);
-        // Fetch job characters once for the whole batch
-        const autoPreviewJobChars = await db.select().from(videoCharacters)
-          .where(eq(videoCharacters.jobId, input.jobId));
-        // Fetch the job for venue lock info
-        const autoPreviewJob = await db.select().from(musicVideoJobs)
-          .where(eq(musicVideoJobs.id, input.jobId))
-          .then(rows => rows[0]);
         // Run sequentially to avoid hammering the image API
+        // generateScenePreviewCore fetches all needed data (characters, venue lock, etc.) internally
         for (const scene of scenesWithoutPreview) {
           try {
             const url = await generateScenePreviewCore({
-              scene,
-              jobCharacters: autoPreviewJobChars,
+              db,
               userId: ctx.user.id,
-              venueLockedKey: autoPreviewJob?.venueLockedKey ?? null,
+              jobId: input.jobId,
+              sceneId: scene.id,
+              forceRegenerate: false,
             });
             if (url) {
               await db.update(musicVideoScenes)
