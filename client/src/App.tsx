@@ -308,6 +308,7 @@ function Router() {
         <Route path={"/music-video"} component={WizVideoLandingPage} />{/* original product page */}
         <Route path={"/music-video-ai"} component={WizVideoLandingPage} />{/* SEO alias */}
         <Route path={"/music-video/create"} component={MusicVideoAutopilot} />
+        <Route path={"/music-video/:id"}>{(params: { id?: string }) => { const id = params?.id; if (id && /^\d+$/.test(id)) { window.location.replace(`/music-video/create?jobId=${id}`); return null; } return null; }}</Route>
         <Route path={"/render-history"} component={RenderHistory} />
         <Route path={"/my-projects"} component={Projects} />{/* unified projects page */}
         <Route path={"/kids-video"} component={KidsVideo} />
