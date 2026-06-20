@@ -173,10 +173,16 @@ async function generateScenePreviewCore(opts: {
   // location constraint so every scene is anchored to that specific interior.
   let locationLockBlock = "";
   if (job.venueLockedKey) {
-    const { getVenueInteriorDNA } = await import("../venue-library.js");
-    const dna = getVenueInteriorDNA(job.venueLockedKey);
+    let dna: string | undefined;
+    if (job.venueLockedKey === "custom") {
+      // Custom venue: use the user-provided free-text DNA stored on the job
+      dna = (job as any).venueCustomDNA ?? undefined;
+    } else {
+      const { getVenueInteriorDNA } = await import("../venue-library.js");
+      dna = getVenueInteriorDNA(job.venueLockedKey);
+    }
     if (dna) {
-      locationLockBlock = dna;
+      locationLockBlock = `LOCATION LOCK (MANDATORY — EVERY SCENE MUST BE SET HERE):\n${dna}\n\nThis location is LOCKED. Every image MUST show this specific interior. DO NOT substitute any other venue, stage, or setting.`;
       console.log(`[generateScenePreviewCore] Scene ${sceneId}: Location Lock active — ${job.venueLockedDisplayName ?? job.venueLockedKey}`);
     }
   }
@@ -2434,10 +2440,15 @@ Rules:
       let locationLockDNA = "";
       if (job.venueLockedKey) {
         try {
-          const { getVenueInteriorDNA } = await import("../venue-library.js");
-          const dna = getVenueInteriorDNA(job.venueLockedKey);
-          if (dna) {
-            locationLockDNA = dna;
+          let rawDNA: string | undefined;
+          if (job.venueLockedKey === "custom") {
+            rawDNA = job.venueCustomDNA ?? undefined;
+          } else {
+            const { getVenueInteriorDNA } = await import("../venue-library.js");
+            rawDNA = getVenueInteriorDNA(job.venueLockedKey);
+          }
+          if (rawDNA) {
+            locationLockDNA = `LOCATION LOCK (MANDATORY — EVERY SCENE MUST BE SET HERE):\n${rawDNA}\n\nThis location is LOCKED. Every image MUST show this specific interior. DO NOT substitute any other venue, stage, or setting.`;
             console.log(`[generateScenePreview] Scene ${input.sceneId}: Location Lock active — ${job.venueLockedDisplayName ?? job.venueLockedKey}`);
           }
         } catch (err) {
@@ -4332,6 +4343,7 @@ Return ONLY valid JSON, no markdown.`,
     .input(z.object({
       jobId: z.number().int(),
       venueKey: z.string().min(1),
+      customDNA: z.string().min(10).max(2000).optional(), // Required when venueKey === "custom"
     }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
@@ -4339,11 +4351,28 @@ Return ONLY valid JSON, no markdown.`,
       const [job] = await db.select().from(musicVideoJobs)
         .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
       if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      // Custom venue: user provides their own interior description
+      if (input.venueKey === "custom") {
+        if (!input.customDNA || input.customDNA.trim().length < 10) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Custom venue description is required (min 10 characters)" });
+        }
+        await db.update(musicVideoJobs)
+          .set({
+            venueLockedKey: "custom",
+            venueLockedDisplayName: "Custom Venue",
+            venueLockedAt: new Date(),
+            venueCustomDNA: input.customDNA.trim(),
+          })
+          .where(eq(musicVideoJobs.id, input.jobId));
+        console.log(`[lockLocation] Job ${input.jobId}: location locked to custom venue`);
+        return { success: true, venue: { key: "custom", displayName: "Custom Venue", emoji: "✏️" } };
+      }
+      // Preset venue: look up from library
       const { getVenueByKey } = await import("../venue-library.js");
       const venue = getVenueByKey(input.venueKey);
       if (!venue) throw new TRPCError({ code: "BAD_REQUEST", message: `Unknown venue key: ${input.venueKey}` });
       await db.update(musicVideoJobs)
-        .set({ venueLockedKey: venue.key, venueLockedDisplayName: venue.displayName, venueLockedAt: new Date() })
+        .set({ venueLockedKey: venue.key, venueLockedDisplayName: venue.displayName, venueLockedAt: new Date(), venueCustomDNA: null })
         .where(eq(musicVideoJobs.id, input.jobId));
       console.log(`[lockLocation] Job ${input.jobId}: location locked to "${venue.displayName}"`);
       return { success: true, venue: { key: venue.key, displayName: venue.displayName, emoji: venue.emoji } };
@@ -4358,7 +4387,7 @@ Return ONLY valid JSON, no markdown.`,
         .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
       if (!job) throw new TRPCError({ code: "NOT_FOUND" });
       await db.update(musicVideoJobs)
-        .set({ venueLockedKey: null, venueLockedDisplayName: null, venueLockedAt: null })
+        .set({ venueLockedKey: null, venueLockedDisplayName: null, venueLockedAt: null, venueCustomDNA: null })
         .where(eq(musicVideoJobs.id, input.jobId));
       console.log(`[unlockLocation] Job ${input.jobId}: location lock cleared`);
       return { success: true };
@@ -4373,17 +4402,20 @@ Return ONLY valid JSON, no markdown.`,
         venueLockedKey: musicVideoJobs.venueLockedKey,
         venueLockedDisplayName: musicVideoJobs.venueLockedDisplayName,
         venueLockedAt: musicVideoJobs.venueLockedAt,
+        venueCustomDNA: musicVideoJobs.venueCustomDNA,
       }).from(musicVideoJobs)
         .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
       if (!job) throw new TRPCError({ code: "NOT_FOUND" });
       const { getVenueByKey, VENUE_LIBRARY } = await import("../venue-library.js");
-      const venue = job.venueLockedKey ? getVenueByKey(job.venueLockedKey) : undefined;
+      const isCustom = job.venueLockedKey === "custom";
+      const venue = (job.venueLockedKey && !isCustom) ? getVenueByKey(job.venueLockedKey) : undefined;
       return {
         isLocked: !!job.venueLockedKey,
         venueKey: job.venueLockedKey ?? null,
-        displayName: job.venueLockedDisplayName ?? null,
+        displayName: isCustom ? "Custom Venue" : (job.venueLockedDisplayName ?? null),
         lockedAt: job.venueLockedAt ?? null,
-        emoji: venue?.emoji ?? null,
+        emoji: isCustom ? "✏️" : (venue?.emoji ?? null),
+        customDNA: isCustom ? (job.venueCustomDNA ?? null) : null,
         allVenues: VENUE_LIBRARY.map(v => ({ key: v.key, displayName: v.displayName, category: v.category, emoji: v.emoji })),
       };
     }),

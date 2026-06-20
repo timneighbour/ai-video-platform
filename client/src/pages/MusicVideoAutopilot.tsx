@@ -1732,10 +1732,10 @@ export default function MusicVideoAutopilot() {
   const lockedLocation = lockedLocationQuery.data;
   const [locationPickerOpen, setLocationPickerOpen] = useState(false);
 
-  const handleLockLocation = async (venueKey: string) => {
+  const handleLockLocation = async (venueKey: string, customDNA?: string) => {
     if (!jobId) return;
     try {
-      const result = await lockLocationMutation.mutateAsync({ jobId, venueKey });
+      const result = await lockLocationMutation.mutateAsync({ jobId, venueKey, customDNA });
       await lockedLocationQuery.refetch();
       setLocationPickerOpen(false);
       toast.success(`Location locked: ${result.venue.displayName}`);
@@ -5342,7 +5342,11 @@ export default function MusicVideoAutopilot() {
                         </button>
                       </div>
                       <p className="text-xs text-white/40 mb-3">All scenes will be anchored to this venue's interior — architecture, lighting, and materials will stay consistent throughout.</p>
-                      <LocationVenuePicker onSelect={handleLockLocation} isPending={lockLocationMutation.isPending} />
+                      <LocationVenuePicker
+                        onSelect={handleLockLocation}
+                        isPending={lockLocationMutation.isPending}
+                        initialCustomDNA={lockedLocation?.customDNA}
+                      />
                     </div>
                   )}
                 </div>

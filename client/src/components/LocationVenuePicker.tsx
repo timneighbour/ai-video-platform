@@ -39,22 +39,42 @@ const VENUE_OPTIONS: VenueOption[] = [
   { key: "fabric_london", displayName: "Fabric London", category: "Club", emoji: "🔊", shortDescription: "London · Industrial warehouse with pulsing UV lights" },
 ];
 
-const CATEGORY_ORDER = ["Recording Studio", "Concert Hall", "Arena", "Stadium", "Outdoor", "Theatre", "Club"];
+const CATEGORY_ORDER = ["Recording Studio", "Concert Hall", "Arena", "Stadium", "Outdoor", "Theatre", "Club", "Custom"];
+
+const CUSTOM_PLACEHOLDER = `Describe the interior in detail — architecture, lighting, colours, materials, atmosphere.
+
+Examples:
+• "A brutalist 1970s recording studio with exposed concrete walls, a vintage Neve 8078 console, warm tungsten overhead lighting, and acoustic foam panels in dark charcoal. Floor-to-ceiling glass separates the control room from the live room."
+• "A candlelit baroque chapel converted into a recording space — stone arches, gilded organ pipes, flickering amber light, wooden pews replaced with microphone stands and cables."`;
 
 interface Props {
-  onSelect: (venueKey: string) => void;
+  onSelect: (venueKey: string, customDNA?: string) => void;
   isPending?: boolean;
+  /** Pre-fill the custom textarea when editing an existing custom lock */
+  initialCustomDNA?: string | null;
 }
 
-export function LocationVenuePicker({ onSelect, isPending }: Props) {
+export function LocationVenuePicker({ onSelect, isPending, initialCustomDNA }: Props) {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>("Recording Studio");
+  const [customDNA, setCustomDNA] = useState<string>(initialCustomDNA ?? "");
 
-  const categories = CATEGORY_ORDER.filter(cat => VENUE_OPTIONS.some(v => v.category === cat));
+  const categories = CATEGORY_ORDER.filter(cat =>
+    cat === "Custom" || VENUE_OPTIONS.some(v => v.category === cat)
+  );
   const filteredVenues = VENUE_OPTIONS.filter(v => v.category === activeCategory);
+  const isCustomTab = activeCategory === "Custom";
+
+  const canConfirm = isCustomTab
+    ? customDNA.trim().length >= 10
+    : !!selectedKey;
 
   const handleConfirm = () => {
-    if (selectedKey) onSelect(selectedKey);
+    if (isCustomTab && customDNA.trim().length >= 10) {
+      onSelect("custom", customDNA.trim());
+    } else if (selectedKey) {
+      onSelect(selectedKey);
+    }
   };
 
   return (
@@ -67,53 +87,84 @@ export function LocationVenuePicker({ onSelect, isPending }: Props) {
             onClick={() => { setActiveCategory(cat); setSelectedKey(null); }}
             className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
               activeCategory === cat
-                ? "bg-amber-500/20 text-amber-300 border border-amber-500/50"
+                ? cat === "Custom"
+                  ? "bg-violet-500/20 text-violet-300 border border-violet-500/50"
+                  : "bg-amber-500/20 text-amber-300 border border-amber-500/50"
                 : "bg-white/5 text-white/40 border border-white/10 hover:text-white/70 hover:bg-white/10"
             }`}
           >
-            {cat}
+            {cat === "Custom" ? "✏️ Custom" : cat}
           </button>
         ))}
       </div>
 
-      {/* Venue grid */}
-      <div className="grid grid-cols-1 gap-1.5 max-h-56 overflow-y-auto pr-1">
-        {filteredVenues.map(venue => (
-          <button
-            key={venue.key}
-            onClick={() => setSelectedKey(venue.key === selectedKey ? null : venue.key)}
-            className={`flex items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-all border ${
-              selectedKey === venue.key
-                ? "border-amber-500/60 bg-amber-900/25 text-amber-200"
-                : "border-white/5 bg-white/3 hover:border-white/20 hover:bg-white/5 text-white/70"
-            }`}
-          >
-            <span className="text-lg leading-none mt-0.5 flex-shrink-0">{venue.emoji}</span>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold leading-tight">{venue.displayName}</p>
-              <p className="text-[10px] text-white/35 mt-0.5 leading-tight">{venue.shortDescription}</p>
-            </div>
-            {selectedKey === venue.key && (
-              <div className="w-4 h-4 rounded-full bg-amber-500/80 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 text-black" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M1.5 5l2.5 2.5 4.5-4.5" />
-                </svg>
-              </div>
+      {/* Custom venue textarea */}
+      {isCustomTab ? (
+        <div className="space-y-2">
+          <p className="text-xs text-white/50 leading-relaxed">
+            Describe any bespoke interior — architecture, lighting, colours, materials, and atmosphere. The AI will anchor every scene to this specific space.
+          </p>
+          <textarea
+            value={customDNA}
+            onChange={e => setCustomDNA(e.target.value)}
+            placeholder={CUSTOM_PLACEHOLDER}
+            rows={8}
+            maxLength={2000}
+            className="w-full rounded-lg bg-white/5 border border-white/10 text-white/80 text-xs px-3 py-2.5 resize-none focus:outline-none focus:border-violet-500/50 focus:bg-white/8 placeholder:text-white/20 leading-relaxed"
+          />
+          <div className="flex items-center justify-between">
+            <span className={`text-[10px] ${customDNA.length > 1800 ? "text-amber-400" : "text-white/30"}`}>
+              {customDNA.length}/2000 characters
+            </span>
+            {customDNA.trim().length > 0 && customDNA.trim().length < 10 && (
+              <span className="text-[10px] text-red-400">Min 10 characters required</span>
             )}
-          </button>
-        ))}
-      </div>
+          </div>
+        </div>
+      ) : (
+        /* Venue grid */
+        <div className="grid grid-cols-1 gap-1.5 max-h-56 overflow-y-auto pr-1">
+          {filteredVenues.map(venue => (
+            <button
+              key={venue.key}
+              onClick={() => setSelectedKey(venue.key === selectedKey ? null : venue.key)}
+              className={`flex items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-all border ${
+                selectedKey === venue.key
+                  ? "border-amber-500/60 bg-amber-900/25 text-amber-200"
+                  : "border-white/5 bg-white/3 hover:border-white/20 hover:bg-white/5 text-white/70"
+              }`}
+            >
+              <span className="text-lg leading-none mt-0.5 flex-shrink-0">{venue.emoji}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold leading-tight">{venue.displayName}</p>
+                <p className="text-[10px] text-white/35 mt-0.5 leading-tight">{venue.shortDescription}</p>
+              </div>
+              {selectedKey === venue.key && (
+                <div className="w-4 h-4 rounded-full bg-amber-500/80 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 text-black" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1.5 5l2.5 2.5 4.5-4.5" />
+                  </svg>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Confirm button */}
-      {selectedKey && (
+      {canConfirm && (
         <div className="mt-3 flex justify-end">
           <button
             onClick={handleConfirm}
             disabled={isPending}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 text-sm font-semibold transition-all disabled:opacity-50"
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-semibold transition-all disabled:opacity-50 ${
+              isCustomTab
+                ? "bg-violet-500/20 hover:bg-violet-500/30 border-violet-500/50 text-violet-300"
+                : "bg-amber-500/20 hover:bg-amber-500/30 border-amber-500/50 text-amber-300"
+            }`}
           >
             {isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
-            Lock Location
+            Lock {isCustomTab ? "Custom Venue" : "Location"}
           </button>
         </div>
       )}

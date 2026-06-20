@@ -263,6 +263,7 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   venueLockedKey: varchar("venueLockedKey", { length: 64 }),              // e.g. "air_studios_lyndhurst"
   venueLockedDisplayName: varchar("venueLockedDisplayName", { length: 255 }), // e.g. "Air Studios, Lyndhurst Hall"
   venueLockedAt: timestamp("venueLockedAt"),                               // When the lock was applied
+  venueCustomDNA: text("venueCustomDNA"),                                    // Free-text interior description for custom venues (venueLockedKey = "custom")
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
