@@ -2273,6 +2273,10 @@ export default function MusicVideoAutopilot() {
               lockedRules: Object.keys(c.lockedRules || {}).length > 0 ? { role: c.lockedRules?.role || c.role || '', mustHave: c.lockedRules?.mustHave, allowedProps: c.lockedRules?.allowedProps, forbidden: c.lockedRules?.forbidden } : undefined,
               faceVideoUrl: c.faceVideoUrl || undefined,
               bodyBuild: c.bodyBuild ?? "average",
+              // Pass the short appearance description so server can regenerate the brief
+              description: c.aiDescription || undefined,
+              // Force brief regeneration when the user has changed outfit/appearance fields
+              forceRegenerateBrief: !!(c.lockedOutfit?.trim() || c.visualDetails?.trim()),
               photos: c.photos.map((p) => ({
                 photoBase64: p.base64,
                 photoMimeType: p.mimeType,

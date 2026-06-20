@@ -65,6 +65,10 @@ const characterInputSchema = z.object({
   faceVideoUrl: z.string().url().optional(),
   // Body build hint — injected into portrait prompts so AI matches the user's physique
   bodyBuild: z.enum(["slim", "lean", "average", "athletic", "stocky", "muscular"]).optional().default("average"),
+  // Short appearance description (used to regenerate the visual brief when outfit changes)
+  description: z.string().max(500).optional(),
+  // Force regeneration of the AI Visual Brief even if outfit hasn't changed
+  forceRegenerateBrief: z.boolean().optional().default(false),
 });
 
 export const charactersRouter = router({
@@ -161,6 +165,64 @@ export const charactersRouter = router({
         // auto-approve them so the user doesn't need to click "Approve Look" again.
         const isAiGenerated = charInput.mode === "ai_generated" && !!charInput.aiGeneratedImageUrl;
 
+        // ─── Auto-regenerate AI Visual Brief when outfit/appearance fields change ───
+        // If the user has changed the outfit, body build, or appearance description,
+        // regenerate the lockedDescription from the new fields so image generation
+        // uses the correct outfit (e.g. "black dress" not the old "silver crop top").
+        let finalLockedDescription = charInput.lockedDescription ?? charInput.aiGeneratedBrief ?? null;
+        const hasOutfitChange = outfitFromLocked && finalLockedDescription &&
+          !finalLockedDescription.toLowerCase().includes(outfitFromLocked.toLowerCase().split(/[,\s]+/)[0]);
+        const hasAppearanceInput = charInput.description?.trim() || outfitFromLocked;
+        if (hasAppearanceInput && (hasOutfitChange || charInput.forceRegenerateBrief)) {
+          try {
+            const { invokeLLM } = await import("../_core/llm");
+            const bodyBuildPhrases: Record<string, string> = {
+              slim: "very slim, narrow frame, lean physique, slender build",
+              lean: "lean, toned physique, low body fat, athletic leanness",
+              average: "average build, typical physique",
+              athletic: "athletic build, fit and muscular, well-defined physique",
+              stocky: "stocky build, broad frame, heavier-set physique",
+              muscular: "very muscular, large frame, powerfully built physique",
+            };
+            const bodyBuildPhrase = bodyBuildPhrases[charInput.bodyBuild ?? "average"] ?? bodyBuildPhrases.average;
+            const outfitDesc = outfitFromLocked || (charInput.lockedOutfit ? Object.values(charInput.lockedOutfit).filter(Boolean).join(", ") : null);
+            const appearanceDesc = charInput.description?.trim() || finalLockedDescription || "";
+            const briefResponse = await invokeLLM({
+              messages: [
+                {
+                  role: "system" as const,
+                  content: `You are a character designer writing precise visual briefs for AI video generation.
+Expand the character description into a detailed 80-120 word visual brief for a FULL-BODY STANDING SHOT.
+Style: Realistic (photorealistic, real human, cinematic photography style, natural skin texture).
+Body build: ${bodyBuildPhrase}. The brief MUST reflect this body build accurately.
+CRITICAL RULES — ALL MUST BE FOLLOWED:
+- The brief MUST describe a FULL-BODY STANDING FIGURE visible from head to toe.
+- MUST explicitly mention: legs, knees, calves, ankles, feet, and footwear.
+- MUST describe the EXACT outfit provided — do not invent a different outfit.
+- MUST include the phrase "full-length standing figure" or "full body from head to feet".
+- Be hyper-specific: exact colours, clothing details, hair style, body type, age, expression.
+- NEVER describe only the face, head, or upper body. ALWAYS include the complete lower body.
+- Output: A single dense paragraph. No bullet points. No preamble.`,
+                },
+                {
+                  role: "user" as const,
+                  content: `Character name: ${charInput.name}${charInput.role ? `. Role: ${charInput.role}` : ""}.
+Body build: ${bodyBuildPhrase}.
+Appearance: ${appearanceDesc}${outfitDesc ? `\nOutfit (MUST use exactly): ${outfitDesc}` : ""}${charInput.lockedProps?.instrument ? `\nInstrument/Props: ${charInput.lockedProps.instrument}` : ""}.
+Write the full visual brief now.`,
+                },
+              ],
+            });
+            const newBrief = (briefResponse.choices[0]?.message?.content as string | undefined)?.trim();
+            if (newBrief && newBrief.length > 20) {
+              finalLockedDescription = newBrief;
+              console.log(`[saveCharacters] Regenerated visual brief for ${charInput.name} with new outfit: ${outfitDesc}`);
+            }
+          } catch (e) {
+            console.warn(`[saveCharacters] Brief regeneration failed for ${charInput.name}, using existing brief:`, e);
+          }
+        }
+
         const [result] = await db.insert(videoCharacters).values({
           jobId: input.jobId,
           userId: ctx.user.id,
@@ -173,7 +235,7 @@ export const charactersRouter = router({
           // Without this, WaveSpeed has no face reference and generates a random person instead.
           masterPortraitUrl: isAiGenerated ? (charInput.aiGeneratedImageUrl ?? null) : null,
           previewApproved: isAiGenerated ? true : false, // AI chars are pre-approved
-          lockedDescription: charInput.lockedDescription ?? charInput.aiGeneratedBrief ?? null,
+          lockedDescription: finalLockedDescription,
           isLocked: charInput.isLocked ?? false,
           characterVisualDetails: resolvedVisualDetails,
           characterDefaultState: resolvedDefaultState,
