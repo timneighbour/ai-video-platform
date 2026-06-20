@@ -207,24 +207,161 @@ export async function generateScenePreviewCore(opts: {
     : "";
 
   // ── COSTUME LOCK BLOCK ────────────────────────────────────────────────────────
+  // Priority order for outfit data:
+  //   1. characterVisualDetails.outfit (user-entered in Character Lock form)
+  //   2. lockedOutfit JSON (set by normaliseCharacter)
+  //   3. OUTFIT_CONSTRAINTS hardcoded dictionary (fallback for named characters)
+  //   4. lockedDescription free-text (last resort)
   const costumeLockLines = resolvedSceneChars
     .filter(c => c.isLocked)
     .map(c => {
       const key = c.name.toLowerCase();
+
+      // ── 1. User-entered outfit from characterVisualDetails ──────────────────
+      let userOutfit: string | null = null;
+      if (c.characterVisualDetails) {
+        try {
+          const vd = JSON.parse(c.characterVisualDetails);
+          if (vd?.outfit && typeof vd.outfit === "string" && vd.outfit.trim().length > 3) {
+            userOutfit = vd.outfit.trim();
+          }
+        } catch { /* ignore */ }
+      }
+
+      // ── 2. lockedOutfit JSON (normalised structured outfit) ─────────────────
+      let lockedOutfitStr: string | null = null;
+      if (!userOutfit && c.lockedOutfit) {
+        try {
+          const lo = JSON.parse(c.lockedOutfit);
+          // Flatten the JSON fields into a readable description
+          const parts = Object.values(lo).filter((v): v is string => typeof v === "string" && v.trim().length > 0);
+          if (parts.length > 0) lockedOutfitStr = parts.join(", ");
+        } catch { /* ignore */ }
+      }
+
+      // ── 3. Hardcoded OUTFIT_CONSTRAINTS dictionary ──────────────────────────
       const constraints = OUTFIT_CONSTRAINTS[key];
-      if (!constraints) return null;
-      const positiveList = constraints.positive.map(pos => `  + ${pos}`).join("\n");
-      const negativeList = constraints.negative.map(neg => `  ${neg}`).join("\n");
-      return [
-        `COSTUME LOCK — ${c.name} (MANDATORY — DO NOT DEVIATE):`,
-        `${c.name} is wearing:\n${positiveList}`,
-        `${c.name} is ABSOLUTELY NOT wearing:\n${negativeList}`,
-        `FINAL RULE: ${c.name}'s outfit MUST match the above in EVERY SCENE. The reference photo shows the EXACT outfit. DO NOT substitute any garment. DO NOT add gloves. DO NOT make the neckline lower.`,
-      ].join("\n");
+
+      // ── 4. lockedDescription free-text fallback ─────────────────────────────
+      const descFallback = c.lockedDescription ?? null;
+
+      // Build the costume lock block from the best available source
+      if (userOutfit) {
+        // User explicitly entered outfit — highest priority, use verbatim with strong enforcement
+        return [
+          `COSTUME LOCK — ${c.name} (MANDATORY — DO NOT DEVIATE):`,
+          `${c.name} is wearing EXACTLY: ${userOutfit}`,
+          `FINAL RULE: ${c.name}'s outfit MUST be: ${userOutfit}. DO NOT change any garment. DO NOT substitute. DO NOT add or remove items. This is the ONLY acceptable outfit.`,
+        ].join("\n");
+      } else if (constraints) {
+        // Hardcoded constraints for known characters
+        const positiveList = constraints.positive.map(pos => `  + ${pos}`).join("\n");
+        const negativeList = constraints.negative.map(neg => `  ${neg}`).join("\n");
+        return [
+          `COSTUME LOCK — ${c.name} (MANDATORY — DO NOT DEVIATE):`,
+          `${c.name} is wearing:\n${positiveList}`,
+          `${c.name} is ABSOLUTELY NOT wearing:\n${negativeList}`,
+          `FINAL RULE: ${c.name}'s outfit MUST match the above in EVERY SCENE. The reference photo shows the EXACT outfit. DO NOT substitute any garment. DO NOT add gloves. DO NOT make the neckline lower.`,
+        ].join("\n");
+      } else if (lockedOutfitStr) {
+        return [
+          `COSTUME LOCK — ${c.name} (MANDATORY — DO NOT DEVIATE):`,
+          `${c.name} is wearing EXACTLY: ${lockedOutfitStr}`,
+          `FINAL RULE: ${c.name}'s outfit MUST be: ${lockedOutfitStr}. DO NOT change any garment.`,
+        ].join("\n");
+      } else if (descFallback) {
+        // Last resort: inject the full lockedDescription which usually contains outfit info
+        return `COSTUME LOCK — ${c.name}: Appearance is LOCKED. ${c.name} MUST look exactly like: ${descFallback}. DO NOT change the outfit, hair, or any visual detail.`;
+      }
+      return null;
     })
     .filter(Boolean);
   const costumeLockBlock = costumeLockLines.length > 0
     ? costumeLockLines.join("\n\n")
+    : "";
+
+  // ── BODY BUILD BLOCK ─────────────────────────────────────────────────────────
+  const bodyBuildDescriptions: Record<string, string> = {
+    slim: "slim, slender figure",
+    lean: "lean, toned figure",
+    average: "average build",
+    athletic: "fit, athletic figure",
+    stocky: "broad, heavier-set stocky figure",
+    muscular: "very muscular, large-framed figure",
+  };
+  const bodyBuildLines = resolvedSceneChars
+    .filter(c => c.isLocked && c.bodyBuild && c.bodyBuild !== "average")
+    .map(c => `${c.name} has a ${bodyBuildDescriptions[c.bodyBuild ?? "average"] ?? c.bodyBuild} body type. Maintain this physique consistently.`);
+  const bodyBuildBlock = bodyBuildLines.length > 0 ? bodyBuildLines.join("\n") : "";
+
+  // ── PROPS / INSTRUMENTS BLOCK ─────────────────────────────────────────────────
+  const propsLines = resolvedSceneChars
+    .filter(c => c.isLocked && c.lockedProps)
+    .map(c => {
+      try {
+        const lp = JSON.parse(c.lockedProps!);
+        const parts = Object.values(lp).filter((v): v is string => typeof v === "string" && v.trim().length > 0);
+        if (parts.length > 0) return `${c.name} is holding/using: ${parts.join(", ")}. These props MUST appear in every scene.`;
+      } catch { /* ignore */ }
+      return null;
+    })
+    .filter(Boolean);
+  const propsBlock = propsLines.length > 0 ? `PROPS LOCK:\n${propsLines.join("\n")}` : "";
+
+  // ── POSITION BLOCK (read from lockedRules.position or characterVisualDetails.position) ────────
+  // lockedPosition is not a DB column — it's stored inside lockedRules or characterVisualDetails
+  const positionLines = resolvedSceneChars
+    .filter(c => c.isLocked)
+    .map(c => {
+      // Try lockedRules.position first
+      let pos: string | null = null;
+      if (c.lockedRules) {
+        try { const lr = JSON.parse(c.lockedRules); pos = lr.position ?? null; } catch { /* ignore */ }
+      }
+      // Try characterVisualDetails.position as fallback
+      if (!pos && c.characterVisualDetails) {
+        try { const vd = JSON.parse(c.characterVisualDetails); pos = vd.position ?? null; } catch { /* ignore */ }
+      }
+      return pos && pos.trim().length > 0
+        ? `${c.name}'s position: ${pos.trim()}. Maintain this position unless the scene description explicitly overrides it.`
+        : null;
+    })
+    .filter(Boolean);
+  const positionBlock = positionLines.length > 0 ? `POSITION LOCK:\n${positionLines.join("\n")}` : "";
+
+  // ── MUST-HAVE BLOCK ───────────────────────────────────────────────────────────
+  const mustHaveLines = resolvedSceneChars
+    .filter(c => c.isLocked && c.lockedRules)
+    .flatMap(c => {
+      try {
+        const lr = JSON.parse(c.lockedRules!);
+        const items: string[] = lr.mustHave ?? [];
+        if (items.length > 0) return [`MUST HAVE for ${c.name} (MANDATORY — MUST appear in EVERY scene): ${items.join(", ")}.`];
+      } catch { /* ignore */ }
+      return [];
+    });
+  const mustHaveBlock = mustHaveLines.length > 0 ? mustHaveLines.join("\n") : "";
+
+  // ── FORBIDDEN ITEMS (for negative prompt) ─────────────────────────────────────
+  const forbiddenItems = resolvedSceneChars
+    .filter(c => c.isLocked && c.lockedRules)
+    .flatMap(c => {
+      try {
+        const lr = JSON.parse(c.lockedRules!);
+        return (lr.forbidden ?? []) as string[];
+      } catch { return []; }
+    });
+  // Also add OUTFIT_CONSTRAINTS negatives for known characters
+  const outfitNegatives = resolvedSceneChars
+    .filter(c => c.isLocked)
+    .flatMap(c => {
+      const key = c.name.toLowerCase();
+      return OUTFIT_CONSTRAINTS[key]?.negative ?? [];
+    });
+  const allForbidden = Array.from(new Set([...forbiddenItems, ...outfitNegatives]));
+  const negativePromptExtra = allForbidden.length > 0 ? allForbidden.join(", ") : "";
+  const forbiddenBlock = allForbidden.length > 0
+    ? `FORBIDDEN (MUST NOT appear in this image — NEVER include these): ${allForbidden.join(", ")}.`
     : "";
 
   const sceneBlock = scene.userEditedPrompt
@@ -259,9 +396,14 @@ export async function generateScenePreviewCore(opts: {
   const finalPrompt = [
     hardCountPrefix,
     identityBlock,
+    bodyBuildBlock,
     costumeLockBlock,
+    propsBlock,
+    positionBlock,
+    mustHaveBlock,
     locationLockBlock,
     sceneBlock,
+    forbiddenBlock,
     "NO visible text, logos, or band names. NO neon signs, banners, or typography.",
     "16:9 widescreen, high quality, professional photography, concert photography",
     "FRAMING: full head and body visible within frame, generous headroom above subject",

@@ -335,13 +335,25 @@ export const musicVideoCharacterRouter = router({
         },
       };
 
-      // Build dual-constraint outfit block for a character
+      // Build dual-constraint outfit block for a character.
+      // Priority: user-entered storedOutfit > hardcoded OUTFIT_CONSTRAINTS dictionary.
+      // If the user has explicitly entered an outfit in the Character Lock form,
+      // that ALWAYS takes priority — even for named characters like Zara/Tim/Greg/Monica.
       const buildOutfitConstraintBlock = (charName: string, storedOutfit?: string): string => {
         const key = charName.toLowerCase();
-        const constraints = OUTFIT_CONSTRAINTS[key];
-        if (!constraints) {
-          return storedOutfit ? `${charName} is wearing: ${storedOutfit}. MUST wear this exact outfit. DO NOT change any garment.` : "";
+
+        // User-entered outfit takes HIGHEST priority
+        if (storedOutfit && storedOutfit.trim().length > 3) {
+          return [
+            `COSTUME LOCK — ${charName} (MANDATORY — DO NOT DEVIATE):`,
+            `${charName} is wearing EXACTLY: ${storedOutfit.trim()}`,
+            `FINAL RULE: ${charName}'s outfit MUST be: ${storedOutfit.trim()}. DO NOT change any garment. DO NOT substitute. DO NOT add or remove items. This is the ONLY acceptable outfit.`,
+          ].join("\n");
         }
+
+        // Fall back to hardcoded constraints for known characters
+        const constraints = OUTFIT_CONSTRAINTS[key];
+        if (!constraints) return "";
         const positiveList = constraints.positive.map(p => `  + ${p}`).join("\n");
         const negativeList = constraints.negative.map(n => `  ${n}`).join("\n");
         // First statement — detailed list
@@ -420,6 +432,20 @@ export const musicVideoCharacterRouter = router({
 
           if (details.position) parts.push(`Position: ${details.position}`);
           if (details.props) parts.push(`Props: ${details.props}`);
+
+          // ── BODY BUILD LOCK ──────────────────────────────────────────────────────────────────────────────────
+          const bodyBuildDescriptions: Record<string, string> = {
+            slim: "slim, slender figure",
+            lean: "lean, toned figure",
+            average: "average build",
+            athletic: "fit, athletic figure",
+            stocky: "broad, heavier-set stocky figure",
+            muscular: "very muscular, large-framed figure",
+          };
+          if (c.bodyBuild && c.bodyBuild !== "average") {
+            const buildDesc = bodyBuildDescriptions[c.bodyBuild] ?? c.bodyBuild;
+            parts.push(`BODY BUILD: ${c.name} has a ${buildDesc}. Maintain this physique consistently in every scene.`);
+          }
 
           // Inject lockedRules from DB or canonical defaults
           let rules: { role?: string; mustHave?: string[]; forbidden?: string[] } | null = null;

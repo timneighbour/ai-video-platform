@@ -2255,7 +2255,18 @@ export default function MusicVideoAutopilot() {
               aiGeneratedBrief: c.aiGeneratedBrief || undefined,
               lockedDescription: c.lockedDescription || undefined,
               isLocked: c.isLocked,
-              visualDetails: c.visualDetails || undefined,
+              // Merge free-text visualDetails with structured locked fields so that
+              // characterVisualDetails.outfit is always populated for the costume lock.
+              // Priority: structured lockedOutfit > free-text visualDetails.
+              visualDetails: (() => {
+                const base = c.visualDetails || "";
+                const outfitPart = c.lockedOutfit?.trim() || "";
+                const propsPart = c.lockedProps?.trim() || "";
+                const posPart = c.lockedPosition?.trim() || "";
+                // Build a merged free-text string for the legacy visualDetails field
+                const merged = [base, outfitPart && `Outfit: ${outfitPart}`, propsPart && `Props: ${propsPart}`, posPart && `Position: ${posPart}`].filter(Boolean).join(". ");
+                return merged || undefined;
+              })(),
               lockedOutfit: c.lockedOutfit ? { jacket: c.lockedOutfit } : undefined,
               lockedProps: c.lockedProps ? { instrument: c.lockedProps } : undefined,
               lockedPosition: c.lockedPosition || undefined,

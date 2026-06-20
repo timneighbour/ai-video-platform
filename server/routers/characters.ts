@@ -106,12 +106,50 @@ export const charactersRouter = router({
           ? JSON.stringify(charInput.lockedProps)
           : defaults ? JSON.stringify(defaults.lockedProps) : null;
         const resolvedRole = charInput.lockedRole ?? charInput.role ?? (defaults?.lockedRole ?? null);
-        const resolvedRules = charInput.lockedRules
-          ? JSON.stringify(charInput.lockedRules)
-          : defaults ? JSON.stringify(defaults.lockedRules) : null;
-        const resolvedVisualDetails = charInput.visualDetails
-          ? charInput.visualDetails
-          : defaults ? JSON.stringify(defaults.characterVisualDetails) : null;
+        const resolvedRules = (() => {
+          // Start with defaults or user-provided lockedRules
+          let base: Record<string, unknown> = {};
+          if (defaults?.lockedRules) {
+            try { base = { ...(typeof defaults.lockedRules === 'object' ? defaults.lockedRules as unknown as Record<string, unknown> : JSON.parse(defaults.lockedRules as string)) }; } catch { /* ignore */ }
+          }
+          if (charInput.lockedRules) {
+            // User-provided rules override defaults
+            base = { ...base, ...charInput.lockedRules };
+          }
+          // Merge lockedPosition into rules.position so preview-core.ts can read it
+          if (charInput.lockedPosition?.trim()) {
+            base.position = charInput.lockedPosition.trim();
+          }
+          return Object.keys(base).length > 0 ? JSON.stringify(base) : null;
+        })();
+        // Store characterVisualDetails as structured JSON so preview-core.ts can read .outfit
+        // Extract outfit from lockedOutfit.jacket (the field the frontend uses) for the structured store
+        const outfitFromLocked = charInput.lockedOutfit?.jacket?.trim() || null;
+        const resolvedVisualDetails = (() => {
+          // Start with defaults if available
+          let base: Record<string, string> = defaults?.characterVisualDetails ? { ...defaults.characterVisualDetails } : {};
+          // If the frontend sent a free-text visualDetails string, try to parse it as JSON first
+          if (charInput.visualDetails) {
+            try {
+              const parsed = JSON.parse(charInput.visualDetails);
+              if (parsed && typeof parsed === "object") base = { ...base, ...parsed };
+            } catch {
+              // Free-text string — store as outfit field
+              base.outfit = charInput.visualDetails;
+            }
+          }
+          // If the user explicitly set a lockedOutfit, use that as the outfit (highest priority)
+          if (outfitFromLocked) base.outfit = outfitFromLocked;
+          // Also merge lockedProps.instrument into characterVisualDetails.instrument
+          if (charInput.lockedProps?.instrument?.trim()) {
+            base.instrument = charInput.lockedProps.instrument.trim();
+          }
+          // Merge lockedPosition into characterVisualDetails.position as well
+          if (charInput.lockedPosition?.trim()) {
+            base.position = charInput.lockedPosition.trim();
+          }
+          return Object.keys(base).length > 0 ? JSON.stringify(base) : null;
+        })();
         const resolvedDefaultState = defaults?.characterDefaultState ?? null;
         const resolvedConstraints = defaults?.characterConstraints ?? null;
 
