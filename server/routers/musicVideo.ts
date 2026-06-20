@@ -162,6 +162,49 @@ async function generateScenePreviewCore(opts: {
     ? `EXACT LIKENESS REQUIRED — ${identityLines.join(" | ")}. Preserve exact facial features, bone structure, eye colour, hairstyle, hair length, hair colour, facial hair, and skin tone from the reference photos.`
     : "";
 
+  // ── COSTUME LOCK BLOCK ────────────────────────────────────────────────────────
+  // Build a hard outfit constraint for each assigned locked character.
+  // This is critical for Zara: her lockedDescription contains "sexy", "low neckline"
+  // which causes the AI to generate UPVC/revealing outfits. The costume lock overrides
+  // the text description with precise positive+negative constraints from the reference photo.
+  const CORE_OUTFIT_CONSTRAINTS: Record<string, { positive: string[]; negative: string[] }> = {
+    zara: {
+      positive: [
+        "simple short black mini dress — thin shoulder straps, MODEST V-neckline (NOT low-cut, NOT revealing)",
+        "subtly ruched black fabric texture on the dress body",
+        "sleek pointed-toe black ankle boots",
+      ],
+      negative: [
+        "ABSOLUTELY NO PVC, vinyl, latex, or shiny plastic material on the dress",
+        "ABSOLUTELY NO low-cut neckline showing cleavage or breasts",
+        "ABSOLUTELY NO gloves of any kind (no PVC gloves, no leather gloves, no opera gloves)",
+        "ABSOLUTELY NO revealing or see-through fabric",
+        "ABSOLUTELY NO corset, bustier, or structured bodice",
+        "ABSOLUTELY NO long dress or gown — dress must be SHORT (above knee)",
+        "ABSOLUTELY NO different colour dress — dress is BLACK only",
+      ],
+    },
+  };
+  const costumeLockLines = resolvedSceneChars
+    .filter(c => c.isLocked)
+    .map(c => {
+      const key = c.name.toLowerCase();
+      const constraints = CORE_OUTFIT_CONSTRAINTS[key];
+      if (!constraints) return null;
+      const positiveList = constraints.positive.map(p => `  + ${p}`).join("\n");
+      const negativeList = constraints.negative.map(n => `  ${n}`).join("\n");
+      return [
+        `COSTUME LOCK — ${c.name} (MANDATORY — DO NOT DEVIATE):`,
+        `${c.name} is wearing:\n${positiveList}`,
+        `${c.name} is ABSOLUTELY NOT wearing:\n${negativeList}`,
+        `FINAL RULE: ${c.name}'s outfit MUST match the above in EVERY SCENE. The reference photo shows the EXACT outfit. DO NOT substitute any garment. DO NOT add gloves. DO NOT make the neckline lower.`,
+      ].join("\n");
+    })
+    .filter(Boolean);
+  const costumeLockBlock = costumeLockLines.length > 0
+    ? costumeLockLines.join("\n\n")
+    : "";
+
   const sceneBlock = scene.userEditedPrompt
     ? `DIRECTOR'S INSTRUCTION (HIGHEST PRIORITY — USE VERBATIM):\n${cleanScenePrompt}`
     : !isEnvironmentScene
@@ -193,6 +236,7 @@ async function generateScenePreviewCore(opts: {
   const finalPrompt = [
     hardCountPrefix,
     identityBlock,
+    costumeLockBlock,  // COSTUME LOCK: must come immediately after identity to override lockedDescription text
     locationLockBlock,
     sceneBlock,
     "NO visible text, logos, or band names. NO neon signs, banners, or typography.",
@@ -2199,6 +2243,31 @@ Rules:
         },
       };
 
+      // Per-character outfit constraint definitions
+      // ZARA: derived from her locked reference photo — simple black mini dress, thin straps, modest V-neckline, black ankle boots.
+      // The lockedDescription text contains "sexy", "low neckline" which causes the AI to generate UPVC/revealing outfits.
+      // These hard constraints override the text description and anchor to the visual reference.
+      if (!OUTFIT_CONSTRAINTS["zara"]) {
+        OUTFIT_CONSTRAINTS["zara"] = {
+          positive: [
+            "simple short black mini dress — thin shoulder straps, MODEST V-neckline (NOT low-cut, NOT revealing)",
+            "subtly ruched black fabric texture on the dress body",
+            "sleek pointed-toe black ankle boots",
+            "minimal jewellery — small necklace only if visible in reference",
+          ],
+          negative: [
+            "ABSOLUTELY NO PVC, vinyl, latex, or shiny plastic material on the dress",
+            "ABSOLUTELY NO low-cut neckline showing cleavage or breasts",
+            "ABSOLUTELY NO gloves of any kind (no PVC gloves, no leather gloves, no opera gloves)",
+            "ABSOLUTELY NO revealing or see-through fabric",
+            "ABSOLUTELY NO corset, bustier, or structured bodice",
+            "ABSOLUTELY NO long dress or gown — dress must be SHORT (above knee)",
+            "ABSOLUTELY NO different colour dress — dress is BLACK only",
+            "ABSOLUTELY NO boots above ankle height",
+          ],
+        };
+      }
+
       // Build dual-constraint outfit block for a character
       const buildOutfitConstraintBlock = (charName: string, storedOutfit?: string): string => {
         const key = charName.toLowerCase();
@@ -2643,6 +2712,12 @@ Rules:
         "jacket on Greg", "blazer on Greg", "coat on Greg", "hoodie on Greg",
         "tank top on drummer", "sleeveless shirt on Greg", "vest on Greg",
         "jacket on Monica", "plain clothing on Monica",
+        // Zara: prevent AI from generating inappropriate/revealing outfit variations
+        "PVC dress on Zara", "vinyl dress on Zara", "latex dress on Zara", "shiny plastic dress on Zara",
+        "low-cut neckline on Zara", "revealing neckline on Zara", "cleavage on Zara", "exposed chest on Zara",
+        "gloves on Zara", "PVC gloves on Zara", "leather gloves on Zara", "opera gloves on Zara",
+        "see-through dress on Zara", "transparent fabric on Zara", "corset on Zara", "bustier on Zara",
+        "long gown on Zara", "floor-length dress on Zara", "different colour dress on Zara",
         // Duplicate person / clone prevention
         "duplicate person", "cloned character", "two identical people", "twin characters",
         "same face twice", "repeated character", "mirror image of person",
