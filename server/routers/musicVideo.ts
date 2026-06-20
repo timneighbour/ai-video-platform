@@ -302,6 +302,7 @@ async function generateScenePreviewCore(opts: {
 
   // Location Lock: if a venue is locked, inject its interior DNA as the highest-priority
   // location constraint so every scene is anchored to that specific interior.
+  // Fallback: if no venueLockedKey but sceneSetting describes a venue, inject it as context.
   let locationLockBlock = "";
   if (job.venueLockedKey) {
     let dna: string | undefined;
@@ -316,6 +317,12 @@ async function generateScenePreviewCore(opts: {
       locationLockBlock = `LOCATION LOCK (MANDATORY — EVERY SCENE MUST BE SET HERE):\n${dna}\n\nThis location is LOCKED. Every image MUST show this specific interior. DO NOT substitute any other venue, stage, or setting.`;
       console.log(`[generateScenePreviewCore] Scene ${sceneId}: Location Lock active — ${job.venueLockedDisplayName ?? job.venueLockedKey}`);
     }
+  } else if (job.sceneSetting && job.sceneSetting.trim().length > 20) {
+    // No explicit venue lock but sceneSetting describes the environment — inject as context
+    // so the AI places the character in the correct setting (e.g. Air Studios Lyndhurst Hall)
+    // rather than defaulting to a neutral grey/white studio background.
+    locationLockBlock = `ENVIRONMENT CONTEXT (MANDATORY):\nThis scene is set inside: ${job.sceneSetting.trim()}\nThe background MUST reflect this environment. DO NOT use a plain grey or white studio background. Place the character inside this specific setting.`;
+    console.log(`[generateScenePreviewCore] Scene ${sceneId}: sceneSetting fallback venue context injected`);
   }
 
   const finalPrompt = [
@@ -2344,9 +2351,14 @@ Rules:
 
           if (hairColour || hairLength || hairStyle) {
             const hairDesc = [hairColour, hairLength, hairStyle].filter(Boolean).join(", ");
+            // For Zara: add explicit loose/down instruction and forbid tied-back styles
+            const isZara = c.name.toLowerCase() === "zara";
+            const hairPositive = isZara
+              ? `HAIR LOCK (ABSOLUTE — SAME IN EVERY SCENE): ${c.name}'s hair is EXACTLY: ${hairDesc}, worn LOOSE and DOWN past shoulders. Hair is NOT tied back, NOT in a bun, NOT in a ponytail, NOT pinned up, NOT clipped up. Hair falls freely past shoulders in every scene.`
+              : `HAIR LOCK (ABSOLUTE — SAME IN EVERY SCENE): ${c.name}'s hair is EXACTLY: ${hairDesc}. DO NOT change the hair colour. DO NOT change the hair length. DO NOT change the hair style. SAME hair in every single scene. NEVER shorter. NEVER longer. NEVER different colour.`;
             parts.push(
-              `HAIR LOCK (ABSOLUTE — SAME IN EVERY SCENE): ${c.name}'s hair is EXACTLY: ${hairDesc}. ` +
-              `DO NOT change the hair colour. DO NOT change the hair length. DO NOT change the hair style. ` +
+              hairPositive +
+              ` DO NOT change the hair colour. DO NOT change the hair length. DO NOT change the hair style. ` +
               `SAME hair in every single scene. NEVER shorter. NEVER longer. NEVER different colour.`
             );
           }
@@ -2741,6 +2753,10 @@ Rules:
         "long sleeves on Zara", "sleeves on Zara",
         "see-through dress on Zara", "transparent fabric on Zara", "corset on Zara", "bustier on Zara",
         "long gown on Zara", "floor-length dress on Zara", "different colour dress on Zara",
+        // Zara: hair must always be loose and down — never tied back
+        "tied back hair on Zara", "ponytail on Zara", "bun on Zara", "updo on Zara",
+        "hair up on Zara", "pinned hair on Zara", "clipped hair on Zara", "braided hair on Zara",
+        "short hair on Zara", "bob on Zara", "pixie cut on Zara",
         // Duplicate person / clone prevention
         "duplicate person", "cloned character", "two identical people", "twin characters",
         "same face twice", "repeated character", "mirror image of person",
