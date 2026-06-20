@@ -437,7 +437,7 @@ export default function RenderHistory() {
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Scene Log</p>
                 <div className="space-y-1.5">
-                  {detailsQuery.data.scenes.map((scene: any) => {
+                  {(Array.isArray(detailsQuery.data.scenes) ? detailsQuery.data.scenes : []).map((scene: any) => {
                     const rawErr = scene.errorMessage ?? "";
                     const friendlyErr = rawErr.includes("429") || rawErr.toLowerCase().includes("rate limit")
                       ? "Rate limit reached — the AI rendering service was busy."

@@ -136,7 +136,7 @@ export default function CharacterConfirmationStep({
 
   // Sync characters from query
   useEffect(() => {
-    if (getCharactersQuery.data?.characters) {
+    if (Array.isArray(getCharactersQuery.data?.characters) && getCharactersQuery.data.characters.length >= 0) {
       setCharacters(getCharactersQuery.data.characters.map((c: any) => {
         // AI-generated characters (no photos, has previewImageUrl) are pre-approved —
         // the user already saw and accepted the image in CharacterManager.

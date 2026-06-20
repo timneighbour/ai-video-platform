@@ -269,7 +269,12 @@ export default function Autopilot() {
       const result = await generateAIStoryboardMutation.mutateAsync({ prompt: prompt.trim(), style: styleLabel });
       const anchor = result.consistencyAnchor;
       setConsistencyAnchor(anchor);
-      const scenes: StoryboardScene[] = result.scenes.map((s: any, i: number) => ({
+      const rawScenes = Array.isArray(result?.scenes) ? result.scenes : [];
+      if (rawScenes.length === 0) {
+        toast.error("Storyboard generation failed — no scenes returned. Please try again.");
+        return;
+      }
+      const scenes: StoryboardScene[] = rawScenes.map((s: any, i: number) => ({
         id: i + 1,
         title: s.title,
         description: s.description,
@@ -294,7 +299,12 @@ export default function Autopilot() {
       const result = await generateAIStoryboardMutation.mutateAsync({ prompt: prompt.trim(), style: styleLabel });
       const anchor = result.consistencyAnchor;
       setConsistencyAnchor(anchor);
-      const scenes: StoryboardScene[] = result.scenes.map((s: any, i: number) => ({
+      const rawScenesRegen = Array.isArray(result?.scenes) ? result.scenes : [];
+      if (rawScenesRegen.length === 0) {
+        toast.error("Storyboard regeneration failed — no scenes returned. Please try again.");
+        return;
+      }
+      const scenes: StoryboardScene[] = rawScenesRegen.map((s: any, i: number) => ({
         id: i + 1,
         title: s.title,
         description: s.description,
