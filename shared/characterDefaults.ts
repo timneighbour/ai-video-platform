@@ -217,13 +217,16 @@ export const MONICA_DEFAULTS: CharacterDefaults = {
 };
 
 // ─── Zara (Lead Vocalist) ────────────────────────────────────────────────────
+// Tim's vision for Zara: sleeveless black cocktail dress, black high heels with ankle straps,
+// diamond necklace (ALWAYS visible), long straight jet-black hair, emerald green eyes.
 
 export const ZARA_DEFAULTS: CharacterDefaults = {
   lockedRules: {
     role: "lead vocalist",
     mustHave: [
-      "long-sleeve fitted black mini dress with square neckline",
-      "knee-high black patent leather boots",
+      "short sleeveless black cocktail dress — bare shoulders, NO sleeves",
+      "black high heels with ankle straps — MUST be visible",
+      "diamond necklace — MUST be visible around neck in EVERY scene",
       "long straight jet-black hair past shoulders worn LOOSE and DOWN",
       "emerald green eyes",
       "slim slender build",
@@ -234,32 +237,19 @@ export const ZARA_DEFAULTS: CharacterDefaults = {
       "stage props",
     ],
     forbidden: [
-      "sleeveless dress",
-      "thin straps",
-      "ankle boots",
-      "lace sleeves",
-      "lace overlay",
-      "sequins",
-      "sequined dress",
-      "embellished dress",
-      "low-cut neckline",
-      "deep neckline",
-      "plunging neckline",
-      "revealing neckline",
-      "cleavage showing",
-      "PVC dress",
-      "vinyl dress",
-      "latex dress",
-      "shiny plastic dress",
-      "gloves of any kind",
-      "PVC gloves",
-      "leather gloves",
-      "opera gloves",
+      "long sleeves",
+      "sleeves of any kind",
+      "knee-high boots",
+      "flat shoes",
+      "sneakers",
+      "trainers",
       "trousers",
       "jeans",
-      "sneakers",
-      "casual attire",
-      "bulky clothing",
+      "leather jacket",
+      "jacket of any kind",
+      "coat",
+      "blazer",
+      "gloves of any kind",
       "hats",
       "glasses",
       "long gown",
@@ -273,11 +263,11 @@ export const ZARA_DEFAULTS: CharacterDefaults = {
     ],
   },
   lockedOutfit: {
-    jacket: "none",
-    shirt: "long-sleeve fitted black mini dress with square neckline — NOT low-cut, NOT revealing, full-length sleeves",
+    jacket: "none — sleeveless dress only, bare shoulders",
+    shirt: "short sleeveless black cocktail dress — NO sleeves, bare shoulders, form-fitting",
     trousers: "none — dress only",
-    shoes: "knee-high black patent leather boots",
-    accessories: "minimal — small necklace only if visible in reference",
+    shoes: "black high heels with ankle straps — MUST be visible, ankles and heels shown",
+    accessories: "diamond necklace — MUST be visible around neck at all times in every scene",
   },
   lockedProps: {
     instrument: "none (vocalist only)",
@@ -288,13 +278,13 @@ export const ZARA_DEFAULTS: CharacterDefaults = {
   lockedRole: "Lead Vocalist",
   characterDefaultState: "Standing centre stage, singing with emotion, facing camera",
   characterConstraints:
-    "MUST wear simple short black mini dress with modest neckline. " +
-    "MUST wear black ankle boots. " +
-    "NEVER low-cut neckline. NEVER revealing dress. NEVER lace sleeves. NEVER sequins. NEVER gloves. " +
-    "NEVER PVC or vinyl fabric. NEVER long gown. NEVER different colour dress.",
+    "MUST wear short sleeveless black cocktail dress — bare shoulders, NO sleeves. " +
+    "MUST wear black high heels with ankle straps — heels and ankle straps MUST be visible. " +
+    "MUST wear diamond necklace — necklace MUST be visible in EVERY scene. " +
+    "NEVER long sleeves. NEVER knee-high boots. NEVER flat shoes. NEVER leather jacket. NEVER gloves.",
   characterVisualDetails: {
     outfit:
-      "simple short black mini dress with thin shoulder straps and a modest conservative neckline, subtly ruched fabric, no sleeves, no gloves, no lace, no sequins",
+      "short sleeveless black cocktail dress, bare shoulders, form-fitting, no sleeves, diamond necklace visible around neck, black high heels with ankle straps visible",
     props: "none",
     position: "centre stage, front",
     // Hair lock

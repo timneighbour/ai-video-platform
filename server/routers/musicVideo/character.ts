@@ -333,6 +333,27 @@ export const musicVideoCharacterRouter = router({
             "ABSOLUTELY NO skirt",
           ],
         },
+        zara: {
+          positive: [
+            "short sleeveless black cocktail dress — bare shoulders, NO sleeves, form-fitting",
+            "diamond necklace — MUST be visible around neck at all times",
+            "black high heels with ankle straps — MUST be visible, ankles and heels shown",
+          ],
+          negative: [
+            "ABSOLUTELY NO long sleeves",
+            "ABSOLUTELY NO sleeves of any kind",
+            "ABSOLUTELY NO knee-high boots",
+            "ABSOLUTELY NO flat shoes",
+            "ABSOLUTELY NO sneakers",
+            "ABSOLUTELY NO trainers",
+            "ABSOLUTELY NO trousers",
+            "ABSOLUTELY NO jeans",
+            "ABSOLUTELY NO leather jacket",
+            "ABSOLUTELY NO jacket of any kind",
+            "ABSOLUTELY NO gloves",
+            "ABSOLUTELY NO hidden necklace — diamond necklace MUST always be visible",
+          ],
+        },
       };
 
       // Build dual-constraint outfit block for a character.
@@ -375,6 +396,7 @@ export const musicVideoCharacterRouter = router({
           // 1. characterVisualDetails.outfit (structured DB field)
           // 2. lockedOutfit JSON (user-entered in Character Lock form)
           // 3. charDefaults (hardcoded fallback for named characters — LOWEST priority)
+          const charDefaults = getCharacterDefaults(c.name);
           let resolvedOutfit: string | undefined = details.outfit;
           if (!resolvedOutfit && c.lockedOutfit) {
             try {
@@ -384,10 +406,21 @@ export const musicVideoCharacterRouter = router({
             } catch { /* ignore */ }
           }
           // Only fall back to canonical defaults if user has NOT entered any outfit data
-          const charDefaults = getCharacterDefaults(c.name);
           if (!details.instrument && !details.outfit && !details.position && !resolvedOutfit && charDefaults) {
             details = charDefaults.characterVisualDetails;
             if (!resolvedOutfit) resolvedOutfit = details.outfit;
+          }
+          // For known characters, ensure canonical accessories (e.g. Zara's diamond necklace)
+          // are always appended to the resolved outfit even if the user forgot to type them.
+          // This prevents the necklace from disappearing across scenes.
+          if (resolvedOutfit && charDefaults?.lockedOutfit?.accessories) {
+            const acc = charDefaults.lockedOutfit.accessories.toLowerCase();
+            const outfitLower = resolvedOutfit.toLowerCase();
+            // Check if the accessory is already mentioned in the outfit string
+            const accessoryKeywords = acc.split(/[,\-—]/)[0].trim(); // e.g. "diamond necklace"
+            if (accessoryKeywords.length > 3 && !outfitLower.includes(accessoryKeywords)) {
+              resolvedOutfit = `${resolvedOutfit}, ${charDefaults.lockedOutfit.accessories}`;
+            }
           }
           const parts: string[] = [];
           // Dual-constraint outfit block (positive + negative, repeated twice)
@@ -460,20 +493,29 @@ export const musicVideoCharacterRouter = router({
             parts.push(`BODY BUILD: ${c.name} has a ${buildDesc}. Maintain this physique consistently in every scene.`);
           }
 
-          // Inject lockedRules from DB or canonical defaults
+          // Inject lockedRules: canonical defaults ALWAYS take priority for known characters.
+          // The LLM normalisation step can produce incorrect forbidden items (e.g. "Microphone"
+          // for a vocalist). Canonical defaults are manually curated and reflect the user's intent.
           let rules: { role?: string; mustHave?: string[]; forbidden?: string[] } | null = null;
-          if (c.lockedRules) {
+          if (charDefaults) {
+            // Known character — use canonical defaults (manually curated, highest trust)
+            rules = charDefaults.lockedRules;
+          } else if (c.lockedRules) {
+            // Unknown character — use DB rules (may be LLM-generated)
             try { rules = typeof c.lockedRules === "string" ? JSON.parse(c.lockedRules) : c.lockedRules; } catch {}
           }
-          if (!rules && charDefaults) {
-            rules = charDefaults.lockedRules;
-          }
           if (rules) {
+            // Sanitise forbidden list: remove items that should never be forbidden
+            // (e.g. LLM incorrectly adds "Microphone" for vocalists)
+            const cleanForbidden = (rules.forbidden ?? []).filter(f => {
+              const fl = f.toLowerCase().trim();
+              return fl !== "microphone" && !fl.startsWith("microphone ") && fl !== "mic";
+            });
             if (rules.mustHave && rules.mustHave.length > 0) {
               parts.push(`MUST HAVE: ${rules.mustHave.join(", ")}`);
             }
-            if (rules.forbidden && rules.forbidden.length > 0) {
-              parts.push(`FORBIDDEN: ${rules.forbidden.join(", ")}`);
+            if (cleanForbidden.length > 0) {
+              parts.push(`FORBIDDEN: ${cleanForbidden.join(", ")}`);
             }
           }
 
@@ -1418,14 +1460,28 @@ Rules:
         } catch { /* ignore parse errors */ }
       }
 
-      // Per-character outfit enforcement — injected directly into the prompt
+      // Per-character outfit enforcement — injected directly into the prompt.
+      // For known characters, ensure canonical accessories are always included even if
+      // the user's stored outfit string omitted them (e.g. Zara's diamond necklace).
+      const charDefaultsForPreview = getCharacterDefaults(char.name);
+      // Append canonical accessories to visualOutfit if not already present
+      let enrichedVisualOutfit = visualOutfit;
+      if (enrichedVisualOutfit && charDefaultsForPreview?.lockedOutfit?.accessories) {
+        const accRaw = charDefaultsForPreview.lockedOutfit.accessories.toLowerCase();
+        const accKeyword = accRaw.split(/[,\-—]/)[0].trim();
+        if (accKeyword.length > 3 && !enrichedVisualOutfit.toLowerCase().includes(accKeyword)) {
+          enrichedVisualOutfit = `${enrichedVisualOutfit}, ${charDefaultsForPreview.lockedOutfit.accessories}`;
+        }
+      }
       const outfitBlock = charNameLower === "tim"
-        ? `OUTFIT (MANDATORY): ${visualOutfit || "black leather jacket over dark t-shirt, black jeans, black boots"}. Tim MUST wear a BLACK LEATHER JACKET. The leather jacket is the most important outfit element. DO NOT replace the leather jacket with any other garment.`
+        ? `OUTFIT (MANDATORY): ${enrichedVisualOutfit || "black leather jacket over dark t-shirt, black jeans, black boots"}. Tim MUST wear a BLACK LEATHER JACKET. The leather jacket is the most important outfit element. DO NOT replace the leather jacket with any other garment.`
         : charNameLower === "greg"
-        ? `OUTFIT (MANDATORY): ${visualOutfit || "black short-sleeve torn t-shirt with visible sleeves, dark jeans, trainers"}. Greg MUST wear a SHORT-SLEEVE T-SHIRT WITH SLEEVES. ABSOLUTELY NO leather jacket. ABSOLUTELY NO jacket of any kind. ABSOLUTELY NO blazer. ABSOLUTELY NO coat. ABSOLUTELY NO tank top. ABSOLUTELY NO sleeveless shirt. ONLY a t-shirt with short sleeves.`
+        ? `OUTFIT (MANDATORY): ${enrichedVisualOutfit || "black short-sleeve torn t-shirt with visible sleeves, dark jeans, trainers"}. Greg MUST wear a SHORT-SLEEVE T-SHIRT WITH SLEEVES. ABSOLUTELY NO leather jacket. ABSOLUTELY NO jacket of any kind. ABSOLUTELY NO blazer. ABSOLUTELY NO coat. ABSOLUTELY NO tank top. ABSOLUTELY NO sleeveless shirt. ONLY a t-shirt with short sleeves.`
         : charNameLower === "monica"
-        ? `OUTFIT (MANDATORY): ${visualOutfit || "form-fitting black leather trousers, distressed charcoal grey V-neck t-shirt, black stiletto-heeled ankle boots, silver cross necklace, full sleeve tattoos on both arms"}. Monica MUST wear LEATHER TROUSERS and ANKLE BOOTS. Both legs and feet must be fully visible showing the leather trousers and boots. ABSOLUTELY NO leather jacket.`
-        : visualOutfit ? `OUTFIT: ${visualOutfit}.` : "";
+        ? `OUTFIT (MANDATORY): ${enrichedVisualOutfit || "form-fitting black leather trousers, distressed charcoal grey V-neck t-shirt, black stiletto-heeled ankle boots, silver cross necklace, full sleeve tattoos on both arms"}. Monica MUST wear LEATHER TROUSERS and ANKLE BOOTS. Both legs and feet must be fully visible showing the leather trousers and boots. ABSOLUTELY NO leather jacket.`
+        : charNameLower === "zara"
+        ? `OUTFIT (MANDATORY): ${enrichedVisualOutfit || "short sleeveless black cocktail dress, bare shoulders, diamond necklace visible around neck, black high heels with ankle straps"}. Zara MUST wear a SLEEVELESS BLACK COCKTAIL DRESS with BARE SHOULDERS. Zara MUST wear a DIAMOND NECKLACE — it MUST be visible around her neck. Zara MUST wear BLACK HIGH HEELS WITH ANKLE STRAPS — heels and ankle straps MUST be visible. ABSOLUTELY NO long sleeves. ABSOLUTELY NO knee-high boots. ABSOLUTELY NO flat shoes. ABSOLUTELY NO jacket of any kind.`
+        : enrichedVisualOutfit ? `OUTFIT: ${enrichedVisualOutfit}.` : "";
 
       const instrumentBlock = visualInstrument ? `INSTRUMENT: ${visualInstrument}.` : "";
       const propsBlock = visualProps ? `PROPS: ${visualProps}.` : "";
