@@ -487,11 +487,21 @@ export async function generateScenePreviewCore(opts: {
 
   if (hasFaceReference) {
     // Forge API (InstantID / face-consistent generation) — with self-healing retry
+    // Include venue reference image AFTER character face refs so the model has both
+    // the face anchor AND the venue visual. The face refs must come first so InstantID
+    // correctly identifies which image is the face reference.
+    const forgeRefsWithVenue = [...forgeRefs];
+    if (venueRefUrl) {
+      const venueMime = venueRefUrl.match(/\.png(\?|$)/i) ? "image/png" :
+                        venueRefUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
+      forgeRefsWithVenue.push({ url: venueRefUrl, mimeType: venueMime });
+      console.log(`[generateScenePreviewCore] Scene ${sceneId}: Adding venue ref to Forge API call -> ${venueRefUrl.slice(0, 80)}`);
+    }
     try {
       const { url: forgeUrl } = await withSelfHeal(
         () => withQuotaGuard(() => generateImage({
           prompt: finalPrompt,
-          originalImages: forgeRefs,
+          originalImages: forgeRefsWithVenue,
         })),
         { maxAttempts: 3, baseDelayMs: 2000, label: `ForgeAPI(scene=${sceneId})` }
       );
