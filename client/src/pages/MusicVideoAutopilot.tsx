@@ -2840,8 +2840,15 @@ export default function MusicVideoAutopilot() {
                 // Fire a toast notification when the test render completes and is ready for review
                 if (prev === "rendering" && newProbeState === "awaiting_approval") {
                   toast.success("\uD83C\uDFAC Test render complete!", {
-                    description: "Your test scene is ready. Scroll up to review it and decide whether to start the full render.",
-                    duration: 8000,
+                    description: "Your test scene is ready. Click \"View clip\" to review it.",
+                    duration: 10000,
+                    action: {
+                      label: "View clip",
+                      onClick: () => {
+                        const banner = document.getElementById("probe-status-banner");
+                        if (banner) banner.scrollIntoView({ behavior: "smooth", block: "center" });
+                      },
+                    },
                   });
                 }
                 return newProbeState;
@@ -5441,7 +5448,7 @@ export default function MusicVideoAutopilot() {
 
             {/* ── PROBE RENDER STATUS BANNER — visible on storyboard step while test render is in progress ── */}
             {(probeState === "rendering" || probeState === "awaiting_approval" || probeState === "approved") && (
-              <div className={`mb-5 rounded-2xl border p-5 ${
+              <div id="probe-status-banner" className={`mb-5 rounded-2xl border p-5 ${
                 probeState === "awaiting_approval"
                   ? "border-amber-500/40 bg-gradient-to-br from-[rgba(20,16,8,0.98)] to-[rgba(30,22,8,0.98)]"
                   : probeState === "approved"
@@ -6035,10 +6042,51 @@ export default function MusicVideoAutopilot() {
                             </ToggleGroup>
                           </div>
                       )}
-                    </div>
+                                        </div>
+                    {/* ── Per-scene render status: shows when a render is in progress or completed for this scene ── */}
+                    {(() => {
+                      const ps = perSceneStatuses.find((s) => s.id === scene.id);
+                      if (!ps) return null;
+                      const statusLabel = ps.status === "pending" ? "Queued" : ps.status === "generating" ? "Rendering…" : ps.status === "completed" ? "Rendered" : ps.status === "failed" ? "Failed" : null;
+                      if (!statusLabel) return null;
+                      const videoUrl = ps.compositeVideoUrl ?? ps.lipSyncVideoUrl ?? ps.videoUrl;
+                      return (
+                        <div className={`mt-3 pt-3 border-t border-[rgba(184,137,42,0.10)] space-y-2`}>
+                          <div className="flex items-center gap-2">
+                            {ps.status === "pending" && <span className="w-2 h-2 rounded-full bg-zinc-500 flex-shrink-0" />}
+                            {ps.status === "generating" && <Loader2 className="w-3.5 h-3.5 text-purple-400 animate-spin flex-shrink-0" />}
+                            {ps.status === "completed" && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />}
+                            {ps.status === "failed" && <AlertCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />}
+                            <span className={`text-xs font-semibold ${
+                              ps.status === "completed" ? "text-emerald-400" :
+                              ps.status === "failed" ? "text-red-400" :
+                              ps.status === "generating" ? "text-purple-400" :
+                              "text-white/40"
+                            }`}>{statusLabel}</span>
+                            {ps.status === "generating" && (
+                              <span className="text-[10px] text-white/30 ml-auto">Rendering this scene…</span>
+                            )}
+                            {ps.status === "failed" && ps.errorMessage && (
+                              <span className="text-[10px] text-red-400/70 ml-auto truncate max-w-[200px]">{ps.errorMessage}</span>
+                            )}
+                          </div>
+                          {/* Inline video preview when render is complete */}
+                          {ps.status === "completed" && videoUrl && (
+                            <div className="rounded-lg overflow-hidden border border-emerald-500/20">
+                              <video
+                                src={videoUrl}
+                                controls
+                                className="w-full max-h-48 object-contain bg-black"
+                                preload="metadata"
+                              />
+                              <p className="text-[10px] text-white/30 px-2 py-1 bg-black/40">Rendered clip — Scene {scene.sceneIndex + 1}</p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </CardContent>
                 </Card>
-
                 {/* ── Add Scene button between cards ── */}
                 <div className="col-span-full flex items-center justify-center py-1">
                   <button
