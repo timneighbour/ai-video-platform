@@ -29,7 +29,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Recording Studio",
     emoji: "🎵",
     shortDescription: "London · Legendary orchestral studio with parquet floors",
-    thumbnailSearchQuery: "Abbey Road Studios Studio One interior orchestral hall London parquet floor",
+    thumbnailSearchQuery: "Abbey Road Studios Studio One interior large orchestral recording hall London",
   },
   {
     key: "abbey_road_studio_two",
@@ -37,23 +37,16 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Recording Studio",
     emoji: "🎸",
     shortDescription: "London · Iconic live room where The Beatles recorded",
-    thumbnailSearchQuery: "Abbey Road Studio Two interior live room Beatles recording London",
+    thumbnailSearchQuery: "Abbey Road Studio Two interior live recording room Beatles London control room",
   },
-  {
-    key: "air_studios_montserrat",
-    displayName: "Air Studios, Montserrat",
-    category: "Recording Studio",
-    emoji: "🌴",
-    shortDescription: "Caribbean · Tropical hilltop studio ruins",
-    thumbnailSearchQuery: "Air Studios Montserrat Caribbean ruins hilltop tropical recording studio",
-  },
+
   {
     key: "electric_lady_studios",
     displayName: "Electric Lady Studios",
     category: "Recording Studio",
     emoji: "⚡",
     shortDescription: "New York · Hendrix's psychedelic underground studio",
-    thumbnailSearchQuery: "Electric Lady Studios Greenwich Village New York interior recording room psychedelic mural",
+    thumbnailSearchQuery: "Electric Lady Studios New York interior control room recording studio psychedelic curved walls",
   },
   {
     key: "capitol_studios_la",
@@ -61,7 +54,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Recording Studio",
     emoji: "🎺",
     shortDescription: "Los Angeles · Inside the iconic Capitol Records Tower",
-    thumbnailSearchQuery: "Capitol Studios Los Angeles interior recording room circular Capitol Records Tower Hollywood",
+    thumbnailSearchQuery: "Capitol Studios Los Angeles Studio A interior recording room circular echo chamber",
   },
   {
     key: "sunset_sound_la",
@@ -69,7 +62,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Recording Studio",
     emoji: "🌅",
     shortDescription: "Los Angeles · Where The Doors, Prince & Led Zeppelin recorded",
-    thumbnailSearchQuery: "Sunset Sound Recorders West Hollywood Los Angeles recording studio interior control room",
+    thumbnailSearchQuery: "Sunset Sound Recorders Los Angeles Studio 1 interior control room vintage console",
   },
   {
     key: "blackbird_studio_nashville",
@@ -77,16 +70,9 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Recording Studio",
     emoji: "🐦",
     shortDescription: "Nashville · World's most extensive vintage gear collection",
-    thumbnailSearchQuery: "Blackbird Studio Nashville Tennessee recording studio interior vintage microphones gear",
+    thumbnailSearchQuery: "Blackbird Studio Nashville Studio A interior recording room vintage gear microphones",
   },
-  {
-    key: "real_world_studios_bath",
-    displayName: "Real World Studios",
-    category: "Recording Studio",
-    emoji: "🌍",
-    shortDescription: "Bath, UK · Peter Gabriel's studio with millpond views",
-    thumbnailSearchQuery: "Real World Studios Box Bath Peter Gabriel Big Room interior glass millpond watermill",
-  },
+
   // Concert Halls
   {
     key: "royal_albert_hall",
@@ -94,7 +80,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Concert Hall",
     emoji: "🏛️",
     shortDescription: "London · Victorian rotunda with crimson tiered seating",
-    thumbnailSearchQuery: "Royal Albert Hall London interior auditorium stage red seats Victorian rotunda",
+    thumbnailSearchQuery: "Royal Albert Hall London interior auditorium stage red tiered seats Victorian dome",
   },
   {
     key: "carnegie_hall",
@@ -102,7 +88,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Concert Hall",
     emoji: "🎻",
     shortDescription: "New York · Gilded Beaux-Arts hall with warm amber tones",
-    thumbnailSearchQuery: "Carnegie Hall Stern Auditorium interior stage New York Beaux-Arts gilded",
+    thumbnailSearchQuery: "Carnegie Hall Stern Auditorium interior stage seating New York gilded balconies",
   },
   {
     key: "sydney_opera_house",
@@ -110,7 +96,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Concert Hall",
     emoji: "🦪",
     shortDescription: "Sydney · Sail-shaped shells with harbour light",
-    thumbnailSearchQuery: "Sydney Opera House Concert Hall interior stage auditorium wood panels",
+    thumbnailSearchQuery: "Sydney Opera House Concert Hall interior stage auditorium wooden pipe organ seating",
   },
   {
     key: "walt_disney_concert_hall",
@@ -118,7 +104,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Concert Hall",
     emoji: "🏗️",
     shortDescription: "Los Angeles · Frank Gehry's curved blonde wood masterpiece",
-    thumbnailSearchQuery: "Walt Disney Concert Hall Los Angeles interior auditorium curved wood pipe organ",
+    thumbnailSearchQuery: "Walt Disney Concert Hall Los Angeles interior auditorium curved blonde wood pipe organ seating",
   },
   {
     key: "radio_city_music_hall",
@@ -126,7 +112,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Concert Hall",
     emoji: "🎠",
     shortDescription: "New York · Art Deco sunrise ceiling, gold and burgundy",
-    thumbnailSearchQuery: "Radio City Music Hall interior Art Deco auditorium stage gold burgundy New York",
+    thumbnailSearchQuery: "Radio City Music Hall New York interior Art Deco auditorium stage gold burgundy sunrise mural",
   },
   // Arenas
   {
@@ -135,7 +121,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Arena",
     emoji: "🌐",
     shortDescription: "Las Vegas · World's largest wraparound LED dome, 17,500 seats",
-    thumbnailSearchQuery: "MSG Sphere Las Vegas interior wraparound LED screen concert stage audience",
+    thumbnailSearchQuery: "MSG Sphere Las Vegas interior wraparound LED screen concert stage audience seats",
   },
   {
     key: "o2_arena_london",
@@ -143,7 +129,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Arena",
     emoji: "🎪",
     shortDescription: "London · Massive dome with dramatic stage lighting rigs",
-    thumbnailSearchQuery: "O2 Arena London interior concert stage crowd lighting rig",
+    thumbnailSearchQuery: "O2 Arena London interior concert stage crowd lighting rig arena floor",
   },
   {
     key: "madison_square_garden",
@@ -151,7 +137,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Arena",
     emoji: "🏟️",
     shortDescription: "New York · The World's Most Famous Arena",
-    thumbnailSearchQuery: "Madison Square Garden interior arena concert stage crowd New York",
+    thumbnailSearchQuery: "Madison Square Garden New York interior arena concert stage crowd spotlights",
   },
   {
     key: "wembley_arena",
@@ -159,7 +145,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Arena",
     emoji: "⭐",
     shortDescription: "London · Iconic curved roof with blue-white spotlights",
-    thumbnailSearchQuery: "OVO Arena Wembley interior concert stage crowd London curved roof",
+    thumbnailSearchQuery: "OVO Arena Wembley interior concert stage crowd London curved ceiling",
   },
   // Stadiums
   {
@@ -168,7 +154,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🌟",
     shortDescription: "Los Angeles · Futuristic translucent canopy, 70,000 seats",
-    thumbnailSearchQuery: "SoFi Stadium Los Angeles interior concert aerial view translucent canopy",
+    thumbnailSearchQuery: "SoFi Stadium Los Angeles interior concert stage crowd translucent roof canopy",
   },
   {
     key: "wembley_stadium",
@@ -176,7 +162,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🏟️",
     shortDescription: "London · Iconic arch over a sea of 90,000 fans",
-    thumbnailSearchQuery: "Wembley Stadium interior concert crowd arch London night",
+    thumbnailSearchQuery: "Wembley Stadium London interior concert stage crowd arch night floodlights",
   },
   {
     key: "estadio_maracana",
@@ -184,7 +170,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🇧🇷",
     shortDescription: "Rio de Janeiro · Sugarloaf Mountain backdrop, 78,000 fans",
-    thumbnailSearchQuery: "Maracanã Stadium Rio de Janeiro interior concert crowd aerial",
+    thumbnailSearchQuery: "Maracanã Stadium Rio de Janeiro interior concert stage crowd",
   },
   {
     key: "metlife_stadium",
@@ -192,7 +178,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🗽",
     shortDescription: "New Jersey · NYC skyline, Empire State Building backdrop",
-    thumbnailSearchQuery: "MetLife Stadium New Jersey interior concert night NYC skyline",
+    thumbnailSearchQuery: "MetLife Stadium New Jersey interior concert stage crowd night",
   },
   {
     key: "tokyo_dome",
@@ -200,7 +186,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🏯",
     shortDescription: "Tokyo · White inflatable dome, 55,000 passionate fans",
-    thumbnailSearchQuery: "Tokyo Dome interior concert stage crowd Japan inflatable roof",
+    thumbnailSearchQuery: "Tokyo Dome Japan interior concert stage crowd white dome ceiling",
   },
   {
     key: "stade_de_france",
@@ -208,7 +194,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🇫🇷",
     shortDescription: "Paris · Eiffel Tower backdrop, 81,000 capacity",
-    thumbnailSearchQuery: "Stade de France interior concert crowd Paris aerial view",
+    thumbnailSearchQuery: "Stade de France Paris interior concert stage crowd stands",
   },
   {
     key: "camp_nou",
@@ -216,7 +202,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🔵",
     shortDescription: "Barcelona · Europe's largest stadium, Sagrada Família horizon",
-    thumbnailSearchQuery: "Camp Nou Barcelona interior concert crowd stadium aerial",
+    thumbnailSearchQuery: "Camp Nou Barcelona interior concert stage crowd stands night",
   },
   {
     key: "rose_bowl",
@@ -224,7 +210,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🌹",
     shortDescription: "Pasadena · San Gabriel Mountains, golden California light",
-    thumbnailSearchQuery: "Rose Bowl stadium Pasadena interior concert crowd San Gabriel Mountains",
+    thumbnailSearchQuery: "Rose Bowl Pasadena interior concert stage crowd stands night",
   },
   // Outdoor
   {
@@ -258,7 +244,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "TV Studio",
     emoji: "📺",
     shortDescription: "London · Legendary Top of the Pops broadcast studio",
-    thumbnailSearchQuery: "BBC Television Centre London studio interior broadcast stage Top of the Pops",
+    thumbnailSearchQuery: "BBC Television Centre London studio TC1 interior broadcast stage audience",
   },
   {
     key: "pinewood_studios",
@@ -266,7 +252,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "TV Studio",
     emoji: "🎬",
     shortDescription: "Buckinghamshire · Europe's largest film & TV sound stages",
-    thumbnailSearchQuery: "Pinewood Studios sound stage interior Buckinghamshire film production set",
+    thumbnailSearchQuery: "Pinewood Studios 007 Stage interior film production sound stage set lighting",
   },
   {
     key: "nbc_studios_30_rock",
@@ -274,7 +260,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "TV Studio",
     emoji: "🗽",
     shortDescription: "New York · Art Deco Rockefeller Center, home of SNL",
-    thumbnailSearchQuery: "NBC Studios 30 Rockefeller Plaza New York SNL Saturday Night Live studio interior",
+    thumbnailSearchQuery: "Saturday Night Live SNL Studio 8H NBC 30 Rock interior stage audience",
   },
   {
     key: "ed_sullivan_theater",
@@ -282,7 +268,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "TV Studio",
     emoji: "🎙️",
     shortDescription: "New York · Where The Beatles made their US TV debut",
-    thumbnailSearchQuery: "Ed Sullivan Theater interior stage Late Show New York auditorium",
+    thumbnailSearchQuery: "Ed Sullivan Theater New York interior stage Late Show Stephen Colbert auditorium",
   },
   // Filming Locations
   {
@@ -340,7 +326,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Theatre",
     emoji: "🎭",
     shortDescription: "Paris · Gilded baroque interior with Chagall ceiling",
-    thumbnailSearchQuery: "Palais Garnier Paris interior auditorium gilded baroque Chagall ceiling chandelier",
+    thumbnailSearchQuery: "Palais Garnier Opera Paris interior auditorium gilded baroque balconies Chagall ceiling chandelier",
   },
   {
     key: "london_palladium",
@@ -348,7 +334,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Theatre",
     emoji: "🎩",
     shortDescription: "London · Art Deco grandeur with gold proscenium arch",
-    thumbnailSearchQuery: "London Palladium interior auditorium stage red velvet gold proscenium arch",
+    thumbnailSearchQuery: "London Palladium interior auditorium stage red velvet seats gold proscenium arch",
   },
   {
     key: "apollo_theater_harlem",
@@ -356,7 +342,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Theatre",
     emoji: "🎤",
     shortDescription: "Harlem, NYC · Art Deco soul/R&B/jazz institution",
-    thumbnailSearchQuery: "Apollo Theater Harlem New York interior stage auditorium Art Deco",
+    thumbnailSearchQuery: "Apollo Theater Harlem New York interior stage auditorium seats Art Deco",
   },
   // Clubs
   {
@@ -365,7 +351,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Club",
     emoji: "🎷",
     shortDescription: "London · Intimate jazz club with red velvet and dim spotlights",
-    thumbnailSearchQuery: "Ronnie Scott's Jazz Club London interior stage red velvet dim lighting",
+    thumbnailSearchQuery: "Ronnie Scott's Jazz Club London interior stage performers red velvet dim spotlight",
   },
   {
     key: "fabric_london",
@@ -373,7 +359,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Club",
     emoji: "🔊",
     shortDescription: "London · Industrial warehouse with pulsing UV lights",
-    thumbnailSearchQuery: "Fabric nightclub London interior warehouse dancefloor UV lights industrial",
+    thumbnailSearchQuery: "Fabric nightclub London interior dancefloor crowd UV lights industrial warehouse",
   },
 ];
 

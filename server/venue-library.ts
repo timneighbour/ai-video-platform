@@ -47,16 +47,7 @@ export const VENUE_LIBRARY: VenueEntry[] = [
     emoji: "🎸",
     venueType: "recording_studio",
     interiorDNA: `LOCATION LOCK — ABBEY ROAD STUDIO TWO, LONDON. The legendary studio where The Beatles recorded. MANDATORY ARCHITECTURAL ELEMENTS: (1) Medium-sized rectangular room with parquet hardwood floor in warm honey-brown. (2) Cream/off-white walls with vintage acoustic tiles and wooden baffles. (3) Low ceiling with acoustic treatment panels. (4) Warm amber/tungsten overhead lighting creating intimate atmosphere. (5) Vintage equipment visible: amplifiers, drum kit, microphone stands. (6) Control room window with large glass panel visible at one end. (7) Iconic green-painted acoustic screens/baffles on wheels. ATMOSPHERE: intimate, warm, historic recording session feel. Slightly smaller and more intimate than Studio One.`,
-  },
-  {
-    key: "air_studios_montserrat",
-    displayName: "Air Studios, Montserrat — Caribbean",
-    category: "recording_studio",
-    emoji: "🌴",
-    venueType: "recording_studio",
-    interiorDNA: `LOCATION LOCK — AIR STUDIOS MONTSERRAT, CARIBBEAN. Iconic island recording studio in a converted plantation house. MANDATORY ARCHITECTURAL ELEMENTS: (1) Tropical colonial architecture with thick stone walls and high ceilings. (2) Large open windows and doors letting in tropical light and ocean breeze. (3) Lush tropical vegetation visible through windows — palm trees, volcanic hillside. (4) Warm terracotta/stone floor tiles. (5) Ceiling fans and natural ventilation. (6) Vintage recording equipment mixed with tropical décor. (7) Warm golden Caribbean sunlight filtering through louvred shutters. ATMOSPHERE: relaxed tropical luxury, warm golden light, lush green vegetation outside, intimate creative space. Ocean and volcanic landscape visible through windows.`,
-  },
-  {
+  },  {
     key: "electric_lady_studios",
     displayName: "Electric Lady Studios — New York City",
     category: "recording_studio",
@@ -89,14 +80,7 @@ export const VENUE_LIBRARY: VenueEntry[] = [
     venueType: "recording_studio",
     interiorDNA: `LOCATION LOCK — BLACKBIRD STUDIO, NASHVILLE, TENNESSEE. Home to one of the world's most extensive vintage gear collections. MANDATORY ARCHITECTURAL ELEMENTS: (1) Large, well-appointed studio rooms with high ceilings and warm wood acoustic treatment. (2) Extensive vintage microphone collection visible on stands — Neumann U47s, RCA ribbons, vintage condensers. (3) Warm honey-brown hardwood floors. (4) Vintage amplifiers and instruments displayed throughout. (5) Warm amber/gold studio lighting. (6) Nashville country/Americana aesthetic mixed with world-class modern production. (7) Vintage gear racks and outboard equipment. ATMOSPHERE: world-class Nashville studio, warm amber light, vintage gear everywhere, professional creative space.`,
   },
-  {
-    key: "real_world_studios_bath",
-    displayName: "Real World Studios — Bath, UK",
-    category: "recording_studio",
-    emoji: "🌍",
-    venueType: "recording_studio",
-    interiorDNA: `LOCATION LOCK — REAL WORLD STUDIOS, BOX, NEAR BATH, WILTSHIRE, UK. Founded by Peter Gabriel. MANDATORY ARCHITECTURAL ELEMENTS: (1) Stunning rural English countryside setting — rolling green hills and woodland visible through large windows. (2) The iconic "Big Room" with floor-to-ceiling glass walls overlooking a millpond and watermill. (3) Natural stone and wood architecture blending with the rural landscape. (4) Warm natural daylight flooding through large windows. (5) Organic, natural materials — stone floors, exposed wooden beams. (6) World music instruments and artefacts from global cultures. (7) Millpond and watermill visible outside. ATMOSPHERE: stunning rural English studio, natural light, countryside views, organic world-music creative space.`,
-  },
+
 
   // ── Concert Halls ────────────────────────────────────────────────────────
   {
