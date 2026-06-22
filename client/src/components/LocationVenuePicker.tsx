@@ -12,15 +12,21 @@ interface VenueOption {
 // Mirror of the server-side venue library (display data only — no DNA)
 const VENUE_OPTIONS: VenueOption[] = [
   // Recording Studios
-  { key: "air_studios_lyndhurst", displayName: "Air Studios, Lyndhurst Hall", category: "Recording Studio", emoji: "🎼", shortDescription: "London · Grand orchestral hall with soaring arched windows" },
+  { key: "air_studios_lyndhurst", displayName: "Air Studios, Lyndhurst Hall", category: "Recording Studio", emoji: "🎼", shortDescription: "London · Grand orchestral hall with iconic blue ceiling" },
   { key: "abbey_road_studio_one", displayName: "Abbey Road, Studio One", category: "Recording Studio", emoji: "🎵", shortDescription: "London · Legendary orchestral studio with parquet floors" },
   { key: "abbey_road_studio_two", displayName: "Abbey Road, Studio Two", category: "Recording Studio", emoji: "🎸", shortDescription: "London · Iconic live room where The Beatles recorded" },
   { key: "air_studios_montserrat", displayName: "Air Studios, Montserrat", category: "Recording Studio", emoji: "🌴", shortDescription: "Caribbean · Tropical hilltop studio with panoramic views" },
   { key: "electric_lady_studios", displayName: "Electric Lady Studios", category: "Recording Studio", emoji: "⚡", shortDescription: "New York · Hendrix's psychedelic underground studio" },
+  { key: "capitol_studios_la", displayName: "Capitol Studios", category: "Recording Studio", emoji: "🎺", shortDescription: "Los Angeles · Inside the iconic Capitol Records Tower" },
+  { key: "sunset_sound_la", displayName: "Sunset Sound", category: "Recording Studio", emoji: "🌅", shortDescription: "Los Angeles · Where The Doors, Prince & Led Zeppelin recorded" },
+  { key: "blackbird_studio_nashville", displayName: "Blackbird Studio", category: "Recording Studio", emoji: "🐦", shortDescription: "Nashville · World's most extensive vintage gear collection" },
+  { key: "real_world_studios_bath", displayName: "Real World Studios", category: "Recording Studio", emoji: "🌍", shortDescription: "Bath, UK · Peter Gabriel's studio with millpond views" },
   // Concert Halls
   { key: "royal_albert_hall", displayName: "Royal Albert Hall", category: "Concert Hall", emoji: "🏛️", shortDescription: "London · Victorian rotunda with crimson tiered seating" },
   { key: "carnegie_hall", displayName: "Carnegie Hall", category: "Concert Hall", emoji: "🎻", shortDescription: "New York · Gilded Beaux-Arts hall with warm amber tones" },
   { key: "sydney_opera_house", displayName: "Sydney Opera House", category: "Concert Hall", emoji: "🦪", shortDescription: "Sydney · Sail-shaped shells with harbour light" },
+  { key: "walt_disney_concert_hall", displayName: "Walt Disney Concert Hall", category: "Concert Hall", emoji: "🏗️", shortDescription: "Los Angeles · Frank Gehry's curved blonde wood masterpiece" },
+  { key: "radio_city_music_hall", displayName: "Radio City Music Hall", category: "Concert Hall", emoji: "🎠", shortDescription: "New York · Art Deco sunrise ceiling, gold and burgundy" },
   // Arenas
   { key: "o2_arena_london", displayName: "The O2 Arena", category: "Arena", emoji: "🎪", shortDescription: "London · Massive dome with dramatic stage lighting rigs" },
   { key: "madison_square_garden", displayName: "Madison Square Garden", category: "Arena", emoji: "🏟️", shortDescription: "New York · The World's Most Famous Arena" },
@@ -31,15 +37,43 @@ const VENUE_OPTIONS: VenueOption[] = [
   // Outdoor
   { key: "glastonbury_pyramid", displayName: "Glastonbury Pyramid Stage", category: "Outdoor", emoji: "🌿", shortDescription: "Somerset · Golden pyramid at dusk, festival crowd" },
   { key: "coachella_main_stage", displayName: "Coachella Main Stage", category: "Outdoor", emoji: "🌵", shortDescription: "Indio · Desert night sky, neon-lit stage canopy" },
+  { key: "red_rocks_amphitheatre", displayName: "Red Rocks Amphitheatre", category: "Outdoor", emoji: "🪨", shortDescription: "Colorado · Natural red sandstone rock formations, open sky" },
+  // TV Studios
+  { key: "bbc_television_centre", displayName: "BBC Television Centre", category: "TV Studio", emoji: "📺", shortDescription: "London · Legendary Top of the Pops broadcast studio" },
+  { key: "pinewood_studios", displayName: "Pinewood Studios", category: "TV Studio", emoji: "🎬", shortDescription: "Buckinghamshire · Europe's largest film & TV sound stages" },
+  { key: "nbc_studios_30_rock", displayName: "NBC Studios / 30 Rock", category: "TV Studio", emoji: "🗽", shortDescription: "New York · Art Deco Rockefeller Center, home of SNL" },
+  { key: "ed_sullivan_theater", displayName: "Ed Sullivan Theater", category: "TV Studio", emoji: "🎙️", shortDescription: "New York · Where The Beatles made their US TV debut" },
+  // Filming Locations
+  { key: "county_down_northern_ireland", displayName: "County Down, Northern Ireland", category: "Filming Location", emoji: "🌾", shortDescription: "Rihanna's 'We Found Love' · Rolling green Irish countryside" },
+  { key: "hoxton_street_london", displayName: "Hoxton Street, London", category: "Filming Location", emoji: "🚶", shortDescription: "The Verve's 'Bittersweet Symphony' · East London street" },
+  { key: "mojave_desert_california", displayName: "Mojave Desert, California", category: "Filming Location", emoji: "🌵", shortDescription: "U2 & Lana Del Rey · Joshua trees, vast desert landscape" },
+  { key: "seljalandsfoss_iceland", displayName: "Seljalandsfoss Waterfall, Iceland", category: "Filming Location", emoji: "💧", shortDescription: "Justin Bieber's 'I'll Show You' · Dramatic 60m waterfall" },
+  { key: "griffith_park_los_angeles", displayName: "Griffith Park, Los Angeles", category: "Filming Location", emoji: "🎃", shortDescription: "Michael Jackson's 'Thriller' · Griffith Observatory backdrop" },
+  { key: "universal_studios_backlot", displayName: "Universal Studios Backlot", category: "Filming Location", emoji: "🎥", shortDescription: "Florida · Professional film backlot, Creed's 'My Sacrifice'" },
   // Theatres
   { key: "palais_garnier", displayName: "Palais Garnier Opera House", category: "Theatre", emoji: "🎭", shortDescription: "Paris · Gilded baroque interior with Chagall ceiling" },
   { key: "london_palladium", displayName: "London Palladium", category: "Theatre", emoji: "🎩", shortDescription: "London · Art Deco grandeur with gold proscenium arch" },
+  { key: "apollo_theater_harlem", displayName: "Apollo Theater", category: "Theatre", emoji: "🎤", shortDescription: "Harlem, NYC · Art Deco soul/R&B/jazz institution" },
+  { key: "radio_city_music_hall", displayName: "Radio City Music Hall", category: "Theatre", emoji: "🎠", shortDescription: "New York · Art Deco sunrise ceiling, gold and burgundy" },
   // Clubs
   { key: "ronnie_scotts", displayName: "Ronnie Scott's Jazz Club", category: "Club", emoji: "🎷", shortDescription: "London · Intimate jazz club with red velvet and dim spotlights" },
   { key: "fabric_london", displayName: "Fabric London", category: "Club", emoji: "🔊", shortDescription: "London · Industrial warehouse with pulsing UV lights" },
 ];
 
-const CATEGORY_ORDER = ["Recording Studio", "Concert Hall", "Arena", "Stadium", "Outdoor", "Theatre", "Club", "Custom"];
+const CATEGORY_ORDER = ["Recording Studio", "Concert Hall", "Arena", "Stadium", "Outdoor", "TV Studio", "Filming Location", "Theatre", "Club", "Custom"];
+
+const CATEGORY_LABELS: Record<string, string> = {
+  "Recording Studio": "🎙️ Recording Studios",
+  "Concert Hall": "🎻 Concert Halls",
+  "Arena": "🏟️ Arenas",
+  "Stadium": "⚽ Stadiums",
+  "Outdoor": "🌿 Outdoor",
+  "TV Studio": "📺 TV Studios",
+  "Filming Location": "🎬 Filming Locations",
+  "Theatre": "🎭 Theatres",
+  "Club": "🎵 Clubs",
+  "Custom": "✏️ Custom",
+};
 
 const CUSTOM_PLACEHOLDER = `Describe the interior in detail — architecture, lighting, colours, materials, atmosphere.
 
@@ -85,7 +119,7 @@ export function LocationVenuePicker({ onSelect, isPending, initialCustomDNA }: P
           <button
             key={cat}
             onClick={() => { setActiveCategory(cat); setSelectedKey(null); }}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+            className={`px-2.5 py-1 rounded-full text-[10px] font-medium transition-all ${
               activeCategory === cat
                 ? cat === "Custom"
                   ? "bg-violet-500/20 text-violet-300 border border-violet-500/50"
@@ -93,7 +127,7 @@ export function LocationVenuePicker({ onSelect, isPending, initialCustomDNA }: P
                 : "bg-white/5 text-white/40 border border-white/10 hover:text-white/70 hover:bg-white/10"
             }`}
           >
-            {cat === "Custom" ? "✏️ Custom" : cat}
+            {CATEGORY_LABELS[cat] ?? cat}
           </button>
         ))}
       </div>

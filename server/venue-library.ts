@@ -13,7 +13,7 @@
 export interface VenueEntry {
   key: string;
   displayName: string;
-  category: "recording_studio" | "concert_hall" | "arena" | "stadium" | "theatre" | "outdoor" | "club";
+  category: "recording_studio" | "concert_hall" | "arena" | "stadium" | "theatre" | "outdoor" | "club" | "tv_studio" | "filming_location";
   emoji: string;
   interiorDNA: string;
   venueType: string; // maps to VENUE_DNA key
@@ -65,6 +65,39 @@ export const VENUE_LIBRARY: VenueEntry[] = [
     interiorDNA: `LOCATION LOCK — ELECTRIC LADY STUDIOS, GREENWICH VILLAGE, NEW YORK CITY. Jimi Hendrix's legendary studio. MANDATORY ARCHITECTURAL ELEMENTS: (1) Distinctive curved organic architecture with rounded walls and ceilings — no sharp corners. (2) Psychedelic mural artwork on curved walls in vibrant colours. (3) Warm amber and purple mood lighting with vintage Edison bulbs. (4) Curved control room window with vintage mixing console visible. (5) Plush carpet in deep burgundy/purple. (6) Vintage outboard gear and equipment racks. (7) Intimate, underground feel with low ceilings and curved surfaces. ATMOSPHERE: legendary rock/soul recording vibe, warm amber light, psychedelic art, intimate underground studio.`,
   },
 
+  {
+    key: "capitol_studios_la",
+    displayName: "Capitol Studios — Los Angeles",
+    category: "recording_studio",
+    emoji: "🎺",
+    venueType: "recording_studio",
+    interiorDNA: `LOCATION LOCK — CAPITOL STUDIOS, INSIDE THE CAPITOL RECORDS TOWER, HOLLYWOOD, LOS ANGELES. MANDATORY ARCHITECTURAL ELEMENTS: (1) Circular studio rooms reflecting the iconic cylindrical tower architecture above. (2) Warm amber/gold studio lighting with vintage Edison bulbs and soft overhead floods. (3) Famous underground echo chambers — long reverberant concrete tunnels visible through glass. (4) Vintage mixing console and outboard gear from the 1950s-60s era. (5) Acoustic panels in warm wood and fabric. (6) Intimate studio atmosphere with low ceilings. (7) Hollywood glamour aesthetic — warm gold and cream tones. ATMOSPHERE: legendary Hollywood recording studio, warm golden light, vintage glamour, intimate creative space.`,
+  },
+  {
+    key: "sunset_sound_la",
+    displayName: "Sunset Sound — Los Angeles",
+    category: "recording_studio",
+    emoji: "🌅",
+    venueType: "recording_studio",
+    interiorDNA: `LOCATION LOCK — SUNSET SOUND RECORDERS, WEST HOLLYWOOD, LOS ANGELES. Where The Doors, Prince, and Led Zeppelin recorded. MANDATORY ARCHITECTURAL ELEMENTS: (1) Warm, intimate studio rooms with low ceilings and vintage acoustic treatment. (2) Rich wood panelling in warm walnut and mahogany tones. (3) Vintage mixing console (SSL or Neve) in the control room visible through large glass window. (4) Warm amber/orange studio lighting creating a cosy, creative atmosphere. (5) Vintage outboard gear stacked in racks. (6) Plush carpet in deep burgundy or brown. (7) Intimate, slightly psychedelic 1960s-70s rock studio vibe. ATMOSPHERE: legendary West Hollywood rock studio, warm amber light, vintage equipment, intimate creative space.`,
+  },
+  {
+    key: "blackbird_studio_nashville",
+    displayName: "Blackbird Studio — Nashville",
+    category: "recording_studio",
+    emoji: "🐦",
+    venueType: "recording_studio",
+    interiorDNA: `LOCATION LOCK — BLACKBIRD STUDIO, NASHVILLE, TENNESSEE. Home to one of the world's most extensive vintage gear collections. MANDATORY ARCHITECTURAL ELEMENTS: (1) Large, well-appointed studio rooms with high ceilings and warm wood acoustic treatment. (2) Extensive vintage microphone collection visible on stands — Neumann U47s, RCA ribbons, vintage condensers. (3) Warm honey-brown hardwood floors. (4) Vintage amplifiers and instruments displayed throughout. (5) Warm amber/gold studio lighting. (6) Nashville country/Americana aesthetic mixed with world-class modern production. (7) Vintage gear racks and outboard equipment. ATMOSPHERE: world-class Nashville studio, warm amber light, vintage gear everywhere, professional creative space.`,
+  },
+  {
+    key: "real_world_studios_bath",
+    displayName: "Real World Studios — Bath, UK",
+    category: "recording_studio",
+    emoji: "🌍",
+    venueType: "recording_studio",
+    interiorDNA: `LOCATION LOCK — REAL WORLD STUDIOS, BOX, NEAR BATH, WILTSHIRE, UK. Founded by Peter Gabriel. MANDATORY ARCHITECTURAL ELEMENTS: (1) Stunning rural English countryside setting — rolling green hills and woodland visible through large windows. (2) The iconic "Big Room" with floor-to-ceiling glass walls overlooking a millpond and watermill. (3) Natural stone and wood architecture blending with the rural landscape. (4) Warm natural daylight flooding through large windows. (5) Organic, natural materials — stone floors, exposed wooden beams. (6) World music instruments and artefacts from global cultures. (7) Millpond and watermill visible outside. ATMOSPHERE: stunning rural English studio, natural light, countryside views, organic world-music creative space.`,
+  },
+
   // ── Concert Halls ────────────────────────────────────────────────────────
   {
     key: "royal_albert_hall",
@@ -89,6 +122,31 @@ export const VENUE_LIBRARY: VenueEntry[] = [
     emoji: "🦪",
     venueType: "concert_hall",
     interiorDNA: `LOCATION LOCK — SYDNEY OPERA HOUSE CONCERT HALL, SYDNEY, AUSTRALIA. MANDATORY ARCHITECTURAL ELEMENTS: (1) Distinctive curved wooden ceiling panels in warm brushbox timber creating acoustic canopy. (2) Pale birch/blonde wood walls and ceiling. (3) Warm amber stage lighting against the pale wood interior. (4) Grand pipe organ (the largest mechanical tracker-action organ in the world) with 10,154 pipes visible at rear. (5) Tiered seating in warm red/burgundy. (6) Iconic sail-shaped exterior shell visible in establishing wide shots. ATMOSPHERE: warm blonde timber interior, amber stage lighting, world-famous acoustic hall.`,
+  },
+
+  {
+    key: "walt_disney_concert_hall",
+    displayName: "Walt Disney Concert Hall — Los Angeles",
+    category: "concert_hall",
+    emoji: "🏗️",
+    venueType: "concert_hall",
+    interiorDNA: `LOCATION LOCK — WALT DISNEY CONCERT HALL, DOWNTOWN LOS ANGELES. Frank Gehry's architectural masterpiece. MANDATORY ARCHITECTURAL ELEMENTS: (1) Extraordinary curved wooden ceiling panels in warm Douglas fir — the iconic "French fry" or "french toast" acoustic panels creating a flowing organic canopy. (2) Warm honey-blonde Douglas fir wood covering every surface — walls, ceiling, stage surround. (3) Vineyard-style seating with audience surrounding the stage on all sides. (4) Dramatic curved balconies in warm wood. (5) Organ pipes in a sculptural arrangement nicknamed "French fries" — pale blonde wood pipes in organic curved formation. (6) Warm amber stage lighting against the blonde wood. ATMOSPHERE: world-class modern concert hall, warm honey-blonde wood everywhere, organic curved architecture, intimate vineyard seating.`,
+  },
+  {
+    key: "red_rocks_amphitheatre",
+    displayName: "Red Rocks Amphitheatre — Morrison, Colorado",
+    category: "outdoor",
+    emoji: "🪨",
+    venueType: "outdoor_festival",
+    interiorDNA: `LOCATION LOCK — RED ROCKS AMPHITHEATRE, MORRISON, COLORADO. The world's only naturally occurring, acoustically perfect outdoor amphitheatre. MANDATORY ARCHITECTURAL ELEMENTS: (1) Towering red sandstone rock formations flanking both sides of the stage — Ship Rock (north) and Creation Rock (south), each approximately 70 metres tall. (2) Red and orange layered sandstone rock faces with dramatic geological striations. (3) Open-air seating carved into the natural rock hillside — 9,525 capacity. (4) Stage nestled between the two massive red rock formations. (5) Dramatic Colorado sky — deep blue, golden sunset, or dramatic storm clouds. (6) Rocky Mountain landscape and Denver city lights visible in the distance at night. (7) Warm red/amber/orange colour palette from the sandstone. ATMOSPHERE: iconic natural rock amphitheatre, towering red sandstone formations always flanking the stage, dramatic Colorado sky, legendary outdoor concert setting.`,
+  },
+  {
+    key: "radio_city_music_hall",
+    displayName: "Radio City Music Hall — New York City",
+    category: "theatre",
+    emoji: "🎠",
+    venueType: "concert_hall",
+    interiorDNA: `LOCATION LOCK — RADIO CITY MUSIC HALL, ROCKEFELLER CENTER, NEW YORK CITY. The "Showplace of the Nation." MANDATORY ARCHITECTURAL ELEMENTS: (1) Grand Art Deco interior — the largest indoor theatre in the world at time of opening. (2) Iconic sunburst ceiling with concentric arches in warm gold and amber — the famous "sunrise" mural. (3) Rich burgundy/red upholstered seats in sweeping curved rows. (4) Ornate gold Art Deco detailing on walls, columns, and balcony railings. (5) Massive proscenium stage with the famous Great Stage and hydraulic lifts. (6) Warm golden Art Deco lighting. (7) Capacity 5,960 with three tiers of balconies. ATMOSPHERE: iconic Art Deco grandeur, warm gold and burgundy palette, the sunrise ceiling always visible, legendary NYC showplace.`,
   },
 
   // ── Arenas ───────────────────────────────────────────────────────────────
@@ -149,6 +207,90 @@ export const VENUE_LIBRARY: VenueEntry[] = [
     emoji: "🌵",
     venueType: "outdoor_festival",
     interiorDNA: `LOCATION LOCK — COACHELLA VALLEY MUSIC AND ARTS FESTIVAL, MAIN STAGE, INDIO, CALIFORNIA. MANDATORY ARCHITECTURAL ELEMENTS: (1) Massive modern stage structure with large LED video walls. (2) Vast desert landscape backdrop — Coachella Valley mountains and palm trees. (3) Clear blue California sky or dramatic sunset. (4) Large crowd on the polo grounds. (5) Distinctive festival production with elaborate lighting rig. (6) Warm California desert light — golden and dry. ATMOSPHERE: iconic California desert festival, warm golden light, mountain backdrop, massive production.`,
+  },
+
+  // ── TV Studios & Broadcast Locations ────────────────────────────────────
+  {
+    key: "bbc_television_centre",
+    displayName: "BBC Television Centre — London",
+    category: "tv_studio",
+    emoji: "📺",
+    venueType: "recording_studio",
+    interiorDNA: `LOCATION LOCK — BBC TELEVISION CENTRE, WOOD LANE, SHEPHERD'S BUSH, LONDON. The iconic former BBC broadcasting hub. MANDATORY ARCHITECTURAL ELEMENTS: (1) The famous circular doughnut-shaped building with the central courtyard featuring the Helios sculpture. (2) Vintage broadcast studio interiors with high ceilings and professional TV lighting rigs. (3) Warm tungsten studio lighting creating the classic BBC broadcast look. (4) Iconic Top of the Pops studio feel — performance stage with audience, colourful lighting, vintage broadcast cameras. (5) BBC branding and signage. (6) 1960s-70s modernist architecture with clean lines. ATMOSPHERE: iconic British broadcasting heritage, warm studio lighting, legendary Top of the Pops performance vibe.`,
+  },
+  {
+    key: "pinewood_studios",
+    displayName: "Pinewood Studios — Buckinghamshire, UK",
+    category: "tv_studio",
+    emoji: "🎬",
+    venueType: "recording_studio",
+    interiorDNA: `LOCATION LOCK — PINEWOOD STUDIOS, IVER HEATH, BUCKINGHAMSHIRE, UK. World-class film and TV production facility. MANDATORY ARCHITECTURAL ELEMENTS: (1) Massive sound stages with very high ceilings — the largest stages in Europe. (2) Professional film/TV lighting rig overhead — HMI fresnels, LED panels, tungsten floods. (3) Clean, professional studio environment with polished concrete or hardwood floors. (4) Film production equipment visible — cameras, dollies, lighting stands. (5) Neutral grey/white studio walls allowing any set to be built. (6) The iconic Pinewood exterior — English country house architecture. ATMOSPHERE: world-class professional film studio, dramatic production lighting, large-scale cinematic environment.`,
+  },
+  {
+    key: "nbc_studios_30_rock",
+    displayName: "NBC Studios / 30 Rock — New York City",
+    category: "tv_studio",
+    emoji: "🗽",
+    venueType: "recording_studio",
+    interiorDNA: `LOCATION LOCK — NBC STUDIOS, 30 ROCKEFELLER PLAZA, MIDTOWN MANHATTAN, NEW YORK CITY. Home of Saturday Night Live. MANDATORY ARCHITECTURAL ELEMENTS: (1) The iconic Art Deco Rockefeller Center exterior — 30 Rock tower in warm limestone. (2) Studio 8H interior — the SNL stage with its distinctive proscenium and audience seating. (3) Warm broadcast studio lighting with professional TV rig. (4) Art Deco lobby with murals and gold detailing. (5) Manhattan skyline visible from upper floors. (6) NBC peacock logo and branding. ATMOSPHERE: iconic American broadcast institution, Art Deco grandeur, warm studio lighting, Manhattan prestige.`,
+  },
+  {
+    key: "ed_sullivan_theater",
+    displayName: "Ed Sullivan Theater — New York City",
+    category: "tv_studio",
+    emoji: "🎙️",
+    venueType: "concert_hall",
+    interiorDNA: `LOCATION LOCK — ED SULLIVAN THEATER (LATE SHOW STUDIO), BROADWAY, NEW YORK CITY. Where The Beatles made their US TV debut. MANDATORY ARCHITECTURAL ELEMENTS: (1) Classic Broadway theatre interior converted for TV broadcast. (2) Warm amber stage lighting with professional broadcast rig. (3) Tiered audience seating facing the performance stage. (4) Late Show with Stephen Colbert set design — desk, backdrop, NYC skyline graphic. (5) Historic theatre architecture with ornate plasterwork. (6) Broadway street visible through entrance. ATMOSPHERE: legendary American TV institution, warm broadcast lighting, historic Broadway theatre, iconic performance space.`,
+  },
+
+  // ── Iconic Music Video Filming Locations ─────────────────────────────────
+  {
+    key: "county_down_northern_ireland",
+    displayName: "County Down — Northern Ireland",
+    category: "filming_location",
+    emoji: "🌾",
+    venueType: "outdoor_festival",
+    interiorDNA: `LOCATION LOCK — COUNTY DOWN, NORTHERN IRELAND. Filming location for Rihanna's "We Found Love." MANDATORY VISUAL ELEMENTS: (1) Rolling green Irish countryside with lush emerald fields. (2) Dramatic overcast sky with heavy grey clouds and shafts of golden light breaking through. (3) Rural farm setting — stone walls, hay bales, rustic barns. (4) Wildflower meadows and overgrown grass. (5) Moody, atmospheric Irish light — cool blue-grey with warm golden breaks. (6) Distant hills and hedgerows. ATMOSPHERE: moody, romantic Irish countryside, dramatic overcast sky, lush green fields, raw natural beauty.`,
+  },
+  {
+    key: "hoxton_street_london",
+    displayName: "Hoxton Street — London",
+    category: "filming_location",
+    emoji: "🚶",
+    venueType: "outdoor_festival",
+    interiorDNA: `LOCATION LOCK — HOXTON STREET, SHOREDITCH, EAST LONDON. Setting for The Verve's iconic Bittersweet Symphony. MANDATORY VISUAL ELEMENTS: (1) Busy East London street with pedestrians and shopfronts. (2) Victorian/Edwardian terraced buildings with brick facades. (3) Busy pavement with people walking — the iconic walking-through-crowds shot. (4) Overcast London sky — cool grey-white light. (5) East London street furniture — bus stops, bollards, shopfronts. (6) Gritty urban British street atmosphere. ATMOSPHERE: gritty East London street, overcast British sky, busy urban pavement, iconic Britpop music video setting.`,
+  },
+  {
+    key: "mojave_desert_california",
+    displayName: "Mojave Desert — California",
+    category: "filming_location",
+    emoji: "🌵",
+    venueType: "outdoor_festival",
+    interiorDNA: `LOCATION LOCK — MOJAVE DESERT, CALIFORNIA. Featured in U2 and Lana Del Rey music videos. MANDATORY VISUAL ELEMENTS: (1) Vast, flat desert landscape stretching to the horizon. (2) Joshua trees — distinctive spiky silhouettes against the sky. (3) Dramatic desert sky — deep blue, golden sunset, or dramatic clouds. (4) Warm golden/amber desert light. (5) Cracked dry earth and sand. (6) Distant mountains on the horizon. (7) Sparse desert vegetation. ATMOSPHERE: iconic California desert, warm golden light, Joshua trees, vast open landscape, cinematic American West.`,
+  },
+  {
+    key: "seljalandsfoss_iceland",
+    displayName: "Seljalandsfoss Waterfall — Iceland",
+    category: "filming_location",
+    emoji: "💧",
+    venueType: "outdoor_festival",
+    interiorDNA: `LOCATION LOCK — SELJALANDSFOSS WATERFALL, SOUTH ICELAND. Backdrop for Justin Bieber's "I'll Show You." MANDATORY VISUAL ELEMENTS: (1) Dramatic 60-metre waterfall cascading from a basalt cliff — the defining element. (2) Lush green moss covering the surrounding rocks and cliff face. (3) Dramatic Icelandic sky — moody grey clouds or ethereal golden hour light. (4) Mist and spray from the waterfall creating atmospheric haze. (5) The path behind the waterfall — walkable cave behind the falls. (6) Vast Icelandic landscape — flat green plains and distant mountains. ATMOSPHERE: dramatic Icelandic waterfall, moody ethereal light, mist and spray, raw natural power.`,
+  },
+  {
+    key: "griffith_park_los_angeles",
+    displayName: "Griffith Park — Los Angeles",
+    category: "filming_location",
+    emoji: "🎃",
+    venueType: "outdoor_festival",
+    interiorDNA: `LOCATION LOCK — GRIFFITH PARK, LOS ANGELES. Primary setting for Michael Jackson's Thriller. MANDATORY VISUAL ELEMENTS: (1) Griffith Observatory visible on the hilltop — Art Deco white building with copper domes. (2) Hollywood Hills and LA cityscape in the background. (3) Dramatic night setting with moonlight and atmospheric fog/mist. (4) Winding park roads and pathways. (5) Dark, moody lighting — perfect for horror/thriller aesthetics. (6) LA city lights twinkling in the valley below. ATMOSPHERE: iconic LA park, Griffith Observatory always visible, dramatic night atmosphere, Hollywood Hills backdrop.`,
+  },
+  {
+    key: "universal_studios_backlot",
+    displayName: "Universal Studios Backlot — Florida",
+    category: "filming_location",
+    emoji: "🎥",
+    venueType: "recording_studio",
+    interiorDNA: `LOCATION LOCK — UNIVERSAL STUDIOS BACKLOT, ORLANDO, FLORIDA. Location for Creed's My Sacrifice. MANDATORY VISUAL ELEMENTS: (1) Professional film studio backlot with various street sets and facades. (2) Large sound stages with high ceilings visible in background. (3) Film production equipment — cameras, lighting rigs, cranes. (4) Various set pieces — period streets, urban environments, architectural facades. (5) Warm Florida sunlight. (6) Professional film production atmosphere. ATMOSPHERE: professional Hollywood-style film backlot, warm Florida light, cinematic production environment.`,
   },
 
   // ── Theatres ─────────────────────────────────────────────────────────────
