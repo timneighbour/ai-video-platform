@@ -28,6 +28,7 @@ const VENUE_OPTIONS: VenueOption[] = [
   { key: "walt_disney_concert_hall", displayName: "Walt Disney Concert Hall", category: "Concert Hall", emoji: "🏗️", shortDescription: "Los Angeles · Frank Gehry's curved blonde wood masterpiece" },
   { key: "radio_city_music_hall", displayName: "Radio City Music Hall", category: "Concert Hall", emoji: "🎠", shortDescription: "New York · Art Deco sunrise ceiling, gold and burgundy" },
   // Arenas
+  { key: "msg_sphere_las_vegas", displayName: "MSG Sphere", category: "Arena", emoji: "🌐", shortDescription: "Las Vegas · World's largest wraparound LED dome, 17,500 seats" },
   { key: "o2_arena_london", displayName: "The O2 Arena", category: "Arena", emoji: "🎪", shortDescription: "London · Massive dome with dramatic stage lighting rigs" },
   { key: "madison_square_garden", displayName: "Madison Square Garden", category: "Arena", emoji: "🏟️", shortDescription: "New York · The World's Most Famous Arena" },
   { key: "wembley_arena", displayName: "OVO Arena Wembley", category: "Arena", emoji: "⭐", shortDescription: "London · Iconic curved roof with blue-white spotlights" },

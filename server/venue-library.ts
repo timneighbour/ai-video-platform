@@ -151,6 +151,14 @@ export const VENUE_LIBRARY: VenueEntry[] = [
 
   // ── Arenas ───────────────────────────────────────────────────────────────
   {
+    key: "msg_sphere_las_vegas",
+    displayName: "MSG Sphere — Las Vegas",
+    category: "arena",
+    emoji: "🌐",
+    venueType: "arena",
+    interiorDNA: `LOCATION LOCK — MSG SPHERE, LAS VEGAS STRIP, NEVADA. The world's largest spherical structure and most technologically advanced entertainment venue. MANDATORY ARCHITECTURAL ELEMENTS: (1) The world's largest and highest-resolution LED screen — a fully wraparound 160,000 sq ft interior LED surface covering the entire ceiling and walls in an immersive dome. (2) The screen can display any environment imaginable — from outer space to underwater to abstract digital art — completely surrounding the performer and audience. (3) Futuristic spherical architecture with no visible structural supports — pure immersive visual environment. (4) Seating for 17,500 with every seat facing the central stage. (5) The stage is a small island surrounded by the overwhelming wraparound LED display. (6) Dramatic, otherworldly atmosphere — the LED content defines the entire visual environment. ATMOSPHERE: the most futuristic and immersive concert venue on Earth, wraparound LED dome displaying any visual world, Las Vegas Strip visible in exterior shots, mind-bending scale and technology.`,
+  },
+  {
     key: "o2_arena_london",
     displayName: "The O2 Arena — London",
     category: "arena",
