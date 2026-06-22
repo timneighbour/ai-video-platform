@@ -6956,7 +6956,9 @@ Your task:
     }))
     .query(async ({ input }) => {
       const { searchLocationReferenceImage } = await import("../location-image-search");
-      const result = await searchLocationReferenceImage(input.displayName + " interior");
+      // Use venueKey as the search query for stable cache keys across calls
+      const searchQuery = input.venueKey !== "custom" ? input.displayName : input.displayName;
+      const result = await searchLocationReferenceImage(searchQuery);
       return {
         thumbnailUrl: result?.url ?? null,
         source: result?.source ?? null,

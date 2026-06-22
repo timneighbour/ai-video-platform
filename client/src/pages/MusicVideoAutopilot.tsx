@@ -1118,6 +1118,9 @@ export default function MusicVideoAutopilot() {
   const [mood, setMood] = useLocalStorage("musicVideo_mood", "");
   const [selectedStyle, setSelectedStyle] = useLocalStorage("musicVideo_style", "cinematic");
   const [sceneSetting, setSceneSetting] = useLocalStorage("musicVideo_sceneSetting", "");
+  // Draft venue selection in the upload step (before job creation)
+  const [draftVenueKey, setDraftVenueKey] = useLocalStorage<string | null>("musicVideo_draftVenueKey", null);
+  const [draftVenueCustomDNA, setDraftVenueCustomDNA] = useLocalStorage<string>("musicVideo_draftVenueCustomDNA", "");
   // User-selected duration cap: null = full song, or a number in seconds to cap the video length
   const [selectedDurationCap, setSelectedDurationCap] = useLocalStorage<number | null>("musicVideo_durationCap", null);
   // Performance/cinematic ratio: 0-100, default 80 (80% performance shots for vocal-led tracks, 20% cinematic intercuts)
@@ -2239,6 +2242,19 @@ export default function MusicVideoAutopilot() {
       setJobId(result.jobId);
       setTotalScenes(result.sceneCount);
       mp.projectCreated("WizVideo");
+      // Auto-lock the draft venue if one was selected in the upload step
+      if (draftVenueKey) {
+        try {
+          await lockLocationMutation.mutateAsync({
+            jobId: result.jobId,
+            venueKey: draftVenueKey,
+            customDNA: draftVenueKey === "custom" ? draftVenueCustomDNA : undefined,
+          });
+        } catch {
+          // Non-fatal — storyboard generation continues without venue lock
+          console.warn("[WizLocation] Failed to auto-lock draft venue:", draftVenueKey);
+        }
+      }
 
       // Save characters (with photos) to the DB so the storyboard LLM can use them
       if (characters.length > 0) {
@@ -4293,91 +4309,69 @@ export default function MusicVideoAutopilot() {
                 </CardContent>
               </Card>
 
-              {/* Locations / Scene Setting */}
-              <Card className="studio-card border-0">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <span className="text-xl text-[--color-gold]">&#9679;</span>
-                    Locations & Scene Settings
-                    <Badge variant="outline" className="border-zinc-600 text-white/50 text-xs ml-1">Optional</Badge>
-                  </CardTitle>
-                  <p className="text-white/40 text-xs mt-1">
-                    Describe where your video takes place. The AI will use these as the primary visual environments across scenes.
-                  </p>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <Textarea
-                    value={sceneSetting}
-                    onChange={(e) => setSceneSetting(e.target.value)}
-                    placeholder={`Describe the locations and environments for your video.\n\nExamples:\n• Concert venue with dramatic stage lighting\n• Desert at golden hour, sand dunes\n• Rooftop at night with city skyline\n• Neon-lit underground club\n• Forest clearing with dappled sunlight\n• Multiple: concert stage, backstage corridor, crowd shots`}
-                    className="bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white placeholder:text-white/30 min-h-[110px] text-sm resize-none"
-                    rows={5}
-                  />
-                  {/* ── Air Studios / Lyndhurst Hall — featured showcase preset ── */}
-                  {(() => {
-                    const AIR_STUDIOS_PRESET = "Lyndhurst Hall at Air Studios London — a converted church recording studio with white walls and high arched stained-glass windows flooding the space with cool natural daylight, modern acoustic ceiling baffles and wood slat sound panels, full orchestra on the studio floor with music stands and professional microphones, contemporary recording session atmosphere, camera circling the artist at floor level, cinematic depth of field, professional recording studio NOT a concert hall or cathedral";
-                    const isActive = sceneSetting.includes("Lyndhurst Hall");
-                    return (
-                      <button
-                        type="button"
-                        onClick={() => setSceneSetting(isActive ? "" : AIR_STUDIOS_PRESET)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold border-2 transition-all mb-1 ${
-                          isActive
-                            ? "bg-[--color-gold]/10 border-[--color-gold] text-[--color-gold]"
-                            : "bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.25)] text-white/80 hover:border-[--color-gold]/60 hover:text-white"
-                        }`}
-                      >
-                        <span className="text-lg">🎼</span>
-                        <div className="text-left flex-1">
-                          <div className="font-bold tracking-wide">Air Studios / Lyndhurst Hall</div>
-                          <div className="text-xs font-normal opacity-60 mt-0.5">Cool daylight through stained-glass · White walls · Orchestra on studio floor · Camera circling artist</div>
+              {/* ── WizLocation™ Venue Picker ── */}
+              <Card className="studio-card border-0 overflow-hidden">
+                {/* Premium header with glow */}
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-[rgba(184,137,42,0.06)] via-transparent to-transparent pointer-events-none" />
+                  <CardHeader className="pb-3 relative">
+                    <CardTitle className="text-white flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-[rgba(184,137,42,0.12)] border border-[rgba(184,137,42,0.2)] flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-3.5 h-3.5 text-[--color-gold]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-white font-bold tracking-wide">WizLocation™</span>
+                          <span className="text-[9px] font-bold uppercase tracking-[0.15em] px-1.5 py-0.5 rounded bg-[rgba(184,137,42,0.12)] text-[--color-gold] border border-[rgba(184,137,42,0.2)]">Venue Engine</span>
                         </div>
-                        {isActive && (
-                          <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full bg-[--color-gold]/20 text-[--color-gold] border border-[--color-gold]/30">Active</span>
-                        )}
-                      </button>
-                    );
-                  })()}
-                  {/* Quick-pick location chips */}
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      "Concert Venue",
-                      "Desert",
-                      "City Rooftop",
-                      "Forest",
-                      "Beach at Sunset",
-                      "Neon Club",
-                      "Mountain Peak",
-                      "Moving Train",
-                      "Abandoned Fairground",
-                      "Urban Streets",
-                      "Space / Galaxy",
-                      "Medieval Castle",
-                    ].map((loc) => {
-                      const label = loc;
-                      const isSelected = sceneSetting.toLowerCase().includes(label.toLowerCase());
-                      return (
+                      </div>
+                      {draftVenueKey && (
                         <button
-                          key={loc}
                           type="button"
-                          onClick={() => {
-                            if (isSelected) {
-                              setSceneSetting(prev => prev.replace(new RegExp(label + ",?\\s*", "i"), "").trim());
-                            } else {
-                              setSceneSetting(prev => prev ? `${prev.trim()}, ${label}` : label);
-                            }
-                          }}
-                          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                            isSelected
-                              ? "bg-[--color-gold]/15 border-[--color-gold] text-[--color-gold]"
-                              : "bg-[rgba(24,20,16,0.9)] border-[rgba(184,137,42,0.12)] text-white/50 hover:border-zinc-500 hover:text-zinc-200"
-                          }`}
+                          onClick={() => { setDraftVenueKey(null); setDraftVenueCustomDNA(""); }}
+                          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[rgba(184,137,42,0.1)] border border-[rgba(184,137,42,0.25)] text-[--color-gold] text-[10px] font-semibold hover:bg-[rgba(184,137,42,0.18)] transition-all"
                         >
-                          {loc}
+                          <X className="w-3 h-3" />
+                          Clear
                         </button>
-                      );
-                    })}
-                  </div>
+                      )}
+                    </CardTitle>
+                    <p className="text-white/35 text-xs mt-1 leading-relaxed">
+                      Choose an iconic venue — WizCreate™ anchors every scene to its exact architecture, lighting, and atmosphere.
+                    </p>
+                  </CardHeader>
+                </div>
+                <CardContent className="pt-0 pb-4">
+                  {/* Venue picker — always visible in upload step */}
+                  <LocationVenuePicker
+                    initialKey={draftVenueKey}
+                    initialCustomDNA={draftVenueCustomDNA || null}
+                    showConfirmButton={false}
+                    onSelect={(venueKey, customDNA) => {
+                      setDraftVenueKey(venueKey);
+                      if (customDNA) setDraftVenueCustomDNA(customDNA);
+                    }}
+                    onDraftChange={(venueKey, customDNA) => {
+                      setDraftVenueKey(venueKey ?? null);
+                      if (customDNA !== undefined) setDraftVenueCustomDNA(customDNA);
+                    }}
+                    isPending={false}
+                  />
+
+                  {/* Venue locked confirmation strip */}
+                  {draftVenueKey && (
+                    <div className="mt-3 flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[rgba(184,137,42,0.08)] border border-[rgba(184,137,42,0.2)]">
+                      <div className="w-5 h-5 rounded-full bg-[--color-gold] flex items-center justify-center flex-shrink-0 shadow-[0_0_8px_rgba(184,137,42,0.4)]">
+                        <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 text-black" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M1.5 5l2.5 2.5 4.5-4.5" />
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] font-bold text-[--color-gold] leading-tight">Venue selected — will be locked when you generate</p>
+                        <p className="text-[10px] text-white/35 mt-0.5 leading-tight">WizCreate™ will anchor every scene to this location's architecture and atmosphere</p>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -6194,7 +6188,7 @@ export default function MusicVideoAutopilot() {
                     jobId={jobId || undefined}
                     aspectRatio={exportFormat as "16:9" | "9:16" | "1:1" | "4:3" | "21:9"}
                     onCreateAnother={() => {
-                      setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setSavedCharacterIds({});
+                      setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setDraftVenueKey(null); setDraftVenueCustomDNA(""); setSavedCharacterIds({});
                     }}
                   />
                 ) : renderStatus === "completed" && finalVideoUrl ? (
@@ -6318,7 +6312,7 @@ export default function MusicVideoAutopilot() {
                       </Button>
                       <Button
                         className="btn-sheen bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white px-6 h-12 text-base font-semibold shadow-lg shadow-[#b8892a]/30"
-                        onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setSavedCharacterIds({}); }}
+                        onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setDraftVenueKey(null); setDraftVenueCustomDNA(""); setSavedCharacterIds({}); }}
                       >
                         <Sparkles className="w-5 h-5 mr-2" /> Create Another Video
                       </Button>

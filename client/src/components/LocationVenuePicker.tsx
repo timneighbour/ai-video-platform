@@ -67,19 +67,21 @@ const VENUE_OPTIONS: VenueOption[] = [
   { key: "fabric_london", displayName: "Fabric London", category: "Club", emoji: "🔊", shortDescription: "London · Industrial warehouse with pulsing UV lights" },
 ];
 
+export const VENUE_OPTIONS_PUBLIC = VENUE_OPTIONS;
+
 const CATEGORY_ORDER = ["Recording Studio", "Concert Hall", "Arena", "Stadium", "Outdoor", "TV Studio", "Filming Location", "Theatre", "Club", "Custom"];
 
 const CATEGORY_LABELS: Record<string, string> = {
-  "Recording Studio": "🎙️ Recording Studios",
-  "Concert Hall": "🎻 Concert Halls",
-  "Arena": "🏟️ Arenas",
-  "Stadium": "⚽ Stadiums",
-  "Outdoor": "🌿 Outdoor",
-  "TV Studio": "📺 TV Studios",
-  "Filming Location": "🎬 Filming Locations",
-  "Theatre": "🎭 Theatres",
-  "Club": "🎵 Clubs",
-  "Custom": "✏️ Custom",
+  "Recording Studio": "Studios",
+  "Concert Hall": "Concert Halls",
+  "Arena": "Arenas",
+  "Stadium": "Stadiums",
+  "Outdoor": "Outdoor",
+  "TV Studio": "TV Studios",
+  "Filming Location": "Filming",
+  "Theatre": "Theatres",
+  "Club": "Clubs",
+  "Custom": "Custom",
 };
 
 const CUSTOM_PLACEHOLDER = `Describe the interior in detail — architecture, lighting, colours, materials, atmosphere.
@@ -128,43 +130,45 @@ function VenueCard({
     <button
       ref={ref}
       onClick={onSelect}
-      className={`flex items-start gap-0 rounded-lg text-left transition-all border overflow-hidden ${
+      className={`flex items-start gap-0 rounded-lg text-left transition-all border overflow-hidden group ${
         isSelected
-          ? "border-amber-500/60 bg-amber-900/25 text-amber-200"
-          : "border-white/5 bg-white/3 hover:border-white/20 hover:bg-white/5 text-white/70"
+          ? "border-[rgba(184,137,42,0.7)] bg-[rgba(184,137,42,0.08)] text-amber-200 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
+          : "border-white/5 bg-white/3 hover:border-[rgba(184,137,42,0.25)] hover:bg-[rgba(184,137,42,0.04)] text-white/70"
       }`}
     >
       {/* Thumbnail */}
-      <div className="w-20 h-16 flex-shrink-0 relative overflow-hidden bg-white/5">
+      <div className="w-[72px] h-[56px] flex-shrink-0 relative overflow-hidden bg-black/40">
         {thumbLoading && shouldFetch && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <Loader2 className="w-3.5 h-3.5 text-white/20 animate-spin" />
+            <Loader2 className="w-3 h-3 text-white/20 animate-spin" />
           </div>
         )}
         {thumbnailUrl ? (
           <img
             src={thumbnailUrl}
             alt={venue.displayName}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
           />
         ) : !thumbLoading ? (
-          <div className="absolute inset-0 flex items-center justify-center text-2xl opacity-40">
+          <div className="absolute inset-0 flex items-center justify-center text-xl opacity-30">
             {venue.emoji}
           </div>
         ) : null}
+        {/* Subtle shimmer overlay on hover */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
       </div>
 
       {/* Text content */}
-      <div className="flex-1 min-w-0 px-3 py-2.5">
-        <p className="text-xs font-semibold leading-tight">{venue.displayName}</p>
-        <p className="text-[10px] text-white/35 mt-0.5 leading-tight">{venue.shortDescription}</p>
+      <div className="flex-1 min-w-0 px-3 py-2">
+        <p className={`text-[11px] font-semibold leading-tight tracking-wide ${isSelected ? "text-[--color-gold]" : "text-white/80"}`}>{venue.displayName}</p>
+        <p className="text-[10px] text-white/30 mt-0.5 leading-tight">{venue.shortDescription}</p>
       </div>
 
       {/* Selected checkmark */}
       {isSelected && (
-        <div className="w-4 h-4 rounded-full bg-amber-500/80 flex items-center justify-center flex-shrink-0 mt-2.5 mr-2.5">
-          <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 text-black" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div className="w-4 h-4 rounded-full bg-[--color-gold] flex items-center justify-center flex-shrink-0 mt-2 mr-2.5 shadow-[0_0_8px_rgba(184,137,42,0.5)]">
+          <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 text-black" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M1.5 5l2.5 2.5 4.5-4.5" />
           </svg>
         </div>
@@ -174,7 +178,7 @@ function VenueCard({
 }
 
 /** Full-size banner image for the selected venue — fetches via the same tRPC query */
-function VenueBannerImage({ venueKey, displayName }: { venueKey: string; displayName: string }) {
+export function VenueBannerImage({ venueKey, displayName }: { venueKey: string; displayName: string }) {
   const { data, isLoading } = trpc.musicVideo.getVenueThumbnail.useQuery(
     { venueKey, displayName },
     { staleTime: 1000 * 60 * 60 * 24, retry: 1 }
@@ -184,33 +188,34 @@ function VenueBannerImage({ venueKey, displayName }: { venueKey: string; display
 
   if (isLoading) {
     return (
-      <div className="w-full h-40 flex items-center justify-center bg-white/5 animate-pulse">
-        <Loader2 className="w-5 h-5 text-amber-400/40 animate-spin" />
+      <div className="w-full h-44 flex items-center justify-center bg-black/40 animate-pulse">
+        <Loader2 className="w-5 h-5 text-[--color-gold]/40 animate-spin" />
       </div>
     );
   }
 
   if (!imageUrl) {
     return (
-      <div className="w-full h-32 flex items-center justify-center bg-white/5 text-white/20 text-xs">
+      <div className="w-full h-32 flex items-center justify-center bg-black/30 text-white/20 text-xs font-mono tracking-widest uppercase">
         No reference image available
       </div>
     );
   }
 
   return (
-    <div className="w-full h-44 relative overflow-hidden">
+    <div className="w-full h-48 relative overflow-hidden">
       <img
         src={imageUrl}
         alt={displayName}
         className="w-full h-full object-cover"
         onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = "none"; }}
       />
-      {/* Gradient overlay so text below reads cleanly */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      {/* Cinematic gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
       {/* Source badge */}
       {data?.source && (
-        <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/50 text-[9px] text-white/40">
+        <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/60 text-[9px] text-white/30 font-mono tracking-wider">
           via Google Images
         </div>
       )}
@@ -223,12 +228,42 @@ interface Props {
   isPending?: boolean;
   /** Pre-fill the custom textarea when editing an existing custom lock */
   initialCustomDNA?: string | null;
+  /** Pre-select a venue key (e.g. when restoring from state) */
+  initialKey?: string | null;
+  /** Whether to show the confirm button (default: true) */
+  showConfirmButton?: boolean;
+  /** Called on every selection change (before confirm) — for draft state */
+  onDraftChange?: (venueKey: string | null, customDNA?: string) => void;
 }
 
-export function LocationVenuePicker({ onSelect, isPending, initialCustomDNA }: Props) {
-  const [selectedKey, setSelectedKey] = useState<string | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>("Recording Studio");
+export function LocationVenuePicker({
+  onSelect,
+  isPending,
+  initialCustomDNA,
+  initialKey,
+  showConfirmButton = true,
+  onDraftChange,
+}: Props) {
+  const [selectedKey, setSelectedKey] = useState<string | null>(initialKey ?? null);
+  const [activeCategory, setActiveCategory] = useState<string>(() => {
+    if (initialKey) {
+      const found = VENUE_OPTIONS.find(v => v.key === initialKey);
+      return found?.category ?? "Recording Studio";
+    }
+    return "Recording Studio";
+  });
   const [customDNA, setCustomDNA] = useState<string>(initialCustomDNA ?? "");
+
+  // Notify parent of draft changes
+  useEffect(() => {
+    if (onDraftChange) {
+      if (activeCategory === "Custom") {
+        onDraftChange(customDNA.trim().length >= 10 ? "custom" : null, customDNA.trim());
+      } else {
+        onDraftChange(selectedKey);
+      }
+    }
+  }, [selectedKey, customDNA, activeCategory]);
 
   const categories = CATEGORY_ORDER.filter(cat =>
     cat === "Custom" || VENUE_OPTIONS.some(v => v.category === cat)
@@ -248,20 +283,22 @@ export function LocationVenuePicker({ onSelect, isPending, initialCustomDNA }: P
     }
   };
 
+  const selectedVenue = selectedKey ? VENUE_OPTIONS.find(v => v.key === selectedKey) : null;
+
   return (
-    <div>
-      {/* Category tabs */}
-      <div className="flex flex-wrap gap-1.5 mb-3">
+    <div className="space-y-3">
+      {/* Category tabs — horizontal scroll on mobile */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         {categories.map(cat => (
           <button
             key={cat}
-            onClick={() => { setActiveCategory(cat); setSelectedKey(null); }}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-medium transition-all ${
+            onClick={() => { setActiveCategory(cat); if (cat !== activeCategory) setSelectedKey(null); }}
+            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-semibold tracking-wider uppercase transition-all ${
               activeCategory === cat
                 ? cat === "Custom"
-                  ? "bg-violet-500/20 text-violet-300 border border-violet-500/50"
-                  : "bg-amber-500/20 text-amber-300 border border-amber-500/50"
-                : "bg-white/5 text-white/40 border border-white/10 hover:text-white/70 hover:bg-white/10"
+                  ? "bg-violet-500/20 text-violet-300 border border-violet-500/40 shadow-[0_0_8px_rgba(139,92,246,0.2)]"
+                  : "bg-[rgba(184,137,42,0.15)] text-[--color-gold] border border-[rgba(184,137,42,0.4)] shadow-[0_0_8px_rgba(184,137,42,0.15)]"
+                : "bg-white/4 text-white/35 border border-white/8 hover:text-white/60 hover:bg-white/8 hover:border-white/15"
             }`}
           >
             {CATEGORY_LABELS[cat] ?? cat}
@@ -272,8 +309,8 @@ export function LocationVenuePicker({ onSelect, isPending, initialCustomDNA }: P
       {/* Custom venue textarea */}
       {isCustomTab ? (
         <div className="space-y-2">
-          <p className="text-xs text-white/50 leading-relaxed">
-            Describe any bespoke interior — architecture, lighting, colours, materials, and atmosphere. The AI will anchor every scene to this specific space.
+          <p className="text-xs text-white/40 leading-relaxed">
+            Describe any bespoke interior — architecture, lighting, colours, materials, and atmosphere. WizCreate™ will anchor every scene to this exact space.
           </p>
           <textarea
             value={customDNA}
@@ -281,20 +318,20 @@ export function LocationVenuePicker({ onSelect, isPending, initialCustomDNA }: P
             placeholder={CUSTOM_PLACEHOLDER}
             rows={8}
             maxLength={2000}
-            className="w-full rounded-lg bg-white/5 border border-white/10 text-white/80 text-xs px-3 py-2.5 resize-none focus:outline-none focus:border-violet-500/50 focus:bg-white/8 placeholder:text-white/20 leading-relaxed"
+            className="w-full rounded-xl bg-black/30 border border-[rgba(139,92,246,0.2)] text-white/80 text-xs px-3 py-3 resize-none focus:outline-none focus:border-violet-500/50 focus:bg-black/40 placeholder:text-white/15 leading-relaxed font-mono"
           />
           <div className="flex items-center justify-between">
-            <span className={`text-[10px] ${customDNA.length > 1800 ? "text-amber-400" : "text-white/30"}`}>
-              {customDNA.length}/2000 characters
+            <span className={`text-[10px] font-mono ${customDNA.length > 1800 ? "text-amber-400" : "text-white/25"}`}>
+              {customDNA.length}/2000
             </span>
             {customDNA.trim().length > 0 && customDNA.trim().length < 10 && (
-              <span className="text-[10px] text-red-400">Min 10 characters required</span>
+              <span className="text-[10px] text-red-400/70">Min 10 characters required</span>
             )}
           </div>
         </div>
       ) : (
         /* Venue grid with thumbnails */
-        <div className="grid grid-cols-1 gap-1.5 max-h-64 overflow-y-auto pr-1">
+        <div className="grid grid-cols-1 gap-1 max-h-[260px] overflow-y-auto pr-0.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
           {filteredVenues.map(venue => (
             <VenueCard
               key={venue.key}
@@ -307,38 +344,50 @@ export function LocationVenuePicker({ onSelect, isPending, initialCustomDNA }: P
       )}
 
       {/* Selected venue preview banner */}
-      {selectedKey && !isCustomTab && (() => {
-        const selected = VENUE_OPTIONS.find(v => v.key === selectedKey);
-        if (!selected) return null;
-        return (
-          <div className="mt-3 rounded-xl overflow-hidden border border-amber-500/30 bg-amber-900/10">
-            {/* Full-size reference image */}
-            <VenueBannerImage venueKey={selected.key} displayName={selected.displayName} />
-            {/* Description */}
-            <div className="px-3 py-2.5">
-              <p className="text-xs font-semibold text-amber-200 leading-tight">{selected.displayName}</p>
-              <p className="text-[10px] text-white/50 mt-0.5 leading-relaxed">{selected.shortDescription}</p>
-              <p className="text-[10px] text-amber-400/70 mt-1.5 leading-relaxed">
+      {selectedVenue && !isCustomTab && (
+        <div className="rounded-xl overflow-hidden border border-[rgba(184,137,42,0.3)] bg-[rgba(184,137,42,0.05)] shadow-[0_0_20px_rgba(184,137,42,0.08)]">
+          {/* Full-size reference image */}
+          <VenueBannerImage venueKey={selectedVenue.key} displayName={selectedVenue.displayName} />
+          {/* Description */}
+          <div className="px-4 py-3">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="text-sm font-bold text-[--color-gold] leading-tight tracking-wide">{selectedVenue.displayName}</p>
+                <p className="text-[11px] text-white/45 mt-0.5 leading-relaxed">{selectedVenue.shortDescription}</p>
+              </div>
+              <div className="flex-shrink-0 mt-0.5">
+                <span className="text-[9px] font-bold uppercase tracking-[0.15em] px-2 py-1 rounded-full bg-[rgba(184,137,42,0.15)] text-[--color-gold] border border-[rgba(184,137,42,0.25)]">
+                  Selected
+                </span>
+              </div>
+            </div>
+            <div className="mt-2.5 pt-2.5 border-t border-[rgba(184,137,42,0.1)]">
+              <p className="text-[10px] text-[--color-gold]/60 leading-relaxed">
                 ✦ WizCreate™ will anchor every scene to this exact location — architecture, lighting, and atmosphere will be consistent throughout your storyboard.
               </p>
             </div>
           </div>
-        );
-      })()}
+        </div>
+      )}
 
       {/* Confirm button */}
-      {canConfirm && (
-        <div className="mt-3 flex justify-end">
+      {showConfirmButton && canConfirm && (
+        <div className="flex justify-end">
           <button
             onClick={handleConfirm}
             disabled={isPending}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-semibold transition-all disabled:opacity-50 ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-sm font-bold tracking-wide transition-all disabled:opacity-50 ${
               isCustomTab
-                ? "bg-violet-500/20 hover:bg-violet-500/30 border-violet-500/50 text-violet-300"
-                : "bg-amber-500/20 hover:bg-amber-500/30 border-amber-500/50 text-amber-300"
+                ? "bg-violet-500/15 hover:bg-violet-500/25 border-violet-500/40 text-violet-300 shadow-[0_0_12px_rgba(139,92,246,0.15)]"
+                : "bg-[rgba(184,137,42,0.12)] hover:bg-[rgba(184,137,42,0.2)] border-[rgba(184,137,42,0.4)] text-[--color-gold] shadow-[0_0_12px_rgba(184,137,42,0.15)]"
             }`}
           >
-            {isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+            {isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (
+              <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="7" width="10" height="8" rx="1.5" />
+                <path d="M5 7V5a3 3 0 0 1 6 0v2" />
+              </svg>
+            )}
             Lock {isCustomTab ? "Custom Venue" : "Location"}
           </button>
         </div>
