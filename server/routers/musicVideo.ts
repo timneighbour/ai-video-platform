@@ -6952,13 +6952,20 @@ Your task:
   getVenueThumbnail: publicProcedure
     .input(z.object({
       venueKey: z.string(),
-      displayName: z.string(),
+      /** Curated search query from the client — bypasses generic query cleaning for accuracy */
+      searchQuery: z.string().optional(),
+      /** Legacy field — kept for backwards compatibility, searchQuery takes precedence */
+      displayName: z.string().optional(),
     }))
     .query(async ({ input }) => {
-      const { searchLocationReferenceImage } = await import("../location-image-search");
-      // Use venueKey as the search query for stable cache keys across calls
-      const searchQuery = input.venueKey !== "custom" ? input.displayName : input.displayName;
-      const result = await searchLocationReferenceImage(searchQuery);
+      const { searchLocationReferenceImage, searchLocationReferenceImageRaw } = await import("../location-image-search");
+      // Prefer the curated searchQuery from the client; fall back to displayName for legacy callers
+      const query = (input.searchQuery ?? input.displayName ?? input.venueKey).trim();
+      if (!query || query.length < 3) return { thumbnailUrl: null, source: null };
+      // Use raw search (no cleaning) when a curated searchQuery is provided by the client
+      const result = input.searchQuery
+        ? await searchLocationReferenceImageRaw(query)
+        : await searchLocationReferenceImage(query);
       return {
         thumbnailUrl: result?.url ?? null,
         source: result?.source ?? null,

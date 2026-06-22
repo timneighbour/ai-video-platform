@@ -290,6 +290,29 @@ async function searchWikimediaCommons(query: string): Promise<LocationImageResul
  * with Wikimedia Commons as a fallback.
  * Returns null if no suitable image is found — generation continues without it.
  */
+/**
+ * Same as searchLocationReferenceImage but uses the query verbatim — no cleaning.
+ * Use this when the caller already provides a curated, precise search query
+ * (e.g. from the venue picker's thumbnailSearchQuery field).
+ */
+export async function searchLocationReferenceImageRaw(
+  rawQuery: string
+): Promise<LocationImageResult | null> {
+  if (!rawQuery || rawQuery.trim().length < 3) return null;
+  const query = rawQuery.trim().slice(0, 200);
+  const cacheKey = toCacheKey(query);
+  console.log(`[WizVision] Searching for venue reference (raw query): "${query}"`);
+  const cached = await getCachedResult(cacheKey);
+  if (cached) return cached;
+  const serpResult = await searchSerpApiImages(query);
+  if (serpResult) { await setCachedResult(cacheKey, serpResult); return serpResult; }
+  console.log(`[WizVision] SerpAPI returned no results for "${query}" — trying Wikimedia fallback`);
+  const wikimediaResult = await searchWikimediaCommons(query);
+  if (wikimediaResult) { await setCachedResult(cacheKey, wikimediaResult); return wikimediaResult; }
+  console.log(`[WizVision] No reference image found for: "${query}" — continuing without`);
+  return null;
+}
+
 export async function searchLocationReferenceImage(
   sceneSetting: string
 ): Promise<LocationImageResult | null> {

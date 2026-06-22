@@ -8,63 +8,373 @@ interface VenueOption {
   category: string;
   emoji: string;
   shortDescription: string;
+  /** Curated SerpAPI search query — returns accurate interior/exterior photos */
+  thumbnailSearchQuery: string;
 }
 
 // Mirror of the server-side venue library (display data only — no DNA)
 const VENUE_OPTIONS: VenueOption[] = [
   // Recording Studios
-  { key: "air_studios_lyndhurst", displayName: "Air Studios, Lyndhurst Hall", category: "Recording Studio", emoji: "🎼", shortDescription: "London · Grand orchestral hall with iconic blue ceiling" },
-  { key: "abbey_road_studio_one", displayName: "Abbey Road, Studio One", category: "Recording Studio", emoji: "🎵", shortDescription: "London · Legendary orchestral studio with parquet floors" },
-  { key: "abbey_road_studio_two", displayName: "Abbey Road, Studio Two", category: "Recording Studio", emoji: "🎸", shortDescription: "London · Iconic live room where The Beatles recorded" },
-  { key: "air_studios_montserrat", displayName: "Air Studios, Montserrat", category: "Recording Studio", emoji: "🌴", shortDescription: "Caribbean · Tropical hilltop studio with panoramic views" },
-  { key: "electric_lady_studios", displayName: "Electric Lady Studios", category: "Recording Studio", emoji: "⚡", shortDescription: "New York · Hendrix's psychedelic underground studio" },
-  { key: "capitol_studios_la", displayName: "Capitol Studios", category: "Recording Studio", emoji: "🎺", shortDescription: "Los Angeles · Inside the iconic Capitol Records Tower" },
-  { key: "sunset_sound_la", displayName: "Sunset Sound", category: "Recording Studio", emoji: "🌅", shortDescription: "Los Angeles · Where The Doors, Prince & Led Zeppelin recorded" },
-  { key: "blackbird_studio_nashville", displayName: "Blackbird Studio", category: "Recording Studio", emoji: "🐦", shortDescription: "Nashville · World's most extensive vintage gear collection" },
-  { key: "real_world_studios_bath", displayName: "Real World Studios", category: "Recording Studio", emoji: "🌍", shortDescription: "Bath, UK · Peter Gabriel's studio with millpond views" },
+  {
+    key: "air_studios_lyndhurst",
+    displayName: "Air Studios, Lyndhurst Hall",
+    category: "Recording Studio",
+    emoji: "🎼",
+    shortDescription: "London · Grand orchestral hall with iconic blue ceiling",
+    thumbnailSearchQuery: "Air Studios Lyndhurst Hall London recording studio interior blue ceiling orchestra",
+  },
+  {
+    key: "abbey_road_studio_one",
+    displayName: "Abbey Road, Studio One",
+    category: "Recording Studio",
+    emoji: "🎵",
+    shortDescription: "London · Legendary orchestral studio with parquet floors",
+    thumbnailSearchQuery: "Abbey Road Studios Studio One interior orchestral hall London parquet floor",
+  },
+  {
+    key: "abbey_road_studio_two",
+    displayName: "Abbey Road, Studio Two",
+    category: "Recording Studio",
+    emoji: "🎸",
+    shortDescription: "London · Iconic live room where The Beatles recorded",
+    thumbnailSearchQuery: "Abbey Road Studio Two interior live room Beatles recording London",
+  },
+  {
+    key: "air_studios_montserrat",
+    displayName: "Air Studios, Montserrat",
+    category: "Recording Studio",
+    emoji: "🌴",
+    shortDescription: "Caribbean · Tropical hilltop studio ruins",
+    thumbnailSearchQuery: "Air Studios Montserrat Caribbean ruins hilltop tropical recording studio",
+  },
+  {
+    key: "electric_lady_studios",
+    displayName: "Electric Lady Studios",
+    category: "Recording Studio",
+    emoji: "⚡",
+    shortDescription: "New York · Hendrix's psychedelic underground studio",
+    thumbnailSearchQuery: "Electric Lady Studios Greenwich Village New York interior recording room psychedelic mural",
+  },
+  {
+    key: "capitol_studios_la",
+    displayName: "Capitol Studios",
+    category: "Recording Studio",
+    emoji: "🎺",
+    shortDescription: "Los Angeles · Inside the iconic Capitol Records Tower",
+    thumbnailSearchQuery: "Capitol Studios Los Angeles interior recording room circular Capitol Records Tower Hollywood",
+  },
+  {
+    key: "sunset_sound_la",
+    displayName: "Sunset Sound",
+    category: "Recording Studio",
+    emoji: "🌅",
+    shortDescription: "Los Angeles · Where The Doors, Prince & Led Zeppelin recorded",
+    thumbnailSearchQuery: "Sunset Sound Recorders West Hollywood Los Angeles recording studio interior control room",
+  },
+  {
+    key: "blackbird_studio_nashville",
+    displayName: "Blackbird Studio",
+    category: "Recording Studio",
+    emoji: "🐦",
+    shortDescription: "Nashville · World's most extensive vintage gear collection",
+    thumbnailSearchQuery: "Blackbird Studio Nashville Tennessee recording studio interior vintage microphones gear",
+  },
+  {
+    key: "real_world_studios_bath",
+    displayName: "Real World Studios",
+    category: "Recording Studio",
+    emoji: "🌍",
+    shortDescription: "Bath, UK · Peter Gabriel's studio with millpond views",
+    thumbnailSearchQuery: "Real World Studios Box Bath Peter Gabriel Big Room interior glass millpond watermill",
+  },
   // Concert Halls
-  { key: "royal_albert_hall", displayName: "Royal Albert Hall", category: "Concert Hall", emoji: "🏛️", shortDescription: "London · Victorian rotunda with crimson tiered seating" },
-  { key: "carnegie_hall", displayName: "Carnegie Hall", category: "Concert Hall", emoji: "🎻", shortDescription: "New York · Gilded Beaux-Arts hall with warm amber tones" },
-  { key: "sydney_opera_house", displayName: "Sydney Opera House", category: "Concert Hall", emoji: "🦪", shortDescription: "Sydney · Sail-shaped shells with harbour light" },
-  { key: "walt_disney_concert_hall", displayName: "Walt Disney Concert Hall", category: "Concert Hall", emoji: "🏗️", shortDescription: "Los Angeles · Frank Gehry's curved blonde wood masterpiece" },
-  { key: "radio_city_music_hall", displayName: "Radio City Music Hall", category: "Concert Hall", emoji: "🎠", shortDescription: "New York · Art Deco sunrise ceiling, gold and burgundy" },
+  {
+    key: "royal_albert_hall",
+    displayName: "Royal Albert Hall",
+    category: "Concert Hall",
+    emoji: "🏛️",
+    shortDescription: "London · Victorian rotunda with crimson tiered seating",
+    thumbnailSearchQuery: "Royal Albert Hall London interior auditorium stage red seats Victorian rotunda",
+  },
+  {
+    key: "carnegie_hall",
+    displayName: "Carnegie Hall",
+    category: "Concert Hall",
+    emoji: "🎻",
+    shortDescription: "New York · Gilded Beaux-Arts hall with warm amber tones",
+    thumbnailSearchQuery: "Carnegie Hall Stern Auditorium interior stage New York Beaux-Arts gilded",
+  },
+  {
+    key: "sydney_opera_house",
+    displayName: "Sydney Opera House",
+    category: "Concert Hall",
+    emoji: "🦪",
+    shortDescription: "Sydney · Sail-shaped shells with harbour light",
+    thumbnailSearchQuery: "Sydney Opera House Concert Hall interior stage auditorium wood panels",
+  },
+  {
+    key: "walt_disney_concert_hall",
+    displayName: "Walt Disney Concert Hall",
+    category: "Concert Hall",
+    emoji: "🏗️",
+    shortDescription: "Los Angeles · Frank Gehry's curved blonde wood masterpiece",
+    thumbnailSearchQuery: "Walt Disney Concert Hall Los Angeles interior auditorium curved wood pipe organ",
+  },
+  {
+    key: "radio_city_music_hall",
+    displayName: "Radio City Music Hall",
+    category: "Concert Hall",
+    emoji: "🎠",
+    shortDescription: "New York · Art Deco sunrise ceiling, gold and burgundy",
+    thumbnailSearchQuery: "Radio City Music Hall interior Art Deco auditorium stage gold burgundy New York",
+  },
   // Arenas
-  { key: "msg_sphere_las_vegas", displayName: "MSG Sphere", category: "Arena", emoji: "🌐", shortDescription: "Las Vegas · World's largest wraparound LED dome, 17,500 seats" },
-  { key: "o2_arena_london", displayName: "The O2 Arena", category: "Arena", emoji: "🎪", shortDescription: "London · Massive dome with dramatic stage lighting rigs" },
-  { key: "madison_square_garden", displayName: "Madison Square Garden", category: "Arena", emoji: "🏟️", shortDescription: "New York · The World's Most Famous Arena" },
-  { key: "wembley_arena", displayName: "OVO Arena Wembley", category: "Arena", emoji: "⭐", shortDescription: "London · Iconic curved roof with blue-white spotlights" },
+  {
+    key: "msg_sphere_las_vegas",
+    displayName: "MSG Sphere",
+    category: "Arena",
+    emoji: "🌐",
+    shortDescription: "Las Vegas · World's largest wraparound LED dome, 17,500 seats",
+    thumbnailSearchQuery: "MSG Sphere Las Vegas interior wraparound LED screen concert stage audience",
+  },
+  {
+    key: "o2_arena_london",
+    displayName: "The O2 Arena",
+    category: "Arena",
+    emoji: "🎪",
+    shortDescription: "London · Massive dome with dramatic stage lighting rigs",
+    thumbnailSearchQuery: "O2 Arena London interior concert stage crowd lighting rig",
+  },
+  {
+    key: "madison_square_garden",
+    displayName: "Madison Square Garden",
+    category: "Arena",
+    emoji: "🏟️",
+    shortDescription: "New York · The World's Most Famous Arena",
+    thumbnailSearchQuery: "Madison Square Garden interior arena concert stage crowd New York",
+  },
+  {
+    key: "wembley_arena",
+    displayName: "OVO Arena Wembley",
+    category: "Arena",
+    emoji: "⭐",
+    shortDescription: "London · Iconic curved roof with blue-white spotlights",
+    thumbnailSearchQuery: "OVO Arena Wembley interior concert stage crowd London curved roof",
+  },
   // Stadiums
-  { key: "sofi_stadium", displayName: "SoFi Stadium", category: "Stadium", emoji: "🌟", shortDescription: "Los Angeles · Futuristic translucent canopy, 70,000 seats" },
-  { key: "wembley_stadium", displayName: "Wembley Stadium", category: "Stadium", emoji: "🏟️", shortDescription: "London · Iconic arch over a sea of 90,000 fans" },
-  { key: "estadio_maracana", displayName: "Estádio do Maracanã", category: "Stadium", emoji: "🇧🇷", shortDescription: "Rio de Janeiro · Sugarloaf Mountain backdrop, 78,000 fans" },
-  { key: "metlife_stadium", displayName: "MetLife Stadium", category: "Stadium", emoji: "🗽", shortDescription: "New Jersey · NYC skyline, Empire State Building backdrop" },
-  { key: "tokyo_dome", displayName: "Tokyo Dome", category: "Stadium", emoji: "🏯", shortDescription: "Tokyo · White inflatable dome, 55,000 passionate fans" },
-  { key: "stade_de_france", displayName: "Stade de France", category: "Stadium", emoji: "🇫🇷", shortDescription: "Paris · Eiffel Tower backdrop, 81,000 capacity" },
-  { key: "camp_nou", displayName: "Camp Nou", category: "Stadium", emoji: "🔵", shortDescription: "Barcelona · Europe's largest stadium, Sagrada Família horizon" },
-  { key: "rose_bowl", displayName: "Rose Bowl", category: "Stadium", emoji: "🌹", shortDescription: "Pasadena · San Gabriel Mountains, golden California light" },
+  {
+    key: "sofi_stadium",
+    displayName: "SoFi Stadium",
+    category: "Stadium",
+    emoji: "🌟",
+    shortDescription: "Los Angeles · Futuristic translucent canopy, 70,000 seats",
+    thumbnailSearchQuery: "SoFi Stadium Los Angeles interior concert aerial view translucent canopy",
+  },
+  {
+    key: "wembley_stadium",
+    displayName: "Wembley Stadium",
+    category: "Stadium",
+    emoji: "🏟️",
+    shortDescription: "London · Iconic arch over a sea of 90,000 fans",
+    thumbnailSearchQuery: "Wembley Stadium interior concert crowd arch London night",
+  },
+  {
+    key: "estadio_maracana",
+    displayName: "Estádio do Maracanã",
+    category: "Stadium",
+    emoji: "🇧🇷",
+    shortDescription: "Rio de Janeiro · Sugarloaf Mountain backdrop, 78,000 fans",
+    thumbnailSearchQuery: "Maracanã Stadium Rio de Janeiro interior concert crowd aerial",
+  },
+  {
+    key: "metlife_stadium",
+    displayName: "MetLife Stadium",
+    category: "Stadium",
+    emoji: "🗽",
+    shortDescription: "New Jersey · NYC skyline, Empire State Building backdrop",
+    thumbnailSearchQuery: "MetLife Stadium New Jersey interior concert night NYC skyline",
+  },
+  {
+    key: "tokyo_dome",
+    displayName: "Tokyo Dome",
+    category: "Stadium",
+    emoji: "🏯",
+    shortDescription: "Tokyo · White inflatable dome, 55,000 passionate fans",
+    thumbnailSearchQuery: "Tokyo Dome interior concert stage crowd Japan inflatable roof",
+  },
+  {
+    key: "stade_de_france",
+    displayName: "Stade de France",
+    category: "Stadium",
+    emoji: "🇫🇷",
+    shortDescription: "Paris · Eiffel Tower backdrop, 81,000 capacity",
+    thumbnailSearchQuery: "Stade de France interior concert crowd Paris aerial view",
+  },
+  {
+    key: "camp_nou",
+    displayName: "Camp Nou",
+    category: "Stadium",
+    emoji: "🔵",
+    shortDescription: "Barcelona · Europe's largest stadium, Sagrada Família horizon",
+    thumbnailSearchQuery: "Camp Nou Barcelona interior concert crowd stadium aerial",
+  },
+  {
+    key: "rose_bowl",
+    displayName: "Rose Bowl",
+    category: "Stadium",
+    emoji: "🌹",
+    shortDescription: "Pasadena · San Gabriel Mountains, golden California light",
+    thumbnailSearchQuery: "Rose Bowl stadium Pasadena interior concert crowd San Gabriel Mountains",
+  },
   // Outdoor
-  { key: "glastonbury_pyramid", displayName: "Glastonbury Pyramid Stage", category: "Outdoor", emoji: "🌿", shortDescription: "Somerset · Golden pyramid at dusk, festival crowd" },
-  { key: "coachella_main_stage", displayName: "Coachella Main Stage", category: "Outdoor", emoji: "🌵", shortDescription: "Indio · Desert night sky, neon-lit stage canopy" },
-  { key: "red_rocks_amphitheatre", displayName: "Red Rocks Amphitheatre", category: "Outdoor", emoji: "🪨", shortDescription: "Colorado · Natural red sandstone rock formations, open sky" },
+  {
+    key: "glastonbury_pyramid",
+    displayName: "Glastonbury Pyramid Stage",
+    category: "Outdoor",
+    emoji: "🌿",
+    shortDescription: "Somerset · Golden pyramid at dusk, festival crowd",
+    thumbnailSearchQuery: "Glastonbury Festival Pyramid Stage crowd sunset Somerset golden hour",
+  },
+  {
+    key: "coachella_main_stage",
+    displayName: "Coachella Main Stage",
+    category: "Outdoor",
+    emoji: "🌵",
+    shortDescription: "Indio · Desert night sky, neon-lit stage canopy",
+    thumbnailSearchQuery: "Coachella festival main stage night desert crowd California neon lights",
+  },
+  {
+    key: "red_rocks_amphitheatre",
+    displayName: "Red Rocks Amphitheatre",
+    category: "Outdoor",
+    emoji: "🪨",
+    shortDescription: "Colorado · Natural red sandstone rock formations, open sky",
+    thumbnailSearchQuery: "Red Rocks Amphitheatre Colorado concert stage sandstone rock formations crowd",
+  },
   // TV Studios
-  { key: "bbc_television_centre", displayName: "BBC Television Centre", category: "TV Studio", emoji: "📺", shortDescription: "London · Legendary Top of the Pops broadcast studio" },
-  { key: "pinewood_studios", displayName: "Pinewood Studios", category: "TV Studio", emoji: "🎬", shortDescription: "Buckinghamshire · Europe's largest film & TV sound stages" },
-  { key: "nbc_studios_30_rock", displayName: "NBC Studios / 30 Rock", category: "TV Studio", emoji: "🗽", shortDescription: "New York · Art Deco Rockefeller Center, home of SNL" },
-  { key: "ed_sullivan_theater", displayName: "Ed Sullivan Theater", category: "TV Studio", emoji: "🎙️", shortDescription: "New York · Where The Beatles made their US TV debut" },
+  {
+    key: "bbc_television_centre",
+    displayName: "BBC Television Centre",
+    category: "TV Studio",
+    emoji: "📺",
+    shortDescription: "London · Legendary Top of the Pops broadcast studio",
+    thumbnailSearchQuery: "BBC Television Centre London studio interior broadcast stage Top of the Pops",
+  },
+  {
+    key: "pinewood_studios",
+    displayName: "Pinewood Studios",
+    category: "TV Studio",
+    emoji: "🎬",
+    shortDescription: "Buckinghamshire · Europe's largest film & TV sound stages",
+    thumbnailSearchQuery: "Pinewood Studios sound stage interior Buckinghamshire film production set",
+  },
+  {
+    key: "nbc_studios_30_rock",
+    displayName: "NBC Studios / 30 Rock",
+    category: "TV Studio",
+    emoji: "🗽",
+    shortDescription: "New York · Art Deco Rockefeller Center, home of SNL",
+    thumbnailSearchQuery: "NBC Studios 30 Rockefeller Plaza New York SNL Saturday Night Live studio interior",
+  },
+  {
+    key: "ed_sullivan_theater",
+    displayName: "Ed Sullivan Theater",
+    category: "TV Studio",
+    emoji: "🎙️",
+    shortDescription: "New York · Where The Beatles made their US TV debut",
+    thumbnailSearchQuery: "Ed Sullivan Theater interior stage Late Show New York auditorium",
+  },
   // Filming Locations
-  { key: "county_down_northern_ireland", displayName: "County Down, Northern Ireland", category: "Filming Location", emoji: "🌾", shortDescription: "Rihanna's 'We Found Love' · Rolling green Irish countryside" },
-  { key: "hoxton_street_london", displayName: "Hoxton Street, London", category: "Filming Location", emoji: "🚶", shortDescription: "The Verve's 'Bittersweet Symphony' · East London street" },
-  { key: "mojave_desert_california", displayName: "Mojave Desert, California", category: "Filming Location", emoji: "🌵", shortDescription: "U2 & Lana Del Rey · Joshua trees, vast desert landscape" },
-  { key: "seljalandsfoss_iceland", displayName: "Seljalandsfoss Waterfall, Iceland", category: "Filming Location", emoji: "💧", shortDescription: "Justin Bieber's 'I'll Show You' · Dramatic 60m waterfall" },
-  { key: "griffith_park_los_angeles", displayName: "Griffith Park, Los Angeles", category: "Filming Location", emoji: "🎃", shortDescription: "Michael Jackson's 'Thriller' · Griffith Observatory backdrop" },
-  { key: "universal_studios_backlot", displayName: "Universal Studios Backlot", category: "Filming Location", emoji: "🎥", shortDescription: "Florida · Professional film backlot, Creed's 'My Sacrifice'" },
+  {
+    key: "county_down_northern_ireland",
+    displayName: "County Down, Northern Ireland",
+    category: "Filming Location",
+    emoji: "🌾",
+    shortDescription: "Rihanna's 'We Found Love' · Rolling green Irish countryside",
+    thumbnailSearchQuery: "County Down Northern Ireland rolling green hills countryside landscape rural",
+  },
+  {
+    key: "hoxton_street_london",
+    displayName: "Hoxton Street, London",
+    category: "Filming Location",
+    emoji: "🚶",
+    shortDescription: "The Verve's 'Bittersweet Symphony' · East London street",
+    thumbnailSearchQuery: "Hoxton Street East London pedestrians urban street Shoreditch",
+  },
+  {
+    key: "mojave_desert_california",
+    displayName: "Mojave Desert, California",
+    category: "Filming Location",
+    emoji: "🌵",
+    shortDescription: "U2 & Lana Del Rey · Joshua trees, vast desert landscape",
+    thumbnailSearchQuery: "Mojave Desert Joshua Tree California landscape sunset dramatic",
+  },
+  {
+    key: "seljalandsfoss_iceland",
+    displayName: "Seljalandsfoss Waterfall, Iceland",
+    category: "Filming Location",
+    emoji: "💧",
+    shortDescription: "Justin Bieber's 'I'll Show You' · Dramatic 60m waterfall",
+    thumbnailSearchQuery: "Seljalandsfoss waterfall Iceland dramatic landscape green moss cliff",
+  },
+  {
+    key: "griffith_park_los_angeles",
+    displayName: "Griffith Park, Los Angeles",
+    category: "Filming Location",
+    emoji: "🎃",
+    shortDescription: "Michael Jackson's 'Thriller' · Griffith Observatory backdrop",
+    thumbnailSearchQuery: "Griffith Observatory Los Angeles night city lights Hollywood Hills park",
+  },
+  {
+    key: "universal_studios_backlot",
+    displayName: "Universal Studios Backlot",
+    category: "Filming Location",
+    emoji: "🎥",
+    shortDescription: "Florida · Professional film backlot, Creed's 'My Sacrifice'",
+    thumbnailSearchQuery: "Universal Studios Hollywood backlot film set street facades production",
+  },
   // Theatres
-  { key: "palais_garnier", displayName: "Palais Garnier Opera House", category: "Theatre", emoji: "🎭", shortDescription: "Paris · Gilded baroque interior with Chagall ceiling" },
-  { key: "london_palladium", displayName: "London Palladium", category: "Theatre", emoji: "🎩", shortDescription: "London · Art Deco grandeur with gold proscenium arch" },
-  { key: "apollo_theater_harlem", displayName: "Apollo Theater", category: "Theatre", emoji: "🎤", shortDescription: "Harlem, NYC · Art Deco soul/R&B/jazz institution" },
+  {
+    key: "palais_garnier",
+    displayName: "Palais Garnier Opera House",
+    category: "Theatre",
+    emoji: "🎭",
+    shortDescription: "Paris · Gilded baroque interior with Chagall ceiling",
+    thumbnailSearchQuery: "Palais Garnier Paris interior auditorium gilded baroque Chagall ceiling chandelier",
+  },
+  {
+    key: "london_palladium",
+    displayName: "London Palladium",
+    category: "Theatre",
+    emoji: "🎩",
+    shortDescription: "London · Art Deco grandeur with gold proscenium arch",
+    thumbnailSearchQuery: "London Palladium interior auditorium stage red velvet gold proscenium arch",
+  },
+  {
+    key: "apollo_theater_harlem",
+    displayName: "Apollo Theater",
+    category: "Theatre",
+    emoji: "🎤",
+    shortDescription: "Harlem, NYC · Art Deco soul/R&B/jazz institution",
+    thumbnailSearchQuery: "Apollo Theater Harlem New York interior stage auditorium Art Deco",
+  },
   // Clubs
-  { key: "ronnie_scotts", displayName: "Ronnie Scott's Jazz Club", category: "Club", emoji: "🎷", shortDescription: "London · Intimate jazz club with red velvet and dim spotlights" },
-  { key: "fabric_london", displayName: "Fabric London", category: "Club", emoji: "🔊", shortDescription: "London · Industrial warehouse with pulsing UV lights" },
+  {
+    key: "ronnie_scotts",
+    displayName: "Ronnie Scott's Jazz Club",
+    category: "Club",
+    emoji: "🎷",
+    shortDescription: "London · Intimate jazz club with red velvet and dim spotlights",
+    thumbnailSearchQuery: "Ronnie Scott's Jazz Club London interior stage red velvet dim lighting",
+  },
+  {
+    key: "fabric_london",
+    displayName: "Fabric London",
+    category: "Club",
+    emoji: "🔊",
+    shortDescription: "London · Industrial warehouse with pulsing UV lights",
+    thumbnailSearchQuery: "Fabric nightclub London interior warehouse dancefloor UV lights industrial",
+  },
 ];
 
 export const VENUE_OPTIONS_PUBLIC = VENUE_OPTIONS;
@@ -116,10 +426,10 @@ function VenueCard({
   }, []);
 
   const { data: thumbData, isLoading: thumbLoading } = trpc.musicVideo.getVenueThumbnail.useQuery(
-    { venueKey: venue.key, displayName: venue.displayName },
+    { venueKey: venue.key, searchQuery: venue.thumbnailSearchQuery },
     {
       enabled: shouldFetch,
-      staleTime: 1000 * 60 * 60 * 24, // 24h — thumbnails are stable
+      staleTime: 1000 * 60 * 60 * 24 * 7, // 7 days — thumbnails are stable
       retry: 1,
     }
   );
@@ -177,11 +487,15 @@ function VenueCard({
   );
 }
 
-/** Full-size banner image for the selected venue — fetches via the same tRPC query */
+/** Full-size banner image for the selected venue */
 export function VenueBannerImage({ venueKey, displayName }: { venueKey: string; displayName: string }) {
+  // Look up the curated search query for this venue key
+  const venue = VENUE_OPTIONS.find(v => v.key === venueKey);
+  const searchQuery = venue?.thumbnailSearchQuery ?? displayName;
+
   const { data, isLoading } = trpc.musicVideo.getVenueThumbnail.useQuery(
-    { venueKey, displayName },
-    { staleTime: 1000 * 60 * 60 * 24, retry: 1 }
+    { venueKey, searchQuery },
+    { staleTime: 1000 * 60 * 60 * 24 * 7, retry: 1 }
   );
 
   const imageUrl = data?.thumbnailUrl ?? null;
@@ -213,12 +527,6 @@ export function VenueBannerImage({ venueKey, displayName }: { venueKey: string; 
       {/* Cinematic gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
-      {/* Source badge */}
-      {data?.source && (
-        <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/60 text-[9px] text-white/30 font-mono tracking-wider">
-          via Google Images
-        </div>
-      )}
     </div>
   );
 }
