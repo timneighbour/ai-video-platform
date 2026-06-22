@@ -1086,7 +1086,16 @@ Rules:
       const dbScenes = await db.select().from(musicVideoScenes)
         .where(eq(musicVideoScenes.jobId, input.jobId));
       dbScenes.sort((a, b) => a.sceneIndex - b.sceneIndex);
-      return { scenes: dbScenes };
+      // Parse characterAssignments JSON strings → arrays so the frontend never calls .map() on a string
+      const parsedDbScenes = dbScenes.map((s) => ({
+        ...s,
+        characterAssignments: (() => {
+          if (!s.characterAssignments) return null;
+          if (Array.isArray(s.characterAssignments)) return s.characterAssignments as string[];
+          try { const v = JSON.parse(s.characterAssignments as string); return Array.isArray(v) ? (v as string[]) : null; } catch { return null; }
+        })(),
+      }));
+      return { scenes: parsedDbScenes };
     } catch (err: any) {
       // Convert any unhandled error (including 503 JSON parse crashes) into a clean user-facing message
       if (err instanceof TRPCError) throw err;
@@ -2127,7 +2136,22 @@ Rules:
 
       scenes.sort((a, b) => a.sceneIndex - b.sceneIndex);
 
-      return { job, scenes };
+      // Parse JSON string columns so the client always receives typed arrays, never raw strings.
+      // This prevents "(intermediate value).map is not a function" crashes in the storyboard UI
+      // when characterAssignments is stored as a JSON string like '["Zara"]' instead of an array.
+      const parsedScenes = scenes.map((s) => ({
+        ...s,
+        characterAssignments: (() => {
+          if (!s.characterAssignments) return null;
+          if (Array.isArray(s.characterAssignments)) return s.characterAssignments as string[];
+          try {
+            const v = JSON.parse(s.characterAssignments as string);
+            return Array.isArray(v) ? (v as string[]) : null;
+          } catch { return null; }
+        })(),
+      }));
+
+      return { job, scenes: parsedScenes };
     }),
 
   // Generate a preview image for a single scene (called per-scene after storyboard loads)

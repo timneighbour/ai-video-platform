@@ -2634,7 +2634,7 @@ export default function MusicVideoAutopilot() {
   const handleToggleSceneCharacter = async (sceneId: number, characterName: string) => {
     const scene = scenes.find(s => s.id === sceneId);
     if (!scene) return;
-    const current = scene.characterAssignments ?? [];
+    const current = Array.isArray(scene.characterAssignments) ? scene.characterAssignments : [];
     const updated = current.includes(characterName)
       ? current.filter(n => n !== characterName)
       : [...current, characterName];
@@ -5801,7 +5801,7 @@ export default function MusicVideoAutopilot() {
                       <div className="mt-2 pt-2 border-t border-[rgba(184,137,42,0.10)]/60">
                         <div className="flex flex-wrap items-center gap-1.5">
                           {/* Assigned character tags */}
-                          {(scene.characterAssignments ?? []).map((name) => {
+                          {(Array.isArray(scene.characterAssignments) ? scene.characterAssignments : []).map((name) => {
                             const charData = jobCharacters.find((c: any) => c.name === name);
                             const isCharLocked = charData?.isLocked;
                             const charAvatarUrl = charData?.primaryPhotoUrl ?? (charData as any)?.aiGeneratedImageUrl ?? null;
@@ -5848,13 +5848,13 @@ export default function MusicVideoAutopilot() {
                               className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(24,20,16,0.9)] text-white/40 border border-[rgba(184,137,42,0.12)] hover:border-zinc-500 hover:text-white/70 transition-colors"
                             >
                               <User className="w-2.5 h-2.5" />
-                              {(scene.characterAssignments ?? []).length === 0 ? "Add character" : "+"}
+                              {(Array.isArray(scene.characterAssignments) ? scene.characterAssignments : []).length === 0 ? "Add character" : "+"}
                             </button>
                             {/* Dropdown */}
                             {characterSelectorSceneId === scene.id && (
                               <div className="absolute left-0 top-7 z-50 bg-[rgba(10,8,6,0.95)] border border-[rgba(184,137,42,0.12)] rounded-lg shadow-xl min-w-[160px] py-1">
                                 {jobCharacters.map((char: any) => {
-                                  const isAssigned = (scene.characterAssignments ?? []).includes(char.name);
+                                  const isAssigned = (Array.isArray(scene.characterAssignments) ? scene.characterAssignments : []).includes(char.name);
                                   return (
                                     <button
                                       key={char.id}
