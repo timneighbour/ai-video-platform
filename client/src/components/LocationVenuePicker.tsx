@@ -173,6 +173,51 @@ function VenueCard({
   );
 }
 
+/** Full-size banner image for the selected venue — fetches via the same tRPC query */
+function VenueBannerImage({ venueKey, displayName }: { venueKey: string; displayName: string }) {
+  const { data, isLoading } = trpc.musicVideo.getVenueThumbnail.useQuery(
+    { venueKey, displayName },
+    { staleTime: 1000 * 60 * 60 * 24, retry: 1 }
+  );
+
+  const imageUrl = data?.thumbnailUrl ?? null;
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-40 flex items-center justify-center bg-white/5 animate-pulse">
+        <Loader2 className="w-5 h-5 text-amber-400/40 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!imageUrl) {
+    return (
+      <div className="w-full h-32 flex items-center justify-center bg-white/5 text-white/20 text-xs">
+        No reference image available
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full h-44 relative overflow-hidden">
+      <img
+        src={imageUrl}
+        alt={displayName}
+        className="w-full h-full object-cover"
+        onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = "none"; }}
+      />
+      {/* Gradient overlay so text below reads cleanly */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      {/* Source badge */}
+      {data?.source && (
+        <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/50 text-[9px] text-white/40">
+          via Google Images
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface Props {
   onSelect: (venueKey: string, customDNA?: string) => void;
   isPending?: boolean;
@@ -260,6 +305,26 @@ export function LocationVenuePicker({ onSelect, isPending, initialCustomDNA }: P
           ))}
         </div>
       )}
+
+      {/* Selected venue preview banner */}
+      {selectedKey && !isCustomTab && (() => {
+        const selected = VENUE_OPTIONS.find(v => v.key === selectedKey);
+        if (!selected) return null;
+        return (
+          <div className="mt-3 rounded-xl overflow-hidden border border-amber-500/30 bg-amber-900/10">
+            {/* Full-size reference image */}
+            <VenueBannerImage venueKey={selected.key} displayName={selected.displayName} />
+            {/* Description */}
+            <div className="px-3 py-2.5">
+              <p className="text-xs font-semibold text-amber-200 leading-tight">{selected.displayName}</p>
+              <p className="text-[10px] text-white/50 mt-0.5 leading-relaxed">{selected.shortDescription}</p>
+              <p className="text-[10px] text-amber-400/70 mt-1.5 leading-relaxed">
+                ✦ WizCreate™ will anchor every scene to this exact location — architecture, lighting, and atmosphere will be consistent throughout your storyboard.
+              </p>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Confirm button */}
       {canConfirm && (
