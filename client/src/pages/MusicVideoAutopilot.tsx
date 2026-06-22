@@ -2834,7 +2834,19 @@ export default function MusicVideoAutopilot() {
             setFailedScenes(progress.failedScenes);
             setRenderStatus(progress.status);
             // Update probe gate state from server
-            if ((progress as any).probeState) setProbeState((progress as any).probeState as "not_started" | "rendering" | "awaiting_approval" | "approved");
+            if ((progress as any).probeState) {
+              const newProbeState = (progress as any).probeState as "not_started" | "rendering" | "awaiting_approval" | "approved";
+              setProbeState((prev) => {
+                // Fire a toast notification when the test render completes and is ready for review
+                if (prev === "rendering" && newProbeState === "awaiting_approval") {
+                  toast.success("\uD83C\uDFAC Test render complete!", {
+                    description: "Your test scene is ready. Scroll up to review it and decide whether to start the full render.",
+                    duration: 8000,
+                  });
+                }
+                return newProbeState;
+              });
+            }
             if ((progress as any).probeVideoUrl) setProbeVideoUrl((progress as any).probeVideoUrl as string);
             if ((progress as any).probeSceneId != null) setProbeSceneId((progress as any).probeSceneId as number);
             // Seed the elapsed timer from the server timestamp if we don't have a local start time
@@ -5427,6 +5439,76 @@ export default function MusicVideoAutopilot() {
               )}
             </div>
 
+            {/* ── PROBE RENDER STATUS BANNER — visible on storyboard step while test render is in progress ── */}
+            {(probeState === "rendering" || probeState === "awaiting_approval" || probeState === "approved") && (
+              <div className={`mb-5 rounded-2xl border p-5 ${
+                probeState === "awaiting_approval"
+                  ? "border-amber-500/40 bg-gradient-to-br from-[rgba(20,16,8,0.98)] to-[rgba(30,22,8,0.98)]"
+                  : probeState === "approved"
+                  ? "border-emerald-500/40 bg-gradient-to-br from-[rgba(8,20,12,0.98)] to-[rgba(8,30,16,0.98)]"
+                  : "border-purple-500/30 bg-gradient-to-br from-[rgba(14,10,20,0.98)] to-[rgba(20,14,30,0.98)]"
+              }`}>
+                <div className="flex items-center gap-2 mb-3">
+                  {probeState === "rendering" && <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />}
+                  {probeState === "awaiting_approval" && <AlertCircle className="w-4 h-4 text-amber-400" />}
+                  {probeState === "approved" && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                  <p className="text-sm font-semibold text-white">
+                    {probeState === "rendering" && "Test Render in Progress\u2026"}
+                    {probeState === "awaiting_approval" && "Test Render Ready \u2014 Review Before Full Render"}
+                    {probeState === "approved" && "Test Render Approved \u2014 Full Render Underway"}
+                  </p>
+                  <span className={`ml-auto text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${
+                    probeState === "rendering" ? "bg-purple-500/20 text-purple-400 border border-purple-500/30" :
+                    probeState === "awaiting_approval" ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" :
+                    "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                  }`}>
+                    {probeState === "rendering" ? "Rendering" : probeState === "awaiting_approval" ? "Awaiting Review" : "Approved"}
+                  </span>
+                </div>
+                {probeState === "rendering" && (
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                    <Loader2 className="w-5 h-5 text-purple-400 animate-spin flex-shrink-0" />
+                    <div>
+                      <p className="text-sm text-white/80 font-medium">Your test render is generating</p>
+                      <p className="text-xs text-white/40 mt-0.5">One scene is being rendered so you can check quality before committing to the full render. This typically takes 2\u20134 minutes. You can keep reviewing your storyboard while you wait.</p>
+                    </div>
+                  </div>
+                )}
+                {probeState === "awaiting_approval" && probeVideoUrl && (
+                  <div className="rounded-xl overflow-hidden border border-amber-500/20">
+                    <video src={probeVideoUrl} controls className="w-full max-h-64 object-contain bg-black" />
+                    <div className="flex gap-2 p-3 bg-black/40">
+                      <button
+                        onClick={() => approveProbe.mutate({ jobId: jobId! })}
+                        disabled={approveProbe.isPending}
+                        className="flex-1 py-2 px-4 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-colors disabled:opacity-50"
+                      >
+                        {approveProbe.isPending ? <span className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Approving\u2026</span> : "\u2713 Looks great \u2014 Start Full Render"}
+                      </button>
+                      <button
+                        onClick={() => rejectProbe.mutate({ jobId: jobId! })}
+                        disabled={rejectProbe.isPending}
+                        className="py-2 px-4 rounded-lg border border-red-500/40 text-red-400 hover:bg-red-500/10 font-semibold text-sm transition-colors disabled:opacity-50"
+                      >
+                        {rejectProbe.isPending ? "\u2026" : "\u2717 Not happy \u2014 go back"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {probeState === "awaiting_approval" && !probeVideoUrl && (
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                    <Loader2 className="w-4 h-4 text-amber-400 animate-spin" />
+                    <p className="text-xs text-white/60">Loading your test render\u2026</p>
+                  </div>
+                )}
+                {probeState === "approved" && (
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <p className="text-sm text-white/80">Test render approved. Full render is now underway \u2014 head to the Screening Room to track progress.</p>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="grid grid-cols-1 gap-5">
               {scenes.map((scene) => (
                 <React.Fragment key={scene.id}>
