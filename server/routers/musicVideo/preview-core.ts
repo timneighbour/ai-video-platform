@@ -82,22 +82,19 @@ export const OUTFIT_CONSTRAINTS: Record<string, { positive: string[]; negative: 
   },
   zara: {
     positive: [
-      "long-sleeve fitted black mini dress with a square neckline — full-length sleeves, body-hugging fit, SHORT (above knee)",
-      "knee-high black patent leather boots — shiny, structured, reaching the knee",
-      "simple and elegant — NO accessories, NO jewellery, NO bag",
+      "short sleeveless black cocktail dress — bare shoulders, no sleeves, no straps, above the knee",
+      "black high heels with ankle straps — NOT knee-high boots, NOT flat shoes",
+      "diamond necklace visible around neck — MUST be visible",
+      "simple and elegant — minimal accessories beyond the necklace",
     ],
     negative: [
-      "ABSOLUTELY NO sleeveless dress or thin straps — dress MUST have full-length sleeves",
-      "ABSOLUTELY NO ankle boots — boots MUST be knee-high",
-      "ABSOLUTELY NO PVC, vinyl, or latex material on the dress itself",
-      "ABSOLUTELY NO low-cut neckline, deep neckline, or plunging neckline — neckline is a SQUARE cut",
-      "ABSOLUTELY NO cleavage or chest exposure",
-      "ABSOLUTELY NO gloves of any kind",
-      "ABSOLUTELY NO sequins, embellishments, beading, or sparkle on the dress",
-      "ABSOLUTELY NO lace, lace overlay, or lace trim",
-      "ABSOLUTELY NO long dress or gown — dress must be SHORT (above knee)",
+      "ABSOLUTELY NO long sleeves or any sleeves — dress is SLEEVELESS",
+      "ABSOLUTELY NO knee-high boots or ankle boots — footwear is HIGH HEELS WITH ANKLE STRAPS",
+      "ABSOLUTELY NO flat shoes, trainers, or sneakers",
+      "ABSOLUTELY NO long dress or floor-length gown — dress is SHORT (above the knee)",
+      "ABSOLUTELY NO jacket, coat, or cover-up over the dress",
       "ABSOLUTELY NO different colour dress — dress is BLACK only",
-      "ABSOLUTELY NO microphone stand — Zara does NOT use a microphone stand",
+      "ABSOLUTELY NO microphone in hand unless explicitly directed",
     ],
   },
 };
@@ -258,13 +255,15 @@ export async function generateScenePreviewCore(opts: {
       // Build the costume lock block from the best available source
       // Priority: lockedOutfit (user-entered) > userOutfit (visual details) > hardcoded > description
       console.log(`[OUTFIT DEBUG preview-core] ${c.name}: lockedOutfit=${c.lockedOutfit?.slice(0,60)}, lockedOutfitStr=${lockedOutfitStr?.slice(0,60)}, userOutfit=${userOutfit?.slice(0,40)}, constraints=${constraints ? 'yes' : 'no'}`);
-      const primaryOutfit = lockedOutfitStr || userOutfit;
+      let primaryOutfit = lockedOutfitStr || userOutfit;
+      // Always ensure diamond necklace is present for Zara even if the user omitted it when typing
+      if (primaryOutfit && key === "zara" && !/necklace|diamond/i.test(primaryOutfit)) {
+        primaryOutfit = primaryOutfit + ", diamond necklace visible around neck";
+      }
       if (primaryOutfit) {
         // User explicitly entered outfit — highest priority, use verbatim with strong enforcement
         return [
-          `COSTUME LOCK — ${c.name} (MANDATORY — DO NOT DEVIATE):`,
-          `${c.name} is wearing EXACTLY: ${primaryOutfit}`,
-          `FINAL RULE: ${c.name}'s outfit MUST be: ${primaryOutfit}. DO NOT change any garment. DO NOT substitute. DO NOT add or remove items. This is the ONLY acceptable outfit.`,
+          `COSTUME LOCK — ${c.name}: ${primaryOutfit}. DO NOT change any garment.`,
         ].join("\n");
       } else if (constraints) {
         // Hardcoded constraints for known characters (only when user has set no outfit)
@@ -442,18 +441,25 @@ export async function generateScenePreviewCore(opts: {
     console.log(`[generateScenePreviewCore] Scene ${sceneId}: sceneSetting fallback venue context injected`);
   }
 
+  // Prompt block order: scene direction FIRST so the AI's primary task is the director's instruction.
+  // Location, identity, and costume follow as supporting constraints.
   const finalPrompt = [
-    // LOCATION LOCK first — gives maximum model weight to the background/environment
+    // 1. SCENE DIRECTION — primary creative instruction, always first
+    sceneBlock,
+    // 2. LOCATION LOCK — anchors the background to the locked venue
     locationLockBlock,
+    // 3. CHARACTER COUNT — prevents extra people
     hardCountPrefix,
+    // 4. IDENTITY — face/hair/skin tone consistency
     identityBlock,
     bodyBuildBlock,
+    // 5. COSTUME LOCK — outfit enforcement
     costumeLockBlock,
     propsBlock,
     positionBlock,
     mustHaveBlock,
-    sceneBlock,
     forbiddenBlock,
+    // 6. Technical / quality directives
     "NO visible text, logos, or band names. NO neon signs, banners, or typography.",
     "16:9 widescreen, high quality, professional photography, concert photography",
     "FRAMING: full head and body visible within frame, generous headroom above subject",

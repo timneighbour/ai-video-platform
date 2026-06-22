@@ -255,19 +255,19 @@ async function generateScenePreviewCore(opts: {
   const CORE_OUTFIT_CONSTRAINTS: Record<string, { positive: string[]; negative: string[] }> = {
     zara: {
       positive: [
-        "long-sleeve fitted black mini dress with a square neckline",
-        "knee-high black patent leather boots",
-        "simple, elegant, no accessories",
+        "short sleeveless black cocktail dress — bare shoulders, no sleeves, no straps",
+        "black high heels with ankle straps — NOT knee-high boots, NOT flat shoes",
+        "diamond necklace visible around neck",
+        "simple, elegant, minimal accessories beyond the necklace",
       ],
       negative: [
-        "ABSOLUTELY NO sleeveless or thin-strap dress",
-        "ABSOLUTELY NO ankle boots — boots must be KNEE-HIGH",
-        "ABSOLUTELY NO low-cut or V-neckline — neckline is SQUARE",
-        "ABSOLUTELY NO PVC, vinyl, latex, or shiny plastic material on the dress",
-        "ABSOLUTELY NO gloves of any kind",
-        "ABSOLUTELY NO revealing or see-through fabric",
-        "ABSOLUTELY NO sequins, lace, or embellishments",
+        "ABSOLUTELY NO long sleeves or any sleeves — dress is SLEEVELESS",
+        "ABSOLUTELY NO knee-high boots or ankle boots — footwear is HIGH HEELS WITH ANKLE STRAPS",
+        "ABSOLUTELY NO flat shoes, trainers, or sneakers",
+        "ABSOLUTELY NO long dress or floor-length gown — dress is SHORT (above the knee)",
+        "ABSOLUTELY NO jacket, coat, or cover-up over the dress",
         "ABSOLUTELY NO different colour dress — dress is BLACK only",
+        "ABSOLUTELY NO microphone in hand unless explicitly directed",
       ],
     },
   };
@@ -287,11 +287,13 @@ async function generateScenePreviewCore(opts: {
       }
 
       if (lockedOutfitStr) {
-        // User explicitly set an outfit — use it verbatim, highest priority
+        // User explicitly set an outfit — use it verbatim, highest priority.
+        // Also ensure the diamond necklace is always present for Zara (it may have been omitted when the user typed the outfit).
+        if (key === "zara" && !/necklace|diamond/i.test(lockedOutfitStr)) {
+          lockedOutfitStr = lockedOutfitStr + ", diamond necklace visible around neck";
+        }
         return [
-          `COSTUME LOCK — ${c.name} (MANDATORY — DO NOT DEVIATE):`,
-          `${c.name} is wearing EXACTLY: ${lockedOutfitStr}`,
-          `FINAL RULE: ${c.name}'s outfit MUST be: ${lockedOutfitStr}. DO NOT change any garment. DO NOT substitute. DO NOT add or remove items. This is the ONLY acceptable outfit.`,
+          `COSTUME LOCK — ${c.name}: ${lockedOutfitStr}. DO NOT change any garment.`,
         ].join("\n");
       }
 
@@ -347,13 +349,21 @@ async function generateScenePreviewCore(opts: {
     console.log(`[generateScenePreviewCore] Scene ${sceneId}: sceneSetting fallback venue context injected`);
   }
 
+  // Prompt block order — scene direction FIRST so the AI's primary task is clear,
+  // then character/costume/location constraints follow as supporting rules.
+  // This prevents the identity/costume walls of text from burying the director's instruction.
   const finalPrompt = [
-    // LOCATION LOCK first — gives maximum model weight to the background/environment
-    locationLockBlock,
-    hardCountPrefix,
-    identityBlock,
-    costumeLockBlock,  // COSTUME LOCK: must come immediately after identity to override lockedDescription text
+    // 1. SCENE DIRECTION — primary creative instruction, always first
     sceneBlock,
+    // 2. LOCATION LOCK — anchors the background to the locked venue
+    locationLockBlock,
+    // 3. CHARACTER COUNT — prevents extra people appearing
+    hardCountPrefix,
+    // 4. IDENTITY — face/hair/skin tone consistency
+    identityBlock,
+    // 5. COSTUME LOCK — outfit enforcement
+    costumeLockBlock,
+    // 6. Technical / quality directives
     "NO visible text, logos, or band names. NO neon signs, banners, or typography.",
     "16:9 widescreen, high quality, professional photography, concert photography",
     "FRAMING: full head and body visible within frame, generous headroom above subject",
