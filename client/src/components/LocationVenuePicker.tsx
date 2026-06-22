@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Loader2 } from "@/lib/icons";
+import { trpc } from "@/lib/trpc";
 
 interface VenueOption {
   key: string;
@@ -61,7 +62,6 @@ const VENUE_OPTIONS: VenueOption[] = [
   { key: "palais_garnier", displayName: "Palais Garnier Opera House", category: "Theatre", emoji: "🎭", shortDescription: "Paris · Gilded baroque interior with Chagall ceiling" },
   { key: "london_palladium", displayName: "London Palladium", category: "Theatre", emoji: "🎩", shortDescription: "London · Art Deco grandeur with gold proscenium arch" },
   { key: "apollo_theater_harlem", displayName: "Apollo Theater", category: "Theatre", emoji: "🎤", shortDescription: "Harlem, NYC · Art Deco soul/R&B/jazz institution" },
-  { key: "radio_city_music_hall", displayName: "Radio City Music Hall", category: "Theatre", emoji: "🎠", shortDescription: "New York · Art Deco sunrise ceiling, gold and burgundy" },
   // Clubs
   { key: "ronnie_scotts", displayName: "Ronnie Scott's Jazz Club", category: "Club", emoji: "🎷", shortDescription: "London · Intimate jazz club with red velvet and dim spotlights" },
   { key: "fabric_london", displayName: "Fabric London", category: "Club", emoji: "🔊", shortDescription: "London · Industrial warehouse with pulsing UV lights" },
@@ -87,6 +87,91 @@ const CUSTOM_PLACEHOLDER = `Describe the interior in detail — architecture, li
 Examples:
 • "A brutalist 1970s recording studio with exposed concrete walls, a vintage Neve 8078 console, warm tungsten overhead lighting, and acoustic foam panels in dark charcoal. Floor-to-ceiling glass separates the control room from the live room."
 • "A candlelit baroque chapel converted into a recording space — stone arches, gilded organ pipes, flickering amber light, wooden pews replaced with microphone stands and cables."`;
+
+/** Single venue card with lazy-loaded SerpAPI thumbnail */
+function VenueCard({
+  venue,
+  isSelected,
+  onSelect,
+}: {
+  venue: VenueOption;
+  isSelected: boolean;
+  onSelect: () => void;
+}) {
+  const [shouldFetch, setShouldFetch] = useState(false);
+  const ref = useRef<HTMLButtonElement>(null);
+
+  // Intersection observer — only fetch thumbnail when card scrolls into view
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setShouldFetch(true); },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const { data: thumbData, isLoading: thumbLoading } = trpc.musicVideo.getVenueThumbnail.useQuery(
+    { venueKey: venue.key, displayName: venue.displayName },
+    {
+      enabled: shouldFetch,
+      staleTime: 1000 * 60 * 60 * 24, // 24h — thumbnails are stable
+      retry: 1,
+    }
+  );
+
+  const thumbnailUrl = thumbData?.thumbnailUrl ?? null;
+
+  return (
+    <button
+      ref={ref}
+      onClick={onSelect}
+      className={`flex items-start gap-0 rounded-lg text-left transition-all border overflow-hidden ${
+        isSelected
+          ? "border-amber-500/60 bg-amber-900/25 text-amber-200"
+          : "border-white/5 bg-white/3 hover:border-white/20 hover:bg-white/5 text-white/70"
+      }`}
+    >
+      {/* Thumbnail */}
+      <div className="w-20 h-16 flex-shrink-0 relative overflow-hidden bg-white/5">
+        {thumbLoading && shouldFetch && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Loader2 className="w-3.5 h-3.5 text-white/20 animate-spin" />
+          </div>
+        )}
+        {thumbnailUrl ? (
+          <img
+            src={thumbnailUrl}
+            alt={venue.displayName}
+            className="w-full h-full object-cover"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+          />
+        ) : !thumbLoading ? (
+          <div className="absolute inset-0 flex items-center justify-center text-2xl opacity-40">
+            {venue.emoji}
+          </div>
+        ) : null}
+      </div>
+
+      {/* Text content */}
+      <div className="flex-1 min-w-0 px-3 py-2.5">
+        <p className="text-xs font-semibold leading-tight">{venue.displayName}</p>
+        <p className="text-[10px] text-white/35 mt-0.5 leading-tight">{venue.shortDescription}</p>
+      </div>
+
+      {/* Selected checkmark */}
+      {isSelected && (
+        <div className="w-4 h-4 rounded-full bg-amber-500/80 flex items-center justify-center flex-shrink-0 mt-2.5 mr-2.5">
+          <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 text-black" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M1.5 5l2.5 2.5 4.5-4.5" />
+          </svg>
+        </div>
+      )}
+    </button>
+  );
+}
 
 interface Props {
   onSelect: (venueKey: string, customDNA?: string) => void;
@@ -163,31 +248,15 @@ export function LocationVenuePicker({ onSelect, isPending, initialCustomDNA }: P
           </div>
         </div>
       ) : (
-        /* Venue grid */
-        <div className="grid grid-cols-1 gap-1.5 max-h-56 overflow-y-auto pr-1">
+        /* Venue grid with thumbnails */
+        <div className="grid grid-cols-1 gap-1.5 max-h-64 overflow-y-auto pr-1">
           {filteredVenues.map(venue => (
-            <button
+            <VenueCard
               key={venue.key}
-              onClick={() => setSelectedKey(venue.key === selectedKey ? null : venue.key)}
-              className={`flex items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-all border ${
-                selectedKey === venue.key
-                  ? "border-amber-500/60 bg-amber-900/25 text-amber-200"
-                  : "border-white/5 bg-white/3 hover:border-white/20 hover:bg-white/5 text-white/70"
-              }`}
-            >
-              <span className="text-lg leading-none mt-0.5 flex-shrink-0">{venue.emoji}</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold leading-tight">{venue.displayName}</p>
-                <p className="text-[10px] text-white/35 mt-0.5 leading-tight">{venue.shortDescription}</p>
-              </div>
-              {selectedKey === venue.key && (
-                <div className="w-4 h-4 rounded-full bg-amber-500/80 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 text-black" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M1.5 5l2.5 2.5 4.5-4.5" />
-                  </svg>
-                </div>
-              )}
-            </button>
+              venue={venue}
+              isSelected={selectedKey === venue.key}
+              onSelect={() => setSelectedKey(venue.key === selectedKey ? null : venue.key)}
+            />
           ))}
         </div>
       )}

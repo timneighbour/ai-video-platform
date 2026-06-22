@@ -6944,6 +6944,24 @@ Your task:
         message: `Regenerated ${generated}/${scenes.length} storyboard images${errors.length > 0 ? ` (${errors.length} failed)` : ""}`,
       };
     }),
+
+  /**
+   * Fetch a real thumbnail image URL for a venue from SerpAPI (cached in DB).
+   * Used by the venue picker to show real photos next to each venue card.
+   */
+  getVenueThumbnail: publicProcedure
+    .input(z.object({
+      venueKey: z.string(),
+      displayName: z.string(),
+    }))
+    .query(async ({ input }) => {
+      const { searchLocationReferenceImage } = await import("../location-image-search");
+      const result = await searchLocationReferenceImage(input.displayName + " interior");
+      return {
+        thumbnailUrl: result?.url ?? null,
+        source: result?.source ?? null,
+      };
+    }),
 });
 /** Translate internal error codes to user-friendly messages. */
 function translateErrorMessage(errorMessage: string): string {
