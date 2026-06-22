@@ -1963,3 +1963,18 @@ export const imageGenSettings = mysqlTable("imageGenSettings", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 export type ImageGenSettings = typeof imageGenSettings.$inferSelect;
+
+// ─── WizVision™ Venue Image Cache ─────────────────────────────────────────────
+// Caches SerpAPI Google Images results so each venue is only searched once.
+// Keyed by normalised venue query string. TTL: 30 days.
+export const venueImageCache = mysqlTable("venueImageCache", {
+  id: int("id").autoincrement().primaryKey(),
+  queryKey: varchar("queryKey", { length: 255 }).notNull().unique(),
+  imageUrl: text("imageUrl").notNull(),
+  imageTitle: varchar("imageTitle", { length: 500 }),
+  imageSource: varchar("imageSource", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+});
+export type VenueImageCache = typeof venueImageCache.$inferSelect;
+export type InsertVenueImageCache = typeof venueImageCache.$inferInsert;

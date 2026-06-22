@@ -406,7 +406,21 @@ export async function generateScenePreviewCore(opts: {
       }
     }
     if (!venueRefUrl) {
+      // Try the hardcoded map first (instant, no API call)
       venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting) ?? null;
+    }
+    if (!venueRefUrl && job.venueLockedDisplayName) {
+      // Live SerpAPI Google Images search for the locked venue
+      try {
+        const { searchLocationReferenceImage } = await import("../../location-image-search.js");
+        const liveResult = await searchLocationReferenceImage(job.venueLockedDisplayName);
+        if (liveResult) {
+          venueRefUrl = liveResult.url;
+          console.log(`[generateScenePreviewCore] Scene ${sceneId}: Live venue image from ${liveResult.source} — ${liveResult.title}`);
+        }
+      } catch (searchErr) {
+        console.warn(`[generateScenePreviewCore] Scene ${sceneId}: Live venue search failed — ${(searchErr as Error).message}`);
+      }
     }
     if (dna) {
       locationLockBlock = `LOCATION LOCK (MANDATORY — EVERY SCENE MUST BE SET HERE):\n${dna}\n\nThis location is LOCKED. Every image MUST show this specific interior. DO NOT substitute any other venue, stage, or setting.`;
@@ -414,6 +428,17 @@ export async function generateScenePreviewCore(opts: {
     }
   } else if (job.sceneSetting && job.sceneSetting.trim().length > 20) {
     locationLockBlock = `ENVIRONMENT CONTEXT (MANDATORY):\nThis scene is set inside: ${job.sceneSetting.trim()}\nThe background MUST reflect this environment. DO NOT use a plain grey or white studio background. Place the character inside this specific setting.`;
+    // Also try live search for free-text scene settings
+    try {
+      const { searchLocationReferenceImage } = await import("../../location-image-search.js");
+      const liveResult = await searchLocationReferenceImage(job.sceneSetting);
+      if (liveResult) {
+        venueRefUrl = liveResult.url;
+        console.log(`[generateScenePreviewCore] Scene ${sceneId}: Live scene setting image from ${liveResult.source} — ${liveResult.title}`);
+      }
+    } catch (searchErr) {
+      console.warn(`[generateScenePreviewCore] Scene ${sceneId}: Live scene setting search failed — ${(searchErr as Error).message}`);
+    }
     console.log(`[generateScenePreviewCore] Scene ${sceneId}: sceneSetting fallback venue context injected`);
   }
 
