@@ -1735,10 +1735,17 @@ export default function MusicVideoAutopilot() {
   const lockedLocation = lockedLocationQuery.data;
   const [locationPickerOpen, setLocationPickerOpen] = useState(false);
 
-  const handleLockLocation = async (venueKey: string, customDNA?: string) => {
+  const handleLockLocation = async (keyOrCustom: string, customDNA?: string) => {
     if (!jobId) return;
+    // New LocationVenuePicker passes "custom:<text>" for custom locations
+    let venueKey = keyOrCustom;
+    let resolvedCustomDNA = customDNA;
+    if (keyOrCustom.startsWith("custom:")) {
+      venueKey = "custom";
+      resolvedCustomDNA = keyOrCustom.slice("custom:".length);
+    }
     try {
-      const result = await lockLocationMutation.mutateAsync({ jobId, venueKey, customDNA });
+      const result = await lockLocationMutation.mutateAsync({ jobId, venueKey, customDNA: resolvedCustomDNA });
       await lockedLocationQuery.refetch();
       setLocationPickerOpen(false);
       toast.success(`Location locked: ${result.venue.displayName}`);
@@ -2245,10 +2252,16 @@ export default function MusicVideoAutopilot() {
       // Auto-lock the draft venue if one was selected in the upload step
       if (draftVenueKey) {
         try {
+          // Parse custom DNA from "custom:<text>" key format used by new LocationVenuePicker
+          const isCustomKey = draftVenueKey.startsWith("custom:");
+          const resolvedVenueKey = isCustomKey ? "custom" : draftVenueKey;
+          const resolvedCustomDNA = isCustomKey
+            ? draftVenueKey.slice("custom:".length)
+            : (draftVenueKey === "custom" ? draftVenueCustomDNA : undefined);
           await lockLocationMutation.mutateAsync({
             jobId: result.jobId,
-            venueKey: draftVenueKey,
-            customDNA: draftVenueKey === "custom" ? draftVenueCustomDNA : undefined,
+            venueKey: resolvedVenueKey,
+            customDNA: resolvedCustomDNA,
           });
         } catch {
           // Non-fatal — storyboard generation continues without venue lock
@@ -4344,18 +4357,15 @@ export default function MusicVideoAutopilot() {
                 <CardContent className="pt-0 pb-4">
                   {/* Venue picker — always visible in upload step */}
                   <LocationVenuePicker
-                    initialKey={draftVenueKey}
-                    initialCustomDNA={draftVenueCustomDNA || null}
-                    showConfirmButton={false}
-                    onSelect={(venueKey, customDNA) => {
-                      setDraftVenueKey(venueKey);
-                      if (customDNA) setDraftVenueCustomDNA(customDNA);
+                    selectedKey={draftVenueKey ?? ""}
+                    initialKey={draftVenueKey ?? undefined}
+                    onSelect={(key) => {
+                      setDraftVenueKey(key || null);
+                      // Parse custom DNA from "custom:<text>" key
+                      if (key.startsWith("custom:")) {
+                        setDraftVenueCustomDNA(key.slice("custom:".length));
+                      }
                     }}
-                    onDraftChange={(venueKey, customDNA) => {
-                      setDraftVenueKey(venueKey ?? null);
-                      if (customDNA !== undefined) setDraftVenueCustomDNA(customDNA);
-                    }}
-                    isPending={false}
                   />
 
                   {/* Venue locked confirmation strip */}
@@ -5408,9 +5418,8 @@ export default function MusicVideoAutopilot() {
                       </div>
                       <p className="text-xs text-white/40 mb-3">All scenes will be anchored to this venue's interior — architecture, lighting, and materials will stay consistent throughout.</p>
                       <LocationVenuePicker
+                        selectedKey={lockedLocation?.venueKey ?? ""}
                         onSelect={handleLockLocation}
-                        isPending={lockLocationMutation.isPending}
-                        initialCustomDNA={lockedLocation?.customDNA}
                       />
                     </div>
                   )}

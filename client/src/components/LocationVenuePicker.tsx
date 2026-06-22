@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Loader2 } from "@/lib/icons";
 import { trpc } from "@/lib/trpc";
 
@@ -8,20 +8,20 @@ interface VenueOption {
   category: string;
   emoji: string;
   shortDescription: string;
-  /** Curated SerpAPI search query — returns accurate interior/exterior photos */
+  /** Curated SerpAPI search query — targets the actual performance hall interior, colour images only */
   thumbnailSearchQuery: string;
 }
 
 // Mirror of the server-side venue library (display data only — no DNA)
 const VENUE_OPTIONS: VenueOption[] = [
-  // Recording Studios
+  // Recording Studios — queries target the LIVE ROOM / MAIN HALL, not the control room
   {
     key: "air_studios_lyndhurst",
     displayName: "Air Studios, Lyndhurst Hall",
     category: "Recording Studio",
     emoji: "🎼",
     shortDescription: "London · Grand orchestral hall with iconic blue ceiling",
-    thumbnailSearchQuery: "Air Studios Lyndhurst Hall London recording studio interior blue ceiling orchestra",
+    thumbnailSearchQuery: "Air Studios Lyndhurst Hall London main orchestral hall blue ceiling musicians performing colour",
   },
   {
     key: "abbey_road_studio_one",
@@ -29,7 +29,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Recording Studio",
     emoji: "🎵",
     shortDescription: "London · Legendary orchestral studio with parquet floors",
-    thumbnailSearchQuery: "Abbey Road Studios Studio One interior large orchestral recording hall London",
+    thumbnailSearchQuery: "Abbey Road Studio One London main hall orchestra recording parquet floor colour interior",
   },
   {
     key: "abbey_road_studio_two",
@@ -37,16 +37,15 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Recording Studio",
     emoji: "🎸",
     shortDescription: "London · Iconic live room where The Beatles recorded",
-    thumbnailSearchQuery: "Abbey Road Studio Two interior live recording room Beatles London control room",
+    thumbnailSearchQuery: "Abbey Road Studio Two live room Beatles band recording colour interior wide shot",
   },
-
   {
     key: "electric_lady_studios",
     displayName: "Electric Lady Studios",
     category: "Recording Studio",
     emoji: "⚡",
     shortDescription: "New York · Hendrix's psychedelic underground studio",
-    thumbnailSearchQuery: "Electric Lady Studios New York interior control room recording studio psychedelic curved walls",
+    thumbnailSearchQuery: "Electric Lady Studios New York live room interior colour psychedelic mural curved walls musicians",
   },
   {
     key: "capitol_studios_la",
@@ -54,7 +53,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Recording Studio",
     emoji: "🎺",
     shortDescription: "Los Angeles · Inside the iconic Capitol Records Tower",
-    thumbnailSearchQuery: "Capitol Studios Los Angeles Studio A interior recording room circular echo chamber",
+    thumbnailSearchQuery: "Capitol Studios Hollywood Studio A live room orchestra colour interior wide angle",
   },
   {
     key: "sunset_sound_la",
@@ -62,7 +61,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Recording Studio",
     emoji: "🌅",
     shortDescription: "Los Angeles · Where The Doors, Prince & Led Zeppelin recorded",
-    thumbnailSearchQuery: "Sunset Sound Recorders Los Angeles Studio 1 interior control room vintage console",
+    thumbnailSearchQuery: "Sunset Sound Recorders Los Angeles live room interior colour band recording wide shot",
   },
   {
     key: "blackbird_studio_nashville",
@@ -70,17 +69,16 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Recording Studio",
     emoji: "🐦",
     shortDescription: "Nashville · World's most extensive vintage gear collection",
-    thumbnailSearchQuery: "Blackbird Studio Nashville Studio A interior recording room vintage gear microphones",
+    thumbnailSearchQuery: "Blackbird Studio Nashville live room interior colour musicians recording vintage instruments",
   },
-
-  // Concert Halls
+  // Concert Halls — queries target the auditorium from the stage perspective
   {
     key: "royal_albert_hall",
     displayName: "Royal Albert Hall",
     category: "Concert Hall",
     emoji: "🏛️",
     shortDescription: "London · Victorian rotunda with crimson tiered seating",
-    thumbnailSearchQuery: "Royal Albert Hall London interior auditorium stage red tiered seats Victorian dome",
+    thumbnailSearchQuery: "Royal Albert Hall London auditorium interior colour stage view red seats Victorian dome full house",
   },
   {
     key: "carnegie_hall",
@@ -88,7 +86,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Concert Hall",
     emoji: "🎻",
     shortDescription: "New York · Gilded Beaux-Arts hall with warm amber tones",
-    thumbnailSearchQuery: "Carnegie Hall Stern Auditorium interior stage seating New York gilded balconies",
+    thumbnailSearchQuery: "Carnegie Hall Stern Auditorium interior colour stage view gilded balconies full audience",
   },
   {
     key: "sydney_opera_house",
@@ -96,7 +94,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Concert Hall",
     emoji: "🦪",
     shortDescription: "Sydney · Sail-shaped shells with harbour light",
-    thumbnailSearchQuery: "Sydney Opera House Concert Hall interior stage auditorium wooden pipe organ seating",
+    thumbnailSearchQuery: "Sydney Opera House Concert Hall interior colour stage auditorium wooden ceiling pipe organ audience",
   },
   {
     key: "walt_disney_concert_hall",
@@ -104,7 +102,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Concert Hall",
     emoji: "🏗️",
     shortDescription: "Los Angeles · Frank Gehry's curved blonde wood masterpiece",
-    thumbnailSearchQuery: "Walt Disney Concert Hall Los Angeles interior auditorium curved blonde wood pipe organ seating",
+    thumbnailSearchQuery: "Walt Disney Concert Hall Los Angeles interior colour auditorium curved wood stage orchestra audience",
   },
   {
     key: "radio_city_music_hall",
@@ -112,7 +110,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Concert Hall",
     emoji: "🎠",
     shortDescription: "New York · Art Deco sunrise ceiling, gold and burgundy",
-    thumbnailSearchQuery: "Radio City Music Hall New York interior Art Deco auditorium stage gold burgundy sunrise mural",
+    thumbnailSearchQuery: "Radio City Music Hall New York interior colour auditorium stage Art Deco gold burgundy full house",
   },
   // Arenas
   {
@@ -121,7 +119,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Arena",
     emoji: "🌐",
     shortDescription: "Las Vegas · World's largest wraparound LED dome, 17,500 seats",
-    thumbnailSearchQuery: "MSG Sphere Las Vegas interior wraparound LED screen concert stage audience seats",
+    thumbnailSearchQuery: "MSG Sphere Las Vegas interior colour wraparound LED screen concert U2 audience stage",
   },
   {
     key: "o2_arena_london",
@@ -129,7 +127,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Arena",
     emoji: "🎪",
     shortDescription: "London · Massive dome with dramatic stage lighting rigs",
-    thumbnailSearchQuery: "O2 Arena London interior concert stage crowd lighting rig arena floor",
+    thumbnailSearchQuery: "O2 Arena London interior colour concert stage crowd lighting rig full arena",
   },
   {
     key: "madison_square_garden",
@@ -137,7 +135,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Arena",
     emoji: "🏟️",
     shortDescription: "New York · The World's Most Famous Arena",
-    thumbnailSearchQuery: "Madison Square Garden New York interior arena concert stage crowd spotlights",
+    thumbnailSearchQuery: "Madison Square Garden New York interior colour concert stage crowd spotlights full arena",
   },
   {
     key: "wembley_arena",
@@ -145,7 +143,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Arena",
     emoji: "⭐",
     shortDescription: "London · Iconic curved roof with blue-white spotlights",
-    thumbnailSearchQuery: "OVO Arena Wembley interior concert stage crowd London curved ceiling",
+    thumbnailSearchQuery: "OVO Arena Wembley London interior colour concert stage crowd curved ceiling full house",
   },
   // Stadiums
   {
@@ -154,7 +152,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🌟",
     shortDescription: "Los Angeles · Futuristic translucent canopy, 70,000 seats",
-    thumbnailSearchQuery: "SoFi Stadium Los Angeles interior concert stage crowd translucent roof canopy",
+    thumbnailSearchQuery: "SoFi Stadium Los Angeles interior colour concert stage crowd translucent roof full stadium",
   },
   {
     key: "wembley_stadium",
@@ -162,7 +160,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🏟️",
     shortDescription: "London · Iconic arch over a sea of 90,000 fans",
-    thumbnailSearchQuery: "Wembley Stadium London interior concert stage crowd arch night floodlights",
+    thumbnailSearchQuery: "Wembley Stadium London interior colour concert stage crowd arch night full stadium",
   },
   {
     key: "estadio_maracana",
@@ -170,7 +168,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🇧🇷",
     shortDescription: "Rio de Janeiro · Sugarloaf Mountain backdrop, 78,000 fans",
-    thumbnailSearchQuery: "Maracanã Stadium Rio de Janeiro interior concert stage crowd",
+    thumbnailSearchQuery: "Maracanã Stadium Rio de Janeiro interior colour concert stage crowd full stadium",
   },
   {
     key: "metlife_stadium",
@@ -178,7 +176,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🗽",
     shortDescription: "New Jersey · NYC skyline, Empire State Building backdrop",
-    thumbnailSearchQuery: "MetLife Stadium New Jersey interior concert stage crowd night",
+    thumbnailSearchQuery: "MetLife Stadium New Jersey interior colour concert stage crowd night full stadium",
   },
   {
     key: "tokyo_dome",
@@ -186,7 +184,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🏯",
     shortDescription: "Tokyo · White inflatable dome, 55,000 passionate fans",
-    thumbnailSearchQuery: "Tokyo Dome Japan interior concert stage crowd white dome ceiling",
+    thumbnailSearchQuery: "Tokyo Dome Japan interior colour concert stage crowd white dome ceiling full stadium",
   },
   {
     key: "stade_de_france",
@@ -194,7 +192,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🇫🇷",
     shortDescription: "Paris · Eiffel Tower backdrop, 81,000 capacity",
-    thumbnailSearchQuery: "Stade de France Paris interior concert stage crowd stands",
+    thumbnailSearchQuery: "Stade de France Paris interior colour concert stage crowd full stadium night",
   },
   {
     key: "camp_nou",
@@ -202,7 +200,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🔵",
     shortDescription: "Barcelona · Europe's largest stadium, Sagrada Família horizon",
-    thumbnailSearchQuery: "Camp Nou Barcelona interior concert stage crowd stands night",
+    thumbnailSearchQuery: "Camp Nou Barcelona interior colour concert stage crowd full stadium night",
   },
   {
     key: "rose_bowl",
@@ -210,7 +208,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Stadium",
     emoji: "🌹",
     shortDescription: "Pasadena · San Gabriel Mountains, golden California light",
-    thumbnailSearchQuery: "Rose Bowl Pasadena interior concert stage crowd stands night",
+    thumbnailSearchQuery: "Rose Bowl Pasadena interior colour concert stage crowd full stadium night",
   },
   // Outdoor
   {
@@ -219,7 +217,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Outdoor",
     emoji: "🌿",
     shortDescription: "Somerset · Golden pyramid at dusk, festival crowd",
-    thumbnailSearchQuery: "Glastonbury Festival Pyramid Stage crowd sunset Somerset golden hour",
+    thumbnailSearchQuery: "Glastonbury Festival Pyramid Stage colour crowd sunset Somerset golden hour wide shot",
   },
   {
     key: "coachella_main_stage",
@@ -227,7 +225,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Outdoor",
     emoji: "🌵",
     shortDescription: "Indio · Desert night sky, neon-lit stage canopy",
-    thumbnailSearchQuery: "Coachella festival main stage night desert crowd California neon lights",
+    thumbnailSearchQuery: "Coachella festival main stage colour night desert crowd California neon lights wide shot",
   },
   {
     key: "red_rocks_amphitheatre",
@@ -235,7 +233,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Outdoor",
     emoji: "🪨",
     shortDescription: "Colorado · Natural red sandstone rock formations, open sky",
-    thumbnailSearchQuery: "Red Rocks Amphitheatre Colorado concert stage sandstone rock formations crowd",
+    thumbnailSearchQuery: "Red Rocks Amphitheatre Colorado colour concert stage sandstone rock formations crowd wide shot",
   },
   // TV Studios
   {
@@ -244,7 +242,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "TV Studio",
     emoji: "📺",
     shortDescription: "London · Legendary Top of the Pops broadcast studio",
-    thumbnailSearchQuery: "BBC Television Centre London studio TC1 interior broadcast stage audience",
+    thumbnailSearchQuery: "BBC Television Centre London Studio TC1 interior colour broadcast stage audience lighting",
   },
   {
     key: "pinewood_studios",
@@ -252,7 +250,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "TV Studio",
     emoji: "🎬",
     shortDescription: "Buckinghamshire · Europe's largest film & TV sound stages",
-    thumbnailSearchQuery: "Pinewood Studios 007 Stage interior film production sound stage set lighting",
+    thumbnailSearchQuery: "Pinewood Studios 007 Stage interior colour film production set lighting wide shot",
   },
   {
     key: "nbc_studios_30_rock",
@@ -260,7 +258,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "TV Studio",
     emoji: "🗽",
     shortDescription: "New York · Art Deco Rockefeller Center, home of SNL",
-    thumbnailSearchQuery: "Saturday Night Live SNL Studio 8H NBC 30 Rock interior stage audience",
+    thumbnailSearchQuery: "Saturday Night Live SNL Studio 8H NBC 30 Rock interior colour stage audience full wide shot",
   },
   {
     key: "ed_sullivan_theater",
@@ -268,7 +266,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "TV Studio",
     emoji: "🎙️",
     shortDescription: "New York · Where The Beatles made their US TV debut",
-    thumbnailSearchQuery: "Ed Sullivan Theater New York interior stage Late Show Stephen Colbert auditorium",
+    thumbnailSearchQuery: "Ed Sullivan Theater New York interior colour stage Late Show auditorium seats wide shot",
   },
   // Filming Locations
   {
@@ -277,7 +275,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Filming Location",
     emoji: "🌾",
     shortDescription: "Rihanna's 'We Found Love' · Rolling green Irish countryside",
-    thumbnailSearchQuery: "County Down Northern Ireland rolling green hills countryside landscape rural",
+    thumbnailSearchQuery: "County Down Northern Ireland colour rolling green hills countryside landscape rural golden hour",
   },
   {
     key: "hoxton_street_london",
@@ -285,7 +283,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Filming Location",
     emoji: "🚶",
     shortDescription: "The Verve's 'Bittersweet Symphony' · East London street",
-    thumbnailSearchQuery: "Hoxton Street East London pedestrians urban street Shoreditch",
+    thumbnailSearchQuery: "Hoxton Street East London colour pedestrians urban street Shoreditch daytime",
   },
   {
     key: "mojave_desert_california",
@@ -293,7 +291,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Filming Location",
     emoji: "🌵",
     shortDescription: "U2 & Lana Del Rey · Joshua trees, vast desert landscape",
-    thumbnailSearchQuery: "Mojave Desert Joshua Tree California landscape sunset dramatic",
+    thumbnailSearchQuery: "Mojave Desert Joshua Tree California colour landscape sunset dramatic wide shot",
   },
   {
     key: "seljalandsfoss_iceland",
@@ -301,7 +299,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Filming Location",
     emoji: "💧",
     shortDescription: "Justin Bieber's 'I'll Show You' · Dramatic 60m waterfall",
-    thumbnailSearchQuery: "Seljalandsfoss waterfall Iceland dramatic landscape green moss cliff",
+    thumbnailSearchQuery: "Seljalandsfoss waterfall Iceland colour dramatic landscape green moss cliff wide shot",
   },
   {
     key: "griffith_park_los_angeles",
@@ -309,7 +307,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Filming Location",
     emoji: "🎃",
     shortDescription: "Michael Jackson's 'Thriller' · Griffith Observatory backdrop",
-    thumbnailSearchQuery: "Griffith Observatory Los Angeles night city lights Hollywood Hills park",
+    thumbnailSearchQuery: "Griffith Observatory Los Angeles colour night city lights Hollywood Hills wide shot",
   },
   {
     key: "universal_studios_backlot",
@@ -317,7 +315,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Filming Location",
     emoji: "🎥",
     shortDescription: "Florida · Professional film backlot, Creed's 'My Sacrifice'",
-    thumbnailSearchQuery: "Universal Studios Hollywood backlot film set street facades production",
+    thumbnailSearchQuery: "Universal Studios Hollywood backlot colour film set street facades production wide shot",
   },
   // Theatres
   {
@@ -326,7 +324,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Theatre",
     emoji: "🎭",
     shortDescription: "Paris · Gilded baroque interior with Chagall ceiling",
-    thumbnailSearchQuery: "Palais Garnier Opera Paris interior auditorium gilded baroque balconies Chagall ceiling chandelier",
+    thumbnailSearchQuery: "Palais Garnier Paris interior colour auditorium stage gilded baroque balconies Chagall ceiling chandelier full house",
   },
   {
     key: "london_palladium",
@@ -334,7 +332,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Theatre",
     emoji: "🎩",
     shortDescription: "London · Art Deco grandeur with gold proscenium arch",
-    thumbnailSearchQuery: "London Palladium interior auditorium stage red velvet seats gold proscenium arch",
+    thumbnailSearchQuery: "London Palladium interior colour auditorium stage red velvet seats gold proscenium arch full house",
   },
   {
     key: "apollo_theater_harlem",
@@ -342,7 +340,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Theatre",
     emoji: "🎤",
     shortDescription: "Harlem, NYC · Art Deco soul/R&B/jazz institution",
-    thumbnailSearchQuery: "Apollo Theater Harlem New York interior stage auditorium seats Art Deco",
+    thumbnailSearchQuery: "Apollo Theater Harlem New York interior colour stage auditorium seats Art Deco full house",
   },
   // Clubs
   {
@@ -351,7 +349,7 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Club",
     emoji: "🎷",
     shortDescription: "London · Intimate jazz club with red velvet and dim spotlights",
-    thumbnailSearchQuery: "Ronnie Scott's Jazz Club London interior stage performers red velvet dim spotlight",
+    thumbnailSearchQuery: "Ronnie Scott's Jazz Club London interior colour stage performers red velvet dim spotlight audience",
   },
   {
     key: "fabric_london",
@@ -359,332 +357,250 @@ const VENUE_OPTIONS: VenueOption[] = [
     category: "Club",
     emoji: "🔊",
     shortDescription: "London · Industrial warehouse with pulsing UV lights",
-    thumbnailSearchQuery: "Fabric nightclub London interior dancefloor crowd UV lights industrial warehouse",
+    thumbnailSearchQuery: "Fabric nightclub London interior colour dancefloor crowd UV lights industrial warehouse",
   },
 ];
 
 export const VENUE_OPTIONS_PUBLIC = VENUE_OPTIONS;
 
-const CATEGORY_ORDER = ["Recording Studio", "Concert Hall", "Arena", "Stadium", "Outdoor", "TV Studio", "Filming Location", "Theatre", "Club", "Custom"];
+// ─── Category helpers ─────────────────────────────────────────────────────────
+const ALL_CATEGORIES = ["All", ...Array.from(new Set(VENUE_OPTIONS.map(v => v.category)))];
 
-const CATEGORY_LABELS: Record<string, string> = {
-  "Recording Studio": "Studios",
-  "Concert Hall": "Concert Halls",
-  "Arena": "Arenas",
-  "Stadium": "Stadiums",
-  "Outdoor": "Outdoor",
-  "TV Studio": "TV Studios",
-  "Filming Location": "Filming",
-  "Theatre": "Theatres",
-  "Club": "Clubs",
-  "Custom": "Custom",
-};
+// ─── Intersection-observer lazy image hook ────────────────────────────────────
+function useLazyVisible(): [React.RefObject<HTMLDivElement | null>, boolean] {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    if (!ref.current) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { rootMargin: "200px" }
+    );
+    obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, visible];
+}
 
-const CUSTOM_PLACEHOLDER = `Describe the interior in detail — architecture, lighting, colours, materials, atmosphere.
-
-Examples:
-• "A brutalist 1970s recording studio with exposed concrete walls, a vintage Neve 8078 console, warm tungsten overhead lighting, and acoustic foam panels in dark charcoal. Floor-to-ceiling glass separates the control room from the live room."
-• "A candlelit baroque chapel converted into a recording space — stone arches, gilded organ pipes, flickering amber light, wooden pews replaced with microphone stands and cables."`;
-
-/** Single venue card with lazy-loaded SerpAPI thumbnail */
+// ─── Single venue card ────────────────────────────────────────────────────────
 function VenueCard({
   venue,
-  isSelected,
+  selected,
   onSelect,
 }: {
   venue: VenueOption;
-  isSelected: boolean;
-  onSelect: () => void;
+  selected: boolean;
+  onSelect: (key: string) => void;
 }) {
-  const [shouldFetch, setShouldFetch] = useState(false);
-  const ref = useRef<HTMLButtonElement>(null);
-
-  // Intersection observer — only fetch thumbnail when card scrolls into view
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setShouldFetch(true); },
-      { threshold: 0.1 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  const { data: thumbData, isLoading: thumbLoading } = trpc.musicVideo.getVenueThumbnail.useQuery(
+  const [containerRef, visible] = useLazyVisible();
+  const { data: imgData, isLoading } = trpc.musicVideo.getVenueThumbnail.useQuery(
     { venueKey: venue.key, searchQuery: venue.thumbnailSearchQuery },
-    {
-      enabled: shouldFetch,
-      staleTime: 1000 * 60 * 60 * 24 * 7, // 7 days — thumbnails are stable
-      retry: 1,
-    }
+    { enabled: visible, staleTime: 1000 * 60 * 60 * 24, retry: 1 }
   );
 
-  const thumbnailUrl = thumbData?.thumbnailUrl ?? null;
-
   return (
-    <button
-      ref={ref}
-      onClick={onSelect}
-      className={`flex items-start gap-0 rounded-lg text-left transition-all border overflow-hidden group ${
-        isSelected
-          ? "border-[rgba(184,137,42,0.7)] bg-[rgba(184,137,42,0.08)] text-amber-200 shadow-[0_0_12px_rgba(184,137,42,0.15)]"
-          : "border-white/5 bg-white/3 hover:border-[rgba(184,137,42,0.25)] hover:bg-[rgba(184,137,42,0.04)] text-white/70"
-      }`}
+    <div
+      ref={containerRef}
+      onClick={() => onSelect(selected ? "" : venue.key)}
+      className={`relative cursor-pointer rounded-xl overflow-hidden border-2 transition-all duration-200 group
+        ${selected
+          ? "border-yellow-400 shadow-lg shadow-yellow-400/20 scale-[1.02]"
+          : "border-white/10 hover:border-white/30 hover:scale-[1.01]"
+        }`}
+      style={{ aspectRatio: "16/9" }}
     >
-      {/* Thumbnail */}
-      <div className="w-[72px] h-[56px] flex-shrink-0 relative overflow-hidden bg-black/40">
-        {thumbLoading && shouldFetch && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Loader2 className="w-3 h-3 text-white/20 animate-spin" />
+      {/* Background image */}
+      {visible && (
+        isLoading ? (
+          <div className="absolute inset-0 bg-zinc-800 flex items-center justify-center">
+            <Loader2 className="w-5 h-5 animate-spin text-zinc-500" />
           </div>
-        )}
-        {thumbnailUrl ? (
+        ) : imgData?.thumbnailUrl ? (
           <img
-            src={thumbnailUrl}
+            src={imgData.thumbnailUrl!}
             alt={venue.displayName}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
           />
-        ) : !thumbLoading ? (
-          <div className="absolute inset-0 flex items-center justify-center text-xl opacity-30">
+        ) : (
+          <div className="absolute inset-0 bg-zinc-800 flex items-center justify-center text-3xl">
             {venue.emoji}
           </div>
-        ) : null}
-        {/* Subtle shimmer overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-      </div>
+        )
+      )}
+      {!visible && (
+        <div className="absolute inset-0 bg-zinc-800" />
+      )}
 
-      {/* Text content */}
-      <div className="flex-1 min-w-0 px-3 py-2">
-        <p className={`text-[11px] font-semibold leading-tight tracking-wide ${isSelected ? "text-[--color-gold]" : "text-white/80"}`}>{venue.displayName}</p>
-        <p className="text-[10px] text-white/30 mt-0.5 leading-tight">{venue.shortDescription}</p>
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+      {/* Selected ring */}
+      {selected && (
+        <div className="absolute inset-0 ring-2 ring-yellow-400 ring-inset rounded-xl pointer-events-none" />
+      )}
+
+      {/* Labels */}
+      <div className="absolute bottom-0 left-0 right-0 p-3">
+        <p className="text-white font-semibold text-sm leading-tight">{venue.displayName}</p>
+        <p className="text-white/60 text-xs mt-0.5 leading-tight">{venue.shortDescription}</p>
       </div>
 
       {/* Selected checkmark */}
-      {isSelected && (
-        <div className="w-4 h-4 rounded-full bg-[--color-gold] flex items-center justify-center flex-shrink-0 mt-2 mr-2.5 shadow-[0_0_8px_rgba(184,137,42,0.5)]">
-          <svg viewBox="0 0 10 10" className="w-2.5 h-2.5 text-black" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M1.5 5l2.5 2.5 4.5-4.5" />
+      {selected && (
+        <div className="absolute top-2 right-2 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg">
+          <svg className="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
       )}
-    </button>
-  );
-}
-
-/** Full-size banner image for the selected venue */
-export function VenueBannerImage({ venueKey, displayName }: { venueKey: string; displayName: string }) {
-  // Look up the curated search query for this venue key
-  const venue = VENUE_OPTIONS.find(v => v.key === venueKey);
-  const searchQuery = venue?.thumbnailSearchQuery ?? displayName;
-
-  const { data, isLoading } = trpc.musicVideo.getVenueThumbnail.useQuery(
-    { venueKey, searchQuery },
-    { staleTime: 1000 * 60 * 60 * 24 * 7, retry: 1 }
-  );
-
-  const imageUrl = data?.thumbnailUrl ?? null;
-
-  if (isLoading) {
-    return (
-      <div className="w-full h-44 flex items-center justify-center bg-black/40 animate-pulse">
-        <Loader2 className="w-5 h-5 text-[--color-gold]/40 animate-spin" />
-      </div>
-    );
-  }
-
-  if (!imageUrl) {
-    return (
-      <div className="w-full h-32 flex items-center justify-center bg-black/30 text-white/20 text-xs font-mono tracking-widest uppercase">
-        No reference image available
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-full h-48 relative overflow-hidden">
-      <img
-        src={imageUrl}
-        alt={displayName}
-        className="w-full h-full object-cover"
-        onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = "none"; }}
-      />
-      {/* Cinematic gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
     </div>
   );
 }
 
-interface Props {
-  onSelect: (venueKey: string, customDNA?: string) => void;
-  isPending?: boolean;
-  /** Pre-fill the custom textarea when editing an existing custom lock */
-  initialCustomDNA?: string | null;
-  /** Pre-select a venue key (e.g. when restoring from state) */
-  initialKey?: string | null;
-  /** Whether to show the confirm button (default: true) */
-  showConfirmButton?: boolean;
-  /** Called on every selection change (before confirm) — for draft state */
-  onDraftChange?: (venueKey: string | null, customDNA?: string) => void;
-}
-
-export function LocationVenuePicker({
-  onSelect,
-  isPending,
-  initialCustomDNA,
-  initialKey,
-  showConfirmButton = true,
-  onDraftChange,
-}: Props) {
-  const [selectedKey, setSelectedKey] = useState<string | null>(initialKey ?? null);
-  const [activeCategory, setActiveCategory] = useState<string>(() => {
-    if (initialKey) {
-      const found = VENUE_OPTIONS.find(v => v.key === initialKey);
-      return found?.category ?? "Recording Studio";
-    }
-    return "Recording Studio";
-  });
-  const [customDNA, setCustomDNA] = useState<string>(initialCustomDNA ?? "");
-
-  // Notify parent of draft changes
-  useEffect(() => {
-    if (onDraftChange) {
-      if (activeCategory === "Custom") {
-        onDraftChange(customDNA.trim().length >= 10 ? "custom" : null, customDNA.trim());
-      } else {
-        onDraftChange(selectedKey);
-      }
-    }
-  }, [selectedKey, customDNA, activeCategory]);
-
-  const categories = CATEGORY_ORDER.filter(cat =>
-    cat === "Custom" || VENUE_OPTIONS.some(v => v.category === cat)
+// ─── Selected venue hero banner ───────────────────────────────────────────────
+function VenueBannerImage({ venue }: { venue: VenueOption }) {
+  const { data: imgData, isLoading } = trpc.musicVideo.getVenueThumbnail.useQuery(
+    { venueKey: venue.key, searchQuery: venue.thumbnailSearchQuery },
+    { staleTime: 1000 * 60 * 60 * 24, retry: 1 }
   );
-  const filteredVenues = VENUE_OPTIONS.filter(v => v.category === activeCategory);
-  const isCustomTab = activeCategory === "Custom";
-
-  const canConfirm = isCustomTab
-    ? customDNA.trim().length >= 10
-    : !!selectedKey;
-
-  const handleConfirm = () => {
-    if (isCustomTab && customDNA.trim().length >= 10) {
-      onSelect("custom", customDNA.trim());
-    } else if (selectedKey) {
-      onSelect(selectedKey);
-    }
-  };
-
-  const selectedVenue = selectedKey ? VENUE_OPTIONS.find(v => v.key === selectedKey) : null;
 
   return (
-    <div className="space-y-3">
-      {/* Category tabs — horizontal scroll on mobile */}
-      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-        {categories.map(cat => (
+    <div className="relative w-full rounded-xl overflow-hidden" style={{ aspectRatio: "21/9" }}>
+      {isLoading ? (
+        <div className="absolute inset-0 bg-zinc-800 flex items-center justify-center">
+          <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
+        </div>
+      ) : imgData?.thumbnailUrl ? (
+        <img
+          src={imgData.thumbnailUrl!}
+          alt={venue.displayName}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-zinc-800 flex items-center justify-center text-5xl">
+          {venue.emoji}
+        </div>
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 p-5">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-yellow-400 text-xs font-bold uppercase tracking-widest">WizLocation™ Locked</span>
+        </div>
+        <h3 className="text-white text-xl font-bold">{venue.displayName}</h3>
+        <p className="text-white/70 text-sm mt-1">{venue.shortDescription}</p>
+        <p className="text-white/50 text-xs mt-2 italic">
+          WizCreate™ will anchor every scene to this venue's architecture, lighting and atmosphere.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+interface LocationVenuePickerProps {
+  selectedKey: string;
+  onSelect: (key: string) => void;
+  /** Optional initial key to pre-select on mount */
+  initialKey?: string;
+}
+
+export function LocationVenuePicker({ selectedKey, onSelect, initialKey }: LocationVenuePickerProps) {
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [customText, setCustomText] = useState("");
+
+  // Apply initialKey on mount
+  useEffect(() => {
+    if (initialKey && !selectedKey) {
+      onSelect(initialKey);
+    }
+  }, [initialKey]);
+
+  const selectedVenue = VENUE_OPTIONS.find(v => v.key === selectedKey);
+
+  const filtered = activeCategory === "All"
+    ? VENUE_OPTIONS
+    : VENUE_OPTIONS.filter(v => v.category === activeCategory);
+
+  const handleCustomSubmit = useCallback(() => {
+    if (customText.trim()) {
+      onSelect(`custom:${customText.trim()}`);
+    }
+  }, [customText, onSelect]);
+
+  const isCustomSelected = selectedKey.startsWith("custom:");
+
+  return (
+    <div className="space-y-4">
+      {/* Selected venue hero banner */}
+      {selectedVenue && (
+        <VenueBannerImage venue={selectedVenue} />
+      )}
+
+      {/* Category tabs */}
+      <div className="flex gap-1.5 flex-wrap">
+        {ALL_CATEGORIES.map(cat => (
           <button
             key={cat}
-            onClick={() => { setActiveCategory(cat); if (cat !== activeCategory) setSelectedKey(null); }}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[10px] font-semibold tracking-wider uppercase transition-all ${
-              activeCategory === cat
-                ? cat === "Custom"
-                  ? "bg-violet-500/20 text-violet-300 border border-violet-500/40 shadow-[0_0_8px_rgba(139,92,246,0.2)]"
-                  : "bg-[rgba(184,137,42,0.15)] text-[--color-gold] border border-[rgba(184,137,42,0.4)] shadow-[0_0_8px_rgba(184,137,42,0.15)]"
-                : "bg-white/4 text-white/35 border border-white/8 hover:text-white/60 hover:bg-white/8 hover:border-white/15"
-            }`}
+            onClick={() => setActiveCategory(cat)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150
+              ${activeCategory === cat
+                ? "bg-yellow-400 text-black"
+                : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+              }`}
           >
-            {CATEGORY_LABELS[cat] ?? cat}
+            {cat}
           </button>
         ))}
       </div>
 
-      {/* Custom venue textarea */}
-      {isCustomTab ? (
-        <div className="space-y-2">
-          <p className="text-xs text-white/40 leading-relaxed">
-            Describe any bespoke interior — architecture, lighting, colours, materials, and atmosphere. WizCreate™ will anchor every scene to this exact space.
-          </p>
-          <textarea
-            value={customDNA}
-            onChange={e => setCustomDNA(e.target.value)}
-            placeholder={CUSTOM_PLACEHOLDER}
-            rows={8}
-            maxLength={2000}
-            className="w-full rounded-xl bg-black/30 border border-[rgba(139,92,246,0.2)] text-white/80 text-xs px-3 py-3 resize-none focus:outline-none focus:border-violet-500/50 focus:bg-black/40 placeholder:text-white/15 leading-relaxed font-mono"
+      {/* Venue grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[420px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/10">
+        {filtered.map(venue => (
+          <VenueCard
+            key={venue.key}
+            venue={venue}
+            selected={selectedKey === venue.key}
+            onSelect={onSelect}
           />
-          <div className="flex items-center justify-between">
-            <span className={`text-[10px] font-mono ${customDNA.length > 1800 ? "text-amber-400" : "text-white/25"}`}>
-              {customDNA.length}/2000
-            </span>
-            {customDNA.trim().length > 0 && customDNA.trim().length < 10 && (
-              <span className="text-[10px] text-red-400/70">Min 10 characters required</span>
-            )}
-          </div>
-        </div>
-      ) : (
-        /* Venue grid with thumbnails */
-        <div className="grid grid-cols-1 gap-1 max-h-[260px] overflow-y-auto pr-0.5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
-          {filteredVenues.map(venue => (
-            <VenueCard
-              key={venue.key}
-              venue={venue}
-              isSelected={selectedKey === venue.key}
-              onSelect={() => setSelectedKey(venue.key === selectedKey ? null : venue.key)}
-            />
-          ))}
-        </div>
-      )}
+        ))}
+      </div>
 
-      {/* Selected venue preview banner */}
-      {selectedVenue && !isCustomTab && (
-        <div className="rounded-xl overflow-hidden border border-[rgba(184,137,42,0.3)] bg-[rgba(184,137,42,0.05)] shadow-[0_0_20px_rgba(184,137,42,0.08)]">
-          {/* Full-size reference image */}
-          <VenueBannerImage venueKey={selectedVenue.key} displayName={selectedVenue.displayName} />
-          {/* Description */}
-          <div className="px-4 py-3">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <p className="text-sm font-bold text-[--color-gold] leading-tight tracking-wide">{selectedVenue.displayName}</p>
-                <p className="text-[11px] text-white/45 mt-0.5 leading-relaxed">{selectedVenue.shortDescription}</p>
-              </div>
-              <div className="flex-shrink-0 mt-0.5">
-                <span className="text-[9px] font-bold uppercase tracking-[0.15em] px-2 py-1 rounded-full bg-[rgba(184,137,42,0.15)] text-[--color-gold] border border-[rgba(184,137,42,0.25)]">
-                  Selected
-                </span>
-              </div>
-            </div>
-            <div className="mt-2.5 pt-2.5 border-t border-[rgba(184,137,42,0.1)]">
-              <p className="text-[10px] text-[--color-gold]/60 leading-relaxed">
-                ✦ WizCreate™ will anchor every scene to this exact location — architecture, lighting, and atmosphere will be consistent throughout your storyboard.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Confirm button */}
-      {showConfirmButton && canConfirm && (
-        <div className="flex justify-end">
+      {/* Custom venue option */}
+      <div className="border border-white/10 rounded-xl p-4 space-y-3">
+        <p className="text-white/60 text-xs font-medium uppercase tracking-wider">Custom Location</p>
+        <textarea
+          value={customText}
+          onChange={e => setCustomText(e.target.value)}
+          placeholder="Describe your location in detail — e.g. 'A candlelit Gothic cathedral with stone arches, stained glass windows, and warm amber light…'"
+          className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-sm text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-yellow-400/50 transition-colors"
+          rows={3}
+        />
+        {customText.trim() && (
           <button
-            onClick={handleConfirm}
-            disabled={isPending}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl border text-sm font-bold tracking-wide transition-all disabled:opacity-50 ${
-              isCustomTab
-                ? "bg-violet-500/15 hover:bg-violet-500/25 border-violet-500/40 text-violet-300 shadow-[0_0_12px_rgba(139,92,246,0.15)]"
-                : "bg-[rgba(184,137,42,0.12)] hover:bg-[rgba(184,137,42,0.2)] border-[rgba(184,137,42,0.4)] text-[--color-gold] shadow-[0_0_12px_rgba(184,137,42,0.15)]"
-            }`}
+            onClick={handleCustomSubmit}
+            className={`w-full py-2 rounded-lg text-sm font-medium transition-all
+              ${isCustomSelected && selectedKey === `custom:${customText.trim()}`
+                ? "bg-yellow-400 text-black"
+                : "bg-white/10 text-white hover:bg-white/20"
+              }`}
           >
-            {isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : (
-              <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="7" width="10" height="8" rx="1.5" />
-                <path d="M5 7V5a3 3 0 0 1 6 0v2" />
-              </svg>
-            )}
-            Lock {isCustomTab ? "Custom Venue" : "Location"}
+            {isCustomSelected && selectedKey === `custom:${customText.trim()}`
+              ? "✓ Custom Location Locked"
+              : "Lock This Custom Location"
+            }
           </button>
-        </div>
+        )}
+      </div>
+
+      {/* Clear selection */}
+      {selectedKey && (
+        <button
+          onClick={() => onSelect("")}
+          className="text-white/40 text-xs hover:text-white/70 transition-colors"
+        >
+          × Clear venue selection
+        </button>
       )}
     </div>
   );

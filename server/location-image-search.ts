@@ -123,13 +123,14 @@ async function searchSerpApiImages(query: string): Promise<LocationImageResult |
   }
 
   try {
+    // tbs params: isz:l = large images, isc:color = colour only (excludes B&W)
     const params = new URLSearchParams({
       api_key: SERPAPI_KEY,
       engine: "google_images",
       q: query,
-      num: "10",
+      num: "15",
       safe: "active",
-      tbs: "isz:l", // large images only
+      tbs: "isz:l,isc:color", // large images + colour only
     });
 
     const response = await fetch(
@@ -162,7 +163,9 @@ async function searchSerpApiImages(query: string): Promise<LocationImageResult |
     if (!data.images_results?.length) return null;
 
     // Filter out social media and low-quality sources
-    const blockedDomains = ["pinterest", "facebook", "instagram", "twitter", "tiktok", "reddit", "tumblr", "flickr"];
+    const blockedDomains = ["pinterest", "facebook", "instagram", "twitter", "tiktok", "reddit", "tumblr", "flickr", "alamy", "shutterstock", "gettyimages", "istockphoto"];
+    // Preferred high-quality press/architecture sources get a scoring boost
+    const preferredDomains = ["dezeen", "architecturaldigest", "timeout", "bbc", "theguardian", "nytimes", "rollingstone", "billboard", "architectmagazine", "archdaily", "visitlondon", "visitlasvegas", "carnegiehal", "royalalberthall", "sydneyoperahouse", "o2", "madisonsg", "wembley", "msg"];
     const validItems = data.images_results.filter(item => {
       const src = item.source?.toLowerCase() ?? "";
       const link = item.link?.toLowerCase() ?? "";
@@ -175,12 +178,20 @@ async function searchSerpApiImages(query: string): Promise<LocationImageResult |
 
     if (!validItems.length) return null;
 
-    // Prefer larger images for better visual conditioning quality
-    const sorted = validItems.sort((a, b) => {
-      const aSize = (a.original_width ?? 0) * (a.original_height ?? 0);
-      const bSize = (b.original_width ?? 0) * (b.original_height ?? 0);
-      return bSize - aSize;
+    // Score: prefer landscape orientation + larger size + preferred sources
+    const scored = validItems.map(item => {
+      const w = item.original_width ?? 0;
+      const h = item.original_height ?? 0;
+      const src = (item.source ?? "").toLowerCase();
+      const link = (item.link ?? "").toLowerCase();
+      const sizeScore = w * h;
+      // Landscape images (wider than tall) are far more likely to be venue interiors
+      const landscapeBonus = (w > h && h > 0) ? 1.5 : 1.0;
+      // Preferred domain bonus
+      const domainBonus = preferredDomains.some(d => src.includes(d) || link.includes(d)) ? 2.0 : 1.0;
+      return { item, score: sizeScore * landscapeBonus * domainBonus };
     });
+    const sorted = scored.sort((a, b) => b.score - a.score).map(s => s.item);
 
     const best = sorted[0];
     console.log(`[WizVision] Google Images (SerpAPI) found: "${best.title}" from ${best.source} — ${best.original_width ?? "?"}×${best.original_height ?? "?"}`);
