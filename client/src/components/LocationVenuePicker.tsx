@@ -35,6 +35,12 @@ const VENUE_OPTIONS: VenueOption[] = [
   // Stadiums
   { key: "sofi_stadium", displayName: "SoFi Stadium", category: "Stadium", emoji: "🌟", shortDescription: "Los Angeles · Futuristic translucent canopy, 70,000 seats" },
   { key: "wembley_stadium", displayName: "Wembley Stadium", category: "Stadium", emoji: "🏟️", shortDescription: "London · Iconic arch over a sea of 90,000 fans" },
+  { key: "estadio_maracana", displayName: "Estádio do Maracanã", category: "Stadium", emoji: "🇧🇷", shortDescription: "Rio de Janeiro · Sugarloaf Mountain backdrop, 78,000 fans" },
+  { key: "metlife_stadium", displayName: "MetLife Stadium", category: "Stadium", emoji: "🗽", shortDescription: "New Jersey · NYC skyline, Empire State Building backdrop" },
+  { key: "tokyo_dome", displayName: "Tokyo Dome", category: "Stadium", emoji: "🏯", shortDescription: "Tokyo · White inflatable dome, 55,000 passionate fans" },
+  { key: "stade_de_france", displayName: "Stade de France", category: "Stadium", emoji: "🇫🇷", shortDescription: "Paris · Eiffel Tower backdrop, 81,000 capacity" },
+  { key: "camp_nou", displayName: "Camp Nou", category: "Stadium", emoji: "🔵", shortDescription: "Barcelona · Europe's largest stadium, Sagrada Família horizon" },
+  { key: "rose_bowl", displayName: "Rose Bowl", category: "Stadium", emoji: "🌹", shortDescription: "Pasadena · San Gabriel Mountains, golden California light" },
   // Outdoor
   { key: "glastonbury_pyramid", displayName: "Glastonbury Pyramid Stage", category: "Outdoor", emoji: "🌿", shortDescription: "Somerset · Golden pyramid at dusk, festival crowd" },
   { key: "coachella_main_stage", displayName: "Coachella Main Stage", category: "Outdoor", emoji: "🌵", shortDescription: "Indio · Desert night sky, neon-lit stage canopy" },
