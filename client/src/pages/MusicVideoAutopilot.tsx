@@ -5679,15 +5679,15 @@ export default function MusicVideoAutopilot() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="text-white/40 hover:text-[--color-gold] hover:bg-[rgba(24,20,16,0.9)] h-7 w-7 p-0 shrink-0"
+                          className="flex items-center gap-1 text-white/50 hover:text-[--color-gold] hover:bg-[rgba(212,168,67,0.08)] h-7 px-2 shrink-0 text-[11px] font-medium border border-transparent hover:border-[rgba(212,168,67,0.2)] rounded-md transition-all"
                           onClick={() => handleRegenerateScene(scene.id)}
                           disabled={scene.regenerating || regenerateSceneMutation.isPending}
-                          title="Regenerate this scene"
+                          title="Regenerate this scene's storyboard preview image with current locked settings (venue, character, outfit)"
                         >
                           {scene.regenerating ? (
-                            <Loader2 className="w-3 h-3 animate-spin" />
+                            <><Loader2 className="w-3 h-3 animate-spin" /><span>Regenerating…</span></>
                           ) : (
-                            <RefreshCw className="w-3 h-3" />
+                            <><RefreshCw className="w-3 h-3" /><span>Regen Preview</span></>
                           )}
                         </Button>
                         <Button
