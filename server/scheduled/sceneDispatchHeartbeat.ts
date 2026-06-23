@@ -669,20 +669,31 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             // or fall back to the full stem/audio URL if slicing wasn't attempted.
             const slicedVocalStemUrl = sceneAudioUrlForR2V ?? (job.stemVocalsUrl ?? job.audioUrl ?? undefined);
 
-            // Use HeyGen Direct for performance scenes with a character image and audio
-            const useHeyGenDirect = isPerformanceScene && (scene.lipSync ?? false) && !!resolvedCharacterUrl && !!slicedVocalStemUrl && isHeyGenDirectConfigured();
+            // Use HeyGen Direct for performance scenes with a photo (venue storyboard or portrait) and audio.
+            // Image priority: scene.previewImageUrl (venue storyboard) > resolvedCharacterUrl (portrait).
+            const heyGenAvailablePhotoUrl = scene.previewImageUrl ?? resolvedCharacterUrl;
+            const useHeyGenDirect = isPerformanceScene && (scene.lipSync ?? false) && !!heyGenAvailablePhotoUrl && !!slicedVocalStemUrl && isHeyGenDirectConfigured();
 
             if (useHeyGenDirect) {
               // ── HEYGEN DIRECT PHOTO+AUDIO PATH (PRIMARY for performance scenes) ──────────────────
               // One API call: portrait photo + vocal stem → lip-synced video
               // No Seedance render needed. No muxing. No video-to-video HeyGen Precision.
+              //
+              // IMAGE SELECTION PRIORITY (2026-06-23):
+              //   1. scene.previewImageUrl — BFL/Forge storyboard showing character IN the venue
+              //      (Lyndhurst Hall, Air Studios). This gives HeyGen the correct background + framing.
+              //   2. resolvedCharacterUrl  — face crop / portrait (grey background fallback).
+              //      Only used if no storyboard image exists for this scene.
+              // NEVER use environmentRefUrl as the HeyGen photo — it's full-body and causes blur.
+              const heyGenPhotoUrl = heyGenAvailablePhotoUrl!;
               console.log(`[SceneDispatch] Scene ${scene.id} → HeyGen Direct Photo+Audio (performance, direct lip sync)`);
-              console.log(`[SceneDispatch] Scene ${scene.id} character: ${resolvedCharacterUrl!.slice(0, 80)}...`);
+              const heyGenPhotoSource = scene.previewImageUrl ? 'scene.previewImageUrl (venue storyboard)' : 'resolvedCharacterUrl (portrait fallback)';
+              console.log(`[SceneDispatch] Scene ${scene.id} HEYGEN PHOTO: ${heyGenPhotoSource} → ${heyGenPhotoUrl.slice(0, 80)}...`);
               console.log(`[SceneDispatch] Scene ${scene.id} vocal stem: ${slicedVocalStemUrl!.slice(0, 80)}...`);
               const estCost = estimateHeyGenDirectCost(scene.duration ?? 5);
               console.log(`[SceneDispatch] Scene ${scene.id} estimated cost: $${estCost.toFixed(4)} (${scene.duration ?? 5}s)`);
               const heyGenDirectTaskId = await submitHeyGenDirectPhoto({
-                imageUrl: resolvedCharacterUrl!,
+                imageUrl: heyGenPhotoUrl,
                 audioUrl: slicedVocalStemUrl!,
                 sceneId: scene.id,
                 durationSeconds: scene.duration ?? 5,

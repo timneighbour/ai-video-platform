@@ -16,7 +16,8 @@ import sharp from "sharp";
 
 /**
  * Crop a tight head-and-shoulders portrait from a full-body image for HeyGen lip sync.
- * Takes the top 35% of the image height, centred horizontally, resized to 512×512 JPEG.
+ * Takes the top 35% of the image height, centred horizontally, resized to 1024×1024 JPEG.
+ * 1024px avoids HeyGen upscaling blur — face must fill the majority of the frame.
  */
 async function generateFaceCrop(imageUrl: string): Promise<Buffer> {
   const response = await fetch(imageUrl);
@@ -32,8 +33,8 @@ async function generateFaceCrop(imageUrl: string): Promise<Buffer> {
   const left = Math.round((width - cropWidth) / 2);
   return image
     .extract({ left, top: 0, width: cropWidth, height: cropHeight })
-    .resize(512, 512)
-    .jpeg({ quality: 90 })
+    .resize(1024, 1024)
+    .jpeg({ quality: 92 })
     .toBuffer();
 }
 
