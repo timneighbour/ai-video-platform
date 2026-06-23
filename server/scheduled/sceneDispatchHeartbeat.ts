@@ -386,19 +386,29 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           // Still continue polling and Sync Labs — only block new dispatches
         } else if (probeDecision.mode === "probe_only") {
           // PROBE-ONLY: A probe is a single validation scene — it must NEVER compete
-          // for the serialisation slot. Bypass the slot check entirely and fetch the
-          // probe scene directly from the full scene list (not just pendingScenes which
-          // may be empty for non-slot-holding jobs).
-          const allPendingScenes = scenes.filter((s) => s.status === "pending" && !s.taskId);
-          const probeScene = allPendingScenes.find(s => s.id === probeDecision.probeSceneId);
-          if (probeScene) {
-            console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — dispatching probe scene ${probeScene.id} (index ${probeScene.sceneIndex}) — slot bypass active`);
-            pendingProbeSceneId = probeScene.id;
-            // Replace pendingScenes with just the probe scene for dispatch loop below
+          // for the serialisation slot. Bypass the slot check entirely.
+          // IMPORTANT: Re-query the probe scene directly from the DB to get the freshest
+          // state — the failed-scene reset above may have just moved it back to pending
+          // and the in-memory `scenes` array would be stale.
+          const [freshProbeRows] = await db
+            .select()
+            .from(musicVideoScenes)
+            .where(eq(musicVideoScenes.id, probeDecision.probeSceneId!));
+          const probeScene = (freshProbeRows as typeof freshProbeRows | undefined) &&
+            (freshProbeRows as any)?.status === "pending" && !(freshProbeRows as any)?.taskId
+            ? (freshProbeRows as any)
+            : null;
+          // Also check the in-memory list as fallback (handles case where DB re-query returns array)
+          const freshProbeScene = Array.isArray(freshProbeRows)
+            ? (freshProbeRows as any[]).find((s: any) => s.status === "pending" && !s.taskId)
+            : probeScene;
+          if (freshProbeScene) {
+            console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — dispatching probe scene ${freshProbeScene.id} (index ${freshProbeScene.sceneIndex}) — slot bypass active`);
+            pendingProbeSceneId = freshProbeScene.id;
             pendingScenes.length = 0;
-            pendingScenes.push(probeScene);
+            pendingScenes.push(freshProbeScene);
           } else {
-            console.warn(`[SceneDispatch] Job ${job.id} PROBE MODE — probe scene ${probeDecision.probeSceneId} not found in any pending scene (may already be dispatched or completed)`);
+            console.warn(`[SceneDispatch] Job ${job.id} PROBE MODE — probe scene ${probeDecision.probeSceneId} not in pending state (status: ${(freshProbeRows as any)?.status ?? 'unknown'}, taskId: ${(freshProbeRows as any)?.taskId ?? 'none'})`);
             pendingScenes.length = 0;
           }
         } else if (probeDecision.mode === "one_at_a_time") {
