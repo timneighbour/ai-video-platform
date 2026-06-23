@@ -644,6 +644,36 @@ async function startServer() {
     }
   });
 
+  // ── Debug: regenerate a single scene preview via the full pipeline (owner-only) ──
+  // Calls generateScenePreviewCore directly — same path as the UI's regenerate button.
+  // Usage: POST /api/debug/regen-scene-preview?secret=<JWT_SECRET[:16]>&jobId=1320002&sceneId=1140064
+  app.post("/api/debug/regen-scene-preview", async (req, res) => {
+    try {
+      const secret = (req.query.secret ?? req.body?.secret) as string;
+      if (!secret || secret !== process.env.JWT_SECRET?.slice(0, 16)) {
+        return res.status(403).json({ error: "forbidden" });
+      }
+      const jobId = parseInt((req.query.jobId ?? req.body?.jobId) as string, 10);
+      const sceneId = parseInt((req.query.sceneId ?? req.body?.sceneId) as string, 10);
+      const userId = parseInt((req.query.userId ?? req.body?.userId ?? "1") as string, 10);
+      if (isNaN(jobId) || isNaN(sceneId)) return res.status(400).json({ error: "jobId and sceneId required" });
+      const db = await getDb();
+      if (!db) return res.status(500).json({ error: "db unavailable" });
+      // Dynamically import generateScenePreviewCore from the musicVideo router
+      const { generateScenePreviewCore: regenCore } = await import("../routers/musicVideo.js") as any;
+      if (typeof regenCore !== "function") {
+        return res.status(500).json({ error: "generateScenePreviewCore not exported — add export to musicVideo.ts" });
+      }
+      console.log(`[Debug/RegenScenePreview] Regenerating scene ${sceneId} for job ${jobId} userId=${userId}`);
+      const url = await regenCore({ db, userId, jobId, sceneId, forceRegenerate: true });
+      console.log(`[Debug/RegenScenePreview] Done: ${url?.slice(0, 80)}`);
+      return res.json({ ok: true, jobId, sceneId, url });
+    } catch (e: any) {
+      console.error("[Debug/RegenScenePreview] Error:", e?.message);
+      return res.status(500).json({ error: e?.message ?? "unknown" });
+    }
+  });
+
   // ── Debug: circuit breaker reset (owner-only, temporary) ──────────────────
   app.post("/api/debug/reset-circuit/:provider", async (req, res) => {
     try {

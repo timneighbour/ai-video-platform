@@ -86,7 +86,53 @@ import { validateRawSceneForLipSync } from "../raw-scene-validator";
 import { runPostRenderCheck, formatQualityLockRejection } from "../wiz-quality-lock";
 import { triggerCloudVocalIsolation } from "../cloud-vocal-isolation";
 import { notifyOwner } from "../_core/notification";
+import sharp from "sharp";
+import { storagePut } from "../storage";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
+
+// ── MEDIUM-SHOT CROP HELPER ─────────────────────────────────────────────────────
+// Takes a venue storyboard image (any size) and crops the top 50% of height,
+// centred horizontally, then resizes to 1344×768 (16:9).
+// This gives HeyGen a medium close-up: face fills ~30-40% of frame, venue
+// background visible above and behind — no grey background, no full-body blur.
+// Non-fatal: if crop fails, returns the original URL unchanged.
+async function cropMediumShotForHeyGen(
+  imageUrl: string,
+  sceneId: number | string,
+  jobId: number | string
+): Promise<string> {
+  try {
+    console.log(`[MediumCrop] Scene ${sceneId} — downloading storyboard for medium-shot crop`);
+    const resp = await fetch(imageUrl);
+    if (!resp.ok) throw new Error(`Download failed: HTTP ${resp.status}`);
+    const buf = Buffer.from(await resp.arrayBuffer());
+
+    const meta = await sharp(buf).metadata();
+    const srcW = meta.width!;
+    const srcH = meta.height!;
+    console.log(`[MediumCrop] Scene ${sceneId} source: ${srcW}x${srcH}`);
+
+    // Crop top 50% of height, full width, then resize to 1344×768
+    const cropH = Math.round(srcH * 0.50);
+    const croppedBuf = await sharp(buf)
+      .extract({ left: 0, top: 0, width: srcW, height: cropH })
+      .resize(1344, 768, { fit: 'cover', position: 'centre' })
+      .jpeg({ quality: 95 })
+      .toBuffer();
+
+    const verifyMeta = await sharp(croppedBuf).metadata();
+    console.log(`[MediumCrop] Scene ${sceneId} cropped: ${verifyMeta.width}x${verifyMeta.height} (${croppedBuf.length} bytes)`);
+
+    // Upload to CDN
+    const storageKey = `music-video-heygen-input/${jobId}-scene-${sceneId}-medshot-${Date.now()}.jpg`;
+    const { url: cdnUrl } = await storagePut(storageKey, croppedBuf, 'image/jpeg');
+    console.log(`[MediumCrop] Scene ${sceneId} uploaded → ${cdnUrl.slice(0, 80)}...`);
+    return cdnUrl;
+  } catch (cropErr: any) {
+    console.warn(`[MediumCrop] Scene ${sceneId} crop failed (non-fatal, using original): ${cropErr?.message ?? String(cropErr)}`);
+    return imageUrl; // fall back to original
+  }
+}
 
 // ── ISS-017: Heartbeat watchdog ────────────────────────────────────────────────
 // Track the last successful tick time. If the heartbeat is silent for > 3 minutes,
@@ -685,9 +731,18 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               //   2. resolvedCharacterUrl  — face crop / portrait (grey background fallback).
               //      Only used if no storyboard image exists for this scene.
               // NEVER use environmentRefUrl as the HeyGen photo — it's full-body and causes blur.
-              const heyGenPhotoUrl = heyGenAvailablePhotoUrl!;
+              // MEDIUM-SHOT CROP: if using the venue storyboard image, crop top 50% of height
+              // (centred, resized to 1344×768) so Zara's face fills ~30-40% of frame.
+              // This keeps the Lyndhurst Hall venue background visible while giving HeyGen
+              // a close enough face to animate. Portrait fallback is used as-is (already cropped).
+              let heyGenPhotoUrl: string;
+              if (scene.previewImageUrl) {
+                heyGenPhotoUrl = await cropMediumShotForHeyGen(scene.previewImageUrl, scene.id, job.id);
+              } else {
+                heyGenPhotoUrl = resolvedCharacterUrl!;
+              }
               console.log(`[SceneDispatch] Scene ${scene.id} → HeyGen Direct Photo+Audio (performance, direct lip sync)`);
-              const heyGenPhotoSource = scene.previewImageUrl ? 'scene.previewImageUrl (venue storyboard)' : 'resolvedCharacterUrl (portrait fallback)';
+              const heyGenPhotoSource = scene.previewImageUrl ? 'medium-shot crop of scene.previewImageUrl (venue storyboard)' : 'resolvedCharacterUrl (portrait fallback)';
               console.log(`[SceneDispatch] Scene ${scene.id} HEYGEN PHOTO: ${heyGenPhotoSource} → ${heyGenPhotoUrl.slice(0, 80)}...`);
               console.log(`[SceneDispatch] Scene ${scene.id} vocal stem: ${slicedVocalStemUrl!.slice(0, 80)}...`);
               const estCost = estimateHeyGenDirectCost(scene.duration ?? 5);
@@ -698,6 +753,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 sceneId: scene.id,
                 durationSeconds: scene.duration ?? 5,
                 title: `WizAI Scene ${scene.id} Job ${job.id}`,
+                resolution: "1080p",
+                aspectRatio: "16:9",
+                fit: "cover",
               });
               await db
                 .update(musicVideoScenes)

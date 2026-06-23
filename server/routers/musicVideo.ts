@@ -137,7 +137,7 @@ const OUTFIT_CONSTRAINTS: Record<string, { positive: string[]; negative: string[
  * Returns the generated imageUrl (string) or null on failure.
  * Throws on hard errors (TRPC errors, quota exceeded).
  */
-async function generateScenePreviewCore(opts: {
+export async function generateScenePreviewCore(opts: {
   db: NonNullable<Awaited<ReturnType<typeof getDb>>>;
   userId: number;
   jobId: number;
