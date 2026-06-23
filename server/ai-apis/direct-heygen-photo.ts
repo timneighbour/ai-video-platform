@@ -79,23 +79,38 @@ export interface HeyGenDirectResult {
 // ─── Asset Upload ─────────────────────────────────────────────────────────────
 
 /**
- * Download a file from Manus storage.
- * Gets the presigned URL and downloads it with auth headers.
+ * Download a file from Manus storage or a public URL.
+ *
+ * - Full HTTPS URLs (e.g. CloudFront CDN): fetched directly without auth headers.
+ * - Relative storage keys (e.g. "userId/jobId/image.png"): fetched via Forge presigned URL.
  */
 async function downloadFromManusStorage(
   storageKey: string,
   label: string
 ): Promise<Buffer> {
-  const { storageGet } = await import("../storage");
-
   console.log(
     `[HeyGenDirect] Downloading ${label} from Manus storage: ${storageKey}`
   );
 
-  // Get the presigned URL
+  // If it's a full URL (CloudFront CDN, S3 public URL, etc.), fetch it directly.
+  // Routing a full URL through storageGet() would misinterpret it as a storage key
+  // and produce a broken presigned URL, causing HTTP 403 errors.
+  if (storageKey.startsWith("https://") || storageKey.startsWith("http://")) {
+    const dlResp = await fetch(storageKey, { method: "GET" });
+    if (!dlResp.ok) {
+      throw new Error(
+        `[HeyGenDirect] Failed to download ${label} from storage: HTTP ${dlResp.status}`
+      );
+    }
+    const buffer = Buffer.from(await dlResp.arrayBuffer());
+    console.log(`[HeyGenDirect] Downloaded ${label} (direct URL): ${buffer.length} bytes`);
+    return buffer;
+  }
+
+  // Relative storage key — use Forge presigned URL with auth headers
+  const { storageGet } = await import("../storage");
   const { url: presignedUrl } = await storageGet(storageKey);
 
-  // Download using the presigned URL with auth headers
   const forgeApiKey = ENV.forgeApiKey;
   if (!forgeApiKey) {
     throw new Error(
