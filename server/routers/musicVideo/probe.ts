@@ -197,12 +197,48 @@ export const musicVideoProbeRouter = router({
         .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
       if (!job) throw new TRPCError({ code: "NOT_FOUND" });
 
-      // Block if job is actively rendering all scenes
-      if (job.status === "rendering" || job.status === "assembling") {
+      // Block if job is actively rendering all scenes (full render or assembling)
+      // EXCEPTION: allow re-launch if the job is in a probe-only rendering state
+      // (probePassed=false, probeSceneId set) but the probe scene has no active taskId
+      // — this means a previous probe was queued but never dispatched (heartbeat missed it).
+      // A genuine full render will have scenes with taskIds, so we check for that.
+      if (job.status === "assembling") {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Cannot launch a probe render while a full render is in progress. Wait for it to finish or cancel it first.",
+          message: "Cannot launch a probe render while the video is being assembled. Wait for it to finish.",
         });
+      }
+      if (job.status === "rendering") {
+        // Check if this is a genuine full render (any scene has an active taskId or video)
+        // or a stuck/orphaned probe (no scenes have taskIds — heartbeat never picked it up)
+        const [probeScene] = await db.select({ taskId: musicVideoScenes.taskId, videoUrl: musicVideoScenes.videoUrl })
+          .from(musicVideoScenes)
+          .where(and(
+            eq(musicVideoScenes.jobId, input.jobId),
+            eq(musicVideoScenes.id, input.sceneId),
+          ));
+        const isStuckProbe = job.probePassed === false
+          && job.probeSceneId !== null
+          && (!probeScene?.taskId)
+          && (!probeScene?.videoUrl);
+        if (!isStuckProbe) {
+          // Check if ANY scene has an active taskId (genuine full render in progress)
+          const [activeScene] = await db.select({ taskId: musicVideoScenes.taskId })
+            .from(musicVideoScenes)
+            .where(and(
+              eq(musicVideoScenes.jobId, input.jobId),
+              sql`${musicVideoScenes.taskId} IS NOT NULL`,
+            ))
+            .limit(1);
+          if (activeScene) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Cannot launch a probe render while a full render is in progress. Wait for it to finish or cancel it first.",
+            });
+          }
+        }
+        // Stuck probe or no active tasks — allow re-launch, reset job state first
+        console.log(`[ProbeRender] Job ${input.jobId} is in rendering state but probe is stuck (no active tasks). Allowing re-launch.`);
       }
 
       // Fetch the specific scene
