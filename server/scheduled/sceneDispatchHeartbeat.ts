@@ -302,6 +302,8 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         if (jobAtConcurrencyLimit) {
           console.log(`[SceneDispatch] Job ${job.id}: ${jobGeneratingCount}/${MAX_CONCURRENT_SCENES_PER_JOB} scenes generating — at concurrency limit, polling only.`);
         }
+        // NOTE: pendingScenes is initially populated for slot-holding jobs only.
+        // Probe-only dispatches bypass this restriction below (after getProbeDecision).
         const pendingScenes = (holdsDispatchSlot && !jobAtConcurrencyLimit)
           ? scenes.filter((s) => s.status === "pending" && !s.taskId)
           : []; // Non-priority jobs OR at concurrency limit: poll only, no new dispatches
@@ -383,21 +385,21 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
           pendingScenes.length = 0;
           // Still continue polling and Sync Labs — only block new dispatches
         } else if (probeDecision.mode === "probe_only") {
-          // Only dispatch the probe scene — filter pendingScenes to just the probe
-          const probeScene = pendingScenes.find(s => s.id === probeDecision.probeSceneId);
+          // PROBE-ONLY: A probe is a single validation scene — it must NEVER compete
+          // for the serialisation slot. Bypass the slot check entirely and fetch the
+          // probe scene directly from the full scene list (not just pendingScenes which
+          // may be empty for non-slot-holding jobs).
+          const allPendingScenes = scenes.filter((s) => s.status === "pending" && !s.taskId);
+          const probeScene = allPendingScenes.find(s => s.id === probeDecision.probeSceneId);
           if (probeScene) {
-            console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — dispatching only scene ${probeScene.id} (index ${probeScene.sceneIndex}) for QA validation`);
-            // Defer marking the probe as in progress until after provider dispatch
-            // succeeds and a taskId has been written. This prevents a transient
-            // provider/API failure from leaving the job locked in probePassed=false
-            // with no actual provider task to poll.
+            console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — dispatching probe scene ${probeScene.id} (index ${probeScene.sceneIndex}) — slot bypass active`);
             pendingProbeSceneId = probeScene.id;
             // Replace pendingScenes with just the probe scene for dispatch loop below
             pendingScenes.length = 0;
             pendingScenes.push(probeScene);
           } else {
-            console.warn(`[SceneDispatch] Job ${job.id} PROBE MODE — probe scene ${probeDecision.probeSceneId} not found in pending scenes`);
-            pendingScenes.length = 0; // Block all dispatches
+            console.warn(`[SceneDispatch] Job ${job.id} PROBE MODE — probe scene ${probeDecision.probeSceneId} not found in any pending scene (may already be dispatched or completed)`);
+            pendingScenes.length = 0;
           }
         } else if (probeDecision.mode === "one_at_a_time") {
           // One-at-a-time mode: dispatch only the single next scene identified by the probe gate.
