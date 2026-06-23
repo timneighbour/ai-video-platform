@@ -112,11 +112,14 @@ async function cropMediumShotForHeyGen(
     const srcH = meta.height!;
     console.log(`[MediumCrop] Scene ${sceneId} source: ${srcW}x${srcH}`);
 
-    // Crop top 50% of height, full width, then resize to 1344×768
-    const cropH = Math.round(srcH * 0.50);
+    // Crop a 16:9 region from the top of the image at native resolution.
+    // For a 1024×1024 Forge image: top 576px (1024×576 = 16:9) gives a medium close-up
+    // with the face filling ~30-40% of the frame and the venue background visible.
+    // No upscaling: output stays at native resolution to avoid blur.
+    const cropH = Math.round(srcW * (9 / 16)); // 16:9 height from full width
+    const safeCropH = Math.min(cropH, srcH); // never exceed source height
     const croppedBuf = await sharp(buf)
-      .extract({ left: 0, top: 0, width: srcW, height: cropH })
-      .resize(1344, 768, { fit: 'cover', position: 'centre' })
+      .extract({ left: 0, top: 0, width: srcW, height: safeCropH })
       .jpeg({ quality: 95 })
       .toBuffer();
 
