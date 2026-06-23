@@ -5460,7 +5460,11 @@ export default function MusicVideoAutopilot() {
                   {probeState === "awaiting_approval" && <AlertCircle className="w-4 h-4 text-amber-400" />}
                   {probeState === "approved" && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
                   <p className="text-sm font-semibold text-white">
-                    {probeState === "rendering" && "Test Render in Progress\u2026"}
+                    {probeState === "rendering" && (() => {
+                      const ps = probeSceneId != null ? scenes.find(s => s.id === probeSceneId) : null;
+                      const sceneNum = ps ? (ps.sceneIndex ?? 0) + 1 : null;
+                      return sceneNum ? `Scene ${sceneNum} \u2014 Rendering\u2026` : "Test Render in Progress\u2026";
+                    })()}
                     {probeState === "awaiting_approval" && "Test Render Ready \u2014 Review Before Full Render"}
                     {probeState === "approved" && "Test Render Approved \u2014 Full Render Underway"}
                   </p>
@@ -5472,15 +5476,31 @@ export default function MusicVideoAutopilot() {
                     {probeState === "rendering" ? "Rendering" : probeState === "awaiting_approval" ? "Awaiting Review" : "Approved"}
                   </span>
                 </div>
-                {probeState === "rendering" && (
-                  <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                    <Loader2 className="w-5 h-5 text-purple-400 animate-spin flex-shrink-0" />
-                    <div>
-                      <p className="text-sm text-white/80 font-medium">Your test render is generating</p>
-                      <p className="text-xs text-white/40 mt-0.5">One scene is being rendered so you can check quality before committing to the full render. This typically takes 2-4 minutes. You can keep reviewing your storyboard while you wait.</p>
+                {probeState === "rendering" && (() => {
+                  const ps = probeSceneId != null ? scenes.find(s => s.id === probeSceneId) : null;
+                  const sceneNum = ps ? (ps.sceneIndex ?? 0) + 1 : null;
+                  const elapsedMin = Math.floor(liveElapsed / 60);
+                  const elapsedSec = liveElapsed % 60;
+                  const elapsedStr = liveElapsed < 60
+                    ? `${liveElapsed}s elapsed`
+                    : `${elapsedMin}m ${elapsedSec < 10 ? '0' : ''}${elapsedSec}s elapsed`;
+                  return (
+                    <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                      <Loader2 className="w-5 h-5 text-purple-400 animate-spin flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-white/90 font-bold">
+                          {sceneNum ? `Scene ${sceneNum} \u2014 HeyGen rendering\u2026` : "Rendering test scene\u2026"}
+                        </p>
+                        <p className="text-xs text-white/50 mt-0.5">Lip-sync generation in progress. Typically 2-4 minutes.</p>
+                      </div>
+                      {liveElapsed > 0 && (
+                        <span className="text-xs font-mono font-bold text-purple-300 bg-purple-500/20 border border-purple-500/30 px-2 py-1 rounded-lg flex-shrink-0">
+                          {elapsedStr}
+                        </span>
+                      )}
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
                 {probeState === "awaiting_approval" && probeVideoUrl && (
                   <div className="rounded-xl overflow-hidden border border-amber-500/20">
                     <video src={probeVideoUrl} controls className="w-full max-h-64 object-contain bg-black" />

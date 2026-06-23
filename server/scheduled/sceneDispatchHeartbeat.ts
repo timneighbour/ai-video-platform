@@ -1028,10 +1028,34 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   const needsLipSyncForProbe = (scene.lipSync ?? false) && !!job.audioUrl;
                   if (!needsLipSyncForProbe) {
                     const probeUrl = pollResult.videoUrl;
-                    await db.update(musicVideoJobs)
-                      .set({ probeVideoUrl: probeUrl, updatedAt: new Date() })
-                      .where(eq(musicVideoJobs.id, job.id));
-                    console.log(`[SceneDispatch] Job ${job.id} PROBE COMPLETE (no lip sync) — raw video ready for owner review: ${probeUrl.slice(0, 60)}...`);
+                    // ── Feature C: Auto-quality check — verify probe video duration ±0.5s ──
+                    let probeDurationOk = true;
+                    try {
+                      const { execSync: _execSync } = await import("child_process");
+                      const expectedDur = scene.duration ?? 5;
+                      const ffprobeCmd = `ffprobe -v quiet -show_entries format=duration -of csv=p=0 "${probeUrl}" 2>/dev/null || echo skip`;
+                      const ffOut = _execSync(ffprobeCmd, { timeout: 12000 }).toString().trim();
+                      if (ffOut && ffOut !== "skip" && !isNaN(parseFloat(ffOut))) {
+                        const actualDur = parseFloat(ffOut);
+                        if (Math.abs(actualDur - expectedDur) > 0.5) {
+                          probeDurationOk = false;
+                          const errMsg = `Duration mismatch: expected ${expectedDur.toFixed(1)}s, got ${actualDur.toFixed(1)}s`;
+                          console.error(`[ProbeQuality] Scene ${scene.id} FAILED duration check — ${errMsg}`);
+                          await db.update(musicVideoScenes)
+                            .set({ status: "failed", errorMessage: errMsg, updatedAt: new Date() })
+                            .where(eq(musicVideoScenes.id, scene.id));
+                          await db.update(musicVideoJobs)
+                            .set({ status: "rendering", probePassed: false as any, probeSceneId: null, probeVideoUrl: null, updatedAt: new Date() })
+                            .where(eq(musicVideoJobs.id, job.id));
+                        }
+                      }
+                    } catch { /* ffprobe unavailable — skip check, do not block */ }
+                    if (probeDurationOk) {
+                      await db.update(musicVideoJobs)
+                        .set({ probeVideoUrl: probeUrl, updatedAt: new Date() })
+                        .where(eq(musicVideoJobs.id, job.id));
+                      console.log(`[SceneDispatch] Job ${job.id} PROBE COMPLETE (no lip sync) — raw video ready for owner review: ${probeUrl.slice(0, 60)}...`);
+                    }
                   } else {
                     console.log(`[SceneDispatch] Job ${job.id} probe scene ${scene.id} clip ready — waiting for lip sync before setting probeVideoUrl`);
                   }
@@ -1398,14 +1422,38 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   const [currentJob] = await db.select({ probeSceneId: musicVideoJobs.probeSceneId, probePassed: musicVideoJobs.probePassed })
                     .from(musicVideoJobs).where(eq(musicVideoJobs.id, job.id));
                   if (currentJob?.probeSceneId === scene.id && (currentJob?.probePassed === false || (currentJob?.probePassed as any) === 0)) {
-                    await db.update(musicVideoJobs)
-                      .set({ probeVideoUrl: url, updatedAt: new Date() })
-                      .where(eq(musicVideoJobs.id, job.id));
-                    // Hard pause: set job status to awaiting_probe_approval so no more scenes are dispatched
-                    await db.update(musicVideoJobs)
-                      .set({ status: "awaiting_probe_approval" as any, updatedAt: new Date() })
-                      .where(eq(musicVideoJobs.id, job.id));
-                    console.log(`[SceneDispatch] Job ${job.id} PROBE LIP SYNC COMPLETE — status → awaiting_probe_approval. Owner review required: ${url.slice(0, 60)}...`);
+                    // ── Feature C: Auto-quality check — verify probe video duration ±0.5s ──
+                    let probeLipSyncDurationOk = true;
+                    try {
+                      const { execSync: _execSync2 } = await import("child_process");
+                      const expectedDurLS = scene.duration ?? 5;
+                      const ffprobeCmdLS = `ffprobe -v quiet -show_entries format=duration -of csv=p=0 "${url}" 2>/dev/null || echo skip`;
+                      const ffOutLS = _execSync2(ffprobeCmdLS, { timeout: 12000 }).toString().trim();
+                      if (ffOutLS && ffOutLS !== "skip" && !isNaN(parseFloat(ffOutLS))) {
+                        const actualDurLS = parseFloat(ffOutLS);
+                        if (Math.abs(actualDurLS - expectedDurLS) > 0.5) {
+                          probeLipSyncDurationOk = false;
+                          const errMsgLS = `Duration mismatch: expected ${expectedDurLS.toFixed(1)}s, got ${actualDurLS.toFixed(1)}s`;
+                          console.error(`[ProbeQuality] Scene ${scene.id} lip-sync FAILED duration check — ${errMsgLS}`);
+                          await db.update(musicVideoScenes)
+                            .set({ status: "failed", errorMessage: errMsgLS, lipSyncStatus: "error" as any, updatedAt: new Date() })
+                            .where(eq(musicVideoScenes.id, scene.id));
+                          await db.update(musicVideoJobs)
+                            .set({ status: "rendering", probePassed: false as any, probeSceneId: null, probeVideoUrl: null, updatedAt: new Date() })
+                            .where(eq(musicVideoJobs.id, job.id));
+                        }
+                      }
+                    } catch { /* ffprobe unavailable — skip check, do not block */ }
+                    if (probeLipSyncDurationOk) {
+                      await db.update(musicVideoJobs)
+                        .set({ probeVideoUrl: url, updatedAt: new Date() })
+                        .where(eq(musicVideoJobs.id, job.id));
+                      // Hard pause: set job status to awaiting_probe_approval so no more scenes are dispatched
+                      await db.update(musicVideoJobs)
+                        .set({ status: "awaiting_probe_approval" as any, updatedAt: new Date() })
+                        .where(eq(musicVideoJobs.id, job.id));
+                      console.log(`[SceneDispatch] Job ${job.id} PROBE LIP SYNC COMPLETE — status → awaiting_probe_approval. Owner review required: ${url.slice(0, 60)}...`);
+                    }
                   }
                 } catch { /* non-fatal */ }
 

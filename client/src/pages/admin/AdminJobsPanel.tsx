@@ -25,6 +25,7 @@ import {
   Loader2,
   Film,
   Copy,
+  Archive,
 } from "@/lib/icons";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -342,7 +343,19 @@ export default function AdminJobsPanel() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(0);
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [archiveConfirmJobId, setArchiveConfirmJobId] = useState<number | null>(null);
   const limit = 50;
+
+  const archiveJob = trpc.pipelineOps.adminArchiveJob.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Job WIZ-${String(data.jobId).padStart(6, "0")} archived`, {
+        description: `Previous status: ${data.previousStatus}`,
+      });
+      setArchiveConfirmJobId(null);
+      refetch();
+    },
+    onError: (err) => toast.error("Archive failed", { description: err.message }),
+  });
 
   // Debounce search
   React.useEffect(() => {
@@ -427,7 +440,7 @@ export default function AdminJobsPanel() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-white/10 bg-white/[0.02]">
-                  {["Ref", "Title", "User", "Status", "Scenes", "Duration", "Credits", "Genre", "Created"].map((h) => (
+                  {["Ref", "Title", "User", "Status", "Scenes", "Duration", "Credits", "Genre", "Created", ""].map((h) => (
                     <th key={h} className="px-3 py-2.5 text-[10px] text-white/30 uppercase tracking-wider font-bold whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -435,13 +448,13 @@ export default function AdminJobsPanel() {
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={9} className="px-4 py-12 text-center">
+                    <td colSpan={10} className="px-4 py-12 text-center">
                       <Loader2 className="w-5 h-5 text-[--color-gold] animate-spin mx-auto" />
                     </td>
                   </tr>
                 ) : jobs.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="px-4 py-12 text-center text-white/30 text-sm">
+                    <td colSpan={10} className="px-4 py-12 text-center text-white/30 text-sm">
                       No jobs found{debouncedSearch ? ` matching "${debouncedSearch}"` : ""}.
                     </td>
                   </tr>
@@ -489,6 +502,17 @@ export default function AdminJobsPanel() {
                       <td className="px-3 py-2.5 text-[11px] text-white/30 font-mono whitespace-nowrap">
                         {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "—"}
                       </td>
+                      <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
+                        {job.status !== "cancelled" && (
+                          <button
+                            title="Cancel & Archive this job"
+                            onClick={(e) => { e.stopPropagation(); setArchiveConfirmJobId(job.id); }}
+                            className="p-1 rounded text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                          >
+                            <Archive className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   );
                 })}
@@ -529,6 +553,50 @@ export default function AdminJobsPanel() {
           </div>
         )}
       </div>
+
+      {/* Archive Confirmation Dialog */}
+      {archiveConfirmJobId !== null && (() => {
+        const archiveTarget = jobs.find((j) => j.id === archiveConfirmJobId);
+        const jobRef = archiveTarget ? `WIZ-${String(archiveTarget.id).padStart(6, "0")}` : "";
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+            <div className="bg-[#1a1410] border border-red-500/30 rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-9 h-9 rounded-full bg-red-500/15 flex items-center justify-center flex-shrink-0">
+                  <Archive className="w-4 h-4 text-red-400" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold text-sm">Archive this job?</h3>
+                  <p className="text-white/40 text-[11px] font-mono">{jobRef}</p>
+                </div>
+              </div>
+              <p className="text-white/60 text-sm mb-5">
+                This will set the job status to <span className="text-red-400 font-mono">cancelled</span>. This cannot be undone.
+              </p>
+              <div className="flex items-center gap-2 justify-end">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-white/15 text-white/50 hover:text-white bg-transparent"
+                  onClick={() => setArchiveConfirmJobId(null)}
+                  disabled={archiveJob.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-red-600 hover:bg-red-700 text-white border-0"
+                  onClick={() => archiveJob.mutate({ jobId: archiveConfirmJobId })}
+                  disabled={archiveJob.isPending}
+                >
+                  {archiveJob.isPending ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Archive className="w-3.5 h-3.5 mr-1.5" />}
+                  Archive Job
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

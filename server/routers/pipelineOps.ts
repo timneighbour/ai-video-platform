@@ -477,6 +477,25 @@ export const pipelineOpsRouter = router({
       return { success: true, jobId: input.jobId };
     }),
 
+  /**
+   * Admin: archive (cancel) any job regardless of current status.
+   * Used by the Admin Jobs panel Cancel & Archive button.
+   */
+  adminArchiveJob: adminProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("DB unavailable");
+      const [job] = await db.select({ id: musicVideoJobs.id, status: musicVideoJobs.status })
+        .from(musicVideoJobs).where(eq(musicVideoJobs.id, input.jobId));
+      if (!job) throw new Error(`Job ${input.jobId} not found`);
+      await db.update(musicVideoJobs)
+        .set({ status: "cancelled", updatedAt: new Date() })
+        .where(eq(musicVideoJobs.id, input.jobId));
+      console.log(`[Admin] Job ${input.jobId} archived (status=cancelled) from '${job.status}'`);
+      return { success: true, jobId: input.jobId, previousStatus: job.status };
+    }),
+
   triggerGoldenValidation: adminProcedure
     .mutation(async () => {
       // Fire-and-forget: start the golden validation in background
