@@ -4903,10 +4903,10 @@ export default function MusicVideoAutopilot() {
                     <button
                       onClick={() => { navigator.clipboard.writeText(`WIZ-${String(jobId).padStart(6, '0')}`); toast.success('Reference copied', { description: `WIZ-${String(jobId).padStart(6, '0')} copied to clipboard` }); }}
                       title="Copy project reference"
-                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[rgba(184,137,42,0.12)] border border-[rgba(184,137,42,0.25)] text-[--color-gold]/60 text-[9px] font-mono hover:text-[--color-gold] hover:border-[rgba(184,137,42,0.5)] transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[rgba(184,137,42,0.18)] border border-[rgba(184,137,42,0.5)] text-[--color-gold] text-xs font-mono font-bold hover:bg-[rgba(184,137,42,0.28)] hover:border-[rgba(184,137,42,0.8)] transition-colors cursor-pointer"
                     >
                       WIZ-{String(jobId).padStart(6, '0')}
-                      <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                     </button>
                   )}
                 </div>
@@ -5477,7 +5477,7 @@ export default function MusicVideoAutopilot() {
                     <Loader2 className="w-5 h-5 text-purple-400 animate-spin flex-shrink-0" />
                     <div>
                       <p className="text-sm text-white/80 font-medium">Your test render is generating</p>
-                      <p className="text-xs text-white/40 mt-0.5">One scene is being rendered so you can check quality before committing to the full render. This typically takes 2\u20134 minutes. You can keep reviewing your storyboard while you wait.</p>
+                      <p className="text-xs text-white/40 mt-0.5">One scene is being rendered so you can check quality before committing to the full render. This typically takes 2-4 minutes. You can keep reviewing your storyboard while you wait.</p>
                     </div>
                   </div>
                 )}
@@ -5623,7 +5623,7 @@ export default function MusicVideoAutopilot() {
                         </div>
                         {/* Scene number — top left */}
                         <div style={{position:'absolute',top:8,left:8,zIndex:5}}>
-                          <span style={{fontSize:8,fontWeight:700,letterSpacing:1,color:'rgba(212,168,67,0.9)',textShadow:'0 1px 3px rgba(0,0,0,0.8)'}}>SC {String(scene.sceneIndex + 1).padStart(2,'0')}</span>
+                          <span style={{fontSize:13,fontWeight:900,letterSpacing:2,color:'rgba(212,168,67,1)',textShadow:'0 2px 8px rgba(0,0,0,0.95)',background:'rgba(0,0,0,0.55)',padding:'2px 6px',borderRadius:4,border:'1px solid rgba(212,168,67,0.4)'}}>SC {String(scene.sceneIndex + 1).padStart(2,'0')}</span>
                           {inferSceneType(scene.lyrics, scene.prompt) && (
                             <span style={{marginLeft:6,fontSize:7,letterSpacing:0.5,color:'rgba(255,255,255,0.5)'}}>{inferSceneType(scene.lyrics, scene.prompt).toUpperCase()}</span>
                           )}
