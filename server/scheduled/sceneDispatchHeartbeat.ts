@@ -522,10 +522,20 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   }
 
                   let autoRef: string | null;
-                  if (isLipSyncScene && bestChar.environmentRefUrl) {
-                    // BEST: character already placed in the correct environment
-                    autoRef = bestChar.environmentRefUrl;
-                    console.log(`[SceneDispatch] Scene ${scene.id} ENVIRONMENT REF selected for r2v lip sync: ${autoRef.slice(0, 80)}...`);
+                  if (isLipSyncScene) {
+                    // HeyGen lip sync requires a TIGHT FACE PORTRAIT — face must fill the majority of the frame.
+                    // Priority:
+                    //   1. performanceRefUrl — close-up headshot, explicitly created for lip sync (CORRECT)
+                    //   2. masterPortraitUrl — full-body fallback (acceptable, better than nothing)
+                    // environmentRefUrl = full-body in venue — NEVER use for HeyGen input.
+                    // The face is too small in environmentRefUrl for HeyGen to detect and animate reliably.
+                    // (environmentRefUrl is used for BFL/Forge scene generation, not for HeyGen lip sync.)
+                    const heyGenPhotoUrl = bestChar.performanceRefUrl ?? bestChar.masterPortraitUrl ?? null;
+                    autoRef = heyGenPhotoUrl;
+                    if (heyGenPhotoUrl) {
+                      const source = bestChar.performanceRefUrl ? 'performanceRefUrl (tight face close-up)' : 'masterPortraitUrl (full-body fallback)';
+                      console.log(`[SceneDispatch] Scene ${scene.id} HEYGEN PORTRAIT selected: ${source} → ${heyGenPhotoUrl.slice(0, 80)}...`);
+                    }
                   } else {
                     autoRef = selectReferenceForScene(bestChar, scene.sceneType ?? "cinematic");
                   }

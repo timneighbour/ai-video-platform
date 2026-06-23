@@ -12,6 +12,30 @@ import { eq, and, desc } from "drizzle-orm";
 import { storagePut } from "../storage";
 import { validateCharacterPhoto } from "../character-photo-validator";
 import { getCharacterDefaults } from "../../shared/characterDefaults";
+import sharp from "sharp";
+
+/**
+ * Crop a tight head-and-shoulders portrait from a full-body image for HeyGen lip sync.
+ * Takes the top 35% of the image height, centred horizontally, resized to 512×512 JPEG.
+ */
+async function generateFaceCrop(imageUrl: string): Promise<Buffer> {
+  const response = await fetch(imageUrl);
+  if (!response.ok) throw new Error(`Failed to fetch image for face crop: ${response.status}`);
+  const imageBuffer = await response.arrayBuffer();
+  const image = sharp(Buffer.from(imageBuffer));
+  const metadata = await image.metadata();
+  const width = metadata.width!;
+  const height = metadata.height!;
+  // Crop top 35% of height, centred horizontally (square crop)
+  const cropHeight = Math.round(height * 0.35);
+  const cropWidth = Math.round(Math.min(width, cropHeight));
+  const left = Math.round((width - cropWidth) / 2);
+  return image
+    .extract({ left, top: 0, width: cropWidth, height: cropHeight })
+    .resize(512, 512)
+    .jpeg({ quality: 90 })
+    .toBuffer();
+}
 
 const photoInputSchema = z.object({
   photoBase64: z.string(),
@@ -489,16 +513,32 @@ This description will be copied verbatim into every AI video scene prompt — it
         .where(and(eq(videoCharacters.id, input.characterId), eq(videoCharacters.userId, ctx.user.id)));
       if (!char) throw new TRPCError({ code: "NOT_FOUND" });
 
+      // Generate tight face crop for HeyGen lip sync if masterPortraitUrl is available
+      let performanceRefUrl: string | undefined;
+      if (char.masterPortraitUrl && !char.performanceRefUrl) {
+        try {
+          const cropBuffer = await generateFaceCrop(char.masterPortraitUrl);
+          const fileKey = `character-refs/${input.characterId}/performance-ref-${Date.now()}.jpg`;
+          const { url } = await storagePut(fileKey, cropBuffer, "image/jpeg");
+          performanceRefUrl = url;
+          console.log(`[CharacterLock] Generated face crop for char ${input.characterId}: ${url}`);
+        } catch (err) {
+          // Non-fatal — log and continue without blocking the lock
+          console.error(`[CharacterLock] Face crop failed for char ${input.characterId}:`, err);
+        }
+      }
+
       await db.update(videoCharacters)
         .set({
           lockedDescription: input.lockedDescription,
           isLocked: true,
           lockedAt: new Date(),
           updatedAt: new Date(),
+          ...(performanceRefUrl ? { performanceRefUrl } : {}),
         })
         .where(eq(videoCharacters.id, input.characterId));
 
-      return { success: true, isLocked: true };
+      return { success: true, isLocked: true, performanceRefUrl: performanceRefUrl ?? char.performanceRefUrl };
     }),
 
   // Unlock a character's visual brief — allows editing again
