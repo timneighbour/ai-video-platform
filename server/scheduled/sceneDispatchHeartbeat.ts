@@ -1338,7 +1338,8 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 const { storagePut } = await import("../storage");
                 const resp = await fetch(pollResult.videoUrl);
                 const buf = Buffer.from(await resp.arrayBuffer());
-                const key = `music-video-scenes/${scene.id}-infinitetalk-${Date.now()}.mp4`;
+                const lipSyncProviderPrefix = scene.lipSyncProvider ?? "lipsync";
+                const key = `music-video-scenes/${scene.id}-${lipSyncProviderPrefix}-${Date.now()}.mp4`;
                 const { url } = await storagePut(key, buf, "video/mp4");
 
                 // ── LSE-D / LSE-C lip-sync gate ──────────────────────────────────────────────────
