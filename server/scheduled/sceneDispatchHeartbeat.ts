@@ -464,31 +464,49 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   const isLipSyncScene = (scene.lipSync ?? false) && scene.sceneType === "performance";
 
                   // ── ENVIRONMENT PORTRAIT GATE ─────────────────────────────────────────
-                  // For performance/lip-sync scenes, the character MUST be placed inside
-                  // the correct studio environment (e.g. Air Studios) before dispatch.
-                  // If environmentRefUrl is missing:
-                  //   a) If Stage 2 is already processing → defer this scene (try next tick)
-                  //   b) If Stage 2 hasn't started → trigger it now, defer this scene
-                  // This prevents grey/plain backgrounds from reaching Seedance.
-                  if (isLipSyncScene && !bestChar.environmentRefUrl) {
-                    const isStage2InFlight = bestChar.autoPrepStatus === "stage2_processing";
-                    if (isStage2InFlight) {
-                      console.log(`[SceneDispatch] Scene ${scene.id} DEFERRED — Stage 2 environment prep in progress for char ${bestChar.id} (${bestChar.name}). Will retry next tick.`);
-                    } else {
-                      // Trigger Stage 2 asynchronously — do NOT await (non-blocking)
-                      const sceneStyle = job.sceneSetting ?? "Air Studios recording studio, Lyndhurst Hall, cinematic lighting";
-                      console.log(`[SceneDispatch] Scene ${scene.id} TRIGGERING Stage 2 environment prep for char ${bestChar.id} (${bestChar.name}) — style: "${sceneStyle.slice(0, 60)}"`);
-                      runStage2EnvironmentPrep({
-                        characterId: bestChar.id,
-                        identityBrief: bestChar.lockedDescription ?? bestChar.characterPrompt ?? bestChar.name ?? "performer",
-                        characterName: bestChar.name ?? undefined,
-                        masterPortraitUrl: bestChar.masterPortraitUrl ?? undefined,
-                        sceneStyle,
-                      }).catch(err => console.error(`[SceneDispatch] Stage 2 trigger error for char ${bestChar.id}:`, err));
-                      console.log(`[SceneDispatch] Scene ${scene.id} DEFERRED — Stage 2 environment prep triggered. Will retry next tick.`);
+                  // For performance/lip-sync scenes, prefer the character placed inside
+                  // the correct studio environment (environmentRefUrl).
+                  // FALLBACK (2026-06-23): If environmentRefUrl is missing, use masterPortraitUrl.
+                  // Only skip if BOTH are null — never block dispatch just because Stage 2
+                  // hasn't completed yet. Stage 2 is still triggered in the background so
+                  // future ticks will use the environment portrait once it's ready.
+                  if (isLipSyncScene) {
+                    const refUrl = bestChar.environmentRefUrl ?? bestChar.masterPortraitUrl ?? null;
+                    if (!refUrl) {
+                      // No reference at all — trigger Stage 2 and skip this tick
+                      const isStage2InFlight = bestChar.autoPrepStatus === "stage2_processing";
+                      if (!isStage2InFlight) {
+                        const sceneStyle = job.sceneSetting ?? "Air Studios recording studio, Lyndhurst Hall, cinematic lighting";
+                        console.log(`[SceneDispatch] Scene ${scene.id} TRIGGERING Stage 2 environment prep for char ${bestChar.id} (${bestChar.name}) — style: "${sceneStyle.slice(0, 60)}"`);
+                        runStage2EnvironmentPrep({
+                          characterId: bestChar.id,
+                          identityBrief: bestChar.lockedDescription ?? bestChar.characterPrompt ?? bestChar.name ?? "performer",
+                          characterName: bestChar.name ?? undefined,
+                          masterPortraitUrl: bestChar.masterPortraitUrl ?? undefined,
+                          sceneStyle,
+                        }).catch(err => console.error(`[SceneDispatch] Stage 2 trigger error for char ${bestChar.id}:`, err));
+                      } else {
+                        console.log(`[SceneDispatch] Scene ${scene.id} DEFERRED — Stage 2 in progress, no portrait available yet for char ${bestChar.id} (${bestChar.name}).`);
+                      }
+                      // Skip dispatch — truly no portrait available
+                      continue;
                     }
-                    // Skip dispatch for this scene — environment portrait not ready
-                    continue;
+                    // environmentRefUrl is preferred; fall back to masterPortraitUrl
+                    if (!bestChar.environmentRefUrl) {
+                      console.log(`[SceneDispatch] Scene ${scene.id} FALLBACK — environmentRefUrl null, using masterPortraitUrl for char ${bestChar.id} (${bestChar.name}). Stage 2 will be triggered in background.`);
+                      // Trigger Stage 2 in background so next tick uses the environment portrait
+                      const isStage2InFlight = bestChar.autoPrepStatus === "stage2_processing";
+                      if (!isStage2InFlight) {
+                        const sceneStyle = job.sceneSetting ?? "Air Studios recording studio, Lyndhurst Hall, cinematic lighting";
+                        runStage2EnvironmentPrep({
+                          characterId: bestChar.id,
+                          identityBrief: bestChar.lockedDescription ?? bestChar.characterPrompt ?? bestChar.name ?? "performer",
+                          characterName: bestChar.name ?? undefined,
+                          masterPortraitUrl: bestChar.masterPortraitUrl ?? undefined,
+                          sceneStyle,
+                        }).catch(err => console.error(`[SceneDispatch] Stage 2 trigger error for char ${bestChar.id}:`, err));
+                      }
+                    }
                   }
 
                   let autoRef: string | null;
