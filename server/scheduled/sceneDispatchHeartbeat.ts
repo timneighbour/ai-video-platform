@@ -91,48 +91,106 @@ import { storagePut } from "../storage";
 import { applyTempoCorrection, calcSpeedFactor } from "../utils/tempoCorrection";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
-// ── MEDIUM-SHOT CROP HELPER ─────────────────────────────────────────────────────
-// Crops the top 50% of the image height (full width), then resizes to 1344×768 (16:9).
-// This gives Zara's face + upper body + the full venue background above and behind her,
-// with the face filling ~30–40% of the frame — enough for HeyGen to animate
-// without discarding the Lyndhurst Hall venue background.
-// Non-fatal: if crop fails, returns the original URL unchanged.
-async function cropMediumShotForHeyGen(
-  imageUrl: string,
+// ── POST-HEYGEN VENUE COMPOSITING ──────────────────────────────────────────────
+// After HeyGen returns a clean lip-synced face clip (using the tight performanceRefUrl),
+// composite it over the venue storyboard (Lyndhurst Hall) so the final output shows
+// Zara performing in the correct environment.
+//
+// Layout (Tim's spec 2026-06-24):
+//   - Background: venue storyboard (1344×768, scaled to 1280×720 output)
+//   - Face clip: scaled to 560px wide, centered horizontally, lower third
+//   - Audio: copied from HeyGen face clip (-c:a copy)
+//
+// Non-fatal: if compositing fails, returns the original HeyGen URL unchanged.
+async function compositeHeyGenWithVenue(
+  heyGenVideoUrl: string,
+  venueImageUrl: string,
   sceneId: number | string,
-  jobId: number | string
+  sceneDuration: number
 ): Promise<string> {
+  const fs = await import('fs');
+  const path = await import('path');
+  const os = await import('os');
+  const { execFile } = await import('child_process');
+  const { promisify } = await import('util');
+  const { createRequire } = await import('module');
+  const execFileAsync = promisify(execFile);
+
+  // Resolve ffmpeg binary: prefer ffmpeg-static, fall back to system ffmpeg
+  let ffmpegBin = 'ffmpeg';
   try {
-    console.log(`[MediumCrop] Scene ${sceneId} — downloading storyboard for medium-shot crop`);
-    const resp = await fetch(imageUrl);
-    if (!resp.ok) throw new Error(`Download failed: HTTP ${resp.status}`);
-    const buf = Buffer.from(await resp.arrayBuffer());
+    const _req = createRequire(import.meta.url);
+    const installer = _req('ffmpeg-static');
+    if (installer && fs.default.existsSync(installer)) {
+      try { fs.default.chmodSync(installer, 0o755); } catch { /* ignore */ }
+      ffmpegBin = installer;
+    }
+  } catch { /* use system ffmpeg */ }
 
-    const meta = await sharp(buf).metadata();
-    const srcW = meta.width!;
-    const srcH = meta.height!;
-    console.log(`[MediumCrop] Scene ${sceneId} source: ${srcW}x${srcH}`);
+  const tmpDir = os.default.tmpdir();
+  const ts = Date.now();
+  const fgPath = path.default.join(tmpDir, `wiz-venue-fg-${sceneId}-${ts}.mp4`);
+  const bgPath = path.default.join(tmpDir, `wiz-venue-bg-${sceneId}-${ts}.jpg`);
+  const outPath = path.default.join(tmpDir, `wiz-venue-composite-${sceneId}-${ts}.mp4`);
 
-    // Top 50% of height, full width → resize to 1344×768
-    const cropHeight = Math.round(srcH * 0.50);
-    const cropWidth = srcW; // full width
-    const croppedBuf = await sharp(buf)
-      .extract({ left: 0, top: 0, width: cropWidth, height: cropHeight })
-      .resize(1344, 768)
-      .jpeg({ quality: 92 })
-      .toBuffer();
+  try {
+    console.log(`[VenueComposite] Scene ${sceneId} — downloading HeyGen clip + venue storyboard`);
+    const [fgResp, bgResp] = await Promise.all([fetch(heyGenVideoUrl), fetch(venueImageUrl)]);
+    if (!fgResp.ok) throw new Error(`HeyGen clip download failed: HTTP ${fgResp.status}`);
+    if (!bgResp.ok) throw new Error(`Venue image download failed: HTTP ${bgResp.status}`);
+    fs.default.writeFileSync(fgPath, Buffer.from(await fgResp.arrayBuffer()));
+    fs.default.writeFileSync(bgPath, Buffer.from(await bgResp.arrayBuffer()));
+    console.log(`[VenueComposite] Scene ${sceneId} — downloads complete, running ffmpeg composite`);
 
-    const verifyMeta = await sharp(croppedBuf).metadata();
-    console.log(`[MediumCrop] Scene ${sceneId} cropped: ${verifyMeta.width}x${verifyMeta.height} (${croppedBuf.length} bytes)`);
+    // ffmpeg composite with chromakey:
+    //   [0:v] = venue background (static image, looped for duration)
+    //   [1:v] = HeyGen face clip (grey background ~#adadad — remove via chromakey)
+    //   1. Scale venue background to 1280x720
+    //   2. Chromakey out HeyGen grey background (color=0xadadad, similarity=0.15, blend=0.02)
+    //   3. Scale face to 560px wide
+    //   4. Overlay face centered horizontally, lower third
+    //   Audio: copy from HeyGen face clip
+    const outW = 1280, outH = 720;
+    const faceW = 560;
+    const faceX = Math.round((outW - faceW) / 2);  // centered horizontally
+    const faceY = outH - Math.round(outH * 0.60) - 80;  // lower third: 60% from top - 80px padding
+    const filterComplex = [
+      `[0:v]scale=${outW}:${outH}:force_original_aspect_ratio=increase,crop=${outW}:${outH}[bg]`,
+      `[1:v]colorkey=color=0xadadad:similarity=0.15:blend=0.02,scale=${faceW}:-1[face]`,
+      `[bg][face]overlay=x=${faceX}:y=${faceY}[out]`,
+    ].join(';');
 
-    // Upload to CDN
-    const storageKey = `music-video-heygen-input/${jobId}-scene-${sceneId}-medshot-${Date.now()}.jpg`;
-    const { url: cdnUrl } = await storagePut(storageKey, croppedBuf, 'image/jpeg');
-    console.log(`[MediumCrop] Scene ${sceneId} uploaded → ${cdnUrl.slice(0, 80)}...`);
-    return cdnUrl;
-  } catch (cropErr: any) {
-    console.warn(`[MediumCrop] Scene ${sceneId} crop failed (non-fatal, using original): ${cropErr?.message ?? String(cropErr)}`);
-    return imageUrl; // fall back to original
+    await execFileAsync(ffmpegBin, [
+      '-y',
+      '-loop', '1', '-i', bgPath,
+      '-i', fgPath,
+      '-filter_complex', filterComplex,
+      '-map', '[out]',
+      '-map', '1:a?',
+      '-c:v', 'libx264', '-crf', '18', '-preset', 'slow',
+      '-c:a', 'aac', '-b:a', '192k',
+      '-pix_fmt', 'yuv420p',
+      '-t', String(sceneDuration),
+      '-movflags', '+faststart',
+      outPath,
+    ], { timeout: 170000 });
+
+    if (!fs.default.existsSync(outPath) || fs.default.statSync(outPath).size < 10000) {
+      throw new Error(`Composite output missing or too small for scene ${sceneId}`);
+    }
+
+    const compositeBuf = fs.default.readFileSync(outPath);
+    const key = `music-video-scenes/${sceneId}-venue-composite-${ts}.mp4`;
+    const { url } = await storagePut(key, compositeBuf, 'video/mp4');
+    console.log(`[VenueComposite] Scene ${sceneId} composite uploaded → ${url.slice(0, 80)}...`);
+    return url;
+  } catch (compErr: any) {
+    console.warn(`[VenueComposite] Scene ${sceneId} compositing failed (non-fatal, using HeyGen output): ${compErr?.message ?? String(compErr)}`);
+    return heyGenVideoUrl; // fall back to raw HeyGen output
+  } finally {
+    for (const p of [fgPath, bgPath, outPath]) {
+      try { if (fs.default.existsSync(p)) fs.default.unlinkSync(p); } catch { /* ignore */ }
+    }
   }
 }
 
@@ -718,34 +776,25 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             const slicedVocalStemUrl = sceneAudioUrlForR2V ?? (job.stemVocalsUrl ?? job.audioUrl ?? undefined);
 
             // Use HeyGen Direct for performance scenes with a photo (venue storyboard or portrait) and audio.
-            // Image priority: scene.previewImageUrl (venue storyboard) > resolvedCharacterUrl (portrait).
-            const heyGenAvailablePhotoUrl = scene.previewImageUrl ?? resolvedCharacterUrl;
+            // Image priority: resolvedCharacterUrl (performanceRefUrl — tight face crop, proven for lip sync).
+            // Venue background is added AFTER HeyGen returns via ffmpeg compositing (compositeHeyGenWithVenue).
+            // NEVER send the venue storyboard or medium-shot crop to HeyGen — face detection fails.
+            const heyGenAvailablePhotoUrl = resolvedCharacterUrl;
             const useHeyGenDirect = isPerformanceScene && (scene.lipSync ?? false) && !!heyGenAvailablePhotoUrl && !!slicedVocalStemUrl && isHeyGenDirectConfigured();
 
             if (useHeyGenDirect) {
               // ── HEYGEN DIRECT PHOTO+AUDIO PATH (PRIMARY for performance scenes) ──────────────────
-              // One API call: portrait photo + vocal stem → lip-synced video
-              // No Seedance render needed. No muxing. No video-to-video HeyGen Precision.
+              // One API call: tight face portrait + vocal stem → clean lip-synced face video
+              // Venue background is composited in AFTER HeyGen completes (compositeHeyGenWithVenue).
               //
-              // IMAGE SELECTION PRIORITY (2026-06-23):
-              //   1. scene.previewImageUrl — BFL/Forge storyboard showing character IN the venue
-              //      (Lyndhurst Hall, Air Studios). This gives HeyGen the correct background + framing.
-              //   2. resolvedCharacterUrl  — face crop / portrait (grey background fallback).
-              //      Only used if no storyboard image exists for this scene.
-              // NEVER use environmentRefUrl as the HeyGen photo — it's full-body and causes blur.
-              // MEDIUM-SHOT CROP: if using the venue storyboard image, crop top 50% of height
-              // (centred, resized to 1344×768) so Zara's face fills ~30-40% of frame.
-              // This keeps the Lyndhurst Hall venue background visible while giving HeyGen
-              // a close enough face to animate. Portrait fallback is used as-is (already cropped).
-              let heyGenPhotoUrl: string;
-              if (scene.previewImageUrl) {
-                heyGenPhotoUrl = await cropMediumShotForHeyGen(scene.previewImageUrl, scene.id, job.id);
-              } else {
-                heyGenPhotoUrl = resolvedCharacterUrl!;
-              }
+              // IMAGE SELECTION (2026-06-24 — compositing approach):
+              //   ALWAYS use resolvedCharacterUrl (performanceRefUrl — tight face close-up).
+              //   This is the ONLY image that gives HeyGen reliable face detection and clean lip sync.
+              //   The venue background (Lyndhurst Hall) is added post-HeyGen via ffmpeg overlay.
+              //   Sending the venue storyboard or medium-shot crop to HeyGen causes face distortion.
+              const heyGenPhotoUrl: string = resolvedCharacterUrl!;
               console.log(`[SceneDispatch] Scene ${scene.id} → HeyGen Direct Photo+Audio (performance, direct lip sync)`);
-              const heyGenPhotoSource = scene.previewImageUrl ? 'medium-shot crop of scene.previewImageUrl (venue storyboard)' : 'resolvedCharacterUrl (portrait fallback)';
-              console.log(`[SceneDispatch] Scene ${scene.id} HEYGEN PHOTO: ${heyGenPhotoSource} → ${heyGenPhotoUrl.slice(0, 80)}...`);
+              console.log(`[SceneDispatch] Scene ${scene.id} HEYGEN PHOTO: performanceRefUrl (tight face crop) → ${heyGenPhotoUrl.slice(0, 80)}...`);
               console.log(`[SceneDispatch] Scene ${scene.id} vocal stem: ${slicedVocalStemUrl!.slice(0, 80)}...`);
               const estCost = estimateHeyGenDirectCost(scene.duration ?? 5);
               console.log(`[SceneDispatch] Scene ${scene.id} estimated cost: $${estCost.toFixed(4)} (${scene.duration ?? 5}s)`);
@@ -1300,8 +1349,10 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 const { videoCharacters: videoCharsTable } = await import("../../drizzle/schema");
                 const jobCharsRetry = await db.select().from(videoCharsTable).where(eq(videoCharsTable.jobId, job.id));
                 if (jobCharsRetry.length > 0) {
-                  const bestRetryChar = jobCharsRetry.find(c => c.environmentRefUrl) ?? jobCharsRetry.find(c => c.performanceRefUrl) ?? jobCharsRetry.find(c => c.masterPortraitUrl) ?? jobCharsRetry[0];
-                  retryCharacterUrl = bestRetryChar.environmentRefUrl ?? bestRetryChar.performanceRefUrl ?? bestRetryChar.masterPortraitUrl ?? bestRetryChar.previewImageUrl ?? retryCharacterUrl;
+                  // RETRY: always use performanceRefUrl (tight face crop) for HeyGen Direct
+                  // Venue background is added post-HeyGen via compositeHeyGenWithVenue.
+                  const bestRetryChar = jobCharsRetry.find(c => c.performanceRefUrl) ?? jobCharsRetry.find(c => c.masterPortraitUrl) ?? jobCharsRetry[0];
+                  retryCharacterUrl = bestRetryChar.performanceRefUrl ?? bestRetryChar.masterPortraitUrl ?? bestRetryChar.previewImageUrl ?? retryCharacterUrl;
                 }
               } catch (charErr: any) {
                 console.warn(`[SceneDispatch] Scene ${scene.id} RETRY: could not resolve character URL from videoCharacters: ${charErr.message}`);
@@ -1485,8 +1536,28 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                     console.log(`[SceneDispatch] Scene ${scene.id} lip-sync gate GREEN ✓`);
                   }
 
+                  // ── VENUE COMPOSITING (2026-06-24) ──────────────────────────────────────────────
+                  // HeyGen produced a clean lip-synced face clip (performanceRefUrl input).
+                  // Now composite it over the venue storyboard (Lyndhurst Hall) so the final
+                  // output shows Zara performing in the correct environment.
+                  // Non-fatal: if compositing fails, the raw HeyGen output is used.
+                  let finalLipSyncUrl = url;
+                  const isHeyGenDirectScene = scene.lipSyncTaskId?.startsWith("heygen_direct:") || scene.lipSyncProvider === "heygen";
+                  if (isHeyGenDirectScene && scene.previewImageUrl) {
+                    console.log(`[VenueComposite] Scene ${scene.id} — compositing HeyGen face over venue storyboard`);
+                    finalLipSyncUrl = await compositeHeyGenWithVenue(
+                      url,
+                      scene.previewImageUrl,
+                      scene.id,
+                      scene.duration ?? 5
+                    );
+                    console.log(`[VenueComposite] Scene ${scene.id} — composite complete → ${finalLipSyncUrl.slice(0, 80)}...`);
+                  } else if (isHeyGenDirectScene) {
+                    console.log(`[VenueComposite] Scene ${scene.id} — no previewImageUrl, skipping venue composite (using raw HeyGen output)`);
+                  }
+
                   // Determine which provider completed this lip sync
-                  const completedLipSyncProvider = scene.lipSyncTaskId?.startsWith("heygen:") ? "heygen" : "infinitetalk";
+                  const completedLipSyncProvider = scene.lipSyncTaskId?.startsWith("heygen_direct:") || scene.lipSyncTaskId?.startsWith("heygen:") ? "heygen" : "infinitetalk";
                   // Build quality score update (only set if LLM returned values)
                   const qualityScoreUpdate: Record<string, any> = {};
                   if (typeof lipSyncGateResult.lipSyncQualityScore === "number") qualityScoreUpdate.lipSyncQualityScore = lipSyncGateResult.lipSyncQualityScore.toFixed(3);
@@ -1497,17 +1568,16 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   await db.update(musicVideoScenes)
                     .set({
                       lipSyncStatus: "done",
-                      lipSyncVideoUrl: url,
+                      lipSyncVideoUrl: finalLipSyncUrl,
                       lipSyncVideoKey: key,
-                      lipsyncedVideoUrl: url,  // permanent record of lip-synced output
+                      lipsyncedVideoUrl: finalLipSyncUrl,  // composited output (venue + face)
                       lipSyncProvider: completedLipSyncProvider,
-                      // Compositing removed (2026-05-28) — lipSyncVideoUrl IS the final clip
-                      compositeStatus: "skipped",
+                      compositeStatus: isHeyGenDirectScene && scene.previewImageUrl ? "done" : "skipped",
                       ...qualityScoreUpdate,
                       updatedAt: new Date(),
                     })
                     .where(eq(musicVideoScenes.id, scene.id));
-                  console.log(`[SceneDispatch] Scene ${scene.id} ${completedLipSyncProvider} lip sync DONE ✓ (gate: ${lipSyncGateResult.gate}, scores: ls=${lipSyncGateResult.lipSyncQualityScore?.toFixed(2) ?? "N/A"} fc=${lipSyncGateResult.faceConsistencyScore?.toFixed(2) ?? "N/A"} mv=${lipSyncGateResult.mouthVisibilityScore?.toFixed(2) ?? "N/A"} overall=${lipSyncGateResult.overallSceneScore?.toFixed(2) ?? "N/A"}) → compositeStatus=skipped`);
+                  console.log(`[SceneDispatch] Scene ${scene.id} ${completedLipSyncProvider} lip sync DONE ✓ (gate: ${lipSyncGateResult.gate}, compositeStatus: ${isHeyGenDirectScene && scene.previewImageUrl ? 'done' : 'skipped'}) → ${finalLipSyncUrl.slice(0, 60)}...`);
                   totalLipSyncPolled++;
                 }
 

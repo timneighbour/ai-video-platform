@@ -156,6 +156,7 @@ export async function isolateVocals(jobId: number): Promise<VocalStem[]> {
       .set({
         vocalsUrl: leadStem.stemUrl,
         vocalsKey: leadStem.stemKey,
+        stemVocalsUrl: leadStem.stemUrl,  // also write the new field the heartbeat reads
         vocalsStatus: "done",
       })
       .where(eq(musicVideoJobs.id, jobId));
