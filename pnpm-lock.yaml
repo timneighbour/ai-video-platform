@@ -220,6 +220,9 @@ importers:
       multer:
         specifier: ^2.1.1
         version: 2.1.1
+      music-tempo:
+        specifier: ^1.0.3
+        version: 1.0.3
       mysql2:
         specifier: ^3.15.0
         version: 3.15.1
@@ -4273,6 +4276,9 @@ packages:
   multer@2.1.1:
     resolution: {integrity: sha512-mo+QTzKlx8R7E5ylSXxWzGoXoZbOsRMpyitcht8By2KHvMbf3tjwosZ/Mu/XYU6UuJ3VZnODIrak5ZrPiPyB6A==}
     engines: {node: '>= 10.16.0'}
+
+  music-tempo@1.0.3:
+    resolution: {integrity: sha512-qAocTKLp3jaSeJLeGs98mkkpLYDFM1VCevA1OPFJvLPkHlzwTLUxChXMgnxZRHKSJQ13DuaT+Fr51BEUb2D4pQ==}
 
   mysql2@3.15.1:
     resolution: {integrity: sha512-WZMIRZstT2MFfouEaDz/AGFnGi1A2GwaDe7XvKTdRJEYiAHbOrh4S3d8KFmQeh11U85G+BFjIvS1Di5alusZsw==}
@@ -9712,6 +9718,8 @@ snapshots:
       busboy: 1.6.0
       concat-stream: 2.0.0
       type-is: 1.6.18
+
+  music-tempo@1.0.3: {}
 
   mysql2@3.15.1:
     dependencies:

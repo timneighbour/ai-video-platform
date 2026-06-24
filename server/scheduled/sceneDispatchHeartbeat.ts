@@ -88,6 +88,7 @@ import { triggerCloudVocalIsolation } from "../cloud-vocal-isolation";
 import { notifyOwner } from "../_core/notification";
 import sharp from "sharp";
 import { storagePut } from "../storage";
+import { applyTempoCorrection, calcSpeedFactor } from "../utils/tempoCorrection";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
 // ── MEDIUM-SHOT CROP HELPER ─────────────────────────────────────────────────────
@@ -1089,18 +1090,30 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   }
                 }
               } else { // needsLipSync is false — cinematic scene
-                // No lip sync needed — mark as completed with raw clip
+                // No lip sync needed — apply tempo correction then mark as completed
+                // Tempo correction: slow/speed the video to match the song's BPM so that
+                // orchestra/instrument motion feels locked to the music.
+                let finalVideoUrl = pollResult.videoUrl;
+                if (job.songBpm && job.songBpm > 0) {
+                  const speedFactor = calcSpeedFactor(job.songBpm);
+                  if (Math.abs(speedFactor - 1.0) >= 0.05) {
+                    console.log(`[TempoCorrection] Scene ${scene.id}: applying ${speedFactor.toFixed(3)}× speed correction (song BPM: ${job.songBpm})`);
+                    finalVideoUrl = await applyTempoCorrection(pollResult.videoUrl, job.songBpm, scene.id);
+                  } else {
+                    console.log(`[TempoCorrection] Scene ${scene.id}: BPM ${job.songBpm} → factor ${speedFactor} (within 5% of 1.0, skipping)`);
+                  }
+                }
                 // compositeStatus=skipped for cinematic scenes (Seedance clip used directly in assembly)
                 await db.update(musicVideoScenes)
                   .set({
                     status: "completed",
-                    videoUrl: pollResult.videoUrl,
+                    videoUrl: finalVideoUrl,
                     lipSyncStatus: "done", // no lip sync needed, treat as done
                     compositeStatus: "skipped", // cinematic scene — no compositing needed
                     updatedAt: new Date(),
                   })
                   .where(eq(musicVideoScenes.id, scene.id));
-                console.log(`[SceneDispatch] Scene ${scene.id} completed (cinematic, no lip sync, compositeStatus=skipped) ✓`);
+                console.log(`[SceneDispatch] Scene ${scene.id} completed (cinematic, no lip sync, tempo-corrected, compositeStatus=skipped) ✓`);
               }
 
               // ── PROBE: store probeVideoUrl on job when probe scene completes ──
