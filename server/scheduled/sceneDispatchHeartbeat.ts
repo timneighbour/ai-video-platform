@@ -92,11 +92,10 @@ import { applyTempoCorrection, calcSpeedFactor } from "../utils/tempoCorrection"
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
 // ── MEDIUM-SHOT CROP HELPER ─────────────────────────────────────────────────────
-// Takes a venue storyboard image (any size) and crops a 16:9 region centred on
-// the character's face position, then outputs at native resolution (no upscaling).
-// For a 1024×1024 Forge image: crops 1024×576 starting at y≈100 so the character's
-// face (typically at ~y=310 in a full-body shot) lands in the upper-third of the
-// crop — a natural medium close-up with venue background visible above and behind.
+// Crops the top 50% of the image height (full width), then resizes to 1344×768 (16:9).
+// This gives Zara's face + upper body + the full venue background above and behind her,
+// with the face filling ~30–40% of the frame — enough for HeyGen to animate
+// without discarding the Lyndhurst Hall venue background.
 // Non-fatal: if crop fails, returns the original URL unchanged.
 async function cropMediumShotForHeyGen(
   imageUrl: string,
@@ -114,18 +113,13 @@ async function cropMediumShotForHeyGen(
     const srcH = meta.height!;
     console.log(`[MediumCrop] Scene ${sceneId} source: ${srcW}x${srcH}`);
 
-    // Crop a 16:9 region at native resolution, offset from top to frame the character's face.
-    // For 1024×1024: cropH=576, topOffset=100 → crops y=100..676
-    // Character face at ~y=310 lands at 37% from top of crop — natural medium close-up framing.
-    // Venue background (ceiling, windows) remains visible above the character.
-    const cropH = Math.round(srcW * (9 / 16)); // 16:9 height from full width
-    // Offset: place face at ~35% from top of crop. Face is typically at ~30% of image height.
-    // topOffset = faceY - cropH*0.35 ≈ srcH*0.30 - cropH*0.35
-    const topOffset = Math.max(0, Math.round(srcH * 0.10)); // 10% down from top
-    const safeCropH = Math.min(cropH, srcH - topOffset); // never exceed source height
+    // Top 50% of height, full width → resize to 1344×768
+    const cropHeight = Math.round(srcH * 0.50);
+    const cropWidth = srcW; // full width
     const croppedBuf = await sharp(buf)
-      .extract({ left: 0, top: topOffset, width: srcW, height: safeCropH })
-      .jpeg({ quality: 95 })
+      .extract({ left: 0, top: 0, width: cropWidth, height: cropHeight })
+      .resize(1344, 768)
+      .jpeg({ quality: 92 })
       .toBuffer();
 
     const verifyMeta = await sharp(croppedBuf).metadata();
