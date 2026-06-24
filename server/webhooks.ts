@@ -6,7 +6,7 @@
 import Stripe from "stripe";
 import { getDb, getRawConn } from "./db";
 import { eq } from "drizzle-orm";
-import { subscriptions, creditTransactions, credits, topupPurchases, kidsVideoJobs } from "../drizzle/schema";
+import { subscriptions, creditTransactions, credits, topupPurchases, kidsVideoJobs, users } from "../drizzle/schema";
 import { notifyOwner } from "./_core/notification";
 import { addCredits } from "./credit-service";
 import {
@@ -325,6 +325,34 @@ async function handleCheckoutSessionCompleted(session: any) {
           `${planId} plan subscription - ${monthlyCredits} credits`
         );
       }
+
+      // ── Founding Creator bonus ───────────────────────────────────────────────
+      // If this user has never been marked as a Founding Creator, grant them a
+      // 20% bonus on their first subscription and record it so renewals and
+      // duplicate webhook replays never re-award it.
+      try {
+        const [userRow] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+        if (userRow && !userRow.isFoundingCreator && !userRow.foundingCreatorGrantedAt) {
+          const bonusCredits = Math.round(monthlyCredits * 0.20);
+          if (bonusCredits > 0) {
+            await addCredits(
+              userId,
+              bonusCredits,
+              "subscription_grant",
+              `Founding Creator bonus — 20% extra on first subscription (${bonusCredits} credits)`
+            );
+          }
+          // Mark user as Founding Creator (idempotent — only fires once)
+          await db.update(users)
+            .set({ isFoundingCreator: true, foundingCreatorGrantedAt: new Date() })
+            .where(eq(users.id, userId));
+          console.log(`[Stripe Webhook] Founding Creator bonus granted to user ${userId}: +${bonusCredits} credits`);
+        }
+      } catch (fcErr) {
+        // Non-fatal — do not block subscription activation if bonus grant fails
+        console.error("[Stripe Webhook] Founding Creator bonus error:", fcErr);
+      }
+      // ────────────────────────────────────────────────────────────────────────
 
       console.log(`[Stripe Webhook] Subscription activated for user ${userId}: plan=${planId}, credits=${monthlyCredits}`);
 

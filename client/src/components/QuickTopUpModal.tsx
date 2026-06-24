@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { mp } from "@/lib/mixpanel";
 import { Zap, Check, Loader2, ExternalLink, TrendingUp, AlertCircle, Crown, Sparkles, Star } from "@/lib/icons";
 import { cn } from "@/lib/utils";
+import { PLANS as CANONICAL_PLANS } from "@/lib/plans";
 
 // ── Option A pack definitions (must match server/products.ts TOPUP_PACKS) ──────
 const PACKS = [
@@ -90,21 +91,24 @@ const PACKS = [
 type PackKey = typeof PACKS[number]["key"];
 
 // ── Subscription plans shown in the upsell tab ──────────────────────────────
+// SUB_PLANS: prices pulled from canonical plans.ts — never hardcode here
+const _creatorPlan = CANONICAL_PLANS.find((p) => p.id === "creator")!;
+const _proPlan = CANONICAL_PLANS.find((p) => p.id === "pro")!;
 const SUB_PLANS = [
   {
     id: "creator" as const,
     name: "Creator",
-    monthlyPrice: 35,
-    priceDisplay: "£35/mo",
-    annualDisplay: "£350/yr",
+    monthlyPrice: _creatorPlan.monthlyPrice,
+    priceDisplay: `£${_creatorPlan.monthlyPrice}/mo`,
+    annualDisplay: `£${_creatorPlan.annualTotal}/yr`,
     creditsPerMonth: 990,
-    buildsPerMonth: 15,
-    tagline: "Best for regular creators",
+    buildsPerMonth: _creatorPlan.buildsPerMonth,
+    tagline: _creatorPlan.bestFor,
     badge: "Most Popular" as string | null,
     highlight: true,
     perks: [
-      "15 videos per month",
-      "Up to 11 scenes per video",
+      `${_creatorPlan.buildsPerMonth} videos per month`,
+      `Up to ${_creatorPlan.scenesPerVideo} scenes per video`,
       "4K quality included",
       "WizSync™ character lock",
       "Priority build queue",
@@ -113,25 +117,25 @@ const SUB_PLANS = [
     ctaLabel: "Subscribe — Creator",
   },
   {
-    id: "studio" as const,
-    name: "Studio",
-    monthlyPrice: 99,
-    priceDisplay: "£99/mo",
-    annualDisplay: "£990/yr",
+    id: "pro" as const,
+    name: "Pro",
+    monthlyPrice: _proPlan.monthlyPrice,
+    priceDisplay: `£${_proPlan.monthlyPrice}/mo`,
+    annualDisplay: `£${_proPlan.annualTotal}/yr`,
     creditsPerMonth: 2160,
-    buildsPerMonth: 40,
-    tagline: "Best for brands & agencies",
+    buildsPerMonth: _proPlan.buildsPerMonth,
+    tagline: _proPlan.bestFor,
     badge: null as string | null,
     highlight: false,
     perks: [
-      "40 videos per month",
-      "Up to 12 scenes per video",
+      `${_proPlan.buildsPerMonth} videos per month`,
+      `Up to ${_proPlan.scenesPerVideo} scenes per video`,
       "4K quality included",
       "Full API access",
       "Fastest build speed",
       "Dedicated support",
     ],
-    ctaLabel: "Subscribe — Studio",
+    ctaLabel: "Subscribe — Pro",
   },
 ];
 
@@ -160,7 +164,7 @@ export function QuickTopUpModal({
   const [selectedKey, setSelectedKey] = useState<PackKey>(recommendedKey);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [activeTab, setActiveTab] = useState<"packs" | "subscribe">("packs");
-  const [selectedSubPlan, setSelectedSubPlan] = useState<"creator" | "studio">("creator");
+  const [selectedSubPlan, setSelectedSubPlan] = useState<"creator" | "pro">("creator");
   const [subBillingInterval, setSubBillingInterval] = useState<"monthly" | "annual">("monthly");
 
   const selectedPack = PACKS.find(p => p.key === selectedKey)!;

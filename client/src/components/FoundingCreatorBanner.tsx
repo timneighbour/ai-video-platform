@@ -156,7 +156,7 @@ export default function FoundingCreatorBanner() {
             Founding Creator
           </div>
           <p className="text-[13px] font-medium" style={{ color: "oklch(0.88 0.08 75)" }}>
-            <span className="font-bold text-white">Limited offer:</span> Join as a Founding Creator — bonus credits on your first subscription.
+            <span className="font-bold text-white">Limited offer:</span> Join as a Founding Creator — get 20% bonus credits free on your first subscription.
           </p>
         </div>
 

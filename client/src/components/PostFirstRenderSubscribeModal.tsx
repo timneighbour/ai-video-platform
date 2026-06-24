@@ -12,6 +12,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X, Crown, Sparkles, Zap, Check, ChevronRight, Clock } from "@/lib/icons";
 import { trpc } from "@/lib/trpc";
+import { PLANS as CANONICAL_PLANS } from "@/lib/plans";
 import { mp } from "@/lib/mixpanel";
 import { toast } from "sonner";
 
@@ -22,12 +23,14 @@ interface PostFirstRenderSubscribeModalProps {
   onClose: () => void;
 }
 
+const _creatorPlan = CANONICAL_PLANS.find((p) => p.id === "creator")!;
+const _proPlan = CANONICAL_PLANS.find((p) => p.id === "pro")!;
 const PLANS = [
   {
     id: "creator" as const,
     name: "Creator",
-    price: 35,
-    annualPrice: 350,
+    price: _creatorPlan.monthlyPrice,
+    annualPrice: _creatorPlan.annualTotal,
     badge: "Most Popular",
     badgeColor: "bg-[--color-gold] text-white",
     accentColor: "oklch(0.78 0.11 75)",
@@ -45,19 +48,19 @@ const PLANS = [
     ],
   },
   {
-    id: "studio" as const,
-    name: "Studio",
-    price: 99,
-    annualPrice: 990,
+    id: "pro" as const,
+    name: "Pro",
+    price: _proPlan.monthlyPrice,
+    annualPrice: _proPlan.annualTotal,
     badge: "Best Value",
     badgeColor: "bg-purple-500/80 text-white",
     accentColor: "oklch(0.72 0.12 300)",
     borderColor: "rgba(160,100,220,0.35)",
     glowColor: "rgba(160,100,220,0.12)",
-    tagline: "Best for brands & agencies",
-    videosPerMonth: "40 videos/month",
+    tagline: _proPlan.bestFor,
+    videosPerMonth: `${_proPlan.buildsPerMonth} videos/month`,
     highlights: [
-      "40 Build Credits per month",
+      `${_proPlan.buildsPerMonth} Build Credits per month`,
       "HD & 4K quality exports",
       "No watermark on downloads",
       "Fastest build speed",
@@ -97,7 +100,7 @@ export default function PostFirstRenderSubscribeModal({
     },
   });
 
-  const handleSubscribe = (planId: "creator" | "studio") => {
+  const handleSubscribe = (planId: "creator" | "pro") => {
     setLoadingPlan(planId);
     mp.upgradeCTAClicked("post_first_render_modal", "free", planId);
     checkoutMutation.mutate({
@@ -156,7 +159,7 @@ export default function PostFirstRenderSubscribeModal({
             You've created your first WIZ AI video.
           </h2>
           <p className="text-zinc-400 text-sm leading-relaxed max-w-md mx-auto">
-            Want to keep producing? Subscribe now and get <span className="text-[--color-gold] font-semibold">bonus credits</span> as a Founding Creator — limited time.
+            Want to keep producing? Subscribe now and get <span className="text-[--color-gold] font-semibold">20% bonus credits free</span> as a Founding Creator — limited time.
           </p>
         </div>
 
@@ -268,7 +271,7 @@ export default function PostFirstRenderSubscribeModal({
           <div>
             <p className="text-xs font-semibold text-white">Founding Creator Status</p>
             <p className="text-[11px] text-zinc-500 mt-0.5">
-              Subscribe now and you'll be recognised as a Founding Creator — early supporter status, bonus credits on your first subscription, and priority access to new features.
+              Subscribe now and you'll be recognised as a Founding Creator — early supporter status, 20% bonus credits on your first subscription, and priority access to new features.
             </p>
           </div>
         </div>

@@ -853,8 +853,8 @@ export default function Pricing() {
  { label: "Pay-per-video (Standard)", videos: 15, cost: 15 * 2, perVideo: "£2.00", saving: null, highlight: false },
  { label: "Pay-per-video (HD)", videos: 15, cost: 15 * 4, perVideo: "£4.00", saving: null, highlight: false },
  { label: "Pay-per-video (4K)", videos: 15, cost: 15 * 6, perVideo: "£6.00", saving: null, highlight: false },
- { label: "Creator Plan (£35/mo)", videos: 15, cost: 35, perVideo: "£2.33", saving: "Save up to £55/mo vs 4K", highlight: true },
- { label: "Studio Plan (£99/mo)", videos: 40, cost: 99, perVideo: "£2.48", saving: "Save up to £141/mo vs 4K", highlight: false },
+ { label: "Creator Plan (£79/mo)", videos: 6, cost: 79, perVideo: "£13.17", saving: "4K + WizSync™ + Priority builds", highlight: true },
+ { label: "Pro Plan (£149/mo)", videos: 12, cost: 149, perVideo: "£12.42", saving: "API access + Dedicated support", highlight: false },
  ].map((row, i) => (
  <tr key={i} className={`border-b border-white/[0.04] last:border-0 ${
  row.highlight ? "bg-[rgba(196,164,100,0.06)]" : "hover:bg-white/[0.02]"
@@ -884,7 +884,7 @@ export default function Pricing() {
  </table>
  </div>
  <div className="px-6 py-4 bg-white/[0.02] border-t border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
- <p className="text-[11px] text-white/40">Creator plan includes 4K quality, WizSync™ character lock, and priority builds — not available on pay-per-video.</p>
+ <p className="text-[11px] text-white/40">Creator plan (£79/mo) includes 4K quality, WizSync™ character lock, and priority builds — not available on pay-per-video.</p>
  <a href="#plans" className="flex-shrink-0 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors flex items-center gap-1">
  See plans <ArrowRight className="w-3 h-3" />
  </a>

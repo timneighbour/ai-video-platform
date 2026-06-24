@@ -46,8 +46,12 @@ async function sendReEngagementReminders() {
     if (!db) return; // DB not available
     const now = Date.now();
 
-    // Find jobs that are in draft or storyboard_ready state (never rendered)
-    // and were created more than 24 hours ago
+    // Find jobs that are in draft state only (never rendered, never reached storyboard stage).
+    // We deliberately exclude storyboard_ready, paused, on_hold, and cancelled:
+    //   - storyboard_ready: user has already engaged and is reviewing the storyboard — do not interrupt
+    //   - paused / on_hold: job is intentionally paused by the user or admin
+    //   - cancelled: user has explicitly abandoned the job
+    // Only send reminders for jobs stuck at the very first step (draft).
     const staleCutoff24h = new Date(now - DAY_MS);
     const staleCutoff3d = new Date(now - 3 * DAY_MS);
 
@@ -62,8 +66,9 @@ async function sendReEngagementReminders() {
       .from(musicVideoJobs)
       .where(
         and(
-          // Only draft or storyboard_ready — never rendered
-          sql`${musicVideoJobs.status} IN ('draft', 'storyboard_ready')`,
+          // Only draft — never reached storyboard stage
+          // Explicitly excludes: storyboard_ready, paused, on_hold, cancelled, rendering, assembling, completed, failed
+          sql`${musicVideoJobs.status} = 'draft'`,
           // Created at least 24h ago
           lt(musicVideoJobs.createdAt, staleCutoff24h)
         )

@@ -21,6 +21,8 @@ const OWNER_EMAIL = "tim@wiz-ai.io"; // Owner receives at wiz-ai.io (Zoho)
 const FROM_EMAIL = "WIZ AI Notifications <notifications@wizvid.ai>";
 const FROM_WELCOME = "WIZ AI <welcome@wizvid.ai>";
 const FROM_BROADCAST = "WIZ AI <updates@wizvid.ai>";
+// Reply-To routes replies to the canonical wiz-ai.io support inbox
+const REPLY_TO = "support@wiz-ai.io";
 
 let resend: Resend | null = null;
 
@@ -47,6 +49,7 @@ async function sendToEmail(to: string, payload: EmailPayload): Promise<void> {
   try {
     const { error } = await client.emails.send({
       from: FROM_EMAIL,
+      replyTo: REPLY_TO,
       to,
       subject: payload.subject,
       html: payload.html,
@@ -311,6 +314,7 @@ export async function emailWelcomeUser(user: {
   try {
     const { error } = await client.emails.send({
       from: FROM_WELCOME,
+      replyTo: REPLY_TO,
       to: user.email,
       subject: `Welcome to WIZ AI, ${firstName}! Your creative studio is ready 🎬`,
       html,
@@ -381,6 +385,7 @@ export async function emailBroadcastSingle(
   try {
     await client.emails.send({
       from: FROM_BROADCAST,
+      replyTo: REPLY_TO,
       to,
       subject,
       html: wrappedHtml.replace(
@@ -429,6 +434,7 @@ export async function emailRenderComplete(data: {
     try {
       await client.emails.send({
         from: FROM_EMAIL,
+      replyTo: REPLY_TO,
         to: data.email,
         subject: `– Your WIZ AI video is ready! (${data.quality})`,
         html: `<!DOCTYPE html>
@@ -501,6 +507,7 @@ export async function emailJobResurrected(data: {
   try {
     await client.emails.send({
       from: FROM_EMAIL,
+      replyTo: REPLY_TO,
       to: data.email,
       subject: `– Your WIZ AI video is still being processed`,
       html: `<!DOCTYPE html>
@@ -574,6 +581,7 @@ export async function emailProbeReminder(data: {
   try {
     await client.emails.send({
       from: FROM_EMAIL,
+      replyTo: REPLY_TO,
       to: data.email,
       subject: `Your WIZ AI preview is ready — action required`,
       html: `<!DOCTYPE html>
@@ -657,6 +665,7 @@ export async function emailProviderUnavailable(data: {
   try {
     await client.emails.send({
       from: FROM_EMAIL,
+      replyTo: REPLY_TO,
       to: data.email,
       subject: `– Your WIZ AI video is saved and will resume shortly`,
       html: `<!DOCTYPE html>
@@ -788,6 +797,7 @@ export async function emailAssemblyFailed(data: {
   try {
     const { error } = await client.emails.send({
       from: FROM_EMAIL,
+      replyTo: REPLY_TO,
       to: data.email,
       subject: `⚠️ Your WIZ AI video couldn't be assembled — Job #${data.jobId}`,
       html,
