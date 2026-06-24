@@ -235,6 +235,109 @@ async function tryBfl(
 }
 
 /**
+ * ── FLUX.1 Kontext Pro ───────────────────────────────────────────────────────
+ * BFL's character-consistent generation model. Preserves subject identity
+ * from an input image while placing them in a new scene/environment.
+ * Uses the same BFL_API_KEY as FLUX.1 Pro Ultra.
+ *
+ * POST https://api.bfl.ai/v1/flux-kontext-pro
+ * Poll GET https://api.bfl.ai/v1/get_result?id=<task_id>
+ */
+export async function tryBflKontext(
+  prompt: string,
+  inputImageUrl: string,
+  options?: {
+    aspectRatio?: "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
+    outputFormat?: "jpeg" | "png";
+    safetyTolerance?: number;
+  }
+): Promise<string | undefined> {
+  const bflKey = process.env.BFL_API_KEY;
+  if (!bflKey) {
+    console.warn("[BflKontext] BFL_API_KEY not set");
+    return undefined;
+  }
+
+  const aspectRatio = options?.aspectRatio ?? "16:9";
+  const outputFormat = options?.outputFormat ?? "jpeg";
+  const safetyTolerance = options?.safetyTolerance ?? 2;
+
+  try {
+    // Step 1: Submit
+    const submitRes = await fetch(`${BFL_API_BASE}/flux-kontext-pro`, {
+      method: "POST",
+      headers: {
+        "x-key": bflKey,
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify({
+        prompt,
+        input_image: inputImageUrl,
+        aspect_ratio: aspectRatio,
+        output_format: outputFormat,
+        safety_tolerance: safetyTolerance,
+      }),
+      signal: AbortSignal.timeout(30_000),
+    });
+
+    if (!submitRes.ok) {
+      const errText = await submitRes.text().catch(() => "");
+      console.warn(`[BflKontext] Submit HTTP ${submitRes.status}: ${errText.slice(0, 200)}`);
+      return undefined;
+    }
+
+    const submitJson = (await submitRes.json()) as { id?: string; polling_url?: string };
+    const taskId = submitJson?.id;
+    const pollUrl = submitJson?.polling_url ?? `${BFL_API_BASE}/get_result?id=${taskId}`;
+
+    if (!taskId) {
+      console.warn("[BflKontext] No task ID returned");
+      return undefined;
+    }
+
+    console.log(`[BflKontext] Task submitted: ${taskId}`);
+
+    // Step 2: Poll for result (max 120s, 3s intervals)
+    const maxAttempts = 40;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      await new Promise((r) => setTimeout(r, 3000));
+
+      const pollRes = await fetch(pollUrl, {
+        headers: { "x-key": bflKey, "Accept": "application/json" },
+        signal: AbortSignal.timeout(15_000),
+      });
+
+      if (!pollRes.ok) continue;
+
+      const pollJson = (await pollRes.json()) as {
+        status?: string;
+        result?: { sample?: string; url?: string };
+      };
+
+      const status = pollJson?.status;
+      if (status === "Ready") {
+        const imageUrl = pollJson?.result?.sample ?? pollJson?.result?.url;
+        if (imageUrl) {
+          console.log(`[BflKontext] Succeeded (attempt ${attempt + 1}) → ${imageUrl.slice(0, 80)}...`);
+          return imageUrl;
+        }
+      } else if (status === "Error" || status === "Content Moderated" || status === "Request Moderated") {
+        console.warn(`[BflKontext] Task ${taskId} ended with status: ${status}`);
+        return undefined;
+      }
+      // else: Pending / Processing — keep polling
+    }
+
+    console.warn(`[BflKontext] Task ${taskId} timed out after ${maxAttempts} polls`);
+    return undefined;
+  } catch (err: any) {
+    console.warn(`[BflKontext] Failed: ${err?.message?.slice(0, 100)}`);
+    return undefined;
+  }
+}
+
+/**
  * ── Provider 2: Grok grok-imagine-image-quality ──────────────────────────────
  * Fallback if BFL is unavailable. Returns a temporary URL.
  */
