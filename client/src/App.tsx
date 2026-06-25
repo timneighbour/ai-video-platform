@@ -115,6 +115,7 @@ const PipelineOpsDashboard = lazy(() => import("@/pages/admin/PipelineOpsDashboa
 const AdminJobsPanel = lazy(() => import("@/pages/admin/AdminJobsPanel"));
 const LaunchReadinessDashboard = lazy(() => import("@/pages/LaunchReadinessDashboard"));
 const GoldenBenchmarkLibrary = lazy(() => import("@/pages/GoldenBenchmarkLibrary"));
+const OmniHumanProbe = lazy(() => import("@/pages/OmniHumanProbe"));
 const MyProjects = lazy(() => import("@/pages/MyProjects"));
 const Unsubscribe = lazy(() => import("@/pages/Unsubscribe"));
 const Studios = lazy(() => import("@/pages/Studios"));
@@ -343,6 +344,7 @@ function Router() {
         <Route path={"/admin/email"} component={AdminEmail} />
         <Route path={"/admin/providers"} component={ProviderDashboard} />
         <Route path={"/admin/jobs"} component={AdminJobsPanel} />
+        <Route path={"/admin/omnihuman-probe"} component={OmniHumanProbe} />
         <Route path={"/render/success"} component={RenderSuccess} />
         <Route path={"/discover"} component={Discover} />
         <Route path={"/creators"} component={Discover} />
