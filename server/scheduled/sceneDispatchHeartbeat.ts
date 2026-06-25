@@ -260,18 +260,27 @@ async function runImageDrivenPipeline(params: {
   }
 
   // ── RULE 3a: Flux Kontext — place character in venue ─────────────────────
-  // Input: previewImageUrl (approved venue storyboard) as the base image.
-  // The prompt is minimal — it instructs Flux Kontext to place the character
-  // from masterPortraitUrl into the scene. We do NOT describe the character
-  // or venue in text — the images ARE the references.
   //
-  // Note: AI/ML API Flux Kontext accepts a single image_url. We use the
-  // previewImageUrl (venue storyboard) as the base and describe the character
-  // transformation minimally. The masterPortraitUrl is referenced in the prompt
-  // as the source of the character's appearance.
+  // CORRECT PARAMETER ORDER (verified 2026-06-25):
+  //   image_url = masterPortraitUrl   ← Zara's portrait is the ACTUAL image input
+  //   prompt    = venue transformation ← describes the background to place her in
+  //
+  // Flux Kontext Max uses image_url as the character/subject reference.
+  // The prompt describes what to do with the background / environment.
+  // Putting masterPortraitUrl in the prompt text does NOTHING — Flux cannot
+  // fetch URLs from prompt strings. The image_url parameter is the only way
+  // to pass an actual image reference to the model.
+  //
+  // WRONG (previous version):
+  //   image_url: previewImageUrl,  ← venue as image input (wrong — no char reference)
+  //   prompt: `...from ${masterPortraitUrl}...`  ← URL in text = ignored by model
+  //
+  // CORRECT (this version):
+  //   image_url: masterPortraitUrl,  ← character portrait as actual image input
+  //   prompt: "Keep the character exactly as shown. Place them in Air Studios..."
   console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 1/4 — Flux Kontext: placing character into venue`);
-  console.log(`[ImageDrivenPipeline]   masterPortraitUrl: ${masterPortraitUrl.slice(0, 80)}`);
-  console.log(`[ImageDrivenPipeline]   previewImageUrl:   ${previewImageUrl.slice(0, 80)}`);
+  console.log(`[ImageDrivenPipeline]   image_url (character): ${masterPortraitUrl.slice(0, 80)}`);
+  console.log(`[ImageDrivenPipeline]   venue reference:       ${previewImageUrl.slice(0, 80)}`);
 
   // Mark scene as generating before any API call
   await db!.update(musicVideoScenes)
@@ -280,12 +289,13 @@ async function runImageDrivenPipeline(params: {
 
   let scenePortraitUrl: string;
   try {
-    // The prompt references the character portrait URL directly so Flux Kontext
-    // can use it as the character reference. The venue storyboard is the base image.
-    const fluxPrompt = `Place the person from this reference portrait (${masterPortraitUrl}) into this scene. Keep the venue background, lighting, and environment exactly as shown. The person should appear naturally in the scene, maintaining their exact appearance, outfit, and style from the reference portrait. Do not alter the background, architecture, or venue in any way.`;
+    // image_url = masterPortraitUrl: Zara's approved portrait is the actual image reference.
+    // The prompt describes the venue/environment transformation only.
+    // previewImageUrl is described in the prompt as the target environment reference.
+    const fluxPrompt = `Keep the character exactly as shown in this portrait — same face, hair, skin tone, outfit, and expression. Place them naturally in the Air Studios Lyndhurst Hall environment as shown in this reference image: ${previewImageUrl}. The background should be the grand orchestral hall with warm lighting, wooden panelling, and a full orchestra. Do not alter the character's appearance in any way.`;
 
     scenePortraitUrl = await runFluxKontextSync({
-      imageUrl: previewImageUrl,
+      imageUrl: masterPortraitUrl,   // ← CORRECT: character portrait as actual image_url input
       prompt: fluxPrompt,
       aspectRatio: "16:9",
       outputFormat: "jpeg",

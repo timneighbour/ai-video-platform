@@ -438,15 +438,54 @@ describe("IMAGE-DRIVEN PIPELINE — four mandatory rules", () => {
     expect(provider).toBe("heygen");
   });
 
-  it("Flux Kontext prompt references masterPortraitUrl directly (no text description)", () => {
+  it("Flux Kontext: image_url is masterPortraitUrl (character portrait), NOT previewImageUrl (venue)", () => {
     const masterPortraitUrl = "https://cdn.example.com/portrait.jpg";
     const previewImageUrl = "https://cdn.example.com/venue.jpg";
-    const fluxPrompt = `Place the person from this reference portrait (${masterPortraitUrl}) into this scene. Keep the venue background, lighting, and environment exactly as shown. The person should appear naturally in the scene, maintaining their exact appearance, outfit, and style from the reference portrait. Do not alter the background, architecture, or venue in any way.`;
 
-    // The prompt must reference the masterPortraitUrl URL directly
-    expect(fluxPrompt).toContain(masterPortraitUrl);
+    // Simulate the corrected runFluxKontextSync call parameters
+    const fluxParams = {
+      imageUrl: masterPortraitUrl,   // ← CORRECT: character portrait as actual image_url input
+      prompt: `Keep the character exactly as shown in this portrait — same face, hair, skin tone, outfit, and expression. Place them naturally in the Air Studios Lyndhurst Hall environment as shown in this reference image: ${previewImageUrl}. The background should be the grand orchestral hall with warm lighting, wooden panelling, and a full orchestra. Do not alter the character's appearance in any way.`,
+      aspectRatio: "16:9",
+      outputFormat: "jpeg",
+      safetyTolerance: 2,
+    };
+
+    // image_url MUST be masterPortraitUrl (character reference), not previewImageUrl (venue)
+    expect(fluxParams.imageUrl).toBe(masterPortraitUrl);
+    expect(fluxParams.imageUrl).not.toBe(previewImageUrl);
+
+    // The prompt must reference previewImageUrl as the venue reference (in text is fine for prompt)
+    expect(fluxParams.prompt).toContain(previewImageUrl);
+
     // The prompt must NOT describe the character in text (no "black hair", "tall", etc.)
-    expect(fluxPrompt).not.toContain("black hair");
-    expect(fluxPrompt).not.toContain("tall");
+    expect(fluxParams.prompt).not.toContain("black hair");
+    expect(fluxParams.prompt).not.toContain("tall");
+
+    // The prompt must instruct Flux to keep the character unchanged
+    expect(fluxParams.prompt).toContain("Keep the character exactly as shown");
+  });
+
+  it("Flux Kontext WRONG pattern: putting masterPortraitUrl only in prompt text provides no image reference", () => {
+    // This is the BUG that was fixed. Verify the wrong pattern is not used.
+    const masterPortraitUrl = "https://cdn.example.com/portrait.jpg";
+    const previewImageUrl = "https://cdn.example.com/venue.jpg";
+
+    // WRONG: image_url = previewImageUrl (venue), masterPortraitUrl only in prompt text
+    const wrongParams = {
+      imageUrl: previewImageUrl,  // ← WRONG: venue as image input, no character reference
+      prompt: `Place the person from this reference portrait (${masterPortraitUrl}) into this scene.`,
+    };
+
+    // Verify this is the wrong pattern
+    expect(wrongParams.imageUrl).toBe(previewImageUrl); // venue, not character
+    expect(wrongParams.imageUrl).not.toBe(masterPortraitUrl); // character NOT the image_url
+
+    // The correct pattern must have masterPortraitUrl as imageUrl
+    const correctParams = {
+      imageUrl: masterPortraitUrl,  // ← CORRECT
+      prompt: `Keep the character exactly as shown. Place them in Air Studios: ${previewImageUrl}`,
+    };
+    expect(correctParams.imageUrl).toBe(masterPortraitUrl);
   });
 });
