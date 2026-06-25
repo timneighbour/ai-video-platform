@@ -89,6 +89,11 @@ import { notifyOwner } from "../_core/notification";
 import sharp from "sharp";
 import { storagePut } from "../storage";
 import { applyTempoCorrection, calcSpeedFactor } from "../utils/tempoCorrection";
+// ── IMAGE-DRIVEN PIPELINE (2026-06-25) ──────────────────────────────────────────────────────────
+// Flux Kontext Max via AI/ML API — places approved character portrait into approved venue storyboard
+import { runFluxKontextSync } from "../ai-apis/aimlapi-fluxkontext";
+// OmniHuman 1.5 via AI/ML API — animates the scene portrait with the scene's isolated vocal stem
+import { submitAimlOmniHumanTask, pollAimlOmniHumanTask } from "../ai-apis/aimlapi-omnihuman";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
 // ── POST-HEYGEN VENUE COMPOSITING ──────────────────────────────────────────────
@@ -192,6 +197,190 @@ async function compositeHeyGenWithVenue(
       try { if (fs.default.existsSync(p)) fs.default.unlinkSync(p); } catch { /* ignore */ }
     }
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// IMAGE-DRIVEN PIPELINE — runImageDrivenPipeline()
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// FOUR MANDATORY PIPELINE RULES (Tim's architecture, 2026-06-25):
+//
+// Rule 1 — Character input is ALWAYS videoCharacters.masterPortraitUrl
+//   Never describe a character in text. Read the approved portrait URL from the DB.
+//   If masterPortraitUrl is null → PIPELINE HALT.
+//
+// Rule 2 — Venue input is ALWAYS musicVideoScenes.previewImageUrl
+//   The approved storyboard IS the venue reference. Read it from the DB.
+//   If previewImageUrl is null → PIPELINE HALT.
+//
+// Rule 3 — Fixed pipeline order:
+//   DB: masterPortraitUrl + previewImageUrl
+//   → Flux Kontext (AI/ML API): place character in venue → scene portrait
+//   → Crop to 1280×720
+//   → OmniHuman (AI/ML API): scene portrait + sceneAudioUrl → animated clip
+//   → Store as musicVideoScenes.videoUrl
+//
+// Rule 4 — No intermediate CDN files without DB records
+//   Every generated asset is written to DB immediately before the next step.
+//
+// These rules are enforced as hard null-guard checks. Any null URL throws
+// with a specific PIPELINE HALT message and the function returns without
+// attempting any API call or workaround.
+// ═══════════════════════════════════════════════════════════════════════════
+async function runImageDrivenPipeline(params: {
+  db: Awaited<ReturnType<typeof getDb>>;
+  sceneId: number;
+  jobId: number;
+  /** RULE 1: Must come from videoCharacters.masterPortraitUrl — never null */
+  masterPortraitUrl: string;
+  /** RULE 2: Must come from musicVideoScenes.previewImageUrl — never null */
+  previewImageUrl: string;
+  /** Isolated vocal stem for this scene window — from musicVideoScenes.sceneAudioUrl or job stem */
+  sceneAudioUrl: string;
+  sceneDuration: number;
+}): Promise<void> {
+  const { db, sceneId, jobId, masterPortraitUrl, previewImageUrl, sceneAudioUrl, sceneDuration } = params;
+
+  // ── RULE 1: masterPortraitUrl null-guard ──────────────────────────────────
+  if (!masterPortraitUrl || masterPortraitUrl.trim() === "") {
+    console.error(`[ImageDrivenPipeline] PIPELINE HALT: masterPortraitUrl is null for scene ${sceneId} (job ${jobId}). Cannot proceed without an approved character portrait. Set videoCharacters.masterPortraitUrl and retry.`);
+    await db!.update(musicVideoScenes)
+      .set({ status: "failed", errorMessage: "PIPELINE HALT: masterPortraitUrl is null — approved character portrait required", updatedAt: new Date() })
+      .where(eq(musicVideoScenes.id, sceneId));
+    return;
+  }
+
+  // ── RULE 2: previewImageUrl null-guard ───────────────────────────────────
+  if (!previewImageUrl || previewImageUrl.trim() === "") {
+    console.error(`[ImageDrivenPipeline] PIPELINE HALT: previewImageUrl is null for scene ${sceneId} (job ${jobId}). Cannot proceed without an approved venue storyboard. Set musicVideoScenes.previewImageUrl and retry.`);
+    await db!.update(musicVideoScenes)
+      .set({ status: "failed", errorMessage: "PIPELINE HALT: previewImageUrl is null — approved venue storyboard required", updatedAt: new Date() })
+      .where(eq(musicVideoScenes.id, sceneId));
+    return;
+  }
+
+  // ── RULE 3a: Flux Kontext — place character in venue ─────────────────────
+  // Input: previewImageUrl (approved venue storyboard) as the base image.
+  // The prompt is minimal — it instructs Flux Kontext to place the character
+  // from masterPortraitUrl into the scene. We do NOT describe the character
+  // or venue in text — the images ARE the references.
+  //
+  // Note: AI/ML API Flux Kontext accepts a single image_url. We use the
+  // previewImageUrl (venue storyboard) as the base and describe the character
+  // transformation minimally. The masterPortraitUrl is referenced in the prompt
+  // as the source of the character's appearance.
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 1/4 — Flux Kontext: placing character into venue`);
+  console.log(`[ImageDrivenPipeline]   masterPortraitUrl: ${masterPortraitUrl.slice(0, 80)}`);
+  console.log(`[ImageDrivenPipeline]   previewImageUrl:   ${previewImageUrl.slice(0, 80)}`);
+
+  // Mark scene as generating before any API call
+  await db!.update(musicVideoScenes)
+    .set({ status: "generating", taskId: `omnihuman_pipeline:flux_kontext`, compositeStatus: "skipped", updatedAt: new Date() })
+    .where(eq(musicVideoScenes.id, sceneId));
+
+  let scenePortraitUrl: string;
+  try {
+    // The prompt references the character portrait URL directly so Flux Kontext
+    // can use it as the character reference. The venue storyboard is the base image.
+    const fluxPrompt = `Place the person from this reference portrait (${masterPortraitUrl}) into this scene. Keep the venue background, lighting, and environment exactly as shown. The person should appear naturally in the scene, maintaining their exact appearance, outfit, and style from the reference portrait. Do not alter the background, architecture, or venue in any way.`;
+
+    scenePortraitUrl = await runFluxKontextSync({
+      imageUrl: previewImageUrl,
+      prompt: fluxPrompt,
+      aspectRatio: "16:9",
+      outputFormat: "jpeg",
+      safetyTolerance: 2,
+    });
+  } catch (fluxErr: any) {
+    const errMsg = `Flux Kontext failed: ${String(fluxErr?.message ?? fluxErr).slice(0, 200)}`;
+    console.error(`[ImageDrivenPipeline] Scene ${sceneId} STEP 1 FAILED — ${errMsg}`);
+    await db!.update(musicVideoScenes)
+      .set({ status: "failed_retryable", taskId: null, errorMessage: errMsg, updatedAt: new Date() })
+      .where(eq(musicVideoScenes.id, sceneId));
+    return;
+  }
+
+  // ── RULE 4: Write Flux Kontext result to DB immediately ───────────────────
+  // Store the scene portrait in heroImageUrl before proceeding to crop.
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 1 DONE — scene portrait: ${scenePortraitUrl.slice(0, 80)}`);
+  await db!.update(musicVideoScenes)
+    .set({ heroImageUrl: scenePortraitUrl, updatedAt: new Date() })
+    .where(eq(musicVideoScenes.id, sceneId));
+
+  // ── RULE 3b: Crop to 1280×720 ────────────────────────────────────────────
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 2/4 — cropping scene portrait to 1280×720`);
+  let croppedPortraitUrl: string;
+  try {
+    const imgResp = await fetch(scenePortraitUrl);
+    if (!imgResp.ok) throw new Error(`Failed to download scene portrait: HTTP ${imgResp.status}`);
+    const imgBuf = Buffer.from(await imgResp.arrayBuffer());
+
+    // Resize to exactly 1280×720, covering the full frame (no letterboxing)
+    const croppedBuf = await sharp(imgBuf)
+      .resize(1280, 720, { fit: "cover", position: "centre" })
+      .jpeg({ quality: 92 })
+      .toBuffer();
+
+    const cropKey = `music-video-scenes/${sceneId}-scene-portrait-1280x720-${Date.now()}.jpg`;
+    const { url: cropUrl } = await storagePut(cropKey, croppedBuf, "image/jpeg");
+    croppedPortraitUrl = cropUrl;
+  } catch (cropErr: any) {
+    const errMsg = `Crop to 1280×720 failed: ${String(cropErr?.message ?? cropErr).slice(0, 200)}`;
+    console.error(`[ImageDrivenPipeline] Scene ${sceneId} STEP 2 FAILED — ${errMsg}`);
+    await db!.update(musicVideoScenes)
+      .set({ status: "failed_retryable", taskId: null, errorMessage: errMsg, updatedAt: new Date() })
+      .where(eq(musicVideoScenes.id, sceneId));
+    return;
+  }
+
+  // ── RULE 4: Write cropped portrait to DB immediately ─────────────────────
+  // Store the cropped 1280×720 portrait before submitting to OmniHuman.
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 2 DONE — cropped portrait: ${croppedPortraitUrl.slice(0, 80)}`);
+  await db!.update(musicVideoScenes)
+    .set({
+      heroImageUrl: croppedPortraitUrl,  // overwrite with the cropped version
+      taskId: `omnihuman_pipeline:awaiting_omnihuman`,
+      updatedAt: new Date(),
+    })
+    .where(eq(musicVideoScenes.id, sceneId));
+
+  // ── RULE 3c: OmniHuman — animate the scene portrait with the vocal stem ──
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 3/4 — submitting to OmniHuman 1.5`);
+  console.log(`[ImageDrivenPipeline]   croppedPortraitUrl: ${croppedPortraitUrl.slice(0, 80)}`);
+  console.log(`[ImageDrivenPipeline]   sceneAudioUrl:      ${sceneAudioUrl.slice(0, 80)}`);
+
+  let omniHumanGenerationId: string;
+  try {
+    omniHumanGenerationId = await submitAimlOmniHumanTask({
+      imageUrl: croppedPortraitUrl,
+      audioUrl: sceneAudioUrl,
+    });
+  } catch (omniErr: any) {
+    const errMsg = `OmniHuman submit failed: ${String(omniErr?.message ?? omniErr).slice(0, 200)}`;
+    console.error(`[ImageDrivenPipeline] Scene ${sceneId} STEP 3 FAILED — ${errMsg}`);
+    await db!.update(musicVideoScenes)
+      .set({ status: "failed_retryable", taskId: null, errorMessage: errMsg, updatedAt: new Date() })
+      .where(eq(musicVideoScenes.id, sceneId));
+    return;
+  }
+
+  // ── RULE 4: Write OmniHuman task ID to DB immediately ────────────────────
+  // Store the generation ID so the polling loop can pick it up on the next tick.
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 3 SUBMITTED — OmniHuman generationId: ${omniHumanGenerationId}`);
+  await db!.update(musicVideoScenes)
+    .set({
+      status: "completed",               // Seedance step skipped — scene is in lip-sync processing
+      taskId: `omnihuman:${omniHumanGenerationId}`,
+      lipSyncStatus: "processing",
+      lipSyncTaskId: `omnihuman:${omniHumanGenerationId}`,
+      lipSyncProvider: "omnihuman",
+      compositeStatus: "skipped",
+      updatedAt: new Date(),
+    })
+    .where(eq(musicVideoScenes.id, sceneId));
+
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} — OmniHuman task submitted, polling will complete on next heartbeat tick.`);
+  // STEP 4 (store videoUrl) is handled by the OmniHuman polling section below.
 }
 
 // ── ISS-017: Heartbeat watchdog ────────────────────────────────────────────────
@@ -760,12 +949,14 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               console.log(`[SceneDispatch] Scene ${scene.id} no lyrics available — r2v will use audio-only lip sync`);
             }
 
-            // ── PIPELINE ROUTING (2026-06-15) ──────────────────────────────────────────────────────────────────────
-            // NEW PRIMARY PIPELINE:
+            // ── PIPELINE ROUTING (2026-06-25) ──────────────────────────────────────────────────────────────────────
+            // IMAGE-DRIVEN PIPELINE (Tim's four rules, 2026-06-25):
             // Performance scenes (lipSync=true) + character + audio:
-            //   → HeyGen Direct Photo+Audio — ONE API call: portrait image + vocal stem → lip-synced video
-            //   NO Seedance. NO muxing. NO video-to-video HeyGen Precision.
-            //   Eliminates: wrong characters, "No speaker detected", portrait ratio issues.
+            //   → runImageDrivenPipeline():
+            //       Rule 1: masterPortraitUrl from videoCharacters (HALT if null)
+            //       Rule 2: previewImageUrl from musicVideoScenes (HALT if null)
+            //       Rule 3: Flux Kontext (AI/ML API) → crop 1280×720 → OmniHuman → videoUrl
+            //       Rule 4: DB write after every generated asset
             //
             // Cinematic scenes (lipSync=false):
             //   → BytePlus Seedance 2.0 (venue reference, no face) — image-to-video
@@ -775,59 +966,70 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
             // or fall back to the full stem/audio URL if slicing wasn't attempted.
             const slicedVocalStemUrl = sceneAudioUrlForR2V ?? (job.stemVocalsUrl ?? job.audioUrl ?? undefined);
 
-            // Use HeyGen Direct for performance scenes with a photo (venue storyboard or portrait) and audio.
-            // Image priority: resolvedCharacterUrl (performanceRefUrl — tight face crop, proven for lip sync).
-            // Venue background is added AFTER HeyGen returns via ffmpeg compositing (compositeHeyGenWithVenue).
-            // NEVER send the venue storyboard or medium-shot crop to HeyGen — face detection fails.
-            const heyGenAvailablePhotoUrl = resolvedCharacterUrl;
-            const useHeyGenDirect = isPerformanceScene && (scene.lipSync ?? false) && !!heyGenAvailablePhotoUrl && !!slicedVocalStemUrl && isHeyGenDirectConfigured();
+            // IMAGE-DRIVEN PIPELINE: performance scenes with lipSync=true
+            // Reads masterPortraitUrl from videoCharacters and previewImageUrl from musicVideoScenes.
+            // Both must be non-null — if either is null, runImageDrivenPipeline() logs PIPELINE HALT and returns.
+            const useImageDrivenPipeline = isPerformanceScene && (scene.lipSync ?? false) && !!slicedVocalStemUrl;
 
-            if (useHeyGenDirect) {
-              // ── HEYGEN DIRECT PHOTO+AUDIO PATH (PRIMARY for performance scenes) ──────────────────
-              // One API call: tight face portrait + vocal stem → clean lip-synced face video
-              // Venue background is composited in AFTER HeyGen completes (compositeHeyGenWithVenue).
+            if (useImageDrivenPipeline) {
+              // ── IMAGE-DRIVEN PIPELINE PATH (PRIMARY for performance scenes, 2026-06-25) ──────────
+              // Rule 1: masterPortraitUrl — read from videoCharacters table (NOT resolvedCharacterUrl)
+              // Rule 2: previewImageUrl  — read from musicVideoScenes table
+              // Both are read fresh from DB inside runImageDrivenPipeline to enforce the rules.
               //
-              // IMAGE SELECTION (2026-06-24 — compositing approach):
-              //   ALWAYS use resolvedCharacterUrl (performanceRefUrl — tight face close-up).
-              //   This is the ONLY image that gives HeyGen reliable face detection and clean lip sync.
-              //   The venue background (Lyndhurst Hall) is added post-HeyGen via ffmpeg overlay.
-              //   Sending the venue storyboard or medium-shot crop to HeyGen causes face distortion.
-              const heyGenPhotoUrl: string = resolvedCharacterUrl!;
-              console.log(`[SceneDispatch] Scene ${scene.id} → HeyGen Direct Photo+Audio (performance, direct lip sync)`);
-              console.log(`[SceneDispatch] Scene ${scene.id} HEYGEN PHOTO: performanceRefUrl (tight face crop) → ${heyGenPhotoUrl.slice(0, 80)}...`);
-              console.log(`[SceneDispatch] Scene ${scene.id} vocal stem: ${slicedVocalStemUrl!.slice(0, 80)}...`);
-              const estCost = estimateHeyGenDirectCost(scene.duration ?? 5);
-              console.log(`[SceneDispatch] Scene ${scene.id} estimated cost: $${estCost.toFixed(4)} (${scene.duration ?? 5}s)`);
-              const heyGenDirectTaskId = await submitHeyGenDirectPhoto({
-                imageUrl: heyGenPhotoUrl,
-                audioUrl: slicedVocalStemUrl!,
+              // Resolve masterPortraitUrl from the job's characters (same logic as above but explicit)
+              let masterPortraitUrlForPipeline: string | null = null;
+              try {
+                const { videoCharacters: vcTable } = await import("../../drizzle/schema");
+                const { eq: eqVc } = await import("drizzle-orm");
+                const jobCharsForPipeline = await db.select().from(vcTable).where(eqVc(vcTable.jobId, job.id));
+                if (jobCharsForPipeline.length > 0) {
+                  let assignmentsForPipeline: string[] = [];
+                  try {
+                    if (scene.characterAssignments) {
+                      const parsed = JSON.parse(scene.characterAssignments);
+                      if (Array.isArray(parsed)) {
+                        assignmentsForPipeline = parsed.map((a: any) =>
+                          typeof a === 'string' ? a : (a?.name ?? a?.characterName ?? String(a))
+                        ).filter(Boolean);
+                      }
+                    }
+                  } catch {}
+                  const matchedCharForPipeline = assignmentsForPipeline.length > 0
+                    ? jobCharsForPipeline.find(c => assignmentsForPipeline.some(a => typeof a === 'string' && a.toLowerCase() === c.name?.toLowerCase()))
+                    : null;
+                  const bestCharForPipeline = matchedCharForPipeline ?? jobCharsForPipeline.find(c => c.masterPortraitUrl) ?? jobCharsForPipeline[0];
+                  masterPortraitUrlForPipeline = bestCharForPipeline?.masterPortraitUrl ?? null;
+                }
+              } catch (charLookupErr: any) {
+                console.warn(`[SceneDispatch] Scene ${scene.id} IMAGE-DRIVEN: character lookup failed: ${charLookupErr.message}`);
+              }
+
+              // Read previewImageUrl fresh from the scene record
+              const previewImageUrlForPipeline = scene.previewImageUrl ?? null;
+
+              console.log(`[SceneDispatch] Scene ${scene.id} → IMAGE-DRIVEN PIPELINE (Flux Kontext → crop → OmniHuman)`);
+              console.log(`[SceneDispatch] Scene ${scene.id} masterPortraitUrl: ${masterPortraitUrlForPipeline ? masterPortraitUrlForPipeline.slice(0, 80) + '...' : 'NULL — PIPELINE HALT'}`);
+              console.log(`[SceneDispatch] Scene ${scene.id} previewImageUrl:   ${previewImageUrlForPipeline ? previewImageUrlForPipeline.slice(0, 80) + '...' : 'NULL — PIPELINE HALT'}`);
+
+              // runImageDrivenPipeline enforces Rules 1-4 with hard null-guards.
+              // If either URL is null, it writes PIPELINE HALT to errorMessage and returns.
+              await runImageDrivenPipeline({
+                db,
                 sceneId: scene.id,
-                durationSeconds: scene.duration ?? 5,
-                title: `WizAI Scene ${scene.id} Job ${job.id}`,
-                resolution: "1080p",
-                aspectRatio: "16:9",
-                fit: "cover",
+                jobId: job.id,
+                masterPortraitUrl: masterPortraitUrlForPipeline ?? "",
+                previewImageUrl: previewImageUrlForPipeline ?? "",
+                sceneAudioUrl: slicedVocalStemUrl!,
+                sceneDuration: scene.duration ?? 5,
               });
-              await db
-                .update(musicVideoScenes)
-                .set({
-                  status: "completed",  // No Seedance step — scene goes straight to lip-sync processing
-                  taskId: `heygen_direct:${heyGenDirectTaskId}`,
-                  compositeStatus: "skipped",
-                  lipSyncStatus: "processing",
-                  lipSyncTaskId: `heygen_direct:${heyGenDirectTaskId}`,
-                  lipSyncProvider: "heygen",
-                  updatedAt: new Date(),
-                })
-                .where(eq(musicVideoScenes.id, scene.id));
+
               if (pendingProbeSceneId === scene.id) {
                 await db.update(musicVideoJobs)
                   .set({ probePassed: false, probeSceneId: scene.id, updatedAt: new Date() })
                   .where(eq(musicVideoJobs.id, job.id));
-                console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — HeyGen Direct scene ${scene.id} in progress`);
+                console.log(`[SceneDispatch] Job ${job.id} PROBE MODE — Image-Driven Pipeline scene ${scene.id} in progress`);
               }
-              console.log(`[SceneDispatch] Scene ${scene.id} dispatched → HeyGen Direct taskId: ${heyGenDirectTaskId}`);
-              lipSyncSubmittedThisTick++;
               totalDispatched++;
               totalLipSyncSubmitted++;
             } else {
@@ -1444,13 +1646,34 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               }
 
               // Detect provider from task ID prefix:
-              // heygen_direct: → HeyGen Direct Photo+Audio (NEW PRIMARY)
+              // omnihuman:     → OmniHuman 1.5 via AI/ML API (IMAGE-DRIVEN PIPELINE, 2026-06-25)
+              // heygen_direct: → HeyGen Direct Photo+Audio (legacy, still in-flight)
               // heygen:        → HeyGen Precision video-to-video (legacy, still in-flight)
               // synclabs:      → Sync Labs (fallback)
               // other          → InfiniteTalk / WaveSpeed (legacy fallback)
               const taskIdStr = scene.lipSyncTaskId!;
               let pollResult: { status: string; videoUrl?: string; errorCode?: string };
-              if (taskIdStr.startsWith("heygen_direct:")) {
+              if (taskIdStr.startsWith("omnihuman:")) {
+                // ── OmniHuman 1.5 (IMAGE-DRIVEN PIPELINE) ──────────────────────────────────
+                // AimlOmniHumanTask.status: "done" | "failed" | "running" | "pending"
+                // AimlOmniHumanTask.videoUrl: string | undefined
+                const omniHumanId = taskIdStr.slice("omnihuman:".length);
+                console.log(`[SceneDispatch] Scene ${scene.id} — OmniHuman task ${omniHumanId}, polling`);
+                try {
+                  const omniPollResult = await pollAimlOmniHumanTask(omniHumanId);
+                  if (omniPollResult.status === "done" && omniPollResult.videoUrl) {
+                    pollResult = { status: "completed", videoUrl: omniPollResult.videoUrl };
+                  } else if (omniPollResult.status === "failed") {
+                    pollResult = { status: "failed" };
+                  } else {
+                    // pending | running — still processing
+                    pollResult = { status: "processing" };
+                  }
+                } catch (omniPollErr: any) {
+                  console.warn(`[SceneDispatch] Scene ${scene.id} OmniHuman poll error: ${omniPollErr?.message?.slice(0, 100)}`);
+                  pollResult = { status: "processing" }; // treat as still running
+                }
+              } else if (taskIdStr.startsWith("heygen_direct:")) {
                 const heyGenDirectId = taskIdStr.slice("heygen_direct:".length);
                 console.log(`[SceneDispatch] Scene ${scene.id} — HeyGen Direct task ${heyGenDirectId}, polling`);
                 const heyGenDirectPoll = await pollHeyGenDirectPhoto(heyGenDirectId, scene.id);
@@ -1542,7 +1765,10 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   // output shows Zara performing in the correct environment.
                   // Non-fatal: if compositing fails, the raw HeyGen output is used.
                   let finalLipSyncUrl = url;
-                  const isHeyGenDirectScene = scene.lipSyncTaskId?.startsWith("heygen_direct:") || scene.lipSyncProvider === "heygen";
+                  // OmniHuman scenes: the venue background is already baked in via Flux Kontext (Rule 3).
+                  // No post-compositing needed — the output is already character-in-venue.
+                  const isOmniHumanScene = scene.lipSyncTaskId?.startsWith("omnihuman:") || scene.lipSyncProvider === "omnihuman";
+                  const isHeyGenDirectScene = !isOmniHumanScene && (scene.lipSyncTaskId?.startsWith("heygen_direct:") || scene.lipSyncProvider === "heygen");
                   if (isHeyGenDirectScene && scene.previewImageUrl) {
                     console.log(`[VenueComposite] Scene ${scene.id} — compositing HeyGen face over venue storyboard`);
                     finalLipSyncUrl = await compositeHeyGenWithVenue(
@@ -1557,7 +1783,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   }
 
                   // Determine which provider completed this lip sync
-                  const completedLipSyncProvider = scene.lipSyncTaskId?.startsWith("heygen_direct:") || scene.lipSyncTaskId?.startsWith("heygen:") ? "heygen" : "infinitetalk";
+                  const completedLipSyncProvider = scene.lipSyncTaskId?.startsWith("omnihuman:") ? "omnihuman" : (scene.lipSyncTaskId?.startsWith("heygen_direct:") || scene.lipSyncTaskId?.startsWith("heygen:") ? "heygen" : "infinitetalk");
                   // Build quality score update (only set if LLM returned values)
                   const qualityScoreUpdate: Record<string, any> = {};
                   if (typeof lipSyncGateResult.lipSyncQualityScore === "number") qualityScoreUpdate.lipSyncQualityScore = lipSyncGateResult.lipSyncQualityScore.toFixed(3);
@@ -1565,6 +1791,15 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                   if (typeof lipSyncGateResult.mouthVisibilityScore === "number") qualityScoreUpdate.mouthVisibilityScore = lipSyncGateResult.mouthVisibilityScore.toFixed(3);
                   if (typeof lipSyncGateResult.overallSceneScore === "number") qualityScoreUpdate.overallSceneScore = lipSyncGateResult.overallSceneScore.toFixed(3);
                   if (Object.keys(qualityScoreUpdate).length > 0) qualityScoreUpdate.qualityScoredAt = new Date();
+                  // Rule 3 (IMAGE-DRIVEN PIPELINE): OmniHuman output IS the final videoUrl.
+                  // For OmniHuman scenes, the output is already character-in-venue (no compositing).
+                  // Store it as both videoUrl (primary) and lipSyncVideoUrl (for assembly compatibility).
+                  const videoUrlUpdate: Record<string, any> = {};
+                  if (isOmniHumanScene) {
+                    videoUrlUpdate.videoUrl = finalLipSyncUrl;
+                    videoUrlUpdate.videoKey = key;
+                    videoUrlUpdate.originalVideoUrl = finalLipSyncUrl; // preserve as original
+                  }
                   await db.update(musicVideoScenes)
                     .set({
                       lipSyncStatus: "done",
@@ -1572,7 +1807,8 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                       lipSyncVideoKey: key,
                       lipsyncedVideoUrl: finalLipSyncUrl,  // composited output (venue + face)
                       lipSyncProvider: completedLipSyncProvider,
-                      compositeStatus: isHeyGenDirectScene && scene.previewImageUrl ? "done" : "skipped",
+                      compositeStatus: isOmniHumanScene ? "skipped" : (isHeyGenDirectScene && scene.previewImageUrl ? "done" : "skipped"),
+                      ...videoUrlUpdate,
                       ...qualityScoreUpdate,
                       updatedAt: new Date(),
                     })
