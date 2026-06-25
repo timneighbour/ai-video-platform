@@ -1511,8 +1511,8 @@ Rules:
           console.log(`[previewCharacter] Using Flux Pro 1.1 Ultra for ${char.name}`);
           const aimlUrl = await generateFluxProPortrait({
             characterPrompt: portraitPrompt,
-            referenceImageUrl: primaryPhoto.photoUrl,
-            aspectRatio: "1:1",
+            // Flux Pro 1.1 Ultra is text-to-image only — no image URL reference supported
+            aspectRatio: "9:16",
             outputFormat: "jpeg",
           });
           // Download from AI/ML CDN and re-upload to our S3 for persistence

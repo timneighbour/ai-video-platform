@@ -89,8 +89,8 @@ async function runBatchRegeneration(
       console.log(`[batchRegen] Generating portrait for ${item.characterName} via Flux Pro 1.1 Ultra`);
       const aimlUrl = await generateFluxProPortrait({
         characterPrompt: characterPromptForBatch,
-        referenceImageUrl: primaryPhoto.photoUrl,
-        aspectRatio: "1:1",
+        // Flux Pro 1.1 Ultra is text-to-image only — no image URL reference supported
+        aspectRatio: "9:16",
         outputFormat: "jpeg",
       });
       // Download from AI/ML CDN and re-upload to our S3 for persistence
@@ -371,8 +371,8 @@ export const batchRegenRouter = router({
       try {
         const aimlUrl = await generateFluxProPortrait({
           characterPrompt,
-          referenceImageUrl: primaryPhoto.photoUrl,
-          aspectRatio: "1:1",
+          // Flux Pro 1.1 Ultra is text-to-image only — visual traits embedded in characterPrompt
+          aspectRatio: "9:16",
           outputFormat: "jpeg",
         });
         // Download from AI/ML CDN and re-upload to our S3 for persistence
