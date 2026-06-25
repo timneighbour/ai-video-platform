@@ -8,42 +8,29 @@
  * backbone of the render pipeline.
  *
  * ═══════════════════════════════════════════════════════════════════════════
- * CANONICAL 3-STAGE WIZ AI DIRECT-GENERATION PIPELINE (LOCKED 2026-05-28)
+ * CANONICAL 4-STAGE WIZ AI IMAGE-DRIVEN PIPELINE (UPDATED 2026-06-26)
  * ═══════════════════════════════════════════════════════════════════════════
  *
- * STAGE 1 — CINEMATIC WORLD WITH CHARACTER INSIDE (Seedance)
- *   Generate the scene with the character ALREADY INSIDE the environment.
- *   Performance scenes: Zara generated inside Air Studios / Lyndhurst Hall.
- *   Cinematic scenes: pure environment shots (no character).
- *   NO grey backgrounds. NO compositing. The character IS the scene.
+ * PERFORMANCE SCENES (sceneType='performance', lipSync=true):
+ *   IMAGE-DRIVEN PIPELINE (runImageDrivenPipeline):
+ *   Step 1 — Flux Kontext (BFL via AIML): masterPortraitUrl → scene portrait (heroImageUrl)
+ *             Zara's approved portrait is placed inside Air Studios Lyndhurst Hall.
+ *   Step 2 — Crop to 1280×720 (sharp) — stored in heroImageUrl
+ *   Step 3 — Grok Imagine Video 1.5 (xAI): cropped portrait → 5–6s animated scene clip
+ *             Async: submit → grokVideoRequestId stored, polling on next heartbeat tick.
+ *             Output stored in grokVideoUrl.
+ *   Step 4 — Extract first frame of Grok video (ffmpeg) → used as OmniHuman input image
+ *   Step 5 — OmniHuman 1.5 (AIML): first frame + vocal stem → lip-synced video (videoUrl)
+ *             Async: submit → lipSyncTaskId stored, polling on next heartbeat tick.
  *
- * STAGE 1b — RAW SCENE VALIDATION GATE (new 2026-05-28)
- *   Before submitting to Sync Labs, visually validate the raw Seedance clip.
- *   If the clip shows a grey background or no real environment → reset to pending.
- *   If the clip looks like a real music video shot → proceed to Stage 2.
- *   This gate prevents wasting HeyGen API cost on bad Seedance outputs.
- *
- * STAGE 2 — LIP-SYNC (WaveSpeed InfiniteTalk — PRIMARY, switched 2026-06-09)
- *   HYBRID PIPELINE:
- *   Performance scenes: SKIP Seedance entirely. Go directly from character image +
- *     isolated vocal stem → InfiniteTalk → lip-synced video. Saves Seedance cost.
- *   Cinematic scenes: Seedance only. No lip sync. compositeStatus=skipped.
- *   InfiniteTalk input: character portrait URL + isolated vocal stem URL.
- *   InfiniteTalk output: lip-synced performance video (lipSyncVideoUrl).
- *   HeyGen retained for legacy polling of in-flight jobs ONLY.
- *
- * STAGE 3 — FINAL AUDIO RESTORATION (assembly worker)
- *   Assembly uses original mastered full mix (never vocal stem).
- *   Handled by assemblyWorker.ts (not here).
- *
- * SCENE TYPE ROUTING:
- *   performance (lipSync=true):  Stage 2 only (InfiniteTalk direct). Skips Seedance. compositeStatus=skipped.
- *   cinematic (lipSync=false):   Stage 1 only (Seedance). compositeStatus=skipped.
+ * CINEMATIC SCENES (sceneType='cinematic', lipSync=false):
+ *   BytePlus Seedance 2.0 (venue reference, no face) — image-to-video.
+ *   No lip sync. compositeStatus=skipped.
  *
  * ASSEMBLY GATE:
  *   All performance scenes must have lipSyncStatus=done.
  *   All cinematic scenes must have lipSyncStatus=done (set to done immediately).
- *   compositeStatus is set to 'skipped' for ALL scenes — compositing is removed.
+ *   compositeStatus is set to 'skipped' for ALL scenes.
  *   Only then does the heartbeat queue the job for assembly.
  *
  * Route: POST /api/scheduled/sceneDispatchHeartbeat
@@ -89,10 +76,12 @@ import { notifyOwner } from "../_core/notification";
 import sharp from "sharp";
 import { storagePut } from "../storage";
 import { applyTempoCorrection, calcSpeedFactor } from "../utils/tempoCorrection";
-// ── IMAGE-DRIVEN PIPELINE (2026-06-25) ──────────────────────────────────────────────────────────
+// ── IMAGE-DRIVEN PIPELINE (2026-06-25 / updated 2026-06-26) ─────────────────────────────────────
 // Flux Kontext Max via AI/ML API — places approved character portrait into approved venue storyboard
 import { runFluxKontextSync } from "../ai-apis/aimlapi-fluxkontext";
-// OmniHuman 1.5 via AI/ML API — animates the scene portrait with the scene's isolated vocal stem
+// Grok Imagine Video 1.5 (xAI) — animates the scene portrait into a cinematic 5–6s clip
+import { submitGrokVideo, pollGrokVideo } from "../ai-apis/grok-imagine";
+// OmniHuman 1.5 via AI/ML API — animates the Grok first frame with the scene's isolated vocal stem
 import { submitAimlOmniHumanTask, pollAimlOmniHumanTask } from "../ai-apis/aimlapi-omnihuman";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
 
@@ -282,9 +271,10 @@ async function runImageDrivenPipeline(params: {
   console.log(`[ImageDrivenPipeline]   image_url (character): ${masterPortraitUrl.slice(0, 80)}`);
   console.log(`[ImageDrivenPipeline]   venue reference:       ${previewImageUrl.slice(0, 80)}`);
 
-  // Mark scene as generating before any API call
+  // Mark scene as generating before any API call.
+  // Also persist sceneAudioUrl so the Grok polling section can retrieve it when submitting OmniHuman.
   await db!.update(musicVideoScenes)
-    .set({ status: "generating", taskId: `omnihuman_pipeline:flux_kontext`, compositeStatus: "skipped", updatedAt: new Date() })
+    .set({ status: "generating", taskId: `omnihuman_pipeline:flux_kontext`, compositeStatus: "skipped", sceneAudioUrl, updatedAt: new Date() })
     .where(eq(musicVideoScenes.id, sceneId));
 
   let scenePortraitUrl: string;
@@ -347,29 +337,34 @@ async function runImageDrivenPipeline(params: {
   }
 
   // ── RULE 4: Write cropped portrait to DB immediately ─────────────────────
-  // Store the cropped 1280×720 portrait before submitting to OmniHuman.
+  // Store the cropped 1280×720 portrait before submitting to Grok.
   console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 2 DONE — cropped portrait: ${croppedPortraitUrl.slice(0, 80)}`);
   await db!.update(musicVideoScenes)
     .set({
       heroImageUrl: croppedPortraitUrl,  // overwrite with the cropped version
-      taskId: `omnihuman_pipeline:awaiting_omnihuman`,
+      taskId: `omnihuman_pipeline:awaiting_grok`,
       updatedAt: new Date(),
     })
     .where(eq(musicVideoScenes.id, sceneId));
 
-  // ── RULE 3c: OmniHuman — animate the scene portrait with the vocal stem ──
-  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 3/4 — submitting to OmniHuman 1.5`);
+  // ── RULE 3c: Grok Imagine Video 1.5 — animate the scene portrait into a cinematic clip ──
+  // This is ASYNC: submit → store grokVideoRequestId → poll on next heartbeat tick.
+  // The Grok polling section handles Steps 4 & 5 when grokVideoStatus='processing'.
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 3/5 — submitting to Grok Imagine Video 1.5`);
   console.log(`[ImageDrivenPipeline]   croppedPortraitUrl: ${croppedPortraitUrl.slice(0, 80)}`);
-  console.log(`[ImageDrivenPipeline]   sceneAudioUrl:      ${sceneAudioUrl.slice(0, 80)}`);
+  console.log(`[ImageDrivenPipeline]   sceneDuration:      ${sceneDuration}s`);
 
-  let omniHumanGenerationId: string;
+  let grokRequestId: string;
   try {
-    omniHumanGenerationId = await submitAimlOmniHumanTask({
-      imageUrl: croppedPortraitUrl,
-      audioUrl: sceneAudioUrl,
+    grokRequestId = await submitGrokVideo({
+      prompt: `Cinematic music performance. The performer sings with subtle natural movement, gentle head sway, and expressive gestures. Air Studios Lyndhurst Hall: blue vaulted Gothic ceiling, large pipe organ, warm amber stage lighting, orchestral chairs. Camera: slow cinematic push-in. Photorealistic, 4K quality.`,
+      image_url: croppedPortraitUrl,
+      duration: Math.min(Math.max(Math.round(sceneDuration), 1), 10),
+      aspect_ratio: "16:9",
+      resolution: "720p",
     });
-  } catch (omniErr: any) {
-    const errMsg = `OmniHuman submit failed: ${String(omniErr?.message ?? omniErr).slice(0, 200)}`;
+  } catch (grokErr: any) {
+    const errMsg = `Grok Video submit failed: ${String(grokErr?.message ?? grokErr).slice(0, 200)}`;
     console.error(`[ImageDrivenPipeline] Scene ${sceneId} STEP 3 FAILED — ${errMsg}`);
     await db!.update(musicVideoScenes)
       .set({ status: "failed_retryable", taskId: null, errorMessage: errMsg, updatedAt: new Date() })
@@ -377,23 +372,25 @@ async function runImageDrivenPipeline(params: {
     return;
   }
 
-  // ── RULE 4: Write OmniHuman task ID to DB immediately ────────────────────
-  // Store the generation ID so the polling loop can pick it up on the next tick.
-  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 3 SUBMITTED — OmniHuman generationId: ${omniHumanGenerationId}`);
+  // ── RULE 4: Write Grok request_id to DB immediately ──────────────────────────────────────────────────────────────────────────────────────
+  // Store the Grok request_id so the polling loop can pick it up on the next tick.
+  // grokVideoStatus='processing' signals the polling section to check Grok on next heartbeat.
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 3 SUBMITTED — Grok request_id: ${grokRequestId}`);
   await db!.update(musicVideoScenes)
     .set({
-      status: "completed",               // Seedance step skipped — scene is in lip-sync processing
-      taskId: `omnihuman:${omniHumanGenerationId}`,
-      lipSyncStatus: "processing",
-      lipSyncTaskId: `omnihuman:${omniHumanGenerationId}`,
-      lipSyncProvider: "omnihuman",
+      status: "completed",               // Flux+crop done — scene is in Grok video processing
+      taskId: `grok:${grokRequestId}`,
+      grokVideoRequestId: grokRequestId,
+      grokVideoStatus: "processing",
+      lipSyncStatus: "pending",           // OmniHuman will be submitted after Grok completes
       compositeStatus: "skipped",
       updatedAt: new Date(),
     })
     .where(eq(musicVideoScenes.id, sceneId));
 
-  console.log(`[ImageDrivenPipeline] Scene ${sceneId} — OmniHuman task submitted, polling will complete on next heartbeat tick.`);
-  // STEP 4 (store videoUrl) is handled by the OmniHuman polling section below.
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} — Grok task submitted. Next heartbeat tick will poll Grok, extract first frame, and submit to OmniHuman.`);
+  // STEP 4 (extract Grok first frame + submit OmniHuman) is handled by the Grok polling section.
+  // STEP 5 (store videoUrl from OmniHuman) is handled by the OmniHuman polling section.
 }
 
 // ── ISS-017: Heartbeat watchdog ────────────────────────────────────────────────
@@ -1624,6 +1621,147 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               console.error(`[SceneDispatch] Scene ${scene.id} RETRY lip-sync failed: ${String(retryErr?.message ?? retryErr).slice(0, 200)} — will retry next tick`);
               // Do NOT set lipSyncStatus=error — that permanently blocks assembly.
               // Leave as pending so the next heartbeat tick retries submission.
+            }
+          }
+        }
+
+        // ── 4b. Poll Grok Imagine Video 1.5 jobs (IMAGE-DRIVEN PIPELINE, Step 3 completion) ──────────────────────────────────────────────────────────────────────────────────────
+        // When grokVideoStatus='processing', the scene is waiting for Grok to complete.
+        // Once done: extract first frame via ffmpeg, upload to S3, submit to OmniHuman.
+        const grokProcessingScenes = (scenes as any[]).filter(
+          (s: any) => s.status === "completed" && s.grokVideoStatus === "processing" && s.grokVideoRequestId
+        );
+
+        if (grokProcessingScenes.length > 0) {
+          for (const scene of grokProcessingScenes) {
+            try {
+              const sceneAge = Date.now() - new Date((scene as any).updatedAt).getTime();
+              const GROK_STUCK_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+              if (sceneAge > GROK_STUCK_TIMEOUT_MS) {
+                console.warn(`[GrokPoll] Scene ${scene.id} Grok job stuck for ${Math.round(sceneAge / 60000)}min — resetting to failed_retryable`);
+                await db.update(musicVideoScenes)
+                  .set({ status: "failed_retryable" as any, taskId: null, errorMessage: "Grok video generation timed out after 15 minutes", updatedAt: new Date() })
+                  .where(eq(musicVideoScenes.id, scene.id));
+                continue;
+              }
+
+              const grokResult = await pollGrokVideo((scene as any).grokVideoRequestId);
+              console.log(`[GrokPoll] Scene ${scene.id} — Grok request_id=${scene.grokVideoRequestId} status=${grokResult.status}`);
+
+              if (grokResult.status === "done" && grokResult.videoUrl) {
+                // ── STEP 4: Extract first frame from Grok video using ffmpeg ──────────────────────────────────────────────────────────────────────────────────────
+                console.log(`[GrokPoll] Scene ${scene.id} STEP 4/5 — Grok done, extracting first frame`);
+
+                // Download Grok video and upload to S3 for permanent storage
+                const grokVideoResp = await fetch(grokResult.videoUrl);
+                if (!grokVideoResp.ok) throw new Error(`Grok video download failed: HTTP ${grokVideoResp.status}`);
+                const grokVideoBuf = Buffer.from(await grokVideoResp.arrayBuffer());
+                const grokVideoKey = `music-video-scenes/${scene.id}-grok-video-${Date.now()}.mp4`;
+                const { url: grokVideoS3Url } = await storagePut(grokVideoKey, grokVideoBuf, "video/mp4");
+
+                // Extract first frame using ffmpeg (in-process via child_process)
+                const { execFile } = await import("child_process");
+                const { promisify } = await import("util");
+                const fs = await import("fs");
+                const os = await import("os");
+                const path = await import("path");
+                const execFileAsync = promisify(execFile);
+
+                // Resolve ffmpeg binary
+                let ffmpegBin = "ffmpeg";
+                try {
+                  const { createRequire } = await import("module");
+                  const _req = createRequire(import.meta.url);
+                  const installer = _req("ffmpeg-static");
+                  if (installer && fs.default.existsSync(installer)) {
+                    try { fs.default.chmodSync(installer, 0o755); } catch { /* ignore */ }
+                    ffmpegBin = installer;
+                  }
+                } catch { /* use system ffmpeg */ }
+
+                const tmpDir = os.default.tmpdir();
+                const grokTmpPath = path.default.join(tmpDir, `grok-vid-${scene.id}-${Date.now()}.mp4`);
+                const frameTmpPath = path.default.join(tmpDir, `grok-frame-${scene.id}-${Date.now()}.jpg`);
+                try {
+                  fs.default.writeFileSync(grokTmpPath, grokVideoBuf);
+                  await execFileAsync(ffmpegBin, [
+                    "-y", "-i", grokTmpPath,
+                    "-vframes", "1", "-q:v", "2",
+                    frameTmpPath,
+                  ], { timeout: 30000 });
+
+                  if (!fs.default.existsSync(frameTmpPath) || fs.default.statSync(frameTmpPath).size < 5000) {
+                    throw new Error(`First frame extraction failed or output too small for scene ${scene.id}`);
+                  }
+
+                  const frameBuf = fs.default.readFileSync(frameTmpPath);
+                  const frameKey = `music-video-scenes/${scene.id}-grok-frame1-${Date.now()}.jpg`;
+                  const { url: frameS3Url } = await storagePut(frameKey, frameBuf, "image/jpeg");
+                  console.log(`[GrokPoll] Scene ${scene.id} STEP 4 DONE — first frame extracted: ${frameS3Url.slice(0, 80)}`);
+
+                  // Persist Grok video URL + first frame URL to DB.
+                  // grokVideoStatus stays 'processing' until OmniHuman is successfully submitted.
+                  // This ensures that if OmniHuman submission fails, the outer catch leaves
+                  // grokVideoStatus='processing' so the next heartbeat tick retries.
+                  await db.update(musicVideoScenes)
+                    .set({
+                      grokVideoUrl: grokVideoS3Url,
+                      grokVideoFirstFrameUrl: frameS3Url,
+                      taskId: `omnihuman_pipeline:awaiting_omnihuman`,
+                      updatedAt: new Date(),
+                    } as any)
+                    .where(eq(musicVideoScenes.id, scene.id));
+
+                  // ── STEP 5: Submit OmniHuman 1.5 with the Grok first frame ──────────────────────────────────────────────────────────────────────────────────────
+                  // OmniHuman receives the Grok first frame (cinematic, environment-placed)
+                  // instead of the raw cropped portrait. The sceneAudioUrl comes from the scene record.
+                  const sceneForOmni = await db.select().from(musicVideoScenes).where(eq(musicVideoScenes.id, scene.id));
+                  const sceneAudioUrl = (sceneForOmni[0] as any)?.sceneAudioUrl ?? null;
+                  if (!sceneAudioUrl) {
+                    throw new Error(`sceneAudioUrl is null for scene ${scene.id} — cannot submit to OmniHuman`);
+                  }
+
+                  console.log(`[GrokPoll] Scene ${scene.id} STEP 5/5 — submitting to OmniHuman 1.5`);
+                  console.log(`[GrokPoll]   frameS3Url:    ${frameS3Url.slice(0, 80)}`);
+                  console.log(`[GrokPoll]   sceneAudioUrl: ${sceneAudioUrl.slice(0, 80)}`);
+
+                  const omniHumanGenerationId = await submitAimlOmniHumanTask({
+                    imageUrl: frameS3Url,
+                    audioUrl: sceneAudioUrl,
+                  });
+
+                  // OmniHuman submitted successfully — NOW mark grokVideoStatus=done and set lip sync state.
+                  // Doing this AFTER successful submission ensures grokVideoStatus=processing is preserved
+                  // for retry if submitAimlOmniHumanTask throws above.
+                  await db.update(musicVideoScenes)
+                    .set({
+                      grokVideoStatus: "done",
+                      taskId: `omnihuman:${omniHumanGenerationId}`,
+                      lipSyncStatus: "processing",
+                      lipSyncTaskId: `omnihuman:${omniHumanGenerationId}`,
+                      lipSyncProvider: "omnihuman",
+                      updatedAt: new Date(),
+                    } as any)
+                    .where(eq(musicVideoScenes.id, scene.id));
+
+                  console.log(`[GrokPoll] Scene ${scene.id} STEP 5 SUBMITTED — OmniHuman generationId: ${omniHumanGenerationId}. grokVideoStatus=done. Polling on next tick.`);
+                } finally {
+                  for (const p of [grokTmpPath, frameTmpPath]) {
+                    try { if (fs.default.existsSync(p)) fs.default.unlinkSync(p); } catch { /* ignore */ }
+                  }
+                }
+              } else if (grokResult.status === "failed" || grokResult.status === "expired") {
+                console.error(`[GrokPoll] Scene ${scene.id} Grok video generation ${grokResult.status} — resetting to failed_retryable`);
+                await db.update(musicVideoScenes)
+                  .set({ status: "failed_retryable", taskId: null, errorMessage: `Grok video generation ${grokResult.status}`, updatedAt: new Date() } as any)
+                  .where(eq(musicVideoScenes.id, scene.id));
+              } else {
+                // pending | processing — still running, check again next tick
+                console.log(`[GrokPoll] Scene ${scene.id} — Grok still ${grokResult.status}, waiting...`);
+              }
+            } catch (grokPollErr: any) {
+              console.error(`[GrokPoll] Scene ${scene.id} Grok poll error: ${String(grokPollErr?.message ?? grokPollErr).slice(0, 200)}`);
+              // Non-fatal: leave grokVideoStatus=processing so next tick retries
             }
           }
         }

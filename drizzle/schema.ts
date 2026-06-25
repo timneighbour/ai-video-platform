@@ -396,6 +396,12 @@ export const musicVideoScenes = mysqlTable("musicVideoScenes", {
   lipSyncProvider: varchar("lipSyncProvider", { length: 64 }), // Provider used for lip sync: heygen | latentsync | infinitetalk
   renderDurationMs: int("renderDurationMs"), // Time taken for video render in milliseconds
   lipSyncDurationMs: int("lipSyncDurationMs"), // Time taken for lip sync in milliseconds
+  // --- Stage 2: Grok Imagine Video 1.5 (image-to-video, approved 2026-06-26) ---
+  grokVideoUrl: varchar("grokVideoUrl", { length: 1024 }), // Grok Imagine Video 1.5 output URL (animated scene clip)
+  grokVideoKey: varchar("grokVideoKey", { length: 512 }), // S3 key for Grok video
+  grokVideoRequestId: varchar("grokVideoRequestId", { length: 255 }), // xAI request_id for async polling
+  grokVideoStatus: mysqlEnum("grokVideoStatus", ["pending", "processing", "done", "error"]).default("pending").notNull(), // Grok video generation status
+  grokVideoFirstFrameUrl: varchar("grokVideoFirstFrameUrl", { length: 1024 }), // S3 URL of first frame extracted from Grok video (fed into OmniHuman)
   // --- Quality Scoring (Pipeline v2) ---
   lipSyncQualityScore: decimal("lipSyncQualityScore", { precision: 4, scale: 3 }), // 0.000–1.000 lip sync accuracy
   faceConsistencyScore: decimal("faceConsistencyScore", { precision: 4, scale: 3 }), // 0.000–1.000 face/character consistency

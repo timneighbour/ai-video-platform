@@ -2,7 +2,7 @@
   "version": "5",
   "dialect": "mysql",
   "id": "ec9a4d92-5225-4023-80f7-50b394af3900",
-  "prevId": "ac93cfa8-018d-4113-866b-561b57e1e1e5",
+  "prevId": "5ffb1dc4-2d78-4355-915f-44be6adb6d80",
   "tables": {
     "analyticsEvents": {
       "name": "analyticsEvents",

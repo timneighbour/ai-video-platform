@@ -1,5 +1,5 @@
 const AIMLAPI_BASE = "https://api.aimlapi.com";
-const MODEL_ID = "bytedance/omnihuman";
+const MODEL_ID = "bytedance/omnihuman/v1.5";
 
 function getApiKey(): string {
   const key = process.env.AIML_API_KEY;
