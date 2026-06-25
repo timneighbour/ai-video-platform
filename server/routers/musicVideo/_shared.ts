@@ -79,6 +79,7 @@ export {
   normaliseBpm,
 } from "../../instrument-analysis";
 export { getCharacterDefaults } from "../../../shared/characterDefaults";
+export { generateFluxProPortrait, HEAD_SHOULDERS_FRAMING, PHOTOREALISTIC_PORTRAIT_SUFFIX } from "../../ai-apis/aimlapi-fluxpro";
 export {
   runStemIntelligence,
   getStemSections,

@@ -436,10 +436,10 @@ export default function CharacterConfirmationStep({
                       <div className="absolute inset-0 rounded-full border-2 border-[--color-gold]/50 animate-spin border-t-transparent pointer-events-none" />
                     </div>
                     <p className="text-zinc-400 text-sm">
-                      {isGeneratingMaster ? "Generating full-body portrait..." : "Generating AI preview..."}
+                      {isGeneratingMaster ? "Generating portrait..." : "Generating AI preview..."}
                     </p>
                     <p className="text-zinc-600 text-xs">
-                      {isGeneratingMaster ? "Face · Hair · Outfit — 30–60 seconds" : "10–20 seconds"}
+                      {isGeneratingMaster ? "Photorealistic 8K quality — 30–60 seconds" : "10–20 seconds"}
                     </p>
                   </div>
                 ) : hasPreview ? (
@@ -467,15 +467,15 @@ export default function CharacterConfirmationStep({
                     <div className={`relative ${isPhotoChar && char.primaryPhotoUrl ? "w-2/3" : "w-full"}`}>
                       <div className="px-2 pt-2 pb-1">
                         <p className="text-zinc-500 text-[10px] font-medium uppercase tracking-wider flex items-center gap-1">
-                          <Sparkles className="w-3 h-3" /> AI Full-Body Portrait
+                          <Sparkles className="w-3 h-3" /> AI Portrait
                         </p>
                       </div>
-                      {/* Tall portrait container — object-contain so legs and feet are always visible */}
+                      {/* Portrait container — object-cover + object-top ensures face is always visible */}
                       <div className="mx-2 mb-2 rounded-lg overflow-hidden bg-zinc-950" style={{ aspectRatio: "3/4" }}>
                         <img
                           src={char.previewImageUrl!}
                           alt={`${char.name} AI portrait`}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-cover object-top"
                         />
                       </div>
                       {/* Approved overlay — LOCKED IN stamp */}

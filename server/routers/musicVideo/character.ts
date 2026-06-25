@@ -76,6 +76,7 @@ import {
   type CharacterInstrumentAssignment,
   normaliseBpm,
   getCharacterDefaults,
+  generateFluxProPortrait,
   runStemIntelligence,
   getStemSections,
   getSectionTypeAtTime,
@@ -1500,43 +1501,65 @@ Rules:
 
       let imageUrl: string;
       if (photos.length > 0) {
-        // Use InstantID for near-exact face matching from uploaded reference photo.
-        // InstantID accepts base64 data URIs directly as face_image_url.
+        // Use Flux Pro 1.1 Ultra for photorealistic 8K head+shoulders portrait
         const primaryPhoto = photos.find(p => p.isPrimary) ?? photos[0];
+        const mimeType = primaryPhoto.photoUrl.match(/\.png(\?|$)/i) ? "image/png" :
+                         primaryPhoto.photoUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
+        // Build a clean character description for the portrait prompt
+        const portraitPrompt = `${characterLabel}. ${outfitBlock} ${instrumentBlock} ${propsBlock} ${descriptionBlock}`.replace(/\s+/g, " ").trim();
         try {
-          // Fetch the photo from our storage proxy (accessible from server)
-          const photoResponse = await fetch(primaryPhoto.photoUrl);
-          if (!photoResponse.ok) throw new Error(`Failed to fetch reference photo: ${photoResponse.status} ${photoResponse.statusText}`);
-          const photoBuffer = Buffer.from(await photoResponse.arrayBuffer());
-          const mimeType = primaryPhoto.photoUrl.match(/\.png(\?|$)/i) ? "image/png" :
-                           primaryPhoto.photoUrl.match(/\.webp(\?|$)/i) ? "image/webp" : "image/jpeg";
-          // Convert to base64 data URL — InstantID accepts data: URIs as face_image_url
-          const base64DataUrl = `data:${mimeType};base64,${photoBuffer.toString("base64")}`;
-
-          // Use Forge API with reference photo for face-consistent portrait generation
-          // (fal.ai / InstantID / Flux PuLID are unreachable from this server environment)
-          console.log(`[previewCharacter] Using Forge API for ${char.name} (${Math.round(photoBuffer.length / 1024)}KB, ${mimeType})`);
+          console.log(`[previewCharacter] Using Flux Pro 1.1 Ultra for ${char.name}`);
+          const aimlUrl = await generateFluxProPortrait({
+            characterPrompt: portraitPrompt,
+            referenceImageUrl: primaryPhoto.photoUrl,
+            aspectRatio: "1:1",
+            outputFormat: "jpeg",
+          });
+          // Download from AI/ML CDN and re-upload to our S3 for persistence
+          const imgResp = await fetch(aimlUrl, { signal: AbortSignal.timeout(60_000) });
+          if (!imgResp.ok) throw new Error(`Portrait download failed: ${imgResp.status}`);
+          const imgBuf = Buffer.from(await imgResp.arrayBuffer());
+          const s3Key = `character-portraits/${ctx.user.id}/${input.characterId}/preview-${Date.now()}.jpg`;
+          const { url: s3Url } = await storagePut(s3Key, imgBuf, "image/jpeg");
+          imageUrl = s3Url;
+          console.log(`[previewCharacter] Flux Pro success for ${char.name}: ${imageUrl}`);
+        } catch (fluxErr) {
+          console.warn(`[previewCharacter] Flux Pro failed for ${char.name}, falling back to Forge:`, fluxErr instanceof Error ? fluxErr.message : fluxErr);
           try {
             const forgeResult = await generateImage({
               prompt: previewPrompt,
-              originalImages: [{ url: photos[0].photoUrl, mimeType }],
+              originalImages: [{ url: primaryPhoto.photoUrl, mimeType }],
             });
             imageUrl = forgeResult.url ?? "";
-            console.log(`[previewCharacter] Forge success for ${char.name}: ${imageUrl}`);
+            console.log(`[previewCharacter] Forge fallback success for ${char.name}: ${imageUrl}`);
           } catch (forgeErr) {
-            console.warn(`[previewCharacter] Forge failed for ${char.name}:`, forgeErr instanceof Error ? forgeErr.message : forgeErr);
-            const fallback = await generateImage({ prompt: previewPrompt });
-            imageUrl = fallback.url ?? "";
+            console.warn(`[previewCharacter] Forge fallback also failed for ${char.name}:`, forgeErr instanceof Error ? forgeErr.message : forgeErr);
+            const lastResort = await generateImage({ prompt: previewPrompt });
+            imageUrl = lastResort.url ?? "";
           }
-        } catch (outerErr) {
-          console.warn(`[previewCharacter] Photo fetch failed for ${char.name}:`, outerErr instanceof Error ? outerErr.message : outerErr);
-          const fallback = await generateImage({ prompt: previewPrompt });
-          imageUrl = fallback.url ?? "";
         }
       } else {
-        // No photos — use generic image generation (AI-described character)
-        const result = await generateImage({ prompt: previewPrompt });
-        imageUrl = result.url ?? "";
+        // No photos — use Flux Pro without reference (AI-described character)
+        const portraitPromptNoRef = `${characterLabel}. ${outfitBlock} ${instrumentBlock} ${propsBlock} ${descriptionBlock}`.replace(/\s+/g, " ").trim();
+        try {
+          console.log(`[previewCharacter] Using Flux Pro 1.1 Ultra (no ref) for AI character ${char.name}`);
+          const aimlUrl = await generateFluxProPortrait({
+            characterPrompt: portraitPromptNoRef,
+            aspectRatio: "1:1",
+            outputFormat: "jpeg",
+          });
+          const imgResp = await fetch(aimlUrl, { signal: AbortSignal.timeout(60_000) });
+          if (!imgResp.ok) throw new Error(`Portrait download failed: ${imgResp.status}`);
+          const imgBuf = Buffer.from(await imgResp.arrayBuffer());
+          const s3Key = `character-portraits/${ctx.user.id}/${input.characterId}/preview-${Date.now()}.jpg`;
+          const { url: s3Url } = await storagePut(s3Key, imgBuf, "image/jpeg");
+          imageUrl = s3Url;
+          console.log(`[previewCharacter] Flux Pro (no ref) success for ${char.name}: ${imageUrl}`);
+        } catch (fluxErr) {
+          console.warn(`[previewCharacter] Flux Pro (no ref) failed for ${char.name}, falling back to Forge:`, fluxErr instanceof Error ? fluxErr.message : fluxErr);
+          const result = await generateImage({ prompt: previewPrompt });
+          imageUrl = result.url ?? "";
+        }
       }
 
       // Store preview URL in DB (reset approval status)

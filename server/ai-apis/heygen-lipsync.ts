@@ -250,7 +250,7 @@ export async function submitHeyGenLipSyncV3(
     enable_watermark: false,
     enable_caption: false,
     enable_dynamic_duration: false, // Keep same duration as source clip
-    keep_original_format: request.keepSameFormat ?? true, // ISS-014: was keep_the_same_format (invalid field name)
+    // keep_original_format removed — not a valid v3 API parameter (ISS-014)
     disable_music_track: request.disableMusicTrack ?? false,
   };
 

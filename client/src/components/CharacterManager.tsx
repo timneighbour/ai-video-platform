@@ -877,11 +877,14 @@ export function CharacterManager({
                   {char.aiGeneratedImageUrl && (
                     <div className="rounded-xl overflow-hidden border border-emerald-600/50 bg-emerald-900/10">
                       <div className="relative">
-                        <img
-                          src={char.aiGeneratedImageUrl}
-                          alt={`${char.name} AI preview`}
-                          className="w-full max-h-72 object-cover"
-                        />
+                        {/* Portrait container — fixed height with object-top so face is always visible */}
+                        <div className="w-full" style={{ aspectRatio: "3/4", maxHeight: 288, overflow: "hidden" }}>
+                          <img
+                            src={char.aiGeneratedImageUrl}
+                            alt={`${char.name} AI preview`}
+                            className="w-full h-full object-cover object-top"
+                          />
+                        </div>
                         <div className="absolute top-2 right-2">
                           <Badge className="bg-emerald-900/80 text-emerald-300 border-emerald-700 text-xs">
                             AI Generated
@@ -1094,7 +1097,7 @@ export function CharacterManager({
                       {/* Photo */}
                       <div className="w-full aspect-square rounded-lg overflow-hidden bg-zinc-700 mb-2">
                         {libChar.photoUrl ? (
-                          <img src={libChar.photoUrl} alt={libChar.name} className="w-full h-full object-cover" />
+                          <img src={libChar.photoUrl} alt={libChar.name} className="w-full h-full object-cover object-top" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">
                             <User className="w-8 h-8 text-zinc-500" />

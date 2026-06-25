@@ -15,6 +15,8 @@ import {
 } from "../../drizzle/schema";
 import { eq, and, inArray, desc } from "drizzle-orm";
 import { generateImage } from "../_core/imageGeneration";
+import { generateFluxProPortrait } from "../ai-apis/aimlapi-fluxpro";
+import { storagePut } from "../storage";
 
 // ─── Batch Regeneration State Machine ────────────────────────────────────────
 type BatchItemStatus = "pending" | "processing" | "done" | "failed" | "cancelled";
@@ -78,31 +80,26 @@ async function runBatchRegeneration(
         .orderBy(desc(videoCharacterPhotos.isPrimary));
       if (photos.length === 0) throw new Error("No photos found for character");
       const primaryPhoto = photos.find((p) => p.isPrimary) ?? photos[0];
-      const photoResponse = await fetch(primaryPhoto.photoUrl);
-      if (!photoResponse.ok)
-        throw new Error(`Photo fetch failed: ${photoResponse.status}`);
-      const photoBuffer = Buffer.from(await photoResponse.arrayBuffer());
-      const mimeType = primaryPhoto.photoUrl.match(/\.png(\?|$)/i)
-        ? "image/png"
-        : primaryPhoto.photoUrl.match(/\.webp(\?|$)/i)
-        ? "image/webp"
-        : "image/jpeg";
-      const base64DataUrl = `data:${mimeType};base64,${photoBuffer.toString("base64")}`;
       const description = char.lockedDescription?.trim() ?? "";
       const characterLabel = `${char.name}${char.role ? `, ${char.role}` : ""}`;
-      const previewPrompt =
-        description.length > 20
-          ? `Close-up portrait photo of ${characterLabel}, head and shoulders, face clearly visible, looking directly at camera. ${description}. Neutral expression, soft studio lighting, photorealistic, high detail, 8K.`
-          : `Close-up portrait photo of ${characterLabel}, head and shoulders, face clearly visible, looking directly at camera, neutral expression, soft studio lighting, photorealistic, high detail, 8K.`;
-      // Use built-in Forge image generation with reference photo for face consistency
-      console.log(`[batchRegen] Generating portrait for ${item.characterName} via Forge API`);
-      const forgeResult = await generateImage({
-        prompt: previewPrompt,
-        originalImages: [{ url: primaryPhoto.photoUrl, mimeType }],
+      const characterPromptForBatch = description.length > 20
+        ? `${characterLabel}. ${description}`
+        : characterLabel;
+      // Use Flux Pro 1.1 Ultra — photorealistic 8K head+shoulders portrait
+      console.log(`[batchRegen] Generating portrait for ${item.characterName} via Flux Pro 1.1 Ultra`);
+      const aimlUrl = await generateFluxProPortrait({
+        characterPrompt: characterPromptForBatch,
+        referenceImageUrl: primaryPhoto.photoUrl,
+        aspectRatio: "1:1",
+        outputFormat: "jpeg",
       });
-      if (!forgeResult.url) throw new Error("Image generation returned no URL");
-      const newImageUrl = forgeResult.url;
-      console.log(`[batchRegen] Forge success for ${item.characterName}: ${newImageUrl}`);
+      // Download from AI/ML CDN and re-upload to our S3 for persistence
+      const imgResp = await fetch(aimlUrl, { signal: AbortSignal.timeout(60_000) });
+      if (!imgResp.ok) throw new Error(`Portrait download failed: ${imgResp.status}`);
+      const imgBuf = Buffer.from(await imgResp.arrayBuffer());
+      const s3Key = `character-portraits/${char.userId}/${char.id}/portrait-${Date.now()}.jpg`;
+      const { url: newImageUrl } = await storagePut(s3Key, imgBuf, "image/jpeg");
+      console.log(`[batchRegen] Flux Pro success for ${item.characterName}: ${newImageUrl}`);
       await db
         .update(videoCharacters)
         .set({
@@ -350,56 +347,58 @@ export const batchRegenRouter = router({
           message: "No photos uploaded for this character",
         });
       const primaryPhoto = photos.find((p) => p.isPrimary) ?? photos[0];
-      const photoResponse = await fetch(primaryPhoto.photoUrl);
-      if (!photoResponse.ok)
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: `Failed to fetch reference photo: ${photoResponse.status}`,
-        });
-      const photoBuffer = Buffer.from(await photoResponse.arrayBuffer());
+      // mimeType is only needed for the Forge fallback path
       const mimeType = primaryPhoto.photoUrl.match(/\.png(\?|$)/i)
         ? "image/png"
         : primaryPhoto.photoUrl.match(/\.webp(\?|$)/i)
         ? "image/webp"
         : "image/jpeg";
-      const base64DataUrl = `data:${mimeType};base64,${photoBuffer.toString("base64")}`;
       const masterSeed = Math.floor(Math.random() * 2147483647);
       const description = char.lockedDescription?.trim() ?? "";
       const characterLabel = `${char.name}${char.role ? `, ${char.role}` : ""}`;
-      // Map bodyBuild enum to a natural-language phrase injected into the portrait prompt.
-      const bodyBuildPhrases: Record<string, string> = {
-        slim:     "very slim, narrow frame, lean physique, slender build",
-        lean:     "lean, toned physique, low body fat, athletic leanness",
-        average:  "average build, typical physique",
-        athletic: "athletic build, fit and muscular, well-defined physique",
-        stocky:   "stocky build, broad frame, heavier-set physique",
-        muscular: "very muscular, large frame, powerfully built physique",
-      };
-      const bodyBuildPhrase = bodyBuildPhrases[(char.bodyBuild as string) ?? "average"] ?? bodyBuildPhrases.average;
-      // Build a full-body prompt so the confirmation step shows face + hair + complete outfit.
-      // Explicit full-body framing overrides any reference photo that may be a bust/head shot.
-      const fullBodyPrefix = `FULL BODY SHOT. FULL LENGTH. HEAD TO FEET. ENTIRE BODY VISIBLE. Standing pose, full figure from top of head to bottom of feet. NOT a bust shot. NOT a portrait crop. NOT waist up.`;
-      const fullBodySuffix = `${bodyBuildPhrase}. Show the complete outfit: top AND bottom clothing AND footwear AND accessories. Both legs fully visible. Both feet and shoes/boots fully visible. Camera framed to show full standing figure. Vertical composition. Full-length portrait. Neutral expression, soft studio lighting, plain neutral background, photorealistic, high detail, 8K. DO NOT crop. DO NOT cut off legs. DO NOT cut off feet.`;
+      // Build a head+shoulders portrait prompt for Flux Pro 1.1 Ultra.
+      // Head+shoulders framing is optimal for OmniHuman animation — face clearly visible.
+      // The Flux Pro client automatically appends HEAD_SHOULDERS_FRAMING and PHOTOREALISTIC_PORTRAIT_SUFFIX.
       const characterPrompt =
         description.length > 20
-          ? `${fullBodyPrefix} Full-body portrait of ${characterLabel}. ${description}. Same person as reference image, identical face, same hair colour and style, same identity, no variation. ${fullBodySuffix}`
-          : `${fullBodyPrefix} Full-body portrait of ${characterLabel}. Same person as reference image, identical face, same hair colour and style, same identity, no variation. ${fullBodySuffix}`;
-      // Use built-in Forge image generation with reference photo for face consistency
-      // (fal.ai / InstantID is unreachable from this server environment)
-      const engineUsed = "forge";
-      console.log(`[masterPortrait] Generating for ${char.name} via Forge API (seed: ${masterSeed})`);
-      const forgeResult = await generateImage({
-        prompt: characterPrompt,
-        originalImages: [{ url: primaryPhoto.photoUrl, mimeType }],
-      });
-      if (!forgeResult.url) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: `Failed to generate master portrait for ${char.name}. Please try again.`,
+          ? `${characterLabel}. ${description}. Same person as reference image, identical face, same hair colour and style, same identity, no variation`
+          : `${characterLabel}. Same person as reference image, identical face, same hair colour and style, same identity, no variation`;
+      // Use Flux Pro 1.1 Ultra — photorealistic 8K head+shoulders portrait
+      // Head+shoulders framing is optimal for OmniHuman animation (face clearly visible)
+      const engineUsed = "flux-pro-1.1-ultra";
+      console.log(`[masterPortrait] Generating for ${char.name} via Flux Pro 1.1 Ultra (seed: ${masterSeed})`);
+      let masterPortraitUrl: string;
+      try {
+        const aimlUrl = await generateFluxProPortrait({
+          characterPrompt,
+          referenceImageUrl: primaryPhoto.photoUrl,
+          aspectRatio: "1:1",
+          outputFormat: "jpeg",
         });
+        // Download from AI/ML CDN and re-upload to our S3 for persistence
+        const imgResp = await fetch(aimlUrl, { signal: AbortSignal.timeout(60_000) });
+        if (!imgResp.ok) throw new Error(`Portrait download failed: ${imgResp.status}`);
+        const imgBuf = Buffer.from(await imgResp.arrayBuffer());
+        const s3Key = `character-portraits/${char.userId}/${char.id}/master-${masterSeed}.jpg`;
+        const { url: s3Url } = await storagePut(s3Key, imgBuf, "image/jpeg");
+        masterPortraitUrl = s3Url;
+        console.log(`[masterPortrait] Flux Pro success for ${char.name}: ${masterPortraitUrl}`);
+      } catch (fluxErr) {
+        // Fallback to Forge if Flux Pro fails
+        console.warn(`[masterPortrait] Flux Pro failed for ${char.name}, falling back to Forge:`, fluxErr instanceof Error ? fluxErr.message : fluxErr);
+        const forgeResult = await generateImage({
+          prompt: characterPrompt,
+          originalImages: [{ url: primaryPhoto.photoUrl, mimeType }],
+        });
+        if (!forgeResult.url) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to generate master portrait for ${char.name}. Please try again.`,
+          });
+        }
+        masterPortraitUrl = forgeResult.url;
+        console.log(`[masterPortrait] Forge fallback success for ${char.name}: ${masterPortraitUrl}`);
       }
-      const masterPortraitUrl = forgeResult.url;
-      console.log(`[masterPortrait] Forge success for ${char.name}: ${masterPortraitUrl}`);
       await db
         .update(videoCharacters)
         .set({
