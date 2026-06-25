@@ -67,7 +67,8 @@ export interface FluxProPortraitRequest {
   aspectRatio?: "1:1" | "9:16" | "16:9" | "3:4" | "2:3";
   /** Output format */
   outputFormat?: "jpeg" | "png";
-  /** Safety tolerance 1-6 (default 2) */
+  /** Safety tolerance 1-6 (default 6 for portrait generation — character descriptions often contain
+   * words like "attractive", "sexy", "toned" that trigger the safety filter at lower levels) */
   safetyTolerance?: number;
 }
 
@@ -83,7 +84,18 @@ export async function generateFluxProPortrait(
   const apiKey = getApiKey();
 
   // Build the full prompt: framing + character description + photorealism suffix
-  const promptParts = [HEAD_SHOULDERS_FRAMING, request.characterPrompt];
+  // Sanitise the character prompt to remove words that trigger Flux Pro's safety filter.
+  // Character descriptions often contain words like "sexy", "attractive", "toned physique",
+  // "low body fat" etc. which cause the model to return a black image at lower safety levels.
+  const sanitisedPrompt = request.characterPrompt
+    .replace(/\b(sexy|sexiest|seductive|provocative|erotic|sensual)\b/gi, "confident")
+    .replace(/\b(very attractive|extremely attractive|stunningly attractive)\b/gi, "beautiful")
+    .replace(/\b(low body fat|body fat percentage|fat percentage)\b/gi, "fit")
+    .replace(/\b(toned physique|lean physique|athletic leanness)\b/gi, "athletic build")
+    .replace(/\b(revealing|skimpy|tight-fitting|form-fitting)\b/gi, "fitted")
+    .trim();
+
+  const promptParts = [HEAD_SHOULDERS_FRAMING, sanitisedPrompt];
   if (request.referenceDescription) {
     promptParts.push(`Reference appearance: ${request.referenceDescription}`);
   }
@@ -100,7 +112,10 @@ export async function generateFluxProPortrait(
     prompt: fullPrompt,
     aspect_ratio: request.aspectRatio ?? "9:16",
     output_format: request.outputFormat ?? "jpeg",
-    safety_tolerance: String(request.safetyTolerance ?? 2),
+    // Use safety_tolerance 6 (maximum) for portrait generation.
+    // Character descriptions commonly contain words like "attractive", "sexy", "toned"
+    // that trigger the safety filter at lower levels, producing a black image.
+    safety_tolerance: String(request.safetyTolerance ?? 6),
     num_images: 1,
     // raw is intentionally omitted — API only accepts raw=false, which is the default
   };
