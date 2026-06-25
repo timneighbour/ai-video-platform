@@ -1432,6 +1432,7 @@ Rules:
       jobId: z.number().int(),
     }))
     .mutation(async ({ ctx, input }) => {
+      console.log(`[previewCharacter] SENTINEL v3 — charId=${input.characterId} jobId=${input.jobId} ts=${Date.now()}`);
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 

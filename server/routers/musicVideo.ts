@@ -48,6 +48,7 @@ import {
   normaliseBpm,
 } from "../instrument-analysis";
 import { getCharacterDefaults } from "../../shared/characterDefaults";
+import { generateFluxProPortrait } from "../ai-apis/aimlapi-fluxpro";
 import { runStemIntelligence, getStemSections, getSectionTypeAtTime, stemSectionToSceneType, getVocalOnsetTime } from "../stem-intelligence-service";
 
 // ── MODULE-LEVEL OUTFIT CONSTRAINTS ──────────────────────────────────────────
@@ -4215,9 +4216,27 @@ Rules:
           imageUrl = fallback.url ?? "";
         }
       } else {
-        // No photos — use generic image generation (AI-described character)
-        const result = await generateImage({ prompt: previewPrompt });
-        imageUrl = result.url ?? "";
+        // No photos — use Flux Pro 1.1 Ultra (AI-described character)
+        const portraitPromptNoRef = `${characterLabel}. ${outfitBlock} ${instrumentBlock} ${propsBlock} ${descriptionBlock}`.replace(/\s+/g, " ").trim();
+        try {
+          console.log(`[previewCharacter] FLUX PRO 1.1 ULTRA (no ref) for AI character ${char.name}`);
+          const aimlUrl = await generateFluxProPortrait({
+            characterPrompt: portraitPromptNoRef,
+            aspectRatio: "9:16",
+            outputFormat: "jpeg",
+          });
+          const imgResp = await fetch(aimlUrl, { signal: AbortSignal.timeout(90_000) });
+          if (!imgResp.ok) throw new Error(`Portrait CDN download failed: ${imgResp.status}`);
+          const imgBuf = Buffer.from(await imgResp.arrayBuffer());
+          const s3Key = `character-portraits/${ctx.user.id}/${input.characterId}/preview-${Date.now()}.jpg`;
+          const { url: s3Url } = await storagePut(s3Key, imgBuf, "image/jpeg");
+          imageUrl = s3Url;
+          console.log(`[previewCharacter] FLUX PRO SUCCESS (no ref) for ${char.name}: ${imageUrl}`);
+        } catch (fluxErr) {
+          console.warn(`[previewCharacter] Flux Pro (no ref) failed for ${char.name}, falling back to Forge:`, fluxErr instanceof Error ? fluxErr.message : fluxErr);
+          const result = await generateImage({ prompt: previewPrompt });
+          imageUrl = result.url ?? "";
+        }
       }
 
       // Store preview URL in DB (reset approval status)
