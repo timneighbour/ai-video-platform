@@ -292,7 +292,10 @@ async function runImageDrivenPipeline(params: {
     // image_url = masterPortraitUrl: Zara's approved portrait is the actual image reference.
     // The prompt describes the venue/environment transformation only.
     // previewImageUrl is described in the prompt as the target environment reference.
-    const fluxPrompt = `Keep the character exactly as shown in this portrait — same face, hair, skin tone, outfit, and expression. Place them naturally in the Air Studios Lyndhurst Hall environment as shown in this reference image: ${previewImageUrl}. The background should be the grand orchestral hall with warm lighting, wooden panelling, and a full orchestra. Do not alter the character's appearance in any way.`;
+    // VENUE DESCRIPTION: Precise Lyndhurst Hall text (previewImageUrl URL is NOT embedded —
+    // Flux Kontext cannot fetch URLs from prompt text; text description is the only way
+    // to specify the venue when using a single image_url input).
+    const fluxPrompt = `Keep the character exactly as shown in this portrait — same face, hair, skin tone, outfit, and expression. Place them naturally in Air Studios Lyndhurst Hall: white painted plaster walls, Gothic vaulted arched ceiling with exposed dark wooden trusses, large grey pipe organ with silver metal pipes along the back wall, rows of orchestral chairs and music stands on a wooden floor, round spotlight stage lighting rigs overhead, professional recording studio, NOT a church, warm amber and white stage lighting. The character should appear centre frame, facing the camera, naturally lit by the stage lighting. Do not alter the character's appearance in any way.`;
 
     scenePortraitUrl = await runFluxKontextSync({
       imageUrl: masterPortraitUrl,   // ← CORRECT: character portrait as actual image_url input

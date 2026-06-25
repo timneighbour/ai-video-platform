@@ -445,7 +445,8 @@ describe("IMAGE-DRIVEN PIPELINE — four mandatory rules", () => {
     // Simulate the corrected runFluxKontextSync call parameters
     const fluxParams = {
       imageUrl: masterPortraitUrl,   // ← CORRECT: character portrait as actual image_url input
-      prompt: `Keep the character exactly as shown in this portrait — same face, hair, skin tone, outfit, and expression. Place them naturally in the Air Studios Lyndhurst Hall environment as shown in this reference image: ${previewImageUrl}. The background should be the grand orchestral hall with warm lighting, wooden panelling, and a full orchestra. Do not alter the character's appearance in any way.`,
+      // Venue is described in text — previewImageUrl URL is NOT embedded (Flux cannot fetch URLs from prompt)
+      prompt: `Keep the character exactly as shown in this portrait — same face, hair, skin tone, outfit, and expression. Place them naturally in Air Studios Lyndhurst Hall: white painted plaster walls, Gothic vaulted arched ceiling with exposed dark wooden trusses, large grey pipe organ with silver metal pipes along the back wall, rows of orchestral chairs and music stands on a wooden floor, round spotlight stage lighting rigs overhead, professional recording studio, NOT a church, warm amber and white stage lighting. The character should appear centre frame, facing the camera, naturally lit by the stage lighting. Do not alter the character's appearance in any way.`,
       aspectRatio: "16:9",
       outputFormat: "jpeg",
       safetyTolerance: 2,
@@ -455,8 +456,15 @@ describe("IMAGE-DRIVEN PIPELINE — four mandatory rules", () => {
     expect(fluxParams.imageUrl).toBe(masterPortraitUrl);
     expect(fluxParams.imageUrl).not.toBe(previewImageUrl);
 
-    // The prompt must reference previewImageUrl as the venue reference (in text is fine for prompt)
-    expect(fluxParams.prompt).toContain(previewImageUrl);
+    // The prompt must NOT contain previewImageUrl as a URL (dead text — Flux cannot fetch it)
+    expect(fluxParams.prompt).not.toContain(previewImageUrl);
+
+    // The prompt must contain the precise Lyndhurst Hall description
+    expect(fluxParams.prompt).toContain("Air Studios Lyndhurst Hall");
+    expect(fluxParams.prompt).toContain("Gothic vaulted arched ceiling");
+    expect(fluxParams.prompt).toContain("pipe organ");
+    expect(fluxParams.prompt).toContain("NOT a church");
+    expect(fluxParams.prompt).toContain("warm amber and white stage lighting");
 
     // The prompt must NOT describe the character in text (no "black hair", "tall", etc.)
     expect(fluxParams.prompt).not.toContain("black hair");
