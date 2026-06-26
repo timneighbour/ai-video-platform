@@ -9,18 +9,21 @@
  *
  * ═══════════════════════════════════════════════════════════════════════════
  * CANONICAL 4-STAGE WIZ AI IMAGE-DRIVEN PIPELINE (UPDATED 2026-06-26)
- * ═══════════════════════════════════════════════════════════════════════════
+ * ═════════════════════════════════════════════════════════════════════════
  *
  * PERFORMANCE SCENES (sceneType='performance', lipSync=true):
  *   IMAGE-DRIVEN PIPELINE (runImageDrivenPipeline):
- *   Step 1 — Flux Kontext (BFL via AIML): masterPortraitUrl → scene portrait (heroImageUrl)
- *             Zara's approved portrait is placed inside Air Studios Lyndhurst Hall.
- *   Step 2 — Crop to 1280×720 (sharp) — stored in heroImageUrl
- *   Step 3 — Grok Imagine Video 1.5 (xAI): cropped portrait → 5–6s animated scene clip
+ *   Stage 1 — Flux Kontext Max (BFL direct): venue photo (input_image) + character portrait
+ *             (input_image_2) → composite scene image (heroImageUrl).
+ *             Prompt is DYNAMIC: built from scene.prompt + job.sceneSetting so the image
+ *             reflects what is actually happening in the scene (e.g. orchestra playing).
+ *   Stage 2 — Crop to 1280×720 (sharp) — stored in heroImageUrl
+ *   Stage 3 — Kling 2.6 Pro (AIML API): cropped scene image → 5–6s animated cinematic clip.
  *             Async: submit → grokVideoRequestId stored, polling on next heartbeat tick.
+ *             Prompt is DYNAMIC: includes scene description (e.g. orchestra, crowd, etc.).
  *             Output stored in grokVideoUrl.
- *   Step 4 — Extract first frame of Grok video (ffmpeg) → used as OmniHuman input image
- *   Step 5 — OmniHuman 1.5 (AIML): first frame + vocal stem → lip-synced video (videoUrl)
+ *   Stage 4 — Extract first frame of Kling clip (ffmpeg) → used as OmniHuman input image
+ *   Stage 5 — OmniHuman 1.5 (AIML): first frame + vocal stem → lip-synced video (videoUrl).
  *             Async: submit → lipSyncTaskId stored, polling on next heartbeat tick.
  *
  * CINEMATIC SCENES (sceneType='cinematic', lipSync=false):
@@ -80,7 +83,7 @@ import { applyTempoCorrection, calcSpeedFactor } from "../utils/tempoCorrection"
 // Flux Kontext Max via AI/ML API — places approved character portrait into approved venue storyboard
 import { runFluxKontextSync } from "../ai-apis/aimlapi-fluxkontext";
 // Grok Imagine Video 1.5 (xAI) — animates the scene portrait into a cinematic 5–6s clip
-import { submitGrokVideo, pollGrokVideo } from "../ai-apis/grok-imagine";
+import { submitKlingI2V, pollKlingI2V } from "../ai-apis/aimlapi-kling-i2v";
 // OmniHuman 1.5 via AI/ML API — animates the Grok first frame with the scene's isolated vocal stem
 import { submitAimlOmniHumanTask, pollAimlOmniHumanTask } from "../ai-apis/aimlapi-omnihuman";
 // AudioTier import removed — assembly is now handled exclusively by assemblyWorker.ts
@@ -227,8 +230,12 @@ async function runImageDrivenPipeline(params: {
   /** Isolated vocal stem for this scene window — from musicVideoScenes.sceneAudioUrl or job stem */
   sceneAudioUrl: string;
   sceneDuration: number;
+  /** Scene-specific storyboard description — drives Flux Kontext and Kling prompts */
+  scenePrompt?: string;
+  /** Venue/scene setting from the job (e.g. 'Air Studios Lyndhurst Hall') */
+  sceneSetting?: string;
 }): Promise<void> {
-  const { db, sceneId, jobId, masterPortraitUrl, previewImageUrl, sceneAudioUrl, sceneDuration } = params;
+  const { db, sceneId, jobId, masterPortraitUrl, previewImageUrl, sceneAudioUrl, sceneDuration, scenePrompt, sceneSetting } = params;
 
   // ── RULE 1: masterPortraitUrl null-guard ──────────────────────────────────
   if (!masterPortraitUrl || masterPortraitUrl.trim() === "") {
@@ -250,26 +257,25 @@ async function runImageDrivenPipeline(params: {
 
   // ── RULE 3a: Flux Kontext — place character in venue ─────────────────────
   //
-  // CORRECT PARAMETER ORDER (verified 2026-06-25):
-  //   image_url = masterPortraitUrl   ← Zara's portrait is the ACTUAL image input
-  //   prompt    = venue transformation ← describes the background to place her in
+  // MULTI-IMAGE APPROACH (updated 2026-06-26, Tim's instruction):
+  //   input_image   = venuePhotoUrl     ← REAL Lyndhurst Hall photo as the BASE image
+  //   input_image_2 = masterPortraitUrl ← Zara's portrait as the CHARACTER reference
+  //   prompt        = composite instruction: keep venue, place character from image_2
   //
-  // Flux Kontext Max uses image_url as the character/subject reference.
-  // The prompt describes what to do with the background / environment.
-  // Putting masterPortraitUrl in the prompt text does NOTHING — Flux cannot
-  // fetch URLs from prompt strings. The image_url parameter is the only way
-  // to pass an actual image reference to the model.
+  // BFL Flux Kontext Max supports multi-image: input_image is the primary scene reference,
+  // input_image_2 is the secondary reference (character to composite in).
+  // This gives the model the ACTUAL venue photo to work from, not just a text description.
   //
-  // WRONG (previous version):
-  //   image_url: previewImageUrl,  ← venue as image input (wrong — no char reference)
-  //   prompt: `...from ${masterPortraitUrl}...`  ← URL in text = ignored by model
-  //
-  // CORRECT (this version):
-  //   image_url: masterPortraitUrl,  ← character portrait as actual image input
-  //   prompt: "Keep the character exactly as shown. Place them in Air Studios..."
-  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 1/4 — Flux Kontext: placing character into venue`);
-  console.log(`[ImageDrivenPipeline]   image_url (character): ${masterPortraitUrl.slice(0, 80)}`);
-  console.log(`[ImageDrivenPipeline]   venue reference:       ${previewImageUrl.slice(0, 80)}`);
+  // Venue photo is resolved from VENUE_REFERENCE_MAP (Air Studios Lyndhurst Hall CDN URLs).
+  // Falls back to previewImageUrl if no venue match found.
+  const { resolveVenueReferenceUrl: resolveVenueRef } = await import("../music-video-service");
+  // Resolve venue photo — use the job's sceneSetting to pick the right Lyndhurst Hall image
+  // Fall back to previewImageUrl (storyboard) if no venue match
+  const venuePhotoUrl = resolveVenueRef("air studios lyndhurst hall", 0) ?? previewImageUrl;
+
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 1/4 — Flux Kontext MULTI-IMAGE: venue + character → composite`);
+  console.log(`[ImageDrivenPipeline]   input_image   (venue):     ${venuePhotoUrl.slice(0, 80)}`);
+  console.log(`[ImageDrivenPipeline]   input_image_2 (character): ${masterPortraitUrl.slice(0, 80)}`);
 
   // Mark scene as generating before any API call.
   // Also persist sceneAudioUrl so the Grok polling section can retrieve it when submitting OmniHuman.
@@ -279,16 +285,23 @@ async function runImageDrivenPipeline(params: {
 
   let scenePortraitUrl: string;
   try {
-    // image_url = masterPortraitUrl: Zara's approved portrait is the actual image reference.
-    // The prompt describes the venue/environment transformation only.
-    // previewImageUrl is described in the prompt as the target environment reference.
-    // VENUE DESCRIPTION: Precise Lyndhurst Hall text (previewImageUrl URL is NOT embedded —
-    // Flux Kontext cannot fetch URLs from prompt text; text description is the only way
-    // to specify the venue when using a single image_url input).
-    const fluxPrompt = `Keep the character exactly as shown in this portrait — same face, hair, skin tone, outfit, and expression. Place them naturally in Air Studios Lyndhurst Hall: white painted plaster walls, Gothic vaulted arched ceiling with exposed dark wooden trusses, large grey pipe organ with silver metal pipes along the back wall, rows of orchestral chairs and music stands on a wooden floor, round spotlight stage lighting rigs overhead, professional recording studio, NOT a church, warm amber and white stage lighting. The character should appear centre frame, facing the camera, naturally lit by the stage lighting. Do not alter the character's appearance in any way.`;
+    // MULTI-IMAGE FLUX KONTEXT:
+    //   input_image   = venuePhotoUrl     — real Lyndhurst Hall photo (base scene)
+    //   input_image_2 = masterPortraitUrl — Zara's approved portrait (character to place)
+    //   prompt        — instructs Flux to keep the venue exactly as shown and place the
+    //                   character from image_2 into the scene naturally
+    // Build dynamic Flux Kontext prompt from scene description + venue setting.
+    // If the scene says "orchestra playing", the prompt must include that so the
+    // generated image actually shows an orchestra — not an empty hall.
+    const venueBase = sceneSetting?.trim() || "Air Studios Lyndhurst Hall";
+    const sceneContext = scenePrompt?.trim()
+      ? `The scene depicts: ${scenePrompt.trim().slice(0, 300)}.`
+      : "";
+    const fluxPrompt = `${venueBase} — keep the venue exactly as shown in the first image: the Gothic vaulted ceiling, acoustic canopy, pipe organ, warm amber stage lighting, and herringbone parquet floor. ${sceneContext} Place the character shown in the second image naturally into this venue, centre frame, facing the camera. The character must appear exactly as in the second image — same face, hair, skin tone, and outfit. Do not alter the character's appearance. The character should be naturally lit by the warm stage lighting of the hall. Photorealistic, cinematic quality.`.trim();
 
     scenePortraitUrl = await runFluxKontextSync({
-      imageUrl: masterPortraitUrl,   // ← CORRECT: character portrait as actual image_url input
+      imageUrl: venuePhotoUrl,          // ← PRIMARY: real Lyndhurst Hall photo as base
+      characterImageUrl: masterPortraitUrl, // ← SECONDARY: Zara's portrait as input_image_2
       prompt: fluxPrompt,
       aspectRatio: "16:9",
       outputFormat: "jpeg",
@@ -356,12 +369,18 @@ async function runImageDrivenPipeline(params: {
 
   let grokRequestId: string;
   try {
-    grokRequestId = await submitGrokVideo({
-      prompt: `Cinematic music performance. The performer sings with subtle natural movement, gentle head sway, and expressive gestures. Air Studios Lyndhurst Hall: blue vaulted Gothic ceiling, large pipe organ, warm amber stage lighting, orchestral chairs. Camera: slow cinematic push-in. Photorealistic, 4K quality.`,
+    // Build dynamic Kling prompt from scene description — if the scene says
+    // "orchestra playing", Kling must animate an orchestra, not an empty hall.
+    const klingSceneContext = scenePrompt?.trim()
+      ? scenePrompt.trim().slice(0, 200)
+      : "performer sings with subtle natural movement, gentle head sway, and expressive gestures";
+    const klingVenueBase = sceneSetting?.trim() || "Air Studios Lyndhurst Hall";
+    const klingPrompt = `Cinematic music performance. Preserve the exact person, face, and appearance from the reference image. ${klingSceneContext}. ${klingVenueBase}: warm amber stage lighting, cinematic atmosphere. Camera: slow cinematic push-in. Photorealistic, 4K quality.`;
+    grokRequestId = await submitKlingI2V({
       image_url: croppedPortraitUrl,
-      duration: Math.min(Math.max(Math.round(sceneDuration), 1), 10),
+      prompt: klingPrompt,
+      duration: (Math.min(Math.max(Math.round(sceneDuration), 5), 10) >= 10 ? 10 : 5) as 5 | 10,
       aspect_ratio: "16:9",
-      resolution: "720p",
     });
   } catch (grokErr: any) {
     const errMsg = `Grok Video submit failed: ${String(grokErr?.message ?? grokErr).slice(0, 200)}`;
@@ -1032,6 +1051,11 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 previewImageUrl: previewImageUrlForPipeline ?? "",
                 sceneAudioUrl: slicedVocalStemUrl!,
                 sceneDuration: scene.duration ?? 5,
+                // Pass scene-specific storyboard description so Flux Kontext and Kling
+                // prompts reflect what should actually be in the scene (e.g. "orchestra playing")
+                // rather than a generic hardcoded venue description.
+                scenePrompt: scene.prompt ?? undefined,
+                sceneSetting: job.sceneSetting ?? undefined,
               });
 
               if (pendingProbeSceneId === scene.id) {
@@ -1645,15 +1669,15 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 continue;
               }
 
-              const grokResult = await pollGrokVideo((scene as any).grokVideoRequestId);
-              console.log(`[GrokPoll] Scene ${scene.id} — Grok request_id=${scene.grokVideoRequestId} status=${grokResult.status}`);
+              const klingVideoUrl = await pollKlingI2V((scene as any).grokVideoRequestId);
+              console.log(`[GrokPoll] Scene ${scene.id} — Kling request_id=${(scene as any).grokVideoRequestId} result=${klingVideoUrl ? 'done' : 'processing'}`);
 
-              if (grokResult.status === "done" && grokResult.videoUrl) {
+              if (klingVideoUrl) {
                 // ── STEP 4: Extract first frame from Grok video using ffmpeg ──────────────────────────────────────────────────────────────────────────────────────
                 console.log(`[GrokPoll] Scene ${scene.id} STEP 4/5 — Grok done, extracting first frame`);
 
                 // Download Grok video and upload to S3 for permanent storage
-                const grokVideoResp = await fetch(grokResult.videoUrl);
+                const grokVideoResp = await fetch(klingVideoUrl);
                 if (!grokVideoResp.ok) throw new Error(`Grok video download failed: HTTP ${grokVideoResp.status}`);
                 const grokVideoBuf = Buffer.from(await grokVideoResp.arrayBuffer());
                 const grokVideoKey = `music-video-scenes/${scene.id}-grok-video-${Date.now()}.mp4`;
@@ -1750,14 +1774,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                     try { if (fs.default.existsSync(p)) fs.default.unlinkSync(p); } catch { /* ignore */ }
                   }
                 }
-              } else if (grokResult.status === "failed" || grokResult.status === "expired") {
-                console.error(`[GrokPoll] Scene ${scene.id} Grok video generation ${grokResult.status} — resetting to failed_retryable`);
-                await db.update(musicVideoScenes)
-                  .set({ status: "failed_retryable", taskId: null, errorMessage: `Grok video generation ${grokResult.status}`, updatedAt: new Date() } as any)
-                  .where(eq(musicVideoScenes.id, scene.id));
               } else {
-                // pending | processing — still running, check again next tick
-                console.log(`[GrokPoll] Scene ${scene.id} — Grok still ${grokResult.status}, waiting...`);
+                // null — still processing, check again next tick
+                console.log(`[KlingPoll] Scene ${scene.id} — Kling I2V still processing, waiting...`);
               }
             } catch (grokPollErr: any) {
               console.error(`[GrokPoll] Scene ${scene.id} Grok poll error: ${String(grokPollErr?.message ?? grokPollErr).slice(0, 200)}`);
