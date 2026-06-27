@@ -416,12 +416,12 @@ async function runImageDrivenPipeline(params: {
 }
 
 // ── ISS-017: Heartbeat watchdog ────────────────────────────────────────────────
-// Track the last successful tick time. If the heartbeat is silent for > 3 minutes,
+// Track the last successful tick time. If the heartbeat is silent for > 30 minutes,
 // alert the owner so they can investigate.
 let lastHeartbeatTickAt: number | null = null;
-const WATCHDOG_SILENCE_THRESHOLD_MS = 3 * 60 * 1000; // 3 minutes
+const WATCHDOG_SILENCE_THRESHOLD_MS = 30 * 60 * 1000; // 30 minutes (raised from 3min — cold starts are normal)
 let watchdogAlertSentAt: number | null = null;
-const WATCHDOG_ALERT_COOLDOWN_MS = 10 * 60 * 1000; // only alert once per 10 minutes
+const WATCHDOG_ALERT_COOLDOWN_MS = 4 * 60 * 60 * 1000; // only alert once per 4 hours (raised from 10min)
 
 const SCENE_STUCK_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes — reaper handles beyond this
 const HEYGEN_STUCK_TIMEOUT_MS = 25 * 60 * 1000; // 25 minutes max for HeyGen Precision jobs (can take 15-20min)
