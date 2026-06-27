@@ -6,6 +6,7 @@ import { nanoid } from "nanoid";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
+import { getSeoPageSSR } from "@shared/seoData";
 
 // ── Bot detection ─────────────────────────────────────────────────────────────
 // SOCIAL bots: scrape OG tags for link previews (Facebook, WhatsApp, Slack, etc.)
@@ -18,7 +19,7 @@ const SOCIAL_BOT_RE = /facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsA
 // SEARCH bots: Google, Bing, DuckDuckGo — receive the real SPA HTML but we inject
 // a per-route canonical <link> tag directly into the HTML before serving so they
 // don't have to wait for JS to run to discover the correct canonical URL.
-const SEARCH_BOT_RE = /Googlebot|bingbot|DuckDuckBot|AhrefsBot|SemrushBot|MJ12bot/i;
+const SEARCH_BOT_RE = /Googlebot|Googlebot-Image|bingbot|DuckDuckBot|AhrefsBot|SemrushBot|MJ12bot|YandexBot|Baiduspider/i;
 
 const OG_IMAGE = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/wiz-ai-og-preview-5BfppFBqHYgzvQMYcartPf.png";
 const BASE_URL = "https://wiz-ai.io";
@@ -201,9 +202,17 @@ function getRouteMeta(pathname: string): RouteMeta {
     },
   };
 
-  // SEO landing pages — generate meta dynamically from slug
+  // SEO landing pages — use real metaTitle/metaDescription from seoData if available
   if (pathname.startsWith("/seo/")) {
     const slug = pathname.replace("/seo/", "");
+    const page = getSeoPageSSR(slug);
+    if (page) {
+      return {
+        title: page.metaTitle,
+        description: page.metaDescription,
+        canonical: `${BASE_URL}${pathname}`,
+      };
+    }
     const humanTitle = slug.split("-").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
     return {
       title: `${humanTitle} — WIZ AI`,
@@ -232,6 +241,46 @@ function getRouteMeta(pathname: string): RouteMeta {
 
 function buildBotHtml(pathname: string): string {
   const meta = getRouteMeta(pathname);
+
+  // For SEO landing pages: build rich, keyword-specific body content for Google to crawl.
+  // This eliminates the JavaScript dependency for search engine crawlers.
+  let bodyContent = `<h1>${meta.title}</h1>\n<p>${meta.description}</p>\n<a href="${BASE_URL}/">Visit WIZ AI</a>`;
+
+  if (pathname.startsWith("/seo/")) {
+    const slug = pathname.replace("/seo/", "");
+    const page = getSeoPageSSR(slug);
+    if (page) {
+      const stepsHtml = page.howToSteps
+        .map((s, i) => `<li><strong>Step ${i + 1}:</strong> ${s}</li>`)
+        .join("\n");
+      const bulletsHtml = page.whyBullets.map(b => `<li>${b}</li>`).join("\n");
+      const useCasesHtml = page.useCases
+        .map(uc => `<article><h3>${uc.title}</h3><p>${uc.description}</p></article>`)
+        .join("\n");
+      bodyContent = `
+<h1>${page.h1}</h1>
+<p>${page.intro}</p>
+
+<h2>How to Get Started</h2>
+<ol>
+${stepsHtml}
+</ol>
+
+<h2>Why Choose WIZ AI?</h2>
+<ul>
+${bulletsHtml}
+</ul>
+
+<h2>Who Is This For?</h2>
+${useCasesHtml}
+
+<h2>Start Creating Today</h2>
+<p>WIZ AI is the fastest way to create professional AI videos. No editing skills, no expensive software — just your idea and WIZ AI's powerful AI.</p>
+<a href="${BASE_URL}/subscribe">Start Free Trial</a> &nbsp; <a href="${BASE_URL}/">Learn More About WIZ AI</a>
+`;
+    }
+  }
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -256,9 +305,7 @@ function buildBotHtml(pathname: string): string {
 <link rel="canonical" href="${meta.canonical}" />
 </head>
 <body>
-<h1>${meta.title}</h1>
-<p>${meta.description}</p>
-<a href="${BASE_URL}/">Visit WIZ AI</a>
+${bodyContent}
 </body>
 </html>`;
 }
@@ -286,6 +333,13 @@ export async function setupVite(app: Express, server: Server) {
     const pathname = req.path.split("?")[0].replace(/\/+$/, "") || "/";
     if (SOCIAL_BOT_RE.test(ua)) {
       console.log(`[OG] Social crawler: ${ua.slice(0, 60)} → ${pathname}`);
+      res.setHeader("Cache-Control", "public, max-age=3600");
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      return res.status(200).send(buildBotHtml(pathname));
+    }
+    // Search engine crawlers on SEO landing pages get pre-rendered HTML in dev too
+    if (SEARCH_BOT_RE.test(ua) && pathname.startsWith("/seo/")) {
+      console.log(`[SEO] Search crawler on SEO page (dev): ${ua.slice(0, 60)} → ${pathname}`);
       res.setHeader("Cache-Control", "public, max-age=3600");
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       return res.status(200).send(buildBotHtml(pathname));
@@ -319,21 +373,38 @@ export async function setupVite(app: Express, server: Server) {
         `src="/src/main.tsx?v=${nanoid()}"`
       );
 
-      // For search engine crawlers, inject the correct per-route canonical tag
-      // directly into the HTML before serving so they don't need JS to discover it.
+      let page = await vite.transformIndexHtml(url, template);
+
+      // For search engine crawlers, inject the correct per-route title, description,
+      // canonical, and og:url AFTER Vite transforms so they are not overwritten.
       if (SEARCH_BOT_RE.test(ua)) {
         const meta = getRouteMeta(pathname);
-        template = template.replace(
+        page = page.replace(
+          /<title>[^<]*<\/title>/,
+          `<title>${meta.title}</title>`
+        );
+        page = page.replace(
+          /<meta name="description"[^>]*>/,
+          `<meta name="description" content="${meta.description}" />`
+        );
+        page = page.replace(
           /<link rel="canonical"[^>]*>/,
           `<link rel="canonical" href="${meta.canonical}" />`
         );
-        template = template.replace(
+        page = page.replace(
           /<meta property="og:url"[^>]*>/,
           `<meta property="og:url" content="${meta.canonical}" />`
         );
+        page = page.replace(
+          /<meta property="og:title"[^>]*>/,
+          `<meta property="og:title" content="${meta.title}" />`
+        );
+        page = page.replace(
+          /<meta property="og:description"[^>]*>/,
+          `<meta property="og:description" content="${meta.description}" />`
+        );
       }
 
-      const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
@@ -421,15 +492,23 @@ export function serveStatic(app: Express) {
 
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 
-    // For search engine crawlers: read the built index.html, inject per-route
-    // canonical and og:url, then serve. This ensures Google sees the correct
-    // canonical without needing JavaScript execution.
+    // For search engine crawlers on SEO landing pages: serve fully pre-rendered HTML
+    // with rich, keyword-specific body content — no JavaScript execution needed.
+    // For all other pages: inject canonical/title/description into the SPA shell.
     if (SEARCH_BOT_RE.test(ua)) {
+      // SEO landing pages get the full pre-rendered bot HTML (same as social bots)
+      // so Google sees all the keyword-rich content without executing JavaScript.
+      if (pathname.startsWith("/seo/")) {
+        console.log(`[SEO] Search crawler on SEO page: ${ua.slice(0, 60)} → ${pathname}`);
+        res.setHeader("Cache-Control", "public, max-age=3600");
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        return res.status(200).send(buildBotHtml(pathname));
+      }
+      // All other pages: inject canonical/title/description into the SPA shell
       try {
         const indexPath = path.resolve(distPath, "index.html");
         let html = await fs.promises.readFile(indexPath, "utf-8");
         const meta = getRouteMeta(pathname);
-        // Replace the default homepage canonical with the correct per-route canonical
         html = html.replace(
           /<link rel="canonical"[^>]*>/,
           `<link rel="canonical" href="${meta.canonical}" />`
@@ -438,7 +517,6 @@ export function serveStatic(app: Express) {
           /<meta property="og:url"[^>]*>/,
           `<meta property="og:url" content="${meta.canonical}" />`
         );
-        // Also inject the correct title and description for better crawl quality
         html = html.replace(
           /<title>[^<]*<\/title>/,
           `<title>${meta.title}</title>`

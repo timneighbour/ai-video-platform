@@ -352,6 +352,7 @@ async function startServer() {
     try {
       const { musicVideoJobs: mvJobs } = await import("../../drizzle/schema");
       const { eq: eqOp } = await import("drizzle-orm");
+      const { SEO_PAGES_SSR } = await import("@shared/seoData");
       const db = await getDb();
       const publicVideos = db ? await db.select({
         shareSlug: mvJobs.shareSlug,
@@ -390,7 +391,14 @@ async function startServer() {
           lastmod: v.updatedAt ? new Date(v.updatedAt).toISOString().split("T")[0] : undefined,
         }));
 
-      const allUrls = [...staticUrls, ...watchUrls];
+      const seoUrls = SEO_PAGES_SSR.map(p => ({
+        loc: `${base}/seo/${p.slug}`,
+        priority: "0.8",
+        changefreq: "monthly",
+        lastmod: today,
+      }));
+
+      const allUrls = [...staticUrls, ...seoUrls, ...watchUrls];
       const xml = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
