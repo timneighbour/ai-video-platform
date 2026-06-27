@@ -7024,6 +7024,65 @@ Your task:
         source: result?.source ?? null,
       };
     }),
+
+  /**
+   * Trigger FAL Demucs 6-stem separation for a music video job.
+   * Submits the job asynchronously — the heartbeat polls for completion.
+   */
+  separateStems: protectedProcedure
+    .input(z.object({
+      jobId: z.number().int(),
+      audioUrl: z.string().url(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      // Verify ownership
+      const [job] = await db.select({ id: musicVideoJobs.id })
+        .from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Submit to FAL Demucs asynchronously
+      const { submitDemucsJob } = await import("../ai-apis/fal-demucs-stems");
+      const requestId = await submitDemucsJob(input.audioUrl);
+
+      // Store the request ID so the heartbeat can poll it
+      await db.update(musicVideoJobs)
+        .set({
+          lalalTaskId: `demucs:${requestId}`,
+          stemAnalysisStatus: "processing",
+        } as any)
+        .where(eq(musicVideoJobs.id, input.jobId));
+
+      console.log(`[SeparateStems] Job ${input.jobId}: submitted FAL Demucs job ${requestId}`);
+      return { success: true, requestId };
+    }),
+
+  /** Get the current stem analysis status and stem URLs for a job */
+  getStemAnalysis: protectedProcedure
+    .input(z.object({ jobId: z.number().int() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      const [job] = await db.select({
+        id: musicVideoJobs.id,
+        stemAnalysisStatus: musicVideoJobs.stemAnalysisStatus,
+        stemVocalsUrl: musicVideoJobs.stemVocalsUrl,
+        stemDrumsUrl: musicVideoJobs.stemDrumsUrl,
+        stemBassUrl: musicVideoJobs.stemBassUrl,
+        stemPianoUrl: musicVideoJobs.stemPianoUrl,
+        stemGuitarUrl: musicVideoJobs.stemGuitarUrl,
+        stemOtherUrl: musicVideoJobs.stemOtherUrl,
+      })
+        .from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+
+      if (!job) throw new TRPCError({ code: "NOT_FOUND" });
+      return job;
+    }),
 });
 /** Translate internal error codes to user-friendly messages. */
 function translateErrorMessage(errorMessage: string): string {

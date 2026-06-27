@@ -85,6 +85,7 @@ import {
 } from "./_shared";
 import { trimAudioToLength } from "../../audioTrim";
 import { users } from "../../../drizzle/schema";
+import { normaliseTimeline } from "../../timeline-normaliser";
 
 export const musicVideoJobRouter = router({
   transcribeAudioDirect: protectedProcedure
@@ -675,7 +676,34 @@ Rules:
         roster.find((c: { isLocked?: boolean }) => c.isLocked)?.name ??
         null;
 
-      for (const scene of scenes) {
+      // ── Beat-snap scene boundaries to BPM grid ──────────────────────────────────
+      // If the job has a known BPM, snap every scene's startTime and endTime to the
+      // nearest beat boundary so cuts happen on the beat.
+      let normalisedScenes = scenes;
+      if (job.songBpm && job.songBpm > 0 && job.audioDuration) {
+        const audioDurationMs = job.audioDuration * 1000;
+        const rawForNormalise = scenes.map((s: any) => ({
+          id: s.sceneIndex,
+          startTime: (s.startTime ?? 0) * 1000,
+          endTime: ((s.startTime ?? 0) + (s.duration ?? 6)) * 1000,
+          duration: (s.duration ?? 6) * 1000,
+          sceneType: s.sceneType,
+          prompt: s.prompt,
+        }));
+        const { scenes: snapped } = normaliseTimeline(rawForNormalise, audioDurationMs, job.songBpm);
+        normalisedScenes = scenes.map((s: any, idx: number) => {
+          const snap = snapped[idx];
+          if (!snap) return s;
+          return {
+            ...s,
+            startTime: snap.startTime / 1000,
+            duration: snap.duration / 1000,
+          };
+        });
+        console.log(`[BeatSnap] Job ${input.jobId}: snapped ${scenes.length} scenes to ${job.songBpm} BPM grid`);
+      }
+
+      for (const scene of normalisedScenes) {
         // Determine character assignments for this scene.
         // IMPORTANT: We respect the LLM's explicit empty [] assignments — we do NOT
         // blindly override them with the first locked character.

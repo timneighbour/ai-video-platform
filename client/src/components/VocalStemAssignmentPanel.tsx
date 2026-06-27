@@ -23,6 +23,8 @@ import {
   Loader2,
   Music,
   Star,
+  Layers,
+  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -30,6 +32,8 @@ interface VocalStemAssignmentPanelProps {
   jobId: number;
   characters?: Array<{ id: number; name: string }>;
   isLocked?: boolean;
+  audioUrl?: string; // needed to trigger FAL Demucs separation
+  stemAnalysisStatus?: string | null; // 'pending' | 'processing' | 'done' | 'failed' | null
 }
 
 const GENDER_COLOURS: Record<string, string> = {
@@ -67,6 +71,8 @@ export function VocalStemAssignmentPanel({
   jobId,
   characters = [],
   isLocked = false,
+  audioUrl,
+  stemAnalysisStatus,
 }: VocalStemAssignmentPanelProps) {
   const [playingId, setPlayingId] = useState<number | null>(null);
   const [assigningId, setAssigningId] = useState<number | null>(null);
@@ -93,6 +99,16 @@ export function VocalStemAssignmentPanel({
     },
     onError: (err) => toast.error(err.message),
   });
+
+  const separateStems = trpc.musicVideo.separateStems.useMutation({
+    onSuccess: () => {
+      toast.success("Stem separation started — this takes 30–90 seconds. The panel will update automatically.");
+      refetch();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const isSeparating = stemAnalysisStatus === "processing" || separateStems.isPending;
 
   function togglePlay(stemId: number, stemUrl: string) {
     // Stop any currently playing audio
@@ -132,8 +148,54 @@ export function VocalStemAssignmentPanel({
     );
   }
 
+  // Show a "Separate All Stems" CTA when no stems exist yet and audio is available
   if (!stems || stems.length === 0) {
-    return null;
+    if (!audioUrl) return null;
+    return (
+      <div className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-[rgba(20,10,35,0.98)] to-[rgba(30,14,50,0.98)] p-5">
+        <div className="flex items-start gap-3">
+          <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <Layers className="w-4 h-4 text-purple-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-semibold text-white">Multi-Stem Separation</h3>
+            <p className="text-xs text-white/40 mt-0.5 mb-3">
+              Separate your track into individual stems (vocals, drums, bass, guitar, piano) for
+              per-character lip sync and instrument-aware motion.
+            </p>
+            {isSeparating ? (
+              <div className="flex items-center gap-2 text-xs text-purple-300">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Separating stems — this takes 30–90 seconds…
+              </div>
+            ) : stemAnalysisStatus === "failed" ? (
+              <div className="space-y-2">
+                <p className="text-xs text-red-400">Stem separation failed. Please try again.</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => separateStems.mutate({ jobId, audioUrl })}
+                  className="text-xs h-7 px-3 border-purple-500/40 text-purple-300 hover:bg-purple-500/10"
+                >
+                  <RefreshCw className="w-3 h-3 mr-1.5" />
+                  Retry
+                </Button>
+              </div>
+            ) : (
+              <Button
+                size="sm"
+                onClick={() => separateStems.mutate({ jobId, audioUrl })}
+                disabled={isLocked}
+                className="text-xs h-7 px-3 bg-purple-600 hover:bg-purple-500 text-white border-0"
+              >
+                <Layers className="w-3 h-3 mr-1.5" />
+                Separate All Stems
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const multiVocal = stems.length > 1;

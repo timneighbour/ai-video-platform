@@ -255,6 +255,7 @@ async function runImageDrivenPipeline(params: {
 
   // ── STAGE 1: Flux Kontext — place character in venue ────────────────────
   //
+<<<<<<< Updated upstream
   // FINAL SPEC (Tim, 2026-06-27):
   //   input_image   = masterPortraitUrl  ← the person (Zara's approved portrait)
   //   input_image_2 = real venue photo   ← the room (venueImageCache row 22 / VENUE_REFERENCE_MAP)
@@ -271,6 +272,19 @@ async function runImageDrivenPipeline(params: {
   console.log(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 1 — Flux Kontext: 2-image (character + real venue)`);
   console.log(`[ImageDrivenPipeline]   input_image   (character portrait): ${masterPortraitUrl.slice(0, 80)}`);
   console.log(`[ImageDrivenPipeline]   input_image_2 (real venue photo):   ${venuePhotoUrl ? venuePhotoUrl.slice(0, 80) : 'NULL — text fallback'}`);
+=======
+  // FINAL SPEC (Tim, 2026-06-26):
+  //   input_image = masterPortraitUrl  ← Zara's approved portrait (SINGLE input image)
+  //   prompt      = VENUE DESCRIPTION ONLY — no character description whatsoever
+  //                 (character appearance comes from the input image, not the prompt)
+  //   Output: ONE image — Zara standing in Lyndhurst Hall
+  //
+  // DO NOT use a second image, DO NOT describe the character in the prompt.
+  // DO NOT submit to Kling. After Flux completes, go DIRECTLY to OmniHuman.
+
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 1 — Flux Kontext: masterPortraitUrl → scene image`);
+  console.log(`[ImageDrivenPipeline]   input_image (character portrait): ${masterPortraitUrl.slice(0, 80)}`);
+>>>>>>> Stashed changes
 
   // Mark scene as generating before any API call.
   // Persist sceneAudioUrl so Stage 2 OmniHuman can retrieve it.
@@ -283,6 +297,7 @@ async function runImageDrivenPipeline(params: {
     // VENUE-ONLY PROMPT — Tim's exact spec:
     // Describe the venue and environment in detail. Do NOT describe the character.
     // The character's appearance (face, hair, dress, necklace) comes entirely from the input image.
+<<<<<<< Updated upstream
     // Tim's exact 2-image prompt (2026-06-27):
     // Describes NEITHER the character NOR the venue — both come from the input images.
     const fluxPrompt = "Place the person from the first image into the room shown in the second image. Keep her face, hair, dress, and necklace exactly as in the first image. Keep the room — its architecture, windows, organ, and layout — exactly as in the second image. She is standing centre-frame, framed from the chest up, naturally lit to match the room. Photorealistic, 1536×864, high detail, sharp focus.";
@@ -295,6 +310,23 @@ async function runImageDrivenPipeline(params: {
     sceneImageUrl = await runFluxKontextSync({
       imageUrl: masterPortraitUrl,            // ← input_image: the person (first image)
       characterImageUrl: venuePhotoUrl ?? undefined, // ← input_image_2: the room (second image)
+=======
+    const venueBase = sceneSetting?.trim() || "Air Studios Lyndhurst Hall";
+
+    // Build the venue description from the scene's storyboard context.
+    // If the scene says "orchestra playing", the prompt must include that.
+    const sceneContext = scenePrompt?.trim()
+      ? ` ${scenePrompt.trim().slice(0, 300)}.`
+      : "";
+
+    const fluxPrompt = `Place this person inside ${venueBase}, London — a grand converted Victorian church used as a recording studio. Behind her: a soaring blue vaulted ceiling, tall arched stained-glass windows, a large pipe organ, and orchestral chairs and music stands arranged across a warm wooden floor. Cinematic, moody lighting — soft golden light fading through the high windows, gentle shadows, atmospheric and intimate. She is standing in the centre of the hall, framed from the chest up.${sceneContext} Keep her face, hair, skin, dress, and necklace exactly as shown in the input image. Do not change the character, her features, her clothing, or her jewellery in any way. Only change the background and environment around her. Photorealistic, high detail, professional cinematography.`.trim();
+
+    console.log(`[ImageDrivenPipeline] Scene ${sceneId} Flux prompt (venue-only): ${fluxPrompt.slice(0, 120)}...`);
+
+    sceneImageUrl = await runFluxKontextSync({
+      imageUrl: masterPortraitUrl,   // ← ONLY input image: the approved character portrait
+      // NO characterImageUrl — single image input only per Tim's spec
+>>>>>>> Stashed changes
       prompt: fluxPrompt,
       aspectRatio: "16:9",
       outputFormat: "jpeg",
@@ -317,9 +349,14 @@ async function runImageDrivenPipeline(params: {
     .set({ heroImageUrl: sceneImageUrl, updatedAt: new Date() })
     .where(eq(musicVideoScenes.id, sceneId));
 
+<<<<<<< Updated upstream
   // ── Resize + Sharpen: 1536×864 → 1280×720 for OmniHuman ────────────────
   // Flux generates at 1536×864 for maximum detail. Downscale to 1280×720 with
   // a sharpening pass to preserve crispness (especially eyes) for OmniHuman.
+=======
+  // ── Resize to 1280×720 for OmniHuman ─────────────────────────────────────
+  // OmniHuman requires a fixed-size input image. Resize the Flux output to 1280×720.
+>>>>>>> Stashed changes
   let croppedSceneImageUrl: string;
   try {
     const imgResp = await fetch(sceneImageUrl);
@@ -333,6 +370,7 @@ async function runImageDrivenPipeline(params: {
     const cropKey = `music-video-scenes/${sceneId}-scene-image-1280x720-${Date.now()}.jpg`;
     const { url: cropUrl } = await storagePut(cropKey, croppedBuf, "image/jpeg");
     croppedSceneImageUrl = cropUrl;
+<<<<<<< Updated upstream
     // Overwrite heroImageUrl with the sharpened/resized version
     await db!.update(musicVideoScenes)
       .set({ heroImageUrl: croppedSceneImageUrl, updatedAt: new Date() })
@@ -340,6 +378,15 @@ async function runImageDrivenPipeline(params: {
     console.log(`[ImageDrivenPipeline] Scene ${sceneId} RESIZE+SHARPEN DONE — 1280×720: ${croppedSceneImageUrl.slice(0, 80)}`);
   } catch (cropErr: any) {
     const errMsg = `Resize+sharpen to 1280×720 failed: ${String(cropErr?.message ?? cropErr).slice(0, 200)}`;
+=======
+    // Overwrite heroImageUrl with the cropped version
+    await db!.update(musicVideoScenes)
+      .set({ heroImageUrl: croppedSceneImageUrl, updatedAt: new Date() })
+      .where(eq(musicVideoScenes.id, sceneId));
+    console.log(`[ImageDrivenPipeline] Scene ${sceneId} RESIZE DONE — 1280×720 scene image: ${croppedSceneImageUrl.slice(0, 80)}`);
+  } catch (cropErr: any) {
+    const errMsg = `Resize to 1280×720 failed: ${String(cropErr?.message ?? cropErr).slice(0, 200)}`;
+>>>>>>> Stashed changes
     console.error(`[ImageDrivenPipeline] Scene ${sceneId} RESIZE FAILED — ${errMsg}`);
     await db!.update(musicVideoScenes)
       .set({ status: "failed_retryable", taskId: null, errorMessage: errMsg, updatedAt: new Date() })
@@ -347,6 +394,7 @@ async function runImageDrivenPipeline(params: {
     return;
   }
 
+<<<<<<< Updated upstream
   // ── STAGE 2: Kling 2.6 Pro — animate scene image into cinematic clip ─────
   // Submit Kling I2V with the sharpened 1280×720 scene image.
   // Kling runs async — store generationId, poll on next heartbeat tick.
@@ -369,6 +417,27 @@ async function runImageDrivenPipeline(params: {
     });
   } catch (klingErr: any) {
     const errMsg = `Kling I2V submit failed: ${String(klingErr?.message ?? klingErr).slice(0, 200)}`;
+=======
+  // ── STAGE 2: OmniHuman 1.5 — lip sync using the SCENE IMAGE ─────────────
+  //
+  // CRITICAL: OmniHuman input image = the Stage 1 SCENE IMAGE (Zara in Lyndhurst Hall)
+  // NOT the grey portrait. OmniHuman keeps whatever background is in its input image.
+  // By feeding it the scene image, the lip-sync output has the hall in the background.
+  //
+  // Audio: vocal stem trimmed to this scene's time window.
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 2 — OmniHuman 1.5: scene image + vocal stem → lip-sync video`);
+  console.log(`[ImageDrivenPipeline]   input image (scene): ${croppedSceneImageUrl.slice(0, 80)}`);
+  console.log(`[ImageDrivenPipeline]   audio (vocal stem):  ${sceneAudioUrl.slice(0, 80)}`);
+
+  let omniHumanGenerationId: string;
+  try {
+    omniHumanGenerationId = await submitAimlOmniHumanTask({
+      imageUrl: croppedSceneImageUrl,  // ← SCENE IMAGE (Zara in hall) — NOT the grey portrait
+      audioUrl: sceneAudioUrl,
+    });
+  } catch (omniErr: any) {
+    const errMsg = `OmniHuman submit failed: ${String(omniErr?.message ?? omniErr).slice(0, 200)}`;
+>>>>>>> Stashed changes
     console.error(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 2 SUBMIT FAILED — ${errMsg}`);
     await db!.update(musicVideoScenes)
       .set({ status: "failed_retryable", taskId: null, errorMessage: errMsg, updatedAt: new Date() })
@@ -376,6 +445,7 @@ async function runImageDrivenPipeline(params: {
     return;
   }
 
+<<<<<<< Updated upstream
   // Store Kling generation ID — grokVideoStatus=processing, polling on next tick
   console.log(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 2 SUBMITTED — Kling generationId: ${klingGenerationId}`);
   await db!.update(musicVideoScenes)
@@ -386,11 +456,29 @@ async function runImageDrivenPipeline(params: {
       grokVideoRequestId: klingGenerationId,
       lipSyncStatus: "pending",
       lipSyncTaskId: null,
+=======
+  // Write Stage 2 submission to DB — lipSyncStatus=processing, polling on next tick
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 2 SUBMITTED — OmniHuman generationId: ${omniHumanGenerationId}`);
+  await db!.update(musicVideoScenes)
+    .set({
+      status: "completed",
+      taskId: `omnihuman:${omniHumanGenerationId}`,
+      grokVideoStatus: "skipped",       // No Kling in this pipeline
+      lipSyncStatus: "processing",
+      lipSyncTaskId: `omnihuman:${omniHumanGenerationId}`,
+      lipSyncProvider: "omnihuman",
+      compositeStatus: "skipped",
+>>>>>>> Stashed changes
       updatedAt: new Date(),
     } as any)
     .where(eq(musicVideoScenes.id, sceneId));
 
+<<<<<<< Updated upstream
   console.log(`[ImageDrivenPipeline] Scene ${sceneId} — Kling polling on next heartbeat tick. OmniHuman will be submitted after Kling completes.`);
+=======
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} — OmniHuman polling on next heartbeat tick.`);
+  // Stage 2 polling is handled by the lip-sync polling section (lipSyncTaskId prefix 'omnihuman:').
+>>>>>>> Stashed changes
 }
 
 // ── ISS-017: Heartbeat watchdog ────────────────────────────────────────────────
@@ -561,6 +649,80 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
 
     for (const job of activeJobs) {
       try {
+        // ── 1a-pre. FAL Demucs 6-stem polling ───────────────────────────────────────
+        // When a user triggers separateStems, lalalTaskId is set to 'demucs:<requestId>'
+        // and stemAnalysisStatus='processing'. Poll FAL until done, then populate stem URLs.
+        if (
+          (job as any).stemAnalysisStatus === "processing" &&
+          job.lalalTaskId?.startsWith("demucs:")
+        ) {
+          try {
+            const demucsRequestId = job.lalalTaskId.replace("demucs:", "");
+            const { pollDemucsJob } = await import("../ai-apis/fal-demucs-stems");
+            const pollResult = await pollDemucsJob(demucsRequestId);
+
+            if (pollResult.status === "completed" && pollResult.stems) {
+              const stemMap: Record<string, string> = {};
+              for (const [stemType, stemData] of Object.entries(pollResult.stems)) {
+                const stemUrl = (stemData as any)?.url as string | undefined;
+                if (!stemUrl) continue;
+                try {
+                  const fetchResp = await fetch(stemUrl);
+                  if (!fetchResp.ok) throw new Error(`HTTP ${fetchResp.status}`);
+                  const buf = Buffer.from(await fetchResp.arrayBuffer());
+                  const s3Key = `music-video-stems/${job.id}/${stemType}-${Date.now()}.mp3`;
+                  const { url } = await storagePut(s3Key, buf, "audio/mpeg");
+                  stemMap[stemType] = url;
+                  console.log(`[Demucs] Job ${job.id}: ${stemType} -> S3`);
+                } catch (uploadErr: any) {
+                  console.error(`[Demucs] Job ${job.id}: failed to upload ${stemType}: ${uploadErr?.message}`);
+                }
+              }
+              await db!.update(musicVideoJobs).set({
+                stemAnalysisStatus: "done",
+                stemAnalysisCompletedAt: new Date(),
+                stemVocalsUrl: stemMap["vocals"] ?? null,
+                stemDrumsUrl: stemMap["drums"] ?? null,
+                stemBassUrl: stemMap["bass"] ?? null,
+                stemPianoUrl: stemMap["piano"] ?? null,
+                stemGuitarUrl: stemMap["guitar"] ?? null,
+                stemOtherUrl: stemMap["other"] ?? null,
+                vocalsUrl: stemMap["vocals"] ?? (job as any).vocalsUrl ?? null,
+                vocalsStatus: stemMap["vocals"] ? "done" : (job as any).vocalsStatus,
+              } as any).where(eq(musicVideoJobs.id, job.id));
+              const { musicVideoVocalStems } = await import("../../drizzle/schema");
+              if (stemMap["vocals"]) {
+                const existingStems = await db!.select({ id: musicVideoVocalStems.id })
+                  .from(musicVideoVocalStems)
+                  .where(eq(musicVideoVocalStems.jobId, job.id));
+                if (existingStems.length === 0) {
+                  await db!.insert(musicVideoVocalStems).values({
+                    jobId: job.id,
+                    stemIndex: 0,
+                    stemUrl: stemMap["vocals"],
+                    stemKey: `music-video-stems/${job.id}/vocals.mp3`,
+                    voiceGender: "unknown",
+                    voiceLabel: "Lead Vocal",
+                    isLeadVocal: true,
+                    diarisationStatus: "done",
+                  });
+                }
+              }
+              console.log(`[Demucs] Job ${job.id}: 6-stem separation complete - stems: ${Object.keys(stemMap).join(", ")}`);
+              (job as any).stemAnalysisStatus = "done";
+            } else if (pollResult.status === "failed") {
+              await db!.update(musicVideoJobs)
+                .set({ stemAnalysisStatus: "failed" } as any)
+                .where(eq(musicVideoJobs.id, job.id));
+              console.error(`[Demucs] Job ${job.id}: stem separation failed`);
+            } else {
+              console.log(`[Demucs] Job ${job.id}: stem separation in progress...`);
+            }
+          } catch (demucsErr: any) {
+            console.error(`[Demucs] Job ${job.id}: polling error - ${String(demucsErr?.message ?? demucsErr).slice(0, 200)}`);
+          }
+        }
+
         // ── 1a. Cloud Vocal Isolation (Lalal.ai) ──────────────────────────────────
         // Auto-trigger vocal isolation when vocalsStatus is 'pending' or 'processing'.
         // This runs on every heartbeat tick until vocalsStatus='done' or 'failed'.
