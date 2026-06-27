@@ -42,6 +42,10 @@ export interface FluxKontextRequest {
   aspectRatio?: "16:9" | "9:16" | "1:1" | "4:3";
   outputFormat?: "jpeg" | "png" | "webp";
   safetyTolerance?: number;
+  /** Output width in pixels — overrides aspectRatio if both provided (BFL supports up to 2048) */
+  width?: number;
+  /** Output height in pixels — overrides aspectRatio if both provided */
+  height?: number;
 }
 
 export interface FluxKontextResult {
@@ -63,10 +67,16 @@ export async function submitFluxKontextTask(request: FluxKontextRequest): Promis
   const body: Record<string, unknown> = {
     prompt: request.prompt,
     input_image: request.imageUrl,
-    aspect_ratio: request.aspectRatio ?? "16:9",
     output_format: request.outputFormat ?? "jpeg",
     safety_tolerance: request.safetyTolerance ?? 6,
   };
+  // Use explicit width/height if provided (higher resolution), otherwise use aspect_ratio
+  if (request.width && request.height) {
+    body.width = request.width;
+    body.height = request.height;
+  } else {
+    body.aspect_ratio = request.aspectRatio ?? "16:9";
+  }
 
   // Multi-image: pass character portrait as input_image_2 if provided
   if (request.characterImageUrl) {

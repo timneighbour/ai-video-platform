@@ -201,15 +201,17 @@ async function compositeHeyGenWithVenue(
 //   Never describe a character in text. Read the approved portrait URL from the DB.
 //   If masterPortraitUrl is null → PIPELINE HALT.
 //
-// Rule 2 — Venue input is ALWAYS musicVideoScenes.previewImageUrl
-//   The approved storyboard IS the venue reference. Read it from the DB.
-//   If previewImageUrl is null → PIPELINE HALT.
+// Rule 2 — Venue input is ALWAYS resolveVenueReferenceUrl(sceneSetting)
+//   The real venue photo comes from venueImageCache / VENUE_REFERENCE_MAP.
+//   previewImageUrl is NOT used as a venue reference (it was the old storyboard).
+//   The pipeline proceeds even if previewImageUrl is null.
 //
 // Rule 3 — Fixed pipeline order:
-//   DB: masterPortraitUrl + previewImageUrl
-//   → Flux Kontext (AI/ML API): place character in venue → scene portrait
-//   → Crop to 1280×720
-//   → OmniHuman (AI/ML API): scene portrait + sceneAudioUrl → animated clip
+//   DB: masterPortraitUrl
+//   → Flux Kontext (AI/ML API): place character in real venue photo → scene portrait
+//   → Crop to 1280×720 + sharpen
+//   → Kling 2.6 Pro (AI/ML API): animate scene image → 5s cinematic clip
+//   → OmniHuman (AI/ML API): Kling first frame + sceneAudioUrl → lip-synced clip
 //   → Store as musicVideoScenes.videoUrl
 //
 // Rule 4 — No intermediate CDN files without DB records
@@ -225,8 +227,8 @@ async function runImageDrivenPipeline(params: {
   jobId: number;
   /** RULE 1: Must come from videoCharacters.masterPortraitUrl — never null */
   masterPortraitUrl: string;
-  /** RULE 2: Must come from musicVideoScenes.previewImageUrl — never null */
-  previewImageUrl: string;
+  /** RULE 2 (updated): Venue comes from resolveVenueReferenceUrl(sceneSetting) — previewImageUrl no longer required */
+  previewImageUrl?: string;
   /** Isolated vocal stem for this scene window — from musicVideoScenes.sceneAudioUrl or job stem */
   sceneAudioUrl: string;
   sceneDuration: number;
@@ -235,7 +237,7 @@ async function runImageDrivenPipeline(params: {
   /** Venue/scene setting from the job (e.g. 'Air Studios Lyndhurst Hall') */
   sceneSetting?: string;
 }): Promise<void> {
-  const { db, sceneId, jobId, masterPortraitUrl, previewImageUrl, sceneAudioUrl, sceneDuration, scenePrompt, sceneSetting } = params;
+  const { db, sceneId, jobId, masterPortraitUrl, sceneAudioUrl, sceneDuration, scenePrompt, sceneSetting } = params;
 
   // ── RULE 1: masterPortraitUrl null-guard ──────────────────────────────────
   if (!masterPortraitUrl || masterPortraitUrl.trim() === "") {
@@ -246,14 +248,10 @@ async function runImageDrivenPipeline(params: {
     return;
   }
 
-  // ── RULE 2: previewImageUrl null-guard ───────────────────────────────────
-  if (!previewImageUrl || previewImageUrl.trim() === "") {
-    console.error(`[ImageDrivenPipeline] PIPELINE HALT: previewImageUrl is null for scene ${sceneId} (job ${jobId}). Cannot proceed without an approved venue storyboard. Set musicVideoScenes.previewImageUrl and retry.`);
-    await db!.update(musicVideoScenes)
-      .set({ status: "failed", errorMessage: "PIPELINE HALT: previewImageUrl is null — approved venue storyboard required", updatedAt: new Date() })
-      .where(eq(musicVideoScenes.id, sceneId));
-    return;
-  }
+  // ── RULE 2 (updated): Venue comes from resolveVenueReferenceUrl(sceneSetting) ─────────
+  // previewImageUrl is no longer required — the real venue photo is resolved from
+  // venueImageCache / VENUE_REFERENCE_MAP using the job's sceneSetting.
+  // No null-guard needed here.
 
   // ── STAGE 1: Flux Kontext — place character in venue ────────────────────
   //
@@ -287,7 +285,7 @@ async function runImageDrivenPipeline(params: {
     // The character's appearance (face, hair, dress, necklace) comes entirely from the input image.
     // Tim's exact 2-image prompt (2026-06-27):
     // Describes NEITHER the character NOR the venue — both come from the input images.
-    const fluxPrompt = "Place the person from the first image into the room shown in the second image. Keep her face, hair, dress, and necklace exactly as in the first image. Keep the room — its architecture, windows, organ, and layout — exactly as in the second image. She is standing centre-frame, framed from the chest up, naturally lit to match the room. Photorealistic, 1280×720.";
+    const fluxPrompt = "Place the person from the first image into the room shown in the second image. Keep her face, hair, dress, and necklace exactly as in the first image. Keep the room — its architecture, windows, organ, and layout — exactly as in the second image. She is standing centre-frame, framed from the chest up, naturally lit to match the room. Photorealistic, 1536×864, high detail, sharp focus.";
 
     console.log(`[ImageDrivenPipeline] Scene ${sceneId} Flux prompt (2-image, Tim spec): ${fluxPrompt.slice(0, 120)}...`);
     if (!venuePhotoUrl) {
@@ -301,6 +299,8 @@ async function runImageDrivenPipeline(params: {
       aspectRatio: "16:9",
       outputFormat: "jpeg",
       safetyTolerance: 2,
+      width: 1536,
+      height: 864,
     });
   } catch (fluxErr: any) {
     const errMsg = `Flux Kontext failed: ${String(fluxErr?.message ?? fluxErr).slice(0, 200)}`;
@@ -317,8 +317,9 @@ async function runImageDrivenPipeline(params: {
     .set({ heroImageUrl: sceneImageUrl, updatedAt: new Date() })
     .where(eq(musicVideoScenes.id, sceneId));
 
-  // ── Resize to 1280×720 for OmniHuman ─────────────────────────────────────
-  // OmniHuman requires a fixed-size input image. Resize the Flux output to 1280×720.
+  // ── Resize + Sharpen: 1536×864 → 1280×720 for OmniHuman ────────────────
+  // Flux generates at 1536×864 for maximum detail. Downscale to 1280×720 with
+  // a sharpening pass to preserve crispness (especially eyes) for OmniHuman.
   let croppedSceneImageUrl: string;
   try {
     const imgResp = await fetch(sceneImageUrl);
@@ -326,18 +327,19 @@ async function runImageDrivenPipeline(params: {
     const imgBuf = Buffer.from(await imgResp.arrayBuffer());
     const croppedBuf = await sharp(imgBuf)
       .resize(1280, 720, { fit: "cover", position: "centre" })
-      .jpeg({ quality: 92 })
+      .sharpen({ sigma: 0.8, m1: 1.0, m2: 0.5 })  // Mild sharpening to preserve eye detail
+      .jpeg({ quality: 95 })
       .toBuffer();
     const cropKey = `music-video-scenes/${sceneId}-scene-image-1280x720-${Date.now()}.jpg`;
     const { url: cropUrl } = await storagePut(cropKey, croppedBuf, "image/jpeg");
     croppedSceneImageUrl = cropUrl;
-    // Overwrite heroImageUrl with the cropped version
+    // Overwrite heroImageUrl with the sharpened/resized version
     await db!.update(musicVideoScenes)
       .set({ heroImageUrl: croppedSceneImageUrl, updatedAt: new Date() })
       .where(eq(musicVideoScenes.id, sceneId));
-    console.log(`[ImageDrivenPipeline] Scene ${sceneId} RESIZE DONE — 1280×720 scene image: ${croppedSceneImageUrl.slice(0, 80)}`);
+    console.log(`[ImageDrivenPipeline] Scene ${sceneId} RESIZE+SHARPEN DONE — 1280×720: ${croppedSceneImageUrl.slice(0, 80)}`);
   } catch (cropErr: any) {
-    const errMsg = `Resize to 1280×720 failed: ${String(cropErr?.message ?? cropErr).slice(0, 200)}`;
+    const errMsg = `Resize+sharpen to 1280×720 failed: ${String(cropErr?.message ?? cropErr).slice(0, 200)}`;
     console.error(`[ImageDrivenPipeline] Scene ${sceneId} RESIZE FAILED — ${errMsg}`);
     await db!.update(musicVideoScenes)
       .set({ status: "failed_retryable", taskId: null, errorMessage: errMsg, updatedAt: new Date() })
@@ -345,50 +347,28 @@ async function runImageDrivenPipeline(params: {
     return;
   }
 
-  // ── STAGE 2: OmniHuman 1.5 — AWAITING TIM'S APPROVAL ───────────────────
-  //
-  // PROBE GATE: Do NOT submit OmniHuman until Tim approves the Stage 1 scene image.
-  // The heartbeat will check probePassed on the next tick. When Tim sets probePassed=true,
-  // the scene will be re-dispatched and OmniHuman will be submitted with croppedSceneImageUrl.
-  //
-  // For now: write heroImageUrl to DB, set status='awaiting_probe_approval', STOP.
-  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 1 COMPLETE — awaiting Tim's approval before Stage 2 (OmniHuman)`);
-  console.log(`[ImageDrivenPipeline]   Scene image URL: ${croppedSceneImageUrl}`);
+  // ── STAGE 2: Kling 2.6 Pro — animate scene image into cinematic clip ─────
+  // Submit Kling I2V with the sharpened 1280×720 scene image.
+  // Kling runs async — store generationId, poll on next heartbeat tick.
+  // When Kling completes, the Grok polling section extracts the first frame
+  // and submits OmniHuman (Stage 3) with that animated frame.
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 2 — submitting Kling 2.6 Pro I2V`);
 
-  await db!.update(musicVideoScenes)
-    .set({
-      status: "completed",
-      taskId: `stage1_awaiting_approval`,
-      grokVideoStatus: "done",          // No Kling in this pipeline
-      lipSyncStatus: "pending",         // Will be submitted after Tim approves
-      lipSyncTaskId: null,
-      updatedAt: new Date(),
-    })
-    .where(eq(musicVideoScenes.id, sceneId));
+  // Build a cinematic motion prompt from the scene description (no character description)
+  const klingPrompt = sceneSetting
+    ? `Cinematic camera slowly pushing in, subtle ambient motion, ${sceneSetting}. Atmospheric, moody, professional cinematography. No sudden cuts.`
+    : `Cinematic camera slowly pushing in, subtle ambient motion in the recording studio. Atmospheric, moody, professional cinematography. No sudden cuts.`;
 
-  // Notify owner that Stage 1 is ready for review
+  let klingGenerationId: string;
   try {
-    const { notifyOwner } = await import("../_core/notification");
-    await notifyOwner({
-      title: "🎬 WIZ AI — Stage 1 Scene Image Ready for Approval",
-      content: `Scene ${sceneId} (job ${jobId}) — Flux Kontext composite complete.\nScene image: ${croppedSceneImageUrl}\n\nApprove this image to proceed to Stage 2 (OmniHuman lip sync).`,
+    klingGenerationId = await submitKlingI2V({
+      image_url: croppedSceneImageUrl,
+      prompt: klingPrompt,
+      duration: 5,
+      aspect_ratio: "16:9",
     });
-  } catch {}
-
-  return; // STOP — do not submit OmniHuman until Tim approves
-
-  // ── STAGE 2 CODE (runs after Tim approves — see OmniHuman polling section) ──
-  // The following code is intentionally unreachable until the probe gate is lifted.
-  // When probePassed=true, the heartbeat re-dispatches this scene and the OmniHuman
-  // submission happens in the polling section (not here).
-  let omniHumanGenerationId: string = "";
-  try {
-    omniHumanGenerationId = await submitAimlOmniHumanTask({
-      imageUrl: croppedSceneImageUrl,  // ← SCENE IMAGE (Zara in hall) — NOT the grey portrait
-      audioUrl: sceneAudioUrl,
-    });
-  } catch (omniErr: any) {
-    const errMsg = `OmniHuman submit failed: ${String(omniErr?.message ?? omniErr).slice(0, 200)}`;
+  } catch (klingErr: any) {
+    const errMsg = `Kling I2V submit failed: ${String(klingErr?.message ?? klingErr).slice(0, 200)}`;
     console.error(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 2 SUBMIT FAILED — ${errMsg}`);
     await db!.update(musicVideoScenes)
       .set({ status: "failed_retryable", taskId: null, errorMessage: errMsg, updatedAt: new Date() })
@@ -396,23 +376,21 @@ async function runImageDrivenPipeline(params: {
     return;
   }
 
-  // Write Stage 2 submission to DB — lipSyncStatus=processing, polling on next tick
-  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 2 SUBMITTED — OmniHuman generationId: ${omniHumanGenerationId}`);
+  // Store Kling generation ID — grokVideoStatus=processing, polling on next tick
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 2 SUBMITTED — Kling generationId: ${klingGenerationId}`);
   await db!.update(musicVideoScenes)
     .set({
       status: "completed",
-      taskId: `omnihuman:${omniHumanGenerationId}`,
-      grokVideoStatus: "done",           // No Kling in this pipeline
-      lipSyncStatus: "processing",
-      lipSyncTaskId: `omnihuman:${omniHumanGenerationId}`,
-      lipSyncProvider: "omnihuman",
-      compositeStatus: "skipped",
+      taskId: `kling_i2v:${klingGenerationId}`,
+      grokVideoStatus: "processing",
+      grokVideoRequestId: klingGenerationId,
+      lipSyncStatus: "pending",
+      lipSyncTaskId: null,
       updatedAt: new Date(),
     } as any)
     .where(eq(musicVideoScenes.id, sceneId));
 
-  console.log(`[ImageDrivenPipeline] Scene ${sceneId} — OmniHuman polling on next heartbeat tick.`);
-  // Stage 2 polling is handled by the lip-sync polling section (lipSyncTaskId prefix 'omnihuman:').
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} — Kling polling on next heartbeat tick. OmniHuman will be submitted after Kling completes.`);
 }
 
 // ── ISS-017: Heartbeat watchdog ────────────────────────────────────────────────
@@ -1037,21 +1015,16 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                 console.warn(`[SceneDispatch] Scene ${scene.id} IMAGE-DRIVEN: character lookup failed: ${charLookupErr.message}`);
               }
 
-              // Read previewImageUrl fresh from the scene record
-              const previewImageUrlForPipeline = scene.previewImageUrl ?? null;
-
-              console.log(`[SceneDispatch] Scene ${scene.id} → IMAGE-DRIVEN PIPELINE (Flux Kontext → crop → OmniHuman)`);
+              console.log(`[SceneDispatch] Scene ${scene.id} → IMAGE-DRIVEN PIPELINE (Flux Kontext → Kling → OmniHuman)`);
               console.log(`[SceneDispatch] Scene ${scene.id} masterPortraitUrl: ${masterPortraitUrlForPipeline ? masterPortraitUrlForPipeline.slice(0, 80) + '...' : 'NULL — PIPELINE HALT'}`);
-              console.log(`[SceneDispatch] Scene ${scene.id} previewImageUrl:   ${previewImageUrlForPipeline ? previewImageUrlForPipeline.slice(0, 80) + '...' : 'NULL — PIPELINE HALT'}`);
 
-              // runImageDrivenPipeline enforces Rules 1-4 with hard null-guards.
-              // If either URL is null, it writes PIPELINE HALT to errorMessage and returns.
+              // runImageDrivenPipeline enforces Rule 1 (masterPortraitUrl) with a hard null-guard.
+              // Rule 2 (venue) now uses resolveVenueReferenceUrl(sceneSetting) — no null-guard needed.
               await runImageDrivenPipeline({
                 db,
                 sceneId: scene.id,
                 jobId: job.id,
                 masterPortraitUrl: masterPortraitUrlForPipeline ?? "",
-                previewImageUrl: previewImageUrlForPipeline ?? "",
                 sceneAudioUrl: slicedVocalStemUrl!,
                 sceneDuration: scene.duration ?? 5,
                 // Pass scene-specific storyboard description so Flux Kontext and Kling
@@ -1532,6 +1505,13 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
         // but were queued before the hybrid pipeline switch (videoUrl set, lipSync pending).
         const lipSyncPendingScenes = scenes.filter(
           (s) => s.status === "completed" && s.lipSyncStatus === "pending" && !s.lipSyncTaskId
+            // Exclude scenes in the Kling/OmniHuman image-driven pipeline:
+            // taskId prefix 'kling_i2v:' = Kling submitted, waiting for Kling to complete
+            // taskId prefix 'omnihuman_pipeline:' = Kling done, OmniHuman about to be submitted
+            // grokVideoStatus 'processing' = Kling/Grok is still running
+            && !((s as any).taskId?.startsWith('kling_i2v:'))
+            && !((s as any).taskId?.startsWith('omnihuman_pipeline:'))
+            && (s as any).grokVideoStatus !== 'processing'
         );
 
         if (lipSyncPendingScenes.length > 0) {
