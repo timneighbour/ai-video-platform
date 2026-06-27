@@ -255,53 +255,48 @@ async function runImageDrivenPipeline(params: {
     return;
   }
 
-  // ── RULE 3a: Flux Kontext — place character in venue ─────────────────────
+  // ── STAGE 1: Flux Kontext — place character in venue ────────────────────
   //
-  // MULTI-IMAGE APPROACH (updated 2026-06-26, Tim's instruction):
-  //   input_image   = venuePhotoUrl     ← REAL Lyndhurst Hall photo as the BASE image
-  //   input_image_2 = masterPortraitUrl ← Zara's portrait as the CHARACTER reference
-  //   prompt        = composite instruction: keep venue, place character from image_2
+  // FINAL SPEC (Tim, 2026-06-27):
+  //   input_image   = masterPortraitUrl  ← the person (Zara's approved portrait)
+  //   input_image_2 = real venue photo   ← the room (venueImageCache row 22 / VENUE_REFERENCE_MAP)
+  //   prompt        = Tim's exact 2-image prompt — describes NEITHER character NOR venue details
+  //                   (both come entirely from the two input images)
+  //   Output: ONE image — character standing in the real venue
   //
-  // BFL Flux Kontext Max supports multi-image: input_image is the primary scene reference,
-  // input_image_2 is the secondary reference (character to composite in).
-  // This gives the model the ACTUAL venue photo to work from, not just a text description.
-  //
-  // Venue photo is resolved from VENUE_REFERENCE_MAP (Air Studios Lyndhurst Hall CDN URLs).
-  // Falls back to previewImageUrl if no venue match found.
-  const { resolveVenueReferenceUrl: resolveVenueRef } = await import("../music-video-service");
-  // Resolve venue photo — use the job's sceneSetting to pick the right Lyndhurst Hall image
-  // Fall back to previewImageUrl (storyboard) if no venue match
-  const venuePhotoUrl = resolveVenueRef("air studios lyndhurst hall", 0) ?? previewImageUrl;
+  // DO NOT describe the character or invent venue details in the prompt.
+  // DO NOT submit to OmniHuman until Tim approves the Stage 1 image.
 
-  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 1/4 — Flux Kontext MULTI-IMAGE: venue + character → composite`);
-  console.log(`[ImageDrivenPipeline]   input_image   (venue):     ${venuePhotoUrl.slice(0, 80)}`);
-  console.log(`[ImageDrivenPipeline]   input_image_2 (character): ${masterPortraitUrl.slice(0, 80)}`);
+  // Resolve the real venue photo URL from the venue reference map
+  const venuePhotoUrl = resolveVenueReferenceUrl(sceneSetting, 0);
+
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 1 — Flux Kontext: 2-image (character + real venue)`);
+  console.log(`[ImageDrivenPipeline]   input_image   (character portrait): ${masterPortraitUrl.slice(0, 80)}`);
+  console.log(`[ImageDrivenPipeline]   input_image_2 (real venue photo):   ${venuePhotoUrl ? venuePhotoUrl.slice(0, 80) : 'NULL — text fallback'}`);
 
   // Mark scene as generating before any API call.
-  // Also persist sceneAudioUrl so the Grok polling section can retrieve it when submitting OmniHuman.
+  // Persist sceneAudioUrl so Stage 2 OmniHuman can retrieve it.
   await db!.update(musicVideoScenes)
     .set({ status: "generating", taskId: `omnihuman_pipeline:flux_kontext`, compositeStatus: "skipped", sceneAudioUrl, updatedAt: new Date() })
     .where(eq(musicVideoScenes.id, sceneId));
 
-  let scenePortraitUrl: string;
+  let sceneImageUrl: string;
   try {
-    // MULTI-IMAGE FLUX KONTEXT:
-    //   input_image   = venuePhotoUrl     — real Lyndhurst Hall photo (base scene)
-    //   input_image_2 = masterPortraitUrl — Zara's approved portrait (character to place)
-    //   prompt        — instructs Flux to keep the venue exactly as shown and place the
-    //                   character from image_2 into the scene naturally
-    // Build dynamic Flux Kontext prompt from scene description + venue setting.
-    // If the scene says "orchestra playing", the prompt must include that so the
-    // generated image actually shows an orchestra — not an empty hall.
-    const venueBase = sceneSetting?.trim() || "Air Studios Lyndhurst Hall";
-    const sceneContext = scenePrompt?.trim()
-      ? `The scene depicts: ${scenePrompt.trim().slice(0, 300)}.`
-      : "";
-    const fluxPrompt = `${venueBase} — keep the venue exactly as shown in the first image: the Gothic vaulted ceiling, acoustic canopy, pipe organ, warm amber stage lighting, and herringbone parquet floor. ${sceneContext} Place the character shown in the second image naturally into this venue, centre frame, facing the camera. The character must appear exactly as in the second image — same face, hair, skin tone, and outfit. Do not alter the character's appearance. The character should be naturally lit by the warm stage lighting of the hall. Photorealistic, cinematic quality.`.trim();
+    // VENUE-ONLY PROMPT — Tim's exact spec:
+    // Describe the venue and environment in detail. Do NOT describe the character.
+    // The character's appearance (face, hair, dress, necklace) comes entirely from the input image.
+    // Tim's exact 2-image prompt (2026-06-27):
+    // Describes NEITHER the character NOR the venue — both come from the input images.
+    const fluxPrompt = "Place the person from the first image into the room shown in the second image. Keep her face, hair, dress, and necklace exactly as in the first image. Keep the room — its architecture, windows, organ, and layout — exactly as in the second image. She is standing centre-frame, framed from the chest up, naturally lit to match the room. Photorealistic, 1280×720.";
 
-    scenePortraitUrl = await runFluxKontextSync({
-      imageUrl: venuePhotoUrl,          // ← PRIMARY: real Lyndhurst Hall photo as base
-      characterImageUrl: masterPortraitUrl, // ← SECONDARY: Zara's portrait as input_image_2
+    console.log(`[ImageDrivenPipeline] Scene ${sceneId} Flux prompt (2-image, Tim spec): ${fluxPrompt.slice(0, 120)}...`);
+    if (!venuePhotoUrl) {
+      console.warn(`[ImageDrivenPipeline] Scene ${sceneId} WARNING: no real venue photo found for sceneSetting='${sceneSetting}' — falling back to single-image mode`);
+    }
+
+    sceneImageUrl = await runFluxKontextSync({
+      imageUrl: masterPortraitUrl,            // ← input_image: the person (first image)
+      characterImageUrl: venuePhotoUrl ?? undefined, // ← input_image_2: the room (second image)
       prompt: fluxPrompt,
       aspectRatio: "16:9",
       outputFormat: "jpeg",
@@ -309,107 +304,115 @@ async function runImageDrivenPipeline(params: {
     });
   } catch (fluxErr: any) {
     const errMsg = `Flux Kontext failed: ${String(fluxErr?.message ?? fluxErr).slice(0, 200)}`;
-    console.error(`[ImageDrivenPipeline] Scene ${sceneId} STEP 1 FAILED — ${errMsg}`);
+    console.error(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 1 FAILED — ${errMsg}`);
     await db!.update(musicVideoScenes)
       .set({ status: "failed_retryable", taskId: null, errorMessage: errMsg, updatedAt: new Date() })
       .where(eq(musicVideoScenes.id, sceneId));
     return;
   }
 
-  // ── RULE 4: Write Flux Kontext result to DB immediately ───────────────────
-  // Store the scene portrait in heroImageUrl before proceeding to crop.
-  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 1 DONE — scene portrait: ${scenePortraitUrl.slice(0, 80)}`);
+  // Write Stage 1 result to DB immediately — heroImageUrl = the scene image
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 1 DONE — scene image: ${sceneImageUrl.slice(0, 80)}`);
   await db!.update(musicVideoScenes)
-    .set({ heroImageUrl: scenePortraitUrl, updatedAt: new Date() })
+    .set({ heroImageUrl: sceneImageUrl, updatedAt: new Date() })
     .where(eq(musicVideoScenes.id, sceneId));
 
-  // ── RULE 3b: Crop to 1280×720 ────────────────────────────────────────────
-  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 2/4 — cropping scene portrait to 1280×720`);
-  let croppedPortraitUrl: string;
+  // ── Resize to 1280×720 for OmniHuman ─────────────────────────────────────
+  // OmniHuman requires a fixed-size input image. Resize the Flux output to 1280×720.
+  let croppedSceneImageUrl: string;
   try {
-    const imgResp = await fetch(scenePortraitUrl);
-    if (!imgResp.ok) throw new Error(`Failed to download scene portrait: HTTP ${imgResp.status}`);
+    const imgResp = await fetch(sceneImageUrl);
+    if (!imgResp.ok) throw new Error(`Failed to download scene image: HTTP ${imgResp.status}`);
     const imgBuf = Buffer.from(await imgResp.arrayBuffer());
-
-    // Resize to exactly 1280×720, covering the full frame (no letterboxing)
     const croppedBuf = await sharp(imgBuf)
       .resize(1280, 720, { fit: "cover", position: "centre" })
       .jpeg({ quality: 92 })
       .toBuffer();
-
-    const cropKey = `music-video-scenes/${sceneId}-scene-portrait-1280x720-${Date.now()}.jpg`;
+    const cropKey = `music-video-scenes/${sceneId}-scene-image-1280x720-${Date.now()}.jpg`;
     const { url: cropUrl } = await storagePut(cropKey, croppedBuf, "image/jpeg");
-    croppedPortraitUrl = cropUrl;
+    croppedSceneImageUrl = cropUrl;
+    // Overwrite heroImageUrl with the cropped version
+    await db!.update(musicVideoScenes)
+      .set({ heroImageUrl: croppedSceneImageUrl, updatedAt: new Date() })
+      .where(eq(musicVideoScenes.id, sceneId));
+    console.log(`[ImageDrivenPipeline] Scene ${sceneId} RESIZE DONE — 1280×720 scene image: ${croppedSceneImageUrl.slice(0, 80)}`);
   } catch (cropErr: any) {
-    const errMsg = `Crop to 1280×720 failed: ${String(cropErr?.message ?? cropErr).slice(0, 200)}`;
-    console.error(`[ImageDrivenPipeline] Scene ${sceneId} STEP 2 FAILED — ${errMsg}`);
+    const errMsg = `Resize to 1280×720 failed: ${String(cropErr?.message ?? cropErr).slice(0, 200)}`;
+    console.error(`[ImageDrivenPipeline] Scene ${sceneId} RESIZE FAILED — ${errMsg}`);
     await db!.update(musicVideoScenes)
       .set({ status: "failed_retryable", taskId: null, errorMessage: errMsg, updatedAt: new Date() })
       .where(eq(musicVideoScenes.id, sceneId));
     return;
   }
 
-  // ── RULE 4: Write cropped portrait to DB immediately ─────────────────────
-  // Store the cropped 1280×720 portrait before submitting to Grok.
-  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 2 DONE — cropped portrait: ${croppedPortraitUrl.slice(0, 80)}`);
+  // ── STAGE 2: OmniHuman 1.5 — AWAITING TIM'S APPROVAL ───────────────────
+  //
+  // PROBE GATE: Do NOT submit OmniHuman until Tim approves the Stage 1 scene image.
+  // The heartbeat will check probePassed on the next tick. When Tim sets probePassed=true,
+  // the scene will be re-dispatched and OmniHuman will be submitted with croppedSceneImageUrl.
+  //
+  // For now: write heroImageUrl to DB, set status='awaiting_probe_approval', STOP.
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 1 COMPLETE — awaiting Tim's approval before Stage 2 (OmniHuman)`);
+  console.log(`[ImageDrivenPipeline]   Scene image URL: ${croppedSceneImageUrl}`);
+
   await db!.update(musicVideoScenes)
     .set({
-      heroImageUrl: croppedPortraitUrl,  // overwrite with the cropped version
-      taskId: `omnihuman_pipeline:awaiting_grok`,
+      status: "completed",
+      taskId: `stage1_awaiting_approval`,
+      grokVideoStatus: "done",          // No Kling in this pipeline
+      lipSyncStatus: "pending",         // Will be submitted after Tim approves
+      lipSyncTaskId: null,
       updatedAt: new Date(),
     })
     .where(eq(musicVideoScenes.id, sceneId));
 
-  // ── RULE 3c: Grok Imagine Video 1.5 — animate the scene portrait into a cinematic clip ──
-  // This is ASYNC: submit → store grokVideoRequestId → poll on next heartbeat tick.
-  // The Grok polling section handles Steps 4 & 5 when grokVideoStatus='processing'.
-  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 3/5 — submitting to Grok Imagine Video 1.5`);
-  console.log(`[ImageDrivenPipeline]   croppedPortraitUrl: ${croppedPortraitUrl.slice(0, 80)}`);
-  console.log(`[ImageDrivenPipeline]   sceneDuration:      ${sceneDuration}s`);
-
-  let grokRequestId: string;
+  // Notify owner that Stage 1 is ready for review
   try {
-    // Build dynamic Kling prompt from scene description — if the scene says
-    // "orchestra playing", Kling must animate an orchestra, not an empty hall.
-    const klingSceneContext = scenePrompt?.trim()
-      ? scenePrompt.trim().slice(0, 200)
-      : "performer sings with subtle natural movement, gentle head sway, and expressive gestures";
-    const klingVenueBase = sceneSetting?.trim() || "Air Studios Lyndhurst Hall";
-    const klingPrompt = `Cinematic music performance. Preserve the exact person, face, and appearance from the reference image. ${klingSceneContext}. ${klingVenueBase}: warm amber stage lighting, cinematic atmosphere. Camera: slow cinematic push-in. Photorealistic, 4K quality.`;
-    grokRequestId = await submitKlingI2V({
-      image_url: croppedPortraitUrl,
-      prompt: klingPrompt,
-      duration: (Math.min(Math.max(Math.round(sceneDuration), 5), 10) >= 10 ? 10 : 5) as 5 | 10,
-      aspect_ratio: "16:9",
+    const { notifyOwner } = await import("../_core/notification");
+    await notifyOwner({
+      title: "🎬 WIZ AI — Stage 1 Scene Image Ready for Approval",
+      content: `Scene ${sceneId} (job ${jobId}) — Flux Kontext composite complete.\nScene image: ${croppedSceneImageUrl}\n\nApprove this image to proceed to Stage 2 (OmniHuman lip sync).`,
     });
-  } catch (grokErr: any) {
-    const errMsg = `Grok Video submit failed: ${String(grokErr?.message ?? grokErr).slice(0, 200)}`;
-    console.error(`[ImageDrivenPipeline] Scene ${sceneId} STEP 3 FAILED — ${errMsg}`);
+  } catch {}
+
+  return; // STOP — do not submit OmniHuman until Tim approves
+
+  // ── STAGE 2 CODE (runs after Tim approves — see OmniHuman polling section) ──
+  // The following code is intentionally unreachable until the probe gate is lifted.
+  // When probePassed=true, the heartbeat re-dispatches this scene and the OmniHuman
+  // submission happens in the polling section (not here).
+  let omniHumanGenerationId: string = "";
+  try {
+    omniHumanGenerationId = await submitAimlOmniHumanTask({
+      imageUrl: croppedSceneImageUrl,  // ← SCENE IMAGE (Zara in hall) — NOT the grey portrait
+      audioUrl: sceneAudioUrl,
+    });
+  } catch (omniErr: any) {
+    const errMsg = `OmniHuman submit failed: ${String(omniErr?.message ?? omniErr).slice(0, 200)}`;
+    console.error(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 2 SUBMIT FAILED — ${errMsg}`);
     await db!.update(musicVideoScenes)
       .set({ status: "failed_retryable", taskId: null, errorMessage: errMsg, updatedAt: new Date() })
       .where(eq(musicVideoScenes.id, sceneId));
     return;
   }
 
-  // ── RULE 4: Write Grok request_id to DB immediately ──────────────────────────────────────────────────────────────────────────────────────
-  // Store the Grok request_id so the polling loop can pick it up on the next tick.
-  // grokVideoStatus='processing' signals the polling section to check Grok on next heartbeat.
-  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STEP 3 SUBMITTED — Grok request_id: ${grokRequestId}`);
+  // Write Stage 2 submission to DB — lipSyncStatus=processing, polling on next tick
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} STAGE 2 SUBMITTED — OmniHuman generationId: ${omniHumanGenerationId}`);
   await db!.update(musicVideoScenes)
     .set({
-      status: "completed",               // Flux+crop done — scene is in Grok video processing
-      taskId: `grok:${grokRequestId}`,
-      grokVideoRequestId: grokRequestId,
-      grokVideoStatus: "processing",
-      lipSyncStatus: "pending",           // OmniHuman will be submitted after Grok completes
+      status: "completed",
+      taskId: `omnihuman:${omniHumanGenerationId}`,
+      grokVideoStatus: "done",           // No Kling in this pipeline
+      lipSyncStatus: "processing",
+      lipSyncTaskId: `omnihuman:${omniHumanGenerationId}`,
+      lipSyncProvider: "omnihuman",
       compositeStatus: "skipped",
       updatedAt: new Date(),
-    })
+    } as any)
     .where(eq(musicVideoScenes.id, sceneId));
 
-  console.log(`[ImageDrivenPipeline] Scene ${sceneId} — Grok task submitted. Next heartbeat tick will poll Grok, extract first frame, and submit to OmniHuman.`);
-  // STEP 4 (extract Grok first frame + submit OmniHuman) is handled by the Grok polling section.
-  // STEP 5 (store videoUrl from OmniHuman) is handled by the OmniHuman polling section.
+  console.log(`[ImageDrivenPipeline] Scene ${sceneId} — OmniHuman polling on next heartbeat tick.`);
+  // Stage 2 polling is handled by the lip-sync polling section (lipSyncTaskId prefix 'omnihuman:').
 }
 
 // ── ISS-017: Heartbeat watchdog ────────────────────────────────────────────────
