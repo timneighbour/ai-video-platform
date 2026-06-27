@@ -7,6 +7,9 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
 import { getSeoPageSSR } from "@shared/seoData";
+import { eq } from "drizzle-orm";
+import { getDb } from "../db";
+import { musicVideoJobs } from "../../drizzle/schema";
 
 // ── Bot detection ─────────────────────────────────────────────────────────────
 // SOCIAL bots: scrape OG tags for link previews (Facebook, WhatsApp, Slack, etc.)
@@ -221,6 +224,16 @@ function getRouteMeta(pathname: string): RouteMeta {
     };
   }
 
+  // Watch pages — public video watch pages
+  if (pathname.startsWith("/watch/")) {
+    const slug = pathname.replace("/watch/", "");
+    return {
+      title: `Watch — WIZ AI Cinematic Music Video`,
+      description: `Watch this AI-generated cinematic music video created with WIZ AI. Powered by WizGenesis™ and Character Lock™ technology.`,
+      canonical: `${BASE_URL}/watch/${slug}`,
+    };
+  }
+
   // Technology pages
   if (pathname.startsWith("/technology/")) {
     const slug = pathname.replace("/technology/", "");
@@ -355,7 +368,10 @@ export async function setupVite(app: Express, server: Server) {
   });
   app.use("*", async (req, res, next) => {
     const ua = req.headers["user-agent"] || "";
-    const pathname = req.path.split("?")[0].replace(/\/+$/, "") || "/";
+    // IMPORTANT: In Express app.use("*", handler), req.path is always "/" because the
+    // wildcard consumes the full path and req.path becomes relative to the mount point.
+    // Must use req.originalUrl to get the actual request path.
+    const pathname = req.originalUrl.split("?")[0].replace(/\/+$/, "") || "/";
     // Search engine crawlers get the real SPA with canonical injected
     // (social bots already handled above before vite.middlewares)
 
@@ -403,6 +419,53 @@ export async function setupVite(app: Express, server: Server) {
           /<meta property="og:description"[^>]*>/,
           `<meta property="og:description" content="${meta.description}" />`
         );
+
+        // Watch pages: inject VideoObject JSON-LD for Google video indexing (dev)
+        if (pathname.startsWith("/watch/")) {
+          const watchSlug = pathname.replace("/watch/", "");
+          try {
+            const db = await getDb();
+            if (db) {
+              const rows = await db
+                .select({
+                  title: musicVideoJobs.title,
+                  shareSlug: musicVideoJobs.shareSlug,
+                  finalVideoUrl: musicVideoJobs.finalVideoUrl,
+                  thumbnailUrl: musicVideoJobs.thumbnailUrl,
+                  audioDuration: musicVideoJobs.audioDuration,
+                  isPublic: musicVideoJobs.isPublic,
+                  createdAt: musicVideoJobs.createdAt,
+                })
+                .from(musicVideoJobs)
+                .where(eq(musicVideoJobs.shareSlug, watchSlug))
+                .limit(1);
+              const video = rows[0];
+              if (video && video.isPublic && video.finalVideoUrl) {
+                const durationSec = video.audioDuration ?? 0;
+                const videoSchema = {
+                  "@context": "https://schema.org",
+                  "@type": "VideoObject",
+                  "name": video.title ?? "WIZ AI Music Video",
+                  "description": `Cinematic music video created with WIZ AI. Powered by WizGenesis™ and Character Lock™ technology.`,
+                  "thumbnailUrl": video.thumbnailUrl ?? `${BASE_URL}/og-image.jpg`,
+                  "uploadDate": video.createdAt ? new Date(video.createdAt).toISOString() : new Date().toISOString(),
+                  "duration": durationSec > 0 ? `PT${Math.floor(durationSec / 60)}M${durationSec % 60}S` : undefined,
+                  "contentUrl": video.finalVideoUrl,
+                  "embedUrl": `${BASE_URL}/watch/${video.shareSlug}`,
+                  "publisher": {
+                    "@type": "Organization",
+                    "name": "WIZ AI",
+                    "logo": { "@type": "ImageObject", "url": `${BASE_URL}/og-image.jpg` },
+                  },
+                };
+                const schemaTag = `<script type="application/ld+json">${JSON.stringify(videoSchema)}</script>`;
+                page = page.replace("</head>", `${schemaTag}\n</head>`);
+              }
+            }
+          } catch (err) {
+            console.error(`[SEO-DEV] Watch page VideoObject injection failed for ${watchSlug}:`, err);
+          }
+        }
       }
 
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
@@ -481,7 +544,10 @@ export function serveStatic(app: Express) {
   // issue caused by every page returning canonical=homepage in the static HTML shell.
   app.use("*", async (req, res) => {
     const ua = req.headers["user-agent"] || "";
-    const pathname = req.path.split("?")[0].replace(/\/+$/, "") || "/";
+    // IMPORTANT: In Express app.use("*", handler), req.path is always "/" because the
+    // wildcard consumes the full path and req.path becomes relative to the mount point.
+    // Must use req.originalUrl to get the actual request path.
+    const pathname = req.originalUrl.split("?")[0].replace(/\/+$/, "") || "/";
 
     // Social bots in production (belt-and-suspenders, should be caught above)
     if (SOCIAL_BOT_RE.test(ua)) {
@@ -504,6 +570,80 @@ export function serveStatic(app: Express) {
         res.setHeader("Content-Type", "text/html; charset=utf-8");
         return res.status(200).send(buildBotHtml(pathname));
       }
+
+      // Watch pages: inject VideoObject JSON-LD structured data so Google can index the video.
+      // This fixes the Search Console "Video isn't on a watch page" error (14 videos failed).
+      // Google requires VideoObject schema.org markup with contentUrl/thumbnailUrl/uploadDate.
+      if (pathname.startsWith("/watch/")) {
+        const slug = pathname.replace("/watch/", "");
+        console.log(`[SEO] Search crawler on watch page: ${ua.slice(0, 60)} → ${pathname}`);
+        try {
+          const db = await getDb();
+          if (!db) throw new Error("DB not available");
+          const rows = await db
+            .select({
+              title: musicVideoJobs.title,
+              shareSlug: musicVideoJobs.shareSlug,
+              finalVideoUrl: musicVideoJobs.finalVideoUrl,
+              thumbnailUrl: musicVideoJobs.thumbnailUrl,
+              audioDuration: musicVideoJobs.audioDuration,
+              isPublic: musicVideoJobs.isPublic,
+              createdAt: musicVideoJobs.createdAt,
+            })
+            .from(musicVideoJobs)
+            .where(eq(musicVideoJobs.shareSlug, slug))
+            .limit(1);
+
+          const indexPath = path.resolve(distPath, "index.html");
+          let html = await fs.promises.readFile(indexPath, "utf-8");
+          const meta = getRouteMeta(pathname);
+
+          // Inject per-route title/description/canonical
+          html = html.replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${meta.canonical}" />`);
+          html = html.replace(/<meta property="og:url"[^>]*>/, `<meta property="og:url" content="${meta.canonical}" />`);
+          html = html.replace(/<title>[^<]*<\/title>/, `<title>${meta.title}</title>`);
+          html = html.replace(/<meta name="description"[^>]*>/, `<meta name="description" content="${meta.description}" />`);
+
+          // Inject VideoObject JSON-LD if video found, is public, and has a final video URL
+          if (rows.length > 0 && rows[0].isPublic && rows[0].finalVideoUrl) {
+            const video = rows[0];
+            const uploadDate = video.createdAt instanceof Date
+              ? video.createdAt.toISOString()
+              : new Date(video.createdAt).toISOString();
+            const videoJsonLd: Record<string, unknown> = {
+              "@context": "https://schema.org",
+              "@type": "VideoObject",
+              "name": video.title,
+              "description": `Watch "${video.title}" — an AI-generated cinematic music video created with WIZ AI.`,
+              "thumbnailUrl": video.thumbnailUrl ?? OG_IMAGE,
+              "contentUrl": video.finalVideoUrl,
+              "embedUrl": `${BASE_URL}/watch/${video.shareSlug}`,
+              "uploadDate": uploadDate,
+              "publisher": {
+                "@type": "Organization",
+                "name": "WIZ AI",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "https://wiz-ai.io/favicon.ico"
+                }
+              }
+            };
+            // Only include duration if available (ISO 8601 duration format)
+            if (video.audioDuration && video.audioDuration > 0) {
+              videoJsonLd["duration"] = `PT${video.audioDuration}S`;
+            }
+            const jsonLdTag = `<script type="application/ld+json">${JSON.stringify(videoJsonLd)}</script>`;
+            html = html.replace("</head>", `${jsonLdTag}\n</head>`);
+          }
+
+          res.setHeader("Content-Type", "text/html; charset=utf-8");
+          return res.status(200).send(html);
+        } catch (err) {
+          console.error(`[SEO] Watch page VideoObject injection failed for ${slug}:`, err);
+          // Fall through to standard SPA injection below
+        }
+      }
+
       // All other pages: inject canonical/title/description into the SPA shell
       try {
         const indexPath = path.resolve(distPath, "index.html");
