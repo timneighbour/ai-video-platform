@@ -28,6 +28,8 @@ export async function handleStripeWebhook(event: any) {
   switch (event.type) {
     case "checkout.session.completed":
       return await handleCheckoutSessionCompleted(event.data.object);
+    case "customer.subscription.created":
+      return await handleSubscriptionCreated(event.data.object);
     case "customer.subscription.updated":
       return await handleSubscriptionUpdated(event.data.object);
     case "customer.subscription.deleted":
@@ -277,106 +279,10 @@ async function handleCheckoutSessionCompleted(session: any) {
         packLabel: metadata.pack_label || metadata.pack,
       }).catch(() => {});
     } else {
-      // Handle subscription — metadata.plan from billing router
-      const planId = metadata.plan || metadata.plan_id;
-      // Credits granted on subscription activation — must match products.ts SUBSCRIPTION_PLANS
-      // starter: 2 videos × 8 scenes × 15 cr/scene = 240
-      // basic:   2 videos × 8 scenes × 15 cr/scene = 240
-      // creator: 6 videos × 11 scenes × 15 cr/scene = 990
-      // pro:     12 videos × 12 scenes × 15 cr/scene = 2160
-      // studio:  12 videos × 12 scenes × 15 cr/scene = 2160 (maps to STRIPE_BUSINESS_PRICE_ID)
-      const planCredits: Record<string, number> = {
-        starter: 240,
-        basic: 240,
-        creator: 990,
-        pro: 2160,
-        studio: 2160,
-        // legacy aliases
-        business: 2160,
-        pro_plus: 2160,
-      };
-
-      const monthlyCredits = planCredits[planId] || 0;
-
-      // ISS-028: True upsert by userId — subscriptions.userId has a unique constraint
-      // so INSERT ... ON DUPLICATE KEY UPDATE is safe and atomic.
-      const conn = await getRawConn();
-      try {
-        await conn.execute(
-          `INSERT INTO subscriptions (userId, stripeSubscriptionId, plan, status)
-           VALUES (?, ?, ?, 'active')
-           ON DUPLICATE KEY UPDATE
-             stripeSubscriptionId = VALUES(stripeSubscriptionId),
-             plan = VALUES(plan),
-             status = 'active',
-             updatedAt = NOW()`,
-          [userId, session.subscription || null, planId]
-        );
-      } finally {
-        await conn.end();
-      }
-
-      // Grant subscription credits
-      if (monthlyCredits > 0) {
-        await addCredits(
-          userId,
-          monthlyCredits,
-          "subscription_grant",
-          `${planId} plan subscription - ${monthlyCredits} credits`
-        );
-      }
-
-      // ── Founding Creator bonus ───────────────────────────────────────────────
-      // If this user has never been marked as a Founding Creator, grant them a
-      // 20% bonus on their first subscription and record it so renewals and
-      // duplicate webhook replays never re-award it.
-      try {
-        const [userRow] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
-        if (userRow && !userRow.isFoundingCreator && !userRow.foundingCreatorGrantedAt) {
-          const bonusCredits = Math.round(monthlyCredits * 0.20);
-          if (bonusCredits > 0) {
-            await addCredits(
-              userId,
-              bonusCredits,
-              "subscription_grant",
-              `Founding Creator bonus — 20% extra on first subscription (${bonusCredits} credits)`
-            );
-          }
-          // Mark user as Founding Creator (idempotent — only fires once)
-          await db.update(users)
-            .set({ isFoundingCreator: true, foundingCreatorGrantedAt: new Date() })
-            .where(eq(users.id, userId));
-          console.log(`[Stripe Webhook] Founding Creator bonus granted to user ${userId}: +${bonusCredits} credits`);
-        }
-      } catch (fcErr) {
-        // Non-fatal — do not block subscription activation if bonus grant fails
-        console.error("[Stripe Webhook] Founding Creator bonus error:", fcErr);
-      }
-      // ────────────────────────────────────────────────────────────────────────
-
-      console.log(`[Stripe Webhook] Subscription activated for user ${userId}: plan=${planId}, credits=${monthlyCredits}`);
-
-      // Notify owner
-      await notifyOwner({
-        title: "New Subscription",
-        content: `User ${metadata.customer_name} (${metadata.customer_email}) subscribed to ${planId} plan (£${(session.amount_total ?? 0) / 100}/month)`,
-      }).catch(() => {}); // non-fatal
-      // Email notification to tim@wiz-ai.io
-      await emailNewSubscription({
-        name: metadata.customer_name || "Unknown",
-        email: metadata.customer_email || "",
-        plan: planId || "unknown",
-        amount: session.amount_total ?? 0,
-        interval: "month",
-      }).catch(() => {});
-      // Track purchase in Mixpanel
-      await trackPurchaseCompleted({
-        userId,
-        plan: planId || "subscription",
-        amount: session.amount_total ?? 0,
-        currency: session.currency ?? "gbp",
-        purchaseType: "subscription",
-      }).catch(() => {});
+      // For subscriptions, Stripe will send customer.subscription.created event
+      // We do NOT process subscriptions here — only in handleSubscriptionCreated()
+      // This prevents duplicate/orphaned subscription records.
+      console.log(`[Stripe Webhook] Checkout session ${session.id} completed (subscription will be handled by customer.subscription.created event)`);
     }
 
     return { success: true };
@@ -530,6 +436,135 @@ async function handleInvoicePaid(invoice: any) {
     return { success: true };
   } catch (error) {
     console.error("Error handling invoice paid:", error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Handle customer.subscription.created event
+ * This is fired by Stripe after a successful checkout for a subscription
+ */
+async function handleSubscriptionCreated(subscription: any) {
+  const db = await getDb();
+  if (!db) return { success: false };
+
+  try {
+    // Extract user ID from subscription metadata
+    // The metadata is set during checkout session creation
+    const userId = parseInt(subscription.metadata?.user_id, 10);
+    const planId = subscription.metadata?.plan_id;
+
+    if (!userId || isNaN(userId) || !planId) {
+      console.error(
+        "[Stripe Webhook] customer.subscription.created missing user_id or plan_id:",
+        { userId, planId, metadata: subscription.metadata }
+      );
+      return { success: false, error: "Missing user_id or plan_id in subscription metadata" };
+    }
+
+    // Credits granted on subscription activation — must match products.ts SUBSCRIPTION_PLANS
+    const planCredits: Record<string, number> = {
+      starter: 240,
+      basic: 240,
+      creator: 990,
+      pro: 2160,
+      studio: 2160,
+      business: 2160,
+      pro_plus: 2160,
+    };
+
+    const monthlyCredits = planCredits[planId] || 0;
+
+    // ISS-028: True upsert by userId — subscriptions.userId has a unique constraint
+    const conn = await getRawConn();
+    try {
+      await conn.execute(
+        `INSERT INTO subscriptions (userId, stripeSubscriptionId, plan, status, currentPeriodStart, currentPeriodEnd)
+         VALUES (?, ?, ?, ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?))
+         ON DUPLICATE KEY UPDATE
+           stripeSubscriptionId = VALUES(stripeSubscriptionId),
+           plan = VALUES(plan),
+           status = VALUES(status),
+           currentPeriodStart = VALUES(currentPeriodStart),
+           currentPeriodEnd = VALUES(currentPeriodEnd),
+           updatedAt = NOW()`,
+        [
+          userId,
+          subscription.id,
+          planId,
+          subscription.status,
+          subscription.current_period_start,
+          subscription.current_period_end,
+        ]
+      );
+    } finally {
+      await conn.end();
+    }
+
+    // Grant subscription credits
+    if (monthlyCredits > 0) {
+      await addCredits(
+        userId,
+        monthlyCredits,
+        "subscription_grant",
+        `${planId} plan subscription - ${monthlyCredits} credits`
+      );
+    }
+
+    // Founding Creator bonus (20% on first subscription)
+    try {
+      const [userRow] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+      if (userRow && !userRow.isFoundingCreator && !userRow.foundingCreatorGrantedAt) {
+        const bonusCredits = Math.round(monthlyCredits * 0.20);
+        if (bonusCredits > 0) {
+          await addCredits(
+            userId,
+            bonusCredits,
+            "subscription_grant",
+            `Founding Creator bonus — 20% extra on first subscription (${bonusCredits} credits)`
+          );
+        }
+        await db.update(users)
+          .set({ isFoundingCreator: true, foundingCreatorGrantedAt: new Date() })
+          .where(eq(users.id, userId));
+        console.log(`[Stripe Webhook] Founding Creator bonus granted to user ${userId}: +${bonusCredits} credits`);
+      }
+    } catch (fcErr) {
+      console.error("[Stripe Webhook] Founding Creator bonus error:", fcErr);
+    }
+
+    console.log(
+      `[Stripe Webhook] Subscription created for user ${userId}: plan=${planId}, stripeId=${subscription.id}, credits=${monthlyCredits}`
+    );
+
+    // Notify owner
+    const customerEmail = subscription.metadata?.customer_email || "unknown@example.com";
+    const customerName = subscription.metadata?.customer_name || "Unknown";
+    await notifyOwner({
+      title: "New Subscription",
+      content: `User ${customerName} (${customerEmail}) subscribed to ${planId} plan. Stripe ID: ${subscription.id}. Credits: ${monthlyCredits}`,
+    }).catch(() => {});
+
+    // Email notification
+    await emailNewSubscription({
+      name: customerName,
+      email: customerEmail,
+      plan: planId,
+      amount: 0, // Amount is in the invoice, not the subscription object
+    }).catch(() => {});
+
+    // Track in Mixpanel
+    await trackPurchaseCompleted({
+      userId,
+      plan: planId,
+      amount: 0,
+      currency: "gbp",
+      purchaseType: "subscription",
+    }).catch(() => {});
+
+    return { success: true, type: "subscription_created", userId, plan: planId, credits: monthlyCredits };
+  } catch (error) {
+    console.error("[Stripe Webhook] Error handling subscription created:", error);
     return { success: false, error };
   }
 }
