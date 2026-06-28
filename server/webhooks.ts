@@ -6,7 +6,7 @@
 import Stripe from "stripe";
 import { getDb, getRawConn } from "./db";
 import { eq } from "drizzle-orm";
-import { subscriptions, creditTransactions, credits, topupPurchases, kidsVideoJobs, users } from "../drizzle/schema";
+import { subscriptions, creditTransactions, credits, topupPurchases, kidsVideoJobs, users, stripeProcessedEvents } from "../drizzle/schema";
 import { notifyOwner } from "./_core/notification";
 import { addCredits } from "./credit-service";
 import {
@@ -25,22 +25,58 @@ function getStripe() {
 }
 
 export async function handleStripeWebhook(event: any) {
+  // ── Idempotency guard: skip events we've already processed ──────────────────────
+  // Stripe retries on 5xx or timeout, so we must be safe to re-process.
+  const db = await getDb();
+  if (db && event.id) {
+    try {
+      const existing = await db.select().from(stripeProcessedEvents)
+        .where(eq(stripeProcessedEvents.eventId, event.id)).limit(1);
+      if (existing.length > 0) {
+        console.log(`[Stripe Webhook] Duplicate event ${event.id} (${event.type}) — skipping`);
+        return { received: true, duplicate: true };
+      }
+    } catch (idempErr) {
+      // Non-fatal: if idempotency check fails, still process the event
+      console.warn("[Stripe Webhook] Idempotency check failed:", idempErr);
+    }
+  }
+
+  let result: any;
   switch (event.type) {
     case "checkout.session.completed":
-      return await handleCheckoutSessionCompleted(event.data.object);
+      result = await handleCheckoutSessionCompleted(event.data.object);
+      break;
     case "customer.subscription.created":
-      return await handleSubscriptionCreated(event.data.object);
     case "customer.subscription.updated":
-      return await handleSubscriptionUpdated(event.data.object);
+      result = await upsertSubscription(event.data.object);
+      break;
     case "customer.subscription.deleted":
-      return await handleSubscriptionDeleted(event.data.object);
+      result = await handleSubscriptionDeleted(event.data.object);
+      break;
     case "invoice.paid":
-      return await handleInvoicePaid(event.data.object);
+      result = await handleInvoicePaid(event.data.object);
+      break;
     case "invoice.payment_failed":
-      return await handleInvoicePaymentFailed(event.data.object);
+      result = await markPastDue(event.data.object);
+      break;
     default:
       return { received: true };
   }
+
+  // Mark event as processed (best-effort)
+  if (db && event.id) {
+    try {
+      await db.insert(stripeProcessedEvents).values({
+        eventId: event.id,
+        eventType: event.type,
+      }).onDuplicateKeyUpdate({ set: { eventType: event.type } });
+    } catch (markErr) {
+      console.warn("[Stripe Webhook] Failed to mark event as processed:", markErr);
+    }
+  }
+
+  return result;
 }
 
 async function handleCheckoutSessionCompleted(session: any) {
@@ -292,22 +328,113 @@ async function handleCheckoutSessionCompleted(session: any) {
   }
 }
 
-async function handleSubscriptionUpdated(subscription: any) {
+/**
+ * Unified upsert for customer.subscription.created and customer.subscription.updated.
+ * Resolves user by metadata.user_id or by looking up the Stripe customer ID in users table.
+ */
+async function upsertSubscription(subscription: any) {
   const db = await getDb();
   if (!db) return { success: false };
 
   try {
-    // Update subscription status
-    await db
-      .update(subscriptions)
-      .set({
-        status: subscription.status as any,
-      })
-      .where(eq(subscriptions.stripeSubscriptionId, subscription.id));
+    let userId = parseInt(subscription.metadata?.user_id, 10);
+    const planId = subscription.metadata?.plan_id;
 
-    return { success: true };
+    // Fallback: look up user by stripeCustomerId if metadata is missing
+    if ((!userId || isNaN(userId)) && subscription.customer) {
+      const [userRow] = await db.select().from(users)
+        .where(eq(users.stripeCustomerId, subscription.customer)).limit(1);
+      if (userRow) userId = userRow.id;
+    }
+
+    if (!userId || isNaN(userId)) {
+      console.error("[Stripe Webhook] upsertSubscription: cannot resolve userId", {
+        metadata: subscription.metadata,
+        customer: subscription.customer,
+      });
+      return { success: false, error: "Cannot resolve userId" };
+    }
+
+    const resolvedPlan = planId || "starter";
+    const conn = await getRawConn();
+    try {
+      await conn.execute(
+        `INSERT INTO subscriptions (userId, stripeSubscriptionId, plan, status, currentPeriodStart, currentPeriodEnd)
+         VALUES (?, ?, ?, ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?))
+         ON DUPLICATE KEY UPDATE
+           stripeSubscriptionId = VALUES(stripeSubscriptionId),
+           plan = VALUES(plan),
+           status = VALUES(status),
+           currentPeriodStart = VALUES(currentPeriodStart),
+           currentPeriodEnd = VALUES(currentPeriodEnd),
+           updatedAt = NOW()`,
+        [
+          userId,
+          subscription.id,
+          resolvedPlan,
+          subscription.status,
+          subscription.current_period_start,
+          subscription.current_period_end,
+        ]
+      );
+    } finally {
+      await conn.end();
+    }
+
+    // Grant credits only on creation (status = active for first time)
+    if (subscription.status === "active" && planId) {
+      const planCredits: Record<string, number> = {
+        starter: 240, basic: 240, creator: 990, pro: 2160, studio: 2160, business: 2160, pro_plus: 2160,
+      };
+      const monthlyCredits = planCredits[planId] || 0;
+      if (monthlyCredits > 0) {
+        // Only grant on creation — invoice.paid handles renewal grants
+        const [existingSub] = await db.select().from(subscriptions)
+          .where(eq(subscriptions.stripeSubscriptionId, subscription.id)).limit(1);
+        // If this is a brand new subscription (just inserted), grant credits
+        if (!existingSub || existingSub.status !== "active") {
+          await addCredits(userId, monthlyCredits, "subscription_grant",
+            `${planId} plan subscription activation — ${monthlyCredits} credits`);
+          console.log(`[Stripe Webhook] Granted ${monthlyCredits} credits to user ${userId} for ${planId} plan`);
+        }
+      }
+
+      // Founding Creator bonus (first subscription only)
+      try {
+        const [userRow] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+        if (userRow && !userRow.isFoundingCreator && !userRow.foundingCreatorGrantedAt) {
+          const bonusCredits = Math.round((planCredits[planId] || 0) * 0.20);
+          if (bonusCredits > 0) {
+            await addCredits(userId, bonusCredits, "subscription_grant",
+              `Founding Creator bonus — 20% extra on first subscription (${bonusCredits} credits)`);
+          }
+          await db.update(users)
+            .set({ isFoundingCreator: true, foundingCreatorGrantedAt: new Date() })
+            .where(eq(users.id, userId));
+        }
+      } catch (fcErr) {
+        console.error("[Stripe Webhook] Founding Creator bonus error:", fcErr);
+      }
+
+      // Notify owner of new subscription
+      const customerEmail = subscription.metadata?.customer_email || "unknown@example.com";
+      const customerName = subscription.metadata?.customer_name || "Unknown";
+      await notifyOwner({
+        title: "New Subscription",
+        content: `User ${customerName} (${customerEmail}) subscribed to ${planId} plan. Stripe ID: ${subscription.id}`,
+      }).catch(() => {});
+      await emailNewSubscription({
+        name: customerName,
+        email: customerEmail,
+        plan: planId,
+        amount: 0,
+      }).catch(() => {});
+    }
+
+    console.log(`[Stripe Webhook] upsertSubscription: user=${userId} plan=${resolvedPlan} status=${subscription.status} stripeId=${subscription.id}`);
+    return { success: true, userId, plan: resolvedPlan, status: subscription.status };
   } catch (error) {
-    console.error("Error updating subscription:", error);
+    console.error("[Stripe Webhook] Error in upsertSubscription:", error);
     return { success: false, error };
   }
 }
@@ -358,8 +485,16 @@ async function handleSubscriptionDeleted(subscription: any) {
   }
 }
 
-async function handleInvoicePaymentFailed(invoice: any) {
+async function markPastDue(invoice: any) {
+  const db = await getDb();
   try {
+    // Mark the subscription as past_due in our database
+    if (invoice.subscription && db) {
+      await db.update(subscriptions)
+        .set({ status: "past_due" })
+        .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription));
+      console.log(`[Stripe Webhook] Marked subscription ${invoice.subscription} as past_due`);
+    }
     const customerEmail = invoice.customer_email || invoice.customer_details?.email;
     const customerName = invoice.customer_name || invoice.customer_details?.name;
     await emailFailedPayment({

@@ -1984,3 +1984,14 @@ export const venueImageCache = mysqlTable("venueImageCache", {
 });
 export type VenueImageCache = typeof venueImageCache.$inferSelect;
 export type InsertVenueImageCache = typeof venueImageCache.$inferInsert;
+
+// ─── Stripe Webhook Idempotency ────────────────────────────────────────────────
+// Records every Stripe event ID that has been successfully processed.
+// Prevents duplicate credit grants / subscription updates when Stripe retries.
+export const stripeProcessedEvents = mysqlTable("stripeProcessedEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: varchar("eventId", { length: 255 }).notNull().unique(), // evt_xxx
+  eventType: varchar("eventType", { length: 128 }).notNull(),
+  processedAt: timestamp("processedAt").defaultNow().notNull(),
+});
+export type StripeProcessedEvent = typeof stripeProcessedEvents.$inferSelect;

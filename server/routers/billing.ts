@@ -10,12 +10,43 @@ import { getUserCredits, addCredits, getCreditHistory } from "../credit-service"
 import { getUserSubscription, mapDbPlanToProductPlan } from "../db";
 import { generateVideo, checkVideoStatus, getUserProjects, deleteProject } from "../video-service";
 import { SUBSCRIPTION_PLANS, TOPUP_PACKS, type TopupPackKey } from "../products";
-import { topupPurchases } from "../../drizzle/schema";
+import { topupPurchases, users } from "../../drizzle/schema";
 import { eq as eqOp } from "drizzle-orm";
 // import { notifyOwner } from "../_core/notification";
 import Stripe from "stripe";
+import { getOrCreateCustomer } from "../stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
+
+// ── Boot-time Stripe mode diagnostics ────────────────────────────────────────
+// Logs whether each key/price is live or test so we can spot mixed-mode configs.
+(function logStripeMode() {
+  const sk = process.env.STRIPE_SECRET_KEY || "";
+  const pk = process.env.VITE_STRIPE_PUBLISHABLE_KEY || "";
+  const wh = process.env.STRIPE_WEBHOOK_SECRET || "";
+  const mode = sk.startsWith("sk_live_") ? "LIVE" : sk.startsWith("sk_test_") ? "TEST" : "MISSING";
+  const pkMode = pk.startsWith("pk_live_") ? "LIVE" : pk.startsWith("pk_test_") ? "TEST" : "MISSING";
+  const whMode = wh.startsWith("whsec_") ? "OK" : "MISSING";
+  console.log(`[Stripe] Secret key: ${mode} | Publishable key: ${pkMode} | Webhook secret: ${whMode}`);
+  if (mode !== pkMode && mode !== "MISSING" && pkMode !== "MISSING") {
+    console.error("[Stripe] ⚠️  MIXED MODE DETECTED — secret key and publishable key are from different environments!");
+  }
+  // Log each subscription price ID
+  const priceEnvs = [
+    "STRIPE_STARTER_PRICE_ID", "STRIPE_BASIC_PRICE_ID", "STRIPE_PRO_PRICE_ID",
+    "STRIPE_PRO_PLUS_PRICE_ID", "STRIPE_BUSINESS_PRICE_ID",
+    "STRIPE_STARTER_ANNUAL_PRICE_ID", "STRIPE_BASIC_ANNUAL_PRICE_ID",
+    "STRIPE_PRO_ANNUAL_PRICE_ID", "STRIPE_PRO_PLUS_ANNUAL_PRICE_ID",
+  ];
+  for (const envKey of priceEnvs) {
+    const val = process.env[envKey];
+    if (!val || !val.startsWith("price_")) {
+      console.warn(`[Stripe] ${envKey}: MISSING or invalid — will use hardcoded fallback test price`);
+    } else {
+      console.log(`[Stripe] ${envKey}: ${val.substring(0, 12)}... (${mode === "LIVE" ? "live" : "test"})`);
+    }
+  }
+})();
 
 export const billingRouter = router({
   /**
@@ -305,27 +336,33 @@ export const billingRouter = router({
           throw new Error(`Price not configured for plan: ${input.plan}`);
         }
 
-        const session = await stripe.checkout.sessions.create({
-          customer_email: ctx.user.email || undefined,
+        // Prefer a real Stripe Customer over customer_email so the customer is
+        // reused across sessions and the subscription is tied to a known customer.
+        let stripeCustomerId = ctx.user.stripeCustomerId || undefined;
+        if (!stripeCustomerId && ctx.user.email) {
+          try {
+            const customer = await getOrCreateCustomer(ctx.user.email, ctx.user.name || null);
+            stripeCustomerId = customer.id;
+            // Persist the Stripe customer ID back to the user row
+            const db = await getDb();
+            if (db) {
+              await db.update(users)
+                .set({ stripeCustomerId: customer.id })
+                .where(eqOp(users.id, ctx.user.id));
+            }
+          } catch (custErr) {
+            console.warn("[Stripe] Could not get/create customer, falling back to customer_email:", custErr);
+          }
+        }
+
+        const sessionParams: Stripe.Checkout.SessionCreateParams = {
           // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
-          line_items: [
-            {
-              price: priceId,
-              quantity: 1,
-            },
-          ],
+          line_items: [{ price: priceId, quantity: 1 }],
           mode: "subscription",
-          success_url: `${input.origin}/dashboard?success=true`,
-          cancel_url: `${input.origin}/subscribe?canceled=true`,
+          success_url: `${input.origin}/account?checkout=success`,
+          cancel_url: `${input.origin}/subscribe?checkout=cancelled`,
           client_reference_id: ctx.user.id.toString(),
-          metadata: {
-            user_id: ctx.user.id.toString(),
-            customer_email: ctx.user.email || "",
-            customer_name: ctx.user.name || "",
-            plan: input.plan,
-            plan_id: input.plan,
-          },
-          // subscription_data.metadata is copied to the Stripe Subscription object
+          // subscription_data.metadata lands on the Stripe Subscription object
           // so customer.subscription.created webhook can read user_id and plan_id
           subscription_data: {
             metadata: {
@@ -336,7 +373,13 @@ export const billingRouter = router({
             },
           },
           allow_promotion_codes: true,
-        });
+        };
+        if (stripeCustomerId) {
+          (sessionParams as any).customer = stripeCustomerId;
+        } else {
+          sessionParams.customer_email = ctx.user.email || undefined;
+        }
+        const session = await stripe.checkout.sessions.create(sessionParams);
 
         return { checkoutUrl: session.url };
       } catch (error) {
