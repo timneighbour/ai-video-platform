@@ -89,8 +89,8 @@ export default function PostFirstRenderSubscribeModal({
     onSuccess: (data) => {
       if (data.checkoutUrl) {
         mp.track("PostFirstRender_CheckoutStarted", { plan: loadingPlan, billing: billingInterval });
-        window.open(data.checkoutUrl, "_blank");
-        toast.success("Redirecting to checkout…");
+        // Use same-tab redirect — window.open() is blocked as a pop-up on most browsers
+        window.location.href = data.checkoutUrl;
       }
       setLoadingPlan(null);
     },

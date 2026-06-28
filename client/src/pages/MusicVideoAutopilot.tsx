@@ -1680,8 +1680,8 @@ export default function MusicVideoAutopilot() {
         origin: window.location.origin,
       });
       if (result.checkoutUrl) {
-        toast.info("Redirecting to checkout...", { description: "A new tab will open for payment." });
-        window.open(result.checkoutUrl, "_blank");
+        // Use same-tab redirect — window.open() is blocked as a pop-up on most browsers
+        window.location.href = result.checkoutUrl;
       }
     } catch (err: any) {
       toast.error("Checkout failed", { description: err.message || "Please try again." });

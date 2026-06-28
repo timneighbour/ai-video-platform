@@ -179,8 +179,8 @@ export default function Credits() {
   const createCreditCheckout = trpc.billing.createCreditCheckout.useMutation({
     onSuccess: (data) => {
       if (data.checkoutUrl) {
-        toast.info("Redirecting to checkout…", { description: "A new tab will open with the secure payment page." });
-        window.open(data.checkoutUrl, "_blank");
+        // Use same-tab redirect — window.open() is blocked as a pop-up on most browsers
+        window.location.href = data.checkoutUrl;
       }
     },
     onError: (err) => {

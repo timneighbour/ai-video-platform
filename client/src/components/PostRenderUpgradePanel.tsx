@@ -68,9 +68,9 @@ export default function PostRenderUpgradePanel({
         origin: window.location.origin,
       });
       if (result.checkoutUrl) {
-        toast.info("Redirecting to checkout…");
         onCheckoutStarted?.();
-        window.open(result.checkoutUrl, "_blank");
+        // Use same-tab redirect — window.open() is blocked as a pop-up on most browsers
+        window.location.href = result.checkoutUrl;
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Upgrade failed";

@@ -174,11 +174,8 @@ export function QuickTopUpModal({
   const checkoutMutation = trpc.billing.createCreditCheckout.useMutation({
     onSuccess: (data) => {
       if (data?.checkoutUrl) {
-        toast.info("Opening secure checkout…", {
-          description: "Complete your purchase in the new tab, then return here.",
-          duration: 5000,
-        });
-        window.open(data.checkoutUrl, "_blank");
+        // Use same-tab redirect — window.open() is blocked as a pop-up on most browsers
+        window.location.href = data.checkoutUrl;
       }
       setIsRedirecting(false);
       onOpenChange(false);
@@ -194,11 +191,8 @@ export function QuickTopUpModal({
   const subscriptionMutation = trpc.billing.createSubscriptionCheckout.useMutation({
     onSuccess: (data) => {
       if (data?.checkoutUrl) {
-        toast.info("Opening subscription checkout…", {
-          description: "Complete your subscription in the new tab.",
-          duration: 5000,
-        });
-        window.open(data.checkoutUrl, "_blank");
+        // Use same-tab redirect — window.open() is blocked as a pop-up on most browsers
+        window.location.href = data.checkoutUrl;
       }
       setIsRedirecting(false);
       onOpenChange(false);

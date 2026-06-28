@@ -323,6 +323,17 @@ export const billingRouter = router({
             customer_email: ctx.user.email || "",
             customer_name: ctx.user.name || "",
             plan: input.plan,
+            plan_id: input.plan,
+          },
+          // subscription_data.metadata is copied to the Stripe Subscription object
+          // so customer.subscription.created webhook can read user_id and plan_id
+          subscription_data: {
+            metadata: {
+              user_id: ctx.user.id.toString(),
+              customer_email: ctx.user.email || "",
+              customer_name: ctx.user.name || "",
+              plan_id: input.plan,
+            },
           },
           allow_promotion_codes: true,
         });

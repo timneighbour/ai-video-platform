@@ -43,8 +43,8 @@ export default function Subscribe() {
  const createSubscriptionCheckout = trpc.billing.createSubscriptionCheckout.useMutation({
  onSuccess: (data) => {
  if (data?.checkoutUrl) {
- toast.info("Redirecting to checkout...");
- window.open(data.checkoutUrl, "_blank");
+ // Use same-tab redirect — window.open() is blocked as a pop-up on most browsers
+ window.location.href = data.checkoutUrl;
  }
  setLoadingPlan(null);
  },

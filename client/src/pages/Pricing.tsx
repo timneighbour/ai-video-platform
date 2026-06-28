@@ -362,11 +362,11 @@ export default function Pricing() {
  mp.checkoutStarted(`topup_${packKey}`);
  if (!isAuthenticated) { window.location.href = getLoginUrl(); return; }
  setLoadingBundle(packKey);
- toast.info("Redirecting to checkout...", { description: "Opening Stripe in a new tab." });
  try {
  const result = await createTopupCheckout.mutateAsync({ packKey, origin: window.location.origin });
  if (result.checkoutUrl) {
- window.open(result.checkoutUrl, "_blank");
+ // Use same-tab redirect — window.open() is blocked as a pop-up on most browsers
+ window.location.href = result.checkoutUrl;
  }
  } catch (err) {
  toast.error("Couldn't start checkout", { description: err instanceof Error ? err.message : "Please try again." });
