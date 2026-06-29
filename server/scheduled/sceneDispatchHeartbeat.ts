@@ -57,12 +57,12 @@ import { extractSceneAudioClip, sliceVocalStemForSeedance } from "../audio-clip-
 import { submitHeyGenLipSyncV3, pollHeyGenLipSyncV3, isHeyGenConfigured } from "../ai-apis/heygen-lipsync";
 // WaveSpeed InfiniteTalk — FALLBACK lip-sync provider (used if HeyGen Direct fails)
 import { submitInfiniteTalkLipSync, pollInfiniteTalkLipSync } from "../ai-apis/infinitetalk-lipsync";
-// ── NEW PRIMARY PIPELINE (2026-06-15) ─────────────────────────────────────────────────────────────
-// HeyGen Direct Photo+Audio — PRIMARY for ALL performance scenes
-// Bypasses Seedance entirely: portrait photo + vocal stem → lip-synced video in ONE API call
-// Eliminates: "No speaker detected", wrong characters, portrait ratio issues
+// ── BANNED PROVIDER — DO NOT USE FOR NEW DISPATCHES (2026-06-29) ─────────────────────────────────────────────────────────────
+// HeyGen Direct Photo+Audio — BANNED (2026-06-29). Kept ONLY to poll in-flight legacy jobs.
+// PRIMARY pipeline is now: Flux Kontext → Kling 2.6 Pro → OmniHuman 1.5 (runImageDrivenPipeline).
+// DO NOT submit new scenes to HeyGen Direct under any circumstances.
 import { submitHeyGenDirectPhoto, pollHeyGenDirectPhoto, isHeyGenDirectConfigured, estimateHeyGenDirectCost } from "../ai-apis/direct-heygen-photo";
-// Sync Labs Direct — FALLBACK if HeyGen Direct fails
+// Sync Labs Direct — LEGACY FALLBACK (kept for in-flight job polling only)
 import { submitSyncLabsDirect, pollSyncLabsDirect, isSyncLabsConfigured } from "../ai-apis/synclabs-direct";
 import { getProbeDecision } from "../pre-render-validator";
 import { resetSceneAttempts, checkProgressiveSpendAlerts } from "../spend-protection";
@@ -1352,7 +1352,7 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
                       // Scenes without lyrics = speech/ambient → "speed" mode (faster, sufficient for non-singing)
                       const hasSingingLyrics = !!(scene.lyrics && scene.lyrics.trim().length > 3);
                       const heyGenMode: "precision" | "speed" = hasSingingLyrics ? "precision" : "speed";
-                      console.log(`[SceneDispatch] Scene ${scene.id} PERFORMANCE → HeyGen ${heyGenMode.toUpperCase()} (singing: ${hasSingingLyrics}, video: ${pollResult.videoUrl.slice(0, 60)}...)`);
+                      console.log(`[SceneDispatch] Scene ${scene.id} LEGACY SEEDANCE PATH → HeyGen Precision ${heyGenMode.toUpperCase()} (emergency fallback for old Seedance jobs — new jobs use OmniHuman 1.5)`);
                       // TWO-PASS PIPELINE: Seedance renders already have audio baked in via [Audio1]
                       // native injection. Do NOT mux audio into the video — this creates double-audio
                       // or phase conflicts that cause HeyGen to produce a frozen/static mouth.
@@ -1631,9 +1631,9 @@ export async function sceneDispatchHeartbeatHandler(req: Request, res: Response)
               );
               console.log(`[SceneDispatch] Scene ${scene.id} RETRY: vocal stem cut ✓`);
 
-              // RETRY: Use HeyGen Direct Photo+Audio (PRIMARY) — same as dispatch path
-              // This replaces the broken HeyGen Precision video-to-video path.
-              // Character image + vocal stem → lip-synced video in one API call.
+              // RETRY: OmniHuman 1.5 is the primary lip-sync provider (via runImageDrivenPipeline).
+              // HeyGen Direct is used here as an EMERGENCY FALLBACK ONLY — if OmniHuman fails on retry.
+              // HeyGen must NOT be used for new scene dispatches (banned as primary provider 2026-06-29).
               //
               // Resolve character URL: prefer videoCharacters.environmentRefUrl (character in correct
               // environment), then performanceRefUrl, then masterPortraitUrl, then job.characterImageUrl.
