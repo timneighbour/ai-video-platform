@@ -7,15 +7,24 @@
  *
  * Flow:
  *  1. Parse URL params to know what was purchased
- *  2. Fetch latest purchase details from the server
+ *  2. Poll getLatestPurchase until the webhook has recorded the purchase
  *  3. Show order summary + credit balance + next steps
+ *
+ * Credits are NEVER granted here. They are granted exclusively by the Stripe
+ * webhook (checkout.session.completed / customer.subscription.created) in
+ * server/webhooks.ts. This page only reads the balance already recorded.
+ *
+ * Copy rules:
+ *  - "Monthly credits reset each billing cycle" → subscription path ONLY
+ *  - "Top-up credits never expire"              → topup path ONLY
+ *  These are mutually exclusive; the wrong message must never appear.
  */
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import confetti from "canvas-confetti";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { PLANS, TOPUP_PACKS, getPlan } from "@/lib/plans";
+import { TOPUP_PACKS, getPlan } from "@/lib/plans";
 import {
   CheckCircle,
   Loader2,
@@ -135,10 +144,22 @@ export default function CheckoutSuccess() {
   const { user, loading: authLoading } = useAuth();
   const [, navigate] = useLocation();
 
-  // Fetch latest purchase details
-  const { data: purchase, isLoading: purchaseLoading } = trpc.billing.getLatestPurchase.useQuery(
+  // Poll until the Stripe webhook has recorded the purchase.
+  // refetchInterval keeps retrying every 2 s while purchase is null so the
+  // customer never sees a static "not found" message after a real payment.
+  const {
+    data: purchase,
+    isLoading: purchaseLoading,
+    dataUpdatedAt,
+  } = trpc.billing.getLatestPurchase.useQuery(
     { type: purchaseType },
-    { enabled: Boolean(user), retry: 2 }
+    {
+      enabled: Boolean(user),
+      retry: 3,
+      // Poll every 2 s until data arrives, then stop
+      refetchInterval: (query) => (query.state.data ? false : 2000),
+      refetchIntervalInBackground: false,
+    }
   );
 
   // Redirect unauthenticated users to login
@@ -220,10 +241,13 @@ export default function CheckoutSuccess() {
       ? purchase.creditsAdded
       : planData?.creditsPerMonth ?? null;
 
+  // Amount paid: only available for top-ups (Stripe records it on the topupPurchases row).
+  // For subscriptions, the actual charge is not stored server-side yet, so we omit it
+  // rather than risk showing the wrong figure (e.g. monthly price for an annual billing).
   const amountPaid =
     purchase?.kind === "topup"
       ? formatCurrency(purchase.amountPaid, purchase.currency ?? "gbp")
-      : null; // subscription amount not available from server — omit rather than show wrong value
+      : null;
 
   const renewalDate =
     purchase?.kind === "subscription" && purchase.currentPeriodEnd
@@ -242,17 +266,25 @@ export default function CheckoutSuccess() {
     );
   }
 
-  // ── Empty / error state (authenticated but no purchase found) ─────────────
-  if (!isLoading && !purchase && user) {
+  // ── Webhook race state ───────────────────────────────────────────────────────
+  // Stripe redirects the buyer here before the webhook has finished recording the
+  // purchase. We poll every 2 s (see refetchInterval above). While waiting, show
+  // a reassuring message — never "no purchase found", which reads as "payment failed".
+  if (!purchase && user) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center space-y-4 max-w-sm px-4">
-          <CheckCircle className="w-12 h-12 text-green-400 mx-auto" />
-          <h1 className="text-2xl font-bold">Payment received!</h1>
-          <p className="text-white/60 text-sm">
-            Your purchase is being processed. Your credits will appear in your account shortly.
+        <div className="text-center space-y-5 max-w-sm px-4">
+          <div className="relative mx-auto w-14 h-14">
+            <CheckCircle className="w-14 h-14 text-green-400" />
+            <Loader2 className="absolute inset-0 w-14 h-14 animate-spin text-violet-400 opacity-40" />
+          </div>
+          <h1 className="text-2xl font-bold">Payment confirmed!</h1>
+          <p className="text-white/60 text-sm leading-relaxed">
+            Your credits are being added — this usually takes a few seconds.
+            <br />
+            <span className="text-white/40 text-xs">This page will update automatically.</span>
           </p>
-          <Button asChild className="mt-4 bg-white text-black hover:bg-white/90 font-semibold rounded-full">
+          <Button asChild variant="outline" className="mt-2 border-white/20 text-white/70 hover:bg-white/10 rounded-full">
             <Link href="/dashboard">
               <LayoutDashboard className="w-4 h-4 mr-2" />
               Go to Dashboard
@@ -339,7 +371,7 @@ export default function CheckoutSuccess() {
             {/* Divider */}
             <div className="border-t border-white/10" />
 
-            {/* Amount paid */}
+            {/* Amount paid — top-ups only; subscription amount omitted to avoid showing wrong figure */}
             {amountPaid && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-white/70">
@@ -350,7 +382,7 @@ export default function CheckoutSuccess() {
               </div>
             )}
 
-            {/* Renewal date (subscriptions only) */}
+            {/* Renewal date — subscriptions only */}
             {renewalDate && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-white/70">
@@ -361,15 +393,17 @@ export default function CheckoutSuccess() {
               </div>
             )}
 
-            {/* Confirmation note */}
+            {/* Confirmation note — copy is strictly conditional on purchase type */}
             <div className="mt-2 rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-xs text-white/50 leading-relaxed">
               A confirmation receipt has been sent to{" "}
               <span className="text-white/70 font-medium">{user?.email ?? "your email"}</span>.
+              {/* SUBSCRIPTION ONLY: monthly allowance resets each cycle */}
               {purchaseType === "subscription" && (
-                <> Your monthly credits reset each billing cycle.</>
+                <> Your monthly credit allowance resets at the start of each billing cycle.</>
               )}
+              {/* TOP-UP ONLY: purchased credits never expire */}
               {purchaseType === "topup" && (
-                <> Top-up credits never expire.</>
+                <> Credits you purchase never expire and are yours to keep.</>
               )}
             </div>
           </CardContent>
