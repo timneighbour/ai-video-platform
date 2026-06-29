@@ -62,7 +62,7 @@ const KEY_FEATURES = [
  { title: "WizVideo™ Integration", desc: "Use any generated image as a scene background, character reference, or visual style guide in WizVideo™.", img: IMGS.style3 },
  { title: "Aspect Ratio Control", desc: "Generate in any aspect ratio — square, portrait, landscape, ultrawide, or custom dimensions.", img: IMGS.style4 },
  { title: "Style Consistency", desc: "Generate multiple images in the same style with consistent visual language — ideal for series and campaigns.", img: IMGS.style5 },
- { title: "Commercial Licensing", desc: "All generated images are fully licensed for commercial use — product shots, marketing materials, and editorial.", img: IMGS.style6 },
+ { title: "Yours to Download and Use", desc: "All generated images are yours to download and use in your own projects — product shots, marketing materials, and editorial.", img: IMGS.style6 },
 ];
 
 const BENEFITS = [
@@ -71,13 +71,13 @@ const BENEFITS = [
  { title: "Built for video production", desc: "Generated images feed directly into WizVideo™ as scene backgrounds, character references, and visual style guides." },
  { title: "Instant iteration", desc: "Generate 10 variations in the time it takes to brief a designer — find the right image in minutes, not days." },
  { title: "No prompt engineering required", desc: "WizImage™ understands natural language descriptions — no need to learn complex prompt syntax or negative prompts." },
- { title: "Commercial use included", desc: "All generated images are fully licensed for commercial use on all plans — no additional licensing fees." },
+ { title: "Download and use in your projects", desc: "All generated images are yours to download and use in your own projects on all plans — no additional fees." },
 ];
 
 const FAQS = [
  { q: "What if I do not like the image?", a: "You can generate up to 4 variations of the same prompt simultaneously and choose the best result. If none work, you can refine your prompt and regenerate — no credits are charged until you export." },
  { q: "What do credits cover for WizImage™?", a: "Credits are only charged on final image export. Generating previews, comparing variations, and adjusting your prompt are all free — you only pay when you are satisfied with the result." },
- { q: "Can I use the images commercially?", a: "Yes — all generated images are fully licensed for commercial use on all plans, including product shots, marketing materials, editorial, and broadcast. No additional licensing fee is required." },
+ { q: "Can I use the images in my projects?", a: "Yes — all generated images are yours to download and use in your own projects, including product shots, marketing materials, editorial, and broadcast. Full licensing terms are under review and will be published shortly." },
  { q: "Can I generate multiple variations to compare?", a: "Yes — WizImage™ can generate up to 4 variations of the same prompt simultaneously, allowing you to compare styles, compositions, and colour treatments before choosing." },
  { q: "How does WizImage™ connect to WizVideo™?", a: "Generated images can be used directly in WizVideo™ as scene backgrounds, character references, or visual style guides — no file export or re-upload needed." },
  { q: "What resolution and aspect ratios are supported?", a: "WizImage™ generates up to 4096×4096 (4K) resolution and supports any aspect ratio including square (1:1), portrait (9:16), landscape (16:9), ultrawide (21:9), and custom dimensions." },
@@ -253,7 +253,7 @@ export default function WizImageProductPage() {
  {[
  { val: "6", label: "Art styles" },
  { val: "4K", label: "Max resolution" },
- { val: "100%", label: "Commercial use" },
+ { val: "100%", label: "Yours to use" },
  ].map(s => (
  <div key={s.val} className="text-center">
  <div className="text-2xl font-black" style={{ color: ACCENT }}>{s.val}</div>

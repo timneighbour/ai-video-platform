@@ -112,7 +112,7 @@ const BENEFITS = [
 const FAQS = [
  { q: "What if the script does not match what I had in mind?", a: "You can regenerate any individual scene, rewrite dialogue, or adjust the tone of any section after generation. The full script is editable — you are never locked into the first output." },
  { q: "What do credits cover for WizScript™?", a: "Credits are only charged when you export or send the script to WizVideo™. Generating, previewing, and editing the script is free — you only pay when you are ready to produce." },
- { q: "Is the generated content original and commercially usable?", a: "Yes — all generated scripts are original content created from your prompt, not derived from existing scripts or copyrighted material. They are fully licensed for commercial use." },
+ { q: "Is the generated content original and commercially usable?", a: "Yes — all generated scripts are original content created from your prompt, not derived from existing scripts or copyrighted material. They are yours to use in your own projects." },
  { q: "Can I refine the script before sending it to production?", a: "Yes — the full script is editable in the WizScript™ studio. You can rewrite scenes, change dialogue, adjust tone, or regenerate any section before exporting to WizVideo™." },
  { q: "How does WizScript™ connect to WizVideo™?", a: "WizScript™ exports directly to WizVideo™ — the scenes, characters, and visual direction carry over automatically without re-entering any information." },
  { q: "What script formats does WizScript™ generate?", a: "WizScript™ generates music video treatments, short film scripts, documentary narrations, commercial scripts, and social content scripts in industry-standard screenplay format." },

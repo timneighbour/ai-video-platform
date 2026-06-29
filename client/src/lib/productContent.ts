@@ -482,7 +482,7 @@ const WIZSCORE_CONTENT: RichProductContent = {
     { num: "04", icon: "download", title: "Download & publish", desc: "Preview the generated soundtrack, download the audio file, and add it to your video — ready to publish." },
   ],
   benefits: [
-    { title: "Original, royalty-free music", desc: "Every WizScore™ soundtrack is an original AI composition — not a library track. Fully royalty-free for commercial use." },
+    { title: "Original, royalty-free music", desc: "Every WizScore™ soundtrack is an original AI composition — not a library track. Yours to use in your own projects." },
     { title: "Emotionally intelligent scoring", desc: "WizScore™ maps the emotional arc of your footage and composes music that builds, resolves, and responds to your video's story." },
     { title: "No music production skills needed", desc: "You don't need to know anything about music theory, tempo, or mixing. WizScore™ handles every creative and technical decision." },
     { title: "Multiple genre options", desc: "Choose from Cinematic, Electronic, Orchestral, Ambient, Hip-Hop, Jazz, and more — or let WizScore™ select the best genre for your footage." },
@@ -495,7 +495,7 @@ const WIZSCORE_CONTENT: RichProductContent = {
     { icon: "film", title: "Emotional Arc Mapping", desc: "Maps the emotional journey of your footage and composes music that builds, resolves, and responds to every key moment in your video." },
     { icon: "star", title: "Multi-Genre Intelligence", desc: "Choose from Cinematic, Electronic, Orchestral, Ambient, Hip-Hop, Jazz, and more — or let WizScore™ select the perfect genre automatically." },
     { icon: "zap", title: "Frame-Accurate Tempo Sync", desc: "The generated soundtrack is timed to your video's exact pacing — scene cuts and energy peaks are musically marked with precision." },
-    { icon: "download", title: "Instant Royalty-Free Download", desc: "Every generated soundtrack is fully royalty-free for commercial use — download and publish immediately, no licensing required." },
+    { icon: "download", title: "Instant Royalty-Free Download", desc: "Every generated soundtrack is yours to download and use in your own projects — download and publish immediately." },
   ],
 };
 

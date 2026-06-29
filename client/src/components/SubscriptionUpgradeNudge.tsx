@@ -33,7 +33,7 @@ export default function SubscriptionUpgradeNudge({ className = "" }: { className
 
   if (!isAuthenticated || dismissed || !nudgeQuery.data?.shouldNudge) return null;
 
-  const { paidRenderCount, bundleCount, estimatedMonthlySavingPence, recommendedPlanPrice } = nudgeQuery.data;
+  const { paidRenderCount, estimatedMonthlySavingPence, recommendedPlanPrice } = nudgeQuery.data;
 
   const handleDismiss = () => {
     try {
@@ -43,14 +43,7 @@ export default function SubscriptionUpgradeNudge({ className = "" }: { className
   };
 
   // Build contextual message
-  let triggerLine = "";
-  if (bundleCount >= 1 && paidRenderCount >= 2) {
-    triggerLine = `You've purchased ${paidRenderCount} renders and ${bundleCount} bundle${bundleCount !== 1 ? "s" : ""}.`;
-  } else if (bundleCount >= 1) {
-    triggerLine = `You've purchased ${bundleCount} build credit pack${bundleCount !== 1 ? "s" : ""}.`;
-  } else {
-    triggerLine = `You've completed ${paidRenderCount} pay-per-render purchases.`;
-  }
+  const triggerLine = `You've completed ${paidRenderCount} pay-per-render purchase${paidRenderCount !== 1 ? "s" : ""}.`;
 
   const savingsLine =
     estimatedMonthlySavingPence > 0

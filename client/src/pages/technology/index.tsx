@@ -448,20 +448,20 @@ export function AIMusicEnginePage() {
       slug="ai-music-engine"
       title="AI Music Engine"
       metaTitle="AI Music Engine | WIZ AI"
-      metaDesc="WIZ AI's AI Music Engine generates original songs, beats, lyrics, and soundtracks from a text prompt. Full-length tracks, royalty-free, in seconds."
+      metaDesc="WIZ AI's AI Music Engine generates original songs, beats, lyrics, and soundtracks from a text prompt. Full-length tracks, yours to use in your own projects, in seconds."
       ogTitle="AI Music Engine | WIZ AI"
       ogDesc="Generate original songs, beats, lyrics, and soundtracks from a text prompt with WIZ AI's AI Music Engine."
       badge="WIZ AI Technology"
       headline="AI Music Engine"
       subheadline="Original songs, beats, and soundtracks — generated from a single prompt. Royalty-free, full-length, and ready to publish."
-      whatItIs="WIZ AI's AI Music Engine generates original music from text descriptions. Whether you need a full song with lyrics and vocals, an instrumental beat, a cinematic score, or a short-form audio clip, the AI Music Engine produces high-quality audio that is fully royalty-free and commercially licensed."
+      whatItIs="WIZ AI's AI Music Engine generates original music from text descriptions. Whether you need a full song with lyrics and vocals, an instrumental beat, a cinematic score, or a short-form audio clip, the AI Music Engine produces high-quality audio that is yours to use in your own projects."
       features={[
         { icon: <Music size={18} />, title: "Full Song Generation", desc: "Generates complete songs with vocals, lyrics, melody, and arrangement from a text prompt." },
         { icon: <Cpu size={18} />, title: "Instrumental Mode", desc: "Creates instrumental tracks, beats, and soundtracks without vocals." },
         { icon: <Zap size={18} />, title: "Duration Control", desc: "Generate tracks to an exact duration — from 5 seconds to 10 minutes." },
         { icon: <Star size={18} />, title: "Genre Intelligence", desc: "Supports 20+ genres: Hip-Hop, Pop, Cinematic, Electronic, Jazz, R&B, and more." },
         { icon: <BarChart3 size={18} />, title: "Mood and Energy Control", desc: "Set the mood, energy level, and emotional tone of the generated track." },
-        { icon: <Download size={18} />, title: "Royalty-Free Output", desc: "Every generated track is fully royalty-free for commercial use — no licensing required." },
+        { icon: <Download size={18} />, title: "Royalty-Free Output", desc: "Every generated track is yours to download and use in your own projects." },
       ]}
       howItWorks={[
         { num: "01", title: "Describe your track", desc: "Enter a text prompt describing the genre, mood, style, and any specific requirements." },
@@ -475,7 +475,7 @@ export function AIMusicEnginePage() {
         "Exact duration control from 5s to 10 minutes",
         "20+ genre support including Hip-Hop, Cinematic, Electronic",
         "Mood, energy, and emotional tone control",
-        "Royalty-free commercial licence on all output",
+        "Download and use in your own projects",
         "Sound FX and ambient audio generation",
         "Integration with WizVideo for music video creation",
       ]}

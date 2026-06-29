@@ -828,7 +828,7 @@ export default function Pricing() {
  <div className="px-6 py-5 border-b border-white/[0.06]">
  <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[--color-gold] mb-1">PAY AS YOU GO</p>
  <h3 className="text-xl font-bold text-white">Buy a finished output. No subscription needed.</h3>
- <p className="text-xs text-white/40 mt-1">Buy a finished output and download it instantly. Everything bought pay-as-you-go includes a full commercial license.</p>
+ <p className="text-xs text-white/40 mt-1">Buy a finished output and download it instantly. Yours to use in your own projects — licensing terms apply.</p>
  </div>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
@@ -842,7 +842,7 @@ export default function Pricing() {
  <tbody>
  {[
  { output: "Image", price: "£1.49", note: "Per image, any style" },
- { output: "Song / track", price: "£4.99", note: "AI-generated original music" },
+ { output: "Song / track", price: "£3.99", note: "AI-generated original music" },
  { output: "Soundtrack", price: "£4.99", note: "Bespoke scoring for your video" },
  { output: "Character video", price: "£3.99", note: "Short character animation" },
  { output: "30s short", price: "£7.99", note: "Vertical short-form video" },
@@ -1077,7 +1077,7 @@ export default function Pricing() {
  <div className="space-y-3 text-sm text-white/50 leading-relaxed">
  <p>One shared credit balance, spent across all 7 studios. Credits are weighted by output type — see the table above for exact costs.</p>
  <p>Plan credits reset at the end of each billing cycle and do not roll over. Top-up credits stack onto your balance and never expire.</p>
- <p>The free plan gives you 30 credits to try every studio. Watermarked previews only — commercial rights apply to paid plans and pay-as-you-go.</p>
+ <p>The free plan gives you 30 credits to try every studio. Watermarked previews only — download rights apply to paid plans and pay-as-you-go.</p>
  </div>
  </div>
  </div>

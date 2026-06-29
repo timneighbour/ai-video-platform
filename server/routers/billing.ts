@@ -992,18 +992,16 @@ Action steps to cover: ${actionSteps.map((s, i) => `Scene ${i + 1}: ${s}`).join(
 
 import {
   getRenderAllowance,
-  getRenderBundleRemaining,
   createRenderJob,
   getRenderJob,
   getUserRenderJobs,
   consumeSubscriptionRender,
-  consumeBundleRender,
   getRendersForPlan,
   getUserSubscription as _getUserSubscription,
   getDb,
 } from "../db";
 import { eq, and } from "drizzle-orm";
-import { renderJobs, renderBundles } from "../../drizzle/schema";
+import { renderJobs } from "../../drizzle/schema";
 
 // Re-export so we can use in this file (already imported above as getUserSubscription)
 // Note: getUserSubscription is already imported at top of file
@@ -1015,17 +1013,15 @@ export const renderRouter = router({
   getRenderStatus: protectedProcedure.query(async ({ ctx }) => {
     // Admin gets unlimited
     if (ctx.user.role === "admin") {
-      return { subscriptionRemaining: 999, bundleRemaining: 999, total: 999, isAdmin: true };
+      return { subscriptionRemaining: 999, total: 999, isAdmin: true };
     }
     const allowance = await getRenderAllowance(ctx.user.id);
-    const bundleRemaining = await getRenderBundleRemaining(ctx.user.id);
     const subscriptionRemaining = allowance
       ? Math.max(0, allowance.totalAllowed - allowance.used)
       : 0;
     return {
       subscriptionRemaining,
-      bundleRemaining,
-      total: subscriptionRemaining + bundleRemaining,
+      total: subscriptionRemaining,
       isAdmin: false,
     };
   }),
@@ -1111,49 +1107,7 @@ export const renderRouter = router({
     }),
 
   /**
-   * Create a Stripe checkout session for a render bundle purchase.
-   */
-  createBundleCheckout: protectedProcedure
-    .input(
-      z.object({
-        bundle: z.enum(["6", "15", "40"]),
-        origin: z.string().url(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const vb = (id: string | undefined, fallback: string) => (id && id.startsWith("price_")) ? id : fallback;
-      const bundlePrices: Record<string, { priceId: string; renders: number; label: string }> = {
-        "6": { priceId: vb(process.env.STRIPE_BUNDLE_6_PRICE_ID, "price_1TSTOgI3gJ5F0DKDvbRUG8d6"), renders: 6, label: "6 Render Bundle" },
-        "15": { priceId: vb(process.env.STRIPE_BUNDLE_15_PRICE_ID, "price_1TSTOkI3gJ5F0DKDGs8pBex6"), renders: 15, label: "15 Render Bundle" },
-        "40": { priceId: vb(process.env.STRIPE_BUNDLE_40_PRICE_ID, "price_1TSTOpI3gJ5F0DKD9ulY6kUr"), renders: 40, label: "40 Render Bundle" },
-      };
-
-      const bundleInfo = bundlePrices[input.bundle];
-      if (!bundleInfo.priceId) throw new Error(`Bundle price not configured: ${input.bundle}`);
-
-      const session = await stripe.checkout.sessions.create({
-        customer_email: ctx.user.email || undefined,
-        // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
-        line_items: [{ price: bundleInfo.priceId, quantity: 1 }],
-        mode: "payment",
-        // Render bundles redirect to /dashboard — no query params (credits granted by webhook, not URL).
-        success_url: `${input.origin}/dashboard?purchase=bundle`,
-        cancel_url: `${input.origin}/pricing?canceled=true`,
-        client_reference_id: ctx.user.id.toString(),
-        metadata: {
-          user_id: ctx.user.id.toString(),
-          type: "render_bundle",
-          bundle_size: input.bundle,
-          renders: bundleInfo.renders.toString(),
-        },
-        allow_promotion_codes: true,
-      });
-
-      return { checkoutUrl: session.url };
-    }),
-
-  /**
-   * Use a free render (subscription or bundle).
+   * Use a free render (subscription only — render bundles are retired).
    * Returns { used: true } if a render was consumed, or { used: false } if none available.
    */
   useFreeRender: protectedProcedure
@@ -1201,25 +1155,6 @@ export const renderRouter = router({
           usedSubscriptionRender: true,
         });
         return { used: true, renderJobId, source: "subscription" as const };
-      }
-
-      // Try bundle render
-      const usedBundle = await consumeBundleRender(ctx.user.id);
-      if (usedBundle) {
-        const renderJobId = await createRenderJob({
-          userId: ctx.user.id,
-          sourceJobId: input.jobId,
-          sourceJobType: input.jobType,
-          quality: input.quality,
-          audioTier: input.audioTier,
-          basePrice: 0,
-          audioAddon: 0,
-          totalPrice: 0,
-          paymentStatus: "free",
-          renderStatus: "queued",
-          usedSubscriptionRender: false,
-        });
-        return { used: true, renderJobId, source: "bundle" as const };
       }
 
       return { used: false, renderJobId: null, source: "none" as const };
@@ -1444,30 +1379,20 @@ export const renderRouter = router({
         )
       );
 
-    // Count bundle purchases
-    const bundles = await db
-      .select({ id: renderBundles.id, bundleSize: renderBundles.bundleSize })
-      .from(renderBundles)
-      .where(eq(renderBundles.userId, ctx.user.id));
-
     const paidRenderCount = paidRenders.length;
-    const bundleCount = bundles.length;
     const totalSpentPence = paidRenders.reduce((sum, r) => sum + (r.totalPrice ?? 0), 0);
 
-    // Trigger: 2+ paid renders OR 1+ bundle
-    const shouldNudge = paidRenderCount >= 2 || bundleCount >= 1;
+    // Trigger: 2+ paid renders
+    const shouldNudge = paidRenderCount >= 2;
     if (!shouldNudge) return null;
 
     // Calculate potential savings: Creator plan = £39/mo, 15 renders/mo
-    // Average per-render cost from their history
     const avgPerRender = paidRenderCount > 0 ? Math.round(totalSpentPence / paidRenderCount) : 400;
-    // Monthly equivalent spend at their current rate (assume 5 renders/mo as baseline)
-    const estimatedMonthlySavingPence = Math.max(0, avgPerRender * 15 - 3900); // Creator plan saves vs 15 pay-per-renders
+    const estimatedMonthlySavingPence = Math.max(0, avgPerRender * 15 - 3900);
 
     return {
       shouldNudge: true,
       paidRenderCount,
-      bundleCount,
       totalSpentPence,
       estimatedMonthlySavingPence,
       recommendedPlan: "creator" as const,
