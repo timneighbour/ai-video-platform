@@ -9,8 +9,8 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
-import { getDb } from "../db";
-import { sunoMusicTasks } from "../../drizzle/schema";
+import { getDb, getUserSubscription, deductCredits } from "../db";
+import { sunoMusicTasks, songDownloads, users } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { initSuno, SunoTrack } from "../ai-apis/suno";
 import { storagePut } from "../storage";
@@ -22,6 +22,14 @@ import {
   generateMusic,
   chooseElevenLabsProvider,
 } from "../ai-apis/elevenlabs";
+import { signStreamToken, signDownloadToken } from "../_core/audioProxy";
+import Stripe from "stripe";
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+/** Non-subscribers get this many free song generations before being blocked. */
+const FREE_PREVIEW_QUOTA = 3;
+/** Credits deducted from a subscriber's balance when they download a song. */
+const SONG_DOWNLOAD_CREDIT_COST = 2;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -73,6 +81,28 @@ export const sunoRouter = router({
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
 
       const provider = resolveProvider(input.generationMode, input.targetDuration);
+
+      // ── Song preview quota gate (non-subscribers only) ────────────────────────
+      // Only applies to song/suno modes (not score/sfx — those are background music).
+      // Subscribers bypass this entirely.
+      if (provider === "suno" || provider === "elevenlabs_music") {
+        const sub = await getUserSubscription(ctx.user.id);
+        const isSubscriber = sub && (sub.status === "active" || sub.status === "past_due");
+        if (!isSubscriber) {
+          const previewsUsed = ctx.user.songPreviewsUsed ?? 0;
+          if (previewsUsed >= FREE_PREVIEW_QUOTA) {
+            throw new TRPCError({
+              code: "FORBIDDEN",
+              message: `You've used your ${FREE_PREVIEW_QUOTA} free song previews. Subscribe to a plan to generate more songs.`,
+            });
+          }
+          // Increment the preview counter before generation
+          await db
+            .update(users)
+            .set({ songPreviewsUsed: previewsUsed + 1 })
+            .where(eq(users.id, ctx.user.id));
+        }
+      }
 
       // ── ElevenLabs Sound Effects (≤30s, exact duration) ─────────────────────
       if (provider === "elevenlabs_sfx") {
@@ -311,10 +341,26 @@ export const sunoRouter = router({
       // ── ElevenLabs tasks: read from DB (background worker updates it) ────────
       if (task.provider === "elevenlabs_sfx" || task.provider === "elevenlabs_music") {
         const cachedTracks = task.tracks ? JSON.parse(task.tracks) : [];
+        // Sign stream tokens for song-mode tracks (not score/sfx — those are background music)
+        const isSignable = task.provider === "elevenlabs_music";
+        const signedTracks = isSignable
+          ? await Promise.all(
+              cachedTracks.map(async (t: any, i: number) => {
+                if (!t.audioUrl) return t;
+                const token = await signStreamToken({
+                  audioUrl: t.audioUrl,
+                  userId: ctx.user.id,
+                  taskId: task.id,
+                  trackIndex: i,
+                });
+                return { ...t, audioUrl: `/api/audio/stream/${token}` };
+              })
+            )
+          : cachedTracks;
         return {
           id: task.id,
           status: task.status,
-          tracks: cachedTracks,
+          tracks: signedTracks,
           errorMessage: task.errorMessage,
           targetDuration: task.targetDuration,
           provider: task.provider,
@@ -370,10 +416,23 @@ export const sunoRouter = router({
         }
 
         const playableTracks = cachedTracks.filter((t: any) => t.audioUrl && t.audioUrl.length > 0);
+        // Sign stream tokens for Suno tracks
+        const signedPlayableTracks = await Promise.all(
+          playableTracks.map(async (t: any, i: number) => {
+            if (!t.audioUrl || t.audioUrl.startsWith("/api/audio/")) return t;
+            const token = await signStreamToken({
+              audioUrl: t.audioUrl,
+              userId: ctx.user.id,
+              taskId: task.id,
+              trackIndex: i,
+            });
+            return { ...t, audioUrl: `/api/audio/stream/${token}` };
+          })
+        );
         return {
           id: task.id,
           status: task.status,
-          tracks: playableTracks,
+          tracks: signedPlayableTracks,
           errorMessage: task.errorMessage,
           targetDuration: task.targetDuration,
           provider: task.provider,
@@ -411,15 +470,190 @@ export const sunoRouter = router({
 
       if (hasTrimming) enqueueTrim(task.id);
 
+      // Sign stream tokens for freshly-polled Suno tracks
+      const signedFinalTracks = await Promise.all(
+        finalTracks.map(async (t: any, i: number) => {
+          if (!t.audioUrl || t.audioUrl.startsWith("/api/audio/")) return t;
+          const token = await signStreamToken({
+            audioUrl: t.audioUrl,
+            userId: ctx.user.id,
+            taskId: task.id,
+            trackIndex: i,
+          });
+          return { ...t, audioUrl: `/api/audio/stream/${token}` };
+        })
+      );
+
       return {
         id: task.id,
         status: hasTrimming ? ("trimming" as any) : result.status,
-        tracks: finalTracks,
+        tracks: signedFinalTracks,
         errorMessage: result.errorMessage,
         targetDuration: task.targetDuration,
         provider: task.provider,
       };
     }),
+
+  /**
+   * Download a song track.
+   * - If already unlocked (songDownloads row exists): free re-download.
+   * - Subscriber: deduct 2 credits and unlock permanently.
+   * - Non-subscriber with STRIPE_SONG_DOWNLOAD_PRICE_ID set: return Stripe checkout URL.
+   * - Non-subscriber without price ID: return requiresPayment=true with no URL (coming soon).
+   */
+  downloadSong: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.number().int().positive(),
+        trackIndex: z.number().int().min(0).max(1),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      // Verify task ownership and fetch the raw audio URL
+      const [task] = await db
+        .select()
+        .from(sunoMusicTasks)
+        .where(and(eq(sunoMusicTasks.id, input.taskId), eq(sunoMusicTasks.userId, ctx.user.id)))
+        .limit(1);
+
+      if (!task) throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
+      if (task.status !== "complete") {
+        throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Track is not ready yet" });
+      }
+
+      const tracks: any[] = task.tracks ? JSON.parse(task.tracks) : [];
+      const track = tracks[input.trackIndex];
+      if (!track?.audioUrl) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Track audio not available" });
+      }
+
+      // Resolve raw URL: strip proxy wrapper if already signed (re-download scenario)
+      // The stored audioUrl may be a raw provider URL or already a signed stream path.
+      // We always store raw URLs in the DB; the signing happens at serve time.
+      const rawAudioUrl: string = track.originalUrl ?? track.audioUrl;
+
+      // ── Check for existing unlock (free re-download) ──────────────────────────
+      const [existingUnlock] = await db
+        .select()
+        .from(songDownloads)
+        .where(
+          and(
+            eq(songDownloads.userId, ctx.user.id),
+            eq(songDownloads.taskId, input.taskId),
+            eq(songDownloads.trackIndex, input.trackIndex)
+          )
+        )
+        .limit(1);
+
+      if (existingUnlock) {
+        // Already paid — issue a fresh 15-minute download token
+        const token = await signDownloadToken({
+          audioUrl: rawAudioUrl,
+          userId: ctx.user.id,
+          taskId: input.taskId,
+          trackIndex: input.trackIndex,
+          title: track.title ?? task.title ?? "track",
+        });
+        return { downloadUrl: `/api/audio/download/${token}`, alreadyUnlocked: true };
+      }
+
+      // ── Subscriber path: deduct 2 credits ────────────────────────────────────
+      const sub = await getUserSubscription(ctx.user.id);
+      const isSubscriber = sub && (sub.status === "active" || sub.status === "past_due");
+
+      if (isSubscriber) {
+        try {
+          await deductCredits(
+            ctx.user.id,
+            SONG_DOWNLOAD_CREDIT_COST,
+            `Song download — WizAudio (task ${input.taskId}, track ${input.trackIndex})`
+          );
+        } catch (err: any) {
+          if (err.message === "Insufficient credits") {
+            throw new TRPCError({
+              code: "PAYMENT_REQUIRED",
+              message: "Not enough credits to download this song. Top up your credits to continue.",
+            });
+          }
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: err.message });
+        }
+
+        // Record permanent unlock
+        await db.insert(songDownloads).values({
+          userId: ctx.user.id,
+          taskId: input.taskId,
+          trackIndex: input.trackIndex,
+          creditsCharged: SONG_DOWNLOAD_CREDIT_COST,
+        });
+
+        const token = await signDownloadToken({
+          audioUrl: rawAudioUrl,
+          userId: ctx.user.id,
+          taskId: input.taskId,
+          trackIndex: input.trackIndex,
+          title: track.title ?? task.title ?? "track",
+        });
+        return { downloadUrl: `/api/audio/download/${token}`, alreadyUnlocked: false };
+      }
+
+      // ── Non-subscriber path: Stripe £3.99 one-off checkout ───────────────────
+      const priceId = process.env.STRIPE_SONG_DOWNLOAD_PRICE_ID;
+      if (!priceId) {
+        // Price not yet configured in Stripe dashboard
+        return {
+          requiresPayment: true,
+          checkoutUrl: null,
+          message: "Song download coming soon — subscribe to a plan to download now.",
+        };
+      }
+
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
+      // Build success URL — CheckoutSuccess page will detect type=song_download
+      // and show the correct post-purchase message.
+      const origin = process.env.VITE_FRONTEND_FORGE_API_URL
+        ? new URL(process.env.VITE_FRONTEND_FORGE_API_URL).origin
+        : "https://wiz-ai.io";
+
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        customer_email: ctx.user.email || undefined,
+        client_reference_id: ctx.user.id.toString(),
+        metadata: {
+          type: "song_download",
+          user_id: ctx.user.id.toString(),
+          task_id: input.taskId.toString(),
+          track_index: input.trackIndex.toString(),
+          customer_name: ctx.user.name || "",
+          customer_email: ctx.user.email || "",
+        },
+        line_items: [{ price: priceId, quantity: 1 }],
+        success_url: `${origin}/checkout/success?type=song_download&taskId=${input.taskId}&trackIndex=${input.trackIndex}`,
+        cancel_url: `${origin}/studio/audio`,
+        allow_promotion_codes: true,
+      });
+
+      return { requiresPayment: true, checkoutUrl: session.url };
+    }),
+
+  /**
+   * Returns the current user's song preview quota status.
+   * Used by WizAudioPlayer and MusicCreator to show the correct gate UI.
+   */
+  previewQuota: protectedProcedure.query(async ({ ctx }) => {
+    const sub = await getUserSubscription(ctx.user.id);
+    const isSubscriber = !!(sub && (sub.status === "active" || sub.status === "past_due"));
+    const previewsUsed = ctx.user.songPreviewsUsed ?? 0;
+    return {
+      isSubscriber,
+      previewsUsed,
+      quota: FREE_PREVIEW_QUOTA,
+      remaining: Math.max(0, FREE_PREVIEW_QUOTA - previewsUsed),
+      downloadCreditCost: SONG_DOWNLOAD_CREDIT_COST,
+    };
+  }),
 
   /**
    * Get the user's music generation history (last 20).

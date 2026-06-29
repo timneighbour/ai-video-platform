@@ -5,8 +5,8 @@
 
 import Stripe from "stripe";
 import { getDb, getRawConn } from "./db";
-import { eq } from "drizzle-orm";
-import { subscriptions, creditTransactions, credits, topupPurchases, kidsVideoJobs, users, stripeProcessedEvents } from "../drizzle/schema";
+import { eq, and } from "drizzle-orm";
+import { subscriptions, creditTransactions, credits, topupPurchases, kidsVideoJobs, users, stripeProcessedEvents, songDownloads } from "../drizzle/schema";
 import { notifyOwner } from "./_core/notification";
 import { addCredits, resetMonthlyCredits } from "./credit-service";
 import {
@@ -159,6 +159,52 @@ async function handleCheckoutSessionCompleted(session: any) {
       }).catch(() => {});
 
       return { success: true, type: "upsell", addons };
+    }
+
+    // Detect song download purchase (£3.99 one-off, non-subscriber path)
+    if (metadata.type === "song_download") {
+      const taskId = parseInt(metadata.task_id, 10);
+      const trackIndex = parseInt(metadata.track_index, 10);
+
+      if (!taskId || isNaN(taskId) || isNaN(trackIndex)) {
+        console.error("[Stripe Webhook] Invalid song_download metadata:", metadata);
+        return { success: false, error: "Invalid song_download metadata" };
+      }
+
+      // Idempotency: skip if already unlocked for this user/task/track
+      const existing = await db
+        .select()
+        .from(songDownloads)
+        .where(
+          and(
+            eq(songDownloads.userId, userId),
+            eq(songDownloads.taskId, taskId),
+            eq(songDownloads.trackIndex, trackIndex)
+          )
+        )
+        .limit(1);
+
+      if (existing.length > 0) {
+        console.log(`[Stripe Webhook] Song download already unlocked for user ${userId} task ${taskId} track ${trackIndex}, skipping`);
+        return { success: true, type: "song_download", duplicate: true };
+      }
+
+      // Record permanent unlock (creditsCharged = 0 for Stripe-paid path)
+      await db.insert(songDownloads).values({
+        userId,
+        taskId,
+        trackIndex,
+        creditsCharged: 0,
+      });
+
+      console.log(`[Stripe Webhook] Song download unlocked for user ${userId} task ${taskId} track ${trackIndex} (£${(session.amount_total ?? 0) / 100})`);
+
+      await notifyOwner({
+        title: "Song Download Purchase",
+        content: `User ${metadata.customer_name} (${metadata.customer_email}) purchased song download for task #${taskId} track ${trackIndex} (£${(session.amount_total ?? 0) / 100})`,
+      }).catch(() => {});
+
+      return { success: true, type: "song_download", taskId, trackIndex };
     }
 
     // Detect Video Credit top-up purchase (new system)

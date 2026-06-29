@@ -29,6 +29,13 @@ export const users = mysqlTable("users", {
   /** Free trial watermarked render -- one per account */
   freeTrialUsed: boolean("freeTrialUsed").default(false).notNull(),
   freeTrialUsedAt: timestamp("freeTrialUsedAt"),
+  /**
+   * Number of free song previews used by this user (non-subscriber quota).
+   * Incremented each time a non-subscriber generates a song.
+   * Once >= FREE_SONG_PREVIEW_QUOTA (3), further generation requires credits.
+   * Subscribers bypass this counter entirely.
+   */
+  songPreviewsUsed: int("songPreviewsUsed").default(0).notNull(),
 });
 
 export type User = typeof users.$inferSelect;
@@ -2001,3 +2008,18 @@ export const stripeProcessedEvents = mysqlTable("stripeProcessedEvents", {
   processedAt: timestamp("processedAt").defaultNow().notNull(),
 });
 export type StripeProcessedEvent = typeof stripeProcessedEvents.$inferSelect;
+
+// ─── Song Downloads (Permanent Unlock) ────────────────────────────────────────
+// Records every song download that has been paid for (20 credits).
+// Once a (userId, taskId, trackIndex) row exists, re-downloads are free forever.
+// The raw provider URL is NEVER stored here — the audio proxy handles URL signing.
+export const songDownloads = mysqlTable("song_downloads", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  taskId: int("taskId").notNull(),       // references sunoMusicTasks.id
+  trackIndex: int("trackIndex").notNull().default(0), // 0 or 1 (two tracks per task)
+  creditsCharged: int("creditsCharged").notNull().default(20),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type SongDownload = typeof songDownloads.$inferSelect;
+export type InsertSongDownload = typeof songDownloads.$inferInsert;

@@ -958,7 +958,14 @@ export default function MusicCreator() {
                 </div>
                 <div className="p-2.5 flex flex-col gap-2">
                   {generatedTracks.map((track, i) => (
-                    <WizAudioPlayer key={i} audioUrl={track.audioUrl} title={track.title || `Track ${i + 1}`} imageUrl={track.imageUrl} />
+                    <WizAudioPlayer
+                      key={i}
+                      audioUrl={track.audioUrl}
+                      title={track.title || `Track ${i + 1}`}
+                      imageUrl={track.imageUrl}
+                      taskId={taskId ?? undefined}
+                      trackIndex={i}
+                    />
                   ))}
                   <div className="p-3 rounded-[6px] border border-[--color-gold]/30 text-center mt-1" style={{ background: "rgba(201,168,76,0.08)" }}>
                     <p className="text-sm text-[--color-gold] mb-2">Love your track? Turn it into a full music video.</p>

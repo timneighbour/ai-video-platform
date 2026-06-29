@@ -10,6 +10,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import rateLimit from "express-rate-limit";
 import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
+import { registerAudioProxy } from "./audioProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
@@ -252,40 +253,12 @@ async function startServer() {
     }
   });
 
-  // Audio proxy — allows browser to play Suno CDN audio without CORS issues
-  // Usage: /api/audio/proxy?url=<encoded_audio_url>
-  app.get("/api/audio/proxy", async (req, res) => {
-    const rawUrl = req.query.url as string;
-    if (!rawUrl) { res.status(400).json({ error: "Missing url parameter" }); return; }
-    let audioUrl: string;
-    try { audioUrl = decodeURIComponent(rawUrl); } catch { res.status(400).json({ error: "Invalid url" }); return; }
-    // Only allow proxying known audio CDN domains
-    const allowed = ["cdn1.suno.ai", "cdn2.suno.ai", "audiopipe.suno.ai", "tempfile.aiquickdraw.com", "aiquickdraw.com", "d2xsxph8kpxj0f.cloudfront.net", "s3.amazonaws.com"];
-    const urlHost = (() => { try { return new URL(audioUrl).hostname; } catch { return ""; } })();
-    if (!allowed.some((h) => urlHost === h || urlHost.endsWith("." + h))) {
-      res.status(403).json({ error: "Domain not allowed" }); return;
-    }
-    try {
-      const upstream = await fetch(audioUrl, {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; WIZ AI/1.0)", "Accept": "audio/mpeg, audio/*, */*" },
-      });
-      if (!upstream.ok) { res.status(upstream.status).json({ error: "Upstream error" }); return; }
-      const contentType = upstream.headers.get("content-type") ?? "audio/mpeg";
-      const contentLength = upstream.headers.get("content-length");
-      res.setHeader("Content-Type", contentType);
-      res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Cache-Control", "public, max-age=3600");
-      if (contentLength) res.setHeader("Content-Length", contentLength);
-      const arrayBuffer = await upstream.arrayBuffer();
-      res.send(Buffer.from(arrayBuffer));
-    } catch (err) {
-      console.error("[AudioProxy] Error:", err);
-      res.status(500).json({ error: "Proxy error" });
-    }
-  });
-
   // Storage proxy — serves /manus-storage/* assets via signed Forge URLs
   registerStorageProxy(app);
+  // Audio proxy — /api/audio/stream/:token and /api/audio/download/:token
+  // These replace the old /api/audio/proxy endpoint. Raw provider URLs are never
+  // sent to the client; all audio is served through signed JWT-gated routes.
+  registerAudioProxy(app);
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
   // tRPC API — apply AI generation limiter to generation-heavy procedures

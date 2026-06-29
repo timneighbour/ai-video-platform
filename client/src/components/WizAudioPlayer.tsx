@@ -4,7 +4,7 @@
  * - Waveform seek bar with buffered progress
  * - Play / Pause / Skip ±10s
  * - Volume slider with mute toggle
- * - Download button
+ * - Pay-on-download gate: 2 credits for subscribers, £3.99 Stripe for non-subscribers
  * - WizSound™ branding badge
  * - Responsive, dark-themed
  * - Mobile collapse/expand toggle (mobile-only slim bar when collapsed)
@@ -12,30 +12,18 @@
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import {
-  Play, Pause, Volume2, VolumeX, Download,
-  SkipBack, SkipForward, Music2, ChevronUp, ChevronDown,
+  Play, Pause, Volume2, VolumeX, Download, Lock,
+  SkipBack, SkipForward, Music2, ChevronUp, ChevronDown, Loader2,
 } from "@/lib/icons";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import { Link } from "wouter";
 
 const WIZSOUND_LOGO = "/manus-storage/wizsound-logo-new_c5cced65_d334a3bb.png";
 
-/**
- * Proxy external audio CDN URLs through our server to avoid CORS issues.
- * S3-hosted trimmed audio (cloudfront.net) is served directly.
- */
-function resolveAudioUrl(url: string): string {
-  if (!url) return url;
-  // Already proxied or hosted on our CDN — serve directly
-  if (url.includes("manus-storage-check") || url.startsWith("/")) return url;
-  // External audio CDN URLs need proxying for browser playback
-  if (url.includes("suno.ai") || url.includes("audiopipe") || url.includes("aiquickdraw.com")) {
-    return `/api/audio/proxy?url=${encodeURIComponent(url)}`;
-  }
-  return url;
-}
-
 interface WizAudioPlayerProps {
-  /** URL of the audio file to play */
+  /** Proxied stream URL — must start with /api/audio/stream/ */
   audioUrl: string;
   /** Track title */
   title: string;
@@ -51,6 +39,13 @@ interface WizAudioPlayerProps {
   className?: string;
   /** Called when audio ends */
   onEnded?: () => void;
+  /**
+   * DB task ID — when provided, enables the pay-on-download gate.
+   * If omitted the download button is hidden (e.g. featured/demo tracks).
+   */
+  taskId?: number;
+  /** Track index within the task (0 or 1). Required when taskId is set. */
+  trackIndex?: number;
 }
 
 function fmt(s: number) {
@@ -67,6 +62,8 @@ export default function WizAudioPlayer({
   showBadge = true,
   className = "",
   onEnded,
+  taskId,
+  trackIndex = 0,
 }: WizAudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const seekRef = useRef<HTMLDivElement>(null);
@@ -80,6 +77,56 @@ export default function WizAudioPlayer({
   const [dragging, setDragging] = useState(false);
   // Mobile collapse state — starts collapsed on mobile to save screen space
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
+
+  // ── Download gate state ────────────────────────────────────────────────────
+  const hasGate = taskId !== undefined;
+
+  const downloadSong = trpc.suno.downloadSong.useMutation({
+    onSuccess: (data) => {
+      if ("downloadUrl" in data && data.downloadUrl) {
+        // Trigger the browser download via the signed download token URL
+        const a = document.createElement("a");
+        a.href = data.downloadUrl;
+        a.download = "";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        if (data.alreadyUnlocked) {
+          toast.success("Downloading your track");
+        } else {
+          toast.success("Track unlocked — downloading now");
+        }
+      } else if ("requiresPayment" in data && data.requiresPayment) {
+        if (data.checkoutUrl) {
+          window.location.href = data.checkoutUrl;
+        } else {
+          // STRIPE_SONG_DOWNLOAD_PRICE_ID not yet configured
+          toast.info("Song download coming soon — subscribe to a plan to download now.", {
+            action: { label: "View plans", onClick: () => { window.location.href = "/pricing"; } },
+          });
+        }
+      }
+    },
+    onError: (err) => {
+      if (err.data?.code === "PAYMENT_REQUIRED") {
+        toast.error("Not enough credits", {
+          description: "You need 2 credits to download this track. Top up your credits to continue.",
+          action: { label: "Top up", onClick: () => { window.location.href = "/pricing"; } },
+        });
+      } else if (err.data?.code === "UNAUTHORIZED") {
+        toast.error("Sign in to download", {
+          description: "Create a free account to download your tracks.",
+        });
+      } else {
+        toast.error("Download failed", { description: err.message });
+      }
+    },
+  });
+
+  const handleDownload = useCallback(() => {
+    if (!hasGate || taskId === undefined) return;
+    downloadSong.mutate({ taskId, trackIndex });
+  }, [hasGate, taskId, trackIndex, downloadSong]);
 
   // ── Sync audio events ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -181,6 +228,35 @@ export default function WizAudioPlayer({
     if (e.key === "ArrowLeft") skip(-10);
     if (e.key === "ArrowRight") skip(10);
     if (e.key === "m") toggleMute();
+  };
+
+  // ── Download button rendering ──────────────────────────────────────────────
+  const renderDownloadButton = () => {
+    if (!hasGate) return null;
+
+    const isLoading = downloadSong.isPending;
+
+    return (
+      <button
+        onClick={handleDownload}
+        disabled={isLoading}
+        title="Download track (2 credits for subscribers · £3.99 one-off)"
+        className="w-9 h-9 md:w-7 md:h-7 rounded-full bg-white/6 hover:bg-white/12 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative group"
+        aria-label="Download track"
+      >
+        {isLoading ? (
+          <Loader2 className="w-4 h-4 md:w-3 md:h-3 text-white/50 animate-spin" />
+        ) : (
+          <>
+            <Download className="w-4 h-4 md:w-3 md:h-3 text-white/50 group-hover:text-white/80 transition-colors" />
+            {/* Lock badge — indicates payment required */}
+            <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-[--color-gold] flex items-center justify-center">
+              <Lock className="w-1.5 h-1.5 text-black" />
+            </span>
+          </>
+        )}
+      </button>
+    );
   };
 
   return (
@@ -373,22 +449,24 @@ export default function WizAudioPlayer({
             />
           </div>
 
-          {/* Download */}
-          <a
-            href={resolveAudioUrl(audioUrl)}
-            download
-            className="w-9 h-9 md:w-7 md:h-7 rounded-full bg-white/6 hover:bg-white/12 flex items-center justify-center transition-colors"
-            aria-label="Download audio"
-          >
-            <Download className="w-4 h-4 md:w-3 md:h-3 text-white/50" />
-          </a>
+          {/* Download — pay-on-download gate when taskId is set */}
+          {renderDownloadButton()}
         </div>
+
+        {/* Download hint — only shown when gate is active */}
+        {hasGate && (
+          <div className="px-4 pb-3 -mt-1">
+            <p className="text-[10px] text-white/30 text-right">
+              Download: 2 credits (subscribers) · £3.99 one-off
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Hidden audio element — crossOrigin="anonymous" is REQUIRED for Web Audio API
           createMediaElementSource() to work with cross-origin URLs (S3/CloudFront).
           Without it the browser taints the audio stream and blocks the analyser. */}
-      <audio ref={audioRef} src={resolveAudioUrl(audioUrl)} preload="metadata" crossOrigin="anonymous" />
+      <audio ref={audioRef} src={audioUrl} preload="metadata" crossOrigin="anonymous" />
     </div>
   );
 }
