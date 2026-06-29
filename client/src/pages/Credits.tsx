@@ -141,12 +141,14 @@ export default function Credits() {
   const createCreditCheckout = trpc.billing.createCreditCheckout.useMutation({
     onSuccess: (data) => {
       if (data.checkoutUrl) {
+        toast.loading("Redirecting to secure checkout…", { id: "checkout-redirect", duration: 12_000 });
         // Use same-tab redirect — window.open() is blocked as a pop-up on most browsers
         window.location.href = data.checkoutUrl;
       }
     },
     onError: (err) => {
-      toast.error("Checkout failed", { description: err.message });
+      toast.dismiss("checkout-redirect");
+      toast.error("Checkout failed", { description: err.message || "Please try again or contact support." });
     },
     onSettled: () => setLoading(null),
   });

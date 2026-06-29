@@ -150,6 +150,7 @@ export function QuickTopUpModal({
   const checkoutMutation = trpc.billing.createCreditCheckout.useMutation({
     onSuccess: (data) => {
       if (data?.checkoutUrl) {
+        toast.loading("Redirecting to secure checkout…", { id: "checkout-redirect", duration: 12_000 });
         // Use same-tab redirect — window.open() is blocked as a pop-up on most browsers
         window.location.href = data.checkoutUrl;
       }
@@ -157,7 +158,8 @@ export function QuickTopUpModal({
       onOpenChange(false);
     },
     onError: (err) => {
-      toast.error("Couldn't open checkout", {
+      toast.dismiss("checkout-redirect");
+      toast.error("Checkout failed", {
         description: err.message || "Please try again or visit the Credits page.",
       });
       setIsRedirecting(false);
@@ -167,6 +169,7 @@ export function QuickTopUpModal({
   const subscriptionMutation = trpc.billing.createSubscriptionCheckout.useMutation({
     onSuccess: (data) => {
       if (data?.checkoutUrl) {
+        toast.loading("Redirecting to secure checkout…", { id: "checkout-redirect", duration: 12_000 });
         // Use same-tab redirect — window.open() is blocked as a pop-up on most browsers
         window.location.href = data.checkoutUrl;
       }
@@ -174,7 +177,8 @@ export function QuickTopUpModal({
       onOpenChange(false);
     },
     onError: (err) => {
-      toast.error("Couldn't open checkout", {
+      toast.dismiss("checkout-redirect");
+      toast.error("Checkout failed", {
         description: err.message || "Please try again or visit the Pricing page.",
       });
       setIsRedirecting(false);

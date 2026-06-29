@@ -41,13 +41,15 @@ export default function Subscribe() {
  const createSubscriptionCheckout = trpc.billing.createSubscriptionCheckout.useMutation({
  onSuccess: (data) => {
  if (data?.checkoutUrl) {
+ toast.loading("Redirecting to secure checkout…", { id: "checkout-redirect", duration: 12_000 });
  // Use same-tab redirect — window.open() is blocked as a pop-up on most browsers
  window.location.href = data.checkoutUrl;
  }
  setLoadingPlan(null);
  },
  onError: (err) => {
- toast.error(err.message || "Checkout failed. Please try again.");
+ toast.dismiss("checkout-redirect");
+ toast.error("Checkout failed", { description: err.message || "Please try again or contact support." });
  setLoadingPlan(null);
  },
  });

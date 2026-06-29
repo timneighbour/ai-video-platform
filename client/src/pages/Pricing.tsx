@@ -35,7 +35,7 @@ import { toast } from "sonner";
 import {
  Check, X, ChevronDown, ChevronUp, Sparkles, Download, Package,
  ArrowRight, Shield, CreditCard, RefreshCcw,
- Users, Star, Crown, Zap, Play, Headphones, Globe
+ Users, Star, Crown, Zap, Play, Headphones, Globe, Loader2
 } from "@/lib/icons";
 import WizSoundDemoPlayer from "@/components/WizSoundDemoPlayer";
 import ShowcaseVideoSection from "@/components/ShowcaseVideoSection";
@@ -351,11 +351,13 @@ export default function Pricing() {
  if (result.checkoutUrl) {
  // Fire GA conversion in background, then navigate immediately
  try { gtagSendEvent(result.checkoutUrl); } catch (_) {}
+ toast.loading("Redirecting to secure checkout…", { id: "checkout-redirect", duration: 12_000 });
  // Navigate immediately regardless of gtag callback
- setTimeout(() => { window.location.href = result.checkoutUrl!; }, 100);
+ setTimeout(() => { window.location.href = result.checkoutUrl!; }, 150);
  }
  } catch (err) {
- toast.error("Couldn't start checkout", { description: err instanceof Error ? err.message : "Please try again." });
+ toast.dismiss("checkout-redirect");
+ toast.error("Checkout failed", { description: err instanceof Error ? err.message : "Please try again or contact support." });
  } finally { setLoadingPlan(null); }
  }
 
@@ -366,11 +368,13 @@ export default function Pricing() {
  try {
  const result = await createTopupCheckout.mutateAsync({ packKey, origin: window.location.origin });
  if (result.checkoutUrl) {
+ toast.loading("Redirecting to secure checkout…", { id: "checkout-redirect", duration: 12_000 });
  // Use same-tab redirect — window.open() is blocked as a pop-up on most browsers
  window.location.href = result.checkoutUrl;
  }
  } catch (err) {
- toast.error("Couldn't start checkout", { description: err instanceof Error ? err.message : "Please try again." });
+ toast.dismiss("checkout-redirect");
+ toast.error("Checkout failed", { description: err instanceof Error ? err.message : "Please try again or contact support." });
  } finally { setLoadingBundle(null); }
  }
 
@@ -678,7 +682,8 @@ export default function Pricing() {
  >
  {loadingPlan === plan.id ? (
  <span className="flex items-center gap-2">
- <span className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" />Loading...
+ <Loader2 className="w-3.5 h-3.5 animate-spin" />
+ Redirecting…
  </span>
  ) : (
  <span className="flex items-center justify-center gap-1.5">
@@ -945,7 +950,8 @@ export default function Pricing() {
  >
  {loadingBundle === bundle.key ? (
  <span className="flex items-center gap-2">
- <span className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" />Loading...
+ <Loader2 className="w-3.5 h-3.5 animate-spin" />
+ Redirecting…
  </span>
  ) : (
  <span className="flex items-center justify-center gap-1.5">Buy {bundle.label} — {formatPrice(bundle.price)}

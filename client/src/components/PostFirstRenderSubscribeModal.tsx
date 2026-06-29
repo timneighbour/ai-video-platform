@@ -89,13 +89,15 @@ export default function PostFirstRenderSubscribeModal({
     onSuccess: (data) => {
       if (data.checkoutUrl) {
         mp.track("PostFirstRender_CheckoutStarted", { plan: loadingPlan, billing: billingInterval });
+        toast.loading("Redirecting to secure checkout…", { id: "checkout-redirect", duration: 12_000 });
         // Use same-tab redirect — window.open() is blocked as a pop-up on most browsers
         window.location.href = data.checkoutUrl;
       }
       setLoadingPlan(null);
     },
     onError: (err) => {
-      toast.error(err.message || "Failed to start checkout");
+      toast.dismiss("checkout-redirect");
+      toast.error("Checkout failed", { description: err.message || "Please try again or contact support." });
       setLoadingPlan(null);
     },
   });

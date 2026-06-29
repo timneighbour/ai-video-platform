@@ -37,18 +37,26 @@ export function usePaymentReturnRefresh() {
       // Give the webhook a moment to process before refreshing
       setTimeout(() => {
         refresh();
-        toast.success(
-          checkout === "success"
-            ? "Subscription activated! Your credits have been added."
-            : "Credits added to your account!"
-        );
+        if (checkout === "success") {
+          toast.success("Subscription activated!", {
+            description: "Your plan is now active and credits have been added to your account.",
+            duration: 6_000,
+          });
+        } else {
+          toast.success("Credits added!", {
+            description: "Your new credits are ready to use across all WIZ AI studios.",
+            duration: 6_000,
+          });
+        }
       }, 2_000);
 
       // Clean the URL so refreshing the page doesn't re-trigger
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, "", cleanUrl);
     } else if (checkout === "cancelled" || topup === "canceled") {
-      toast.info("Checkout cancelled — no charge was made.");
+      toast.info("Checkout cancelled", {
+        description: "No charge was made. You can return to checkout any time.",
+      });
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, "", cleanUrl);
     }
