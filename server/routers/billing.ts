@@ -11,7 +11,7 @@ import { getUserSubscription, mapDbPlanToProductPlan } from "../db";
 import { generateVideo, checkVideoStatus, getUserProjects, deleteProject } from "../video-service";
 import { SUBSCRIPTION_PLANS, TOPUP_PACKS, type TopupPackKey } from "../products";
 import { topupPurchases, users } from "../../drizzle/schema";
-import { eq as eqOp } from "drizzle-orm";
+import { eq as eqOp, desc } from "drizzle-orm";
 // import { notifyOwner } from "../_core/notification";
 import Stripe from "stripe";
 import { getOrCreateCustomer } from "../stripe";
@@ -359,7 +359,7 @@ export const billingRouter = router({
           // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
           line_items: [{ price: priceId, quantity: 1 }],
           mode: "subscription",
-          success_url: `${input.origin}/account?checkout=success`,
+          success_url: `${input.origin}/checkout/success?type=subscription&plan=${input.plan}`,
           cancel_url: `${input.origin}/subscribe?checkout=cancelled`,
           client_reference_id: ctx.user.id.toString(),
           // subscription_data.metadata lands on the Stripe Subscription object
@@ -513,7 +513,7 @@ export const billingRouter = router({
             },
           ],
           mode: "payment",
-          success_url: `${input.origin}/dashboard?credits_purchased=true`,
+          success_url: `${input.origin}/checkout/success?type=topup`,
           cancel_url: `${input.origin}/credits?canceled=true`,
           client_reference_id: ctx.user.id.toString(),
           metadata: {
@@ -907,7 +907,7 @@ Action steps to cover: ${actionSteps.map((s, i) => `Scene ${i + 1}: ${s}`).join(
           credits: pack.credits.toString(),
         },
         line_items: [{ price: pack.stripePriceId, quantity: 1 }],
-        success_url: `${input.origin}/dashboard?topup=success&credits=${pack.credits}`,
+        success_url: `${input.origin}/checkout/success?type=topup`,
         cancel_url: `${input.origin}/pricing?topup=canceled`,
         allow_promotion_codes: true,
       });
@@ -928,6 +928,60 @@ Action steps to cover: ${actionSteps.map((s, i) => `Scene ${i + 1}: ${s}`).join(
       .limit(50);
     return history;
   }),
+
+  /**
+   * Get the most recent purchase for the authenticated user.
+   * Used by the /checkout/success page to display order details.
+   * Returns either a subscription purchase or a top-up purchase,
+   * whichever is more recent.
+   */
+  getLatestPurchase: protectedProcedure
+    .input(z.object({ type: z.enum(["subscription", "topup"]).optional() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) return null;
+
+      // Fetch latest subscription
+      const sub = await getUserSubscription(ctx.user.id);
+      // Fetch latest top-up purchase
+      const [latestTopup] = await db
+        .select()
+        .from(topupPurchases)
+        .where(eqOp(topupPurchases.userId, ctx.user.id))
+        .orderBy(desc(topupPurchases.createdAt))
+        .limit(1);
+
+      // Fetch current credit balance
+      const balance = await getUserCredits(ctx.user.id);
+
+      if (input.type === "subscription" || (!input.type && sub)) {
+        if (!sub) return null;
+        return {
+          kind: "subscription" as const,
+          plan: sub.plan,
+          status: sub.status,
+          currentPeriodEnd: sub.currentPeriodEnd,
+          createdAt: sub.createdAt,
+          creditBalance: balance,
+        };
+      }
+
+      if (input.type === "topup" || (!input.type && latestTopup)) {
+        if (!latestTopup) return null;
+        return {
+          kind: "topup" as const,
+          packKey: latestTopup.packKey,
+          packName: latestTopup.packName,
+          creditsAdded: latestTopup.creditsAdded,
+          amountPaid: latestTopup.amountPaid,
+          currency: latestTopup.currency,
+          createdAt: latestTopup.createdAt,
+          creditBalance: balance,
+        };
+      }
+
+      return null;
+    }),
 });
 
 // ── Render Paywall Procedures ──────────────────────────────────────────────

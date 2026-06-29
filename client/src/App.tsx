@@ -23,6 +23,7 @@ const Home = lazy(() => import("./pages/Home"));
 // All other pages are lazy-loaded to reduce initial JS bundle
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Subscribe = lazy(() => import("@/pages/Subscribe"));
+const CheckoutSuccess = lazy(() => import("@/pages/CheckoutSuccess"));
 const Credits = lazy(() => import("@/pages/Credits"));
 const CreditPricingGuide = lazy(() => import("@/pages/CreditPricingGuide"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
@@ -291,6 +292,7 @@ function Router() {
         <Route path={"/technology/wizscore"} component={TechWizScore} />
         <Route path={"/technology/wizpilot"} component={TechWizPilot} />
         <Route path={"/subscribe"} component={Subscribe} />
+        <Route path={"/checkout/success"} component={CheckoutSuccess} />
         <Route path={"/credits"} component={Credits} />
         <Route path={"/credits/guide"} component={CreditPricingGuide} />
         <Route path={"/dashboard"} component={Dashboard} />
