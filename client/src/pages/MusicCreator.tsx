@@ -24,6 +24,7 @@ import WizAudioPlayer from "@/components/WizAudioPlayer";
 import GraphicEqualiser from "@/components/GraphicEqualiser";
 import { useGlobalAudio } from "@/contexts/AudioContext";
 import { mp } from "@/lib/mixpanel";
+import PastGenerations from "@/components/PastGenerations";
 
 /* ── Constants ────────────────────────────────────────────────────────────── */
 const ENV_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/env-wizaudio-producer-TJv4iFWWsQCVnrNJxEfy7J.webp";
@@ -976,6 +977,9 @@ export default function MusicCreator() {
                 </div>
               </div>
             )}
+
+            {/* Past Generations — user's recent songs */}
+            <PastGenerations />
 
             {error && (
               <div className="flex items-center gap-2 px-3 py-2.5 rounded-[6px] border border-red-500/20 text-red-400 text-xs" style={{ background: "rgba(255,59,48,0.08)" }}>

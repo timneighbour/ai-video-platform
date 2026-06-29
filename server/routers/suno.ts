@@ -685,6 +685,72 @@ export const sunoRouter = router({
   }),
 
   /**
+   * Re-download a previously unlocked song track from the history page.
+   * Always verifies the unlock server-side; never reconstructs a URL client-side.
+   * Returns a fresh 15-minute signed download token if the user owns an unlock record.
+   * Throws FORBIDDEN if the track has not been unlocked by this user.
+   */
+  redownloadSong: protectedProcedure
+    .input(
+      z.object({
+        taskId: z.number().int().positive(),
+        trackIndex: z.number().int().min(0).max(1),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      // 1. Verify task ownership
+      const [task] = await db
+        .select()
+        .from(sunoMusicTasks)
+        .where(and(eq(sunoMusicTasks.id, input.taskId), eq(sunoMusicTasks.userId, ctx.user.id)))
+        .limit(1);
+
+      if (!task) throw new TRPCError({ code: "NOT_FOUND", message: "Task not found" });
+
+      // 2. Verify the unlock record exists for this user + track
+      const [unlock] = await db
+        .select()
+        .from(songDownloads)
+        .where(
+          and(
+            eq(songDownloads.userId, ctx.user.id),
+            eq(songDownloads.taskId, input.taskId),
+            eq(songDownloads.trackIndex, input.trackIndex)
+          )
+        )
+        .limit(1);
+
+      if (!unlock) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "This track has not been unlocked. Please download it from the player first.",
+        });
+      }
+
+      // 3. Resolve the raw audio URL from DB (never from client)
+      const tracks: any[] = task.tracks ? JSON.parse(task.tracks) : [];
+      const track = tracks[input.trackIndex];
+      if (!track?.audioUrl) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Track audio not available" });
+      }
+      const rawAudioUrl: string = track.originalUrl ?? track.audioUrl;
+
+      // 4. Issue a fresh 15-minute signed download token — never return the raw URL
+      const token = await signDownloadToken({
+        audioUrl: rawAudioUrl,
+        userId: ctx.user.id,
+        taskId: input.taskId,
+        trackIndex: input.trackIndex,
+        title: track.title ?? task.title ?? "track",
+      });
+
+      return { downloadUrl: `/api/audio/download/${token}` };
+    }),
+
+  /**
    * Get the user's music generation history (last 20).
    */
   history: protectedProcedure.query(async ({ ctx }) => {
