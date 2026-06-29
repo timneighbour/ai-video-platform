@@ -10,7 +10,8 @@
  *  2. Fetch latest purchase details from the server
  *  3. Show order summary + credit balance + next steps
  */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import confetti from "canvas-confetti";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -146,6 +147,49 @@ export default function CheckoutSuccess() {
       navigate("/subscribe");
     }
   }, [authLoading, user, navigate]);
+
+  // Celebratory confetti burst — fires once when the page first loads
+  const confettiFired = useRef(false);
+  useEffect(() => {
+    if (confettiFired.current) return;
+    confettiFired.current = true;
+
+    // Short delay so the page has painted before the burst
+    const t = setTimeout(() => {
+      // Centre burst
+      confetti({
+        particleCount: 120,
+        spread: 80,
+        origin: { y: 0.55 },
+        colors: ["#a855f7", "#7c3aed", "#06b6d4", "#f59e0b", "#10b981", "#ffffff"],
+        ticks: 200,
+        gravity: 0.9,
+        scalar: 1.1,
+      });
+      // Slight left cannon
+      confetti({
+        particleCount: 60,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.65 },
+        colors: ["#a855f7", "#7c3aed", "#f59e0b", "#ffffff"],
+        ticks: 180,
+        gravity: 0.9,
+      });
+      // Slight right cannon
+      confetti({
+        particleCount: 60,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.65 },
+        colors: ["#06b6d4", "#10b981", "#f59e0b", "#ffffff"],
+        ticks: 180,
+        gravity: 0.9,
+      });
+    }, 350);
+
+    return () => clearTimeout(t);
+  }, []);
 
   const isLoading = authLoading || purchaseLoading;
 
