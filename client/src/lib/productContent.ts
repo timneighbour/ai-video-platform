@@ -106,7 +106,7 @@ const WIZCREATE_CONTENT: RichProductContent = {
     { icon: "cpu", title: "Audio-Driven Storyboarding", desc: "Analyses your track's BPM, mood, and lyrical content to generate a scene plan that moves with the music — not against it." },
     { icon: "layout", title: "Multi-Style Visual Direction", desc: "Choose from Cinematic, Anime, 3D Animation, Documentary, or Illustrated — each style applies consistent visual rules across every scene." },
     { icon: "refresh", title: "Scene-Level Regeneration", desc: "Unhappy with a single scene? Regenerate it in isolation without touching the rest of the storyboard — full creative control." },
-    { icon: "layers", title: "WizSync™ Character Lock", desc: "Characters maintain the same appearance, proportions, and style across every scene — no drift, no inconsistency." },
+    { icon: "layers", title: "Character Lock™", desc: "Characters maintain the same appearance, proportions, and style across every scene — no drift, no inconsistency." },
     { icon: "upload", title: "Text-to-Storyboard Mode", desc: "No audio? Describe your concept in plain language and WizCreate builds the full visual plan from your words alone." },
     { icon: "arrow-right-circle", title: "Pipeline-Ready Output", desc: "Every storyboard exports directly into WizAnimate, WizSync, and WizGenesis — no manual handoff or file conversion needed." },
   ],
@@ -577,7 +577,7 @@ const WIZVIDEO_CONTENT: RichProductContent = {
   ],
   keyFeatures: [
     { icon: "mic", title: "Phoneme-Accurate Lip Sync", desc: "WIZ AI's engine receives the exact 8-second audio clip for each scene — mouth movements match the actual words sung at that moment." },
-    { icon: "user", title: "Canonical Character Consistency", desc: "A single reference portrait is generated before rendering begins and used as the visual anchor for every scene. The same face, every frame." },
+    { icon: "user", title: "Character Lock™", desc: "A single reference portrait is generated before rendering begins and used as the visual anchor for every scene. The same face, every frame." },
     { icon: "music", title: "Lyric-Aware Scene Direction", desc: "WizVideo™ analyses your full lyrics and emotional arc before generating any scene. Visuals reflect what the song is about — not generic stock footage." },
     { icon: "clapperboard", title: "Scene-Level Director Controls", desc: "Edit any scene's prompt, camera angle (close-up, wide, tracking, aerial), setting, and lip sync toggle. Re-render just that scene for free." },
     { icon: "shield-check", title: "Quality Guarantee Workflow", desc: "Preview your full video before confirming. Re-direct any scene for free before download. Once you download, your video is confirmed." },

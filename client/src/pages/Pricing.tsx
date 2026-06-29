@@ -87,17 +87,17 @@ const PLAN_UI_OVERLAY: Record<string, {
  starter: {
  accentColor: "oklch(0.65 0.08 240)", bgImage: PLAN_BG_STARTER,
  glowColor: "rgba(100,140,200,0.12)", borderColor: "rgba(100,140,200,0.2)",
- annualPrice: 79, tagline: "Start creating music videos today.",
+ annualPrice: 290, tagline: "All 7 studios. 320 credits/month.",
  },
  creator: {
  accentColor: "oklch(0.78 0.11 75)", bgImage: PLAN_BG_CREATOR,
  glowColor: "rgba(196,164,100,0.18)", borderColor: "rgba(196,164,100,0.45)",
- annualPrice: 350, tagline: "More videos, more scenes, more creative control.",
+ annualPrice: 790, tagline: "800 credits/month. Character Lock™. 4K.",
  },
  studio: {
  accentColor: "oklch(0.72 0.12 300)", bgImage: PLAN_BG_PRO,
  glowColor: "rgba(160,100,220,0.14)", borderColor: "rgba(160,100,220,0.25)",
- annualPrice: 990, tagline: "12 videos a month. Full cinematic control.",
+ annualPrice: 1490, tagline: "1,500 credits/month. API access.",
  },
 };
 // Merge shared plan data with Pricing-page UI overlay
@@ -286,7 +286,7 @@ function CompCell({ value, isCheck }: { value: string | boolean; isCheck?: boole
 }
 
 export default function Pricing() {
-  useSEO({ title: "Pricing — WIZ AI", path: "/pricing", description: "Free trial included. Starter from £29/mo. AI music video plans with Character Lock™, lip sync, and 4K export. No credit card to start." });
+  useSEO({ title: "Pricing 2014 WIZ AI", path: "/pricing", description: "One subscription. Every studio. One wallet of credits. Free, Starter 00a329, Creator 00a379, Studio 00a3149. No card to start." });
  const { isAuthenticated } = useAuth();
  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
  const [loadingBundle, setLoadingBundle] = useState<string | null>(null);
@@ -358,7 +358,7 @@ export default function Pricing() {
  } finally { setLoadingPlan(null); }
  }
 
- async function handleTopupPurchase(packKey: "spark" | "boost" | "pro_pack" | "mega") {
+ async function handleTopupPurchase(packKey: "spark" | "boost" | "boost_200" | "pro_pack" | "mega") {
  mp.checkoutStarted(`topup_${packKey}`);
  if (!isAuthenticated) { window.location.href = getLoginUrl(); return; }
  setLoadingBundle(packKey);
@@ -430,8 +430,8 @@ export default function Pricing() {
  <span className="w-1.5 h-1.5 rounded-full bg-[--color-gold] animate-pulse" />
  <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[--color-gold]">Transparent Pricing</span>
  </div>
-  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-5 leading-[1.05]">Director-level control.<br />
-  <span className="metallic-gold">Pay when your video is ready.</span>
+  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-5 leading-[1.05]">One subscription.<br />
+  <span className="metallic-gold">Every studio. One wallet of credits.</span>
   </h1>
   <p className="text-lg sm:text-xl text-white/50 max-w-xl mx-auto leading-relaxed mb-8">Build your entire music video at no cost — direct every scene, control lip sync and character consistency, preview before you commit. Only pay when you're ready to download.
   </p>
@@ -503,12 +503,12 @@ export default function Pricing() {
  <span className="text-[14px] font-bold tracking-wide" style={{ color: "rgb(134,239,172)" }}>
  Start Free — No Credit Card Required
  </span>
- <span className="text-green-300/50 text-[12px] font-medium hidden sm:inline">· 2 free projects included</span>
+ <span className="text-green-300/50 text-[12px] font-medium hidden sm:inline">· 30 credits to try every studio</span>
  </div>
  <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">Subscription Plans</p>
- <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-3">Monthly plans for regular creators</h2>
- <p className="text-sm text-white/60 max-w-lg mx-auto mb-2">Build Credits included every month. Best value for consistent creators. Cancel anytime.</p>
- <p className="text-xs text-white/30 max-w-lg mx-auto mb-8">Join creators worldwide already using WIZ AI to produce cinematic music videos, animations, and AI content.</p>
+ <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-3">Subscription plans</h2>
+ <p className="text-sm text-white/60 max-w-lg mx-auto mb-2">Credits included every month. Spend them across all 7 studios. Cancel anytime.</p>
+ <p className="text-xs text-white/30 max-w-lg mx-auto mb-8">Annual billing = 10 months paid, 2 months free.</p>
 
  {/* Billing toggle */}
  <div className="inline-flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/[0.07]">
@@ -681,7 +681,7 @@ export default function Pricing() {
  </span>
  ) : (
  <span className="flex items-center justify-center gap-1.5">
- {plan.id === "starter" ? "Start Creating — Free" : plan.id === "creator" ? "Get Creator Plan" : "Get Studio Plan"}
+ {plan.id === "starter" ? "Get Starter Plan" : plan.id === "creator" ? "Get Creator Plan" : "Get Studio Plan"}
  <ArrowRight className="w-3.5 h-3.5" />
  </span>
  )}
@@ -815,9 +815,9 @@ export default function Pricing() {
  <span className="text-xs text-white/30 font-medium">Ready to start?</span>
  </div>
  {[
- { label: "Start Creating", style: "bg-white/[0.06] text-white/70 hover:bg-white/[0.1] border border-white/[0.1]" },
- { label: "Choose Creator", style: "btn-primary shadow-[0_4px_20px_rgba(196,164,100,0.3)]" },
- { label: "Upgrade to Studio", style: "bg-white/[0.06] text-white/70 hover:bg-white/[0.1] border border-white/[0.1]" },
+ { label: "Get Starter", style: "bg-white/[0.06] text-white/70 hover:bg-white/[0.1] border border-white/[0.1]" },
+ { label: "Get Creator", style: "btn-primary shadow-[0_4px_20px_rgba(196,164,100,0.3)]" },
+ { label: "Get Studio", style: "bg-white/[0.06] text-white/70 hover:bg-white/[0.1] border border-white/[0.1]" },
  ].map((btn, i) => (
  <div key={btn.label} className="px-4 py-5 flex items-center justify-center border-l" style={{ borderColor: i === 1 ? "rgba(196,164,100,0.15)" : "rgba(255,255,255,0.05)", background: i === 1 ? "rgba(196,164,100,0.04)" : "transparent" }}>
  <a href="#plans" className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 whitespace-nowrap ${btn.style}`}>
@@ -829,75 +829,60 @@ export default function Pricing() {
  </div>
  </section>
 
- {/* 5.5 SUBSCRIPTION VS TOP-UP COMPARISON */}
- <section className="max-w-4xl mx-auto px-6 mb-20">
+  {/* 5.5 PAY-AS-YOU-GO */}
+ <section className="max-w-5xl mx-auto px-6 mb-20" id="payg">
  <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] overflow-hidden">
  <div className="px-6 py-5 border-b border-white/[0.06]">
- <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[--color-gold] mb-1">VALUE COMPARISON</p>
- <h3 className="text-xl font-bold text-white">Subscription vs Pay-per-video</h3>
- <p className="text-xs text-white/40 mt-1">See how much you save with a monthly plan vs buying credits individually.</p>
+ <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-[--color-gold] mb-1">PAY AS YOU GO</p>
+ <h3 className="text-xl font-bold text-white">Buy a finished output. No subscription needed.</h3>
+ <p className="text-xs text-white/40 mt-1">Buy a finished output and download it instantly. Everything bought pay-as-you-go includes a full commercial license.</p>
  </div>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
  <tr className="border-b border-white/[0.06]">
- <th className="text-left px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-white/30">Option</th>
- <th className="text-center px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-white/30">Videos/mo</th>
- <th className="text-center px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-white/30">Monthly cost</th>
- <th className="text-center px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-[--color-gold]">Cost/video</th>
- <th className="text-center px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-white/30">Savings</th>
+ <th className="text-left px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-white/30">Output type</th>
+ <th className="text-center px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-[--color-gold]">Pay-as-you-go price</th>
+ <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-white/30">Notes</th>
  </tr>
  </thead>
  <tbody>
  {[
- { label: "Pay-per-video (Standard)", videos: 1, cost: 10, perVideo: "£10.00", saving: null, highlight: false },
- { label: "Pay-per-video (HD)", videos: 1, cost: 14, perVideo: "£14.00", saving: null, highlight: false },
- { label: "Pay-per-video (4K)", videos: 1, cost: 18, perVideo: "£18.00", saving: null, highlight: false },
- { label: "Creator Plan (£99/mo)", videos: 6, cost: 99, perVideo: "£16.50", saving: "4K + Character Lock™ + Priority builds", highlight: true },
- { label: "Studio Plan (£199/mo)", videos: 12, cost: 199, perVideo: "£16.58", saving: "API access + Dedicated support", highlight: false },
+ { output: "Image", price: "£1.49", note: "Per image, any style" },
+ { output: "Song / track", price: "£4.99", note: "AI-generated original music" },
+ { output: "Soundtrack", price: "£4.99", note: "Bespoke scoring for your video" },
+ { output: "Character video", price: "£3.99", note: "Short character animation" },
+ { output: "30s short", price: "£7.99", note: "Vertical short-form video" },
+ { output: "Music video (HD)", price: "£25", note: "Full WizVideo, 1080p", highlight: true },
+ { output: "Music video (4K)", price: "£29", note: "Full WizVideo, 4K 2160p", highlight: true },
  ].map((row, i) => (
  <tr key={i} className={`border-b border-white/[0.04] last:border-0 ${
- row.highlight ? "bg-[rgba(196,164,100,0.06)]" : "hover:bg-white/[0.02]"
+ row.highlight ? "bg-[rgba(196,164,100,0.04)]" : "hover:bg-white/[0.02]"
  } transition-colors`}>
  <td className="px-6 py-3.5">
- <div className="flex items-center gap-2">
- {row.highlight && <Crown className="w-3.5 h-3.5 text-[--color-gold] flex-shrink-0" />}
- <span className={`text-sm font-medium ${row.highlight ? "text-white" : "text-white/60"}`}>{row.label}</span>
- {row.highlight && <span className="text-[9px] font-black bg-[--color-gold] text-black px-2 py-0.5 rounded-full">BEST VALUE</span>}
- </div>
+ <span className={`text-sm font-medium ${row.highlight ? "text-white" : "text-white/70"}`}>{row.output}</span>
  </td>
- <td className="text-center px-4 py-3.5 text-white/60">{row.videos}</td>
- <td className="text-center px-4 py-3.5 text-white/60">{formatPrice(row.cost)}</td>
  <td className={`text-center px-4 py-3.5 font-bold ${
  row.highlight ? "text-[--color-gold]" : "text-white/60"
- }`}>{row.perVideo}</td>
- <td className="text-center px-4 py-3.5">
- {row.saving ? (
- <span className="text-[10px] font-semibold text-emerald-400">{row.saving}</span>
- ) : (
- <span className="text-[10px] text-white/20">—</span>
- )}
- </td>
+ }`}>{row.price}</td>
+ <td className="px-4 py-3.5 text-xs text-white/35">{row.note}</td>
  </tr>
  ))}
  </tbody>
  </table>
  </div>
- <div className="px-6 py-4 bg-white/[0.02] border-t border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
- <p className="text-[11px] text-white/40">Creator plan (£99/mo) includes 4K quality, Character Lock™, and priority builds — not available on pay-per-video.</p>
- <a href="#plans" className="flex-shrink-0 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors flex items-center gap-1">
- See plans <ArrowRight className="w-3 h-3" />
- </a>
+ <div className="px-6 py-4 bg-white/[0.02] border-t border-white/[0.06]">
+ <p className="text-[11px] text-white/40">Subscribe and the same outputs cost less in credits. Subscribers always get the best value per output.</p>
  </div>
  </div>
  </section>
 
- {/* 6. BUILD CREDIT PACKS */}
+  {/* 6. BUILD CREDIT PACKS */}
  <section className="max-w-5xl mx-auto px-6 mb-24" id="bundles">
  <div className="text-center mb-12">
- <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">BUILD CREDIT PACKS</p>
- <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Need more Build Credits?</h2>
- <p className="text-sm text-white/40 max-w-lg mx-auto">Buy extra Build Credits whenever you need them. Build Credit Packs work alongside any WIZ AI subscription and never expire. Use them when you want to produce additional final videos beyond your monthly allowance.</p>
+ <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">TOP-UP CREDIT PACKS</p>
+ <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Top up anytime. Never expire.</h2>
+ <p className="text-sm text-white/40 max-w-lg mx-auto">Stack credits onto your balance and spend them across any studio. Top-up packs work alongside any subscription and never expire.</p>
  <p className="text-xs text-white/25 max-w-md mx-auto mt-3">Each Build Credit creates one final downloadable video, subject to your plan&apos;s scene, length and quality limits.</p>
  </div>
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -931,7 +916,7 @@ export default function Pricing() {
  <div className="flex items-end gap-2">
  <span className="text-5xl font-black text-white leading-none">{bundle.credits}</span>
  <div className="mb-1">
- <span className="text-sm text-white/60 font-semibold block">Build Credits</span>
+ <span className="text-sm text-white/60 font-semibold block">credits</span>
  <span className="text-xs text-white/40">{bundle.perCredit}</span>
  </div>
  </div>
@@ -973,101 +958,53 @@ export default function Pricing() {
  </div>
  </section>
 
- {/* 3. PAY-PER-VIDEO PRICING */}
- <section className="max-w-5xl mx-auto px-6 mb-24" id="pricing">
+  {/* 3. HOW CREDITS WORK */}
+ <section className="max-w-5xl mx-auto px-6 mb-24" id="credits">
  <div className="text-center mb-12">
- <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">Pay As You Go</p>
- <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-3">Pay-per-video pricing</h2>
- <p className="text-sm text-white/40 max-w-md mx-auto">No subscription needed. One price per final video. Choose your quality.</p>
- <p className="text-xs text-[--color-gold]/50 mt-2 font-medium">Pay only when you are ready to export your final video.</p>
- {/* Currency selector */}
- <div className="flex items-center justify-center gap-3 mt-5">
- <span className="text-[11px] text-white/30 font-medium">Prices in</span>
- <CurrencySelector currency={currency} setCurrency={setCurrency} currencies={currencies} isLoading={currencyLoading} />
- {currency !== "GBP" && (
- <span className="text-[10px] text-white/20 italic">Approximate. Billed in GBP.</span>
- )}
- </div>
+ <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">HOW CREDITS WORK</p>
+ <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-3">1 credit ≈ a few pence. Spend them however you like.</h2>
+ <p className="text-sm text-white/40 max-w-md mx-auto">Credits are weighted by studio and output type. Here’s exactly what each studio costs.</p>
  </div>
 
- {/* Quality tier cards */}
- <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+ {/* Credit weights table */}
+ <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] overflow-hidden mb-8">
+ <div className="overflow-x-auto">
+ <table className="w-full text-sm">
+ <thead>
+ <tr className="border-b border-white/[0.06]">
+ <th className="text-left px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-white/30">Studio</th>
+ <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-white/30">Output</th>
+ <th className="text-center px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-[--color-gold]">Credits</th>
+ </tr>
+ </thead>
+ <tbody>
  {[
- {
- label: "Standard",
- resolution: "720p",
- price: 2,
- desc: "Great for social media & previews",
- badge: null,
- img: SHOWCASE_3,
- features: ["YouTube Shorts", "Instagram Stories", "TikTok", "Twitter/X"],
- accentColor: "rgba(100,140,200,0.2)",
- borderColor: "rgba(100,140,200,0.2)",
- },
- {
- label: "HD",
- resolution: "1080p",
- price: 4,
- desc: "Perfect for YouTube & streaming",
- badge: "MOST POPULAR",
- img: SHOWCASE_1,
- features: ["YouTube", "Instagram Reels", "Vimeo", "Facebook Video"],
- accentColor: "rgba(196,164,100,0.15)",
- borderColor: "rgba(196,164,100,0.45)",
- },
- {
- label: "4K",
- resolution: "2160p",
- price: 6,
- desc: "Cinema-grade quality",
- badge: null,
- img: SHOWCASE_2,
- features: ["Cinema & broadcast", "Professional portfolio", "Premium streaming", "Large-screen display"],
- accentColor: "rgba(160,100,220,0.15)",
- borderColor: "rgba(160,100,220,0.25)",
- },
- ].map((tier) => (
- <div
- key={tier.label}
- className="quality-tier-card relative flex flex-col rounded-2xl overflow-hidden border"
- style={{ borderColor: tier.borderColor, boxShadow: tier.badge ? `0 0 40px ${tier.accentColor}` : 'none' }}
- >
- {tier.badge && (
- <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-3 py-0.5 rounded-full bg-gradient-to-r from-[--color-gold-dark] to-[--color-gold] text-[#0a0a0a] text-[10px] font-bold tracking-wider shadow-lg whitespace-nowrap">
- {tier.badge}
- </div>
- )}
- {/* Background image */}
- <div className="relative h-36 overflow-hidden">
- <img src={tier.img} alt={tier.label} className="w-full h-full object-cover brightness-[1.05] saturate-[1.1]" loading="lazy" />
- <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(4,4,4,0.1) 0%, rgba(4,4,4,0.6) 100%)` }} />
- {/* Resolution badge */}
- <div className="absolute bottom-3 left-4 flex items-end gap-2">
- <span className="text-4xl font-black text-white leading-none">{tier.label}</span>
- <span className="text-sm text-white/50 mb-1">{tier.resolution}</span>
- </div>
- </div>
- {/* Price + features */}
- <div className="flex-1 p-5 bg-[#0c0c0c]">
- <div className="flex items-baseline gap-1 mb-1">
- <span className="text-4xl font-extrabold text-white" style={{ animation: "priceFadeIn 220ms ease-out" }}>{formatPrice(tier.price)}</span>
- <span className="text-sm text-white/40">per video</span>
- </div>
- <p className="text-xs text-white/40 mb-4">{tier.desc}</p>
- <div className="space-y-1.5">
- {tier.features.map((f) => (
- <div key={f} className="flex items-center gap-2 text-xs text-white/50">
- <Check className="w-3 h-3 text-[--color-gold]/60 flex-shrink-0" />
- {f}
- </div>
+ { studio: "WizVideo", output: "Per scene (HD)", credits: "20–22", highlight: false },
+ { studio: "WizShorts", output: "30s short", credits: "30", highlight: false },
+ { studio: "WizShorts", output: "60s short", credits: "60", highlight: false },
+ { studio: "WizAnimate", output: "Per clip", credits: "4–5", highlight: false },
+ { studio: "WizAudio", output: "Per min (music)", credits: "2", highlight: false },
+ { studio: "WizAudio", output: "Per min (voice)", credits: "4", highlight: false },
+ { studio: "WizImage", output: "Per image", credits: "1", highlight: false },
+ { studio: "WizScore", output: "Per soundtrack", credits: "2", highlight: false },
+ { studio: "WizScript", output: "Storyboard & script", credits: "0 — free", highlight: true },
+ ].map((row, i) => (
+ <tr key={i} className={`border-b border-white/[0.04] last:border-0 ${
+ row.highlight ? "bg-[rgba(100,200,140,0.04)]" : "hover:bg-white/[0.02]"
+ } transition-colors`}>
+ <td className="px-6 py-3.5 text-sm font-semibold text-white/80">{row.studio}</td>
+ <td className="px-4 py-3.5 text-xs text-white/45">{row.output}</td>
+ <td className={`text-center px-4 py-3.5 font-bold ${
+ row.highlight ? "text-emerald-400" : "text-[--color-gold]"
+ }`}>{row.credits}</td>
+ </tr>
  ))}
+ </tbody>
+ </table>
  </div>
- </div>
- </div>
- ))}
  </div>
 
- {/* WizSound Audio Add-on — premium player + tier cards */}
+  {/* WizSound Audio Add-on — premium player + tier cards */}
  <div className="space-y-6">
  {/* Section header */}
  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -1103,8 +1040,8 @@ export default function Pricing() {
  <section className="max-w-5xl mx-auto px-6 mb-24">
  <div className="rounded-2xl border border-[--color-gold]/[0.1] bg-gradient-to-br from-[--color-gold]/[0.03] to-transparent p-8">
  <div className="text-center mb-8">
- <h3 className="text-lg font-bold text-white mb-2">One subscription. Six powerful tools.</h3>
- <p className="text-sm text-white/40">Every plan includes access to all WIZ AI products. Your Build Credits work across every tool.</p>
+ <h3 className="text-lg font-bold text-white mb-2">One subscription. All 7 studios.</h3>
+ <p className="text-sm text-white/40">Every plan includes access to all 7 WIZ AI studios. Your credit balance is shared across all of them.</p>
  </div>
  <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
  {[
@@ -1142,11 +1079,11 @@ export default function Pricing() {
  <Zap className="w-5 h-5" style={{ color: 'var(--color-gold)' }} />
  </div>
  <div>
- <h3 className="text-lg font-bold text-white mb-4">How Build Credits work</h3>
+ <h3 className="text-lg font-bold text-white mb-4">How credits work</h3>
  <div className="space-y-3 text-sm text-white/50 leading-relaxed">
- <p>One Build Credit creates one final downloadable video.</p>
- <p>Create and preview your project for free first — refine your storyboard, adjust scenes, and perfect the result before committing. A Build Credit is only used when you are ready to generate and download the final video.</p>
- <p>Failed builds do not use credits. Build Credit Packs never expire and can be used alongside any active subscription.</p>
+ <p>One shared credit balance, spent across all 7 studios. Credits are weighted by output type — see the table above for exact costs.</p>
+ <p>Plan credits refill every billing cycle and roll over for up to 6 months while you’re subscribed. Top-up credits stack onto your balance and never expire.</p>
+ <p>The free plan gives you 30 credits to try every studio. Watermarked previews only — commercial rights apply to paid plans and pay-as-you-go.</p>
  </div>
  </div>
  </div>
@@ -1368,7 +1305,7 @@ export default function Pricing() {
  <p className="text-sm text-white/45 max-w-md leading-relaxed">Build your first video completely free. Only pay when you're ready to produce and download your final video.
  </p>
  <div className="flex flex-wrap gap-3 mt-5 justify-center sm:justify-start">
- {["No credit card to start", "Cancel anytime", "All 6 tools included"].map((item) => (
+ {["No credit card to start", "Cancel anytime", "All 7 studios included"].map((item) => (
  <span key={item} className="flex items-center gap-1.5 text-xs text-white/50">
  <Check className="w-3.5 h-3.5 text-[--color-gold]/60" /> {item}
  </span>
@@ -1377,7 +1314,7 @@ export default function Pricing() {
  </div>
  <div className="flex flex-col gap-3 flex-shrink-0">
  <a href="/onboarding" className="btn-primary flex items-center gap-2 px-8 py-3.5 text-base font-bold rounded-xl whitespace-nowrap shadow-[0_4px_30px_rgba(196,164,100,0.3)]">
- <Sparkles className="w-5 h-5" />Start Creating Free
+ <Sparkles className="w-5 h-5" />Start free — 30 credits
  </a>
  <a href="#plans" className="flex items-center justify-center gap-1.5 text-sm text-white/40 hover:text-white/70 transition-colors">View all plans <ArrowRight className="w-3.5 h-3.5" />
  </a>

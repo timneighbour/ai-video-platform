@@ -189,7 +189,7 @@ const FEATURES = [
   },
   {
     logo: WIZANIMATE_LOGO,
-    title: "Character Lock System",
+    title: "Character Lock™",
     desc: "Maintain consistent character appearance across every scene. Upload a reference image and WIZ AI keeps your character recognisable.",
   },
   {

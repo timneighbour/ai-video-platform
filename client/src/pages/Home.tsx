@@ -155,7 +155,7 @@ const WIZ_TECHNOLOGY_CORE = [
 ];
 const WIZ_TECHNOLOGY_ADVANCED = [
  { name: "WizSync", tagline: "Sync & Alignment", desc: "Lip-sync, timing and performer alignment tools.", href: "/technology/wizsync", logo: WIZSYNC_LOGO },
- { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Analyses your video and composes an original AI soundtrack — perfectly synchronised to your footage.", href: "/technology/wizscore", logo: WIZSOUND_LOGO },
+ { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Analyses your video and composes an original AI soundtrack — perfectly synchronised to your footage.", href: "/technology/wizscore", logo: WIZBOOST_LOGO },
  // Note: WizScore is also a full product — see PRODUCTS_CREATE above
  { name: "WizPilot", tagline: "Guided Automation", desc: "Guided automation from idea to storyboard to final video build.", href: "/technology/wizpilot", logo: WIZGENESIS_LOGO },
 ];
@@ -855,7 +855,7 @@ function Nav() {
  { name: "WizCreate", tagline: "AI Storyboard Engine", desc: "Turn any idea into a full cinematic storyboard", href: "/products/wizcreate", logo: WIZCREATE_LOGO, img: "/manus-storage/product-wizcreate-hero_6c3efa10.jpg" },
  { name: "WizPilot", tagline: "AI Workflow Automation", desc: "One prompt. Full pipeline. Zero manual steps.", href: "/products/wizpilot", logo: WIZGENESIS_LOGO, img: "/manus-storage/product-wizgenesis-hero_0a9aa16b.jpg" },
 { name: "WizSync", tagline: "Audio-Visual Sync Engine", desc: "Every beat locked. Every cut frame-perfect.", href: "/products/wizsync-info", logo: WIZSYNC_LOGO, img: "/manus-storage/product-wizsound-hero_8219d2d2.jpg" },
- { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZSOUND_LOGO, img: "/manus-storage/hero-wizscore_d4786473.jpg" },
+ { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Your video. Its perfect original soundtrack.", href: "/products/wizscore", logo: WIZBOOST_LOGO, img: "/manus-storage/hero-wizscore_d4786473.jpg" },
  ].map((tool) => (
  <a
  key={tool.name}
@@ -951,34 +951,34 @@ function Hero() {
  </div>
 
  {/* Headline */}
- <h1 className="text-[clamp(2.6rem,7vw,5rem)] font-black leading-[0.93] tracking-tight text-white mb-3">You're in the studio.<br />
- <span className="metallic-gold" style={{ color: "oklch(0.82 0.11 75)" }}>Make something real.</span>
- </h1>
- {/* Subheadline */}
- <p className="text-[clamp(0.875rem,1.4vw,1rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-6">Cinematic music videos. Consistent characters. Real lip sync. No camera, no crew, no compromise.
- </p>
+				 <h1 className="text-[clamp(2.6rem,7vw,5rem)] font-black leading-[0.93] tracking-tight text-white mb-3">You're in the studio.<br />
+				 <span className="metallic-gold" style={{ color: "oklch(0.82 0.11 75)" }}>Now make everything.</span>
+				 </h1>
+				 {/* Subheadline */}
+				 <p className="text-[clamp(0.875rem,1.4vw,1rem)] text-[--color-silver]/60 leading-relaxed max-w-xl mb-6">Music videos, films, images, shorts, characters and animation — the entire AI creative suite, powered by one shared wallet of credits.
+				 </p>
 
  {/* CTAs */}
  <div className="relative z-20 mb-6">
  <div className="flex flex-wrap items-center gap-3 mb-2">
- <a
- href="/music-video/create"
- className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl text-base w-full sm:w-auto justify-center"
- style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
- onClick={() => { mp.heroCTAClicked?.(); mp.startCreatingClicked("hero"); }}
- >
- <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />Create Your First Video — Free
- </a>
- <a
- href="#products"
- className="btn-secondary inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl text-base"
- style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
- >Explore the Studios
- <ArrowSVG className="w-4 h-4" />
- </a>
+				 <a
+				 href="/onboarding"
+				 className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl text-base w-full sm:w-auto justify-center"
+				 style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
+				 onClick={() => { mp.heroCTAClicked?.(); mp.startCreatingClicked("hero"); }}
+				 >
+				 <img src={WIZAI_LOGO} alt="WIZ AI" aria-hidden="true" className="w-5 h-5 object-contain" />Start free — 30 credits
+				 </a>
+				 <a
+				 href="#studios"
+				 className="btn-secondary inline-flex items-center gap-2.5 px-7 py-3.5 rounded-2xl text-base"
+				 style={{ touchAction: "manipulation", WebkitTapHighlightColor: "transparent", cursor: "pointer" }}
+				 >See the studios
+				 <ArrowSVG className="w-4 h-4" />
+				 </a>
  </div>
- {/* Trust micro-copy — directly below primary CTA */}
- <p className="text-[12px] text-white/40 mt-1 mb-3">No credit card required &middot; 2 free projects included &middot; Built for creators, musicians &amp; agencies</p>
+				 {/* Trust micro-copy — directly below primary CTA */}
+				 <p className="text-[12px] text-white/40 mt-1 mb-3">No card to start &middot; Preview every studio &middot; Cancel anytime</p>
  <div className="flex flex-wrap items-center gap-4 mb-2">
  {/* ── WATCH DEMO — ultra-premium screaming CTA ── */}
  <button
@@ -1046,61 +1046,61 @@ function Hero() {
  <ChevronRight className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:translate-x-1" style={{ color: "rgba(196,164,100,0.70)" }} />
  </button>
  </div>
- {/* Free tier trust bar — P0.2: must be impossible to miss */}
- <div className="flex flex-wrap items-center gap-3 mt-1">
- <span
- className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-bold tracking-wide"
- style={{
- background: "linear-gradient(135deg, rgba(34,197,94,0.18) 0%, rgba(16,185,129,0.10) 100%)",
- border: "1.5px solid rgba(34,197,94,0.45)",
- boxShadow: "0 0 16px rgba(34,197,94,0.20)",
- color: "rgb(134,239,172)",
- }}
- >
- <span className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.8)]" />
- Start Free — No Credit Card Required
- </span>
- <span className="text-white/40 text-[12px] font-medium hidden sm:inline">
- <span className="text-green-400/70">✓</span> 2 free projects · <span className="text-green-400/70">✓</span> Cancel anytime
- </span>
- </div>
+				 {/* Free tier trust bar — P0.2: must be impossible to miss */}
+				 <div className="flex flex-wrap items-center gap-3 mt-1">
+				 <span
+				 className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-bold tracking-wide"
+				 style={{
+				 background: "linear-gradient(135deg, rgba(34,197,94,0.18) 0%, rgba(16,185,129,0.10) 100%)",
+				 border: "1.5px solid rgba(34,197,94,0.45)",
+				 boxShadow: "0 0 16px rgba(34,197,94,0.20)",
+				 color: "rgb(134,239,172)",
+				 }}
+				 >
+				 <span className="w-2 h-2 rounded-full bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.8)]" />
+				 30 free credits — no card required
+				 </span>
+				 <span className="text-white/40 text-[12px] font-medium hidden sm:inline">
+				 <span className="text-green-400/70">✓</span> All 7 studios · <span className="text-green-400/70">✓</span> Cancel anytime
+				 </span>
+				 </div>
  </div>
 
  {/* Proof strip — atmospheric text line */}
  <p className="text-[10px] tracking-[0.25em] text-white/35 uppercase text-left mb-10">CHARACTER LOCK &middot; REAL LIP SYNC &middot; LYRIC-AWARE SCENES &middot; DIRECTOR CONTROL</p>
 
  {/* Trust strip */}
- <div className="flex flex-wrap items-center gap-4 px-4 py-2.5 rounded-2xl" style={{background:"rgba(201,168,76,0.06)",border:"1px solid rgba(201,168,76,0.18)",backdropFilter:"blur(12px)"}}>
- <div className="flex items-center gap-3">
- <div className="flex -space-x-2">
- {WHO_IMAGES.map((src, i) => (
- <img key={i} src={src} alt="Creator" className="w-8 h-8 rounded-full border-2 border-[#030303] object-cover" loading="lazy" />
- ))}
- </div>
- <div>
- <span className="text-white/75 text-[11px] font-semibold tracking-wide" style={{textShadow:"0 0 12px rgba(201,168,76,0.4)"}}>Built for musicians, creators &amp; production studios</span>
- </div>
- </div>
- <div className="h-6 w-px bg-[--color-gold]/25 hidden sm:block" />
- <div className="flex flex-wrap items-center gap-4 text-xs">
- <span className="flex items-center gap-1.5 text-white/85">
- <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shadow-[0_0_6px_rgba(74,222,128,0.8)]" />
- <span className="text-[--color-gold] font-bold" style={{textShadow:"0 0 10px rgba(201,168,76,0.5)"}}>No credit card required.</span> <span className="text-white/75">2 free projects included.</span>
- </span>
- <span className="w-px h-3 bg-[--color-gold]/25" />
- <span className="flex items-center gap-1.5 text-white/80">
- <span className="text-[--color-gold]/90 font-semibold">✓</span> <span>Own your content</span>
- </span>
- <span className="w-px h-3 bg-[--color-gold]/25 hidden sm:block" />
- <span className="hidden sm:flex items-center gap-1.5 text-white/80">
- <span className="text-[--color-gold]/90 font-semibold">✓</span> <span>No watermark</span>
- </span>
- <span className="w-px h-3 bg-[--color-gold]/25 hidden sm:block" />
- <span className="hidden sm:flex items-center gap-1.5 text-white/80">
- <span className="text-[--color-gold]/90 font-semibold">✓</span> <span>Free storyboard on every project</span>
- </span>
- </div>
- </div>
+				 <div className="flex flex-wrap items-center gap-4 px-4 py-2.5 rounded-2xl" style={{background:"rgba(201,168,76,0.06)",border:"1px solid rgba(201,168,76,0.18)",backdropFilter:"blur(12px)"}}>
+				 <div className="flex items-center gap-3">
+				 <div className="flex -space-x-2">
+				 {WHO_IMAGES.map((src, i) => (
+				 <img key={i} src={src} alt="Creator" className="w-8 h-8 rounded-full border-2 border-[#030303] object-cover" loading="lazy" />
+				 ))}
+				 </div>
+				 <div>
+				 <span className="text-white/75 text-[11px] font-semibold tracking-wide" style={{textShadow:"0 0 12px rgba(201,168,76,0.4)"}}>Built for musicians, creators &amp; production studios</span>
+				 </div>
+				 </div>
+				 <div className="h-6 w-px bg-[--color-gold]/25 hidden sm:block" />
+				 <div className="flex flex-wrap items-center gap-4 text-xs">
+				 <span className="flex items-center gap-1.5 text-white/85">
+				 <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse shadow-[0_0_6px_rgba(74,222,128,0.8)]" />
+				 <span className="text-[--color-gold] font-bold" style={{textShadow:"0 0 10px rgba(201,168,76,0.5)"}}>30 free credits.</span> <span className="text-white/75">No card required.</span>
+				 </span>
+				 <span className="w-px h-3 bg-[--color-gold]/25" />
+				 <span className="flex items-center gap-1.5 text-white/80">
+				 <span className="text-[--color-gold]/90 font-semibold">✓</span> <span>All 7 studios</span>
+				 </span>
+				 <span className="w-px h-3 bg-[--color-gold]/25 hidden sm:block" />
+				 <span className="hidden sm:flex items-center gap-1.5 text-white/80">
+				 <span className="text-[--color-gold]/90 font-semibold">✓</span> <span>One shared wallet</span>
+				 </span>
+				 <span className="w-px h-3 bg-[--color-gold]/25 hidden sm:block" />
+				 <span className="hidden sm:flex items-center gap-1.5 text-white/80">
+				 <span className="text-[--color-gold]/90 font-semibold">✓</span> <span>Preview before you pay</span>
+				 </span>
+				 </div>
+				 </div>
  </div>
  </div>
 
@@ -4436,6 +4436,195 @@ function CreatorNetworkSection() {
   );
 }
 
+// One Wallet Explainer
+function OneWalletSection() {
+ const examples = [
+ { studio: "WizVideo", action: "1 scene (HD)", credits: 20, color: "oklch(0.72 0.14 70)" },
+ { studio: "WizImage", action: "5 images", credits: 5, color: "oklch(0.65 0.18 250)" },
+ { studio: "WizAudio", action: "1 original track", credits: 2, color: "oklch(0.60 0.14 160)" },
+ { studio: "WizShorts", action: "1 × 30s short", credits: 30, color: "oklch(0.62 0.16 320)" },
+ ];
+ const total = examples.reduce((s, e) => s + e.credits, 0);
+ return (
+ <section className="relative py-24 px-6 overflow-hidden bg-[#040404]">
+ <div className="luxury-divider absolute top-0 left-0 right-0" />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full opacity-[0.06] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
+ <div className="max-w-5xl mx-auto relative z-10">
+ <div className="text-center mb-14 reveal">
+ <p className="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>HOW CREDITS WORK</p>
+ <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-black tracking-tight text-white mb-4">One wallet. Every studio.</h2>
+ <p className="text-white/50 text-base max-w-2xl mx-auto leading-relaxed">
+ One credit balance, shared across all 7 studios. Refills every month on a subscription. Top up anytime from &#163;12. Credits roll over for up to 6 months while you're subscribed.
+ </p>
+ </div>
+ <div className="grid md:grid-cols-2 gap-8 items-center reveal">
+ {/* Left: credit example breakdown */}
+ <div className="rounded-2xl p-7" style={{ background: "rgba(10,8,5,0.85)", border: "1px solid oklch(0.78 0.11 75 / 0.12)", backdropFilter: "blur(20px)" }}>
+ <p className="text-[11px] font-bold tracking-[0.25em] uppercase mb-5" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>EXAMPLE SESSION</p>
+ <div className="space-y-3 mb-5">
+ {examples.map((ex) => (
+ <div key={ex.studio} className="flex items-center justify-between">
+ <div className="flex items-center gap-3">
+ <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: ex.color }} />
+ <span className="text-sm font-semibold text-white/80">{ex.studio}</span>
+ <span className="text-xs text-white/40">{ex.action}</span>
+ </div>
+ <span className="text-sm font-bold" style={{ color: ex.color }}>{ex.credits} cr</span>
+ </div>
+ ))}
+ </div>
+ <div className="border-t pt-4" style={{ borderColor: "oklch(0.78 0.11 75 / 0.12)" }}>
+ <div className="flex items-center justify-between">
+ <span className="text-sm font-bold text-white">Total spent</span>
+ <span className="text-lg font-black" style={{ color: "oklch(0.82 0.11 75)" }}>{total} credits</span>
+ </div>
+ <p className="text-xs text-white/30 mt-1">From your shared wallet — works across every studio</p>
+ </div>
+ </div>
+ {/* Right: wallet facts */}
+ <div className="space-y-6">
+ {[
+ { icon: "\u21bb", title: "Credits roll over", desc: "Unused credits carry forward for up to 6 months while you're subscribed. Nothing wasted." },
+ { icon: "\u26a1", title: "Top up anytime", desc: "Running low mid-project? Buy a top-up pack from \u00a312 — no plan change needed. Top-up credits never expire." },
+ { icon: "\u2728", title: "Try everything free", desc: "Sign up and get 30 credits to explore any studio. No card required. Preview before you commit." },
+ ].map((fact) => (
+ <div key={fact.title} className="flex items-start gap-4">
+ <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ background: "oklch(0.78 0.11 75 / 0.08)", border: "1px solid oklch(0.78 0.11 75 / 0.18)" }}>{fact.icon}</div>
+ <div>
+ <p className="text-[15px] font-bold text-white mb-1">{fact.title}</p>
+ <p className="text-[13px] text-white/45 leading-relaxed">{fact.desc}</p>
+ </div>
+ </div>
+ ))}
+ <a href="/pricing" className="inline-flex items-center gap-2 text-sm font-bold" style={{ color: "oklch(0.82 0.11 75)" }}>See how credits work in full <ArrowSVG className="w-4 h-4" /></a>
+ </div>
+ </div>
+ </div>
+ <div className="luxury-divider absolute bottom-0 left-0 right-0" />
+ </section>
+ );
+}
+
+// Replace the Stack
+function ReplaceTheStackSection() {
+ const tools = [
+ { name: "Image generator", example: "Midjourney / Adobe Firefly", price: "\u00a310–\u00a325/mo" },
+ { name: "Video generator", example: "Runway / Kling", price: "\u00a315–\u00a340/mo" },
+ { name: "Music generator", example: "Suno / Udio", price: "\u00a38–\u00a320/mo" },
+ { name: "Voiceover tool", example: "ElevenLabs", price: "\u00a311–\u00a322/mo" },
+ { name: "Animation tool", example: "Pika / Haiper", price: "\u00a310–\u00a320/mo" },
+ ];
+ return (
+ <section className="relative py-24 px-6 overflow-hidden">
+ <div className="luxury-divider absolute top-0 left-0 right-0" />
+ <div className="absolute inset-0" style={{ backgroundImage: "url('/manus-storage/production-details-bg_a9d2cd46.jpg')", backgroundSize: "cover", backgroundPosition: "center" }} />
+ <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(3,2,1,0.90) 0%, rgba(5,3,1,0.80) 50%, rgba(3,2,1,0.90) 100%)" }} />
+ <div className="max-w-4xl mx-auto relative z-10">
+ <div className="text-center mb-14 reveal">
+ <p className="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>REPLACE THE STACK</p>
+ <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-black tracking-tight text-white mb-4">One WIZ subscription replaces all of these.</h2>
+ <p className="text-white/50 text-base max-w-xl mx-auto">From &#163;29/mo — one wallet, all 7 studios, no juggling separate tools.</p>
+ </div>
+ <div className="grid md:grid-cols-2 gap-8 items-start reveal">
+ {/* Left: the stack being replaced */}
+ <div className="space-y-3">
+ {tools.map((tool) => (
+ <div key={tool.name} className="flex items-center justify-between rounded-xl px-5 py-3.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+ <div>
+ <p className="text-sm font-semibold text-white/70">{tool.name}</p>
+ <p className="text-xs text-white/30">{tool.example}</p>
+ </div>
+ <span className="text-xs font-bold text-white/40 line-through">{tool.price}</span>
+ </div>
+ ))}
+ </div>
+ {/* Right: WIZ replaces it all */}
+ <div className="rounded-2xl p-7 flex flex-col gap-5" style={{ background: "linear-gradient(135deg, oklch(0.78 0.11 75 / 0.10), oklch(0.60 0.10 65 / 0.06))", border: "1.5px solid oklch(0.78 0.11 75 / 0.30)", boxShadow: "0 0 40px oklch(0.78 0.11 75 / 0.08)" }}>
+ <div className="flex items-center gap-3">
+ <img src={WIZAI_LOGO} alt="WIZ AI" className="w-8 h-8 object-contain" />
+ <div>
+ <p className="text-base font-black text-white">WIZ AI</p>
+ <p className="text-xs" style={{ color: "oklch(0.82 0.11 75)" }}>All 7 studios in one</p>
+ </div>
+ </div>
+ <div className="space-y-2">
+ {["WizVideo — music videos & film","WizImage — images & cover art","WizAudio — original music & voice","WizAnimate — animation & motion","WizShorts — vertical shorts","WizScore — soundtracks & scoring","WizScript — storyboards (free)"].map((s) => (
+ <div key={s} className="flex items-center gap-2.5 text-sm text-white/70">
+ <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "oklch(0.78 0.11 75)" }} />{s}
+ </div>
+ ))}
+ </div>
+ <div className="border-t pt-4" style={{ borderColor: "oklch(0.78 0.11 75 / 0.15)" }}>
+ <p className="text-2xl font-black" style={{ color: "oklch(0.82 0.11 75)" }}>From &#163;29/mo</p>
+ <p className="text-xs text-white/40 mt-0.5">One wallet. All 7 studios. Cancel anytime.</p>
+ </div>
+ <a href="/pricing" className="btn-primary btn-sheen inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold w-fit">
+ <img src={WIZAI_LOGO} alt="" aria-hidden="true" className="w-4 h-4 object-contain" />See all plans
+ </a>
+ </div>
+ </div>
+ </div>
+ <div className="luxury-divider absolute bottom-0 left-0 right-0" />
+ </section>
+ );
+}
+
+// Pricing Teaser
+function PricingTeaserSection() {
+ const tiers = [
+ { name: "Free", price: "\u00a30", credits: "30 credits/mo", desc: "Try every studio", cta: "Start free", href: "/onboarding", highlight: false },
+ { name: "Starter", price: "\u00a329", credits: "320 credits/mo", desc: "~2 WizVideos/mo", cta: "Get Starter", href: "/subscribe?plan=starter", highlight: false },
+ { name: "Creator", price: "\u00a379", credits: "800 credits/mo", desc: "~5 WizVideos/mo", cta: "Get Creator", href: "/subscribe?plan=creator", highlight: true, badge: "Most popular" },
+ { name: "Studio", price: "\u00a3149", credits: "1,500 credits/mo", desc: "~9 WizVideos/mo", cta: "Get Studio", href: "/subscribe?plan=studio", highlight: false },
+ ];
+ return (
+ <section className="relative py-24 px-6 overflow-hidden bg-[#030303]">
+ <div className="luxury-divider absolute top-0 left-0 right-0" />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full opacity-[0.07] pointer-events-none" style={{ background: "radial-gradient(ellipse, oklch(0.72 0.14 70), transparent 70%)" }} />
+ <div className="max-w-5xl mx-auto relative z-10">
+ <div className="text-center mb-12 reveal">
+ <p className="text-[10px] font-bold tracking-[0.3em] uppercase mb-4" style={{ color: "oklch(0.78 0.11 75 / 0.6)" }}>PRICING</p>
+ <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-black tracking-tight text-white mb-3">Simple, transparent pricing.</h2>
+ <p className="text-white/50 text-base max-w-xl mx-auto">One subscription. All 7 studios. Credits roll over for up to 6 months.</p>
+ </div>
+ <div className="grid grid-cols-2 md:grid-cols-4 gap-4 reveal">
+ {tiers.map((tier) => (
+ <div
+ key={tier.name}
+ className="relative rounded-2xl p-5 flex flex-col gap-3"
+ style={tier.highlight ? {
+ background: "linear-gradient(160deg, oklch(0.78 0.11 75 / 0.12), oklch(0.60 0.10 65 / 0.06))",
+ border: "1.5px solid oklch(0.78 0.11 75 / 0.35)",
+ boxShadow: "0 0 40px oklch(0.78 0.11 75 / 0.10)",
+ } : {
+ background: "rgba(10,8,5,0.70)",
+ border: "1px solid oklch(0.78 0.11 75 / 0.10)",
+ }}
+ >
+ {tier.badge && (
+ <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-black tracking-[0.15em] uppercase px-3 py-1 rounded-full" style={{ background: "oklch(0.78 0.11 75)", color: "#0a0a0a" }}>{tier.badge}</span>
+ )}
+ <p className="text-sm font-bold text-white/70">{tier.name}</p>
+ <p className="text-3xl font-black text-white">{tier.price}<span className="text-base font-semibold text-white/40">/mo</span></p>
+ <p className="text-xs font-bold" style={{ color: "oklch(0.82 0.11 75)" }}>{tier.credits}</p>
+ <p className="text-xs text-white/40 flex-1">{tier.desc}</p>
+ <a
+ href={tier.href}
+ className={`inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${tier.highlight ? "btn-primary btn-sheen" : ""}`}
+ style={!tier.highlight ? { background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.70)" } : {}}
+ >{tier.cta}</a>
+ </div>
+ ))}
+ </div>
+ <div className="text-center mt-8 reveal">
+ <a href="/pricing" className="inline-flex items-center gap-2 text-sm font-bold" style={{ color: "oklch(0.82 0.11 75)" }}>Full pricing details <ArrowSVG className="w-4 h-4" /></a>
+ </div>
+ </div>
+ <div className="luxury-divider absolute bottom-0 left-0 right-0" />
+ </section>
+ );
+}
+
 // Footer 
 function Footer() {
  return (
@@ -4610,7 +4799,7 @@ function ContinueProjectBanner() {
 
 // Page 
 export default function Home() {
- useSEO({ title: "WIZ AI — AI Music Video Maker", path: "/", description: "Create AI-generated music videos with lip sync, Character Lock™, and cinematic scene direction. The AI music video generator built for musicians." });
+ useSEO({ title: "WIZ AI — AI Creative Suite", path: "/", description: "Music videos, images, shorts, animation, audio and more — the entire AI creative suite, powered by one shared wallet of credits. Try free with 30 credits." });
  useReveal();
  useEffect(() => { mp.homepageViewed(); }, []);
  return (
@@ -4654,12 +4843,18 @@ export default function Home() {
  <Showcase />
       {/* 9. Music Video USP — visible to all new visitors */}
       <MusicVideoUSPSection />
+      {/* 9a. One Wallet Explainer */}
+      <OneWalletSection />
+      {/* 9b. Replace the Stack */}
+      <ReplaceTheStackSection />
+      {/* 9c. Pricing Teaser — 4 tiers */}
+      <PricingTeaserSection />
       {/* 10. Final CTA */}
       <FinalCTA />
- {/* 10. Studio Lounge — creator comfort section */}
- <StudioLoungeSection />
- {/* 11. Creator Network Teaser — early access waitlist */}
- <CreatorNetworkSection />
+	 {/* 10. Studio Lounge — creator comfort section */}
+	 <StudioLoungeSection />
+	 {/* 11. Creator Network Teaser — early access waitlist */}
+	 <CreatorNetworkSection />
  </main>
  <Footer />
  <ContinueProjectBanner />

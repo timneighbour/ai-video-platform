@@ -401,7 +401,7 @@ export const billingRouter = router({
         // New packs (2026-06-29): spark/boost/pro_pack/mega
         // Cinematic packs: cinematic_10/cinematic_25/cinematic_50
         // Legacy keys kept for backward compat: small/medium/large/starter/creator/studio/pro/elite
-        pack: z.enum(["spark", "boost", "pro_pack", "mega",
+        pack: z.enum(["spark", "boost", "boost_200", "pro_pack", "mega",
                       "cinematic_10", "cinematic_25", "cinematic_50",
                       "small", "medium", "large", "starter", "creator", "studio", "pro", "elite"]),
         origin: z.string().url(),
@@ -420,8 +420,13 @@ export const billingRouter = router({
           },
           boost: {
             priceId: vp(process.env.STRIPE_TOPUP_BOOST_PRICE_ID, "price_1TTtsyI3gJ5F0DKDz1mhvia0"),
-            credits: 300,
-            label: "Boost (300 credits)",
+            credits: 200,
+            label: "Boost (200 credits)",
+          },
+          boost_200: {
+            priceId: vp(process.env.STRIPE_TOPUP_CREATOR_BOOST_PRICE_ID, "price_1TTtsyI3gJ5F0DKDz1mhvia0"),
+            credits: 400,
+            label: "Boost 400 (400 credits)",
           },
           pro_pack: {
             priceId: vp(process.env.STRIPE_TOPUP_PRO_PRICE_ID, "price_1TTtt3I3gJ5F0DKDxaBysFnT"),
@@ -430,8 +435,8 @@ export const billingRouter = router({
           },
           mega: {
             priceId: vp(process.env.STRIPE_TOPUP_ELITE_PRICE_ID, "price_1TTtt4I3gJ5F0DKDWi3TgiVd"),
-            credits: 1500,
-            label: "Mega (1,500 credits)",
+            credits: 1000,
+            label: "Mega (1,000 credits)",
           },
           // ── Legacy pack keys (backward compat — old credit amounts) ──────────
           creator: {
@@ -879,7 +884,7 @@ Action steps to cover: ${actionSteps.map((s, i) => `Scene ${i + 1}: ${s}`).join(
   createTopupCheckout: protectedProcedure
     .input(
       z.object({
-        packKey: z.enum(["spark", "boost", "pro_pack", "mega"]),
+        packKey: z.enum(["spark", "boost", "boost_200", "pro_pack", "mega"]),
         origin: z.string().url(),
       })
     )

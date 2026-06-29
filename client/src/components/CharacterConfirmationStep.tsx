@@ -8,7 +8,7 @@
  *   - Approve the preview (required before proceeding)
  *   - Go back to edit the character
  *
- * Character Lock Mode (ON by default): enforces face identity across all scenes
+ * Character Lock™ (ON by default): enforces face identity across all scenes
  * using the master portrait + locked seed + locked character prompt.
  *
  * Once ALL characters are approved, the "Generate Storyboard" button becomes active.
@@ -270,7 +270,7 @@ export default function CharacterConfirmationStep({
         </div>
       </div>
 
-      {/* Character Lock Mode toggle */}
+      {/* Character Lock™ toggle */}
       <div className={`flex items-center gap-4 rounded-xl border px-4 py-3 transition-all ${characterLockMode ? "border-violet-700/60 bg-violet-950/30" : "border-zinc-700 bg-zinc-900/40"}`}>
         <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${characterLockMode ? "bg-[--color-gold]/20" : "bg-zinc-800"}`}>
           {characterLockMode ? <Lock className="w-5 h-5 text-[--color-gold]" /> : <Unlock className="w-5 h-5 text-zinc-400" />}
@@ -278,7 +278,7 @@ export default function CharacterConfirmationStep({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <p className={`font-semibold text-sm ${characterLockMode ? "text-[--color-gold]" : "text-zinc-300"}`}>
-              Character Lock Mode
+              Character Lock™
             </p>
             {characterLockMode && (
               <Badge className="bg-violet-900/60 text-[--color-gold] border-violet-700 text-xs">Recommended</Badge>
@@ -294,7 +294,7 @@ export default function CharacterConfirmationStep({
           type="button"
           onClick={() => setCharacterLockMode(v => !v)}
           className={`relative w-12 h-6 rounded-full transition-colors flex-shrink-0 ${characterLockMode ? "bg-[--color-gold]" : "bg-zinc-700"}`}
-          aria-label="Toggle Character Lock Mode"
+          aria-label="Toggle Character Lock™"
         >
           <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${characterLockMode ? "translate-x-6" : "translate-x-0"}`} />
         </button>

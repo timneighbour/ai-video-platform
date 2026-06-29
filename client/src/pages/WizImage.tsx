@@ -80,7 +80,7 @@ const EXPORT_FORMATS = ["PNG", "JPEG", "TIFF", "PSD", "SVG", "WEBP"];
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function WizImage() {
-  useSEO({ title: "WizImage™ — AI Visual Creator", path: "/wiz-image", description: "Create stunning AI visuals: album covers, band photos, tour posters, merch designs and more. Powered by WizImage™ AI Visual Creator.", noindex: true });
+  useSEO({ title: "WizImage™ — AI Images, Art & Cover Design — WIZ AI", path: "/wiz-image", description: "Generate album covers, band photos, tour posters, merch designs, and any visual art with AI. 1 credit per image. One wallet unlocks all WIZ AI studios." });
    const { user, loading: authLoading } = useAuth();
   useEffect(() => { if (user) { mp.studioEntered("WizImage"); } }, [user]);
   const { balance: creditBalance } = useCreditGuard();
@@ -189,21 +189,6 @@ export default function WizImage() {
 
   const currentImageType = IMAGE_TYPES.find((t) => t.id === imageType) ?? IMAGE_TYPES[0];
 
-  // Page-load auth gate
-  if (!authLoading && !user) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#06040f', color: '#e0d8cc', fontFamily: "'Montserrat',sans-serif", alignItems: 'center', justifyContent: 'center', gap: '24px' }}>
-        <div style={{ textAlign: 'center', maxWidth: '400px' }}>
-          <div style={{ width: '64px', height: '64px', borderRadius: '16px', background: 'rgba(212,168,67,0.12)', border: '1px solid rgba(212,168,67,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d4a843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          </div>
-          <h2 style={{ fontSize: '22px', fontWeight: 700, marginBottom: '12px', color: '#e0d8cc' }}>WizImage™ requires an account</h2>
-          <p style={{ color: 'rgba(224,216,204,0.45)', marginBottom: '32px', lineHeight: 1.6 }}>Sign in to create AI-powered album covers, band photos, tour posters, and merch designs.</p>
-          <a href={getLoginUrl('/wiz-image')} style={{ display: 'inline-block', padding: '12px 32px', background: 'linear-gradient(135deg, #d4a843, #b8892a)', color: '#000', borderRadius: '12px', fontWeight: 700, fontSize: '15px', textDecoration: 'none' }}>Sign in to continue</a>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen text-white" style={{ backgroundColor: BG_BASE }}>

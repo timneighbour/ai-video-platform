@@ -17,7 +17,8 @@
  *   WizScript: 0 (free — script only, no render)
  *   WizSound:  0 (free — local ffmpeg mastering, no API)
  *
- * MONTHLY RESET: Plan credits expire at each billing cycle (no rollover).
+ * CREDIT ROLLOVER: Plan credits roll over for up to 6 months while subscribed.
+ * If you cancel, credits remain until end of billing cycle.
  * Top-up credits never expire.
  *
  * Last updated: 2026-06-29
@@ -70,17 +71,17 @@ export const PLANS: PlanData[] = [
     monthlyPrice: 0,
     annualTotal: 0,
     annualSaving: 0,
-    tagline: "Try WIZ AI with no commitment",
+    tagline: "Try every studio free — no card needed",
     bestFor: "First-time creators",
     outcomes: [
-      "40 free credits to try the platform",
+      "30 free credits to try the platform",
       "Access to all 7 WIZ AI studios",
       "Free storyboard generation",
       "Standard quality (720p)",
       "Community support",
     ],
     features: [
-      { text: "40 trial credits", included: true },
+      { text: "30 trial credits", included: true },
       { text: "All 7 studios (WizVideo, WizImage, WizAudio…)", included: true },
       { text: "Free storyboard generation", included: true },
       { text: "Standard 720p quality", included: true },
@@ -88,7 +89,7 @@ export const PLANS: PlanData[] = [
       { text: "HD & 4K quality", included: false },
       { text: "Character Lock™", included: false },
     ],
-    creditsPerMonth: 40,
+    creditsPerMonth: 30,
     approxVideosPerMonth: 0,
     scenesPerVideo: 8,
     outputQuality: "720p",
@@ -110,7 +111,7 @@ export const PLANS: PlanData[] = [
     tagline: "320 credits/month — ~2 WizVideos",
     bestFor: "Best for first-time creators",
     outcomes: [
-      "320 credits per month (reset monthly)",
+      "320 credits per month (roll over up to 6 months)",
       "~2 WizVideo music videos (8 scenes each)",
       "Or mix across all 7 studios",
       "Standard quality (720p)",
@@ -118,7 +119,7 @@ export const PLANS: PlanData[] = [
       "Email support",
     ],
     features: [
-      { text: "320 credits/month (no rollover)", included: true },
+      { text: "320 credits/month (rolls over up to 6 months)", included: true },
       { text: "All 7 WIZ AI studios", included: true },
       { text: "Up to 8 scenes per WizVideo", included: true },
       { text: "Standard 720p quality", included: true },
@@ -143,14 +144,14 @@ export const PLANS: PlanData[] = [
   {
     id: "creator",
     name: "Creator",
-    monthlyPrice: 99,
-    annualTotal: 990,
-    annualSaving: 198,
-    tagline: "1,000 credits/month — ~6 WizVideos",
+    monthlyPrice: 79,
+    annualTotal: 790,
+    annualSaving: 158,
+    tagline: "800 credits/month — ~5 WizVideos",
     bestFor: "Best for active creators",
     outcomes: [
-      "1,000 credits per month (reset monthly)",
-      "~6 WizVideo music videos (8 scenes each)",
+      "800 credits per month (roll over up to 6 months)",
+      "~5 WizVideo music videos (8 scenes each)",
       "Or mix across all 7 studios",
       "HD & 4K quality",
       "Character Lock™ for consistent faces",
@@ -159,7 +160,7 @@ export const PLANS: PlanData[] = [
       "Priority email support",
     ],
     features: [
-      { text: "1,000 credits/month (no rollover)", included: true },
+      { text: "800 credits/month (rolls over up to 6 months)", included: true },
       { text: "All 7 WIZ AI studios", included: true },
       { text: "Up to 11 scenes per WizVideo", included: true },
       { text: "4K 2160p output", included: true },
@@ -168,8 +169,8 @@ export const PLANS: PlanData[] = [
       { text: "Character Lock™", included: true },
       { text: "Priority video builds", included: true },
     ],
-    creditsPerMonth: 1000,
-    approxVideosPerMonth: 6,
+    creditsPerMonth: 800,
+    approxVideosPerMonth: 5,
     scenesPerVideo: 11,
     outputQuality: "4K 2160p",
     watermark: false,
@@ -184,14 +185,14 @@ export const PLANS: PlanData[] = [
   {
     id: "studio",
     name: "Studio",
-    monthlyPrice: 199,
-    annualTotal: 1990,
-    annualSaving: 398,
-    tagline: "2,000 credits/month — ~12 WizVideos",
+    monthlyPrice: 149,
+    annualTotal: 1490,
+    annualSaving: 298,
+    tagline: "1,500 credits/month — ~9 WizVideos",
     bestFor: "Best for brands, agencies and high-volume creators",
     outcomes: [
-      "2,000 credits per month (reset monthly)",
-      "~12 WizVideo music videos (8 scenes each)",
+      "1,500 credits per month (roll over up to 6 months)",
+      "~9 WizVideo music videos (8 scenes each)",
       "Or mix across all 7 studios",
       "4K quality included",
       "Fastest build speed — top priority",
@@ -201,7 +202,7 @@ export const PLANS: PlanData[] = [
       "Dedicated support",
     ],
     features: [
-      { text: "2,000 credits/month (no rollover)", included: true },
+      { text: "1,500 credits/month (rolls over up to 6 months)", included: true },
       { text: "All 7 WIZ AI studios", included: true },
       { text: "Up to 12 scenes per WizVideo", included: true },
       { text: "4K 2160p output", included: true },
@@ -210,8 +211,8 @@ export const PLANS: PlanData[] = [
       { text: "Character Lock™", included: true },
       { text: "API access for automation", included: true },
     ],
-    creditsPerMonth: 2000,
-    approxVideosPerMonth: 12,
+    creditsPerMonth: 1500,
+    approxVideosPerMonth: 9,
     scenesPerVideo: 12,
     outputQuality: "4K 2160p",
     watermark: false,
@@ -245,8 +246,8 @@ export const COMPARISON_ROWS: {
   creator: string | boolean;
   studio: string | boolean;
 }[] = [
-  { feature: "Credits/month",           free: "40 (trial)",  starter: "320",        creator: "1,000",      studio: "2,000"    },
-  { feature: "Approx. WizVideos/month", free: "~0",          starter: "~2",         creator: "~6",         studio: "~12"      },
+  { feature: "Credits/month",           free: "30 (trial)",  starter: "320",        creator: "800",        studio: "1,500"    },
+  { feature: "Approx. WizVideos/month", free: "~0",          starter: "~2",         creator: "~5",         studio: "~9"       },
   { feature: "Max scenes per WizVideo", free: "8",           starter: "8",          creator: "11",         studio: "12"       },
   { feature: "Max quality",             free: "720p",        starter: "720p",       creator: "4K",         studio: "4K"       },
   { feature: "All 7 studios",           free: true,          starter: true,         creator: true,         studio: true       },
@@ -255,7 +256,7 @@ export const COMPARISON_ROWS: {
   { feature: "Character Lock™",         free: false,         starter: false,        creator: true,         studio: true       },
   { feature: "Build speed",             free: "Standard",    starter: "Standard",   creator: "Priority",   studio: "Fastest"  },
   { feature: "API access",              free: false,         starter: false,        creator: false,        studio: true       },
-  { feature: "Credits expire",          free: "Never",       starter: "Monthly",    creator: "Monthly",    studio: "Monthly"  },
+  { feature: "Credits roll over",        free: "Never",       starter: "6 months",   creator: "6 months",   studio: "6 months" },
 ];
 
 // ── Weighted credit costs per studio (for display on pricing page) ────────────
@@ -272,7 +273,7 @@ export const STUDIO_CREDIT_COSTS = {
 
 // ── Top-up credit packs ───────────────────────────────────────────────────────
 // Top-up credits NEVER expire (unlike monthly plan credits which reset).
-export type TopupPackKey = "spark" | "boost" | "pro_pack" | "mega";
+export type TopupPackKey = "spark" | "boost" | "boost_200" | "pro_pack" | "mega";
 
 export interface TopupPack {
   key: TopupPackKey;
@@ -298,32 +299,42 @@ export const TOPUP_PACKS: TopupPack[] = [
   },
   {
     key: "boost",
-    credits: 300,
-    price: 32,
-    perCredit: "10.7p per credit",
+    credits: 200,
+    price: 23,
+    perCredit: "11.5p per credit",
     label: "Boost",
+    popular: false,
+    bestValue: false,
+    desc: "200 credits — ~1 full WizVideo (8 scenes) plus extras. Never expire.",
+  },
+  {
+    key: "boost_200",
+    credits: 400,
+    price: 45,
+    perCredit: "11.3p per credit",
+    label: "Boost 400",
     popular: true,
     bestValue: false,
-    desc: "1 full WizVideo (8 scenes) plus extras. 300 credits that never expire.",
+    desc: "Most popular. 400 credits — ~2 WizVideos. Never expire.",
   },
   {
     key: "pro_pack",
     credits: 700,
-    price: 69,
-    perCredit: "9.9p per credit",
+    price: 77,
+    perCredit: "11p per credit",
     label: "Pro Pack",
     popular: false,
     bestValue: false,
-    desc: "~4 WizVideos worth of credits. 700 credits that never expire.",
+    desc: "700 credits — ~4 WizVideos. Never expire.",
   },
   {
     key: "mega",
-    credits: 1500,
-    price: 139,
-    perCredit: "9.3p per credit",
+    credits: 1000,
+    price: 109,
+    perCredit: "10.9p per credit",
     label: "Mega",
     popular: false,
     bestValue: true,
-    desc: "Best value. ~9 WizVideos worth of credits. 1,500 credits that never expire.",
+    desc: "Best value. 1,000 credits — ~6 WizVideos. Never expire.",
   },
 ];

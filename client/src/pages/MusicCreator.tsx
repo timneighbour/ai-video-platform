@@ -254,7 +254,7 @@ function RailMeters({ isActive }: { isActive: boolean }) {
 
 /* ── Main Component ───────────────────────────────────────────────────────── */
 export default function MusicCreator() {
-  useSEO({ title: "WizAudio™ — AI Music Studio", path: "/music-creator", description: "Create original songs with AI. Choose style, mood, and genre, then generate full tracks with lyrics. Powered by WizSound™ cinematic audio mastering.", noindex: true });
+  useSEO({ title: "WizAudio™ — Original Songs & Studio Voiceover — WIZ AI", path: "/music-creator", description: "Create original AI songs and studio-quality voiceover. 2 credits/min for music · 4 credits for voice. One wallet unlocks all WIZ AI studios." });
   const { user, loading: authLoading } = useAuth();
   // Studio entry tracking — fires once when an authenticated user lands on this page
   useEffect(() => { if (user) { mp.studioEntered("WizAudio"); } }, [user]);
@@ -438,20 +438,6 @@ export default function MusicCreator() {
   const toggleKnob = (k: string) => setActiveKnobs((prev) => prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k]);
   const canGenerate = studioMode === "generate" ? (prompt.trim().length > 0 && !isGenerating) : (uploadedAudioUrl !== null && !isGenerating);
 
-  // ── Auth gate ──
-  if (!authLoading && !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#06050a" }}>
-        <div className="env-bg"><img src={ENV_IMG} alt="" /><div className="env-bg-overlay" /></div>
-        <div className="text-center max-w-md relative z-10">
-          <div className="w-16 h-16 rounded-2xl bg-[--color-gold]/15 border border-[--color-gold]/30 flex items-center justify-center mx-auto mb-6"><Music2 className="w-8 h-8 text-[--color-gold]" /></div>
-          <h1 className="text-3xl font-bold text-white mb-3">WizAudio™</h1>
-          <p className="text-white/50 mb-8">Sign in to access the AI Music Engine.</p>
-          <Button className="btn-primary btn-sheen px-8 py-3 rounded-xl text-base" asChild><a href={getLoginUrl("/music-creator")}>Sign in to continue</a></Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen text-white" style={{ backgroundColor: "#050407", fontFamily: "'Inter', sans-serif" }}>

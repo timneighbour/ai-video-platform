@@ -248,9 +248,8 @@ function TrackWaveform({ color }: { color: string }) {
 }
 
 export default function WizScore() {
-  // noindex — auth-gated studio app, not intended for search indexing
-  useSEO({ title: "WizScore™ — AI Orchestral Score Composer — WIZ AI", path: "/wizscore", noindex: true });
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  useSEO({ title: "WizScore™ — AI Orchestral Score Composer — WIZ AI", path: "/wizscore", description: "Compose bespoke AI scores and soundtracks for film scenes, trailers, series, games, and backing tracks inside WizScore™. One wallet unlocks all WIZ AI studios." });
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [stage, setStage]               = useState<Stage>("compose");
   const [scoreType, setScoreType]       = useState("film");
   const [selectedMoods, setSelectedMoods] = useState<string[]>(["Epic","Cinematic"]);
@@ -337,6 +336,10 @@ export default function WizScore() {
   });
 
   const handleComposeScore = () => {
+    if (!isAuthenticated) {
+      window.location.href = getLoginUrl("/wizscore");
+      return;
+    }
     if (!wizScoreJobId) {
       toast.error("Please upload a video first.");
       setStage("brief");
@@ -360,6 +363,10 @@ export default function WizScore() {
   });
 
   const handleVideoUpload = async (file: File) => {
+    if (!isAuthenticated) {
+      window.location.href = getLoginUrl("/wizscore");
+      return;
+    }
     if (!file.type.startsWith("video/")) { toast.error("Please upload a video file."); return; }
     if (file.size > 500 * 1024 * 1024) { toast.error("Video must be under 500 MB."); return; }
     setVideoFile(file);
@@ -386,7 +393,7 @@ export default function WizScore() {
 
   const stageIndex = STAGES.findIndex(s => s.key === stage);
 
-  // Studio entry tracking — fires once on mount (page is auth-gated upstream)
+  // Studio entry tracking
   useEffect(() => { mp.studioEntered("WizScore"); }, []);
 
   useEffect(() => {
@@ -418,21 +425,6 @@ export default function WizScore() {
     color: i < stageIndex ? "#000" : i === stageIndex ? "#000" : "#555",
   });
 
-  // Page-load auth gate: redirect unauthenticated users to sign-in
-  if (!authLoading && !isAuthenticated) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#080808", color: "#e0d8cc", fontFamily: "'Montserrat',sans-serif", alignItems: "center", justifyContent: "center", gap: "24px" }}>
-        <div style={{ textAlign: "center", maxWidth: "400px" }}>
-          <div style={{ width: "64px", height: "64px", borderRadius: "16px", background: "rgba(212,168,67,0.12)", border: "1px solid rgba(212,168,67,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d4a843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-          </div>
-          <h1 style={{ fontSize: "28px", fontWeight: 700, color: "#e0d8cc", marginBottom: "12px" }}>WizScore™</h1>
-          <p style={{ color: "rgba(224,216,204,0.85)", marginBottom: "32px", lineHeight: 1.6 }}>Sign in to start composing AI orchestral scores.</p>
-          <a href={getLoginUrl("/wizscore")} style={{ display: "inline-block", padding: "12px 32px", background: "linear-gradient(135deg, #d4a843, #b8892a)", color: "#000", borderRadius: "12px", fontWeight: 700, fontSize: "15px", textDecoration: "none" }}>Sign in to continue</a>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={{display:"flex",flexDirection:"column",height:"100vh",background:"#080808",color:"#e0d8cc",fontFamily:"'Montserrat',sans-serif",overflow:"hidden"}}>
@@ -451,8 +443,10 @@ export default function WizScore() {
         <span style={{fontSize:"11px",fontWeight:700,color:"#888",letterSpacing:"2px",borderLeft:"1px solid #222",paddingLeft:"16px"}}>AI FILM SCORING STUDIO</span>
         <div style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:"10px"}}>
           <StudioAmbientLight value={ambience} onChange={setAmbience} />
-          <span style={{fontSize:"10px",fontWeight:700,background:"rgba(212,168,67,0.15)",border:"1px solid rgba(212,168,67,0.3)",color:"#d4a843",padding:"5px 12px",borderRadius:"3px"}}>⚡ 10,000 Credits</span>
-          <div style={{width:"30px",height:"30px",borderRadius:"50%",background:"#d4a843",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"12px",fontWeight:800,color:"#000"}}>T</div>
+          <span style={{fontSize:"10px",fontWeight:700,background:"rgba(212,168,67,0.15)",border:"1px solid rgba(212,168,67,0.3)",color:"#d4a843",padding:"5px 12px",borderRadius:"3px"}}>
+            {authLoading ? "Checking wallet…" : isAuthenticated ? "Wallet connected" : "Start free — 30 credits"}
+          </span>
+          <div style={{width:"30px",height:"30px",borderRadius:"50%",background:"#d4a843",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"12px",fontWeight:800,color:"#000"}}>{user?.name?.charAt(0) || "W"}</div>
         </div>
       </nav>
 

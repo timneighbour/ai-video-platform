@@ -44,23 +44,23 @@ interface StudioTile {
 const CREATE_TILES: StudioTile[] = [
   {
     name: "WizAudio™",
-    benefit: "Original music from a single prompt",
+    benefit: "Original songs & studio voiceover",
     href: getProduct("wizsound")?.productPage ?? "/products/wizsound",
     image: APP_WIZSOUND,
     glowColor: "rgba(196,164,100,0.30)",
  borderHover: "rgba(196,164,100,0.55)",
  },
  {
- name: "WizImage™",
-    benefit: "Photorealistic visuals in seconds",
+    name: "WizImage™",
+    benefit: "Images, art & cover design",
     href: getProduct("wizimage")?.productPage ?? "/products/wizimage",
     image: APP_WIZIMAGE,
     glowColor: "rgba(196,164,100,0.30)",
  borderHover: "rgba(196,164,100,0.55)",
  },
  {
- name: "WizVideo™",
-    benefit: "Full music videos from your track",
+    name: "WizVideo™",
+    benefit: "Cinematic music videos & film scenes",
     href: getProduct("wizvideo")?.productPage ?? "/music-video",
     image: APP_WIZVIDEO,
     glowColor: "rgba(196,164,100,0.30)",
@@ -68,7 +68,7 @@ const CREATE_TILES: StudioTile[] = [
   },
   {
     name: "WizAnimate™",
-    benefit: "Characters brought to life with AI",
+    benefit: "Animation & motion graphics",
     href: WIZANIMATE_PRODUCT_PAGE,
     image: APP_WIZANIMATE,
     glowColor: "rgba(196,164,100,0.30)",
@@ -76,7 +76,7 @@ const CREATE_TILES: StudioTile[] = [
   },
   {
     name: "WizScore™",
-    benefit: "Original soundtrack for any video",
+    benefit: "Bespoke soundtracks & scoring",
     href: getProduct("wizscore")?.productPage ?? "/products/wizscore",
     image: APP_WIZSCORE,
     glowColor: "rgba(196,164,100,0.30)",
@@ -84,7 +84,7 @@ const CREATE_TILES: StudioTile[] = [
   },
   {
     name: "WizShorts™",
-    benefit: "Scroll-stopping shorts for every platform",
+    benefit: "Scroll-stopping vertical shorts",
     href: getProduct("wizshorts")?.productPage ?? "/products/wizshorts",
     image: APP_WIZSHORTS,
     glowColor: "rgba(196,164,100,0.30)",
@@ -92,7 +92,7 @@ const CREATE_TILES: StudioTile[] = [
   },
   {
     name: "WizScript™",
-    benefit: "Scene-by-scene cinematic control",
+    benefit: "Storyboards & scripts to plan every shot",
     href: getProduct("wizscript")?.productPage ?? "/products/wizscript",
     image: APP_WIZSCRIPT,
     glowColor: "rgba(196,164,100,0.30)",
@@ -259,7 +259,7 @@ function RowLabel({ label, count, accentColor }: { label: string; count: number;
 export default function WizProductGrid() {
   return (
     <section
-      id="products"
+      id="studios"
       className="relative py-28 px-6 scroll-mt-20 overflow-hidden"
       style={{ backgroundImage: "linear-gradient(180deg, #030303 0%, #050505 50%, #030303 100%)" }}
     >
@@ -286,14 +286,14 @@ export default function WizProductGrid() {
         {/* ── Section header ──────────────────────────────────────────────── */}
         <div className="mb-16 reveal text-center">
           <p className="text-[clamp(1rem,2.5vw,1.5rem)] font-black tracking-[0.35em] uppercase text-[--color-gold-dark] mb-5">
-            YOUR STUDIO
+            ONE SUBSCRIPTION UNLOCKS ALL 7
           </p>
           <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-black tracking-tight text-white leading-tight mb-3">
-            Every room. Every tool. One space.
+            Every studio. One shared wallet.
           </h2>
           <p className="text-white/40 text-base max-w-2xl leading-relaxed mx-auto">
-            From the main stage to the sound booth to the animation suite —
-            everything you need to make something extraordinary.
+            Music videos, images, shorts, animation, audio, scoring and scripts —
+            all powered by a single credit balance. Try everything free.
           </p>
         </div>
         {/* ── Row 1: CREATE (7 tiles) — 4 top + 3 centred bottom ─────────── */}
@@ -348,18 +348,18 @@ export default function WizProductGrid() {
         <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-6 reveal">
           <div>
             <p className="text-white/25 text-xs">
-              2 free Build Credits on sign-up — no card required.
+              30 free credits on sign-up — no card required.
             </p>
             <p className="text-white/15 text-xs mt-0.5">
-              Studio-grade output from your first session.
+              Spend them across any studio. Preview before you download.
             </p>
           </div>
           <a
-            href="/create"
+            href="/onboarding"
             onClick={() => mp.startCreatingClicked("homepage_product_grid")}
             className="btn-primary btn-sheen inline-flex items-center gap-2.5 px-8 py-4 rounded-xl text-sm font-bold flex-shrink-0"
           >
-            <span>Start Creating Free</span>
+            <span>Start free — 30 credits</span>
             <ArrowRight className="w-4 h-4" />
           </a>
         </div>

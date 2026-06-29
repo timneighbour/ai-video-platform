@@ -110,7 +110,7 @@ const GEN_STAGES = [
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function KidsVideo() {
   useEffect(() => { mp.studioEntered("WizAnimate"); }, []);
-  useSEO({ title: "WizAnimate™ — AI Character Animation Studio | WIZ AI", path: "/kids-video", description: "Create beat-matched AI character animations with WizAnimate™. Upload your audio, lock your characters, and generate a cinematic animated video with lip-sync and consistent characters." });
+  useSEO({ title: "WizAnimate™ — Animation & Motion Graphics — WIZ AI", path: "/kids-video", description: "Create AI character animations, motion graphics, and animated scenes. 4–5 credits per clip. One wallet unlocks all WIZ AI studios." });
 
   const { isAuthenticated } = useAuth();
   const { balance: creditBalance } = useCreditGuard();
