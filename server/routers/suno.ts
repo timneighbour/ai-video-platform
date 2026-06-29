@@ -394,10 +394,24 @@ export const sunoRouter = router({
             .set({ tracks: JSON.stringify(trimmingTracks), updatedAt: new Date() })
             .where(eq(sunoMusicTasks.id, task.id));
           enqueueTrim(task.id);
+          // Sign stream tokens before returning trimming tracks to the client
+          const signedTrimmingTracks = await Promise.all(
+            trimmingTracks.map(async (t: any, i: number) => {
+              const { originalUrl: _o, ...rest } = t;
+              if (!rest.audioUrl || rest.audioUrl.startsWith("/api/audio/")) return rest;
+              const token = await signStreamToken({
+                audioUrl: rest.audioUrl,
+                userId: ctx.user.id,
+                taskId: task.id,
+                trackIndex: i,
+              });
+              return { ...rest, audioUrl: `/api/audio/stream/${token}` };
+            })
+          );
           return {
             id: task.id,
             status: "trimming" as any,
-            tracks: trimmingTracks,
+            tracks: signedTrimmingTracks,
             errorMessage: task.errorMessage,
             targetDuration: task.targetDuration,
             provider: task.provider,
@@ -405,10 +419,24 @@ export const sunoRouter = router({
         }
 
         if (isCurrentlyTrimming) {
+          // Sign stream tokens for already-trimming tracks before returning
+          const signedCachedTracks = await Promise.all(
+            cachedTracks.map(async (t: any, i: number) => {
+              const { originalUrl: _o, ...rest } = t;
+              if (!rest.audioUrl || rest.audioUrl.startsWith("/api/audio/")) return rest;
+              const token = await signStreamToken({
+                audioUrl: rest.audioUrl,
+                userId: ctx.user.id,
+                taskId: task.id,
+                trackIndex: i,
+              });
+              return { ...rest, audioUrl: `/api/audio/stream/${token}` };
+            })
+          );
           return {
             id: task.id,
             status: "trimming" as any,
-            tracks: cachedTracks,
+            tracks: signedCachedTracks,
             errorMessage: task.errorMessage,
             targetDuration: task.targetDuration,
             provider: task.provider,
@@ -470,17 +498,18 @@ export const sunoRouter = router({
 
       if (hasTrimming) enqueueTrim(task.id);
 
-      // Sign stream tokens for freshly-polled Suno tracks
+      // Sign stream tokens for freshly-polled Suno tracks; strip originalUrl from client response
       const signedFinalTracks = await Promise.all(
         finalTracks.map(async (t: any, i: number) => {
-          if (!t.audioUrl || t.audioUrl.startsWith("/api/audio/")) return t;
+          const { originalUrl: _o, ...rest } = t;
+          if (!rest.audioUrl || rest.audioUrl.startsWith("/api/audio/")) return rest;
           const token = await signStreamToken({
-            audioUrl: t.audioUrl,
+            audioUrl: rest.audioUrl,
             userId: ctx.user.id,
             taskId: task.id,
             trackIndex: i,
           });
-          return { ...t, audioUrl: `/api/audio/stream/${token}` };
+          return { ...rest, audioUrl: `/api/audio/stream/${token}` };
         })
       );
 
@@ -669,19 +698,26 @@ export const sunoRouter = router({
       .orderBy(desc(sunoMusicTasks.createdAt))
       .limit(20);
 
-    return tasks.map((t) => ({
-      id: t.id,
-      title: t.title,
-      prompt: t.prompt,
-      style: t.style,
-      instrumental: t.instrumental,
-      status: t.status,
-      targetDuration: t.targetDuration,
-      provider: t.provider,
-      generationMode: t.generationMode,
-      tracks: t.tracks ? JSON.parse(t.tracks) : [],
-      createdAt: t.createdAt,
-    }));
+    return tasks.map((t) => {
+      // Strip raw provider URLs from history — audioUrl is replaced with a
+      // signed /api/audio/stream/:token by getStatus when the user replays.
+      // History only needs metadata; the player calls getStatus for playback.
+      const rawTracks: any[] = t.tracks ? JSON.parse(t.tracks) : [];
+      const safeTracks = rawTracks.map(({ audioUrl: _a, originalUrl: _o, ...rest }: any) => rest);
+      return {
+        id: t.id,
+        title: t.title,
+        prompt: t.prompt,
+        style: t.style,
+        instrumental: t.instrumental,
+        status: t.status,
+        targetDuration: t.targetDuration,
+        provider: t.provider,
+        generationMode: t.generationMode,
+        tracks: safeTracks,
+        createdAt: t.createdAt,
+      };
+    });
   }),
 
   /**
