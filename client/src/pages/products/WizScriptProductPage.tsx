@@ -318,7 +318,7 @@ export default function WizScriptProductPage() {
  >View pricing <ChevronRight className="w-4 h-4" />
  </NavLink>
  </div>
- <p className="text-[11px] text-white/30 mt-3 tracking-wide">Opens in the WizScript™ writing studio &middot; 2 free credits on sign-up &middot; No card required</p>
+ <p className="text-[11px] text-white/30 mt-3 tracking-wide">Opens in the WizScript™ writing studio &middot; 30 free credits on sign-up &middot; No card required</p>
  <div className="flex items-center gap-8">
  {[
  { val: "< 5m", label: "Script generation" },

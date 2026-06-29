@@ -231,7 +231,7 @@ const Onboarding: React.FC = () => {
             </span>
           </div>
           <div className="flex items-center gap-5 text-[11px] text-white/25 font-medium tracking-wide">
-            {['Preview before you pay', 'Consistent characters', '2 free projects included'].map((item, i) => (
+            {['Preview before you pay', 'Consistent characters', '30 free credits — no card needed'].map((item, i) => (
               <React.Fragment key={item}>
                 {i > 0 && <span className="w-1 h-1 rounded-full bg-[#b8892a]/30" />}
                 <span>{item}</span>
@@ -245,7 +245,7 @@ const Onboarding: React.FC = () => {
           <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[12px] font-semibold"
             style={{ background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.30)", color: "rgb(134,239,172)" }}>
             <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-            Your free account includes 50 credits — enough for 3 full videos
+            Your free account includes 30 credits — enough for 3 full videos
           </span>
         </div>
         {/* ── Cards grid ─────────────────────────────────────────────────── */}
@@ -495,7 +495,7 @@ const Onboarding: React.FC = () => {
               <Zap className="w-5 h-5 text-[#b8892a]" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-white mb-1">You have 50 free Build Credits</p>
+              <p className="text-sm font-bold text-white mb-1">You have 30 free credits</p>
               <p className="text-xs text-white/40 leading-relaxed">Storyboard generation is always free — preview your full video before spending a single credit. Credits are only used when you click <span className="text-white/60 font-medium">Build</span> to render the final video. A standard 3-scene music video costs 45 credits.</p>
             </div>
             <a href="/pricing" className="flex-shrink-0 text-xs font-semibold text-[#b8892a] hover:text-[#e8c878] transition-colors whitespace-nowrap">See all plans →</a>

@@ -162,10 +162,10 @@ const CATEGORIES: Category[] = [
     accentText: "text-black",
     borderColor: "border-yellow-500",
     faqs: [
-      { q: "How does the credit system work?", a: "Build Credits are consumed when you generate a video. Each plan includes a monthly allowance. 1 Build Credit = 1 video render. Additional credits can be purchased as top-up packs at any time." },
+      { q: "How does the credit system work?", a: "credits are consumed when you generate a video. Each plan includes a monthly allowance. 1 credit = 1 studio action (weight varies by studio). Additional credits can be purchased as top-up packs at any time." },
       { q: "What is WizSound?", a: "WizSound™ is WIZ AI's professional audio mastering engine. It automatically enhances the audio quality of every video you produce — improving clarity, depth, and loudness to broadcast standards." },
-      { q: "What plans are available?", a: "Starter (£9/mo — 2 Build Credits), Creator (£35/mo — 15 Build Credits), and Studio (£99/mo — 40 Build Credits). Annual plans offer up to 30% savings. See the Pricing page for full details." },
-      { q: "Do unused Build Credits roll over?", a: "Build Credits do not roll over between billing periods. We recommend choosing a plan that matches your typical monthly usage, or purchasing top-up packs when needed." },
+      { q: "What plans are available?", a: "Starter (£35/mo — 320 credits), Creator (£79/mo — 800 credits), and Studio (£165/mo — 1,500 credits). Annual plans save 2 months. See the Pricing page for full details." },
+      { q: "Do unused credits roll over?", a: "Monthly credits do not roll over between billing periods. We recommend choosing a plan that matches your typical monthly usage, or purchasing top-up packs when needed." },
       { q: "Can I cancel my subscription?", a: "Yes, you can cancel at any time from your account settings. Your subscription remains active until the end of the current billing period." },
       { q: "What payment methods do you accept?", a: "We accept all major credit and debit cards (Visa, Mastercard, Amex), Apple Pay, and Google Pay via Stripe. All payments are processed securely." },
     ],
@@ -178,7 +178,7 @@ const CATEGORIES: Category[] = [
     accentText: "text-white",
     borderColor: "border-slate-400",
     faqs: [
-      { q: "Why is my video not generating?", a: "Check that you have sufficient Build Credits and that your audio file meets the format requirements (MP3/WAV, under 50 MB). If the issue persists, try refreshing the page or contact support via Live Chat." },
+      { q: "Why is my video not generating?", a: "Check that you have sufficient credits and that your audio file meets the format requirements (MP3/WAV, under 50 MB). If the issue persists, try refreshing the page or contact support via Live Chat." },
       { q: "My video quality looks low — what can I do?", a: "Ensure you have selected HD or 4K quality in the render settings. Quality options depend on your plan — Studio plan unlocks 4K. Also check that your source audio is high quality." },
       { q: "How do I download my video?", a: "Once your video is ready, go to Render History, click on your video, and use the Download button. Videos are available in MP4 format." },
       { q: "I'm getting an error message — what should I do?", a: "Note the error message and contact our support team via Live Chat or email at support@wiz-ai.io. Include your account email and a description of what you were doing when the error occurred." },
@@ -211,7 +211,7 @@ const CATEGORIES: Category[] = [
       { q: "What is WizCreate™?", a: "WizCreate™ is WIZ AI's intelligent storyboard engine. It analyses your lyrics or script and automatically generates a complete visual storyboard — one scene per section — ready for you to review and customise." },
       { q: "Can I edit my storyboard before building?", a: "Yes. After WizCreate™ generates your storyboard, you can edit any scene description, change styles, reorder scenes, or regenerate individual scenes before committing to a full build." },
       { q: "How many scenes can a storyboard have?", a: "Storyboards can have between 4 and 24 scenes depending on your track length and plan. Studio plan supports the maximum scene count." },
-      { q: "Is storyboard generation really free?", a: "Yes. Generating a storyboard with WizCreate™ is always free. You only spend Build Credits when you click Build to render the final video." },
+      { q: "Is storyboard generation really free?", a: "Yes. Generating a storyboard with WizCreate™ is always free. You only spend credits when you click Build to render the final video." },
     ],
   },
 ];

@@ -987,7 +987,7 @@ export default function TextToVideoCreator() {
                       color: activeTier === t ? V_LIGHT : "rgba(255,255,255,0.75)",
                     }}>
                     {t.toUpperCase()}
-                    {t !== "original" && <span className="block text-[8px]" style={{ color: `${V_LIGHT}99` }}>+£{t === "enhanced" ? "2.99" : "4.99"}</span>}
+                    {t !== "original" && <span className="block text-[8px]" style={{ color: `${V_LIGHT}99` }}>+${t === "enhanced" ? "2 cr" : "4 cr"}</span>}
                   </button>
                 ))}
               </div>

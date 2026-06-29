@@ -14,7 +14,7 @@ import {
  * 4. Per-video pricing — large visual tier cards
  * 5. Subscription plans — rich cinematic plan cards with bg imagery
  * 6. Product coverage strip — all 6 logos
- * 7. Build Credit Packs — premium credit pack cards
+ * 7. top-up packs — premium credit pack cards
  * 8. Social proof / testimonials
  * 9. Trust strip
  * 10. Comparison table — grouped, sticky header
@@ -87,7 +87,7 @@ const PLAN_UI_OVERLAY: Record<string, {
  starter: {
  accentColor: "oklch(0.65 0.08 240)", bgImage: PLAN_BG_STARTER,
  glowColor: "rgba(100,140,200,0.12)", borderColor: "rgba(100,140,200,0.2)",
- annualPrice: 290, tagline: "All 7 studios. 320 credits/month.",
+ annualPrice: 350, tagline: "All 7 studios. 320 credits/month.",
  },
  creator: {
  accentColor: "oklch(0.78 0.11 75)", bgImage: PLAN_BG_CREATOR,
@@ -97,7 +97,7 @@ const PLAN_UI_OVERLAY: Record<string, {
  studio: {
  accentColor: "oklch(0.72 0.12 300)", bgImage: PLAN_BG_PRO,
  glowColor: "rgba(160,100,220,0.14)", borderColor: "rgba(160,100,220,0.25)",
- annualPrice: 1490, tagline: "1,500 credits/month. API access.",
+ annualPrice: 1650, tagline: "1,500 credits/month. API access.",
  },
 };
 // Merge shared plan data with Pricing-page UI overlay
@@ -106,11 +106,12 @@ const PLANS = SHARED_PLANS
  .filter((p) => ["starter", "creator", "studio"].includes(p.id))
  .map((p) => ({ ...p, ...PLAN_UI_OVERLAY[p.id] }));
 
-// Build Credit Packs 
+// top-up packs 
 // Bundle UI overlay (visual fields only — prices/labels from @/lib/plans) 
 const BUNDLE_UI_OVERLAY: Record<string, { bgImage: string; accentColor: string; borderColor: string }> = {
  spark: { bgImage: SHOWCASE_3, accentColor: "rgba(100,140,200,0.15)", borderColor: "rgba(100,140,200,0.2)" },
  boost: { bgImage: SHOWCASE_1, accentColor: "rgba(196,164,100,0.15)", borderColor: "rgba(196,164,100,0.4)" },
+ boost_200: { bgImage: SHOWCASE_2, accentColor: "rgba(160,100,220,0.15)", borderColor: "rgba(160,100,220,0.25)" },
  pro_pack: { bgImage: SHOWCASE_2, accentColor: "rgba(160,100,220,0.15)", borderColor: "rgba(160,100,220,0.25)" },
  mega: { bgImage: SHOWCASE_3, accentColor: "rgba(100,200,140,0.15)", borderColor: "rgba(100,200,140,0.25)" },
 };
@@ -122,7 +123,7 @@ const COMPARISON_GROUPS = [
  group: "Output",
  rows: [
  { label: "Videos per month", starter: "2", creator: "15", studio: "40" },
- { label: "Build Credits / month", starter: "2", creator: "15", studio: "40" },
+ { label: "credits / month", starter: "2", creator: "15", studio: "40" },
  { label: "Max scenes per video", starter: "8 (≈64s)", creator: "11 (≈88s)", studio: "12 (≈96s)" },
  { label: "Max output quality", starter: "720p", creator: "4K 2160p", studio: "4K 2160p" },
  { label: "No watermark", starter: true, creator: true, studio: true, isCheck: true },
@@ -140,7 +141,7 @@ const COMPARISON_GROUPS = [
  {
  group: "Access",
  rows: [
- { label: "Build Credit Packs", starter: true, creator: true, studio: true, isCheck: true },
+ { label: "top-up packs", starter: true, creator: true, studio: true, isCheck: true },
  { label: "Pay-per-video", starter: true, creator: true, studio: true, isCheck: true },
  { label: "Daily video limit", starter: "3/day", creator: "3/day", studio: "3/day" },
  ],
@@ -151,23 +152,23 @@ const COMPARISON_GROUPS = [
 const FAQS = [
  {
  q: "What does 'Create free, pay when your video is ready' mean?",
- a: "You can create your entire video — upload audio, generate your storyboard, and refine every scene — completely free. A Build Credit is only used when you choose to generate and download the final video. Failed builds do not use credits. There is no time limit on the free creation tier.",
+ a: "You can create your entire video — upload audio, generate your storyboard, and refine every scene — completely free. A credit is only used when you choose to generate and download the final video. Failed builds do not use credits. There is no time limit on the free creation tier.",
  },
  {
  q: "What is the difference between Standard, HD, and 4K?",
  a: "Standard (720p) is great for social media previews. HD (1080p) is perfect for YouTube, Instagram, and most streaming platforms. 4K (2160p) is cinema-grade quality for professional productions. 4K is available on Creator and Studio plans.",
  },
  {
- q: "What happens if I use all my monthly Build Credits?",
- a: "Your Build Credits reset on your next billing date. In the meantime, you can top up instantly with a Build Credit Pack (3, 10, or 25 credits) or pay per video at £2–£6 depending on quality. Build Credit Packs never expire and are used automatically once your monthly credits run out.",
+ q: "What happens if I use all my monthly credits?",
+ a: "Your Credits reset on your next billing date. In the meantime, you can top up instantly with a top-up pack (3, 10, or 25 credits) or pay per video at £2–£6 depending on quality. Top-up credits never expire and are used automatically once your monthly credits run out.",
  },
  {
- q: "What are Build Credit Packs?",
- a: "Build Credit Packs are pre-purchased packs of Build Credits. Buy 3, 10, or 25 credits upfront and save compared to pay-per-video pricing. Build Credit Packs never expire and work alongside any subscription plan.",
+ q: "What are top-up packs?",
+ a: "top-up packs are pre-purchased packs of credits. Buy 3, 10, or 25 credits upfront and save compared to pay-per-video pricing. Top-up credits never expire and work alongside any subscription plan.",
  },
  {
- q: "Do monthly Build Credits roll over?",
- a: "Monthly Build Credits reset each billing cycle and do not roll over. If you need more flexibility, an Extra Build Credit Pack is a better option as the credits never expire.",
+ q: "Do monthly credits roll over?",
+ a: "Monthly credits reset each billing cycle and do not roll over. If you need more flexibility, an Extra top-up pack is a better option as the credits never expire.",
  },
  {
  q: "What is WizSync\u2122 character lock?",
@@ -187,7 +188,7 @@ const FAQS = [
  },
  {
  q: "Does pricing cover all WIZ AI products?",
- a: "Yes. Your monthly Build Credits and Build Credit Packs work across all WIZ AI products — WizVideo, WizScript, WizShorts, WizAnimate, WizAudio, and WizImage. Each final video download uses one Build Credit regardless of which product you used.",
+ a: "Yes. Your monthly credits and top-up packs work across all WIZ AI products — WizVideo, WizScript, WizShorts, WizAnimate, WizAudio, and WizImage. Each final video download uses one credit regardless of which product you used.",
  },
 ];
 
@@ -286,7 +287,7 @@ function CompCell({ value, isCheck }: { value: string | boolean; isCheck?: boole
 }
 
 export default function Pricing() {
-  useSEO({ title: "Pricing 2014 WIZ AI", path: "/pricing", description: "One subscription. Every studio. One wallet of credits. Free, Starter 00a329, Creator 00a379, Studio 00a3149. No card to start." });
+  useSEO({ title: "Pricing — WIZ AI", path: "/pricing", description: "One subscription. Every studio. One credit wallet. Free · Starter £35 · Creator £79 · Studio £165. No card to start." });
  const { isAuthenticated } = useAuth();
  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
  const [loadingBundle, setLoadingBundle] = useState<string | null>(null);
@@ -433,7 +434,7 @@ export default function Pricing() {
   <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-5 leading-[1.05]">One subscription.<br />
   <span className="metallic-gold">Every studio. One wallet of credits.</span>
   </h1>
-  <p className="text-lg sm:text-xl text-white/50 max-w-xl mx-auto leading-relaxed mb-8">Build your entire music video at no cost — direct every scene, control lip sync and character consistency, preview before you commit. Only pay when you're ready to download.
+  <p className="text-lg sm:text-xl text-white/50 max-w-xl mx-auto leading-relaxed mb-8">Create across all 7 WIZ AI studios at no cost — direct scenes, control characters, preview before you commit. Your credits work everywhere. Only pay when you're ready to download.
   </p>
  {/* Trust pills */}
  <div className="flex flex-wrap items-center justify-center gap-3">
@@ -457,7 +458,7 @@ export default function Pricing() {
  <section className="max-w-6xl mx-auto px-6 mb-24">
  <div className="text-center mb-12">
  <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">How It Works</p>
- <h2 className="text-3xl sm:text-5xl font-extrabold text-white">Three steps to your finished video</h2>
+ <h2 className="text-3xl sm:text-5xl font-extrabold text-white">Three steps to your finished creation</h2>
  </div>
  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
  {[
@@ -883,7 +884,7 @@ export default function Pricing() {
  <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">TOP-UP CREDIT PACKS</p>
  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Top up anytime. Never expire.</h2>
  <p className="text-sm text-white/40 max-w-lg mx-auto">Stack credits onto your balance and spend them across any studio. Top-up packs work alongside any subscription and never expire.</p>
- <p className="text-xs text-white/25 max-w-md mx-auto mt-3">Each Build Credit creates one final downloadable video, subject to your plan&apos;s scene, length and quality limits.</p>
+ <p className="text-xs text-white/25 max-w-md mx-auto mt-3">Each credit creates one final downloadable video, subject to your plan&apos;s scene, length and quality limits.</p>
  </div>
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
  {BUNDLES.map((bundle) => (
@@ -911,7 +912,7 @@ export default function Pricing() {
  <div className="relative h-40 overflow-hidden">
  <img src={bundle.bgImage} alt={bundle.label} className="w-full h-full object-cover brightness-[1.05] saturate-[1.1]" loading="lazy" />
  <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(4,4,4,0.05) 0%, rgba(4,4,4,0.55) 100%)' }} />
- {/* Build Credit count display */}
+ {/* credit count display */}
  <div className="absolute bottom-0 left-0 right-0 p-4">
  <div className="flex items-end gap-2">
  <span className="text-5xl font-black text-white leading-none">{bundle.credits}</span>

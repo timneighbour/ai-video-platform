@@ -419,7 +419,7 @@ export default function MusicVideosLanding() {
             Upload your song. Get a full video.
           </h2>
           <p className="text-[#a1a1aa] text-lg mb-10 max-w-xl mx-auto">
-            Storyboard generation is always free. You only pay when you're ready to build and download. From £2 per video.
+            Storyboard generation is always free. You only pay when you're ready to build and download. Credits only — no per-video charges.
           </p>
           {isAuthenticated ? (
             <a

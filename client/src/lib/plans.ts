@@ -9,9 +9,9 @@
  *
  * CREDIT MODEL (weighted — each studio costs different credits):
  *   WizVideo:  20 credits/scene (28 for 4K)
- *   WizShorts: 5 credits/scene (30 for 30s, 60 for 60s)
- *   WizAnimate: 5 credits/video
- *   WizAudio:  2 credits (Suno default), 4 credits/min (ElevenLabs/cinematic)
+ *   WizShorts: 30 credits (30s) / 60 credits (60s)
+ *   WizAnimate: 4–5 credits/clip
+ *   WizAudio:  2 credits/min music, 4 credits/min voice
  *   WizImage:  1 credit/image
  *   WizScore:  2 credits/soundtrack
  *   WizScript: 0 (free — script only, no render)
@@ -105,9 +105,9 @@ export const PLANS: PlanData[] = [
   {
     id: "starter",
     name: "Starter",
-    monthlyPrice: 29,
-    annualTotal: 290,
-    annualSaving: 58,
+    monthlyPrice: 35,
+    annualTotal: 350,
+    annualSaving: 70,
     tagline: "320 credits/month — ~2 WizVideos",
     bestFor: "Best for first-time creators",
     outcomes: [
@@ -185,9 +185,9 @@ export const PLANS: PlanData[] = [
   {
     id: "studio",
     name: "Studio",
-    monthlyPrice: 149,
-    annualTotal: 1490,
-    annualSaving: 298,
+    monthlyPrice: 165,
+    annualTotal: 1650,
+    annualSaving: 330,
     tagline: "1,500 credits/month — ~9 WizVideos",
     bestFor: "Best for brands, agencies and high-volume creators",
     outcomes: [
@@ -312,17 +312,17 @@ export const TOPUP_PACKS: TopupPack[] = [
     credits: 400,
     price: 45,
     perCredit: "11.3p per credit",
-    label: "Boost 400",
+    label: "Pro Pack",
     popular: true,
     bestValue: false,
-    desc: "Most popular. 400 credits — ~2 WizVideos. Never expire.",
+    desc: "Most popular. 400 credits — ~2 full WizVideos. Never expire.",
   },
   {
     key: "pro_pack",
     credits: 700,
     price: 77,
     perCredit: "11p per credit",
-    label: "Pro Pack",
+    label: "Mega",
     popular: false,
     bestValue: false,
     desc: "700 credits — ~4 WizVideos. Never expire.",
@@ -332,7 +332,7 @@ export const TOPUP_PACKS: TopupPack[] = [
     credits: 1000,
     price: 109,
     perCredit: "10.9p per credit",
-    label: "Mega",
+    label: "Elite",
     popular: false,
     bestValue: true,
     desc: "Best value. 1,000 credits — ~6 WizVideos. Never expire.",

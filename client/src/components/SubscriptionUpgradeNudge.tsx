@@ -55,7 +55,7 @@ export default function SubscriptionUpgradeNudge({ className = "" }: { className
   const savingsLine =
     estimatedMonthlySavingPence > 0
       ? `Save up to £${(estimatedMonthlySavingPence / 100).toFixed(0)}/mo with the Creator plan.`
-      : `The Creator plan gives you 15 Build Credits/mo for just £${recommendedPlanPrice}.`;
+      : `The Creator plan gives you 800 credits/mo for just £${recommendedPlanPrice}.`;
 
   return (
     <div

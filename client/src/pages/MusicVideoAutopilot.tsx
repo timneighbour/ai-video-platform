@@ -3352,7 +3352,7 @@ export default function MusicVideoAutopilot() {
         {(!subData?.isActive || subData?.plan === 'free') && (
           <div className="w-full py-1.5 px-4 flex items-center justify-center gap-3 text-[11px] font-semibold" style={{ background: "linear-gradient(90deg, rgba(34,197,94,0.12) 0%, rgba(16,185,129,0.08) 100%)", borderTop: "1px solid rgba(34,197,94,0.20)" }}>
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            <span style={{ color: "rgb(134,239,172)" }}>Free account &mdash; 50 credits included. <a href="/free-trial" className="underline underline-offset-2 hover:text-green-300 transition-colors">Try a 30s watermarked preview free</a> or <a href="/pricing" className="underline underline-offset-2 hover:text-green-300 transition-colors">upgrade for full renders</a>.</span>
+            <span style={{ color: "rgb(134,239,172)" }}>Free account &mdash; 30 credits included. <a href="/free-trial" className="underline underline-offset-2 hover:text-green-300 transition-colors">Try a 30s watermarked preview free</a> or <a href="/pricing" className="underline underline-offset-2 hover:text-green-300 transition-colors">upgrade for full renders</a>.</span>
           </div>
         )}
         {/* Stage pills — clapperboard slate treatment */}
@@ -4675,8 +4675,8 @@ export default function MusicVideoAutopilot() {
                   <div className="space-y-1.5">
                     {[
                       { label: "ORIGINAL", price: "Included", color: "#c9a84c", glow: "rgba(201,168,76,0.2)", active: true },
-                      { label: "ENHANCED", price: "+£2.99", color: "#4da6ff", glow: "rgba(77,166,255,0.15)", active: false },
-                      { label: "CINEMATIC", price: "+£4.99", color: "#b88aff", glow: "rgba(184,138,255,0.15)", active: false },
+                      { label: "ENHANCED", price: "+2 cr", color: "#4da6ff", glow: "rgba(77,166,255,0.15)", active: false },
+                      { label: "CINEMATIC", price: "+4 cr", color: "#b88aff", glow: "rgba(184,138,255,0.15)", active: false },
                     ].map((tier) => (
                       <div key={tier.label} className="flex items-center justify-between px-3 py-2 rounded-[6px]"
                         style={{ background: tier.active ? `linear-gradient(90deg, ${tier.glow}, rgba(0,0,0,0.3))` : "rgba(255,255,255,0.025)", border: tier.active ? `1px solid ${tier.color}44` : "1px solid rgba(255,255,255,0.06)", boxShadow: tier.active ? `0 0 12px ${tier.glow}` : "none" }}>
@@ -4700,16 +4700,7 @@ export default function MusicVideoAutopilot() {
                       ))}
                     </div>
                   </div>
-                  <div className="space-y-1.5 pt-1" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-                    <div className="flex items-center justify-between px-3 py-2 rounded-[6px]" style={{ background: "linear-gradient(90deg, rgba(201,168,76,0.12), rgba(0,0,0,0.3))", border: "1px solid rgba(201,168,76,0.25)", boxShadow: "0 0 10px rgba(201,168,76,0.1)" }}>
-                      <span className="text-[11px] font-bold" style={{ color: "#c9a84c" }}>WizSound™ Cinematic</span>
-                      <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>+£4.99</span>
-                    </div>
-                    <div className="flex items-center justify-between px-3 py-2 rounded-[6px]" style={{ background: "linear-gradient(90deg, rgba(184,138,255,0.12), rgba(0,0,0,0.3))", border: "1px solid rgba(184,138,255,0.25)", boxShadow: "0 0 10px rgba(184,138,255,0.1)" }}>
-                      <span className="text-[11px] font-bold" style={{ color: "#b88aff" }}>WizLumina™ Cinematic</span>
-                      <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>+£3.99</span>
-                    </div>
-                  </div>
+                  {/* WizSound & WizLumina are included intelligence — no standalone £ charge */}
                   <div className="pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
                     <div className="text-[8px] font-black tracking-[2.5px] uppercase mb-2" style={{ color: "rgba(255,255,255,0.75)" }}>Render Quality</div>
                     <div className="grid grid-cols-3 gap-1">
@@ -4746,7 +4737,7 @@ export default function MusicVideoAutopilot() {
                     { n: "1", text: "Upload your song & describe your vision" },
                     { n: "2", text: "AI transcribes lyrics & generates a free storyboard" },
                     { n: "3", text: "Review & edit any scene prompts" },
-                    { n: "4", text: "Choose quality & render (from £2)" },
+                    { n: "4", text: "Choose quality & render (credits only)" },
                     { n: "5", text: "Download your finished music video" },
                   ].map((step) => (
                     <div key={step.n} className="flex items-start gap-2.5">
@@ -6132,7 +6123,7 @@ export default function MusicVideoAutopilot() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-white">Your storyboard is ready — subscribe to build faster</p>
-                    <p className="text-xs text-white/50 mt-0.5">Creator plan: 15 videos/month · 4K quality · priority builds · £2.33/video</p>
+                    <p className="text-xs text-white/50 mt-0.5">Creator plan · 800 credits/month · 4K quality · priority builds</p>
                   </div>
                 </div>
                 <a

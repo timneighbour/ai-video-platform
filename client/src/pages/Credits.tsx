@@ -42,7 +42,7 @@ const STANDARD_PACKS = [
     name: "Boost",
     tagline: "~1 WizVideo",
     price: 32,
-    priceDisplay: "£32",
+    priceDisplay: "£23",
     credits: 300,
     videos: "~1 full WizVideo",
     perCreditPence: 10.7,
@@ -59,7 +59,7 @@ const STANDARD_PACKS = [
     name: "Pro Pack",
     tagline: "~4 WizVideos",
     price: 69,
-    priceDisplay: "£69",
+    priceDisplay: "£45",
     credits: 700,
     videos: "~4 full WizVideos",
     perCreditPence: 9.9,
@@ -76,7 +76,7 @@ const STANDARD_PACKS = [
     name: "Mega",
     tagline: "Best value",
     price: 139,
-    priceDisplay: "£139",
+    priceDisplay: "£77",
     credits: 1500,
     videos: "~9 full WizVideos",
     perCreditPence: 9.3,
@@ -197,7 +197,7 @@ export default function Credits() {
           <div className="flex items-center gap-3 mb-8">
             <Film className="w-5 h-5 text-[--color-gold]" />
             <h2 className="text-xl font-bold">Build Credits</h2>
-            <span className="text-xs text-zinc-500">50–4,000 Credits · from £3.99 · never expire</span>
+            <span className="text-xs text-zinc-500">100–1,000 credits · from £12 · never expire</span>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">

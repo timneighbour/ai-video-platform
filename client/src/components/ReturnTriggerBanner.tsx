@@ -39,7 +39,7 @@ const TRIGGERS: Trigger[] = [
     borderColor: "border-amber-500/20",
     bgColor: "bg-amber-500/[0.04]",
     headline: (props: ReturnTriggerBannerProps) =>
-      `You have ${props.creditBalance} Build Credits waiting`,
+      `You have ${props.creditBalance} credits waiting`,
     subline: "Your credits don't expire. Pick up where you left off.",
     ctaLabel: "Continue creating →",
     ctaHref: "/music-video/create",

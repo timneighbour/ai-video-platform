@@ -85,8 +85,8 @@ const WIZ_TECHNOLOGY_CORE = [
 ];
 const WIZ_TECHNOLOGY_ADVANCED = [
   { name: "WizSync", tagline: "Portrait-to-LipSync™", desc: "AI Performance Enhancement — cinematic hero-shot lip sync from a portrait photo. No face video required.", href: "/technology/wizsync", logo: WIZSYNC_LOGO },
-  { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Analyses your video and composes an original AI soundtrack — perfectly synchronised to your footage.", href: "/technology/wizscore", logo: WIZBOOST_LOGO },
-  { name: "WizPilot", tagline: "AI-Directed Cinematic Production", desc: "Cinematic-first storyboarding, intelligent scene orchestration, and WizSync™ performance enhancement — director-level output.", href: "/technology/wizpilot", logo: WIZGENESIS_LOGO },
+  { name: "WizScore", tagline: "AI Video-to-Music Engine", desc: "Analyses your video and composes an original AI soundtrack — perfectly synchronised to your footage.", href: "/technology/wizscore", logo: WIZSOUND_LOGO },
+  { name: "WizPilot", tagline: "AI-Directed Cinematic Production", desc: "Cinematic-first storyboarding, intelligent scene orchestration, and WizSync™ performance enhancement — director-level output.", href: "/technology/wizpilot", logo: WIZCREATE_LOGO },
 ];
 const WIZ_TECHNOLOGY = [...WIZ_TECHNOLOGY_CORE, ...WIZ_TECHNOLOGY_ADVANCED];
 

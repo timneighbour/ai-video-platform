@@ -595,7 +595,7 @@ export default function Projects() {
         Start Creating with WizVideo
         <ChevronRight className="h-4 w-4" />
       </a>
-      <p className="text-zinc-600 text-xs mt-4">50 free credits included · No card required</p>
+      <p className="text-zinc-600 text-xs mt-4">30 free credits included · No card required</p>
     </div>
   );
 

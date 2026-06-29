@@ -314,25 +314,7 @@ export default function WizProductGrid() {
             </div>
           </div>
         </div>
-        {/* ── Row 2: ENHANCE (2 tiles) ─────────────────────────────────── */}
-        <div className="mb-14 reveal">
-          <RowLabel label="Enhance" count={2} accentColor="#d4a843" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {ENHANCE_TILES.map((tile) => (
-              <Tile key={tile.name} tile={tile} height={260} />
-            ))}
-          </div>
-        </div>
-
-        {/* ── Row 3: GROW (1 tile, full width) ─────────────────────────── */}
-        <div className="mb-14 reveal">
-          <RowLabel label="Grow" count={1} accentColor="#818cf8" />
-          <div className="grid grid-cols-1 gap-4">
-            {GROW_TILES.map((tile) => (
-              <Tile key={tile.name} tile={tile} height={260} />
-            ))}
-          </div>
-        </div>
+        {/* Enhance (WizSound, WizLumina) and Grow (WizBoost) rows hidden — internal engines folded into "included intelligence" */}
 
         {/* ── Row 4: DISCOVER (WizaVision) ─────────────────────────────── */}
         <div className="mb-14 reveal">

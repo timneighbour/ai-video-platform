@@ -33,7 +33,7 @@ interface WizGenesisModalProps {
   previewImageUrl?: string;
   /** Number of scenes in the storyboard — used for the credit cost summary */
   sceneCount?: number;
-  /** Total Build Credits required for this render — shown in the cost summary */
+  /** Total credits required for this render — shown in the cost summary */
   creditCost?: number;
   /** Called after billing is confirmed — triggers the actual scene render pipeline */
   onRenderConfirmed?: () => void;
@@ -365,7 +365,7 @@ export function WizGenesisModal({
             <div className="rounded-xl border border-[--color-gold]/20 bg-[--color-gold]/5 p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Zap className="w-4 h-4 text-[--color-gold]" />
-                <span className="text-sm font-semibold text-white">Build Credits Required</span>
+                <span className="text-sm font-semibold text-white">Credits Required</span>
               </div>
               <div className="space-y-2">
                 {sceneCount !== undefined && (
@@ -473,7 +473,7 @@ export function WizGenesisModal({
             <span className="text-sm text-zinc-300 leading-snug">
               I understand this will use{" "}
               <span className="font-semibold text-[#b8892a]">
-                {creditCost !== undefined ? `${creditCost} Build Credits` : "Build Credits"}
+                {creditCost !== undefined ? `${creditCost} credits` : "credits"}
               </span>{" "}
               from my balance to start this render.
             </span>

@@ -156,11 +156,11 @@ export default function FreeTrial() {
         <div className="max-w-md w-full text-center space-y-6">
           <div className="text-5xl">🎬</div>
           <h1 className="text-3xl font-bold text-white">You've Already Used Your Free Trial</h1>
-          <p className="text-white/60">Your free trial render has been used. Upgrade to a paid plan to create unlimited videos — starting at £29/month.</p>
+          <p className="text-white/60">Your free trial render has been used. Upgrade to a paid plan to create unlimited videos — starting at £35/month.</p>
           <Link href="/subscribe">
             <Button className="px-8 py-3.5 text-sm font-semibold rounded-xl"
               style={{ background: "linear-gradient(135deg, #c4a464, #e8c97a)", color: "#0a0a0a" }}>
-              View Plans from £29/month
+              View Plans from £35/month
             </Button>
           </Link>
         </div>
@@ -199,7 +199,7 @@ export default function FreeTrial() {
               <Link href="/subscribe">
                 <Button className="px-8 py-3 text-sm font-semibold rounded-xl w-full sm:w-auto"
                   style={{ background: "linear-gradient(135deg, #c4a464, #e8c97a)", color: "#0a0a0a" }}>
-                  Upgrade — from £29/month
+                  Upgrade — from £35/month
                 </Button>
               </Link>
               <a href={finalVideoUrl} download className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-medium border border-white/20 text-white/70 hover:text-white hover:border-white/40 transition-colors">

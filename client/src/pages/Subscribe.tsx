@@ -206,7 +206,7 @@ export default function Subscribe() {
  <div className="container max-w-4xl mx-auto">
  <div className="text-center mb-10">
  <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Not ready for a plan? Pay as you go.</h2>
- <p className="text-muted-foreground">Buy individual Build Credits whenever you need them. No subscription required.</p>
+ <p className="text-muted-foreground">Buy individual credits whenever you need them. No subscription required.</p>
  </div>
  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
  {[
@@ -254,12 +254,12 @@ export default function Subscribe() {
  </div>
  </section>
 
- {/* 6. Build Credit Packs */}
+ {/* 6. credit Packs */}
  <section className="py-16 border-t border-white/10 px-4">
  <div className="container max-w-3xl mx-auto">
  <div className="text-center mb-10">
  <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-xs text-white/70 font-medium mb-4">
- <Package className="h-3.5 w-3.5" />Build Credit Packs
+ <Package className="h-3.5 w-3.5" />credit Packs
  </div>
  <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">Save with build credit packs</h2>
  <p className="text-muted-foreground">Pre-purchase build credits at a discount. Use them anytime — they never expire.</p>
@@ -321,7 +321,7 @@ export default function Subscribe() {
  <div className="container max-w-3xl mx-auto">
  <div className="grid gap-4 sm:grid-cols-3 text-center">
  {[
- { q: "Do subscription build credits roll over?", a: "Subscription build credits reset each billing cycle. Build Credit Packs (bought separately) never expire." },
+ { q: "Do subscription credits roll over?", a: "Subscription credits reset each billing cycle. credit Packs (bought separately) never expire." },
  { q: "Can I switch plans?", a: "Yes, upgrade or downgrade anytime. Prorated instantly." },
  { q: "Is there a refund policy?", a: "Yes, we offer a 7-day money-back guarantee on all plans." }, ].map(({ q, a }) => (
  <div key={q} className="rounded-xl border border-white/10 bg-white/5 p-4">

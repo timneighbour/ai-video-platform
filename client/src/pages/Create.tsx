@@ -567,7 +567,7 @@ export default function Create() {
                 style={{ color: "#c4a464" }}>
                 Sign in free
               </a>{" "}
-              to unlock all tools — 2 free Build Credits included, no card needed.
+              to unlock all tools — 30 free credits included, no card needed.
             </p>
           )}
         </div>

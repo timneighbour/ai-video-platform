@@ -549,7 +549,7 @@ export default function AiAnimationMaker() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
             {[
               { name: "Free Trial", price: "£0", detail: "1 animated video" },
-              { name: "Starter", price: "£29/mo", detail: "2 videos · 8 scenes each" },
+              { name: "Starter", price: "£35/mo", detail: "2 videos · 8 scenes each" },
               { name: "Creator", price: "£79/mo", detail: "6 videos · 4K export", popular: true },
             ].map((plan, i) => (
               <div

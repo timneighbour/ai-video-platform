@@ -259,7 +259,7 @@ export default function Dashboard() {
               <Sparkles className="w-5 h-5 text-[--color-gold]" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-white mb-1">You have {creditBalance > 0 ? creditBalance : 30} free Build Credits</p>
+              <p className="text-sm font-bold text-white mb-1">You have {creditBalance > 0 ? creditBalance : 30} free credits</p>
               <p className="text-xs text-zinc-400 leading-relaxed">
                 Storyboard generation is always free. Preview your full video before you pay. Credits are only used when you click <span className="text-white font-medium">Build</span> to render. Consistent characters and cinematic lip sync included — no extra charge.
               </p>
@@ -278,7 +278,7 @@ export default function Dashboard() {
           <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.04] px-5 py-4 flex items-center gap-4">
             <Zap className="w-4 h-4 text-amber-400 flex-shrink-0" />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-white">{isEmptyCredits ? "You\'re out of Build Credits" : `Only ${creditBalance} Build Credits remaining`}</p>
+              <p className="text-sm font-semibold text-white">{isEmptyCredits ? "You\'re out of credits" : `Only ${creditBalance} credits remaining`}</p>
               <p className="text-xs text-zinc-400 mt-0.5">{isEmptyCredits ? "Top up to continue building videos." : "Top up now so you don\'t get interrupted mid-project."}</p>
             </div>
             <a href="/credits" className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-semibold hover:bg-amber-500/25 transition-all">
@@ -528,7 +528,7 @@ export default function Dashboard() {
                   Start Creating — It's Free
                 </Button>
               </a>
-              <p className="text-zinc-600 text-xs mt-4">50 free credits · No card required · First video in minutes</p>
+              <p className="text-zinc-600 text-xs mt-4">30 free credits · No card required · First video in minutes</p>
             </div>
           </section>
         )}        {/* ── Social Proof Strip ────────────────────────────────── */}
