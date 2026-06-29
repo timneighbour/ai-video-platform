@@ -963,6 +963,10 @@ Action steps to cover: ${actionSteps.map((s, i) => `Scene ${i + 1}: ${s}`).join(
           currentPeriodEnd: sub.currentPeriodEnd,
           createdAt: sub.createdAt,
           creditBalance: balance,
+          // Real payment details — populated by the Stripe webhook on invoice.paid
+          amountPaid: sub.amountPaid ?? null,
+          currency: sub.currency ?? null,
+          billingInterval: sub.billingInterval ?? null,
         };
       }
 

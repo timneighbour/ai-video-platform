@@ -17,7 +17,7 @@
  *   WizScript: 0 (free — script only, no render)
  *   WizSound:  0 (free — local ffmpeg mastering, no API)
  *
- * CREDIT ROLLOVER: Plan credits roll over for up to 6 months while subscribed.
+  * CREDIT ROLLOVER: Plan credits reset at the end of each billing cycle and do NOT roll over.
  * If you cancel, credits remain until end of billing cycle.
  * Top-up credits never expire.
  *
@@ -111,21 +111,21 @@ export const PLANS: PlanData[] = [
     tagline: "320 credits/month — ~2 WizVideos",
     bestFor: "Best for first-time creators",
     outcomes: [
-      "320 credits per month (roll over up to 6 months)",
-      "~2 WizVideo music videos (8 scenes each)",
+      "320 credits per month (resets each cycle)",
+      "≈2 WizVideo music videos (~8-scene videos)",
       "Or mix across all 7 studios",
       "Standard quality (720p)",
       "No watermark",
       "Email support",
     ],
     features: [
-      { text: "320 credits/month (rolls over up to 6 months)", included: true },
+      { text: "320 credits/month (resets each cycle)", included: true },
       { text: "All 7 WIZ AI studios", included: true },
       { text: "Up to 8 scenes per WizVideo", included: true },
       { text: "Standard 720p quality", included: true },
       { text: "No watermark", included: true },
       { text: "Cinematic Sound mastering (free)", included: true },
-      { text: "HD & 4K quality", included: false },
+      { text: "4K via pay-per-render add-on", included: false },
       { text: "Character Lock™", included: false },
     ],
     creditsPerMonth: 320,
@@ -150,8 +150,8 @@ export const PLANS: PlanData[] = [
     tagline: "800 credits/month — ~5 WizVideos",
     bestFor: "Best for active creators",
     outcomes: [
-      "800 credits per month (roll over up to 6 months)",
-      "~5 WizVideo music videos (8 scenes each)",
+      "800 credits per month (resets each cycle)",
+      "≈5 WizVideo music videos (~8-scene videos)",
       "Or mix across all 7 studios",
       "HD & 4K quality",
       "Character Lock™ for consistent faces",
@@ -160,7 +160,7 @@ export const PLANS: PlanData[] = [
       "Priority email support",
     ],
     features: [
-      { text: "800 credits/month (rolls over up to 6 months)", included: true },
+      { text: "800 credits/month (resets each cycle)", included: true },
       { text: "All 7 WIZ AI studios", included: true },
       { text: "Up to 11 scenes per WizVideo", included: true },
       { text: "4K 2160p output", included: true },
@@ -191,8 +191,8 @@ export const PLANS: PlanData[] = [
     tagline: "1,500 credits/month — ~9 WizVideos",
     bestFor: "Best for brands, agencies and high-volume creators",
     outcomes: [
-      "1,500 credits per month (roll over up to 6 months)",
-      "~9 WizVideo music videos (8 scenes each)",
+      "1,500 credits per month (resets each cycle)",
+      "≈9 WizVideo music videos (~8-scene videos)",
       "Or mix across all 7 studios",
       "4K quality included",
       "Fastest build speed — top priority",
@@ -202,7 +202,7 @@ export const PLANS: PlanData[] = [
       "Dedicated support",
     ],
     features: [
-      { text: "1,500 credits/month (rolls over up to 6 months)", included: true },
+      { text: "1,500 credits/month (resets each cycle)", included: true },
       { text: "All 7 WIZ AI studios", included: true },
       { text: "Up to 12 scenes per WizVideo", included: true },
       { text: "4K 2160p output", included: true },

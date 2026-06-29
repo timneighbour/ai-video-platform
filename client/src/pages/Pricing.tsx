@@ -167,8 +167,8 @@ const FAQS = [
  a: "top-up packs are pre-purchased packs of credits. Buy 3, 10, or 25 credits upfront and save compared to pay-per-video pricing. Top-up credits never expire and work alongside any subscription plan.",
  },
  {
- q: "Do monthly credits roll over?",
- a: "Monthly credits reset each billing cycle and do not roll over. If you need more flexibility, an Extra top-up pack is a better option as the credits never expire.",
+ q: "Do monthly credits expire?",
+ a: "Yes — plan credits reset at the end of each billing cycle and do not roll over. Top-up credits (purchased separately) never expire and are yours to keep.",
  },
  {
  q: "What is WizSync\u2122 character lock?",
@@ -513,7 +513,7 @@ export default function Pricing() {
  <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">Subscription Plans</p>
  <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-3">Subscription plans</h2>
  <p className="text-sm text-white/60 max-w-lg mx-auto mb-2">Credits included every month. Spend them across all 7 studios. Cancel anytime.</p>
- <p className="text-xs text-white/30 max-w-lg mx-auto mb-8">Annual billing = 10 months paid, 2 months free.</p>
+ <p className="text-xs text-white/30 max-w-lg mx-auto mb-8">Annual billing = 2 months free (~17% off vs monthly).</p>
 
  {/* Billing toggle */}
  <div className="inline-flex items-center gap-1 p-1 rounded-full bg-white/[0.04] border border-white/[0.07]">
@@ -537,11 +537,11 @@ export default function Pricing() {
  >Yearly
  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full transition-all duration-300 ${
  billingCycle === "annual" ? "bg-[#0a0a0a]/30 text-[#0a0a0a]" : "bg-[--color-gold]/15 text-[--color-gold]"
- }`}>Save 20%</span>
+ }`}>2 months free</span>
  </button>
  </div>
  {billingCycle === "annual" && (
- <p className="text-xs text-[--color-gold]/70 mt-3 font-medium">Billed as one annual payment — save 20% vs monthly</p>
+ <p className="text-xs text-[--color-gold]/70 mt-3 font-medium">Billed as one annual payment — 2 months free (~17% off vs monthly)</p>
  )}
  {/* Currency selector */}
  <div className="flex items-center justify-center gap-2.5 mt-5">
@@ -620,7 +620,7 @@ export default function Pricing() {
  <span className="text-xs text-white/35">/yr</span>
  </div>
  <p className="text-[11px] mt-0.5 font-semibold" style={{ color: plan.accentColor }}>
- {formatPrice(Math.round(plan.annualPrice / 12))}/mo · Save 20%
+ {formatPrice(Math.round(plan.annualPrice / 12))}/mo · 2 months free
  </p>
  </>
  )}
@@ -630,7 +630,7 @@ export default function Pricing() {
  <div className="grid grid-cols-2 gap-2 mb-3">
  <div className="rounded-xl p-2.5 text-center" style={{ background: `${plan.glowColor}`, border: `1px solid ${plan.borderColor}` }}>
  <div className="text-2xl font-black text-white">{plan.approxVideosPerMonth}</div>
- <div className="text-[9px] text-white/40 font-medium uppercase tracking-wider mt-0.5">videos/month</div>
+ <div className="text-[9px] text-white/40 font-medium uppercase tracking-wider mt-0.5">≈ videos/month*</div>
  </div>
  <div className="rounded-xl p-2.5 text-center bg-white/[0.03] border border-white/[0.06]">
  <div className="text-[11px] font-bold text-white leading-tight">{plan.outputQuality}</div>
@@ -698,20 +698,7 @@ export default function Pricing() {
  })}
  </div>
  <p className="text-center text-xs text-white/30 mt-6">No hidden fees. Cancel anytime. Full control before checkout.</p>
- {/* Social proof stats bar */}
- <div className="flex flex-wrap items-center justify-center gap-8 mt-10 mb-2 px-4">
- {[
- { label: "Videos created this week", value: "2,400+" },
- { label: "Avg. creator rating", value: "4.9 / 5" },
- { label: "Artists on platform", value: "1,200+" },
- { label: "Avg. render time", value: "< 12 min" },
- ].map(({ label, value }) => (
- <div key={label} className="flex flex-col items-center gap-0.5 text-center">
- <span className="text-base font-extrabold text-white">{value}</span>
- <span className="text-[10px] text-white/30 uppercase tracking-wide">{label}</span>
- </div>
- ))}
- </div>
+ <p className="text-center text-[10px] text-white/25 mt-3">* Based on ~8-scene WizVideo projects. Shorter or longer videos will vary.</p>
  </section>
 
  {/* 9. COMPARISON TABLE */}
@@ -889,7 +876,7 @@ export default function Pricing() {
  <p className="text-[11px] font-bold tracking-[0.25em] uppercase text-[--color-gold] mb-3">TOP-UP CREDIT PACKS</p>
  <h2 className="text-3xl sm:text-4xl font-bold text-white mb-3">Top up anytime. Never expire.</h2>
  <p className="text-sm text-white/40 max-w-lg mx-auto">Stack credits onto your balance and spend them across any studio. Top-up packs work alongside any subscription and never expire.</p>
- <p className="text-xs text-white/25 max-w-md mx-auto mt-3">Each credit creates one final downloadable video, subject to your plan&apos;s scene, length and quality limits.</p>
+ <p className="text-xs text-white/25 max-w-md mx-auto mt-3">Credits are spent across all 7 studios — a WizVideo scene is 20 credits, an image is 1 credit.</p>
  </div>
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
  {BUNDLES.map((bundle) => (
@@ -1089,7 +1076,7 @@ export default function Pricing() {
  <h3 className="text-lg font-bold text-white mb-4">How credits work</h3>
  <div className="space-y-3 text-sm text-white/50 leading-relaxed">
  <p>One shared credit balance, spent across all 7 studios. Credits are weighted by output type — see the table above for exact costs.</p>
- <p>Plan credits refill every billing cycle and roll over for up to 6 months while you’re subscribed. Top-up credits stack onto your balance and never expire.</p>
+ <p>Plan credits reset at the end of each billing cycle and do not roll over. Top-up credits stack onto your balance and never expire.</p>
  <p>The free plan gives you 30 credits to try every studio. Watermarked previews only — commercial rights apply to paid plans and pay-as-you-go.</p>
  </div>
  </div>
@@ -1187,48 +1174,6 @@ export default function Pricing() {
  </div>
  ))}
  </div>
- {/* Placeholder testimonial cards */}
- <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
- {[
- {
- name: "Alex M.",
- role: "Musician · Indie Rock",
- quote: "Finally a tool that keeps my band looking consistent across every scene. The lip sync is genuinely impressive.",
- plan: "Creator Plan",
- initials: "AM",
- color: "oklch(0.78 0.11 75)",
- },
- {
- name: "Sarah K.",
- role: "Content Creator · YouTube",
- quote: "I made my first music video in an afternoon. The storyboard AI understood exactly what the song was about.",
- plan: "Starter Plan",
- initials: "SK",
- color: "oklch(0.72 0.18 160)",
- },
- {
- name: "Marcus T.",
- role: "Animation Studio",
- quote: "WizAnimate is a game-changer for character animation. We use it for client projects every week.",
- plan: "Studio Plan",
- initials: "MT",
- color: "oklch(0.70 0.18 260)",
- },
- ].map((t) => (
- <div key={t.name} className="relative p-5 rounded-2xl border border-white/[0.07] bg-[#0a0a0a]">
- <div className="flex items-center gap-3 mb-3">
- <div className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-black text-[#0a0a0a] flex-shrink-0" style={{ background: `linear-gradient(135deg, ${t.color}, oklch(0.90 0.08 75))` }}>{t.initials}</div>
- <div>
- <p className="text-[12px] font-bold text-white">{t.name}</p>
- <p className="text-[10px] text-white/40">{t.role}</p>
- </div>
- </div>
- <p className="text-[11px] text-white/60 leading-relaxed mb-3">&ldquo;{t.quote}&rdquo;</p>
- <span className="text-[9px] font-bold text-[--color-gold]/60 bg-[--color-gold]/[0.06] border border-[--color-gold]/[0.12] px-2 py-0.5 rounded-full">{t.plan}</span>
- </div>
- ))}
- </div>
- <p className="text-center text-white/20 text-[10px] mt-4">Illustrative examples — real verified reviews coming soon as creators publish with WIZ AI.</p>
  </section>
 
  {/* 8. TRUST STRIP */}

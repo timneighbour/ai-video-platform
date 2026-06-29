@@ -44,6 +44,12 @@ export const subscriptions = mysqlTable("subscriptions", {
   currentPeriodStart: timestamp("currentPeriodStart"),
   currentPeriodEnd: timestamp("currentPeriodEnd"),
   canceledAt: timestamp("canceledAt"),
+  /** Amount charged for the most recent invoice, in smallest currency unit (e.g. pence). Populated by the Stripe webhook on invoice.payment_succeeded or checkout.session.completed. */
+  amountPaid: int("amountPaid"),
+  /** ISO 4217 currency code (lowercase), e.g. "gbp", "usd". */
+  currency: varchar("currency", { length: 8 }),
+  /** Billing interval reported by Stripe: "month" | "year" */
+  billingInterval: varchar("billingInterval", { length: 16 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

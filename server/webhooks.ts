@@ -358,15 +358,19 @@ async function upsertSubscription(subscription: any) {
     const resolvedPlan = planId || "starter";
     const conn = await getRawConn();
     try {
+      // Derive billing interval from the subscription's first price item
+      const interval = subscription.items?.data?.[0]?.price?.recurring?.interval ?? null;
+
       await conn.execute(
-        `INSERT INTO subscriptions (userId, stripeSubscriptionId, plan, status, currentPeriodStart, currentPeriodEnd)
-         VALUES (?, ?, ?, ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?))
+        `INSERT INTO subscriptions (userId, stripeSubscriptionId, plan, status, currentPeriodStart, currentPeriodEnd, billingInterval)
+         VALUES (?, ?, ?, ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?), ?)
          ON DUPLICATE KEY UPDATE
            stripeSubscriptionId = VALUES(stripeSubscriptionId),
            plan = VALUES(plan),
            status = VALUES(status),
            currentPeriodStart = VALUES(currentPeriodStart),
            currentPeriodEnd = VALUES(currentPeriodEnd),
+           billingInterval = VALUES(billingInterval),
            updatedAt = NOW()`,
         [
           userId,
@@ -375,6 +379,7 @@ async function upsertSubscription(subscription: any) {
           subscription.status,
           subscription.current_period_start,
           subscription.current_period_end,
+          interval,
         ]
       );
     } finally {
@@ -529,10 +534,16 @@ async function handleInvoicePaid(invoice: any) {
         .limit(1);
 
       if (sub) {
-        // Update status to active
+        // Update status to active and persist the real amount paid from this invoice
+        const amountPaid = invoice.amount_paid ?? invoice.amount_due ?? null;
+        const currency = invoice.currency ?? null;
         await db
           .update(subscriptions)
-          .set({ status: "active" })
+          .set({
+            status: "active",
+            ...(amountPaid != null ? { amountPaid } : {}),
+            ...(currency ? { currency } : {}),
+          })
           .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription));
 
         // Grant monthly renewal credits — skip the very first invoice
@@ -610,15 +621,19 @@ async function handleSubscriptionCreated(subscription: any) {
     // ISS-028: True upsert by userId — subscriptions.userId has a unique constraint
     const conn = await getRawConn();
     try {
+      // Derive billing interval from the subscription's first price item
+      const interval = subscription.items?.data?.[0]?.price?.recurring?.interval ?? null;
+
       await conn.execute(
-        `INSERT INTO subscriptions (userId, stripeSubscriptionId, plan, status, currentPeriodStart, currentPeriodEnd)
-         VALUES (?, ?, ?, ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?))
+        `INSERT INTO subscriptions (userId, stripeSubscriptionId, plan, status, currentPeriodStart, currentPeriodEnd, billingInterval)
+         VALUES (?, ?, ?, ?, FROM_UNIXTIME(?), FROM_UNIXTIME(?), ?)
          ON DUPLICATE KEY UPDATE
            stripeSubscriptionId = VALUES(stripeSubscriptionId),
            plan = VALUES(plan),
            status = VALUES(status),
            currentPeriodStart = VALUES(currentPeriodStart),
            currentPeriodEnd = VALUES(currentPeriodEnd),
+           billingInterval = VALUES(billingInterval),
            updatedAt = NOW()`,
         [
           userId,
@@ -627,6 +642,7 @@ async function handleSubscriptionCreated(subscription: any) {
           subscription.status,
           subscription.current_period_start,
           subscription.current_period_end,
+          interval,
         ]
       );
     } finally {

@@ -241,12 +241,19 @@ export default function CheckoutSuccess() {
       ? purchase.creditsAdded
       : planData?.creditsPerMonth ?? null;
 
-  // Amount paid: only available for top-ups (Stripe records it on the topupPurchases row).
-  // For subscriptions, the actual charge is not stored server-side yet, so we omit it
-  // rather than risk showing the wrong figure (e.g. monthly price for an annual billing).
+  // Amount paid: real Stripe figure for both subscriptions (from invoice.paid webhook)
+  // and top-ups (from topupPurchases row). Falls back to null if webhook hasn't fired yet.
   const amountPaid =
     purchase?.kind === "topup"
       ? formatCurrency(purchase.amountPaid, purchase.currency ?? "gbp")
+      : purchase?.kind === "subscription" && purchase.amountPaid != null
+      ? formatCurrency(purchase.amountPaid, purchase.currency ?? "gbp")
+      : null;
+
+  // Billing interval label for subscriptions ("month" → "Monthly", "year" → "Annual")
+  const billingIntervalLabel =
+    purchase?.kind === "subscription" && purchase.billingInterval
+      ? purchase.billingInterval === "year" ? "Annual" : "Monthly"
       : null;
 
   const renewalDate =
@@ -371,7 +378,18 @@ export default function CheckoutSuccess() {
             {/* Divider */}
             <div className="border-t border-white/10" />
 
-            {/* Amount paid — top-ups only; subscription amount omitted to avoid showing wrong figure */}
+            {/* Billing interval — subscriptions only */}
+            {billingIntervalLabel && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-white/70">
+                  <CreditCard className="w-4 h-4" />
+                  <span className="text-sm">Billing</span>
+                </div>
+                <span className="font-semibold text-white">{billingIntervalLabel}</span>
+              </div>
+            )}
+
+            {/* Amount paid — real Stripe figure from webhook */}
             {amountPaid && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-white/70">

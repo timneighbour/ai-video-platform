@@ -67,14 +67,8 @@ const PRODUCTS_CREATE = PRIMARY_PRODUCTS.map((p) => ({
   borderColor: p.borderColor,
 }));
 
-const PRODUCTS_ENHANCE = [
-  { name: "WizSound", tagline: "Premium Audio Engine", href: "/products/wizsound", logo: WIZSOUND_LOGO, glowColor: "oklch(0.72 0.18 160)" },
-  { name: "WizLumina", tagline: "Visual Enhancement Engine", href: "/products/wizlumina", logo: WIZLUMINA_LOGO, glowColor: "oklch(0.78 0.11 75)" },
-];
-
-const PRODUCTS_GROW = [
-  { name: "WizBoost", tagline: "Output Optimisation Engine", href: "/products/wizboost", logo: WIZBOOST_LOGO, glowColor: "oklch(0.70 0.18 260)" },
-];
+// PRODUCTS_ENHANCE and PRODUCTS_GROW removed — WizSound, WizLumina, WizBoost are internal
+// enhancement engines surfaced inside each studio, not separate nav items (F: QA Jun 29).
 
 // ── Technology — proprietary intelligence stack ───────────────────────────────
 const WIZ_TECHNOLOGY_CORE = [
@@ -308,10 +302,7 @@ function Nav() {
                       </div>
                     </div>
 
-                    {/* Divider */}
-                    <div className="w-px self-stretch" style={{ background: "oklch(0.78 0.11 75 / 0.08)" }} />
 
-                     {/* Enhance + Grow hidden — internal engines folded into "included intelligence" */}
                   </div>
 
                   {/* Footer */}
@@ -480,7 +471,6 @@ function Nav() {
                       <ArrowSVG className="w-4 h-4 ml-auto flex-shrink-0" style={{ color: p.glowColor }} />
                     </NavLink>
                   ))}
-                  {/* Enhance */}
                 </div>
               </div>
             </div>
