@@ -66,9 +66,9 @@ export async function generateVideo(
   // Enforce 4K gating — only Pro and Business plans can request 4K
   if (request.request4K) {
     const plan = request.userPlan || "free";
-    const allowed4KPlans = ["pro", "business"];
+    const allowed4KPlans = ["creator", "studio", "pro", "business"]; // pro/business kept as legacy aliases
     if (!allowed4KPlans.includes(plan)) {
-      throw new Error("4K export is available on Pro and Business plans only. Please upgrade to access this feature.");
+      throw new Error("4K export is available on Creator and Studio plans only. Please upgrade to access this feature.");
     }
   }
 

@@ -18,9 +18,7 @@ import { PLANS as SHARED_PLANS, COMPARISON_ROWS } from "@/lib/plans";
 const PLAN_ICONS: Record<string, React.ReactNode> = {
  free: <Gift className="w-5 h-5" />,
  starter: <Zap className="w-5 h-5" />,
- basic: <Star className="w-5 h-5" />,
  creator: <Rocket className="w-5 h-5" />,
- pro: <Crown className="w-5 h-5" />,
  studio: <Gem className="w-5 h-5" />,
 };
 // Merge shared plan data with UI-only icon field
@@ -68,7 +66,7 @@ export default function Subscribe() {
  mp.checkoutStarted(planName, typeof planPrice === "number" ? planPrice : undefined);
  setLoadingPlan(planId);
  createSubscriptionCheckout.mutate({
- plan: planId as "starter" | "basic" | "creator" | "pro" | "studio",
+ plan: planId as "starter" | "creator" | "studio",
  origin: window.location.origin,
  billingInterval: billing,
  });
@@ -295,7 +293,7 @@ export default function Subscribe() {
  <thead>
  <tr className="border-b border-white/10">
  <th className="text-left p-4 text-muted-foreground font-medium w-40">Feature</th>
- {["Free", "Starter", "Basic", "Creator", "Pro", "Studio"].map((name) => (
+ {["Free", "Starter", "Creator", "Studio"].map((name) => (
  <th key={name} className={`p-4 text-center font-bold ${name === "Creator" ? "text-[--color-gold]" : "text-white"}`}>
  {name}
  {name === "Creator" && <div className="text-xs text-[--color-gold]/70 font-normal mt-0.5">Most Popular</div>}
@@ -307,8 +305,8 @@ export default function Subscribe() {
  {COMPARISON_ROWS.map((row, i) => (
  <tr key={row.feature} className={`border-b border-white/5 ${i % 2 === 0 ? "bg-white/[0.015]" : ""}`}>
  <td className="p-4 text-muted-foreground text-xs font-medium">{row.feature}</td>
- {([row.free, row.starter, row.basic, row.creator, row.pro, row.studio] as (string | boolean)[]).map((val, j) => (
- <td key={j} className={`p-4 text-center ${j === 3 ? "bg-[--color-gold]/5" : ""}`}>{renderCell(val)}</td>
+ {([row.free, row.starter, row.creator, row.studio] as (string | boolean)[]).map((val, j) => (
+ <td key={j} className={`p-4 text-center ${j === 2 ? "bg-[--color-gold]/5" : ""}`}>{renderCell(val)}</td>
  ))}
  </tr>
  ))}

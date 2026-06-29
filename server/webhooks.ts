@@ -8,7 +8,7 @@ import { getDb, getRawConn } from "./db";
 import { eq } from "drizzle-orm";
 import { subscriptions, creditTransactions, credits, topupPurchases, kidsVideoJobs, users, stripeProcessedEvents } from "../drizzle/schema";
 import { notifyOwner } from "./_core/notification";
-import { addCredits } from "./credit-service";
+import { addCredits, resetMonthlyCredits } from "./credit-service";
 import {
   emailCreditPurchase,
   emailNewSubscription,
@@ -539,24 +539,21 @@ async function handleInvoicePaid(invoice: any) {
         // (checkout.session.completed already handles first-time credit grant)
         // invoice.billing_reason: 'subscription_create' = first, 'subscription_cycle' = renewal
         if (invoice.billing_reason === "subscription_cycle") {
-          const renewalCredits: Record<string, number> = {
-            starter: 240,
-            basic: 240,
-            creator: 990,
-            pro: 2160,
-            studio: 2160,
-            business: 2160,
-            pro_plus: 2160,
+          // Monthly reset: set balance to plan allowance (unused monthly credits expire).
+          // Top-up credits are preserved separately in topupCredits column.
+          const planCreditMap: Record<string, { credits: number; name: string }> = {
+            starter: { credits: 320, name: "Starter" },
+            basic:   { credits: 320, name: "Basic" },
+            creator: { credits: 1000, name: "Creator" },
+            pro:     { credits: 2000, name: "Studio" },
+            studio:  { credits: 2000, name: "Studio" },
+            business:{ credits: 2000, name: "Studio" },
+            pro_plus:{ credits: 2000, name: "Studio" },
           };
-          const credits = renewalCredits[sub.plan] || 0;
-          if (credits > 0) {
-            await addCredits(
-              sub.userId,
-              credits,
-              "subscription_grant",
-              `${sub.plan} plan monthly renewal - ${credits} credits`
-            );
-            console.log(`[Stripe Webhook] Monthly renewal credits granted: userId=${sub.userId}, plan=${sub.plan}, credits=${credits}`);
+          const planData = planCreditMap[sub.plan];
+          if (planData) {
+            await resetMonthlyCredits(sub.userId, planData.credits, planData.name);
+            console.log(`[Stripe Webhook] Monthly reset: userId=${sub.userId}, plan=${sub.plan}, credits=${planData.credits}`);
           }
         }
       } else {

@@ -24,7 +24,7 @@ interface PostFirstRenderSubscribeModalProps {
 }
 
 const _creatorPlan = CANONICAL_PLANS.find((p) => p.id === "creator")!;
-const _proPlan = CANONICAL_PLANS.find((p) => p.id === "pro")!;
+const _studioPlan = CANONICAL_PLANS.find((p) => p.id === "studio")!;
 const PLANS = [
   {
     id: "creator" as const,
@@ -37,30 +37,30 @@ const PLANS = [
     borderColor: "rgba(196,164,100,0.45)",
     glowColor: "rgba(196,164,100,0.15)",
     tagline: "Best for regular creators",
-    videosPerMonth: "15 videos/month",
+    videosPerMonth: `~${_creatorPlan.approxVideosPerMonth} videos/month`,
     highlights: [
-      "15 Build Credits per month",
+      `${_creatorPlan.creditsPerMonth} credits per month`,
       "HD & 4K quality exports",
       "No watermark on downloads",
-      "WizSync™ character lock",
+      "Character Lock™",
       "Priority build queue",
-      "All 6 WIZ AI studios",
+      "All 7 WIZ AI studios",
     ],
   },
   {
-    id: "pro" as const,
-    name: "Pro",
-    price: _proPlan.monthlyPrice,
-    annualPrice: _proPlan.annualTotal,
+    id: "studio" as const,
+    name: "Studio",
+    price: _studioPlan.monthlyPrice,
+    annualPrice: _studioPlan.annualTotal,
     badge: "Best Value",
     badgeColor: "bg-purple-500/80 text-white",
     accentColor: "oklch(0.72 0.12 300)",
     borderColor: "rgba(160,100,220,0.35)",
     glowColor: "rgba(160,100,220,0.12)",
-    tagline: _proPlan.bestFor,
-    videosPerMonth: `${_proPlan.buildsPerMonth} videos/month`,
+    tagline: _studioPlan.bestFor,
+    videosPerMonth: `~${_studioPlan.approxVideosPerMonth} videos/month`,
     highlights: [
-      `${_proPlan.buildsPerMonth} Build Credits per month`,
+      `${_studioPlan.creditsPerMonth} credits per month`,
       "HD & 4K quality exports",
       "No watermark on downloads",
       "Fastest build speed",
@@ -100,7 +100,7 @@ export default function PostFirstRenderSubscribeModal({
     },
   });
 
-  const handleSubscribe = (planId: "creator" | "pro") => {
+  const handleSubscribe = (planId: "creator" | "studio") => {
     setLoadingPlan(planId);
     mp.upgradeCTAClicked("post_first_render_modal", "free", planId);
     checkoutMutation.mutate({

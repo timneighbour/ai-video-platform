@@ -398,13 +398,12 @@ export const billingRouter = router({
   createCreditCheckout: protectedProcedure
     .input(
       z.object({
-        // Option A packs: spark/boost/creator/studio/pro/elite
+        // New packs (2026-06-29): spark/boost/pro_pack/mega
         // Cinematic packs: cinematic_10/cinematic_25/cinematic_50
-        // Legacy keys kept for backward compat: small/medium/large/starter
-        // Price IDs verified 2026-05-06
-        pack: z.enum(["spark", "boost", "creator", "studio", "pro", "elite",
+        // Legacy keys kept for backward compat: small/medium/large/starter/creator/studio/pro/elite
+        pack: z.enum(["spark", "boost", "pro_pack", "mega",
                       "cinematic_10", "cinematic_25", "cinematic_50",
-                      "small", "medium", "large", "starter"]),
+                      "small", "medium", "large", "starter", "creator", "studio", "pro", "elite"]),
         origin: z.string().url(),
       })
     )
@@ -416,14 +415,25 @@ export const billingRouter = router({
           // ── Option A packs — dedicated Stripe price IDs ─────────────────────────────────────────────────
           spark: {
             priceId: vp(process.env.STRIPE_TOPUP_SPARK_PRICE_ID, "price_1TTtsxI3gJ5F0DKDr2osAQtH"),
-            credits: 50,
-            label: "Spark Pack (50 credits)",
+            credits: 100,
+            label: "Spark (100 credits)",
           },
           boost: {
             priceId: vp(process.env.STRIPE_TOPUP_BOOST_PRICE_ID, "price_1TTtsyI3gJ5F0DKDz1mhvia0"),
-            credits: 150,
-            label: "Boost Pack (150 credits)",
+            credits: 300,
+            label: "Boost (300 credits)",
           },
+          pro_pack: {
+            priceId: vp(process.env.STRIPE_TOPUP_PRO_PRICE_ID, "price_1TTtt3I3gJ5F0DKDxaBysFnT"),
+            credits: 700,
+            label: "Pro Pack (700 credits)",
+          },
+          mega: {
+            priceId: vp(process.env.STRIPE_TOPUP_ELITE_PRICE_ID, "price_1TTtt4I3gJ5F0DKDWi3TgiVd"),
+            credits: 1500,
+            label: "Mega (1,500 credits)",
+          },
+          // ── Legacy pack keys (backward compat — old credit amounts) ──────────
           creator: {
             priceId: vp(process.env.STRIPE_TOPUP_CREATOR_PRICE_ID, "price_1TTtt0I3gJ5F0DKDboiU1Qlf"),
             credits: 350,
@@ -869,7 +879,7 @@ Action steps to cover: ${actionSteps.map((s, i) => `Scene ${i + 1}: ${s}`).join(
   createTopupCheckout: protectedProcedure
     .input(
       z.object({
-        packKey: z.enum(["quick_boost", "creator_boost", "studio_boost", "pro_bulk_boost"]),
+        packKey: z.enum(["spark", "boost", "pro_pack", "mega"]),
         origin: z.string().url(),
       })
     )

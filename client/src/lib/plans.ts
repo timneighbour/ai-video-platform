@@ -7,11 +7,24 @@
  * Prices here must stay in sync with server/products.ts SUBSCRIPTION_PLANS.
  * When you update prices here, they propagate to /pricing and /subscribe automatically.
  *
- * Last updated: 2026-06-17
+ * CREDIT MODEL (weighted — each studio costs different credits):
+ *   WizVideo:  20 credits/scene (28 for 4K)
+ *   WizShorts: 5 credits/scene (30 for 30s, 60 for 60s)
+ *   WizAnimate: 5 credits/video
+ *   WizAudio:  2 credits (Suno default), 4 credits/min (ElevenLabs/cinematic)
+ *   WizImage:  1 credit/image
+ *   WizScore:  2 credits/soundtrack
+ *   WizScript: 0 (free — script only, no render)
+ *   WizSound:  0 (free — local ffmpeg mastering, no API)
+ *
+ * MONTHLY RESET: Plan credits expire at each billing cycle (no rollover).
+ * Top-up credits never expire.
+ *
+ * Last updated: 2026-06-29
  */
 
 // ── Plan IDs ─────────────────────────────────────────────────────────────────
-export type PlanId = "free" | "starter" | "basic" | "creator" | "pro" | "studio";
+export type PlanId = "free" | "starter" | "creator" | "studio";
 
 // ── Subscription Plans ────────────────────────────────────────────────────────
 export interface PlanData {
@@ -30,8 +43,10 @@ export interface PlanData {
   outcomes: string[];
   /** Feature checklist shown on Pricing page */
   features: Array<{ text: string; included: boolean }>;
-  /** Number of Build Credits per month */
-  buildsPerMonth: number;
+  /** Monthly credits (reset each billing cycle — no rollover) */
+  creditsPerMonth: number;
+  /** Approximate WizVideo 8-scene videos per month at 160 credits each */
+  approxVideosPerMonth: number;
   /** Max scenes per video */
   scenesPerVideo: number;
   /** Output quality label */
@@ -58,21 +73,23 @@ export const PLANS: PlanData[] = [
     tagline: "Try WIZ AI with no commitment",
     bestFor: "First-time creators",
     outcomes: [
-      "2 free Build Credits to try the platform",
+      "40 free credits to try the platform",
+      "Access to all 7 WIZ AI studios",
       "Free storyboard generation",
-      "Access to all AI tools",
       "Standard quality (720p)",
       "Community support",
     ],
     features: [
-      { text: "2 Build Credits (trial)", included: true },
-      { text: "Standard 720p quality", included: true },
+      { text: "40 trial credits", included: true },
+      { text: "All 7 studios (WizVideo, WizImage, WizAudio…)", included: true },
       { text: "Free storyboard generation", included: true },
+      { text: "Standard 720p quality", included: true },
       { text: "No watermark", included: false },
       { text: "HD & 4K quality", included: false },
-      { text: "WizSync™ character lock", included: false },
+      { text: "Character Lock™", included: false },
     ],
-    buildsPerMonth: 2,
+    creditsPerMonth: 40,
+    approxVideosPerMonth: 0,
     scenesPerVideo: 8,
     outputQuality: "720p",
     watermark: true,
@@ -90,28 +107,28 @@ export const PLANS: PlanData[] = [
     monthlyPrice: 29,
     annualTotal: 290,
     annualSaving: 58,
-    tagline: "Create up to 2 videos/month",
+    tagline: "320 credits/month — ~2 WizVideos",
     bestFor: "Best for first-time creators",
     outcomes: [
-      "2 videos per month",
+      "320 credits per month (reset monthly)",
+      "~2 WizVideo music videos (8 scenes each)",
+      "Or mix across all 7 studios",
       "Standard quality (720p)",
-      "All 6 WIZ AI products",
-      "Free storyboard generation",
-      "WizVideo + WizAudio creation tools",
-      "WizScript AI video creator",
+      "No watermark",
       "Email support",
     ],
     features: [
-      { text: "2 final videos per month", included: true },
-      { text: "Up to 8 scenes per video", included: true },
-      { text: "Around 64 seconds max", included: true },
+      { text: "320 credits/month (no rollover)", included: true },
+      { text: "All 7 WIZ AI studios", included: true },
+      { text: "Up to 8 scenes per WizVideo", included: true },
       { text: "Standard 720p quality", included: true },
       { text: "No watermark", included: true },
-      { text: "WizSound audio mastering", included: true },
+      { text: "Cinematic Sound mastering (free)", included: true },
       { text: "HD & 4K quality", included: false },
-      { text: "WizSync™ character lock", included: false },
+      { text: "Character Lock™", included: false },
     ],
-    buildsPerMonth: 2,
+    creditsPerMonth: 320,
+    approxVideosPerMonth: 2,
     scenesPerVideo: 8,
     outputQuality: "720p",
     watermark: false,
@@ -124,72 +141,35 @@ export const PLANS: PlanData[] = [
     highlight: false,
   },
   {
-    id: "basic",
-    name: "Basic",
-    monthlyPrice: 19,
-    annualTotal: 190,
-    annualSaving: 38,
-    tagline: "Create up to 5 videos/month in HD",
-    bestFor: "Best for regular creators",
-    outcomes: [
-      "5 Build Credits per month",
-      "HD quality (1080p)",
-      "All 6 AI video styles",
-      "Free storyboard generation",
-      "WizVideo + WizScript + WizAudio included",
-      "Standard build speed",
-      "Email support",
-    ],
-    features: [
-      { text: "5 final videos per month", included: true },
-      { text: "Up to 8 scenes per video", included: true },
-      { text: "HD quality (1080p)", included: true },
-      { text: "No watermark", included: true },
-      { text: "WizSound audio mastering", included: true },
-      { text: "4K quality", included: false },
-      { text: "WizSync™ character lock", included: false },
-    ],
-    buildsPerMonth: 5,
-    scenesPerVideo: 8,
-    outputQuality: "1080p HD",
-    watermark: false,
-    priorityBuilds: false,
-    wizSyncLock: false,
-    apiAccess: false,
-    popular: false,
-    badge: null,
-    cta: "Start Creating",
-    highlight: false,
-  },
-  {
     id: "creator",
     name: "Creator",
-    monthlyPrice: 79,
-    annualTotal: 790,
-    annualSaving: 158,
-    tagline: "Create up to 6 videos/month",
+    monthlyPrice: 99,
+    annualTotal: 990,
+    annualSaving: 198,
+    tagline: "1,000 credits/month — ~6 WizVideos",
     bestFor: "Best for active creators",
     outcomes: [
-      "6 videos per month",
-      "Standard, HD & 4K quality",
-      "WizSync™ character lock",
+      "1,000 credits per month (reset monthly)",
+      "~6 WizVideo music videos (8 scenes each)",
+      "Or mix across all 7 studios",
+      "HD & 4K quality",
+      "Character Lock™ for consistent faces",
       "Priority build queue",
-      "All 6 WIZ AI products",
-      "Free storyboard generation",
-      "No watermark on exports",
+      "No watermark",
       "Priority email support",
     ],
     features: [
-      { text: "6 final videos per month", included: true },
-      { text: "Up to 11 scenes per video", included: true },
-      { text: "Around 88 seconds max", included: true },
+      { text: "1,000 credits/month (no rollover)", included: true },
+      { text: "All 7 WIZ AI studios", included: true },
+      { text: "Up to 11 scenes per WizVideo", included: true },
       { text: "4K 2160p output", included: true },
       { text: "No watermark", included: true },
-      { text: "WizSound audio mastering", included: true },
-      { text: "WizSync™ character lock", included: true },
+      { text: "Cinematic Sound mastering (free)", included: true },
+      { text: "Character Lock™", included: true },
       { text: "Priority video builds", included: true },
     ],
-    buildsPerMonth: 6,
+    creditsPerMonth: 1000,
+    approxVideosPerMonth: 6,
     scenesPerVideo: 11,
     outputQuality: "4K 2160p",
     watermark: false,
@@ -202,74 +182,36 @@ export const PLANS: PlanData[] = [
     highlight: true,
   },
   {
-    id: "pro",
-    name: "Pro",
-    monthlyPrice: 149,
-    annualTotal: 1490,
-    annualSaving: 298,
-    tagline: "Create up to 12 videos/month in 4K",
-    bestFor: "Best for professional creators",
-    outcomes: [
-      "12 videos per month",
-      "Standard, HD & 4K quality",
-      "WizSync™ character lock",
-      "Priority build queue",
-      "All 6 WIZ AI products",
-      "Free storyboard generation",
-      "No watermark on exports",
-      "Priority support",
-    ],
-    features: [
-      { text: "12 final videos per month", included: true },
-      { text: "Up to 12 scenes per video", included: true },
-      { text: "Around 96 seconds max", included: true },
-      { text: "4K 2160p output", included: true },
-      { text: "No watermark", included: true },
-      { text: "WizSound audio mastering", included: true },
-      { text: "WizSync™ character lock", included: true },
-      { text: "Priority video builds", included: true },
-    ],
-    buildsPerMonth: 12,
-    scenesPerVideo: 12,
-    outputQuality: "4K 2160p",
-    watermark: false,
-    priorityBuilds: true,
-    wizSyncLock: true,
-    apiAccess: false,
-    popular: false,
-    badge: null,
-    cta: "Upgrade Plan",
-    highlight: false,
-  },
-  {
     id: "studio",
-    name: "Pro",
-    monthlyPrice: 149,
-    annualTotal: 1490,
-    annualSaving: 298,
-    tagline: "Create up to 12 videos/month",
+    name: "Studio",
+    monthlyPrice: 199,
+    annualTotal: 1990,
+    annualSaving: 398,
+    tagline: "2,000 credits/month — ~12 WizVideos",
     bestFor: "Best for brands, agencies and high-volume creators",
     outcomes: [
-      "12 videos per month",
-      "Standard, HD & 4K quality",
+      "2,000 credits per month (reset monthly)",
+      "~12 WizVideo music videos (8 scenes each)",
+      "Or mix across all 7 studios",
+      "4K quality included",
       "Fastest build speed — top priority",
-      "WizSync™ character lock",
+      "Character Lock™ for consistent faces",
       "Full API access for automation",
-      "All 6 WIZ AI products",
-      "No watermark on exports",
+      "No watermark",
       "Dedicated support",
     ],
     features: [
-      { text: "12 final videos per month", included: true },
-      { text: "Up to 12 scenes per video", included: true },
-      { text: "Around 96 seconds max", included: true },
+      { text: "2,000 credits/month (no rollover)", included: true },
+      { text: "All 7 WIZ AI studios", included: true },
+      { text: "Up to 12 scenes per WizVideo", included: true },
       { text: "4K 2160p output", included: true },
       { text: "No watermark", included: true },
-      { text: "WizSound audio mastering", included: true },
-      { text: "WizSync™ character lock", included: true },
+      { text: "Cinematic Sound mastering (free)", included: true },
+      { text: "Character Lock™", included: true },
       { text: "API access for automation", included: true },
     ],
-    buildsPerMonth: 12,
+    creditsPerMonth: 2000,
+    approxVideosPerMonth: 12,
     scenesPerVideo: 12,
     outputQuality: "4K 2160p",
     watermark: false,
@@ -295,26 +237,42 @@ export const PAID_PLANS = PLANS.filter((p) => p.id !== "free");
 export const PRICING_PAGE_PLANS: PlanId[] = ["starter", "creator", "studio"];
 
 // ── Comparison table rows (used by both /pricing and /subscribe) ──────────────
+// Single source of truth — no hardcoded values in Pricing.tsx or Subscribe.tsx
 export const COMPARISON_ROWS: {
   feature: string;
   free: string | boolean;
   starter: string | boolean;
-  basic: string | boolean;
   creator: string | boolean;
-  pro: string | boolean;
   studio: string | boolean;
 }[] = [
-  { feature: "Videos/month", free: "1 (trial)", starter: "2", basic: "5", creator: "6", pro: "12", studio: "12" },
-  { feature: "Max quality",         free: "720p",      starter: "720p", basic: "1080p", creator: "4K", pro: "4K", studio: "4K" },
-  { feature: "Free storyboard",     free: true,        starter: true,   basic: true,    creator: true, pro: true,  studio: true  },
-  { feature: "WizSound discount",   free: false,       starter: false,  basic: false,   creator: "20%", pro: "40%", studio: "60%" },
-  { feature: "WizSync™ character lock", free: false,   starter: false,  basic: false,   creator: true, pro: true,  studio: true  },
-  { feature: "Build speed",         free: "Standard",  starter: "Standard", basic: "Standard", creator: "Priority", pro: "Priority", studio: "Fastest" },
-  { feature: "API access",          free: false,       starter: false,  basic: false,   creator: false, pro: false, studio: true  },
+  { feature: "Credits/month",           free: "40 (trial)",  starter: "320",        creator: "1,000",      studio: "2,000"    },
+  { feature: "Approx. WizVideos/month", free: "~0",          starter: "~2",         creator: "~6",         studio: "~12"      },
+  { feature: "Max scenes per WizVideo", free: "8",           starter: "8",          creator: "11",         studio: "12"       },
+  { feature: "Max quality",             free: "720p",        starter: "720p",       creator: "4K",         studio: "4K"       },
+  { feature: "All 7 studios",           free: true,          starter: true,         creator: true,         studio: true       },
+  { feature: "Cinematic Sound (free)",  free: true,          starter: true,         creator: true,         studio: true       },
+  { feature: "No watermark",            free: false,         starter: true,         creator: true,         studio: true       },
+  { feature: "Character Lock™",         free: false,         starter: false,        creator: true,         studio: true       },
+  { feature: "Build speed",             free: "Standard",    starter: "Standard",   creator: "Priority",   studio: "Fastest"  },
+  { feature: "API access",              free: false,         starter: false,        creator: false,        studio: true       },
+  { feature: "Credits expire",          free: "Never",       starter: "Monthly",    creator: "Monthly",    studio: "Monthly"  },
 ];
 
-// ── Build Credit / Topup Packs ────────────────────────────────────────────────
-export type TopupPackKey = "quick_boost" | "creator_boost" | "studio_boost" | "pro_bulk_boost";
+// ── Weighted credit costs per studio (for display on pricing page) ────────────
+export const STUDIO_CREDIT_COSTS = {
+  wizVideo:   { label: "WizVideo (per scene)",          credits: 20, note: "28 credits for 4K" },
+  wizShorts:  { label: "WizShorts (per 30s)",           credits: 30, note: "60 credits for 60s" },
+  wizAnimate: { label: "WizAnimate (per video)",        credits: 5,  note: null },
+  wizAudio:   { label: "WizAudio (per track)",          credits: 2,  note: "4 credits/min for cinematic" },
+  wizImage:   { label: "WizImage (per image)",          credits: 1,  note: null },
+  wizScore:   { label: "WizScore (per soundtrack)",     credits: 2,  note: null },
+  wizScript:  { label: "WizScript (script only)",       credits: 0,  note: "Free — no render" },
+  wizSound:   { label: "WizSound (audio mastering)",    credits: 0,  note: "Free — included always" },
+} as const;
+
+// ── Top-up credit packs ───────────────────────────────────────────────────────
+// Top-up credits NEVER expire (unlike monthly plan credits which reset).
+export type TopupPackKey = "spark" | "boost" | "pro_pack" | "mega";
 
 export interface TopupPack {
   key: TopupPackKey;
@@ -329,43 +287,43 @@ export interface TopupPack {
 
 export const TOPUP_PACKS: TopupPack[] = [
   {
-    key: "quick_boost",
-    credits: 3,
+    key: "spark",
+    credits: 100,
     price: 12,
-    perCredit: "£4.00 per Build Credit",
-    label: "Quick Boost",
+    perCredit: "12p per credit",
+    label: "Spark",
     popular: false,
     bestValue: false,
-    desc: "Perfect for one-off extras. 3 Build Credits — use them whenever you need a bit more.",
+    desc: "Quick top-up. 100 credits — ~5 WizVideo scenes or 100 WizImages. Never expire.",
   },
   {
-    key: "creator_boost",
-    credits: 10,
-    price: 35,
-    perCredit: "£3.50 per Build Credit",
-    label: "Creator Boost",
+    key: "boost",
+    credits: 300,
+    price: 32,
+    perCredit: "10.7p per credit",
+    label: "Boost",
     popular: true,
     bestValue: false,
-    desc: "Best for busy creator weeks. 10 Build Credits for extra campaigns, collabs or content batches.",
+    desc: "1 full WizVideo (8 scenes) plus extras. 300 credits that never expire.",
   },
   {
-    key: "studio_boost",
-    credits: 25,
-    price: 89,
-    perCredit: "£3.56 per Build Credit",
-    label: "Studio Boost",
+    key: "pro_pack",
+    credits: 700,
+    price: 69,
+    perCredit: "9.9p per credit",
+    label: "Pro Pack",
     popular: false,
     bestValue: false,
-    desc: "For campaigns and content batches. 25 Build Credits to power a full production run.",
+    desc: "~4 WizVideos worth of credits. 700 credits that never expire.",
   },
   {
-    key: "pro_bulk_boost",
-    credits: 60,
-    price: 199,
-    perCredit: "£3.32 per Build Credit",
-    label: "Pro Bulk Boost",
+    key: "mega",
+    credits: 1500,
+    price: 139,
+    perCredit: "9.3p per credit",
+    label: "Mega",
     popular: false,
     bestValue: true,
-    desc: "Best value for high-volume creators. 60 Build Credits — the most credits per pound.",
+    desc: "Best value. ~9 WizVideos worth of credits. 1,500 credits that never expire.",
   },
 ];

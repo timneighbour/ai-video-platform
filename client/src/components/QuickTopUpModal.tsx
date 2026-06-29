@@ -24,68 +24,46 @@ const PACKS = [
   {
     key: "spark" as const,
     name: "Spark",
-    credits: 50,
-    priceGbp: 3.99,
-    priceDisplay: "£3.99",
+    credits: 100,
+    priceGbp: 12,
+    priceDisplay: "£12",
     bestFor: "Quick top-up",
-    scenesApprox: 3,
+    scenesApprox: 5,
     badge: null as string | null,
-    perCreditPence: 8.0,
+    perCreditPence: 12.0,
   },
   {
     key: "boost" as const,
     name: "Boost",
-    credits: 150,
-    priceGbp: 9.99,
-    priceDisplay: "£9.99",
-    bestFor: "Short video top-up",
-    scenesApprox: 10,
+    credits: 300,
+    priceGbp: 32,
+    priceDisplay: "£32",
+    bestFor: "~1 WizVideo",
+    scenesApprox: 15,
     badge: null as string | null,
-    perCreditPence: 6.7,
+    perCreditPence: 10.7,
   },
   {
-    key: "creator" as const,
-    name: "Creator",
-    credits: 350,
-    priceGbp: 21.99,
-    priceDisplay: "£21.99",
-    bestFor: "Full short video",
-    scenesApprox: 23,
-    badge: "Best value" as string | null,
-    perCreditPence: 6.3,
-  },
-  {
-    key: "studio" as const,
-    name: "Studio",
-    credits: 750,
-    priceGbp: 44.99,
-    priceDisplay: "£44.99",
-    bestFor: "2 full videos",
-    scenesApprox: 50,
+    key: "pro_pack" as const,
+    name: "Pro Pack",
+    credits: 700,
+    priceGbp: 69,
+    priceDisplay: "£69",
+    bestFor: "~4 WizVideos",
+    scenesApprox: 35,
     badge: null as string | null,
-    perCreditPence: 6.0,
+    perCreditPence: 9.9,
   },
   {
-    key: "pro" as const,
-    name: "Pro",
+    key: "mega" as const,
+    name: "Mega",
     credits: 1500,
-    priceGbp: 84.99,
-    priceDisplay: "£84.99",
-    bestFor: "4–5 videos",
-    scenesApprox: 100,
-    badge: null as string | null,
-    perCreditPence: 5.7,
-  },
-  {
-    key: "elite" as const,
-    name: "Elite",
-    credits: 4000,
-    priceGbp: 199.99,
-    priceDisplay: "£199.99",
-    bestFor: "10+ videos",
-    scenesApprox: 267,
-    badge: "Best per-credit" as string | null,
-    perCreditPence: 5.0,
+    priceGbp: 139,
+    priceDisplay: "£139",
+    bestFor: "~9 WizVideos",
+    scenesApprox: 75,
+    badge: "Best Value" as string | null,
+    perCreditPence: 9.3,
   },
 ] as const;
 type PackKey = typeof PACKS[number]["key"];
@@ -93,7 +71,7 @@ type PackKey = typeof PACKS[number]["key"];
 // ── Subscription plans shown in the upsell tab ──────────────────────────────
 // SUB_PLANS: prices pulled from canonical plans.ts — never hardcode here
 const _creatorPlan = CANONICAL_PLANS.find((p) => p.id === "creator")!;
-const _proPlan = CANONICAL_PLANS.find((p) => p.id === "pro")!;
+const _studioPlan = CANONICAL_PLANS.find((p) => p.id === "studio")!;
 const SUB_PLANS = [
   {
     id: "creator" as const,
@@ -101,49 +79,47 @@ const SUB_PLANS = [
     monthlyPrice: _creatorPlan.monthlyPrice,
     priceDisplay: `£${_creatorPlan.monthlyPrice}/mo`,
     annualDisplay: `£${_creatorPlan.annualTotal}/yr`,
-    creditsPerMonth: 990,
-    buildsPerMonth: _creatorPlan.buildsPerMonth,
+    creditsPerMonth: _creatorPlan.creditsPerMonth,
     tagline: _creatorPlan.bestFor,
     badge: "Most Popular" as string | null,
     highlight: true,
     perks: [
-      `${_creatorPlan.buildsPerMonth} videos per month`,
+      `${_creatorPlan.creditsPerMonth} credits per month`,
+      `~${_creatorPlan.approxVideosPerMonth} WizVideos per month`,
       `Up to ${_creatorPlan.scenesPerVideo} scenes per video`,
       "4K quality included",
-      "WizSync™ character lock",
+      "Character Lock™",
       "Priority build queue",
-      "20% WizSound™ discount",
     ],
     ctaLabel: "Subscribe — Creator",
   },
   {
-    id: "pro" as const,
-    name: "Pro",
-    monthlyPrice: _proPlan.monthlyPrice,
-    priceDisplay: `£${_proPlan.monthlyPrice}/mo`,
-    annualDisplay: `£${_proPlan.annualTotal}/yr`,
-    creditsPerMonth: 2160,
-    buildsPerMonth: _proPlan.buildsPerMonth,
-    tagline: _proPlan.bestFor,
+    id: "studio" as const,
+    name: "Studio",
+    monthlyPrice: _studioPlan.monthlyPrice,
+    priceDisplay: `£${_studioPlan.monthlyPrice}/mo`,
+    annualDisplay: `£${_studioPlan.annualTotal}/yr`,
+    creditsPerMonth: _studioPlan.creditsPerMonth,
+    tagline: _studioPlan.bestFor,
     badge: null as string | null,
     highlight: false,
     perks: [
-      `${_proPlan.buildsPerMonth} videos per month`,
-      `Up to ${_proPlan.scenesPerVideo} scenes per video`,
+      `${_studioPlan.creditsPerMonth} credits per month`,
+      `~${_studioPlan.approxVideosPerMonth} WizVideos per month`,
+      `Up to ${_studioPlan.scenesPerVideo} scenes per video`,
       "4K quality included",
       "Full API access",
       "Fastest build speed",
-      "Dedicated support",
     ],
-    ctaLabel: "Subscribe — Pro",
+    ctaLabel: "Subscribe — Studio",
   },
 ];
 
 /** Returns the smallest pack that fully covers the shortfall, or "creator" as default. */
 function getRecommendedPack(shortfall: number): PackKey {
-  if (shortfall <= 0) return "creator";
+  if (shortfall <= 0) return "boost";
   const covering = PACKS.find(p => p.credits >= shortfall);
-  return covering?.key ?? "elite";
+  return covering?.key ?? "mega";
 }
 
 interface QuickTopUpModalProps {
@@ -164,7 +140,7 @@ export function QuickTopUpModal({
   const [selectedKey, setSelectedKey] = useState<PackKey>(recommendedKey);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [activeTab, setActiveTab] = useState<"packs" | "subscribe">("packs");
-  const [selectedSubPlan, setSelectedSubPlan] = useState<"creator" | "pro">("creator");
+  const [selectedSubPlan, setSelectedSubPlan] = useState<"creator" | "studio">("creator");
   const [subBillingInterval, setSubBillingInterval] = useState<"monthly" | "annual">("monthly");
 
   const selectedPack = PACKS.find(p => p.key === selectedKey)!;

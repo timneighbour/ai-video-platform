@@ -109,10 +109,10 @@ const PLANS = SHARED_PLANS
 // Build Credit Packs 
 // Bundle UI overlay (visual fields only — prices/labels from @/lib/plans) 
 const BUNDLE_UI_OVERLAY: Record<string, { bgImage: string; accentColor: string; borderColor: string }> = {
- quick_boost: { bgImage: SHOWCASE_3, accentColor: "rgba(100,140,200,0.15)", borderColor: "rgba(100,140,200,0.2)" },
- creator_boost: { bgImage: SHOWCASE_1, accentColor: "rgba(196,164,100,0.15)", borderColor: "rgba(196,164,100,0.4)" },
- studio_boost: { bgImage: SHOWCASE_2, accentColor: "rgba(160,100,220,0.15)", borderColor: "rgba(160,100,220,0.25)" },
- pro_bulk_boost:{ bgImage: SHOWCASE_3, accentColor: "rgba(100,200,140,0.15)", borderColor: "rgba(100,200,140,0.25)" },
+ spark: { bgImage: SHOWCASE_3, accentColor: "rgba(100,140,200,0.15)", borderColor: "rgba(100,140,200,0.2)" },
+ boost: { bgImage: SHOWCASE_1, accentColor: "rgba(196,164,100,0.15)", borderColor: "rgba(196,164,100,0.4)" },
+ pro_pack: { bgImage: SHOWCASE_2, accentColor: "rgba(160,100,220,0.15)", borderColor: "rgba(160,100,220,0.25)" },
+ mega: { bgImage: SHOWCASE_3, accentColor: "rgba(100,200,140,0.15)", borderColor: "rgba(100,200,140,0.25)" },
 };
 const BUNDLES = TOPUP_PACKS.map((p) => ({ ...p, ...BUNDLE_UI_OVERLAY[p.key] }));
 
@@ -358,7 +358,7 @@ export default function Pricing() {
  } finally { setLoadingPlan(null); }
  }
 
- async function handleTopupPurchase(packKey: "quick_boost" | "creator_boost" | "studio_boost" | "pro_bulk_boost") {
+ async function handleTopupPurchase(packKey: "spark" | "boost" | "pro_pack" | "mega") {
  mp.checkoutStarted(`topup_${packKey}`);
  if (!isAuthenticated) { window.location.href = getLoginUrl(); return; }
  setLoadingBundle(packKey);
@@ -624,7 +624,7 @@ export default function Pricing() {
  {/* Key stats */}
  <div className="grid grid-cols-2 gap-2 mb-3">
  <div className="rounded-xl p-2.5 text-center" style={{ background: `${plan.glowColor}`, border: `1px solid ${plan.borderColor}` }}>
- <div className="text-2xl font-black text-white">{plan.buildsPerMonth}</div>
+ <div className="text-2xl font-black text-white">{plan.approxVideosPerMonth}</div>
  <div className="text-[9px] text-white/40 font-medium uppercase tracking-wider mt-0.5">videos/month</div>
  </div>
  <div className="rounded-xl p-2.5 text-center bg-white/[0.03] border border-white/[0.06]">
@@ -639,7 +639,7 @@ export default function Pricing() {
  <div className="flex items-center gap-2">
  <span className="text-[10px] line-through text-white/20">£6 pay-per-render</span>
  <span className="text-[11px] font-black" style={{ color: plan.accentColor }}>
- {formatPrice(parseFloat((plan.monthlyPrice / plan.buildsPerMonth).toFixed(2)))}/video
+ {formatPrice(parseFloat((plan.monthlyPrice / plan.approxVideosPerMonth).toFixed(2)))}/video
  </span>
  </div>
  </div>
@@ -850,11 +850,11 @@ export default function Pricing() {
  </thead>
  <tbody>
  {[
- { label: "Pay-per-video (Standard)", videos: 15, cost: 15 * 2, perVideo: "£2.00", saving: null, highlight: false },
- { label: "Pay-per-video (HD)", videos: 15, cost: 15 * 4, perVideo: "£4.00", saving: null, highlight: false },
- { label: "Pay-per-video (4K)", videos: 15, cost: 15 * 6, perVideo: "£6.00", saving: null, highlight: false },
- { label: "Creator Plan (£79/mo)", videos: 6, cost: 79, perVideo: "£13.17", saving: "4K + WizSync™ + Priority builds", highlight: true },
- { label: "Pro Plan (£149/mo)", videos: 12, cost: 149, perVideo: "£12.42", saving: "API access + Dedicated support", highlight: false },
+ { label: "Pay-per-video (Standard)", videos: 1, cost: 10, perVideo: "£10.00", saving: null, highlight: false },
+ { label: "Pay-per-video (HD)", videos: 1, cost: 14, perVideo: "£14.00", saving: null, highlight: false },
+ { label: "Pay-per-video (4K)", videos: 1, cost: 18, perVideo: "£18.00", saving: null, highlight: false },
+ { label: "Creator Plan (£99/mo)", videos: 6, cost: 99, perVideo: "£16.50", saving: "4K + Character Lock™ + Priority builds", highlight: true },
+ { label: "Studio Plan (£199/mo)", videos: 12, cost: 199, perVideo: "£16.58", saving: "API access + Dedicated support", highlight: false },
  ].map((row, i) => (
  <tr key={i} className={`border-b border-white/[0.04] last:border-0 ${
  row.highlight ? "bg-[rgba(196,164,100,0.06)]" : "hover:bg-white/[0.02]"
@@ -884,7 +884,7 @@ export default function Pricing() {
  </table>
  </div>
  <div className="px-6 py-4 bg-white/[0.02] border-t border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
- <p className="text-[11px] text-white/40">Creator plan (£79/mo) includes 4K quality, WizSync™ character lock, and priority builds — not available on pay-per-video.</p>
+ <p className="text-[11px] text-white/40">Creator plan (£99/mo) includes 4K quality, Character Lock™, and priority builds — not available on pay-per-video.</p>
  <a href="#plans" className="flex-shrink-0 text-[11px] font-bold text-[--color-gold] hover:text-[--color-gold-light] transition-colors flex items-center gap-1">
  See plans <ArrowRight className="w-3 h-3" />
  </a>

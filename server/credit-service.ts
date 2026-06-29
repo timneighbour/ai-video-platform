@@ -196,6 +196,59 @@ export async function refundCredits(
 }
 
 /**
+ * Reset monthly subscription credits (called on subscription_cycle renewal).
+ * Sets monthlyCredits to the plan allowance (discarding unused monthly credits).
+ * Top-up credits are preserved in topupCredits and are never reset.
+ * The total balance is recalculated as monthlyCredits + topupCredits.
+ */
+export async function resetMonthlyCredits(
+  userId: number,
+  planCredits: number,
+  planName: string
+): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const userCredits = await db
+    .select()
+    .from(credits)
+    .where(eq(credits.userId, userId))
+    .limit(1);
+
+  const topupCredits = userCredits.length ? (userCredits[0].topupCredits ?? 0) : 0;
+  const newBalance = planCredits + topupCredits;
+
+  if (!userCredits.length) {
+    await db.insert(credits).values({
+      userId,
+      balance: newBalance,
+      monthlyCredits: planCredits,
+      topupCredits: 0,
+      totalEarned: planCredits,
+      totalSpent: 0,
+    });
+  } else {
+    await db
+      .update(credits)
+      .set({
+        balance: newBalance,
+        monthlyCredits: planCredits,
+        totalEarned: userCredits[0].totalEarned + planCredits,
+        updatedAt: new Date(),
+      })
+      .where(eq(credits.userId, userId));
+  }
+
+  await db.insert(creditTransactions).values({
+    userId,
+    amount: planCredits,
+    type: "subscription_grant",
+    description: `Monthly reset — ${planName} plan (${planCredits} credits)`,
+    createdAt: new Date(),
+  });
+}
+
+/**
  * Get user's credit transaction history
  */
 export async function getCreditHistory(userId: number, limit: number = 50) {
