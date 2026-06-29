@@ -36,6 +36,7 @@ import {
   LayoutDashboard,
   Gift,
   Coins,
+  Music2,
 } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -66,6 +67,11 @@ const PLAN_STYLE: Record<string, { gradient: string; icon: React.ReactNode; acce
     gradient: "from-emerald-500 to-teal-600",
     icon: <Gift className="w-8 h-8 text-white" />,
     accent: "text-emerald-400",
+  },
+  song_download: {
+    gradient: "from-amber-500 to-yellow-600",
+    icon: <Music2 className="w-8 h-8 text-white" />,
+    accent: "text-amber-400",
   },
 };
 
@@ -111,6 +117,26 @@ const NEXT_STEPS = {
       icon: <CreditCard className="w-5 h-5" />,
     },
   ],
+  song_download: [
+    {
+      href: "/wiz-audio",
+      label: "Back to WizAudio",
+      description: "Re-download your track any time — it's permanently unlocked",
+      icon: <Music2 className="w-5 h-5" />,
+    },
+    {
+      href: "/music-video/create",
+      label: "Turn it into a music video",
+      description: "Bring your track to life with WizVideo",
+      icon: <Sparkles className="w-5 h-5" />,
+    },
+    {
+      href: "/pricing",
+      label: "Subscribe for more",
+      description: "Get monthly credits and download songs for just 2 credits each",
+      icon: <CreditCard className="w-5 h-5" />,
+    },
+  ],
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -138,7 +164,8 @@ function formatDate(ts: Date | number | null | undefined) {
 // ── Main component ────────────────────────────────────────────────────────────
 export default function CheckoutSuccess() {
   const params = useSearchParams();
-  const purchaseType = (params.get("type") ?? "subscription") as "subscription" | "topup";
+  const purchaseType = (params.get("type") ?? "subscription") as "subscription" | "topup" | "song_download";
+  const isSongDownload = purchaseType === "song_download";
   const planParam = params.get("plan") ?? undefined;
 
   const { user, loading: authLoading } = useAuth();
@@ -156,9 +183,9 @@ export default function CheckoutSuccess() {
     isLoading: purchaseLoading,
     dataUpdatedAt,
   } = trpc.billing.getLatestPurchase.useQuery(
-    { type: purchaseType },
+    { type: isSongDownload ? undefined : (purchaseType as "subscription" | "topup") },
     {
-      enabled: Boolean(user) && !pollTimedOut,
+      enabled: Boolean(user) && !pollTimedOut && !isSongDownload,
       retry: 3,
       // Poll every 2 s until data arrives or timeout fires
       refetchInterval: (query) => {
@@ -237,15 +264,16 @@ export default function CheckoutSuccess() {
       ? TOPUP_PACKS.find((p) => p.key === purchase.packKey)
       : null;
 
-  const style = PLAN_STYLE[purchaseType === "topup" ? "topup" : planId] ?? PLAN_STYLE.starter;
-  const nextSteps = NEXT_STEPS[purchaseType];
+  const style = PLAN_STYLE[isSongDownload ? "song_download" : purchaseType === "topup" ? "topup" : planId] ?? PLAN_STYLE.starter;
+  const nextSteps = NEXT_STEPS[purchaseType] ?? NEXT_STEPS.subscription;
 
-  const orderTitle =
-    purchase?.kind === "topup"
-      ? `${topupPack?.label ?? purchase.packName} Top-Up`
-      : planData
-      ? `${planData.name} Plan`
-      : "Your Purchase";
+  const orderTitle = isSongDownload
+    ? "WizAudio Song Download"
+    : purchase?.kind === "topup"
+    ? `${topupPack?.label ?? purchase.packName} Top-Up`
+    : planData
+    ? `${planData.name} Plan`
+    : "Your Purchase";
 
   const creditsAdded =
     purchase?.kind === "topup"
@@ -372,10 +400,12 @@ export default function CheckoutSuccess() {
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-2">
-            Payment confirmed!
+            {isSongDownload ? "Track unlocked!" : "Payment confirmed!"}
           </h1>
           <p className="text-white/60 text-base sm:text-lg max-w-md">
-            {purchaseType === "topup"
+            {isSongDownload
+              ? "Your track is permanently unlocked. Download it now and as many times as you like."
+              : purchaseType === "topup"
               ? "Your credits have been added to your wallet and are ready to use."
               : "Your subscription is now active. Your credits refresh every billing cycle."}
           </p>
@@ -392,8 +422,19 @@ export default function CheckoutSuccess() {
           </div>
 
           <CardContent className="p-6 space-y-4">
+            {/* Song download unlock row */}
+            {isSongDownload && (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-white/70">
+                  <Music2 className="w-4 h-4" />
+                  <span className="text-sm">Track download</span>
+                </div>
+                <span className="font-bold text-lg text-amber-400">Permanently unlocked</span>
+              </div>
+            )}
+
             {/* Credits row */}
-            {creditsAdded != null && (
+            {!isSongDownload && creditsAdded != null && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-white/70">
                   <Coins className="w-4 h-4" />
@@ -406,6 +447,7 @@ export default function CheckoutSuccess() {
                 </span>
               </div>
             )}
+            {isSongDownload && null}
 
             {/* Current balance row */}
             {purchase?.creditBalance != null && (
@@ -467,6 +509,10 @@ export default function CheckoutSuccess() {
               {/* TOP-UP ONLY: purchased credits never expire */}
               {purchaseType === "topup" && (
                 <> Credits you purchase never expire and are yours to keep.</>
+              )}
+              {/* SONG DOWNLOAD: permanent unlock — no credits involved */}
+              {isSongDownload && (
+                <> This track is permanently unlocked on your account. You can re-download it any time from WizAudio.</>
               )}
             </div>
           </CardContent>

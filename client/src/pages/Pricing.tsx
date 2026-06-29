@@ -122,9 +122,9 @@ const COMPARISON_GROUPS = [
  {
  group: "Output",
  rows: [
- { label: "Videos per month", starter: "2", creator: "15", studio: "40" },
- { label: "credits / month", starter: "2", creator: "15", studio: "40" },
- { label: "Max scenes per video", starter: "8 (≈64s)", creator: "11 (≈88s)", studio: "12 (≈96s)" },
+ { label: "Credits / month", starter: "320", creator: "800", studio: "1,500" },
+ { label: "Approx. WizVideos / month", starter: "~2", creator: "~5", studio: "~9" },
+ { label: "Max scenes per WizVideo", starter: "8", creator: "11", studio: "12" },
  { label: "Max output quality", starter: "720p", creator: "4K 2160p", studio: "4K 2160p" },
  { label: "No watermark", starter: true, creator: true, studio: true, isCheck: true },
  ],
@@ -132,18 +132,18 @@ const COMPARISON_GROUPS = [
  {
  group: "Features",
  rows: [
- { label: "All 6 WIZ AI products", starter: true, creator: true, studio: true, isCheck: true },
+ { label: "All 7 WIZ AI studios", starter: true, creator: true, studio: true, isCheck: true },
  { label: "WizSound audio mastering", starter: true, creator: true, studio: true, isCheck: true },
- { label: "WizSync\u2122 character lock", starter: false, creator: true, studio: true, isCheck: true },
+ { label: "WizSync™ character lock", starter: false, creator: true, studio: true, isCheck: true },
  { label: "Priority video builds", starter: false, creator: true, studio: true, isCheck: true },
  ],
  },
  {
  group: "Access",
  rows: [
- { label: "top-up packs", starter: true, creator: true, studio: true, isCheck: true },
+ { label: "Top-up packs", starter: true, creator: true, studio: true, isCheck: true },
  { label: "Pay-per-video", starter: true, creator: true, studio: true, isCheck: true },
- { label: "Daily video limit", starter: "3/day", creator: "3/day", studio: "3/day" },
+ { label: "Monthly credits reset", starter: "Each cycle", creator: "Each cycle", studio: "Each cycle" },
  ],
  },
 ];

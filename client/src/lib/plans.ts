@@ -256,7 +256,7 @@ export const COMPARISON_ROWS: {
   { feature: "Character Lock™",         free: false,         starter: false,        creator: true,         studio: true       },
   { feature: "Build speed",             free: "Standard",    starter: "Standard",   creator: "Priority",   studio: "Fastest"  },
   { feature: "API access",              free: false,         starter: false,        creator: false,        studio: true       },
-  { feature: "Credits roll over",        free: "Never",       starter: "6 months",   creator: "6 months",   studio: "6 months" },
+  { feature: "Monthly credits reset",     free: "—",           starter: "Each cycle",  creator: "Each cycle",  studio: "Each cycle"  },
 ];
 
 // ── Weighted credit costs per studio (for display on pricing page) ────────────
