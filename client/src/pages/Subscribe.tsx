@@ -196,7 +196,7 @@ export default function Subscribe() {
 
  {/* Trust signals */}
  <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground">
- {[" Free storyboard preview on all plans", " No credit card required to start", " Cancel anytime", " 7-day money-back guarantee"].map((t) => (
+ {[" Free storyboard preview on all plans", " No credit card required to start", " Cancel anytime", " 7-day refund on unused credits"].map((t) => (
  <span key={t}>{t}</span>
  ))}
  </div>
@@ -325,7 +325,7 @@ export default function Subscribe() {
  {[
  { q: "Do subscription credits roll over?", a: "Subscription credits reset each billing cycle. credit Packs (bought separately) never expire." },
  { q: "Can I switch plans?", a: "Yes, upgrade or downgrade anytime. Prorated instantly." },
- { q: "Is there a refund policy?", a: "Yes, we offer a 7-day money-back guarantee on all plans." }, ].map(({ q, a }) => (
+ { q: "Is there a refund policy?", a: "Yes. You can request a refund of any unused credits within 7 days of your initial payment. Credits that have already been spent are non-refundable. See our Refund Policy for full details." }, ].map(({ q, a }) => (
  <div key={q} className="rounded-xl border border-white/10 bg-white/5 p-4">
  <p className="font-semibold text-white text-sm mb-1">{q}</p>
  <p className="text-xs text-muted-foreground">{a}</p>

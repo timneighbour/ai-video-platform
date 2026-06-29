@@ -1136,7 +1136,8 @@ export const renderRouter = router({
         // payment_method_types omitted — Stripe auto-enables card, Apple Pay, Google Pay, PayPal
         line_items: [{ price: bundleInfo.priceId, quantity: 1 }],
         mode: "payment",
-        success_url: `${input.origin}/dashboard?bundle_purchased=true&renders=${bundleInfo.renders}`,
+        // Render bundles redirect to /dashboard — no query params (credits granted by webhook, not URL).
+        success_url: `${input.origin}/dashboard?purchase=bundle`,
         cancel_url: `${input.origin}/pricing?canceled=true`,
         client_reference_id: ctx.user.id.toString(),
         metadata: {

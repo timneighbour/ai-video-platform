@@ -19,7 +19,7 @@
  *  - "Top-up credits never expire"              → topup path ONLY
  *  These are mutually exclusive; the wrong message must never appear.
  */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import confetti from "canvas-confetti";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
@@ -147,6 +147,10 @@ export default function CheckoutSuccess() {
   // Poll until the Stripe webhook has recorded the purchase.
   // refetchInterval keeps retrying every 2 s while purchase is null so the
   // customer never sees a static "not found" message after a real payment.
+  // After 30 s (15 retries) we stop polling and show a timeout message.
+  const pollStartRef = useRef<number>(Date.now());
+  const [pollTimedOut, setPollTimedOut] = useState(false);
+
   const {
     data: purchase,
     isLoading: purchaseLoading,
@@ -154,10 +158,17 @@ export default function CheckoutSuccess() {
   } = trpc.billing.getLatestPurchase.useQuery(
     { type: purchaseType },
     {
-      enabled: Boolean(user),
+      enabled: Boolean(user) && !pollTimedOut,
       retry: 3,
-      // Poll every 2 s until data arrives, then stop
-      refetchInterval: (query) => (query.state.data ? false : 2000),
+      // Poll every 2 s until data arrives or timeout fires
+      refetchInterval: (query) => {
+        if (query.state.data) return false; // data arrived — stop
+        if (Date.now() - pollStartRef.current >= 30_000) {
+          setPollTimedOut(true);
+          return false; // 30 s elapsed — stop
+        }
+        return 2000;
+      },
       refetchIntervalInBackground: false,
     }
   );
@@ -277,7 +288,41 @@ export default function CheckoutSuccess() {
   // Stripe redirects the buyer here before the webhook has finished recording the
   // purchase. We poll every 2 s (see refetchInterval above). While waiting, show
   // a reassuring message — never "no purchase found", which reads as "payment failed".
+  // After 30 s without data we surface a timeout message with a link to /account.
   if (!purchase && user) {
+    if (pollTimedOut) {
+      return (
+        <div className="min-h-screen bg-black text-white flex items-center justify-center">
+          <div className="text-center space-y-5 max-w-sm px-4">
+            <div className="mx-auto w-14 h-14 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
+              <svg className="w-7 h-7 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              </svg>
+            </div>
+            <h1 className="text-xl font-bold text-white">Taking longer than expected</h1>
+            <p className="text-white/55 text-sm leading-relaxed">
+              Your payment was received, but your credits are taking longer than usual to appear.
+              Please check your dashboard — they may already be there.
+            </p>
+            <div className="flex flex-col gap-2 pt-1">
+              <Button asChild className="rounded-full bg-violet-600 hover:bg-violet-500 text-white">
+                <Link href="/dashboard">
+                  <LayoutDashboard className="w-4 h-4 mr-2" />
+                  Check Dashboard
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="rounded-full border-white/15 text-white/60 hover:bg-white/[0.05]">
+                <Link href="/account">
+                  Contact Support
+                </Link>
+              </Button>
+            </div>
+            <p className="text-white/25 text-[10px]">If the issue persists, email support@wiz-ai.io with your order reference.</p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center space-y-5 max-w-sm px-4">
@@ -287,7 +332,7 @@ export default function CheckoutSuccess() {
           </div>
           <h1 className="text-2xl font-bold">Payment confirmed!</h1>
           <p className="text-white/60 text-sm leading-relaxed">
-            Your credits are being added — this usually takes a few seconds.
+            Adding your credits — this usually takes a few seconds.
             <br />
             <span className="text-white/40 text-xs">This page will update automatically.</span>
           </p>

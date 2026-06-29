@@ -29,8 +29,8 @@ export default function Refunds() {
 
           <section>
             <h2 className="text-xl font-bold text-white mb-3">2. Subscription Refunds</h2>
-            <p>We offer a <strong>7-day refund window</strong> for new subscriptions. If you subscribe and are not satisfied, you may request a full refund within 7 days of your initial payment, provided you have not rendered more than 5 videos during that period.</p>
-            <p className="mt-2">After 7 days, or once you have rendered more than 5 videos, subscription payments are non-refundable. You may cancel your subscription at any time to prevent future billing — your access will continue until the end of the current billing period.</p>
+            <p>We offer a <strong>7-day refund window</strong> for new subscriptions. If you subscribe and are not satisfied, you may request a refund of any <strong>unused credits</strong> within 7 days of your initial payment. Credits that have already been spent on renders, builds, or other studio actions are non-refundable.</p>
+            <p className="mt-2">After 7 days, or once all credits from your initial allocation have been used, subscription payments are non-refundable. You may cancel your subscription at any time to prevent future billing — your access will continue until the end of the current billing period.</p>
           </section>
 
           <section>
