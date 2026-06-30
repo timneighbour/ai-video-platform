@@ -2018,7 +2018,7 @@ export const songDownloads = mysqlTable("song_downloads", {
   userId: int("userId").notNull(),
   taskId: int("taskId").notNull(),       // references sunoMusicTasks.id
   trackIndex: int("trackIndex").notNull().default(0), // 0 or 1 (two tracks per task)
-  creditsCharged: int("creditsCharged").notNull().default(20),
+  creditsCharged: int("creditsCharged").notNull().default(2),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type SongDownload = typeof songDownloads.$inferSelect;

@@ -1,0 +1,1 @@
+ALTER TABLE `song_downloads` MODIFY COLUMN `creditsCharged` int NOT NULL DEFAULT 2;
