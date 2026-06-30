@@ -1,5 +1,6 @@
 import { WIZANIMATE_PRODUCT_PAGE, WIZVIDEO_STUDIO_PAGE, WIZVIDEO_NEW_PROJECT, WIZAUDIO_STUDIO_PAGE } from "@/lib/routes";
 import { SceneHistoryLog } from "@/components/SceneHistoryLog";
+import { MyLibrary } from "@/components/MyLibrary";
 import { FuelTheSession } from "@/components/FuelTheSession";
 import { ReturnTriggerBanner } from "@/components/ReturnTriggerBanner";
 /**
@@ -698,6 +699,9 @@ export default function Dashboard() {
             </a>
           </section>
         )}
+
+        {/* ── My Library (all-studio outputs) ──────────────────────────────── */}
+        <MyLibrary isAuthenticated={isAuthenticated} />
 
         {/* ── Scene Action History Log ───────────────────────────────────── */}
         {hasProjects && (

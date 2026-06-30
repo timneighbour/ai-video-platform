@@ -4,7 +4,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2, Lock, ChevronDown, ChevronUp } from "@/lib/icons";
 import { toast } from "sonner";
-import { PastGenerations as PastGenerationsComponent } from "@/components/PastGenerations";
+import LowCreditPrompt from "@/components/LowCreditPrompt";
 
 /**
  * Past Generations — displays user's recent WizAudio songs from history
@@ -14,6 +14,12 @@ import { PastGenerations as PastGenerationsComponent } from "@/components/PastGe
 export function PastGenerations() {
   const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
+  const [lowCreditPrompt, setLowCreditPrompt] = useState<{
+    taskId: number;
+    trackIndex: number;
+    currentCredits: number;
+    creditsNeeded: number;
+  } | null>(null);
 
   // Fetch user's history
   const { data: history, isLoading: historyLoading } = trpc.suno.history.useQuery(undefined, {
@@ -52,6 +58,14 @@ export function PastGenerations() {
       } else if (data.checkoutUrl) {
         // Redirect to Stripe checkout
         window.location.href = data.checkoutUrl;
+      } else if ("insufficientCredits" in data && data.insufficientCredits) {
+        // Show low-credit prompt
+        setLowCreditPrompt({
+          taskId: (data as any).taskId || 0,
+          trackIndex: (data as any).trackIndex || 0,
+          currentCredits: (data as any).currentCredits || 0,
+          creditsNeeded: (data as any).creditsNeeded || 2,
+        });
       } else {
         toast.info(data.message || "Song download coming soon");
       }
@@ -63,10 +77,37 @@ export function PastGenerations() {
 
   if (!user || !history || history.length === 0) return null;
 
+  const handleTopUp = () => {
+    // Navigate to pricing page with anchor to credit packs
+    window.location.href = "/pricing#credit-packs";
+  };
+
+  const handlePayPerTrack = () => {
+    if (lowCreditPrompt) {
+      // Close the prompt — next attempt will fall through to Stripe checkout
+      setLowCreditPrompt(null);
+      // Re-trigger the download, which will now go to Stripe since credits are insufficient
+      downloadMutation.mutate({
+        taskId: lowCreditPrompt.taskId,
+        trackIndex: lowCreditPrompt.trackIndex,
+      });
+    }
+  };
+
   const isLoading = historyLoading || unlocksLoading;
 
   return (
-    <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0e0e12" }}>
+    <>
+      {lowCreditPrompt && (
+        <LowCreditPrompt
+          currentCredits={lowCreditPrompt.currentCredits}
+          creditsNeeded={lowCreditPrompt.creditsNeeded}
+          onTopUp={handleTopUp}
+          onPayPerTrack={handlePayPerTrack}
+          isLoading={downloadMutation.isPending}
+        />
+      )}
+      <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0e0e12" }}>
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between px-3.5 py-2 border-b border-white/7 hover:bg-white/2 transition-colors"
@@ -167,7 +208,8 @@ export function PastGenerations() {
           )}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

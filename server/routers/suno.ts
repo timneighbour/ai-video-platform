@@ -9,7 +9,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
-import { getDb, getUserSubscription, deductCredits } from "../db";
+import { getDb, getUserSubscription, deductCredits, getUserCredits } from "../db";
 import { sunoMusicTasks, songDownloads, users } from "../../drizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { initSuno, SunoTrack } from "../ai-apis/suno";
@@ -535,6 +535,8 @@ export const sunoRouter = router({
       z.object({
         taskId: z.number().int().positive(),
         trackIndex: z.number().int().min(0).max(1),
+        /** Frontend passes window.location.origin so the success_url always points to the live site. */
+        origin: z.string().url().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -602,10 +604,15 @@ export const sunoRouter = router({
           );
         } catch (err: any) {
           if (err.message === "Insufficient credits") {
-            throw new TRPCError({
-              code: "PAYMENT_REQUIRED",
-              message: "Not enough credits to download this song. Top up your credits to continue.",
-            });
+            // Return low-credit response instead of throwing
+            const currentCredits = await getUserCredits(ctx.user.id);
+            return {
+              insufficientCredits: true,
+              taskId: input.taskId,
+              trackIndex: input.trackIndex,
+              currentCredits,
+              creditsNeeded: SONG_DOWNLOAD_CREDIT_COST,
+            };
           }
           throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: err.message });
         }
@@ -642,9 +649,13 @@ export const sunoRouter = router({
       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
       // Build success URL — CheckoutSuccess page will detect type=song_download
       // and show the correct post-purchase message.
-      const origin = process.env.VITE_FRONTEND_FORGE_API_URL
-        ? new URL(process.env.VITE_FRONTEND_FORGE_API_URL).origin
-        : "https://wiz-ai.io";
+      // Use the origin passed from the frontend (window.location.origin).
+      // Reject Manus sandbox/forge/preview domains — always fall back to production.
+      const PRODUCTION_ORIGIN = "https://wiz-ai.io";
+      const rawOrigin = input.origin ?? "";
+      const origin = (rawOrigin && !rawOrigin.includes("manus") && !rawOrigin.includes("forge") && !rawOrigin.includes("localhost"))
+        ? rawOrigin
+        : PRODUCTION_ORIGIN;
 
       const session = await stripe.checkout.sessions.create({
         mode: "payment",

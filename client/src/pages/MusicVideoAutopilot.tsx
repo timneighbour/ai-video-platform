@@ -2512,6 +2512,18 @@ export default function MusicVideoAutopilot() {
     { enabled: !!jobId && (step === "storyboard" || step === "upload") }
   );
 
+  // Seed restoredAudioUrl from jobQuery when localStorage was cleared (e.g. after billing outage or session reset).
+  // This ensures the audio player always appears on the storyboard and screening room steps.
+  useEffect(() => {
+    if (jobQuery.data?.job?.audioUrl && !restoredAudioUrl) {
+      setRestoredAudioUrl(jobQuery.data.job.audioUrl);
+      if (!restoredAudioTitle && jobQuery.data.job.title) {
+        setRestoredAudioTitle(jobQuery.data.job.title);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobQuery.data?.job?.audioUrl, jobQuery.data?.job?.title]);
+
   // Populate contextAssets and artistType from job data when loading/resuming
   useEffect(() => {
     if (jobQuery.data?.job?.contextAssetUrls) {
