@@ -338,14 +338,61 @@ export async function generateScenePreviewCore(opts: {
   const positionBlock = positionLines.length > 0 ? `POSITION LOCK:\n${positionLines.join("\n")}` : "";
 
   // ── MUST-HAVE BLOCK ───────────────────────────────────────────────────────────
+  // Two sources:
+  //   1. lockedRules.mustHave — explicit items set in the Character Lock form
+  //   2. Outfit-text extraction — when the user has typed an outfit that mentions
+  //      accessories (necklace, earrings) or specific footwear (heels, boots),
+  //      extract them as hard MUST HAVE items so the AI cannot drop them.
   const mustHaveLines = resolvedSceneChars
-    .filter(c => c.isLocked && c.lockedRules)
+    .filter(c => c.isLocked)
     .flatMap(c => {
-      try {
-        const lr = JSON.parse(c.lockedRules!);
-        const items: string[] = lr.mustHave ?? [];
-        if (items.length > 0) return [`MUST HAVE for ${c.name} (MANDATORY — MUST appear in EVERY scene): ${items.join(", ")}.`];
-      } catch { /* ignore */ }
+      const items: string[] = [];
+      // Source 1: explicit lockedRules.mustHave
+      if (c.lockedRules) {
+        try {
+          const lr = JSON.parse(c.lockedRules!);
+          items.push(...(lr.mustHave ?? []));
+        } catch { /* ignore */ }
+      }
+      // Source 2: extract key accessories/footwear from user-entered outfit text
+      const outfitSources: string[] = [];
+      if (c.characterVisualDetails) {
+        try {
+          const vd = JSON.parse(c.characterVisualDetails);
+          if (vd?.outfit) outfitSources.push(String(vd.outfit));
+        } catch { outfitSources.push(c.characterVisualDetails); }
+      }
+      if (c.lockedOutfit) {
+        try {
+          const lo = JSON.parse(c.lockedOutfit);
+          const outfitStr = typeof lo === "string" ? lo : Object.values(lo).filter(v => typeof v === "string").join(" ");
+          outfitSources.push(outfitStr);
+        } catch { /* ignore */ }
+      }
+      const combinedOutfit = outfitSources.join(" ").toLowerCase();
+      if (combinedOutfit.length > 0) {
+        // Necklace / jewellery
+        const necklaceM = combinedOutfit.match(/[a-z\s-]*(necklace|pendant|chain)[a-z\s,-]*/i);
+        if (necklaceM && !items.some(i => /necklace|pendant/i.test(i))) {
+          items.push(`${necklaceM[0].trim().slice(0, 80)} — MUST be visible around neck in EVERY scene`);
+        }
+        // Earrings
+        const earringM = combinedOutfit.match(/[a-z\s-]*(earring|ear ring|stud earring|hoop earring)[a-z\s,-]*/i);
+        if (earringM && !items.some(i => /earring/i.test(i))) {
+          items.push(`${earringM[0].trim().slice(0, 60)} — MUST be visible in EVERY scene`);
+        }
+        // Specific heels (not generic shoes)
+        const heelM = combinedOutfit.match(/[a-z\s-]*(stiletto|high[- ]heel|kitten[- ]heel|platform[- ]heel)[a-z\s,-]*/i);
+        if (heelM && !items.some(i => /heel/i.test(i))) {
+          items.push(`${heelM[0].trim().slice(0, 80)} — MUST be worn in EVERY scene, NOT boots or flat shoes`);
+        }
+        // Specific boots
+        const bootM = combinedOutfit.match(/[a-z\s-]*(knee[- ]high|ankle|thigh[- ]high)[- ]?boots?[a-z\s,-]*/i);
+        if (bootM && !items.some(i => /boot/i.test(i))) {
+          items.push(`${bootM[0].trim().slice(0, 80)} — MUST be worn in EVERY scene, NOT heels or flat shoes`);
+        }
+      }
+      if (items.length > 0) return [`MUST HAVE for ${c.name} (MANDATORY — MUST appear in EVERY scene): ${items.join(", ")}.`];
       return [];
     });
   const mustHaveBlock = mustHaveLines.length > 0 ? mustHaveLines.join("\n") : "";
@@ -389,7 +436,9 @@ export async function generateScenePreviewCore(opts: {
   // violinist, pianist, orchestra, etc.), inject an ENSEMBLE LOCK block so they
   // appear consistently in EVERY scene that isn't a solo close-up.
   let ensembleLockBlock = "";
-  if (job.sceneSetting && !isEnvironmentScene) {
+  // Detect solo close-up: extreme close-up on face/hands/instrument — no room for background musicians
+  const isSoloCloseUp = /\b(extreme\s+close[- ]?up|close[- ]?up\s+on\s+(face|hands?|fingers?|keys?|bow|strings?|piano)|tight\s+shot\s+on|macro\s+shot|detail\s+shot\s+of|face\s+only|hands?\s+only)\b/i.test(cleanScenePrompt);
+  if (job.sceneSetting && !isEnvironmentScene && !isSoloCloseUp) {
     const setting = job.sceneSetting.toLowerCase();
     const ensembleKeywords: string[] = [];
     if (/cellist|cello/.test(setting)) ensembleKeywords.push("cellist(s) seated with cello");
@@ -401,7 +450,7 @@ export async function generateScenePreviewCore(opts: {
     if (/harpist|harp/.test(setting)) ensembleKeywords.push("harpist with concert harp");
     if (/bassist|double bass|contrabass/.test(setting)) ensembleKeywords.push("double bass player");
     if (ensembleKeywords.length > 0) {
-      ensembleLockBlock = `ENSEMBLE LOCK (MANDATORY — MUST appear in EVERY scene): The following musicians are ALWAYS present in the background unless this is a solo close-up: ${ensembleKeywords.join(", ")}. They MUST be visible in every scene. DO NOT omit them.`;
+      ensembleLockBlock = `ENSEMBLE LOCK (MANDATORY — MUST appear in EVERY applicable scene): The following musicians are ALWAYS present in the background: ${ensembleKeywords.join(", ")}. They MUST be visible in every scene that is not an extreme close-up. DO NOT omit them.`;
     }
   }
 
