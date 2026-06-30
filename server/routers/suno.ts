@@ -58,7 +58,7 @@ export const sunoRouter = router({
   generate: protectedProcedure
     .input(
       z.object({
-        prompt: z.string().min(1).max(400),
+        prompt: z.string().min(1).max(1500),
         lyrics: z.string().max(3000).optional(),
         style: z.string().max(200).optional(),
         title: z.string().max(80).optional(),
@@ -803,7 +803,7 @@ export const sunoRouter = router({
   generateLyrics: protectedProcedure
     .input(
       z.object({
-        prompt: z.string().min(1).max(400),
+        prompt: z.string().min(1).max(1500),
         genre: z.string().optional(),
         mood: z.string().optional(),
         title: z.string().optional(),
@@ -902,7 +902,7 @@ Rules:
         /** Public S3 URL of the user's uploaded track */
         uploadedTrackUrl: z.string().url(),
         /** Style description (non-custom) or exact lyrics (custom) */
-        prompt: z.string().min(1).max(400).optional(),
+        prompt: z.string().min(1).max(1500).optional(),
         /** Music style/genre (custom mode) */
         style: z.string().max(200).optional(),
         /** Track title (custom mode) */
@@ -966,7 +966,7 @@ Rules:
       z.object({
         /** Public S3 URL of the user's uploaded track */
         uploadedTrackUrl: z.string().url(),
-        prompt: z.string().min(1).max(400).optional(),
+        prompt: z.string().min(1).max(1500).optional(),
         style: z.string().max(200).optional(),
         title: z.string().max(80).optional(),
         instrumental: z.boolean().default(false),

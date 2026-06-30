@@ -105,31 +105,65 @@ export interface CinematicImageResult {
 }
 
 /**
- * Sanitise a scene prompt — strip crop-inducing framing terms, inject
- * venue DNA (defaulting to Lyndhurst Hall), and append no-crop constraints.
+ * Detect whether the raw prompt contains an explicit camera/shot direction
+ * specified by the user. When true, we MUST NOT override it with defaults.
+ */
+function hasExplicitCameraDirection(prompt: string): boolean {
+  return /\b(from behind|rear view|behind the|back of|over[- ]the[- ]shoulder|bird[- ]?s?[- ]?eye|aerial|top[- ]down|low angle|high angle|dutch angle|wide shot|extreme wide|establishing shot|close[- ]?up on (hands?|fingers?|face|keys?|bow|strings?|piano)|looking (at|towards|into)|facing (away|camera|forward|backward)|shot from|viewed from|angle from|camera (behind|above|below|side|front)|side view|front view|profile shot|full[- ]body shot)/i.test(prompt);
+}
+
+/**
+ * Sanitise a scene prompt — strip crop-inducing framing terms (unless the user
+ * has specified an explicit camera direction), inject venue DNA, and append
+ * quality/framing constraints.
+ *
+ * IMPORTANT: When the user specifies a camera direction (e.g. "from behind the
+ * piano looking at him"), that direction is preserved VERBATIM and reinforced
+ * as a CAMERA LOCK directive. The default "medium wide shot" suffix is suppressed
+ * so it cannot override the user's intent.
  *
  * @param characterLockBlock  Optional character appearance constraint injected FIRST in the prompt.
- *   This ensures the AI sees the outfit/appearance lock before any other instruction.
- *   Format: "CHARACTER LOCK — [Name]: [outfit description]. FORBIDDEN: [negatives]."
  */
 function buildCinematicPrompt(rawPrompt: string, sceneType?: string, characterLockBlock?: string): string {
-  const safened = rawPrompt
-    .replace(/\bextreme close[- ]?up\b/gi, "medium shot")
-    .replace(/\bclose[- ]?up\b/gi, "medium shot")
-    .replace(/\bhead[- ]and[- ]shoulders\b/gi, "medium wide shot")
-    .replace(/\bMCU\b/g, "medium wide shot")
-    .replace(/\bmedium close[- ]?up\b/gi, "medium wide shot")
-    .replace(/\btight shot\b/gi, "medium shot")
-    .replace(/\bface[- ]?only\b/gi, "medium shot");
+  const userHasCameraDirection = hasExplicitCameraDirection(rawPrompt);
+
+  // Only sanitise shot language when the user has NOT specified an explicit camera direction.
+  // If they said "from behind the piano" or "close-up on hands", preserve it exactly.
+  const safened = userHasCameraDirection
+    ? rawPrompt  // preserve user's camera direction verbatim — do NOT sanitise
+    : rawPrompt
+        .replace(/\bextreme close[- ]?up\b/gi, "medium shot")
+        .replace(/\bclose[- ]?up\b/gi, "medium shot")
+        .replace(/\bhead[- ]and[- ]shoulders\b/gi, "medium wide shot")
+        .replace(/\bMCU\b/g, "medium wide shot")
+        .replace(/\bmedium close[- ]?up\b/gi, "medium wide shot")
+        .replace(/\btight shot\b/gi, "medium shot")
+        .replace(/\bface[- ]?only\b/gi, "medium shot");
 
   const venueDna = (sceneType && VENUE_DNA[sceneType]) ? VENUE_DNA[sceneType] : LYNDHURST_HALL_DNA;
   const parts: string[] = [];
+
   // CHARACTER LOCK goes FIRST — before scene description — so AI sees it as highest priority
   if (characterLockBlock) parts.push(characterLockBlock);
+
+  // CAMERA LOCK: when user specified a shot direction, reinforce it as a hard directive
+  // so the AI cannot default to its own composition preference.
+  if (userHasCameraDirection) {
+    parts.push("CAMERA LOCK (MANDATORY — DO NOT CHANGE): Follow the camera direction and shot angle in the scene description EXACTLY as written. This is the director's instruction and overrides all default composition rules.");
+  }
+
   parts.push(safened);
   parts.push(venueDna);
-  parts.push("FULL HEAD VISIBLE with generous headroom above the subject, entire head and hair fully within frame, subject NOT cropped at top");
-  parts.push("medium wide shot composition, cinematic widescreen, professional film lighting, photorealistic, 8K quality, dramatic depth of field, movie still");
+
+  // Only add the default framing/shot directives when the user hasn't locked the camera.
+  // Adding "medium wide shot" after "from behind the piano" would override the user's intent.
+  if (!userHasCameraDirection) {
+    parts.push("FULL HEAD VISIBLE with generous headroom above the subject, entire head and hair fully within frame, subject NOT cropped at top");
+    parts.push("medium wide shot composition, cinematic widescreen, professional film lighting, photorealistic, 8K quality, dramatic depth of field, movie still");
+  } else {
+    parts.push("cinematic widescreen, professional film lighting, photorealistic, 8K quality, dramatic depth of field, movie still");
+  }
+
   return parts.join(", ");
 }
 

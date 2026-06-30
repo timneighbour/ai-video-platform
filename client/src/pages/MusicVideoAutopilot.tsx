@@ -5949,7 +5949,7 @@ export default function MusicVideoAutopilot() {
                             </button>
                             {/* Dropdown */}
                             {characterSelectorSceneId === scene.id && (
-                              <div className="absolute left-0 top-7 z-50 bg-[rgba(10,8,6,0.95)] border border-[rgba(184,137,42,0.12)] rounded-lg shadow-xl min-w-[160px] py-1">
+                              <div className="absolute left-0 top-7 z-50 bg-[rgba(10,8,6,0.95)] border border-[rgba(184,137,42,0.12)] rounded-lg shadow-xl min-w-[160px] py-1 max-h-56 overflow-y-auto">
                                 {jobCharacters.map((char: any) => {
                                   const isAssigned = (Array.isArray(scene.characterAssignments) ? scene.characterAssignments : []).includes(char.name);
                                   return (

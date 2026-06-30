@@ -372,6 +372,68 @@ export async function generateScenePreviewCore(opts: {
     ? `FORBIDDEN (MUST NOT appear in this image — NEVER include these): ${allForbidden.join(", ")}.`
     : "";
 
+  // ── CAMERA DIRECTION DETECTION ──────────────────────────────────────────────
+  // When the user specifies an explicit camera angle or shot direction, we must
+  // NOT override it with the default "medium wide shot" suffix or "FRAMING: full
+  // head and body visible" directive. Both would conflict with e.g. "from behind
+  // the piano looking at him" or "close-up on hands".
+  const promptForCameraCheck = cleanScenePrompt.toLowerCase();
+  const userHasCameraDirection = /\b(from behind|rear view|behind the|back of|over[- ]the[- ]shoulder|bird[- ]?s?[- ]?eye|aerial|top[- ]down|low angle|high angle|dutch angle|wide shot|extreme wide|establishing shot|close[- ]?up on (hands?|fingers?|face|keys?|bow|strings?|piano)|looking (at|towards|into)|facing (away|camera|forward|backward)|shot from|viewed from|angle from|camera (behind|above|below|side|front)|side view|front view|profile shot|full[- ]body shot)/i.test(promptForCameraCheck);
+
+  const cameraLockBlock = userHasCameraDirection
+    ? "CAMERA LOCK (MANDATORY — DO NOT CHANGE): Follow the camera direction and shot angle in the scene description EXACTLY as written. This is the director's instruction and overrides all default composition rules."
+    : "";
+
+  // ── ENSEMBLE / ORCHESTRA LOCK ─────────────────────────────────────────────────
+  // If the job's sceneSetting mentions specific background musicians (cellist,
+  // violinist, pianist, orchestra, etc.), inject an ENSEMBLE LOCK block so they
+  // appear consistently in EVERY scene that isn't a solo close-up.
+  let ensembleLockBlock = "";
+  if (job.sceneSetting && !isEnvironmentScene) {
+    const setting = job.sceneSetting.toLowerCase();
+    const ensembleKeywords: string[] = [];
+    if (/cellist|cello/.test(setting)) ensembleKeywords.push("cellist(s) seated with cello");
+    if (/violinist|violin/.test(setting)) ensembleKeywords.push("violinist(s) with violin and bow");
+    if (/pianist|piano/.test(setting)) ensembleKeywords.push("pianist at grand piano");
+    if (/orchestra|orchestral/.test(setting)) ensembleKeywords.push("full symphony orchestra in background");
+    if (/string.*quartet|quartet/.test(setting)) ensembleKeywords.push("string quartet (two violins, viola, cello) in background");
+    if (/conductor/.test(setting)) ensembleKeywords.push("conductor at podium");
+    if (/harpist|harp/.test(setting)) ensembleKeywords.push("harpist with concert harp");
+    if (/bassist|double bass|contrabass/.test(setting)) ensembleKeywords.push("double bass player");
+    if (ensembleKeywords.length > 0) {
+      ensembleLockBlock = `ENSEMBLE LOCK (MANDATORY — MUST appear in EVERY scene): The following musicians are ALWAYS present in the background unless this is a solo close-up: ${ensembleKeywords.join(", ")}. They MUST be visible in every scene. DO NOT omit them.`;
+    }
+  }
+
+  // ── BPM / TEMPO / FEEL BLOCK ──────────────────────────────────────────────────
+  // Inject musical feel directives derived from the job's instrument analysis.
+  // This ensures storyboard images reflect the correct energy level — slow and
+  // cinematic for orchestral/classical tracks, not fast or energetic.
+  let tempoFeelBlock = "";
+  if ((job as any).instrumentAnalysis) {
+    try {
+      const ia = JSON.parse((job as any).instrumentAnalysis) as {
+        tempo: number;
+        energyLevel: string;
+        instruments: Array<{ instrument: string; label: string }>;
+      };
+      const bpm = ia.tempo ?? 0;
+      const energy = ia.energyLevel ?? "medium";
+      const instrumentLabels = ia.instruments.map(i => i.label).join(", ");
+      const hasStrings = ia.instruments.some(i =>
+        ["violin", "other"].includes(i.instrument) ||
+        /cello|viola|strings|harp|contrabass/i.test(i.label)
+      );
+      const hasPiano = ia.instruments.some(i => ["piano", "keyboard"].includes(i.instrument));
+      const isSlowOrchestral = bpm > 0 && bpm <= 85 && (hasStrings || hasPiano);
+      if (isSlowOrchestral) {
+        tempoFeelBlock = `MUSICAL FEEL (MANDATORY): This is a slow, cinematic orchestral piece at ${bpm} BPM with ${instrumentLabels}. ALL poses and movements MUST reflect this: slow, measured, poised, and elegant. NO fast movement. NO energetic or dynamic poses. Bowing is slow and sustained. Piano keys are pressed gently. Characters are still and composed. The mood is contemplative and cinematic.`;
+      } else if (energy === "low" || energy === "medium") {
+        tempoFeelBlock = `MUSICAL FEEL: This track has a ${energy} energy level at ${bpm} BPM. Poses should be calm and measured — not fast or energetic.`;
+      }
+    } catch { /* ignore parse errors */ }
+  }
+
   const sceneBlock = scene.userEditedPrompt
     ? `DIRECTOR'S INSTRUCTION (HIGHEST PRIORITY — USE VERBATIM):\n${cleanScenePrompt}`
     : !isEnvironmentScene
@@ -444,6 +506,9 @@ export async function generateScenePreviewCore(opts: {
   // Prompt block order: scene direction FIRST so the AI's primary task is the director's instruction.
   // Location, identity, and costume follow as supporting constraints.
   const finalPrompt = [
+    // 0. CAMERA LOCK — when user specified a shot direction, reinforce it BEFORE the scene description
+    //    so the AI cannot default to its own composition preference.
+    cameraLockBlock,
     // 1. SCENE DIRECTION — primary creative instruction, always first
     sceneBlock,
     // 2. LOCATION LOCK — anchors the background to the locked venue
@@ -459,10 +524,16 @@ export async function generateScenePreviewCore(opts: {
     positionBlock,
     mustHaveBlock,
     forbiddenBlock,
-    // 6. Technical / quality directives
+    // 6. ENSEMBLE LOCK — background musicians that must appear in every scene
+    ensembleLockBlock,
+    // 7. TEMPO / FEEL — musical energy level drives pose and movement style
+    tempoFeelBlock,
+    // 8. Technical / quality directives
     "NO visible text, logos, or band names. NO neon signs, banners, or typography.",
     "16:9 widescreen, high quality, professional photography, concert photography",
-    "FRAMING: full head and body visible within frame, generous headroom above subject",
+    // Only add the default framing directive when the user hasn't locked the camera.
+    // "full head and body visible" conflicts with rear-view, close-up, or wide shots.
+    ...(userHasCameraDirection ? [] : ["FRAMING: full head and body visible within frame, generous headroom above subject"]),
   ].filter(Boolean).join("\n\n");
 
   const jobAspectRatio = (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";

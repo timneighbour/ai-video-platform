@@ -6845,70 +6845,35 @@ Your task:
         return { success: true, generated: 0, message: "All scenes already have storyboard images" };
       }
 
-      const jobAspectRatio = (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
-      const { generateCinematicStoryboardImage } = await import("../ai-apis/fal-image-gen");
-      const { resolveVenueReferenceUrl } = await import("../music-video-service");
-      const venueRefUrl = resolveVenueReferenceUrl(job.sceneSetting);
-      // Resolve character reference for BFL image_prompt injection (excluding soft-deleted)
-      const charRows = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.isLocked, true), isNull(videoCharacters.deletedAt)));
-      // Build a map of character name -> best reference URL for per-scene lookup
-      // Priority: masterPortraitUrl (full-body outfit) > environmentRefUrl > performanceRefUrl > previewImageUrl
-      const charRefByName = new Map(charRows.map(c => [
-        c.name.toLowerCase(),
-        c.masterPortraitUrl ?? (c as any).environmentRefUrl ?? (c as any).performanceRefUrl ?? c.previewImageUrl ?? null
-      ]));
-      // Also build outfit lock blocks for each locked character
-      const charLockBlockByName = new Map(charRows.map(c => {
-        const key = c.name.toLowerCase();
-        const constraints = OUTFIT_CONSTRAINTS[key];
-        if (!constraints) return [key, null] as [string, string | null];
-        const positiveList = constraints.positive.join("; ");
-        const negativeList = constraints.negative.map(n => n.replace(/^ABSOLUTELY NO /i, "")).join(", ");
-        const block = `CHARACTER LOCK — ${c.name}: MUST wear [${positiveList}]. FORBIDDEN: [${negativeList}].`;
-        return [key, block] as [string, string | null];
-      }));
-      const primaryCharRef = charRows[0]?.masterPortraitUrl ?? (charRows[0] as any)?.environmentRefUrl ?? (charRows[0] as any)?.performanceRefUrl ?? charRows[0]?.previewImageUrl ?? undefined;
-      const venueTypeKey = sceneSettingToVenueType(job.sceneSetting);
-      console.log(`[GenerateMissingPreviews] Generating ${scenesNeedingImage.length} missing storyboard images for job ${input.jobId} (charRef=${primaryCharRef ? 'yes' : 'none'}, venue=${venueTypeKey})`);
+      // FIX (2026-06-30): Route through the full 7-block character-lock pipeline
+      // (generateScenePreviewCore) instead of calling generateCinematicStoryboardImage
+      // directly. The old path bypassed costume lock, identity block, face reference
+      // injection, and ensemble lock — producing broken images (missing limbs, no
+      // background, wrong outfit, disappearing accessories).
+      const { generateScenePreviewCore: generateMissingCore } = await import("./musicVideo/preview-core");
+      console.log(`[GenerateMissingPreviews] Generating ${scenesNeedingImage.length} missing storyboard images for job ${input.jobId} via full character-lock pipeline`);
       let generated = 0;
       const errors: string[] = [];
-      await Promise.allSettled(
-        scenesNeedingImage.map(async (scene) => {
-          try {
-            // Per-scene character reference: only inject if scene has character assignments
-            let sceneAssignments: string[] = [];
-            try { if (scene.characterAssignments) sceneAssignments = JSON.parse(scene.characterAssignments); } catch { /* ignore */ }
-            const sceneCharRef = sceneAssignments.length > 0
-              ? (sceneAssignments.map(n => charRefByName.get(n.toLowerCase())).find(Boolean) ?? primaryCharRef)
-              : undefined; // no character assigned — pure environment shot
-            // Build combined character lock block for all assigned characters
-            const assignedLockBlocks = sceneAssignments.length > 0
-              ? sceneAssignments.map(n => charLockBlockByName.get(n.toLowerCase())).filter(Boolean).join(" ")
-              : undefined;
-            const { url } = await generateCinematicStoryboardImage({
-              prompt: scene.prompt,
-              aspectRatio: jobAspectRatio,
-              storageKeyPrefix: `music-video-storyboard/${input.jobId}-scene-${scene.id}-cinematic`,
-              venueReferenceUrl: venueRefUrl ?? undefined,
-              characterReferenceUrl: sceneCharRef,
-              characterLockBlock: assignedLockBlocks || undefined,
-              sceneType: venueTypeKey,
-            });
-            if (url) {
-              await db!.update(musicVideoScenes)
-                .set({ previewImageUrl: url, updatedAt: new Date() })
-                .where(eq(musicVideoScenes.id, scene.id));
-              generated++;
-              console.log(`[GenerateMissingPreviews] Scene ${scene.id} (index ${scene.sceneIndex}) → ${url.slice(0, 80)}...`);
-            }
-          } catch (err) {
-            const msg = err instanceof Error ? err.message : String(err);
-            errors.push(`Scene ${scene.id}: ${msg.slice(0, 80)}`);
-            console.warn(`[GenerateMissingPreviews] Scene ${scene.id} failed:`, msg);
+      // Sequential processing to avoid Forge API rate limits
+      for (const scene of scenesNeedingImage) {
+        try {
+          const url = await generateMissingCore({
+            db,
+            userId: ctx.user.id,
+            jobId: input.jobId,
+            sceneId: scene.id,
+            forceRegenerate: true,
+          });
+          if (url) {
+            generated++;
+            console.log(`[GenerateMissingPreviews] Scene ${scene.id} (index ${scene.sceneIndex}) → ${url.slice(0, 80)}...`);
           }
-        })
-      );
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          errors.push(`Scene ${scene.id}: ${msg.slice(0, 80)}`);
+          console.warn(`[GenerateMissingPreviews] Scene ${scene.id} failed:`, msg);
+        }
+      }
 
       return {
         success: errors.length === 0,

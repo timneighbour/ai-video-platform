@@ -331,16 +331,50 @@ export default function MusicCreator() {
     onError: (err) => { setError(err.message); setIsGenerating(false); setStatus("failed"); mp.generationFailed("WizAudio", "api_error"); },
   });
 
+  /**
+   * Upload audio via multipart/form-data to /api/video/upload.
+   * Using tRPC bytes-array inflates a 10MB file to ~30MB of JSON and can
+   * exceed the body parser limit, causing an HTML 413/500 response that
+   * triggers "Unexpected token '<', <!DOCTYPE..." on the client.
+   */
+  const uploadAudioViaFormData = async (
+    file: File,
+    onSuccess: (url: string) => void
+  ) => {
+    const ext = file.name.split(".").pop() || "mp3";
+    const key = `audio-uploads/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const mimeType = file.type.includes("wav") ? "audio/wav" : file.type.includes("mp4") || file.name.endsWith(".m4a") ? "audio/mp4" : "audio/mpeg";
+    const formData = new FormData();
+    formData.append("file", file);
+    const resp = await fetch(
+      `/api/video/upload?key=${encodeURIComponent(key)}&type=${encodeURIComponent(mimeType)}`,
+      { method: "POST", body: formData }
+    );
+    if (!resp.ok) {
+      const text = await resp.text();
+      let msg = `Upload failed (${resp.status})`;
+      try { msg = JSON.parse(text).error ?? msg; } catch { /* non-JSON body */ }
+      throw new Error(msg);
+    }
+    const data = await resp.json();
+    onSuccess(data.url as string);
+  };
+
   const handleFileUpload = async (file: File) => {
     if (!file.type.match(/audio\/(mpeg|wav|mp4|x-m4a|ogg|webm)/)) { toast.error("Invalid file type"); return; }
     if (file.size > 50 * 1024 * 1024) { toast.error("File too large", { description: "Maximum 50MB." }); return; }
     setIsUploadingFile(true);
     setUploadedAudioName(file.name);
-    const arrayBuffer = await file.arrayBuffer();
-    const bytes = Array.from(new Uint8Array(arrayBuffer));
-    const mimeType = file.type.includes("wav") ? "audio/wav" : file.type.includes("mp4") || file.name.endsWith(".m4a") ? "audio/mp4" : "audio/mpeg";
-    uploadAudioMutation.mutate({ bytes, mimeType, filename: file.name });
-    setIsUploadingFile(false);
+    try {
+      await uploadAudioViaFormData(file, (url) => {
+        setUploadedAudioUrl(url);
+        toast.success("Audio uploaded!", { description: file.name });
+      });
+    } catch (err: any) {
+      toast.error("Upload failed", { description: err.message });
+    } finally {
+      setIsUploadingFile(false);
+    }
   };
   const handleCoverFileUpload = async (file: File) => {
     if (!file.type.match(/audio\/(mpeg|wav|mp4|x-m4a|ogg|webm)/)) { toast.error("Invalid file type. Use MP3, WAV, M4A, or OGG."); return; }
@@ -348,10 +382,17 @@ export default function MusicCreator() {
     setIsUploadingFile(true);
     setUploadedAudioName(file.name);
     setUploadedAudioUrl(null);
-    const arrayBuffer = await file.arrayBuffer();
-    const bytes = Array.from(new Uint8Array(arrayBuffer));
-    const mimeType = file.type.includes("wav") ? "audio/wav" : file.type.includes("mp4") || file.name.endsWith(".m4a") ? "audio/mp4" : "audio/mpeg";
-    uploadTrackForCoverMutation.mutate({ bytes, mimeType, filename: file.name });
+    try {
+      await uploadAudioViaFormData(file, (url) => {
+        setUploadedAudioUrl(url);
+        setIsUploadingFile(false);
+        toast.success("Track uploaded — ready to transform!", { description: file.name });
+        transcribeTrackMutation.mutate({ audioUrl: url });
+      });
+    } catch (err: any) {
+      toast.error("Upload failed", { description: err.message });
+      setIsUploadingFile(false);
+    }
   };
   const handleCoverGenerate = () => {
     if (!uploadedAudioUrl) { toast.error("Please upload a track first."); return; }
@@ -362,7 +403,7 @@ export default function MusicCreator() {
     if (studioMode === "cover") {
       generateCoverMutation.mutate({
         uploadedTrackUrl: uploadedAudioUrl,
-        prompt: prompt.trim().slice(0, 400) || undefined,
+        prompt: prompt.trim().slice(0, 1500) || undefined,
         style: styleStr || undefined,
         title: title.trim() || undefined,
         instrumental: isInstrumental,
@@ -373,7 +414,7 @@ export default function MusicCreator() {
     } else {
       generateExtendMutation.mutate({
         uploadedTrackUrl: uploadedAudioUrl,
-        prompt: prompt.trim().slice(0, 400) || undefined,
+        prompt: prompt.trim().slice(0, 1500) || undefined,
         style: styleStr || undefined,
         title: title.trim() || undefined,
         instrumental: isInstrumental,
@@ -431,7 +472,7 @@ export default function MusicCreator() {
     setError(null); setGeneratedTracks([]); setTaskId(null); setStatus("idle");
     const styleStr = buildStyleString();
     const isInstrumental = selectedVocal === "Instrumental Only";
-    generateMutation.mutate({ prompt: prompt.trim().slice(0, 400), lyrics: lyrics.trim() || undefined, style: styleStr || undefined, title: title.trim() || undefined, instrumental: isInstrumental, model, origin: window.location.origin, targetDuration: targetDuration ?? undefined, generationMode });
+    generateMutation.mutate({ prompt: prompt.trim().slice(0, 1500), lyrics: lyrics.trim() || undefined, style: styleStr || undefined, title: title.trim() || undefined, instrumental: isInstrumental, model, origin: window.location.origin, targetDuration: targetDuration ?? undefined, generationMode });
   };
 
   const toggleGenre = (g: string) => setSelectedGenres((prev) => prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g].slice(0, 3));
@@ -797,20 +838,20 @@ export default function MusicCreator() {
                   <div className="w-1.5 h-1.5 rounded-full bg-[#30d158] animate-pulse" style={{ boxShadow: "0 0 5px #30d158" }} />
                   <span className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/35">Recording Booth — Track Brief</span>
                 </div>
-                <VoicePromptButton toolContext="AI music and song creation" onPromptReady={(refined) => setPrompt(refined.slice(0, 400))} />
-                <EnhancePromptButton prompt={prompt} genre={selectedGenres[0]} mood={selectedMoods[0]} productType="audio" onEnhanced={(text) => setPrompt(text.slice(0, 400))} />
+                <VoicePromptButton toolContext="AI music and song creation" onPromptReady={(refined) => setPrompt(refined.slice(0, 1500))} />
+                <EnhancePromptButton prompt={prompt} genre={selectedGenres[0]} mood={selectedMoods[0]} productType="audio" onEnhanced={(text) => setPrompt(text.slice(0, 1500))} />
               </div>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 rows={4}
-                maxLength={400}
+                maxLength={1500}
                 className="w-full bg-transparent border-none outline-none resize-none px-4 py-3 text-[13px] leading-[1.65] text-[#f5f0e8] placeholder:text-[#f5f0e8]/16 placeholder:italic"
                 style={{ fontFamily: "'Courier Prime', monospace", caretColor: "#c9a84c" }}
                 placeholder={`Describe your track. Think like you're briefing the session musicians — the vibe, the tempo, the instruments, the emotion…\n\nA driving cinematic orchestral piece with building strings and pounding percussion, like a film trailer…`}
               />
               <div className="flex items-center justify-between px-3.5 py-1.5 border-t border-white/7">
-                <span className={`text-[9px] font-mono transition-colors ${prompt.length >= 380 ? (prompt.length >= 400 ? 'text-red-400' : 'text-yellow-400') : 'text-white/18'}`}>{prompt.length} / 400</span>
+                <span className={`text-[9px] font-mono transition-colors ${prompt.length >= 1400 ? (prompt.length >= 1500 ? 'text-red-400' : 'text-yellow-400') : 'text-white/18'}`}>{prompt.length} / 1500</span>
                 <button onClick={() => setShowExamples(!showExamples)} className="flex items-center gap-1 text-[9px] text-[--color-gold]/50 hover:text-[--color-gold] transition-colors">
                   {showExamples ? "▾" : "▸"} Example prompts
                 </button>
