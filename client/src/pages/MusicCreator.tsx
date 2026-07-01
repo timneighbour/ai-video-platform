@@ -854,13 +854,29 @@ export default function MusicCreator() {
                   <span className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/35">Recording Booth — Track Brief</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowGuideMeBuilder(true)}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] border text-[10px] font-semibold transition-all"
-                    style={{ background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.3)", color: "#c9a84c" }}
-                  >
-                    <Sparkles className="w-3 h-3" /> Guide Me
-                  </button>
+                  <div className="relative group">
+                    <button
+                      onClick={() => setShowGuideMeBuilder(true)}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-[5px] text-[11px] font-bold tracking-wide transition-all hover:scale-105 active:scale-95"
+                      style={{
+                        background: "linear-gradient(135deg, rgba(201,168,76,0.22) 0%, rgba(240,208,128,0.12) 100%)",
+                        border: "1px solid rgba(201,168,76,0.55)",
+                        color: "#f0d080",
+                        boxShadow: "0 0 12px rgba(201,168,76,0.25), inset 0 1px 0 rgba(255,255,255,0.08)",
+                      }}
+                    >
+                      <Sparkles className="w-3.5 h-3.5" style={{ filter: "drop-shadow(0 0 4px rgba(201,168,76,0.8))" }} />
+                      <span>✦ Guide Me — Build a Song</span>
+                    </button>
+                    {/* Tooltip */}
+                    <div className="absolute bottom-full right-0 mb-2 w-56 rounded-lg p-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50"
+                      style={{ background: "#1a1508", border: "1px solid rgba(201,168,76,0.3)", boxShadow: "0 8px 24px rgba(0,0,0,0.6)" }}
+                    >
+                      <p className="text-[11px] font-bold text-[#f0d080] mb-1">✦ Guide Me — Song Builder</p>
+                      <p className="text-[10px] text-white/55 leading-relaxed">Not sure where to start? Answer 7 simple questions and we'll write your direction prompt and full lyrics automatically — no music experience needed.</p>
+                      <div className="absolute bottom-[-5px] right-4 w-2.5 h-2.5 rotate-45" style={{ background: "#1a1508", borderRight: "1px solid rgba(201,168,76,0.3)", borderBottom: "1px solid rgba(201,168,76,0.3)" }} />
+                    </div>
+                  </div>
                   <VoicePromptButton toolContext="AI music and song creation" onPromptReady={(refined) => setPrompt(refined.slice(0, lyrics.trim().length >= 20 ? 5000 : 500))} />
                   <EnhancePromptButton prompt={prompt} genre={selectedGenres[0]} mood={selectedMoods[0]} productType="audio" onEnhanced={(text) => setPrompt(text.slice(0, lyrics.trim().length >= 20 ? 5000 : 500))} />
                 </div>
