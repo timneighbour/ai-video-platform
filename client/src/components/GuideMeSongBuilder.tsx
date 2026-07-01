@@ -162,8 +162,8 @@ export default function GuideMeSongBuilder({
               <Sparkles className="w-3.5 h-3.5 text-[--color-gold]" />
             </div>
             <div>
-              <p className="text-[13px] font-bold text-white">Guide Me</p>
-              <p className="text-[10px] text-white/35">Song Builder — answer a few questions</p>
+              <p className="text-[13px] font-black tracking-wide" style={{ color: "#f0d080", textShadow: "0 0 10px rgba(201,168,76,0.4)" }}>Guide Me to Make a Song</p>
+              <p className="text-[10px] text-white/40">Answer 7 questions — we'll write everything for you</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-md text-white/30 hover:text-white/70 hover:bg-white/8 transition-all">

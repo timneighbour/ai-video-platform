@@ -857,24 +857,37 @@ export default function MusicCreator() {
                   <div className="relative group">
                     <button
                       onClick={() => setShowGuideMeBuilder(true)}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-[5px] text-[11px] font-bold tracking-wide transition-all hover:scale-105 active:scale-95"
+                      className="relative flex items-center gap-2.5 px-4 py-2 rounded-[6px] transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] overflow-hidden"
                       style={{
-                        background: "linear-gradient(135deg, rgba(201,168,76,0.22) 0%, rgba(240,208,128,0.12) 100%)",
-                        border: "1px solid rgba(201,168,76,0.55)",
-                        color: "#f0d080",
-                        boxShadow: "0 0 12px rgba(201,168,76,0.25), inset 0 1px 0 rgba(255,255,255,0.08)",
+                        background: "linear-gradient(135deg, #2a1f06 0%, #1a1305 50%, #2a1f06 100%)",
+                        border: "1px solid rgba(201,168,76,0.6)",
+                        boxShadow: "0 0 18px rgba(201,168,76,0.3), 0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)",
                       }}
                     >
-                      <Sparkles className="w-3.5 h-3.5" style={{ filter: "drop-shadow(0 0 4px rgba(201,168,76,0.8))" }} />
-                      <span>✦ Guide Me — Build a Song</span>
+                      {/* Shimmer overlay */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style={{ background: "linear-gradient(105deg, transparent 40%, rgba(201,168,76,0.12) 50%, transparent 60%)" }} />
+                      <div className="flex items-center justify-center w-6 h-6 rounded-full flex-shrink-0" style={{ background: "rgba(201,168,76,0.2)", border: "1px solid rgba(201,168,76,0.4)" }}>
+                        <Sparkles className="w-3 h-3" style={{ color: "#f0d080", filter: "drop-shadow(0 0 5px rgba(201,168,76,1))" }} />
+                      </div>
+                      <div className="flex flex-col items-start leading-none">
+                        <span className="text-[11px] font-black tracking-[1.5px] uppercase" style={{ color: "#f0d080", textShadow: "0 0 8px rgba(201,168,76,0.6)" }}>Guide Me</span>
+                        <span className="text-[9px] font-medium tracking-wide" style={{ color: "rgba(240,208,128,0.6)" }}>Help me make a song</span>
+                      </div>
                     </button>
                     {/* Tooltip */}
-                    <div className="absolute bottom-full right-0 mb-2 w-56 rounded-lg p-3 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50"
-                      style={{ background: "#1a1508", border: "1px solid rgba(201,168,76,0.3)", boxShadow: "0 8px 24px rgba(0,0,0,0.6)" }}
+                    <div className="absolute bottom-full right-0 mb-3 w-64 rounded-xl p-4 pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 z-50"
+                      style={{ background: "linear-gradient(135deg, #1a1508 0%, #120f04 100%)", border: "1px solid rgba(201,168,76,0.35)", boxShadow: "0 12px 40px rgba(0,0,0,0.7), 0 0 20px rgba(201,168,76,0.1)" }}
                     >
-                      <p className="text-[11px] font-bold text-[#f0d080] mb-1">✦ Guide Me — Song Builder</p>
-                      <p className="text-[10px] text-white/55 leading-relaxed">Not sure where to start? Answer 7 simple questions and we'll write your direction prompt and full lyrics automatically — no music experience needed.</p>
-                      <div className="absolute bottom-[-5px] right-4 w-2.5 h-2.5 rotate-45" style={{ background: "#1a1508", borderRight: "1px solid rgba(201,168,76,0.3)", borderBottom: "1px solid rgba(201,168,76,0.3)" }} />
+                      <div className="flex items-center gap-2 mb-2">
+                        <Sparkles className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "#f0d080" }} />
+                        <p className="text-[12px] font-black tracking-wide" style={{ color: "#f0d080" }}>Guide Me to Make a Song</p>
+                      </div>
+                      <p className="text-[10px] leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>New to music creation? Answer 7 simple questions — about your story, mood, and style — and we’ll write your full direction and lyrics automatically. No experience needed.</p>
+                      <div className="mt-2.5 flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#30d158]" style={{ boxShadow: "0 0 4px #30d158" }} />
+                        <span className="text-[9px] font-semibold" style={{ color: "#30d158" }}>Works with voice or typing</span>
+                      </div>
+                      <div className="absolute bottom-[-6px] right-5 w-3 h-3 rotate-45" style={{ background: "#120f04", borderRight: "1px solid rgba(201,168,76,0.35)", borderBottom: "1px solid rgba(201,168,76,0.35)" }} />
                     </div>
                   </div>
                   <VoicePromptButton toolContext="AI music and song creation" onPromptReady={(refined) => setPrompt(refined.slice(0, lyrics.trim().length >= 20 ? 5000 : 500))} />
