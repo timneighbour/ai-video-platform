@@ -2525,10 +2525,13 @@ export default function MusicVideoAutopilot() {
     { jobId: jobId! },
     {
       enabled: !!jobId && (step === "storyboard" || step === "upload"),
-      // 30s stale window: prevents React-Query from refetching on every window-focus
-      // event while the sequential preview generation loop is running, which was the
-      // root cause of duplicate loops and previews not loading on first storyboard load.
-      staleTime: 30_000,
+      // Disable window-focus refetches: switching browser tabs must not interrupt the
+      // sequential preview generation loop mid-run. The previewGenerationRunningRef guard
+      // handles duplicate-loop prevention; this prevents the trigger entirely.
+      // NOTE: do NOT add staleTime here — a stale cache from the upload step would prevent
+      // the useEffect([jobQuery.data]) from firing when the step changes to "storyboard",
+      // causing the storyboard to appear empty on resume/reload.
+      refetchOnWindowFocus: false,
     }
   );
 
