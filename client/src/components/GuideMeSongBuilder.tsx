@@ -172,31 +172,40 @@ export default function GuideMeSongBuilder({
         </div>
 
         {/* Progress bar */}
-        <div className="h-0.5 bg-white/6">
-          <div
-            className="h-full transition-all duration-500"
-            style={{ width: `${((step + 1) / QUESTIONS.length) * 100}%`, background: "linear-gradient(90deg, #c9a84c, #f0d080)" }}
-          />
-        </div>
-
-        {/* Step counter */}
-        <div className="flex items-center justify-between px-5 pt-4 pb-1">
-          <span className="text-[9px] font-bold tracking-[2px] uppercase text-white/25">
-            Question {step + 1} of {QUESTIONS.length}
-          </span>
-          <div className="flex items-center gap-1">
+        <div className="px-5 pt-4 pb-2">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-semibold text-white/40">
+              Question {step + 1} of {QUESTIONS.length}
+            </span>
+            <span className="text-[10px] font-semibold" style={{ color: "#c9a84c" }}>
+              {QUESTIONS.length - step - 1 === 0 ? "Last question!" : `${QUESTIONS.length - step - 1} question${QUESTIONS.length - step - 1 === 1 ? "" : "s"} remaining`}
+            </span>
+          </div>
+          {/* Track */}
+          <div className="relative h-2.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.07)" }}>
+            <div
+              className="absolute inset-y-0 left-0 rounded-full transition-all duration-500"
+              style={{
+                width: `${((step + 1) / QUESTIONS.length) * 100}%`,
+                background: "linear-gradient(90deg, #c9a84c, #f0d080)",
+                boxShadow: "0 0 8px rgba(201,168,76,0.5)",
+              }}
+            />
+          </div>
+          {/* Dot indicators */}
+          <div className="flex items-center justify-between mt-2">
             {QUESTIONS.map((q, i) => (
               <div
                 key={q.id}
-                className="rounded-full transition-all duration-300"
+                className="rounded-full transition-all duration-300 flex-1 mx-0.5"
                 style={{
-                  width: i === step ? 16 : 6,
-                  height: 6,
+                  height: 3,
                   background: i < step
-                    ? "rgba(201,168,76,0.7)"
+                    ? "rgba(201,168,76,0.8)"
                     : i === step
                     ? "#c9a84c"
-                    : "rgba(255,255,255,0.12)",
+                    : "rgba(255,255,255,0.1)",
+                  boxShadow: i === step ? "0 0 4px rgba(201,168,76,0.6)" : "none",
                 }}
               />
             ))}
