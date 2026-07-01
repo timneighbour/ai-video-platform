@@ -2,23 +2,23 @@
  * Cloud Vocal Isolation Service
  * ==============================
  * Automatically isolates the lead vocal stem from a music video job's audio
- * using the WaveSpeed AI `wavespeed-ai/audio-vocal-isolator` endpoint.
+ * using the MVSEP API with the BS Roformer ensemble model (SDR 11.93).
  *
- * This is the Cloud Run-compatible replacement for the local Demucs (Python)
- * approach. No file upload step is needed — WaveSpeed accepts a public URL
- * directly, making the flow simpler than the previous Lalal.ai approach.
+ * MVSEP replaces WaveSpeed AI as the primary vocal isolation provider.
+ * It accepts a public URL directly, runs async separation, and returns
+ * clean WAV stems — no file upload step required.
  *
  * Pipeline:
- *   1. Submit the job's audioUrl to WaveSpeed → get a prediction taskId
- *   2. Store taskId on the job row (lalalTaskId column, repurposed for WaveSpeed)
- *   3. On subsequent heartbeat ticks, poll the prediction until done
+ *   1. Submit the job's audioUrl to MVSEP → get a separation job ID
+ *   2. Store job ID on the job row (lalalTaskId column, repurposed for MVSEP)
+ *   3. On subsequent heartbeat ticks, poll the separation until done
  *   4. When done: download the isolated vocals, upload to S3, insert into
  *      musicVideoVocalStems, and set vocalsStatus="done"
  *
  * Idempotency:
  *   - If vocalsStatus="done" → returns immediately (already isolated)
- *   - If lalalTaskId is set → polls the existing WaveSpeed prediction (no re-submit)
- *   - Otherwise → submit new prediction
+ *   - If lalalTaskId is set → polls the existing MVSEP job (no re-submit)
+ *   - Otherwise → submit new MVSEP separation job
  *
  * Usage in heartbeat:
  *   const result = await triggerCloudVocalIsolation(jobId, audioUrl, lalalTaskId);
@@ -31,9 +31,9 @@ import { musicVideoJobs, musicVideoVocalStems } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { storagePut } from "./storage";
 import {
-  submitWaveSpeedVocalIsolation,
-  pollWaveSpeedVocalIsolation,
-} from "./ai-apis/wavespeed-vocal-isolation";
+  submitMvsepVocalIsolation,
+  pollMvsepVocalIsolation,
+} from "./ai-apis/mvsep-vocal-isolation";
 import * as https from "https";
 import * as http from "http";
 
@@ -91,69 +91,67 @@ async function downloadToBuffer(url: string, maxRedirects = 5): Promise<Buffer> 
  *
  * @param jobId       - The music video job ID
  * @param audioUrl    - The full-mix audio URL (from musicVideoJobs.audioUrl)
- * @param wavespeedTaskId - Existing WaveSpeed prediction ID (stored in lalalTaskId column)
+ * @param mvsepJobId  - Existing MVSEP separation job ID (stored in lalalTaskId column), or null to start fresh
  * @returns VocalIsolationResult indicating current status
  */
 export async function triggerCloudVocalIsolation(
   jobId: number,
   audioUrl: string,
-  wavespeedTaskId: string | null | undefined,
+  mvsepJobId: string | null | undefined,
 ): Promise<VocalIsolationResult> {
-  // Guard: WAVESPEED_API_KEY must be set
-  if (!process.env.WAVESPEED_API_KEY) {
-    console.warn(`[CloudVocalIsolation] Job ${jobId}: WAVESPEED_API_KEY not set — skipping vocal isolation`);
-    return { status: "no_key", message: "WAVESPEED_API_KEY not configured" };
+  // Guard: MVSEP_API_KEY must be set
+  if (!process.env.MVSEP_API_KEY) {
+    console.warn(`[CloudVocalIsolation] Job ${jobId}: MVSEP_API_KEY not set — skipping vocal isolation`);
+    return { status: "no_key", message: "MVSEP_API_KEY not configured" };
   }
 
   const db = (await getDb())!;
 
   try {
-    // ── PHASE 1: Submit new prediction if not already started ─────────────────
-    if (!wavespeedTaskId) {
-      console.log(`[CloudVocalIsolation] Job ${jobId}: submitting vocal isolation to WaveSpeed...`);
-      const submitResult = await submitWaveSpeedVocalIsolation(audioUrl);
-      const taskId = submitResult.taskId;
+    // ── PHASE 1: Submit new MVSEP separation if not already started ─────────────────
+    if (!mvsepJobId) {
+      console.log(`[CloudVocalIsolation] Job ${jobId}: submitting vocal isolation to MVSEP...`);
+      const submitResult = await submitMvsepVocalIsolation(audioUrl);
+      const newJobId = submitResult.jobId;
 
-      // Persist taskId in lalalTaskId column (repurposed for WaveSpeed)
+      // Persist MVSEP job ID in lalalTaskId column (repurposed)
       await db.update(musicVideoJobs)
-        .set({ lalalTaskId: taskId, vocalsStatus: "processing" })
+        .set({ lalalTaskId: newJobId, vocalsStatus: "processing" })
         .where(eq(musicVideoJobs.id, jobId));
 
-      console.log(`[CloudVocalIsolation] Job ${jobId}: prediction submitted → taskId=${taskId}`);
-      return { status: "in_progress", message: `WaveSpeed prediction submitted: ${taskId}` };
+      console.log(`[CloudVocalIsolation] Job ${jobId}: MVSEP separation submitted → mvsepJobId=${newJobId}`);
+      return { status: "in_progress", message: `MVSEP separation submitted: ${newJobId}` };
     }
 
-    // ── PHASE 2: Poll existing prediction ────────────────────────────────────
-    console.log(`[CloudVocalIsolation] Job ${jobId}: polling WaveSpeed taskId=${wavespeedTaskId}...`);
-    const pollResult = await pollWaveSpeedVocalIsolation(wavespeedTaskId);
+    // ── PHASE 2: Poll existing MVSEP separation ────────────────────────────────
+    console.log(`[CloudVocalIsolation] Job ${jobId}: polling MVSEP mvsepJobId=${mvsepJobId}...`);
+    const pollResult = await pollMvsepVocalIsolation(mvsepJobId);
 
-    if (
-      pollResult.status === "pending" ||
-      pollResult.status === "processing" ||
-      pollResult.status === "created"
-    ) {
-      console.log(`[CloudVocalIsolation] Job ${jobId}: prediction status=${pollResult.status} — still in progress`);
-      return { status: "in_progress", message: `WaveSpeed status: ${pollResult.status}` };
+    if (pollResult.status === "waiting" || pollResult.status === "processing") {
+      console.log(`[CloudVocalIsolation] Job ${jobId}: MVSEP status=${pollResult.status} — still in progress`);
+      return { status: "in_progress", message: `MVSEP status: ${pollResult.status}` };
     }
 
-    if (pollResult.status === "failed") {
-      console.error(`[CloudVocalIsolation] Job ${jobId}: prediction failed — ${pollResult.errorMessage}`);
-      // Clear the task ID so we can retry on next tick
+    if (pollResult.status === "error") {
+      console.error(`[CloudVocalIsolation] Job ${jobId}: MVSEP separation failed — ${pollResult.errorMessage}`);
+      // Clear the job ID so we can retry on next tick
       await db.update(musicVideoJobs)
         .set({ lalalTaskId: null, lalalSourceId: null, vocalsStatus: "failed" })
         .where(eq(musicVideoJobs.id, jobId));
       return { status: "failed", message: pollResult.errorMessage };
     }
 
-    if (pollResult.status === "completed" && pollResult.vocalsUrl) {
+    if (pollResult.status === "done" && pollResult.vocalsUrl) {
       // ── PHASE 3: Download isolated vocals and upload to S3 ─────────────────
-      console.log(`[CloudVocalIsolation] Job ${jobId}: downloading isolated vocals from WaveSpeed CDN...`);
+      console.log(`[CloudVocalIsolation] Job ${jobId}: downloading isolated vocals from MVSEP...`);
       const vocalsBuffer = await downloadToBuffer(pollResult.vocalsUrl);
       console.log(`[CloudVocalIsolation] Job ${jobId}: downloaded ${(vocalsBuffer.length / 1024 / 1024).toFixed(1)} MB`);
 
-      // Upload to S3 with a deterministic key
-      const s3Key = `vocal-stems/${jobId}-vocals-wavespeed.mp3`;
-      const { url: s3VocalsUrl } = await storagePut(s3Key, vocalsBuffer, "audio/mpeg");
+      // MVSEP returns WAV — store with correct extension and MIME type
+      const ext = pollResult.vocalsUrl.toLowerCase().includes(".wav") ? "wav" : "mp3";
+      const mimeType = ext === "wav" ? "audio/wav" : "audio/mpeg";
+      const s3Key = `vocal-stems/${jobId}-vocals-mvsep.${ext}`;
+      const { url: s3VocalsUrl } = await storagePut(s3Key, vocalsBuffer, mimeType);
       console.log(`[CloudVocalIsolation] Job ${jobId}: uploaded to S3 → ${s3VocalsUrl.slice(0, 80)}...`);
 
       // ── PHASE 4: Insert into musicVideoVocalStems ──────────────────────────
@@ -191,12 +189,12 @@ export async function triggerCloudVocalIsolation(
         })
         .where(eq(musicVideoJobs.id, jobId));
 
-      console.log(`[CloudVocalIsolation] Job ${jobId}: ✅ vocal isolation COMPLETE — vocalsStatus=done`);
+      console.log(`[CloudVocalIsolation] Job ${jobId}: ✅ MVSEP vocal isolation COMPLETE — vocalsStatus=done`);
       return { status: "done", vocalsUrl: s3VocalsUrl };
     }
 
     // Unexpected status
-    return { status: "in_progress", message: `Unexpected poll status: ${pollResult.status}` };
+    return { status: "in_progress", message: `Unexpected MVSEP poll status: ${pollResult.status}` };
 
   } catch (err: any) {
     console.error(`[CloudVocalIsolation] Job ${jobId}: error — ${err.message}`);
