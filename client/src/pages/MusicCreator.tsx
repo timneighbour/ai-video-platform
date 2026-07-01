@@ -25,6 +25,7 @@ import GraphicEqualiser from "@/components/GraphicEqualiser";
 import { useGlobalAudio } from "@/contexts/AudioContext";
 import { mp } from "@/lib/mixpanel";
 import PastGenerations from "@/components/PastGenerations";
+import GuideMeSongBuilder from "@/components/GuideMeSongBuilder";
 
 /* ── Constants ────────────────────────────────────────────────────────────── */
 const ENV_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663500868908/ALJHDNsuNA7bExFuoQZUsx/env-wizaudio-producer-TJv4iFWWsQCVnrNJxEfy7J.webp";
@@ -268,6 +269,7 @@ export default function MusicCreator() {
   const [title, setTitle] = useState("");
   const [lyrics, setLyrics] = useState("");
   const [showExamples, setShowExamples] = useState(false);
+  const [showGuideMeBuilder, setShowGuideMeBuilder] = useState(false);
   const [model, setModel] = useState<"V3_5" | "V4">("V4");
   const [targetDuration, setTargetDuration] = useState<number | null>(null);
   const [generationMode, setGenerationMode] = useState<GenerationMode>("suno");
@@ -483,6 +485,19 @@ export default function MusicCreator() {
 
   return (
     <div className="min-h-screen text-white" style={{ backgroundColor: "#050407", fontFamily: "'Inter', sans-serif" }}>
+      {/* ── Guide Me Song Builder Modal ── */}
+      {showGuideMeBuilder && (
+        <GuideMeSongBuilder
+          selectedGenre={selectedGenres[0]}
+          selectedMood={selectedMoods[0]}
+          onClose={() => setShowGuideMeBuilder(false)}
+          onComplete={({ directionPrompt, lyrics: generatedLyrics }) => {
+            setPrompt(directionPrompt);
+            setLyrics(generatedLyrics);
+            setShowGuideMeBuilder(false);
+          }}
+        />
+      )}
       {/* ── Ambient: Gold recording studio glow ── */}
       <div className="pointer-events-none fixed inset-0 z-0" style={{ background: "radial-gradient(ellipse 70% 50% at 20% 0%, rgba(201,168,76,0.10) 0%, transparent 65%), radial-gradient(ellipse 50% 40% at 80% 100%, rgba(180,140,50,0.07) 0%, transparent 60%)" }} />
 
@@ -838,8 +853,17 @@ export default function MusicCreator() {
                   <div className="w-1.5 h-1.5 rounded-full bg-[#30d158] animate-pulse" style={{ boxShadow: "0 0 5px #30d158" }} />
                   <span className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/35">Recording Booth — Track Brief</span>
                 </div>
-                <VoicePromptButton toolContext="AI music and song creation" onPromptReady={(refined) => setPrompt(refined.slice(0, lyrics.trim().length >= 20 ? 5000 : 500))} />
-                <EnhancePromptButton prompt={prompt} genre={selectedGenres[0]} mood={selectedMoods[0]} productType="audio" onEnhanced={(text) => setPrompt(text.slice(0, lyrics.trim().length >= 20 ? 5000 : 500))} />
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowGuideMeBuilder(true)}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-[4px] border text-[10px] font-semibold transition-all"
+                    style={{ background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.3)", color: "#c9a84c" }}
+                  >
+                    <Sparkles className="w-3 h-3" /> Guide Me
+                  </button>
+                  <VoicePromptButton toolContext="AI music and song creation" onPromptReady={(refined) => setPrompt(refined.slice(0, lyrics.trim().length >= 20 ? 5000 : 500))} />
+                  <EnhancePromptButton prompt={prompt} genre={selectedGenres[0]} mood={selectedMoods[0]} productType="audio" onEnhanced={(text) => setPrompt(text.slice(0, lyrics.trim().length >= 20 ? 5000 : 500))} />
+                </div>
               </div>
               <textarea
                 value={prompt}

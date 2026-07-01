@@ -1082,4 +1082,84 @@ Rules:
         segments: result.segments ?? [],
       };
     }),
+
+  /**
+   * Guide Me Song Builder — takes 7 guided answers and produces:
+   * 1. A production-ready direction prompt (≤500 chars for Suno non-custom mode)
+   * 2. Full structured song lyrics
+   */
+  buildGuidedSong: protectedProcedure
+    .input(
+      z.object({
+        answers: z.record(z.string(), z.string()),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { invokeLLM } = await import("../_core/llm");
+      const { answers } = input;
+
+      // Build a human-readable summary of the answers
+      const answerSummary = [
+        answers.topic   ? `Topic/story: ${answers.topic}` : null,
+        answers.mood    ? `Mood/feeling: ${answers.mood}` : null,
+        answers.genre   ? `Genre/style: ${answers.genre}` : null,
+        answers.audience ? `Audience: ${answers.audience}` : null,
+        answers.details ? `Personal details: ${answers.details}` : null,
+        answers.tempo   ? `Tempo: ${answers.tempo}` : null,
+        answers.extra   ? `Extra requests: ${answers.extra}` : null,
+      ].filter(Boolean).join("\n");
+
+      // Step 1: Generate the direction prompt (≤500 chars)
+      const directionResponse = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content: `You are a professional music producer and AI prompt engineer for WIZ AI.
+Based on the user's answers to guided questions, write a precise, production-ready direction prompt for an AI music generator.
+
+CRITICAL RULES:
+- Output MUST be as close to exactly 500 characters as possible (aim for 490-500). The AI music API has a hard 500-character limit — maximise every character.
+- Include: genre, mood, tempo BPM, key instruments, vocal style, production era/influences, energy level, dynamics
+- Keep the user's core intent, theme, and personal details intact
+- Write as a single flowing paragraph — no bullet points, no labels
+- Return ONLY the direction prompt text. No explanations, no preamble, no quotes. Do NOT exceed 500 characters.`,
+          },
+          {
+            role: "user",
+            content: `User's song brief:\n${answerSummary}\n\nWrite the direction prompt:`,
+          },
+        ],
+      });
+
+      const rawDirection = directionResponse.choices?.[0]?.message?.content;
+      const directionPrompt = (typeof rawDirection === "string" ? rawDirection.trim() : "").slice(0, 500);
+
+      // Step 2: Generate full structured lyrics
+      const lyricsResponse = await invokeLLM({
+        messages: [
+          {
+            role: "system",
+            content: `You are a professional songwriter and lyricist.
+Based on the user's answers to guided questions, write complete, well-structured, singable song lyrics.
+
+Rules:
+- Write complete lyrics with clear structure: [Verse 1], [Pre-Chorus] (optional), [Chorus], [Verse 2], [Chorus], [Bridge] (optional), [Final Chorus]
+- Keep the user's story, theme, characters, names, and emotional intent 100% intact
+- Use natural rhyme and rhythm appropriate to the described genre and mood
+- Make it personal and specific — use the details, names, and memories provided
+- There is NO character limit — write as many lines as the song needs
+- Return ONLY the lyrics with section labels. No explanation, no preamble.`,
+          },
+          {
+            role: "user",
+            content: `User's song brief:\n${answerSummary}\n\nWrite the full song lyrics:`,
+          },
+        ],
+      });
+
+      const rawLyrics = lyricsResponse.choices?.[0]?.message?.content;
+      const lyrics = (typeof rawLyrics === "string" ? rawLyrics.trim() : "") || "";
+
+      return { directionPrompt, lyrics };
+    }),
 });
