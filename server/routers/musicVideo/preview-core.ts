@@ -530,6 +530,32 @@ export async function generateScenePreviewCore(opts: {
     } catch { /* ignore parse errors */ }
   }
 
+  // ── KEY & MOOD BLOCK (from instrument analysis) ─────────────────────────────
+  let keyMoodBlock = "";
+  if ((job as any).instrumentAnalysis) {
+    try {
+      const ia = JSON.parse((job as any).instrumentAnalysis) as {
+        musicalKey?: string;
+        mode?: string;
+        chordMood?: string;
+      };
+      const key = ia.musicalKey && ia.musicalKey !== "Unknown" ? ia.musicalKey : null;
+      const mode = ia.mode && ia.mode !== "unknown" ? ia.mode : null;
+      const chordMood = ia.chordMood && ia.chordMood !== "neutral" ? ia.chordMood : null;
+      const parts: string[] = [];
+      if (key) parts.push(`Musical key: ${key}${mode ? ` (${mode})` : ""}`);
+      if (chordMood) parts.push(`Chord mood: ${chordMood}. Let this emotional quality inform the visual atmosphere, lighting, and character expression.`);
+      if (parts.length > 0) {
+        keyMoodBlock = `KEY & MOOD:\n${parts.join("\n")}`;
+      }
+    } catch { /* ignore parse errors */ }
+  }
+
+  // ── PERFORMANCE STYLE BLOCK (Director's Brief) ──────────────────────────
+  const performanceStyleBlock = (job as any).performanceStyle
+    ? `MUSICIAN PERFORMANCE STYLE (MANDATORY): ${(job as any).performanceStyle}`
+    : "";
+
   const sceneBlock = scene.userEditedPrompt
     ? `DIRECTOR'S INSTRUCTION (HIGHEST PRIORITY — USE VERBATIM):\n${cleanScenePrompt}`
     : !isEnvironmentScene
@@ -624,7 +650,11 @@ export async function generateScenePreviewCore(opts: {
     ensembleLockBlock,
     // 7. TEMPO / FEEL — musical energy level drives pose and movement style
     tempoFeelBlock,
-    // 8. Technical / quality directives
+    // 8. KEY & MOOD — musical key and chord mood inform visual atmosphere
+    keyMoodBlock,
+    // 9. PERFORMANCE STYLE — Director's Brief musician playing style
+    performanceStyleBlock,
+    // 10. Technical / quality directives
     "NO visible text, logos, or band names. NO neon signs, banners, or typography.",
     "16:9 widescreen, high quality, professional photography, concert photography",
     // Only add the default framing directive when the user hasn't locked the camera.

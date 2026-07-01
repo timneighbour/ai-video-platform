@@ -50,6 +50,10 @@ export interface InstrumentAnalysis {
   tempo: number;
   timeSignature: string;
   musicalKey: string;
+  /** Tonal mode derived from the key signature, e.g. "major" or "minor" */
+  mode?: string;
+  /** Emotional quality of the chord progression, e.g. "melancholic", "uplifting", "tense" */
+  chordMood?: string;
   energyLevel: "low" | "medium" | "high" | "intense";
   analysedAt: string;
 }
@@ -312,6 +316,8 @@ Return JSON with this exact schema:
   "tempo": 120,
   "timeSignature": "4/4",
   "musicalKey": "E minor",
+  "mode": "major|minor|dorian|mixolydian|other",
+  "chordMood": "melancholic|uplifting|tense|romantic|triumphant|dark|neutral",
   "energyLevel": "low|medium|high|intense",
   "analysedAt": "${new Date().toISOString()}"
 }
@@ -357,10 +363,12 @@ Rules:
               tempo: { type: "number" },
               timeSignature: { type: "string" },
               musicalKey: { type: "string" },
+              mode: { type: "string" },
+              chordMood: { type: "string" },
               energyLevel: { type: "string" },
               analysedAt: { type: "string" },
             },
-            required: ["instruments", "tempo", "timeSignature", "musicalKey", "energyLevel", "analysedAt"],
+            required: ["instruments", "tempo", "timeSignature", "musicalKey", "mode", "chordMood", "energyLevel", "analysedAt"],
             additionalProperties: false,
           },
         },

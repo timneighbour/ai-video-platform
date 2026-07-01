@@ -336,7 +336,8 @@ export async function generateStoryboard(
   songBpm?: number | null,
   performanceShotRatio: number = 80,
   directorMode?: string | null,
-  vocalOnsetTime?: number | null
+  vocalOnsetTime?: number | null,
+  performanceStyle?: string | null
 ): Promise<StoryboardResult> {
   const sceneCount = calculateSceneCount(audioDurationSeconds);
 
@@ -811,8 +812,18 @@ RULE 8 — INSTRUMENT PLAYING POSTURE (NON-NEGOTIABLE):
   ❌ NEVER show a guitarist holding the guitar at their side — guitarists are ALWAYS holding the guitar in playing position, fingers on frets
   ❌ NEVER show a drummer standing — drummers are ALWAYS seated behind the full kit, sticks in hand
   ✅ ALWAYS specify the playing posture explicitly: "seated at the grand piano, hands moving across the keys", "cellist seated, drawing the bow across the strings", "guitarist fingers moving on the frets"
-  This is a HARD RULE. A musician standing idle next to their instrument is a critical scene failure.
+    This is a HARD RULE. A musician standing idle next to their instrument is a critical scene failure.
 ═══════════════════════════════════════════════════════════════` : "";
+
+  // ── PERFORMANCE STYLE BLOCK (Director's Brief) ────────────────────────────
+  const performanceStyleBlock = performanceStyle
+    ? `
+═══════════════════════════════════════════════════════════════
+MUSICIAN PERFORMANCE STYLE (DIRECTOR'S BRIEF — MANDATORY IN EVERY SCENE):
+${performanceStyle}
+This is how the musicians MUST be depicted playing their instruments in every scene.
+═══════════════════════════════════════════════════════════════`
+    : "";
 
   const systemPrompt = `You are a premium cinematic music video director — not an AI avatar generator.
 Your job is to create detailed, emotionally directed scene descriptions for AI video generation.
@@ -849,7 +860,7 @@ Instead, prioritise:
 - Dramatic camera work (Dutch angle, crane shot, rack focus)
 - Slow-motion detail (sweat, light, fabric, smoke)
 A singing close-up should be EARNED — reserved for the most emotionally powerful lyric moments, not used as a default.
-${sceneSettingConstraint}${contentAnalysisBlock}${characterPerformanceBlock}
+${sceneSettingConstraint}${contentAnalysisBlock}${characterPerformanceBlock}${performanceStyleBlock}
 
 Each scene description must be:
 - Highly visual and specific (lighting, camera angle, movement, subjects, atmosphere)
@@ -3247,9 +3258,13 @@ export async function triggerMusicVideoRender(userId: number, musicVideoJobId: n
       if (i > 0) await new Promise((r) => setTimeout(r, SCENE_STAGGER_MS));
       try {
         const rendererType: "wavespeed" = "wavespeed";
+        // Augment scene prompt with musician performance style from Director's Brief
+        const scenePromptWithStyle = job.performanceStyle
+          ? `${scene.prompt}\n\nMUSICIAN PERFORMANCE STYLE (MANDATORY): ${job.performanceStyle}`
+          : scene.prompt;
         const taskId = await startSceneRender(
           scene.id,
-          scene.prompt,
+          scenePromptWithStyle,
           scene.duration ?? 8,
           scene.lipSync ?? true,
           (scene.lipSyncStyle as any) ?? "natural",

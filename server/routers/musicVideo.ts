@@ -362,16 +362,30 @@ export async function generateScenePreviewCore(opts: {
     hardCountPrefix,
     // 4. IDENTITY — face/hair/skin tone consistency
     identityBlock,
-    // 5. COSTUME LOCK — outfit enforcement
+        // 5. COSTUME LOCK — outfit enforcement
     costumeLockBlock,
-    // 6. Technical / quality directives
+    // 6. KEY & MOOD — musical key and chord mood inform visual atmosphere
+    (() => {
+      if (!(job as any).instrumentAnalysis) return "";
+      try {
+        const ia = JSON.parse((job as any).instrumentAnalysis) as { musicalKey?: string; mode?: string; chordMood?: string };
+        const k = ia.musicalKey && ia.musicalKey !== "Unknown" ? ia.musicalKey : null;
+        const m = ia.mode && ia.mode !== "unknown" ? ia.mode : null;
+        const cm = ia.chordMood && ia.chordMood !== "neutral" ? ia.chordMood : null;
+        const parts: string[] = [];
+        if (k) parts.push(`Musical key: ${k}${m ? ` (${m})` : ""}`);
+        if (cm) parts.push(`Chord mood: ${cm}. Let this inform the visual atmosphere and character expression.`);
+        return parts.length > 0 ? `KEY & MOOD:\n${parts.join("\n")}` : "";
+      } catch { return ""; }
+    })(),
+    // 7. PERFORMANCE STYLE — Director's Brief musician playing style
+    (job as any).performanceStyle ? `MUSICIAN PERFORMANCE STYLE (MANDATORY): ${(job as any).performanceStyle}` : "",
+    // 8. Technical / quality directives
     "NO visible text, logos, or band names. NO neon signs, banners, or typography.",
     "16:9 widescreen, high quality, professional photography, concert photography",
     "FRAMING: full head and body visible within frame, generous headroom above subject",
   ].filter(Boolean).join("\n\n");
-
   const jobAspectRatio = (job.aspectRatio ?? "16:9") as "16:9" | "9:16" | "1:1" | "4:3" | "3:4" | "21:9";
-
   // Build Forge API reference list — one entry per scene character (master portrait > primary photo > previewImageUrl)
   // This is the same face-consistent path used by the full generateScenePreview pipeline.
   const forgeRefs: Array<{ url: string; mimeType: string }> = [];
@@ -499,6 +513,7 @@ export const musicVideoRouter = router({
         enableLipSync: z.boolean().optional(),
         sceneSetting: z.string().max(5000).optional(), // e.g. "concert venue", "desert", "rooftop" — high limit so users can paste full descriptions
         performanceShotRatio: z.number().int().min(0).max(100).optional(), // 0-100: % of scenes that should be character performance shots (default 75)
+        performanceStyle: z.string().max(1000).optional(), // Director's Brief: how musicians are playing (e.g. "pianist with light touch")
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -610,6 +625,7 @@ export const musicVideoRouter = router({
         characterRoster: null,
         sceneSetting: input.sceneSetting ?? null,
         performanceShotRatio: input.performanceShotRatio ?? 80,
+        performanceStyle: input.performanceStyle ?? null,
         lyricsApproved: false,
         errorMessage: null,
       });
@@ -910,7 +926,8 @@ Rules:
           job.songBpm ?? null,
           job.performanceShotRatio ?? 75,
           undefined, // directorMode
-          vocalOnsetTime // precise vocal start time — prevents lyric misassignment on instrumental intros
+          vocalOnsetTime, // precise vocal start time — prevents lyric misassignment on instrumental intros
+          job.performanceStyle ?? null // Director's Brief: musician performance style
         )).then(result => {
           // Validate scenes is a non-empty array — triggers retry if malformed
           assertNonEmptyArray(result.scenes, "generateStoryboard.scenes");

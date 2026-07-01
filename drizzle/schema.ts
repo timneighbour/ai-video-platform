@@ -277,6 +277,10 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   venueLockedDisplayName: varchar("venueLockedDisplayName", { length: 255 }), // e.g. "Air Studios, Lyndhurst Hall"
   venueLockedAt: timestamp("venueLockedAt"),                               // When the lock was applied
   venueCustomDNA: text("venueCustomDNA"),                                    // Free-text interior description for custom venues (venueLockedKey = "custom")
+  // --- Director's Brief: Musician Performance Style -------------------------
+  // Free-text field describing how musicians are playing (e.g. "pianist playing with light touch, sparse chords").
+  // Injected into every scene prompt as a PERFORMANCE STYLE block.
+  performanceStyle: text("performanceStyle"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

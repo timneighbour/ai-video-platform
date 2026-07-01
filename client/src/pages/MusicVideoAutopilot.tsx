@@ -1125,6 +1125,8 @@ export default function MusicVideoAutopilot() {
   const [selectedDurationCap, setSelectedDurationCap] = useLocalStorage<number | null>("musicVideo_durationCap", null);
   // Performance/cinematic ratio: 0-100, default 80 (80% performance shots for vocal-led tracks, 20% cinematic intercuts)
   const [performanceShotRatio, setPerformanceShotRatio] = useLocalStorage<number>("musicVideo_performanceShotRatio", 80);
+  // Director's Brief: musician performance style (e.g. "pianist playing with light touch, sparse chords")
+  const [performanceStyle, setPerformanceStyle] = useLocalStorage<string>("musicVideo_performanceStyle", "");
 
   // Handle URL params: ?job_id=X&render_started=true (redirected from RenderSuccess after Stripe payment)
   // Also handles ?demo=1&prompt=... (quick-start pre-fill from onboarding)
@@ -1176,6 +1178,7 @@ export default function MusicVideoAutopilot() {
                 if (job.mood) { localStorage.setItem("musicVideo_mood", JSON.stringify(job.mood)); setMood(job.mood); }
                 if (job.audioDuration) { localStorage.setItem("musicVideo_duration", JSON.stringify(job.audioDuration)); setAudioDuration(job.audioDuration); }
                 if (job.sceneSetting) { localStorage.setItem("musicVideo_sceneSetting", JSON.stringify(job.sceneSetting)); setSceneSetting(job.sceneSetting); }
+                if ((job as any).performanceStyle) { localStorage.setItem("musicVideo_performanceStyle", JSON.stringify((job as any).performanceStyle)); setPerformanceStyle((job as any).performanceStyle); }
                 // Restore the saved audio URL so the user doesn’t need to re-upload
                 if (job.audioUrl) {
                   localStorage.setItem("musicVideo_restoredAudioUrl", JSON.stringify(job.audioUrl));
@@ -2244,6 +2247,7 @@ export default function MusicVideoAutopilot() {
         enableLipSync,
         sceneSetting: sceneSetting.trim() || undefined,
         performanceShotRatio,
+        performanceStyle: performanceStyle.trim() || undefined,
       });
 
       setJobId(result.jobId);
@@ -4485,6 +4489,32 @@ export default function MusicVideoAutopilot() {
                 </CardContent>
               </Card>
 
+              {/* ── Musician Performance Style ── */}
+              <Card className="studio-card border-0">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Guitar className="w-5 h-5 text-[--color-gold]" />
+                    Musician Performance Style
+                    <Badge variant="outline" className="border-zinc-600 text-white/50 text-xs ml-1">Optional</Badge>
+                  </CardTitle>
+                  <p className="text-white/40 text-xs mt-1">
+                    Describe how the musicians should be playing — e.g. &ldquo;pianist with light touch, sparse chords&rdquo; or &ldquo;guitarist standing, aggressive riffing, head down&rdquo;. This is injected into every scene prompt.
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <Textarea
+                    value={performanceStyle}
+                    onChange={(e) => setPerformanceStyle(e.target.value)}
+                    placeholder="e.g. Pianist seated at a grand piano, playing with a light, delicate touch. Sparse, emotional chords. Cellist bowing slowly with eyes closed."
+                    className="bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.08)] text-white placeholder:text-white/25 resize-none text-sm min-h-[80px]"
+                    maxLength={1000}
+                  />
+                  {performanceStyle.length > 0 && (
+                    <p className="text-white/30 text-[10px] mt-1 text-right font-mono">{performanceStyle.length}/1000</p>
+                  )}
+                </CardContent>
+              </Card>
+
               {/* Visual Reference Assets — optional photos/videos for storyboard context */}
               <Card className="studio-card border-0">
                 <CardHeader>
@@ -6338,7 +6368,7 @@ export default function MusicVideoAutopilot() {
                     jobId={jobId || undefined}
                     aspectRatio={exportFormat as "16:9" | "9:16" | "1:1" | "4:3" | "21:9"}
                     onCreateAnother={() => {
-                      setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setDraftVenueKey(null); setDraftVenueCustomDNA(""); setSavedCharacterIds({});
+                      setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setDraftVenueKey(null); setDraftVenueCustomDNA(""); setSavedCharacterIds({}); setPerformanceStyle("");
                     }}
                   />
                 ) : renderStatus === "completed" && finalVideoUrl ? (
@@ -6462,7 +6492,7 @@ export default function MusicVideoAutopilot() {
                       </Button>
                       <Button
                         className="btn-sheen bg-gradient-to-r from-[#b8892a] to-[#4a3010] hover:from-[#b8892a] hover:to-[#4a3010] text-white px-6 h-12 text-base font-semibold shadow-lg shadow-[#b8892a]/30"
-                        onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setDraftVenueKey(null); setDraftVenueCustomDNA(""); setSavedCharacterIds({}); }}
+                        onClick={() => { setStep("upload"); setJobId(null); setAudioFile(null); setTitle(""); setThemePrompt(""); setGenre(""); setMood(""); setAudioDuration(0); setScenes([]); setFinalVideoUrl(null); setCharacters([]); setTranscriptionText(null); setTranscriptionSegments([]); setTranscriptionStatus("idle"); setLyricsExpanded(false); setSceneSetting(""); setDraftVenueKey(null); setDraftVenueCustomDNA(""); setSavedCharacterIds({}); setPerformanceStyle(""); }}
                       >
                         <Sparkles className="w-5 h-5 mr-2" /> Create Another Video
                       </Button>
