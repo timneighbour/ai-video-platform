@@ -435,10 +435,12 @@ function shouldShowIntroOnLoad(): boolean {
   if (!isHomepage) return false;
   const ua = navigator.userAgent.toLowerCase();
   const isBot = /googlebot|lighthouse|chrome-lighthouse|pagespeed|adsbot|bingbot|slurp|duckduckbot|baiduspider|yandex|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot|applebot|msnbot|semrushbot|ahrefsbot|dotbot|petalbot|bytespider|gptbot|chatgpt|ccbot|anthropic|claudebot|headlesschrome/.test(ua);
+  // Skip intro for all social media in-app browsers — they block autoplay and often block sessionStorage
+  const isSocialInAppBrowser = /instagram|fbav|fban|fb_iab|twitter|snapchat|tiktok|line\/|wechat|micromessenger/.test(ua);
   const isPageSpeed = !!(window as any).__lighthouse || !!(window as any).__pagespeed ||
     document.documentElement.hasAttribute("data-lighthouse") ||
     navigator.webdriver === true;
-  if (isBot || isPageSpeed) return false;
+  if (isBot || isSocialInAppBrowser || isPageSpeed) return false;
   try {
     return !sessionStorage.getItem(INTRO_SESSION_KEY);
   } catch {
@@ -459,11 +461,13 @@ function App() {
     // PageSpeed Insights runs as a real Chrome instance — detect via performance timing flags
     // and common bot/crawler signatures
     const isBot = /googlebot|lighthouse|chrome-lighthouse|pagespeed|adsbot|bingbot|slurp|duckduckbot|baiduspider|yandex|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot|applebot|msnbot|semrushbot|ahrefsbot|dotbot|petalbot|bytespider|gptbot|chatgpt|ccbot|anthropic|claudebot|headlesschrome/.test(ua);
+    // Skip intro for all social media in-app browsers — they block autoplay and often block sessionStorage
+    const isSocialInAppBrowser = /instagram|fbav|fban|fb_iab|twitter|snapchat|tiktok|line\/|wechat|micromessenger/.test(ua);
     // Also detect PageSpeed/Lighthouse via window flags they set
     const isPageSpeed = !!(window as any).__lighthouse || !!(window as any).__pagespeed ||
       document.documentElement.hasAttribute('data-lighthouse') ||
       navigator.webdriver === true;
-    if (isBot || isPageSpeed) return; // Skip intro for all bots — they should see the real homepage immediately
+    if (isBot || isSocialInAppBrowser || isPageSpeed) return; // Skip intro for all bots and social in-app browsers
     try {
       const seen = sessionStorage.getItem(INTRO_SESSION_KEY);
       if (!seen) {
