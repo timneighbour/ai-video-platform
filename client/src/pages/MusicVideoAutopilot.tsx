@@ -2523,7 +2523,13 @@ export default function MusicVideoAutopilot() {
   // Also enabled on upload step so contextAssetUrls can be loaded when resuming a job
   const jobQuery = trpc.musicVideo.getJob.useQuery(
     { jobId: jobId! },
-    { enabled: !!jobId && (step === "storyboard" || step === "upload") }
+    {
+      enabled: !!jobId && (step === "storyboard" || step === "upload"),
+      // 30s stale window: prevents React-Query from refetching on every window-focus
+      // event while the sequential preview generation loop is running, which was the
+      // root cause of duplicate loops and previews not loading on first storyboard load.
+      staleTime: 30_000,
+    }
   );
 
   // Seed restoredAudioUrl from jobQuery when localStorage was cleared (e.g. after billing outage or session reset).
