@@ -152,6 +152,7 @@ export default function CharacterConfirmationStep({
   const normaliseCharacterMutation = trpc.characters.normaliseCharacter.useMutation();
   const deleteCharacterMutation = trpc.musicVideo.deleteCharacter.useMutation();
   const updateCharacterCoreMutation = trpc.musicVideo.updateCharacterCore.useMutation();
+  const trpcUtils = trpc.useUtils();
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
   const [normalisedIds, setNormalisedIds] = useState<Set<number>>(new Set());
 
@@ -851,7 +852,10 @@ export default function CharacterConfirmationStep({
                     setDeletingIds(prev => new Set(prev).add(char.id));
                     try {
                       await deleteCharacterMutation.mutateAsync({ jobId, characterId: char.id });
+                      // Optimistically remove from local state
                       setCharacters(prev => prev.filter(c => c.id !== char.id));
+                      // Invalidate the query so any background refetch returns the updated list
+                      void trpcUtils.musicVideo.getCharactersForJob.invalidate({ jobId });
                       toast.success(`${char.name} removed`);
                     } catch (err: any) {
                       toast.error(`Failed to remove ${char.name}`, { description: err?.message ?? "Please try again." });
