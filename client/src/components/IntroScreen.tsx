@@ -134,9 +134,9 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
   }, []);
 
   useEffect(() => {
-    // Hard safety timeout: if intro hasn't completed in 14s (e.g. video blocked by
+    // Hard safety timeout: if intro hasn't completed in 4s (e.g. video blocked by
     // Instagram/WhatsApp/Facebook in-app browsers or slow connections), skip it.
-    const safetyTimeout = setTimeout(() => dismiss(), 14000);
+    const safetyTimeout = setTimeout(() => dismiss(), 4000);
 
     const t1 = setTimeout(() => setPhase("ambient"), 500);
     const t2 = setTimeout(() => {
