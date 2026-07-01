@@ -491,11 +491,41 @@ export async function generateScenePreviewCore(opts: {
         /cello|viola|strings|harp|contrabass/i.test(i.label)
       );
       const hasPiano = ia.instruments.some(i => ["piano", "keyboard"].includes(i.instrument));
-      const isSlowOrchestral = bpm > 0 && bpm <= 85 && (hasStrings || hasPiano);
+      const hasElectricGuitar = ia.instruments.some(i => i.instrument === "electric_guitar");
+      const hasAcousticGuitar = ia.instruments.some(i => i.instrument === "acoustic_guitar");
+      const hasDrums = ia.instruments.some(i => i.instrument === "drums");
+      const hasBass = ia.instruments.some(i => i.instrument === "bass_guitar");
+      const hasElectronic = ia.instruments.some(i => /dj|synth|electronic|edm|house|techno|turntable/i.test(i.label));
+      const hasJazz = ia.instruments.some(i => ["saxophone", "trumpet"].includes(i.instrument));
+
+      // Classify the genre feel from instrument combination + BPM
+      const isSlowOrchestral = bpm > 0 && bpm <= 85 && (hasStrings || hasPiano) && !hasElectricGuitar && !hasDrums;
+      const isRockMetal = hasElectricGuitar && hasDrums && (energy === "high" || energy === "intense" || bpm >= 100);
+      const isDJElectronic = hasElectronic || (bpm >= 120 && !hasStrings && !hasPiano && !hasElectricGuitar && energy !== "low");
+      const isHipHopRnb = !hasElectricGuitar && !hasStrings && hasBass && hasDrums && bpm >= 70 && bpm <= 110 && !hasPiano;
+      const isAcousticFolk = hasAcousticGuitar && !hasDrums && !hasElectricGuitar;
+      const isJazzTrack = hasJazz || (hasPiano && hasBass && hasDrums && !hasElectricGuitar && !hasStrings);
+
       if (isSlowOrchestral) {
         tempoFeelBlock = `MUSICAL FEEL (MANDATORY): This is a slow, cinematic orchestral piece at ${bpm} BPM with ${instrumentLabels}. ALL poses and movements MUST reflect this: slow, measured, poised, and elegant. NO fast movement. NO energetic or dynamic poses. Bowing is slow and sustained. Piano keys are pressed gently. Characters are still and composed. The mood is contemplative and cinematic.`;
-      } else if (energy === "low" || energy === "medium") {
-        tempoFeelBlock = `MUSICAL FEEL: This track has a ${energy} energy level at ${bpm} BPM. Poses should be calm and measured — not fast or energetic.`;
+      } else if (isRockMetal) {
+        const intensity = energy === "intense" ? "intense, aggressive" : "energetic, powerful";
+        tempoFeelBlock = `MUSICAL FEEL: This is a ${intensity} rock/metal track at ${bpm} BPM with ${instrumentLabels}. Poses should be DYNAMIC and POWERFUL — guitarist leaning into riffs, drummer hitting hard, vocalist commanding the stage. High energy, raw intensity, movement driven by the beat.`;
+      } else if (isDJElectronic) {
+        tempoFeelBlock = `MUSICAL FEEL: This is an electronic/DJ track at ${bpm} BPM with ${instrumentLabels}. Visual energy should be VIBRANT and PULSING — DJ behind decks with hands raised, atmospheric lighting, movement in sync with the beat. High energy, club or festival atmosphere.`;
+      } else if (isHipHopRnb) {
+        const feel = energy === "high" || energy === "intense" ? "confident, high-energy" : "smooth, cool";
+        tempoFeelBlock = `MUSICAL FEEL: This is a ${feel} hip-hop/R&B track at ${bpm} BPM with ${instrumentLabels}. Poses should be CONFIDENT and STYLISH — relaxed swagger, cool posture, expressive hand gestures. Mood is ${feel}.`;
+      } else if (isAcousticFolk) {
+        tempoFeelBlock = `MUSICAL FEEL: This is an intimate acoustic/folk track at ${bpm} BPM with ${instrumentLabels}. Poses should be NATURAL and UNDERSTATED — seated or standing with guitar, relaxed and authentic, warm and personal atmosphere.`;
+      } else if (isJazzTrack) {
+        tempoFeelBlock = `MUSICAL FEEL: This is a jazz track at ${bpm} BPM with ${instrumentLabels}. Poses should be COOL and EXPRESSIVE — musicians leaning into solos, relaxed but focused, club or studio atmosphere, sophisticated mood.`;
+      } else if (energy === "intense" || (energy === "high" && bpm >= 120)) {
+        tempoFeelBlock = `MUSICAL FEEL: This is a high-energy track at ${bpm} BPM with ${instrumentLabels}. Poses should be DYNAMIC and EXPRESSIVE — movement, energy, intensity. Characters engaged and animated.`;
+      } else if (energy === "low" || (energy === "medium" && bpm <= 90)) {
+        tempoFeelBlock = `MUSICAL FEEL: This track has a ${energy} energy level at ${bpm} BPM with ${instrumentLabels}. Poses should be calm and measured — not fast or energetic. Mood is relaxed and composed.`;
+      } else {
+        tempoFeelBlock = `MUSICAL FEEL: ${bpm} BPM, ${energy} energy, instruments: ${instrumentLabels}. Match the visual energy and movement to the tempo and feel of this track.`;
       }
     } catch { /* ignore parse errors */ }
   }
