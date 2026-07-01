@@ -69,10 +69,13 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
   const [labelVisible, setLabelVisible] = useState(false);
   const [muted, setMuted]               = useState(true);
   const [visible, setVisible]           = useState(true);
+  // Tap-to-begin: shown on first visit to unlock video autoplay in Instagram/WhatsApp browsers
+  const [tapReady, setTapReady]         = useState(true);
   const videoRef                        = useRef<HTMLVideoElement>(null);
   const audioRef                        = useRef<HTMLAudioElement>(null);
   const timersRef                       = useRef<ReturnType<typeof setTimeout>[]>([]);
   const dismissedRef                    = useRef(false);
+  const startedRef                      = useRef(false);
   const soundOffRef                     = useRef<HTMLButtonElement>(null);
   const logoContainerRef                = useRef<HTMLDivElement>(null);
   const logoImgRef                      = useRef<HTMLImageElement>(null);
@@ -133,17 +136,21 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
     timersRef.current.push(t);
   }, []);
 
-  useEffect(() => {
+  // Start the full intro sequence — called after user taps the splash screen
+  const startIntro = useCallback(() => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    setTapReady(false);
+
+    // Pre-load first clip immediately so it's ready when t2 fires
+    const vid = videoRef.current;
+    if (vid) { vid.src = CLIPS[0].url; vid.load(); }
+
     const t1 = setTimeout(() => setPhase("ambient"), 500);
     const t2 = setTimeout(() => {
       setPhase("clips");
-      const vid = videoRef.current;
       if (vid) {
-        vid.src = CLIPS[0].url;
-        vid.load();
-        vid.play().catch(() => {
-          // Autoplay deferred by browser — video will play on first user interaction
-        });
+        vid.play().catch(() => {});
       }
       const aud = audioRef.current;
       if (aud) { aud.muted = true; aud.play().catch(() => {}); }
@@ -166,8 +173,12 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
       loopFrom(2);
     }, 9000);
     timersRef.current = [t1, t2, t3, t4];
+  }, [advanceClip]);
+
+  // Cleanup on unmount
+  useEffect(() => {
     return () => clearAll();
-  }, [advanceClip, dismiss]);
+  }, []);
 
   const show = (...phases: Phase[]) => phases.includes(phase);
 
@@ -238,7 +249,64 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
           0%   { transform: scale(1);   opacity: 0.7; }
           100% { transform: scale(2.4); opacity: 0;   }
         }
+        @keyframes wi-tap-pulse {
+          0%,100% { transform: scale(1);    opacity: 0.85; box-shadow: 0 0 0 0 rgba(196,164,100,0.5); }
+          50%      { transform: scale(1.06); opacity: 1;    box-shadow: 0 0 0 14px rgba(196,164,100,0); }
+        }
+        @keyframes wi-tap-fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
       `}</style>
+
+      {/* ── Tap-to-begin splash ─────────────────────────────────────────── */}
+      {tapReady && (
+        <div
+          onClick={startIntro}
+          style={{
+            position: "absolute", inset: 0, zIndex: 10000,
+            display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+            background: BG,
+            cursor: "pointer",
+            animation: "wi-tap-fade-in 0.6s ease forwards",
+          }}
+        >
+          {/* Logo */}
+          <img
+            src="/manus-storage/wizai-logo-v3_e7823047_6b9d9155.png"
+            alt="WIZ AI"
+            style={{
+              width: "clamp(120px, 22vw, 200px)", height: "auto",
+              filter: `drop-shadow(0 0 18px ${GOLD}88) drop-shadow(0 0 40px ${GOLD}44)`,
+              marginBottom: "2.8rem",
+            }}
+          />
+          {/* Pulsing tap button */}
+          <button
+            onClick={startIntro}
+            style={{
+              background: "transparent",
+              border: `1.5px solid ${GOLD}99`,
+              borderRadius: 40,
+              padding: "0.85rem 2.6rem",
+              color: GOLD_LITE,
+              fontSize: "clamp(0.78rem, 2.2vw, 0.88rem)",
+              fontWeight: 600,
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+              cursor: "pointer",
+              animation: "wi-tap-pulse 2.2s ease-in-out infinite",
+              marginBottom: "1.4rem",
+            }}
+          >
+            Tap to begin
+          </button>
+          <p style={{ color: `${GOLD}88`, fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", margin: 0 }}>
+            Sound optional
+          </p>
+        </div>
+      )}
 
       {/* Background music — "Lightless Dawn" by Kevin MacLeod (CC BY 3.0) */}
       <audio ref={audioRef} src={MUSIC_URL} loop preload="auto" style={{ display: "none" }} />
