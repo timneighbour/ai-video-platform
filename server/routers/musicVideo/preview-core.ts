@@ -369,6 +369,23 @@ export async function generateScenePreviewCore(opts: {
           outfitSources.push(outfitStr);
         } catch { /* ignore */ }
       }
+      // Source 3: dedicated lockedOutfit.accessories field (from the Accessories form field)
+      // These are injected directly as hard MUST HAVE items — no regex extraction needed.
+      if (c.lockedOutfit) {
+        try {
+          const lo = JSON.parse(c.lockedOutfit);
+          if (lo?.accessories && typeof lo.accessories === "string" && lo.accessories.trim().length > 0) {
+            const accText = lo.accessories.trim();
+            // Split on commas to get individual items and add each as a hard rule
+            const accItems = accText.split(/,\s*/).map((s: string) => s.trim()).filter((s: string) => s.length > 0);
+            for (const acc of accItems) {
+              if (!items.some(i => i.toLowerCase().includes(acc.toLowerCase()))) {
+                items.push(`${acc} — MUST be visible in EVERY scene, NO exceptions`);
+              }
+            }
+          }
+        } catch { /* ignore */ }
+      }
       const combinedOutfit = outfitSources.join(" ").toLowerCase();
       if (combinedOutfit.length > 0) {
         // Necklace / jewellery

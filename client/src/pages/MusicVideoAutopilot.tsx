@@ -2296,7 +2296,10 @@ export default function MusicVideoAutopilot() {
                 const merged = [base, outfitPart && `Outfit: ${outfitPart}`, propsPart && `Props: ${propsPart}`, posPart && `Position: ${posPart}`].filter(Boolean).join(". ");
                 return merged || undefined;
               })(),
-              lockedOutfit: c.lockedOutfit ? { jacket: c.lockedOutfit } : undefined,
+              lockedOutfit: (c.lockedOutfit || c.lockedAccessories) ? {
+                jacket: c.lockedOutfit || undefined,
+                accessories: c.lockedAccessories || undefined,
+              } : undefined,
               lockedProps: c.lockedProps ? { instrument: c.lockedProps } : undefined,
               lockedPosition: c.lockedPosition || undefined,
               lockedRules: Object.keys(c.lockedRules || {}).length > 0 ? { role: c.lockedRules?.role || c.role || '', mustHave: c.lockedRules?.mustHave, allowedProps: c.lockedRules?.allowedProps, forbidden: c.lockedRules?.forbidden } : undefined,

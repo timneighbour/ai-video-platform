@@ -121,6 +121,8 @@ export interface Character {
   visualDetails: string;
   // Structured locked fields (unified pipeline)
   lockedOutfit: string;
+  /** Dedicated accessories field — glasses, necklace, earrings, hat, etc. Enforced in every scene. */
+  lockedAccessories: string;
   lockedProps: string;
   lockedPosition: string;
   lockedRules: LockedRules;
@@ -214,6 +216,7 @@ export function createEmptyCharacter(slotIndex: number, videoStyle?: string): Ch
     isLocked: false,
     visualDetails: "",
     lockedOutfit: "",
+    lockedAccessories: "",
     lockedProps: "",
     lockedPosition: "",
     lockedRules: {},
@@ -581,6 +584,22 @@ export function CharacterManager({
                       className={`bg-zinc-800 border-zinc-700 text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
                       disabled={disabled || isLocked}
                     />
+                  </div>
+
+                  {/* Accessories */}
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Badge className="text-[10px] px-1.5 py-0 bg-amber-900/50 text-amber-300 border-amber-800">LOCKED</Badge>
+                      <Label className="text-zinc-300 text-xs font-medium">Accessories</Label>
+                    </div>
+                    <Input
+                      value={char.lockedAccessories}
+                      onChange={(e) => updateCharacter(char.slotIndex, { lockedAccessories: e.target.value })}
+                      placeholder="e.g. gold-rimmed glasses, diamond necklace, pearl earrings"
+                      className={`bg-zinc-800 border-zinc-700 text-white text-sm ${isLocked ? 'border-emerald-800/50 cursor-not-allowed opacity-80' : ''}`}
+                      disabled={disabled || isLocked}
+                    />
+                    <p className="text-zinc-600 text-[10px] mt-0.5">Glasses, jewellery, hats — enforced in every scene.</p>
                   </div>
 
                   {/* Props */}
