@@ -857,7 +857,7 @@ export default function MusicCreator() {
                   const atLimit = prompt.length >= maxChars;
                   return (
                     <span className={`text-[9px] font-mono transition-colors ${atLimit ? 'text-red-400' : nearLimit ? 'text-yellow-400' : 'text-white/18'}`}>
-                      {prompt.length} / {maxChars}{lyrics.trim().length < 20 ? " (add lyrics to unlock 5,000)" : ""}
+                      {prompt.length} / {maxChars}
                     </span>
                   );
                 })()}

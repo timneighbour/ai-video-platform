@@ -5123,7 +5123,8 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes.`,
         audio: `You are a professional music producer and AI prompt engineer for WIZ AI.
 Take the user's plain-English audio/music description and rewrite it as a precise, production-ready prompt for an AI music generator.
 KEEP the user's core intent EXACTLY — genre, mood, instruments, tempo, feel. Only add more precise musical vocabulary.
-Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes.`,
+CRITICAL: Your output MUST be as close to exactly 500 characters as possible (aim for 490-500). The AI music API enforces a hard 500-character limit, so maximise every character — a richer, fuller prompt produces a better result. Count carefully and expand with additional musical detail (tempo BPM, key, dynamics, production style, era, influences) until you reach 490-500 characters.
+Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes. Do NOT exceed 500 characters.`,
         shorts: `You are a professional social media video director and AI prompt engineer for WIZ AI.
 Take the user's plain-English scene description and rewrite it as a precise, vivid, production-ready prompt for an AI short-form video generator.
 KEEP the user's core intent EXACTLY. Add visual precision: camera angle, lighting, energy, pace, platform-appropriate style.

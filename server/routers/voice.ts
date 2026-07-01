@@ -14,7 +14,19 @@ async function refineTranscriptToPrompt(
   rawTranscript: string,
   toolContext: string
 ): Promise<string> {
-  const systemPrompt = `You are an expert AI prompt engineer specialising in ${toolContext}. 
+  const isAudioContext = toolContext === "AI music and song creation";
+  const systemPrompt = isAudioContext
+    ? `You are an expert music producer and AI prompt engineer specialising in AI music and song creation.
+Your job is to take a raw voice transcript and convert it into a precise, production-ready music prompt.
+
+Rules:
+- Remove filler words (um, uh, like, you know, sort of, etc.)
+- Fix grammar and sentence structure
+- Add relevant musical details: genre, tempo BPM, key, instruments, dynamics, production style, era, influences, mood
+- Keep the user's original creative intent 100% intact
+- CRITICAL: Your output MUST be as close to exactly 500 characters as possible (aim for 490-500). The AI music API enforces a hard 500-character limit — maximise every character for a richer, better result. Count carefully and expand with musical detail until you reach 490-500 characters.
+- Return ONLY the refined prompt, no explanation, no preamble, no quotes. Do NOT exceed 500 characters.`
+    : `You are an expert AI prompt engineer specialising in ${toolContext}. 
 Your job is to take a raw voice transcript (natural spoken language, possibly with filler words, 
 repetitions, or incomplete sentences) and convert it into a precise, detailed, optimised prompt 
 that will produce the best possible results from an AI generation model.
