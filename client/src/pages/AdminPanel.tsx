@@ -6,19 +6,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Database, RefreshCw, CheckCircle2, XCircle, Loader2, ShieldAlert, Activity } from "@/lib/icons";
+import { Database, RefreshCw, CheckCircle2, XCircle, Loader2, ShieldAlert, Activity, Waves } from "@/lib/icons";
 import { Link } from "wouter";
 
 export default function AdminPanel() {
   const { user } = useAuth();
   const [isReconnecting, setIsReconnecting] = useState(false);
+  const [mvsepResult, setMvsepResult] = useState<{
+    ok: boolean;
+    status: string;
+    message: string;
+    hash?: string | null;
+    elapsedMs: number;
+  } | null>(null);
 
   const {
     data: dbStatus,
     isLoading: statusLoading,
     refetch: refetchStatus,
   } = trpc.system.dbStatus.useQuery(undefined, {
-    refetchInterval: 30_000, // auto-refresh every 30s
+    refetchInterval: 30_000,
     retry: false,
   });
 
@@ -27,13 +34,9 @@ export default function AdminPanel() {
     onSuccess: (result) => {
       setIsReconnecting(false);
       if (result.success) {
-        toast.success("Database reconnected", {
-          description: result.message,
-        });
+        toast.success("Database reconnected", { description: result.message });
       } else {
-        toast.error("Reconnect failed", {
-          description: result.message,
-        });
+        toast.error("Reconnect failed", { description: result.message });
       }
       refetchStatus();
     },
@@ -41,6 +44,21 @@ export default function AdminPanel() {
       setIsReconnecting(false);
       toast.error("Reconnect failed", { description: err.message });
       refetchStatus();
+    },
+  });
+
+  const testMvsep = trpc.system.testMvsep.useMutation({
+    onSuccess: (result) => {
+      setMvsepResult(result);
+      if (result.ok) {
+        toast.success("MVSEP diagnostic passed", { description: result.message });
+      } else {
+        toast.error("MVSEP diagnostic failed", { description: result.message });
+      }
+    },
+    onError: (err) => {
+      setMvsepResult({ ok: false, status: "error", message: err.message, elapsedMs: 0 });
+      toast.error("MVSEP test error", { description: err.message });
     },
   });
 
@@ -54,9 +72,7 @@ export default function AdminPanel() {
             <CardDescription>You must be signed in to access the admin panel.</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <Link href="/">
-              <Button variant="outline">Return Home</Button>
-            </Link>
+            <Link href="/"><Button variant="outline">Return Home</Button></Link>
           </CardContent>
         </Card>
       </div>
@@ -73,9 +89,7 @@ export default function AdminPanel() {
             <CardDescription>This panel is restricted to administrators only.</CardDescription>
           </CardHeader>
           <CardContent className="text-center">
-            <Link href="/dashboard">
-              <Button variant="outline">Return to Dashboard</Button>
-            </Link>
+            <Link href="/dashboard"><Button variant="outline">Return to Dashboard</Button></Link>
           </CardContent>
         </Card>
       </div>
@@ -130,9 +144,7 @@ export default function AdminPanel() {
               Live status of the MySQL / TiDB connection. Auto-refreshes every 30 seconds.
             </CardDescription>
           </CardHeader>
-
           <CardContent className="space-y-4">
-            {/* Status indicator */}
             <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/40 border border-border">
               {statusLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
@@ -160,10 +172,7 @@ export default function AdminPanel() {
                 )}
               </div>
             </div>
-
             <Separator />
-
-            {/* Reconnect button */}
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-medium">Force Reconnect</p>
@@ -178,15 +187,78 @@ export default function AdminPanel() {
                 className="shrink-0 bg-gradient-to-r from-[#b8892a] to-[#8a6520] hover:from-[#c99a35] hover:to-[#9a7530] text-white font-semibold"
               >
                 {isReconnecting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Reconnecting…
-                  </>
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Reconnecting…</>
                 ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Reconnect Database
-                  </>
+                  <><RefreshCw className="w-4 h-4 mr-2" />Reconnect Database</>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* MVSEP Diagnostic Card */}
+        <Card className="border border-border">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <Waves className="w-5 h-5 text-muted-foreground" />
+              <CardTitle className="text-base">Vocal Isolation — MVSEP Diagnostic</CardTitle>
+            </div>
+            <CardDescription>
+              Submits a short audio clip to MVSEP and polls for a result. Confirms the API key is live before a real job hits it.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {mvsepResult && (
+              <div className={`flex items-start gap-3 p-4 rounded-lg border ${
+                mvsepResult.ok
+                  ? "bg-green-500/10 border-green-500/30"
+                  : "bg-destructive/10 border-destructive/30"
+              }`}>
+                {mvsepResult.ok ? (
+                  <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                ) : (
+                  <XCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+                )}
+                <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-medium">
+                      {mvsepResult.ok ? "Diagnostic passed" : "Diagnostic failed"}
+                    </span>
+                    <Badge
+                      variant={mvsepResult.ok ? "default" : "destructive"}
+                      className={`text-xs ${mvsepResult.ok ? "bg-green-500/15 text-green-600 border-green-500/30 hover:bg-green-500/15" : ""}`}
+                    >
+                      {mvsepResult.status.toUpperCase()}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground font-mono">
+                      {(mvsepResult.elapsedMs / 1000).toFixed(1)}s
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{mvsepResult.message}</p>
+                  {mvsepResult.hash && (
+                    <p className="text-[10px] font-mono text-muted-foreground/60 truncate">
+                      hash: {mvsepResult.hash}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium">Run MVSEP Test</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Submits a short MP3 to MVSEP and polls for up to 30 seconds. A "processing" result means the key is valid — the job was accepted.
+                </p>
+              </div>
+              <Button
+                onClick={() => { setMvsepResult(null); testMvsep.mutate(); }}
+                disabled={testMvsep.isPending}
+                className="shrink-0 bg-gradient-to-r from-[#b8892a] to-[#8a6520] hover:from-[#c99a35] hover:to-[#9a7530] text-white font-semibold"
+              >
+                {testMvsep.isPending ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Testing…</>
+                ) : (
+                  <><Waves className="w-4 h-4 mr-2" />Run MVSEP Test</>
                 )}
               </Button>
             </div>
@@ -200,9 +272,7 @@ export default function AdminPanel() {
               <Activity className="w-5 h-5 text-muted-foreground" />
               <CardTitle className="text-base">System Health</CardTitle>
             </div>
-            <CardDescription>
-              Overview of background workers and services.
-            </CardDescription>
+            <CardDescription>Overview of background workers and services.</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">

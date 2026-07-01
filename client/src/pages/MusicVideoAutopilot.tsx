@@ -104,6 +104,7 @@ import {
   RotateCcw,
   PlayCircle,
   MapPin,
+  Key,
 } from "@/lib/icons";
 import { VoicePromptButton } from "@/components/VoicePromptButton";
 import { StarterTemplates } from "@/components/StarterTemplates";
@@ -4488,6 +4489,44 @@ export default function MusicVideoAutopilot() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* ── Detected Key & Mood Badge ── */}
+              {(() => {
+                // Parse instrumentAnalysis from the job to show detected musical key/mood
+                let ia: { musicalKey?: string; mode?: string; chordMood?: string } | null = null;
+                try {
+                  if ((jobQuery.data?.job as any)?.instrumentAnalysis) {
+                    ia = JSON.parse((jobQuery.data!.job as any).instrumentAnalysis);
+                  }
+                } catch {}
+                if (!ia?.musicalKey && !ia?.mode && !ia?.chordMood) return null;
+                const keyLabel = [ia.musicalKey, ia.mode].filter(Boolean).join(" ");
+                const moodLabel = ia.chordMood ?? "";
+                return (
+                  <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-[rgba(184,137,42,0.06)] border border-[rgba(184,137,42,0.15)]">
+                    <div className="w-7 h-7 rounded-lg bg-[rgba(184,137,42,0.12)] border border-[rgba(184,137,42,0.2)] flex items-center justify-center flex-shrink-0">
+                      <Key className="w-3.5 h-3.5 text-[--color-gold]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-mono uppercase tracking-widest text-white/35 mb-0.5">Detected Key &amp; Mood</p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {keyLabel && (
+                          <span className="text-sm font-bold text-[--color-gold]">{keyLabel}</span>
+                        )}
+                        {keyLabel && moodLabel && (
+                          <span className="text-white/30 text-xs">—</span>
+                        )}
+                        {moodLabel && (
+                          <span className="text-sm text-white/70 italic">{moodLabel}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <span className="text-[9px] font-bold uppercase tracking-[0.12em] px-2 py-1 rounded bg-[rgba(184,137,42,0.08)] text-[--color-gold]/60 border border-[rgba(184,137,42,0.12)]">Auto-detected</span>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* ── Musician Performance Style ── */}
               <Card className="studio-card border-0">

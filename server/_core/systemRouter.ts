@@ -178,4 +178,44 @@ export const systemRouter = router({
         checkedAt: new Date().toISOString(),
       };
     }),
+
+  /**
+   * MVSEP Diagnostic — submits a short audio clip to MVSEP and polls for a result.
+   * Confirms the API key is live and the service is reachable before a real job hits it.
+   * Admin only.
+   */
+  testMvsep: adminProcedure
+    .mutation(async () => {
+      const startMs = Date.now();
+      const apiToken = process.env.MVSEP_API_KEY;
+      if (!apiToken) {
+        return { ok: false, status: "error" as const, message: "MVSEP_API_KEY not configured", elapsedMs: 0, hash: null };
+      }
+      // Use a short publicly accessible MP3 for the probe
+      const probeAudioUrl = "https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3";
+      try {
+        const { submitMvsepVocalIsolation, pollMvsepVocalIsolation } = await import("../ai-apis/mvsep-vocal-isolation");
+        // Step 1: Submit the job
+        const { jobId: hash } = await submitMvsepVocalIsolation(probeAudioUrl);
+        // Step 2: Poll up to 30s (6 × 5s intervals) — just confirm the job was accepted
+        let lastStatus: string = "waiting";
+        for (let i = 0; i < 6; i++) {
+          await new Promise(r => setTimeout(r, 5000));
+          const poll = await pollMvsepVocalIsolation(hash);
+          lastStatus = poll.status;
+          if (poll.status === "done" || poll.status === "error") break;
+        }
+        const elapsedMs = Date.now() - startMs;
+        if (lastStatus === "done") {
+          return { ok: true, status: "done" as const, hash, message: "MVSEP API key is live — job completed successfully", elapsedMs };
+        } else if (lastStatus === "error") {
+          return { ok: false, status: "error" as const, hash, message: "MVSEP job failed during processing", elapsedMs };
+        } else {
+          // Still processing after 30s — but the submit succeeded, so the key is valid
+          return { ok: true, status: "processing" as const, hash, message: `MVSEP API key is live — job accepted (still processing after ${Math.round(elapsedMs / 1000)}s)`, elapsedMs };
+        }
+      } catch (err: any) {
+        return { ok: false, status: "error" as const, hash: null, message: err.message ?? "Unknown error", elapsedMs: Date.now() - startMs };
+      }
+    }),
 });
