@@ -5172,7 +5172,35 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
         ],
       });
       const rawContent = response.choices?.[0]?.message?.content;
-      const enhanced = (typeof rawContent === "string" ? rawContent.trim() : "") || input.prompt;
+      let enhanced = (typeof rawContent === "string" ? rawContent.trim() : "") || input.prompt;
+
+      // For audio: enforce 490-500 chars with a retry loop
+      if (productType === "audio") {
+        let attempts = 0;
+        while (enhanced.length < 480 && attempts < 2) {
+          attempts++;
+          const shortfall = 500 - enhanced.length;
+          const expandResponse = await invokeLLM({
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userContent },
+              { role: "assistant", content: enhanced },
+              {
+                role: "user",
+                content: `Your response is only ${enhanced.length} characters. You MUST expand it by exactly ${shortfall} more characters. Add more musical detail: specific BPM, musical key, additional instruments, production techniques, era references, vocal style, mixing approach. The final output MUST be 490-500 characters. Rewrite the full prompt now — do NOT exceed 500 characters:`,
+              },
+            ],
+          });
+          const expandedContent = expandResponse?.choices?.[0]?.message?.content;
+          if (typeof expandedContent === "string" && expandedContent.trim().length > enhanced.length) {
+            enhanced = expandedContent.trim();
+          } else {
+            break;
+          }
+        }
+        enhanced = enhanced.slice(0, 500);
+      }
+
       return { enhanced };
     }),
 

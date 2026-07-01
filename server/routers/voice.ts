@@ -52,7 +52,7 @@ Rules:
 - Be specific and descriptive — more detail = better AI output
 - Return ONLY the refined prompt, no explanation, no preamble, no quotes`;
 
-   try {
+  try {
     const response = await invokeLLM({
       messages: [
         { role: "system", content: systemPrompt },
@@ -63,8 +63,39 @@ Rules:
       ],
     });
     const content = response?.choices?.[0]?.message?.content;
-    const refined =
-      (typeof content === "string" ? content.trim() : null) ?? rawTranscript;
+    let refined = (typeof content === "string" ? content.trim() : null) ?? rawTranscript;
+
+    // For audio context: enforce 490-500 chars with a retry loop
+    if (isAudioContext) {
+      let attempts = 0;
+      while (refined.length < 480 && attempts < 2) {
+        attempts++;
+        const shortfall = 500 - refined.length;
+        const expandResponse = await invokeLLM({
+          messages: [
+            { role: "system", content: systemPrompt },
+            {
+              role: "user",
+              content: `Raw voice transcript: "${rawTranscript}"\n\nConvert this into an optimised ${toolContext} prompt:`,
+            },
+            { role: "assistant", content: refined },
+            {
+              role: "user",
+              content: `Your response is only ${refined.length} characters. You MUST expand it by adding ${shortfall} more characters of musical detail (BPM, key, instruments, production style, influences, dynamics, era). The final output MUST be between 490 and 500 characters. Rewrite the full prompt now — do NOT exceed 500 characters:`,
+            },
+          ],
+        });
+        const expandedContent = expandResponse?.choices?.[0]?.message?.content;
+        if (typeof expandedContent === "string" && expandedContent.trim().length > refined.length) {
+          refined = expandedContent.trim();
+        } else {
+          break; // no improvement, stop retrying
+        }
+      }
+      // Hard cap at 500
+      refined = refined.slice(0, 500);
+    }
+
     return refined;
   } catch (err) {
     // LLM refinement is best-effort — fall back to raw transcript on failure
