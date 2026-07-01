@@ -1435,6 +1435,10 @@ export default function MusicVideoAutopilot() {
   const elapsedTickerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   // Ref guard to prevent double-click / React re-render duplicate render submissions
   const isRenderingRef = useRef(false);
+  // Ref guard: prevents the jobQuery useEffect from spawning a second sequential preview
+  // generation loop while one is already running. Without this, React-Query background
+  // refetches trigger the effect again mid-loop, causing duplicate API calls and races.
+  const previewGenerationRunningRef = useRef(false);
   // Live elapsed ticker — increments every second while rendering
   useEffect(() => {
     if (step === "render" && (renderStatus === "rendering" || renderStatus === "assembling" || renderStatus === "wizsound")) {
@@ -2469,6 +2473,8 @@ export default function MusicVideoAutopilot() {
           toast.error("Storyboard generation failed", { description: "No scenes were returned after 3 attempts. Please try again." });
           return;
         }
+        // Reset the preview generation guard so the sequential loop can start fresh
+        previewGenerationRunningRef.current = false;
         setScenes(rawScenesNoChar.map((s: any) => ({
           id: s.id ?? s.sceneIndex,
           sceneIndex: s.sceneIndex,
@@ -2577,6 +2583,10 @@ export default function MusicVideoAutopilot() {
       // as a chained reference (reinforces character identity across scenes).
       const scenesNeedingPreview = mappedScenes.filter(s => !s.previewImageUrl);
       if (scenesNeedingPreview.length > 0 && jobId) {
+        // Guard: if a generation loop is already running (triggered by a previous jobQuery
+        // fire), skip this one entirely. The running loop will update state as it completes.
+        if (previewGenerationRunningRef.current) return;
+        previewGenerationRunningRef.current = true;
         // Run sequentially: scene[0] -> scene[1] -> ... passing each result as previousSceneImageUrl
         (async () => {
           let previousSceneImageUrl: string | undefined = undefined;
@@ -2604,6 +2614,8 @@ export default function MusicVideoAutopilot() {
               ));
             }
           }
+          // Release the guard so a future storyboard regeneration can start a new loop
+          previewGenerationRunningRef.current = false;
         })();
       }
     }
@@ -2696,6 +2708,8 @@ export default function MusicVideoAutopilot() {
         toast.error("Storyboard generation failed", { description: "No scenes were returned. Please try again." });
         return;
       }
+      // Reset the preview generation guard so the new sequential loop can start
+      previewGenerationRunningRef.current = false;
       const newScenes = rawScenes.map((s: any) => ({ ...s, id: s.id, status: "pending", previewImageUrl: null, previewImageLoading: true }));
       setScenes(newScenes);
       toast.dismiss(REGEN_TOAST_ID);
