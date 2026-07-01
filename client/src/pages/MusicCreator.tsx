@@ -921,27 +921,54 @@ export default function MusicCreator() {
             {/* Lyrics */}
             <div className="rounded-[6px] overflow-hidden border border-white/7" style={{ background: "#0e0e12" }}>
               <div className="flex items-center justify-between px-3.5 py-2 border-b border-white/7" style={{ background: "rgba(0,0,0,0.3)" }}>
-                <span className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/28">Lyrics</span>
-                <span className="text-[9px] text-white/18 italic">Optional — recommended for custom mode</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/28">Lyrics</span>
+                  <span className="text-[9px] text-[--color-gold]/50 italic">(optional — no character limit)</span>
+                </div>
+                <VoicePromptButton
+                  toolContext="song lyrics writing"
+                  onPromptReady={(refined) => setLyrics(prev => prev ? prev + "\n\n" + refined : refined)}
+                />
               </div>
               <div className="p-2.5 flex flex-col gap-2">
                 <textarea
                   value={lyrics}
                   onChange={(e) => setLyrics(e.target.value)}
-                  rows={3}
-                  maxLength={3000}
-                  className="w-full rounded-[4px] px-3 py-2.5 text-[12px] leading-[1.6] text-[#f5f0e8] placeholder:text-white/14 placeholder:italic resize-none focus:outline-none border border-white/6"
+                  rows={5}
+                  maxLength={5000}
+                  className="w-full rounded-[4px] px-3 py-2.5 text-[12px] leading-[1.6] text-[#f5f0e8] placeholder:text-white/14 placeholder:italic resize-y focus:outline-none border border-white/6"
                   style={{ background: "rgba(0,0,0,0.3)", fontFamily: "'Courier Prime', monospace", caretColor: "#c9a84c" }}
-                  placeholder="Enter your lyrics here, or use AI to generate them…"
+                  placeholder={`Paste your own lyrics here, or use one of the options below to create them…
+
+[Verse 1]
+Your lyrics go here…
+
+[Chorus]
+Your chorus here…`}
                 />
-                <button
-                  onClick={handleGenerateLyrics}
-                  disabled={!prompt.trim() || generateLyricsMutation.isPending}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] border border-[#0a84ff]/22 text-[11px] font-semibold text-[#4da6ff] transition-all hover:bg-[#0a84ff]/14 hover:border-[#0a84ff]/38 disabled:opacity-40 w-fit"
-                  style={{ background: "rgba(10,132,255,0.08)" }}
-                >
-                  {generateLyricsMutation.isPending ? <><Loader2 className="w-3 h-3 animate-spin" />Generating…</> : <>Generate Lyrics with AI</>}
-                </button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={handleGenerateLyrics}
+                    disabled={!prompt.trim() || generateLyricsMutation.isPending}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] border border-[#0a84ff]/22 text-[11px] font-semibold text-[#4da6ff] transition-all hover:bg-[#0a84ff]/14 hover:border-[#0a84ff]/38 disabled:opacity-40"
+                    style={{ background: "rgba(10,132,255,0.08)" }}
+                  >
+                    {generateLyricsMutation.isPending ? <><Loader2 className="w-3 h-3 animate-spin" />Generating…</> : <>Generate Lyrics with AI</>}
+                  </button>
+                  {lyrics.trim().length > 0 && (
+                    <button
+                      onClick={() => setLyrics("")}
+                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-[4px] border border-white/8 text-[10px] text-white/30 hover:text-white/55 hover:border-white/18 transition-all"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                {lyrics.trim().length === 0 && (
+                  <p className="text-[10px] text-white/20 italic leading-relaxed">
+                    Tip: Speak your song idea using the mic above — describe the story, theme, or characters and AI will write the full lyrics. Or paste your own lyrics directly.
+                  </p>
+                )}
               </div>
             </div>
 

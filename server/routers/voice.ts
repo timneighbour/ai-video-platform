@@ -15,7 +15,20 @@ async function refineTranscriptToPrompt(
   toolContext: string
 ): Promise<string> {
   const isAudioContext = toolContext === "AI music and song creation";
-  const systemPrompt = isAudioContext
+  const isLyricsContext = toolContext === "song lyrics writing";
+  const systemPrompt = isLyricsContext
+    ? `You are a professional songwriter and lyricist.
+Your job is to take a raw voice transcript (the user describing their song idea, story, or theme) and convert it into complete, well-structured song lyrics.
+
+Rules:
+- Remove filler words (um, uh, like, you know, etc.) from the transcript
+- Write complete, singable lyrics with clear verse/chorus/bridge structure
+- Keep the user's story, theme, characters, and emotional intent 100% intact
+- Use natural rhyme and rhythm appropriate to the described genre/mood
+- Include section labels like [Verse 1], [Chorus], [Bridge] etc.
+- There is NO character limit — write as many lyrics as the song needs
+- Return ONLY the lyrics, no explanation, no preamble`
+    : isAudioContext
     ? `You are an expert music producer and AI prompt engineer specialising in AI music and song creation.
 Your job is to take a raw voice transcript and convert it into a precise, production-ready music prompt.
 
@@ -80,6 +93,7 @@ export const voiceRouter = router({
           .enum([
             "text-to-video generation",
             "AI music and song creation",
+            "song lyrics writing",
             "AI image generation",
             "music video creation",
             "music video creation and visual storytelling",

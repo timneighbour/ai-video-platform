@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 export type VoiceToolContext =
   | "text-to-video generation"
   | "AI music and song creation"
+  | "song lyrics writing"
   | "AI image generation"
   | "music video creation"
   | "music video creation and visual storytelling"
