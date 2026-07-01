@@ -435,14 +435,10 @@ function shouldShowIntroOnLoad(): boolean {
   if (!isHomepage) return false;
   const ua = navigator.userAgent.toLowerCase();
   const isBot = /googlebot|lighthouse|chrome-lighthouse|pagespeed|adsbot|bingbot|slurp|duckduckbot|baiduspider|yandex|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot|applebot|msnbot|semrushbot|ahrefsbot|dotbot|petalbot|bytespider|gptbot|chatgpt|ccbot|anthropic|claudebot|headlesschrome/.test(ua);
-  // Skip intro for all social media in-app browsers — they block autoplay and often block sessionStorage
-  const isSocialInAppBrowser = /instagram|fbav|fban|fb_iab|twitter|snapchat|tiktok|line\/|wechat|micromessenger/.test(ua);
-  // Skip intro on all mobile devices — autoplay is unreliable and shared links must load instantly
-  const isMobile = /android|iphone|ipad|ipod|mobile|tablet/.test(ua) || window.innerWidth < 768;
   const isPageSpeed = !!(window as any).__lighthouse || !!(window as any).__pagespeed ||
     document.documentElement.hasAttribute("data-lighthouse") ||
     navigator.webdriver === true;
-  if (isBot || isSocialInAppBrowser || isMobile || isPageSpeed) return false;
+  if (isBot || isPageSpeed) return false;
   try {
     return !sessionStorage.getItem(INTRO_SESSION_KEY);
   } catch {
@@ -463,15 +459,11 @@ function App() {
     // PageSpeed Insights runs as a real Chrome instance — detect via performance timing flags
     // and common bot/crawler signatures
     const isBot = /googlebot|lighthouse|chrome-lighthouse|pagespeed|adsbot|bingbot|slurp|duckduckbot|baiduspider|yandex|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegrambot|applebot|msnbot|semrushbot|ahrefsbot|dotbot|petalbot|bytespider|gptbot|chatgpt|ccbot|anthropic|claudebot|headlesschrome/.test(ua);
-    // Skip intro for all social media in-app browsers — they block autoplay and often block sessionStorage
-    const isSocialInAppBrowser = /instagram|fbav|fban|fb_iab|twitter|snapchat|tiktok|line\/|wechat|micromessenger/.test(ua);
-    // Skip intro on all mobile devices — autoplay is unreliable and shared links must load instantly
-    const isMobile = /android|iphone|ipad|ipod|mobile|tablet/.test(ua) || window.innerWidth < 768;
     // Also detect PageSpeed/Lighthouse via window flags they set
     const isPageSpeed = !!(window as any).__lighthouse || !!(window as any).__pagespeed ||
       document.documentElement.hasAttribute('data-lighthouse') ||
       navigator.webdriver === true;
-    if (isBot || isSocialInAppBrowser || isMobile || isPageSpeed) return; // Skip intro for all bots, social in-app browsers, and mobile devices
+    if (isBot || isPageSpeed) return; // Skip intro for all bots — they should see the real homepage immediately
     try {
       const seen = sessionStorage.getItem(INTRO_SESSION_KEY);
       if (!seen) {

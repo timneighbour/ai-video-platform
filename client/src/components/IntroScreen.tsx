@@ -61,11 +61,6 @@ const BARS = Array.from({ length: 36 }, (_, i) => {
 
 type Phase = "black" | "ambient" | "clips" | "cta";
 
-function isSocialInAppBrowser(): boolean {
-  const ua = navigator.userAgent.toLowerCase();
-  return /instagram|fbav|fban|fb_iab|snapchat|tiktok|line\/|wechat|micromessenger/.test(ua);
-}
-
 export default function IntroScreen({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase]               = useState<Phase>("black");
   const [clipIdx, setClipIdx]           = useState(0);
@@ -81,14 +76,6 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
   const soundOffRef                     = useRef<HTMLButtonElement>(null);
   const logoContainerRef                = useRef<HTMLDivElement>(null);
   const logoImgRef                      = useRef<HTMLImageElement>(null);
-
-  // Immediately skip intro on social in-app browsers (Instagram, Snapchat, TikTok etc.)
-  // These browsers block autoplay and often block sessionStorage, causing a black screen.
-  useEffect(() => {
-    if (isSocialInAppBrowser()) {
-      onComplete();
-    }
-  }, [onComplete]);
 
   // Pixel-perfect alignment: lock W tip to Sound Off button top border
   useLayoutEffect(() => {
@@ -147,9 +134,9 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
   }, []);
 
   useEffect(() => {
-    // Hard safety timeout: if intro hasn't completed in 1.5s, skip it.
-    // Social in-app browsers are caught earlier, but this is a final fallback.
-    const safetyTimeout = setTimeout(() => dismiss(), 1500);
+    // Hard safety timeout: if intro hasn't completed in 4s (e.g. video blocked by
+    // Instagram/WhatsApp/Facebook in-app browsers or slow connections), skip it.
+    const safetyTimeout = setTimeout(() => dismiss(), 4000);
 
     const t1 = setTimeout(() => setPhase("ambient"), 500);
     const t2 = setTimeout(() => {

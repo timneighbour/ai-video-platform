@@ -300,7 +300,6 @@ ${useCasesHtml}
 <meta charset="UTF-8" />
 <title>${meta.title}</title>
 <meta name="description" content="${meta.description}" />
-<meta property="fb:app_id" content="1762789311757453" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="${meta.canonical}" />
 <meta property="og:title" content="${meta.title}" />

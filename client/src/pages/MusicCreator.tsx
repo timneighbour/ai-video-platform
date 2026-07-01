@@ -286,16 +286,6 @@ export default function MusicCreator() {
   const [coverAudioWeight, setCoverAudioWeight] = useState(0.5);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverFileInputRef = useRef<HTMLInputElement>(null);
-  const promptTextareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Auto-resize prompt textarea whenever prompt changes (e.g. from voice/enhance)
-  useEffect(() => {
-    const el = promptTextareaRef.current;
-    if (el) {
-      el.style.height = 'auto';
-      el.style.height = el.scrollHeight + 'px';
-    }
-  }, [prompt]);
 
   // ── Generation state ──
   const [taskId, setTaskId] = useState<number | null>(null);
@@ -905,13 +895,12 @@ export default function MusicCreator() {
                 </div>
               </div>
               <textarea
-                ref={promptTextareaRef}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                rows={9}
+                rows={4}
                 maxLength={lyrics.trim().length >= 20 ? 5000 : 500}
                 className="w-full bg-transparent border-none outline-none resize-none px-4 py-3 text-[13px] leading-[1.65] text-[#f5f0e8] placeholder:text-[#f5f0e8]/16 placeholder:italic"
-                style={{ fontFamily: "'Courier Prime', monospace", caretColor: "#c9a84c", minHeight: '9lh', overflow: 'hidden' }}
+                style={{ fontFamily: "'Courier Prime', monospace", caretColor: "#c9a84c" }}
                 placeholder={`Describe your track. Think like you're briefing the session musicians — the vibe, the tempo, the instruments, the emotion…\n\nA driving cinematic orchestral piece with building strings and pounding percussion, like a film trailer…`}
               />
               <div className="flex items-center justify-between px-3.5 py-1.5 border-t border-white/7">
