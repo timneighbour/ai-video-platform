@@ -5619,6 +5619,39 @@ export default function MusicVideoAutopilot() {
                 )}
               </div>
             )}
+            {/* ── Previews generating progress counter ── */}
+            {(() => {
+              const totalScenes = scenes.length;
+              const loadingCount = scenes.filter(s => s.previewImageLoading && !s.previewImageUrl).length;
+              const doneCount = scenes.filter(s => !!s.previewImageUrl).length;
+              if (totalScenes === 0 || loadingCount === 0) return null;
+              const pct = Math.round((doneCount / totalScenes) * 100);
+              return (
+                <div className="mb-4 px-4 py-3 rounded-xl border border-[rgba(212,168,67,0.25)] bg-[rgba(212,168,67,0.06)] flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-3.5 h-3.5 text-[--color-gold] animate-spin flex-shrink-0" />
+                      <span className="text-[--color-gold] text-xs font-semibold tracking-widest uppercase" style={{fontFamily:"'Courier Prime',monospace"}}>
+                        Generating previews
+                      </span>
+                    </div>
+                    <span className="text-white/70 text-xs font-mono tabular-nums">
+                      {doneCount} / {totalScenes}
+                    </span>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="w-full h-1 rounded-full bg-[rgba(255,255,255,0.08)] overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-[--color-gold] transition-all duration-500"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <p className="text-white/40 text-[10px]" style={{fontFamily:"'Courier Prime',monospace"}}>
+                    Scenes are generated sequentially to maintain character consistency
+                  </p>
+                </div>
+              );
+            })()}
             <div className="grid grid-cols-1 gap-5">
               {scenes.map((scene) => (
                 <React.Fragment key={scene.id}>
