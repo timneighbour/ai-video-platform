@@ -911,6 +911,20 @@ Rules:
         console.log(`[MusicVideo] Vocal onset gate for job ${input.jobId}: lipSync disabled for scenes before ${vocalOnsetTime.toFixed(2)}s`);
       }
 
+      // Auto-detect duet/ensemble mode from assigned vocal stems.
+      // If 2+ stems have been assigned to different characters, the storyboard
+      // duet rule is activated so shared vocalist scenes are generated.
+      const vocalStemsForMode = await db.select({ id: musicVideoVocalStems.id, characterName: musicVideoVocalStems.characterName })
+        .from(musicVideoVocalStems)
+        .where(eq(musicVideoVocalStems.jobId, input.jobId));
+      const assignedVocalStems = vocalStemsForMode.filter(s => s.characterName);
+      const detectedMultiVocalMode: "duet" | "ensemble" | null =
+        assignedVocalStems.length >= 3 ? "ensemble" :
+        assignedVocalStems.length === 2 ? "duet" : null;
+      if (detectedMultiVocalMode) {
+        console.log(`[MusicVideo] Auto-detected ${detectedMultiVocalMode} mode for job ${input.jobId} (${assignedVocalStems.length} assigned vocal stems)`);
+      }
+
       const { scenes, roster } = await withSelfHeal(
         () => withQuotaGuard(() => generateStoryboard(
           enrichedThemePrompt,
@@ -927,7 +941,8 @@ Rules:
           job.performanceShotRatio ?? 75,
           undefined, // directorMode
           vocalOnsetTime, // precise vocal start time — prevents lyric misassignment on instrumental intros
-          job.performanceStyle ?? null // Director's Brief: musician performance style
+          job.performanceStyle ?? null, // Director's Brief: musician performance style
+          detectedMultiVocalMode // duet/ensemble mode — unlocks shared vocalist scenes
         )).then(result => {
           // Validate scenes is a non-empty array — triggers retry if malformed
           assertNonEmptyArray(result.scenes, "generateStoryboard.scenes");

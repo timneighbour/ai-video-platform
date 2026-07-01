@@ -337,7 +337,8 @@ export async function generateStoryboard(
   performanceShotRatio: number = 80,
   directorMode?: string | null,
   vocalOnsetTime?: number | null,
-  performanceStyle?: string | null
+  performanceStyle?: string | null,
+  multiVocalMode?: "duet" | "ensemble" | null
 ): Promise<StoryboardResult> {
   const sceneCount = calculateSceneCount(audioDurationSeconds);
 
@@ -592,9 +593,11 @@ CHARACTER ASSIGNMENT RULES — STRICTLY ENFORCED:
 4. The "prompt" field should contain ONLY the scene direction: camera angle, lighting, setting, action, atmosphere, mood
 5. You may refer to characters by NAME (e.g. "Tim plays guitar centre stage") but do NOT describe their appearance
 6. NEVER invent additional NAMED characters not in the roster above. HOWEVER: the orchestra, session musicians, conductor, and venue atmosphere are part of the ENVIRONMENT — they are NOT named characters and MUST remain visible in every hall/studio scene. Always describe the orchestra as present in the background.
-7. NEVER put two characters in the same scene performing the same role (e.g. two guitarists, two singers)
+${multiVocalMode === "duet" || multiVocalMode === "ensemble"
+  ? `7. DUET / ENSEMBLE MODE — ACTIVE: Two or more characters are EACH assigned their own separate vocal stem and will lip-sync independently. You MUST include scenes where BOTH vocalists share the same frame together (e.g. facing each other at microphones, harmonising side by side, interacting during a bridge). Do NOT isolate the vocalists into separate scenes for every shot — shared scenes are required for duet energy. Solo close-ups are still allowed for verse sections, but the chorus and bridge MUST include at least one shared scene with both vocalists visible.`
+  : `7. NEVER put two characters in the same scene performing the same role (e.g. two guitarists, two singers)`}
 8. Each character must appear in at least 2 scenes
-9. Prefer solo scenes (one named character in the foreground) — they produce the most consistent results. The orchestra and session musicians in the background are always present and do NOT count as additional named characters.`;
+9. ${multiVocalMode === "duet" || multiVocalMode === "ensemble" ? "Balance solo scenes (one named character) with shared scenes (both vocalists together). Shared scenes are REQUIRED for chorus and bridge sections." : "Prefer solo scenes (one named character in the foreground) — they produce the most consistent results."} The orchestra and session musicians in the background are always present and do NOT count as additional named characters.`;
 
   // Inject venue description if the setting matches a known venue (e.g. Air Studios Lyndhurst Hall)
   const venueDesc = resolveVenueDescription(sceneSetting);
