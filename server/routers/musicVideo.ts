@@ -7080,6 +7080,68 @@ Your task:
       if (!job) throw new TRPCError({ code: "NOT_FOUND" });
       return job;
     }),
+
+  /**
+   * Update core character fields: name, role, bodyBuild, lockedDescription,
+   * characterConstraints, characterDefaultState, and characterVisualDetails.
+   * After editing, the character's previewApproved is reset so the user must
+   * re-approve the portrait (since the description may have changed).
+   */
+  updateCharacterCore: protectedProcedure
+    .input(z.object({
+      characterId: z.number().int(),
+      jobId: z.number().int(),
+      name: z.string().min(1).max(255).optional(),
+      role: z.string().max(255).nullable().optional(),
+      bodyBuild: z.enum(["slim", "lean", "average", "athletic", "stocky", "muscular"]).optional(),
+      lockedDescription: z.string().nullable().optional(),
+      characterConstraints: z.string().nullable().optional(),
+      characterDefaultState: z.string().nullable().optional(),
+      visualDetails: z.object({
+        instrument: z.string().optional(),
+        outfit: z.string().optional(),
+        props: z.string().optional(),
+        position: z.string().optional(),
+      }).nullable().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      // Verify ownership
+      const [job] = await db.select({ id: musicVideoJobs.id })
+        .from(musicVideoJobs)
+        .where(and(eq(musicVideoJobs.id, input.jobId), eq(musicVideoJobs.userId, ctx.user.id)));
+      if (!job) throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
+      const [char] = await db.select({ id: videoCharacters.id, name: videoCharacters.name })
+        .from(videoCharacters)
+        .where(and(eq(videoCharacters.id, input.characterId), eq(videoCharacters.jobId, input.jobId)));
+      if (!char) throw new TRPCError({ code: "NOT_FOUND", message: "Character not found" });
+
+      const updateFields: Partial<typeof videoCharacters.$inferInsert> = {
+        updatedAt: new Date(),
+        // Reset approval so user must re-verify portrait after description change
+        previewApproved: false,
+      };
+      // For nullable text fields: undefined = "not provided, don't touch"; null = "clear the field".
+      // We must persist null (not convert to undefined) so clearing a field in the UI actually removes it from the DB.
+      if (input.name !== undefined) updateFields.name = input.name;
+      if (input.role !== undefined) updateFields.role = input.role; // null clears the field
+      if (input.bodyBuild !== undefined) updateFields.bodyBuild = input.bodyBuild;
+      if (input.lockedDescription !== undefined) updateFields.lockedDescription = input.lockedDescription; // null clears
+      if (input.characterConstraints !== undefined) updateFields.characterConstraints = input.characterConstraints; // null clears
+      if (input.characterDefaultState !== undefined) updateFields.characterDefaultState = input.characterDefaultState; // null clears
+      if (input.visualDetails !== undefined) {
+        // null = clear visual details; object = serialise to JSON string
+        updateFields.characterVisualDetails = input.visualDetails ? JSON.stringify(input.visualDetails) : null;
+      }
+
+      await db.update(videoCharacters)
+        .set(updateFields)
+        .where(eq(videoCharacters.id, input.characterId));
+
+      console.log(`[updateCharacterCore] Character ${input.characterId} (${char.name}) updated by user ${ctx.user.id}`);
+      return { success: true, characterId: input.characterId };
+    }),
 });
 /** Translate internal error codes to user-friendly messages. */
 function translateErrorMessage(errorMessage: string): string {

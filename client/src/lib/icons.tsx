@@ -394,6 +394,9 @@ export const MapPin = ({ className = "w-4 h-4", style }: SVGProps) => (
   <svg className={className} style={style} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 2C8.686 2 6 4.686 6 8c0 5.25 6 13 6 13s6-7.75 6-13c0-3.314-2.686-6-6-6z"/><circle cx="12" cy="8" r="2"/></svg>
 );
 
+export const Save = ({ className = "w-4 h-4", style }: SVGProps) => (
+  <svg className={className} style={style} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M2 2h9l3 3v9a1 1 0 01-1 1H2a1 1 0 01-1-1V3a1 1 0 011-1z" /><path d="M11 2v4H5V2" /><rect x="3" y="9" width="10" height="5" rx="0.5" /></svg>
+);
 export const Archive = ({ className = "w-4 h-4", style }: SVGProps) => (
   <svg className={className} style={style} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="3" rx="0.75" /><path d="M2.5 4.5v9a1 1 0 001 1h9a1 1 0 001-1v-9" /><path d="M6 8h4" /></svg>
 );

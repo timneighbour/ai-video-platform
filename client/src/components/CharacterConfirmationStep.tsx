@@ -5,6 +5,7 @@
  * For each saved character the user can:
  *   - Generate a Master Portrait (identity anchor for all scenes)
  *   - Regenerate the preview if they're not happy
+ *   - Edit the character's core fields (name, role, description, visual details)
  *   - Approve the preview (required before proceeding)
  *   - Go back to edit the character
  *
@@ -12,11 +13,6 @@
  * using the master portrait + locked seed + locked character prompt.
  *
  * Once ALL characters are approved, the "Generate Storyboard" button becomes active.
- *
- * UI improvements (Apr 2026):
- *   - Preview image shown full-height with object-contain so the full body is always visible
- *   - Uploaded reference photo shown alongside the AI portrait for easy comparison
- *   - Outfit / hair / instrument details displayed as readable tags below the image
  */
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
@@ -26,7 +22,7 @@ import { toast } from "sonner";
 import {
   CheckCircle2, RefreshCw, ArrowLeft, Sparkles, User,
   ShieldCheck, AlertCircle, Loader2, ImageIcon, Lock, Unlock,
-  Anchor, Info, Camera, Trash2,
+  Anchor, Camera, Trash2, Pencil, X, Save,
 } from "@/lib/icons";
 
 interface CharacterPreviewState {
@@ -38,10 +34,13 @@ interface CharacterPreviewState {
   previewApproved: boolean;
   primaryPhotoUrl: string | null;
   lockedDescription: string | null;
-  lockedOutfit: string | null;        // raw JSON string from DB
-  lockedProps: string | null;         // raw JSON string from DB
-  lockedRules: string | null;         // raw JSON string from DB
-  characterVisualDetails: string | null; // free-text visual details
+  lockedOutfit: string | null;
+  lockedProps: string | null;
+  lockedRules: string | null;
+  characterVisualDetails: string | null;
+  characterConstraints: string | null;
+  characterDefaultState: string | null;
+  bodyBuild: string | null;
   isLocked: boolean;
   photoCount: number;
   masterPortraitUrl: string | null;
@@ -50,13 +49,25 @@ interface CharacterPreviewState {
   masterPortraitGeneratedAt: string | null;
 }
 
+interface EditState {
+  name: string;
+  role: string;
+  bodyBuild: string;
+  lockedDescription: string;
+  characterConstraints: string;
+  characterDefaultState: string;
+  instrument: string;
+  outfit: string;
+  props: string;
+  position: string;
+}
+
 /** Parse a JSON column that may be a plain string or a JSON object/array */
 function parseJsonField(raw: string | null): string {
   if (!raw) return "";
   try {
     const parsed = JSON.parse(raw);
     if (typeof parsed === "string") return parsed;
-    // Flatten object values into a readable string
     if (typeof parsed === "object" && !Array.isArray(parsed)) {
       return Object.values(parsed).filter(Boolean).join(", ");
     }
@@ -65,6 +76,24 @@ function parseJsonField(raw: string | null): string {
   } catch {
     return raw;
   }
+}
+
+/** Parse characterVisualDetails JSON into individual fields */
+function parseVisualDetails(raw: string | null): { instrument: string; outfit: string; props: string; position: string } {
+  const defaults = { instrument: "", outfit: "", props: "", position: "" };
+  if (!raw) return defaults;
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === "object" && !Array.isArray(parsed)) {
+      return {
+        instrument: parsed.instrument ?? "",
+        outfit: parsed.outfit ?? "",
+        props: parsed.props ?? "",
+        position: parsed.position ?? "",
+      };
+    }
+  } catch { /* ignore */ }
+  return defaults;
 }
 
 interface CharacterConfirmationStepProps {
@@ -86,6 +115,15 @@ const SLOT_COLORS = [
   { ring: "ring-rose-500",   bg: "bg-rose-900/20",   badge: "bg-rose-900/50 text-rose-300 border-rose-800",     dot: "bg-rose-400" },
 ];
 
+const BODY_BUILD_OPTIONS = [
+  { value: "slim", label: "Slim" },
+  { value: "lean", label: "Lean" },
+  { value: "average", label: "Average" },
+  { value: "athletic", label: "Athletic" },
+  { value: "stocky", label: "Stocky" },
+  { value: "muscular", label: "Muscular" },
+];
+
 export default function CharacterConfirmationStep({
   jobId,
   savedCharacterIds,
@@ -97,7 +135,11 @@ export default function CharacterConfirmationStep({
   const [generatingPreviews, setGeneratingPreviews] = useState<Set<number>>(new Set());
   const [generatingMasterPortraits, setGeneratingMasterPortraits] = useState<Set<number>>(new Set());
   const [approvingIds, setApprovingIds] = useState<Set<number>>(new Set());
-  const [characterLockMode, setCharacterLockMode] = useState(true); // ON by default
+  const [characterLockMode, setCharacterLockMode] = useState(true);
+  // Edit state: characterId → EditState
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editState, setEditState] = useState<EditState | null>(null);
+  const [savingEditId, setSavingEditId] = useState<number | null>(null);
 
   const getCharactersQuery = trpc.musicVideo.getCharactersForJob.useQuery(
     { jobId },
@@ -109,16 +151,14 @@ export default function CharacterConfirmationStep({
   const generateMasterPortraitMutation = trpc.musicVideo.generateMasterPortrait.useMutation();
   const normaliseCharacterMutation = trpc.characters.normaliseCharacter.useMutation();
   const deleteCharacterMutation = trpc.musicVideo.deleteCharacter.useMutation();
+  const updateCharacterCoreMutation = trpc.musicVideo.updateCharacterCore.useMutation();
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
   const [normalisedIds, setNormalisedIds] = useState<Set<number>>(new Set());
 
   // Auto-trigger normaliseCharacter for all characters that have a lockedDescription
-  // but haven't been normalised yet (normalisedAt is null) — runs once per character
   useEffect(() => {
     if (!getCharactersQuery.data?.characters) return;
     const toNormalise = getCharactersQuery.data.characters.filter(
-      // Only normalise if: has a lockedDescription, not already normalised in this session,
-      // AND not already normalised in the DB (normalisedAt is null/undefined)
       (c: any) => c.lockedDescription && !normalisedIds.has(c.id) && !c.normalisedAt
     );
     for (const c of toNormalise) {
@@ -138,34 +178,108 @@ export default function CharacterConfirmationStep({
   useEffect(() => {
     if (Array.isArray(getCharactersQuery.data?.characters) && getCharactersQuery.data.characters.length >= 0) {
       setCharacters(getCharactersQuery.data.characters.map((c: any) => {
-        // AI-generated characters (no photos, has previewImageUrl) are pre-approved —
-        // the user already saw and accepted the image in CharacterManager.
         const isAiGenerated = (c.characterMode === "ai_generated" || (!c.photoCount && !!c.previewImageUrl));
         return {
-        id: c.id,
-        slotIndex: c.slotIndex,
-        name: c.name,
-        role: c.role,
-        previewImageUrl: c.previewImageUrl ?? null,
-        previewApproved: c.previewApproved || isAiGenerated,
-        primaryPhotoUrl: c.primaryPhotoUrl ?? null,
-        lockedDescription: c.lockedDescription ?? null,
-        lockedOutfit: c.lockedOutfit ?? null,
-        lockedProps: c.lockedProps ?? null,
-        lockedRules: c.lockedRules ?? null,
-        characterVisualDetails: c.characterVisualDetails ?? null,
-        isLocked: c.isLocked ?? false,
-        photoCount: c.photoCount ?? 0,
-        masterPortraitUrl: c.masterPortraitUrl ?? null,
-        masterSeed: c.masterSeed ?? null,
-        characterPrompt: c.characterPrompt ?? null,
-        masterPortraitGeneratedAt: c.masterPortraitGeneratedAt ?? null,
-      };
+          id: c.id,
+          slotIndex: c.slotIndex,
+          name: c.name,
+          role: c.role,
+          previewImageUrl: c.previewImageUrl ?? null,
+          previewApproved: c.previewApproved || isAiGenerated,
+          primaryPhotoUrl: c.primaryPhotoUrl ?? null,
+          lockedDescription: c.lockedDescription ?? null,
+          lockedOutfit: c.lockedOutfit ?? null,
+          lockedProps: c.lockedProps ?? null,
+          lockedRules: c.lockedRules ?? null,
+          characterVisualDetails: c.characterVisualDetails ?? null,
+          characterConstraints: c.characterConstraints ?? null,
+          characterDefaultState: c.characterDefaultState ?? null,
+          bodyBuild: c.bodyBuild ?? null,
+          isLocked: c.isLocked ?? false,
+          photoCount: c.photoCount ?? 0,
+          masterPortraitUrl: c.masterPortraitUrl ?? null,
+          masterSeed: c.masterSeed ?? null,
+          characterPrompt: c.characterPrompt ?? null,
+          masterPortraitGeneratedAt: c.masterPortraitGeneratedAt ?? null,
+        };
       }));
     }
   }, [getCharactersQuery.data]);
 
-  // Generate master portrait (identity anchor) for a photo-mode character
+  // Open edit panel for a character
+  const handleOpenEdit = (char: CharacterPreviewState) => {
+    const vd = parseVisualDetails(char.characterVisualDetails);
+    setEditState({
+      name: char.name,
+      role: char.role ?? "",
+      bodyBuild: char.bodyBuild ?? "average",
+      lockedDescription: char.lockedDescription ?? "",
+      characterConstraints: char.characterConstraints ?? "",
+      characterDefaultState: char.characterDefaultState ?? "",
+      instrument: vd.instrument,
+      outfit: vd.outfit,
+      props: vd.props,
+      position: vd.position,
+    });
+    setEditingId(char.id);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditState(null);
+  };
+
+  const handleSaveEdit = async (char: CharacterPreviewState) => {
+    if (!editState) return;
+    setSavingEditId(char.id);
+    try {
+      await updateCharacterCoreMutation.mutateAsync({
+        characterId: char.id,
+        jobId,
+        name: editState.name || char.name,
+        role: editState.role || null,
+        bodyBuild: editState.bodyBuild as any,
+        lockedDescription: editState.lockedDescription || null,
+        characterConstraints: editState.characterConstraints || null,
+        characterDefaultState: editState.characterDefaultState || null,
+        visualDetails: (editState.instrument || editState.outfit || editState.props || editState.position)
+          ? {
+              instrument: editState.instrument || undefined,
+              outfit: editState.outfit || undefined,
+              props: editState.props || undefined,
+              position: editState.position || undefined,
+            }
+          : null,
+      });
+      // Update local state
+      setCharacters(prev => prev.map(c =>
+        c.id === char.id ? {
+          ...c,
+          name: editState.name || c.name,
+          role: editState.role || null,
+          bodyBuild: editState.bodyBuild,
+          lockedDescription: editState.lockedDescription || null,
+          characterConstraints: editState.characterConstraints || null,
+          characterDefaultState: editState.characterDefaultState || null,
+          characterVisualDetails: (editState.instrument || editState.outfit || editState.props || editState.position)
+            ? JSON.stringify({ instrument: editState.instrument, outfit: editState.outfit, props: editState.props, position: editState.position })
+            : c.characterVisualDetails,
+          // Reset approval since description changed
+          previewApproved: false,
+        } : c
+      ));
+      toast.success(`${editState.name || char.name} updated`, {
+        description: "Portrait approval has been reset — please regenerate and re-approve.",
+      });
+      setEditingId(null);
+      setEditState(null);
+    } catch (err: any) {
+      toast.error(`Failed to save changes for ${char.name}`, { description: err?.message ?? "Please try again." });
+    } finally {
+      setSavingEditId(null);
+    }
+  };
+
   const handleGenerateMasterPortrait = async (char: CharacterPreviewState) => {
     setGeneratingMasterPortraits(prev => new Set(prev).add(char.id));
     toast.loading(`Creating full-body portrait for ${char.name}...`, { id: `master-${char.id}` });
@@ -195,9 +309,7 @@ export default function CharacterConfirmationStep({
     }
   };
 
-  // Legacy preview generation (for AI-described characters without photos)
   const handleGeneratePreview = async (char: CharacterPreviewState) => {
-    // If character has a photo and lock mode is on, use master portrait generation instead
     if (char.photoCount > 0 && characterLockMode) {
       return handleGenerateMasterPortrait(char);
     }
@@ -262,7 +374,6 @@ export default function CharacterConfirmationStep({
           <p style={{fontSize:11,color:'#666',marginTop:3}}>Build each band member's full profile — face, build, instrument &amp; performance. <span style={{color:'#d4a843'}}>Up to 10 characters.</span> Every scene uses these exact locked profiles.</p>
         </div>
         <div style={{display:'flex',gap:8,alignItems:'center'}}>
-          {/* lock status badge */}
           <div style={{background:'#141414',border:'1px solid #2a2a2a',borderRadius:4,padding:'6px 12px',display:'flex',alignItems:'center',gap:8}}>
             <span style={{width:8,height:8,borderRadius:'50%',background: allApproved ? '#6db86d' : '#d4a843',boxShadow:`0 0 8px ${allApproved ? 'rgba(109,184,109,0.6)' : 'rgba(212,168,67,0.6)'}`,display:'inline-block'}} />
             <span style={{fontSize:11,color:'#ccc',fontWeight:600,letterSpacing:1}}>{approvedCount}/{characters.length} APPROVED</span>
@@ -325,7 +436,6 @@ export default function CharacterConfirmationStep({
                   <User style={{width:24,height:24,color:'#444'}} />
                 </div>
               )}
-              {/* Approved checkmark badge in top-right corner */}
               {char.previewApproved && (
                 <div style={{position:'absolute',top:4,right:4,background:'#059669',borderRadius:'50%',width:18,height:18,display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 0 6px rgba(52,211,153,0.6)'}}>
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -333,7 +443,6 @@ export default function CharacterConfirmationStep({
                   </svg>
                 </div>
               )}
-              {/* Pending indicator in top-right corner */}
               {!char.previewApproved && (
                 <div style={{position:'absolute',top:4,right:4,background:'#92400e',borderRadius:'50%',width:18,height:18,display:'flex',alignItems:'center',justifyContent:'center'}}>
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -360,14 +469,16 @@ export default function CharacterConfirmationStep({
           const hasMasterPortrait = !!char.masterPortraitUrl;
           const isPhotoChar = char.photoCount > 0;
           const showMasterPortraitBadge = isPhotoChar && hasMasterPortrait && characterLockMode;
+          const isEditing = editingId === char.id;
+          const isSavingEdit = savingEditId === char.id;
 
-          // Build outfit detail tags for display — parse JSON columns into readable strings
+          // Build outfit detail tags for display
           const detailTags: { label: string; value: string }[] = [];
           const outfitStr = parseJsonField(char.lockedOutfit);
           const propsStr = parseJsonField(char.lockedProps);
           if (outfitStr) detailTags.push({ label: "Outfit", value: outfitStr });
           if (propsStr) detailTags.push({ label: "Props", value: propsStr });
-          if (!detailTags.length && char.characterVisualDetails) detailTags.push({ label: "Details", value: char.characterVisualDetails });
+          if (!detailTags.length && char.characterVisualDetails) detailTags.push({ label: "Details", value: parseJsonField(char.characterVisualDetails) });
 
           return (
             <div
@@ -419,10 +530,192 @@ export default function CharacterConfirmationStep({
                   ) : (
                     <Badge className="bg-amber-900/50 text-amber-300 border-amber-700/60 text-xs">Pending</Badge>
                   )}
+                  {/* Edit button */}
+                  <button
+                    type="button"
+                    title={isEditing ? "Cancel editing" : "Edit character details"}
+                    onClick={() => isEditing ? handleCancelEdit() : handleOpenEdit(char)}
+                    disabled={isGenerating || isApproving || isSavingEdit}
+                    className={`p-1.5 rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                      isEditing
+                        ? "bg-zinc-700 text-zinc-300 hover:bg-zinc-600"
+                        : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white"
+                    }`}
+                  >
+                    {isEditing ? <X className="w-3.5 h-3.5" /> : <Pencil className="w-3.5 h-3.5" />}
+                  </button>
                 </div>
               </div>
 
-              {/* ── Main preview area: reference photo + AI portrait side by side ── */}
+              {/* ── Inline Edit Panel ── */}
+              {isEditing && editState && (
+                <div className="bg-zinc-950 border-b border-zinc-800 px-4 py-4 space-y-4">
+                  <p className="text-[--color-gold] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                    <Pencil className="w-3 h-3" /> Edit Character Details
+                  </p>
+
+                  {/* Name + Role row */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider block mb-1">Name</label>
+                      <input
+                        type="text"
+                        value={editState.name}
+                        onChange={e => setEditState(s => s ? { ...s, name: e.target.value } : s)}
+                        className="w-full bg-zinc-900 border border-zinc-700 rounded-md px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[--color-gold]/60 transition-colors"
+                        placeholder="Character name"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider block mb-1">Role</label>
+                      <input
+                        type="text"
+                        value={editState.role}
+                        onChange={e => setEditState(s => s ? { ...s, role: e.target.value } : s)}
+                        className="w-full bg-zinc-900 border border-zinc-700 rounded-md px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[--color-gold]/60 transition-colors"
+                        placeholder="e.g. Lead Singer, Drummer"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Body Build */}
+                  <div>
+                    <label className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider block mb-1">Body Build</label>
+                    <select
+                      value={editState.bodyBuild}
+                      onChange={e => setEditState(s => s ? { ...s, bodyBuild: e.target.value } : s)}
+                      className="w-full bg-zinc-900 border border-zinc-700 rounded-md px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[--color-gold]/60 transition-colors"
+                    >
+                      {BODY_BUILD_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Visual Details row */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider block mb-1">Instrument</label>
+                      <input
+                        type="text"
+                        value={editState.instrument}
+                        onChange={e => setEditState(s => s ? { ...s, instrument: e.target.value } : s)}
+                        className="w-full bg-zinc-900 border border-zinc-700 rounded-md px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[--color-gold]/60 transition-colors"
+                        placeholder="e.g. electric guitar, none"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider block mb-1">Outfit</label>
+                      <input
+                        type="text"
+                        value={editState.outfit}
+                        onChange={e => setEditState(s => s ? { ...s, outfit: e.target.value } : s)}
+                        className="w-full bg-zinc-900 border border-zinc-700 rounded-md px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[--color-gold]/60 transition-colors"
+                        placeholder="e.g. black leather jacket"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider block mb-1">Props</label>
+                      <input
+                        type="text"
+                        value={editState.props}
+                        onChange={e => setEditState(s => s ? { ...s, props: e.target.value } : s)}
+                        className="w-full bg-zinc-900 border border-zinc-700 rounded-md px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[--color-gold]/60 transition-colors"
+                        placeholder="e.g. microphone stand"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider block mb-1">Default Position</label>
+                      <input
+                        type="text"
+                        value={editState.position}
+                        onChange={e => setEditState(s => s ? { ...s, position: e.target.value } : s)}
+                        className="w-full bg-zinc-900 border border-zinc-700 rounded-md px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[--color-gold]/60 transition-colors"
+                        placeholder="e.g. centre stage at mic"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Locked Description */}
+                  <div>
+                    <label className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider block mb-1">
+                      Visual Description <span className="text-zinc-600 normal-case font-normal">(injected into every scene)</span>
+                    </label>
+                    <textarea
+                      value={editState.lockedDescription}
+                      onChange={e => setEditState(s => s ? { ...s, lockedDescription: e.target.value } : s)}
+                      rows={3}
+                      className="w-full bg-zinc-900 border border-zinc-700 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-[--color-gold]/60 transition-colors resize-none"
+                      placeholder="Full visual brief: hair colour, skin tone, facial features, clothing details..."
+                    />
+                  </div>
+
+                  {/* Character Constraints */}
+                  <div>
+                    <label className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider block mb-1">
+                      Hard Constraints <span className="text-zinc-600 normal-case font-normal">(rules that must never be violated)</span>
+                    </label>
+                    <textarea
+                      value={editState.characterConstraints}
+                      onChange={e => setEditState(s => s ? { ...s, characterConstraints: e.target.value } : s)}
+                      rows={2}
+                      className="w-full bg-zinc-900 border border-zinc-700 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-[--color-gold]/60 transition-colors resize-none"
+                      placeholder="e.g. NEVER holding a cello. ALWAYS at microphone when singing."
+                    />
+                  </div>
+
+                  {/* Default State */}
+                  <div>
+                    <label className="text-zinc-500 text-[10px] font-semibold uppercase tracking-wider block mb-1">
+                      Default State <span className="text-zinc-600 normal-case font-normal">(when not overridden by scene)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={editState.characterDefaultState}
+                      onChange={e => setEditState(s => s ? { ...s, characterDefaultState: e.target.value } : s)}
+                      className="w-full bg-zinc-900 border border-zinc-700 rounded-md px-3 py-1.5 text-white text-sm focus:outline-none focus:border-[--color-gold]/60 transition-colors"
+                      placeholder="e.g. Standing at mic, centre stage, arms at sides"
+                    />
+                  </div>
+
+                  {/* Save / Cancel */}
+                  <div className="flex gap-2 pt-1">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => handleSaveEdit(char)}
+                      disabled={isSavingEdit}
+                      className="flex-1 bg-[--color-gold] hover:bg-[--color-gold]/90 text-black font-semibold gap-1.5"
+                    >
+                      {isSavingEdit ? (
+                        <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving...</>
+                      ) : (
+                        <><Save className="w-3.5 h-3.5" /> Save Changes</>
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={handleCancelEdit}
+                      disabled={isSavingEdit}
+                      className="border-zinc-700 bg-transparent text-zinc-400 hover:text-white hover:bg-zinc-800 gap-1.5"
+                    >
+                      <X className="w-3.5 h-3.5" /> Cancel
+                    </Button>
+                  </div>
+
+                  {/* Warning about portrait reset */}
+                  {hasPreview && (
+                    <p className="text-amber-400/70 text-xs flex items-start gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                      Saving will reset portrait approval. You'll need to regenerate and re-approve the portrait after editing.
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* ── Main preview area ── */}
               <div className="bg-zinc-900">
                 {isGenerating ? (
                   <div className="flex flex-col items-center gap-3 py-14">
@@ -444,7 +737,6 @@ export default function CharacterConfirmationStep({
                   </div>
                 ) : hasPreview ? (
                   <div className="flex gap-0">
-                    {/* Reference photo column — only shown for photo-mode characters */}
                     {isPhotoChar && char.primaryPhotoUrl && (
                       <div className="w-1/3 flex-shrink-0 border-r border-zinc-800">
                         <div className="px-2 pt-2 pb-1">
@@ -452,7 +744,6 @@ export default function CharacterConfirmationStep({
                             <Camera className="w-3 h-3" /> Your Photo
                           </p>
                         </div>
-                        {/* Portrait aspect ratio — object-contain so face is never cropped */}
                         <div className="mx-2 mb-2 rounded-lg overflow-hidden bg-zinc-950" style={{ aspectRatio: "3/4" }}>
                           <img
                             src={char.primaryPhotoUrl}
@@ -462,15 +753,12 @@ export default function CharacterConfirmationStep({
                         </div>
                       </div>
                     )}
-
-                    {/* AI portrait column */}
                     <div className={`relative ${isPhotoChar && char.primaryPhotoUrl ? "w-2/3" : "w-full"}`}>
                       <div className="px-2 pt-2 pb-1">
                         <p className="text-zinc-500 text-[10px] font-medium uppercase tracking-wider flex items-center gap-1">
                           <Sparkles className="w-3 h-3" /> AI Portrait
                         </p>
                       </div>
-                      {/* Portrait container — object-cover + object-top ensures face is always visible */}
                       <div className="mx-2 mb-2 rounded-lg overflow-hidden bg-zinc-950" style={{ aspectRatio: "3/4" }}>
                         <img
                           src={char.previewImageUrl!}
@@ -478,24 +766,19 @@ export default function CharacterConfirmationStep({
                           className="w-full h-full object-cover object-top"
                         />
                       </div>
-                      {/* Approved overlay — LOCKED IN stamp */}
                       {char.previewApproved && (
                         <div className="absolute inset-0 pointer-events-none rounded-lg">
-                          {/* subtle green tint */}
                           <div className="absolute inset-0 bg-emerald-900/10 rounded-lg" />
-                          {/* corner stamp */}
                           <div className="absolute top-2 right-2 bg-emerald-600/95 rounded-md px-2 py-1 flex items-center gap-1 shadow-lg">
                             <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                             <span className="text-white text-[10px] font-bold tracking-wider">LOCKED IN</span>
                           </div>
-                          {/* bottom green bar */}
                           <div className="absolute bottom-0 left-0 right-0 bg-emerald-600/80 py-1 flex items-center justify-center gap-1.5 rounded-b-lg">
                             <CheckCircle2 className="w-3 h-3 text-white" />
                             <span className="text-white text-[9px] font-bold tracking-widest uppercase">Character Approved</span>
                           </div>
                         </div>
                       )}
-                      {/* Master portrait badge */}
                       {showMasterPortraitBadge && !char.previewApproved && (
                         <div className="absolute bottom-4 left-4 bg-[#1a1a1a]/90 rounded-lg px-2 py-1 flex items-center gap-1.5">
                           <Anchor className="w-3 h-3 text-[--color-gold]" />
@@ -506,7 +789,6 @@ export default function CharacterConfirmationStep({
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-3 py-10 px-4 text-center">
-                    {/* Show reference photo prominently when no AI portrait yet */}
                     {char.primaryPhotoUrl ? (
                       <>
                         <div className="w-full max-w-[160px] mx-auto rounded-xl overflow-hidden bg-zinc-950 ring-1 ring-zinc-700" style={{ aspectRatio: "3/4" }}>
@@ -537,7 +819,7 @@ export default function CharacterConfirmationStep({
               </div>
 
               {/* ── Outfit / hair / instrument detail tags ── */}
-              {detailTags.length > 0 && (
+              {!isEditing && detailTags.length > 0 && (
                 <div className="px-3 py-2 bg-zinc-800/60 border-t border-zinc-700/50 space-y-1.5">
                   {detailTags.map(tag => (
                     <div key={tag.label} className="flex items-start gap-2">
@@ -549,7 +831,7 @@ export default function CharacterConfirmationStep({
               )}
 
               {/* Locked description / character prompt preview */}
-              {!detailTags.length && (char.characterPrompt || char.lockedDescription) && (
+              {!isEditing && !detailTags.length && (char.characterPrompt || char.lockedDescription) && (
                 <div className="px-4 py-2 bg-zinc-800/50 border-t border-zinc-700/50">
                   <p className="text-zinc-500 text-xs line-clamp-2">
                     {char.characterPrompt ?? char.lockedDescription}
@@ -559,11 +841,11 @@ export default function CharacterConfirmationStep({
 
               {/* Action buttons */}
               <div className="p-3 bg-zinc-900 border-t border-zinc-800 flex gap-2">
-                {/* Delete character button — only shown before rendering */}
+                {/* Delete character button */}
                 <button
                   type="button"
                   title={`Remove ${char.name} from this project`}
-                  disabled={deletingIds.has(char.id) || isGenerating}
+                  disabled={deletingIds.has(char.id) || isGenerating || isEditing}
                   onClick={async () => {
                     if (!confirm(`Remove ${char.name} from this project? This cannot be undone.`)) return;
                     setDeletingIds(prev => new Set(prev).add(char.id));
@@ -583,8 +865,9 @@ export default function CharacterConfirmationStep({
                     ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     : <Trash2 className="w-3.5 h-3.5" />}
                 </button>
-                {/* Primary action: Create Full-Body Portrait (photo chars in lock mode) or Generate Preview */}
-                {isPhotoChar && characterLockMode ? (
+
+                {/* Primary action: Create Full-Body Portrait or Generate Preview */}
+                {!isEditing && (isPhotoChar && characterLockMode ? (
                   <Button
                     type="button"
                     size="sm"
@@ -604,7 +887,7 @@ export default function CharacterConfirmationStep({
                       <><Anchor className="w-3.5 h-3.5" /> Create Full-Body Portrait</>
                     )}
                   </Button>
-                ) : (
+                ) : !isEditing && (
                   <Button
                     type="button"
                     size="sm"
@@ -621,10 +904,10 @@ export default function CharacterConfirmationStep({
                       <><Sparkles className="w-3.5 h-3.5" /> Generate Preview</>
                     )}
                   </Button>
-                )}
+                ))}
 
                 {/* Approve / Unapprove */}
-                {hasPreview && !isGenerating && (
+                {!isEditing && hasPreview && !isGenerating && (
                   char.previewApproved ? (
                     <Button
                       type="button"
@@ -687,10 +970,9 @@ export default function CharacterConfirmationStep({
         </div>
       )}
 
-      {/* ── char-lock-panel: lock status card + LOCK CHARACTER gold CTA ── */}
+      {/* ── char-lock-panel ── */}
       <div style={{background:'#0f0f0f',border:'1px solid #1e1e1e',borderRadius:8,padding:'20px',marginTop:16}}>
         <div style={{fontSize:10,fontWeight:600,letterSpacing:2,color:'#555',textTransform:'uppercase',marginBottom:12,paddingBottom:8,borderBottom:'1px solid #1e1e1e'}}>LOCK STATUS</div>
-        {/* lock-status-card */}
         <div style={{background:'#141414',border:'1px solid #2a2a2a',borderRadius:4,padding:16,marginBottom:16}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
             <span style={{fontSize:11,color:'#888'}}>Characters Defined</span>
@@ -712,7 +994,6 @@ export default function CharacterConfirmationStep({
             <span style={{fontSize:11,fontWeight:600,color: characterLockMode ? '#d4a843' : '#888'}}>{characterLockMode ? 'ENFORCED' : 'STANDARD'}</span>
           </div>
         </div>
-        {/* Back button */}
         <button
           type="button"
           onClick={onBack}
@@ -721,7 +1002,6 @@ export default function CharacterConfirmationStep({
         >
           <ArrowLeft style={{width:12,height:12}} /> BACK TO SETUP
         </button>
-        {/* LOCK CHARACTER gold CTA */}
         <div style={{marginTop:'auto',paddingTop:0,borderTop:'1px solid #1e1e1e'}}>
           <button
             type="button"
@@ -736,7 +1016,6 @@ export default function CharacterConfirmationStep({
             )}
           </button>
           <div style={{textAlign:'center',fontSize:10,color:'#555',marginTop:8}}>Face · Build · Instrument · Performance · Wardrobe — all locked. No randomness.</div>
-          {/* Escape route: skip character lock and proceed with AI-generated characters */}
           {!allApproved && characters.length > 0 && (
             <button
               type="button"
