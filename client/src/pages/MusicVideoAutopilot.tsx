@@ -1128,6 +1128,8 @@ export default function MusicVideoAutopilot() {
   const [performanceShotRatio, setPerformanceShotRatio] = useLocalStorage<number>("musicVideo_performanceShotRatio", 80);
   // Director's Brief: musician performance style (e.g. "pianist playing with light touch, sparse chords")
   const [performanceStyle, setPerformanceStyle] = useLocalStorage<string>("musicVideo_performanceStyle", "");
+  // Director's Brief: prevent AI from inventing new characters beyond the locked roster
+  const [lockRoster, setLockRoster] = useLocalStorage<boolean>("musicVideo_lockRoster", false);
 
   // Handle URL params: ?job_id=X&render_started=true (redirected from RenderSuccess after Stripe payment)
   // Also handles ?demo=1&prompt=... (quick-start pre-fill from onboarding)
@@ -2450,7 +2452,7 @@ export default function MusicVideoAutopilot() {
         let storyboard: any = null;
         for (let attempt = 1; attempt <= 3; attempt++) {
           try {
-            storyboard = await generateStoryboardMutation.mutateAsync({ jobId: result.jobId });
+            storyboard = await generateStoryboardMutation.mutateAsync({ jobId: result.jobId, lockRoster });
             if (Array.isArray(storyboard?.scenes) && storyboard.scenes.length > 0) break;
             // Empty scenes — treat as transient and retry
             if (attempt < 3) {
@@ -2707,7 +2709,7 @@ export default function MusicVideoAutopilot() {
       };
       storyboardStepTimerRef.current = setTimeout(advanceStepRegen, STEP_DELAYS_REGEN[0]);
       toast.loading("Regenerating storyboard...", { id: REGEN_TOAST_ID, description: "Our AI director is crafting your scenes." });
-      const storyboard = await generateStoryboardMutation.mutateAsync({ jobId });
+      const storyboard = await generateStoryboardMutation.mutateAsync({ jobId, lockRoster });
       // Use real DB ids (not sceneIndex) so generateScenePreview calls use correct scene IDs
       const rawScenes = Array.isArray(storyboard?.scenes) ? storyboard.scenes : [];
       if (rawScenes.length === 0) {
@@ -4513,6 +4515,42 @@ export default function MusicVideoAutopilot() {
                 </CardContent>
               </Card>
 
+              {/* ── Lock Roster Toggle ── */}
+              <Card className="studio-card border-0">
+                <CardContent className="pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setLockRoster(!lockRoster)}
+                    className={`w-full flex items-start gap-3 p-3 rounded-xl border-2 transition-all text-left ${
+                      lockRoster
+                        ? "bg-[rgba(184,137,42,0.08)] border-[--color-gold] text-white"
+                        : "bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.08)] text-white/60 hover:border-[rgba(184,137,42,0.4)] hover:text-white/80"
+                    }`}
+                  >
+                    <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${
+                      lockRoster ? "border-[--color-gold] bg-[--color-gold]" : "border-white/30 bg-transparent"
+                    }`}>
+                      {lockRoster && (
+                        <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 12 12" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2 6l3 3 5-5" />
+                        </svg>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-sm font-bold tracking-wide">Prevent AI from inventing new characters</span>
+                        {lockRoster && (
+                          <span className="text-[10px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-[rgba(184,137,42,0.15)] text-[--color-gold] border border-[rgba(184,137,42,0.3)]">ON</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-white/40 leading-relaxed">
+                        When enabled, the AI will only use the characters you've locked in — it won't add extras or background performers beyond your roster.
+                      </p>
+                    </div>
+                  </button>
+                </CardContent>
+              </Card>
+
               {/* ── Detected Key & Mood Badge ── */}
               {(() => {
                 // Parse instrumentAnalysis from the job to show detected musical key/mood
@@ -4929,7 +4967,7 @@ export default function MusicVideoAutopilot() {
                 let storyboard: any = null;
                 for (let attempt = 1; attempt <= 3; attempt++) {
                   try {
-                    storyboard = await generateStoryboardMutation.mutateAsync({ jobId: jobId! });
+                    storyboard = await generateStoryboardMutation.mutateAsync({ jobId: jobId!, lockRoster });
                     if (Array.isArray(storyboard?.scenes) && storyboard.scenes.length > 0) break;
                     if (attempt < 3) {
                       toast.loading(`Generating storyboard… (retry ${attempt}/3)`, { id: STORYBOARD_TOAST_ID, description: "Retrying automatically — almost there." });

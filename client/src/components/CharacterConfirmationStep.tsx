@@ -14,11 +14,21 @@
  *
  * Once ALL characters are approved, the "Generate Storyboard" button becomes active.
  */
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   CheckCircle2, RefreshCw, ArrowLeft, Sparkles, User,
   ShieldCheck, AlertCircle, Loader2, ImageIcon, Lock, Unlock,
@@ -155,6 +165,16 @@ export default function CharacterConfirmationStep({
   const trpcUtils = trpc.useUtils();
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
   const [normalisedIds, setNormalisedIds] = useState<Set<number>>(new Set());
+  // Delete confirmation modal state
+  const [pendingDeleteChar, setPendingDeleteChar] = useState<CharacterPreviewState | null>(null);
+  // Undo delete: Map of characterId → timeout handle, supports multiple concurrent undo windows
+  const pendingDeleteTimers = React.useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+
+  // Clean up all pending delete timers on unmount
+  useEffect(() => {
+    const timers = pendingDeleteTimers.current;
+    return () => { timers.forEach(clearTimeout); timers.clear(); };
+  }, []);
 
   // Auto-trigger normaliseCharacter for all characters that have a lockedDescription
   useEffect(() => {
@@ -846,27 +866,12 @@ export default function CharacterConfirmationStep({
 
               {/* Action buttons */}
               <div className="p-3 bg-zinc-900 border-t border-zinc-800 flex gap-2">
-                {/* Delete character button */}
+                {/* Delete character button — opens styled confirmation modal */}
                 <button
                   type="button"
                   title={`Remove ${char.name} from this project`}
                   disabled={deletingIds.has(char.id) || isGenerating || isEditing}
-                  onClick={async () => {
-                    if (!confirm(`Remove ${char.name} from this project? This cannot be undone.`)) return;
-                    setDeletingIds(prev => new Set(prev).add(char.id));
-                    try {
-                      await deleteCharacterMutation.mutateAsync({ jobId, characterId: char.id });
-                      // Optimistically remove from local state
-                      setCharacters(prev => prev.filter(c => c.id !== char.id));
-                      // Invalidate the query so any background refetch returns the updated list
-                      void trpcUtils.musicVideo.getCharactersForJob.invalidate({ jobId });
-                      toast.success(`${char.name} removed`);
-                    } catch (err: any) {
-                      toast.error(`Failed to remove ${char.name}`, { description: err?.message ?? "Please try again." });
-                    } finally {
-                      setDeletingIds(prev => { const n = new Set(prev); n.delete(char.id); return n; });
-                    }
-                  }}
+                  onClick={() => setPendingDeleteChar(char)}
                   className="flex-shrink-0 p-2 rounded-lg border border-red-900/40 bg-red-950/20 text-red-400 hover:bg-red-900/40 hover:text-red-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   {deletingIds.has(char.id)
@@ -1038,6 +1043,72 @@ export default function CharacterConfirmationStep({
           )}
         </div>
       </div>
+
+      {/* ── Delete Confirmation Modal ── */}
+      <AlertDialog open={!!pendingDeleteChar} onOpenChange={(open) => { if (!open) setPendingDeleteChar(null); }}>
+        <AlertDialogContent className="bg-zinc-950 border border-zinc-800 text-white max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white flex items-center gap-2">
+              <Trash2 className="w-4 h-4 text-red-400" />
+              Remove {pendingDeleteChar?.name}?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-400 text-sm">
+              This will remove <span className="text-white font-semibold">{pendingDeleteChar?.name}</span> from your project.
+              You'll have 5 seconds to undo after confirming.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700 hover:text-white">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-900/80 border border-red-700/60 text-red-200 hover:bg-red-800 hover:text-white"
+              onClick={async () => {
+                const char = pendingDeleteChar;
+                if (!char) return;
+                setPendingDeleteChar(null);
+                // Optimistically remove from UI immediately
+                setCharacters(prev => prev.filter(c => c.id !== char.id));
+                // Schedule actual deletion after 5 seconds (undo window)
+                const timeoutId = setTimeout(async () => {
+                  pendingDeleteTimers.current.delete(char.id);
+                  setDeletingIds(prev => new Set(prev).add(char.id));
+                  try {
+                    await deleteCharacterMutation.mutateAsync({ jobId, characterId: char.id });
+                    void trpcUtils.musicVideo.getCharactersForJob.invalidate({ jobId });
+                  } catch (err: any) {
+                    // Restore character on failure
+                    setCharacters(prev => [...prev, char].sort((a, b) => a.slotIndex - b.slotIndex));
+                    toast.error(`Failed to remove ${char.name}`, { description: err?.message ?? "Please try again." });
+                  } finally {
+                    setDeletingIds(prev => { const n = new Set(prev); n.delete(char.id); return n; });
+                  }
+                }, 5000);
+                // Cancel any existing timer for this character (e.g. double-click)
+                const existing = pendingDeleteTimers.current.get(char.id);
+                if (existing) clearTimeout(existing);
+                pendingDeleteTimers.current.set(char.id, timeoutId);
+                // Show undo toast
+                toast(`${char.name} removed`, {
+                  description: "Tap Undo to restore this character.",
+                  duration: 5000,
+                  action: {
+                    label: "Undo",
+                    onClick: () => {
+                      clearTimeout(timeoutId);
+                      pendingDeleteTimers.current.delete(char.id);
+                      setCharacters(prev => [...prev, char].sort((a, b) => a.slotIndex - b.slotIndex));
+                      toast.success(`${char.name} restored`);
+                    },
+                  },
+                });
+              }}
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
