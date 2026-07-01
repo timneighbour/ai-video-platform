@@ -5123,7 +5123,8 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes.`,
         audio: `You are a professional music producer and AI prompt engineer for WIZ AI.
 Take the user's plain-English audio/music description and rewrite it as a precise, production-ready prompt for an AI music generator.
 KEEP the user's core intent EXACTLY — genre, mood, instruments, tempo, feel. Only add more precise musical vocabulary.
-CRITICAL: Your output MUST be as close to exactly 500 characters as possible (aim for 490-500). The AI music API enforces a hard 500-character limit, so maximise every character — a richer, fuller prompt produces a better result. Count carefully and expand with additional musical detail (tempo BPM, key, dynamics, production style, era, influences) until you reach 490-500 characters.
+CRITICAL: Your output MUST be between 490 and 500 characters. Count carefully and expand with additional musical detail (tempo BPM, key, dynamics, production style, era, influences) until you are in that range.
+CRITICAL: You MUST end on a complete sentence or phrase — never cut off mid-word, mid-comma, or mid-thought. Finish the final sentence naturally even if it means stopping at 490-498 characters.
 Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes. Do NOT exceed 500 characters.`,
         shorts: `You are a professional social media video director and AI prompt engineer for WIZ AI.
 Take the user's plain-English scene description and rewrite it as a precise, vivid, production-ready prompt for an AI short-form video generator.
@@ -5187,7 +5188,7 @@ Return ONLY the enhanced prompt text. No explanations, no preamble, no quotes ar
               { role: "assistant", content: enhanced },
               {
                 role: "user",
-                content: `Your response is only ${enhanced.length} characters. You MUST expand it by exactly ${shortfall} more characters. Add more musical detail: specific BPM, musical key, additional instruments, production techniques, era references, vocal style, mixing approach. The final output MUST be 490-500 characters. Rewrite the full prompt now — do NOT exceed 500 characters:`,
+                content: `Your response is only ${enhanced.length} characters. You MUST expand it by approximately ${shortfall} more characters. Add more musical detail: specific BPM, musical key, additional instruments, production techniques, era references, vocal style, mixing approach. The final output MUST be 490-500 characters AND must end on a complete sentence or phrase — never cut off mid-word or mid-comma. Rewrite the full prompt now — do NOT exceed 500 characters:`,
               },
             ],
           });

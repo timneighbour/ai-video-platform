@@ -37,7 +37,8 @@ Rules:
 - Fix grammar and sentence structure
 - Add relevant musical details: genre, tempo BPM, key, instruments, dynamics, production style, era, influences, mood
 - Keep the user's original creative intent 100% intact
-- CRITICAL: Your output MUST be as close to exactly 500 characters as possible (aim for 490-500). The AI music API enforces a hard 500-character limit — maximise every character for a richer, better result. Count carefully and expand with musical detail until you reach 490-500 characters.
+- CRITICAL: Your output MUST be between 490 and 500 characters. Count carefully and expand with musical detail until you are in that range.
+- CRITICAL: You MUST end on a complete sentence or phrase — never cut off mid-word, mid-comma, or mid-thought. If you are close to 500 characters, finish the current sentence naturally even if it means stopping at 490-498 characters.
 - Return ONLY the refined prompt, no explanation, no preamble, no quotes. Do NOT exceed 500 characters.`
     : `You are an expert AI prompt engineer specialising in ${toolContext}. 
 Your job is to take a raw voice transcript (natural spoken language, possibly with filler words, 
@@ -81,7 +82,7 @@ Rules:
             { role: "assistant", content: refined },
             {
               role: "user",
-              content: `Your response is only ${refined.length} characters. You MUST expand it by adding ${shortfall} more characters of musical detail (BPM, key, instruments, production style, influences, dynamics, era). The final output MUST be between 490 and 500 characters. Rewrite the full prompt now — do NOT exceed 500 characters:`,
+              content: `Your response is only ${refined.length} characters. You MUST expand it by adding approximately ${shortfall} more characters of musical detail (BPM, key, instruments, production style, influences, dynamics, era). The final output MUST be between 490 and 500 characters AND must end on a complete sentence or phrase — never cut off mid-word or mid-comma. Rewrite the full prompt now — do NOT exceed 500 characters:`,
             },
           ],
         });
