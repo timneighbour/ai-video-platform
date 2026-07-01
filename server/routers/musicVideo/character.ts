@@ -22,7 +22,7 @@ import {
   musicVideoVocalStems,
   withQuotaGuard,
   QUOTA_EXHAUSTED_MESSAGE,
-  eq, and, desc, inArray, gte, sql,
+  eq, and, desc, inArray, gte, sql, isNull,
   storagePut,
   generateStoryboard,
   calculateSceneCount,
@@ -1652,7 +1652,11 @@ Rules:
       if (!job) throw new TRPCError({ code: "NOT_FOUND" });
 
       const chars = await db.select().from(videoCharacters)
-        .where(and(eq(videoCharacters.jobId, input.jobId), eq(videoCharacters.userId, ctx.user.id)))
+        .where(and(
+          eq(videoCharacters.jobId, input.jobId),
+          eq(videoCharacters.userId, ctx.user.id),
+          isNull(videoCharacters.deletedAt),  // exclude soft-deleted characters
+        ))
         .orderBy(videoCharacters.slotIndex);
 
       // Attach photo count per character

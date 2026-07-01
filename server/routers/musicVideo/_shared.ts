@@ -20,7 +20,7 @@ export {
   musicVideoVocalStems,
 } from "../../../drizzle/schema";
 export { withQuotaGuard, QUOTA_EXHAUSTED_MESSAGE } from "../../_core/quotaError";
-export { eq, and, desc, inArray, gte, sql } from "drizzle-orm";
+export { eq, and, desc, inArray, gte, sql, isNull } from "drizzle-orm";
 export { storagePut } from "../../storage";
 export {
   generateStoryboard,
