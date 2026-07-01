@@ -661,7 +661,7 @@ export const musicVideoRouter = router({
 
   // Generate storyboard for a job (free, unlimited)
   generateStoryboard: protectedProcedure
-    .input(z.object({ jobId: z.number().int() }))
+    .input(z.object({ jobId: z.number().int(), lockRoster: z.boolean().optional() }))
     .mutation(async ({ ctx, input }) => { try {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
@@ -942,7 +942,8 @@ Rules:
           undefined, // directorMode
           vocalOnsetTime, // precise vocal start time — prevents lyric misassignment on instrumental intros
           job.performanceStyle ?? null, // Director's Brief: musician performance style
-          detectedMultiVocalMode // duet/ensemble mode — unlocks shared vocalist scenes
+          detectedMultiVocalMode, // duet/ensemble mode — unlocks shared vocalist scenes
+          input.lockRoster ?? false // Director's Brief: prevent AI from inventing new characters
         )).then(result => {
           // Validate scenes is a non-empty array — triggers retry if malformed
           assertNonEmptyArray(result.scenes, "generateStoryboard.scenes");

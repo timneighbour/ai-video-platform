@@ -531,19 +531,23 @@ export default function CharacterConfirmationStep({
                   ) : (
                     <Badge className="bg-amber-900/50 text-amber-300 border-amber-700/60 text-xs">Pending</Badge>
                   )}
-                  {/* Edit button */}
+                  {/* Edit button — clearly labelled so users know it's clickable */}
                   <button
                     type="button"
                     title={isEditing ? "Cancel editing" : "Edit character details"}
                     onClick={() => isEditing ? handleCancelEdit() : handleOpenEdit(char)}
                     disabled={isGenerating || isApproving || isSavingEdit}
-                    className={`p-1.5 rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
                       isEditing
-                        ? "bg-zinc-700 text-zinc-300 hover:bg-zinc-600"
-                        : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white"
+                        ? "bg-zinc-700 text-zinc-300 hover:bg-zinc-600 border border-zinc-600"
+                        : "bg-zinc-800 text-[--color-gold] hover:bg-zinc-700 border border-[--color-gold]/40 hover:border-[--color-gold]/70"
                     }`}
                   >
-                    {isEditing ? <X className="w-3.5 h-3.5" /> : <Pencil className="w-3.5 h-3.5" />}
+                    {isEditing ? (
+                      <><X className="w-3.5 h-3.5" /> Cancel</>
+                    ) : (
+                      <><Pencil className="w-3.5 h-3.5" /> Edit</>
+                    )}
                   </button>
                 </div>
               </div>

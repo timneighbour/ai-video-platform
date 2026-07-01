@@ -403,7 +403,7 @@ export default function MusicCreator() {
     if (studioMode === "cover") {
       generateCoverMutation.mutate({
         uploadedTrackUrl: uploadedAudioUrl,
-        prompt: prompt.trim().slice(0, 1500) || undefined,
+        prompt: prompt.trim().slice(0, 5000) || undefined,
         style: styleStr || undefined,
         title: title.trim() || undefined,
         instrumental: isInstrumental,
@@ -414,7 +414,7 @@ export default function MusicCreator() {
     } else {
       generateExtendMutation.mutate({
         uploadedTrackUrl: uploadedAudioUrl,
-        prompt: prompt.trim().slice(0, 1500) || undefined,
+        prompt: prompt.trim().slice(0, 5000) || undefined,
         style: styleStr || undefined,
         title: title.trim() || undefined,
         instrumental: isInstrumental,
@@ -472,7 +472,7 @@ export default function MusicCreator() {
     setError(null); setGeneratedTracks([]); setTaskId(null); setStatus("idle");
     const styleStr = buildStyleString();
     const isInstrumental = selectedVocal === "Instrumental Only";
-    generateMutation.mutate({ prompt: prompt.trim().slice(0, 1500), lyrics: lyrics.trim() || undefined, style: styleStr || undefined, title: title.trim() || undefined, instrumental: isInstrumental, model, origin: window.location.origin, targetDuration: targetDuration ?? undefined, generationMode });
+    generateMutation.mutate({ prompt: prompt.trim().slice(0, 5000), lyrics: lyrics.trim() || undefined, style: styleStr || undefined, title: title.trim() || undefined, instrumental: isInstrumental, model, origin: window.location.origin, targetDuration: targetDuration ?? undefined, generationMode });
   };
 
   const toggleGenre = (g: string) => setSelectedGenres((prev) => prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g].slice(0, 3));
@@ -838,20 +838,29 @@ export default function MusicCreator() {
                   <div className="w-1.5 h-1.5 rounded-full bg-[#30d158] animate-pulse" style={{ boxShadow: "0 0 5px #30d158" }} />
                   <span className="text-[9px] font-bold tracking-[2.5px] uppercase text-white/35">Recording Booth — Track Brief</span>
                 </div>
-                <VoicePromptButton toolContext="AI music and song creation" onPromptReady={(refined) => setPrompt(refined.slice(0, 1500))} />
-                <EnhancePromptButton prompt={prompt} genre={selectedGenres[0]} mood={selectedMoods[0]} productType="audio" onEnhanced={(text) => setPrompt(text.slice(0, 1500))} />
+                <VoicePromptButton toolContext="AI music and song creation" onPromptReady={(refined) => setPrompt(refined.slice(0, lyrics.trim().length >= 20 ? 5000 : 500))} />
+                <EnhancePromptButton prompt={prompt} genre={selectedGenres[0]} mood={selectedMoods[0]} productType="audio" onEnhanced={(text) => setPrompt(text.slice(0, lyrics.trim().length >= 20 ? 5000 : 500))} />
               </div>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 rows={4}
-                maxLength={1500}
+                maxLength={lyrics.trim().length >= 20 ? 5000 : 500}
                 className="w-full bg-transparent border-none outline-none resize-none px-4 py-3 text-[13px] leading-[1.65] text-[#f5f0e8] placeholder:text-[#f5f0e8]/16 placeholder:italic"
                 style={{ fontFamily: "'Courier Prime', monospace", caretColor: "#c9a84c" }}
                 placeholder={`Describe your track. Think like you're briefing the session musicians — the vibe, the tempo, the instruments, the emotion…\n\nA driving cinematic orchestral piece with building strings and pounding percussion, like a film trailer…`}
               />
               <div className="flex items-center justify-between px-3.5 py-1.5 border-t border-white/7">
-                <span className={`text-[9px] font-mono transition-colors ${prompt.length >= 1400 ? (prompt.length >= 1500 ? 'text-red-400' : 'text-yellow-400') : 'text-white/18'}`}>{prompt.length} / 1500</span>
+                {(() => {
+                  const maxChars = lyrics.trim().length >= 20 ? 5000 : 500;
+                  const nearLimit = prompt.length >= maxChars * 0.9;
+                  const atLimit = prompt.length >= maxChars;
+                  return (
+                    <span className={`text-[9px] font-mono transition-colors ${atLimit ? 'text-red-400' : nearLimit ? 'text-yellow-400' : 'text-white/18'}`}>
+                      {prompt.length} / {maxChars}{lyrics.trim().length < 20 ? " (add lyrics to unlock 5,000)" : ""}
+                    </span>
+                  );
+                })()}
                 <button onClick={() => setShowExamples(!showExamples)} className="flex items-center gap-1 text-[9px] text-[--color-gold]/50 hover:text-[--color-gold] transition-colors">
                   {showExamples ? "▾" : "▸"} Example prompts
                 </button>

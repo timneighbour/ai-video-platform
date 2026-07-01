@@ -117,9 +117,10 @@ export class SunoClient {
 
     // In custom mode, the prompt field must contain the actual lyrics.
     // If the user provided explicit lyrics, use those; otherwise fall back to the description.
+    // Non-custom mode: Suno enforces a hard 500-character limit on the description prompt.
     const promptBody = useCustomMode && req.lyrics?.trim()
       ? req.lyrics.trim()
-      : req.prompt;
+      : (req.prompt ?? "").slice(0, 500);
 
     // customMode is now a REQUIRED boolean field in the Suno API — must always be explicitly true/false
     const body: Record<string, unknown> = {

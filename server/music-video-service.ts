@@ -338,7 +338,8 @@ export async function generateStoryboard(
   directorMode?: string | null,
   vocalOnsetTime?: number | null,
   performanceStyle?: string | null,
-  multiVocalMode?: "duet" | "ensemble" | null
+  multiVocalMode?: "duet" | "ensemble" | null,
+  lockRoster?: boolean
 ): Promise<StoryboardResult> {
   const sceneCount = calculateSceneCount(audioDurationSeconds);
 
@@ -427,6 +428,9 @@ In a solo artist video:
 If the theme mentions a band or multiple musicians but the user only uploaded ONE character, treat it as a solo artist video. The other musicians are anonymous background atmosphere, not named characters.
 If all roles are covered by locked characters, return ONLY the locked characters — do NOT add anyone.
 
+🔒 LOCKED ROSTER MODE (HIGHEST PRIORITY WHEN ACTIVE):
+${lockRoster && hasLockedCharacters ? `The director has LOCKED the roster. You MUST return ONLY the locked characters listed above. Do NOT invent any new characters under any circumstances. Return exactly ${lockedCount} character(s).` : ""}
+
 CRITICAL RULES — MUST FOLLOW:
 1. Include ALL locked characters exactly as specified — copy their appearance descriptions VERBATIM, do NOT alter a single word
 2. Each locked character has a FIXED ROLE — no other character may perform that same role in any scene
@@ -508,7 +512,17 @@ Return a JSON object with a "characters" array. Each character must have:
     rosterParsed.characters ?? [];
 
   // ─── SERVER-SIDE ROSTER VALIDATION ───────────────────────────────────────────
-  // 0. SOLO ARTIST ENFORCEMENT: if only 1 locked character exists, strip ALL invented characters.
+  // 0a. LOCKED ROSTER ENFORCEMENT: if lockRoster is true, strip ALL invented characters regardless of count.
+  //     This is the server-side guard for the "Prevent AI from inventing new characters" toggle.
+  if (lockRoster && hasLockedCharacters) {
+    const inventedCount = fullRoster.filter(c => !c.isLocked).length;
+    if (inventedCount > 0) {
+      console.log(`[Storyboard] LOCKED ROSTER ENFORCEMENT: stripping ${inventedCount} invented character(s) — lockRoster=true`);
+      fullRoster = fullRoster.filter(c => c.isLocked);
+    }
+  }
+
+  // 0b. SOLO ARTIST ENFORCEMENT: if only 1 locked character exists, strip ALL invented characters.
   //    The LLM sometimes invents orchestra musicians or backing vocalists even when told not to.
   //    This server-side guard is the final safety net.
   if (hasLockedCharacters && lockedCharacters!.length === 1) {
@@ -840,6 +854,18 @@ This is how the musicians MUST be depicted playing their instruments in every sc
 ═══════════════════════════════════════════════════════════════`
     : "";
 
+  // ── LOCKED ROSTER RULE BLOCK ──────────────────────────────────────────────
+  const lockRosterBlock = (lockRoster && hasLockedCharacters)
+    ? `
+═══════════════════════════════════════════════════════════════
+RULE 10 — LOCKED ROSTER (NON-NEGOTIABLE):
+The director has LOCKED the character roster. You MUST NOT invent any new characters.
+ONLY use the characters listed in the roster below. No supporting cast, no orchestra members, no backing vocalists, no session players, no dancers, no unnamed extras with names.
+If a scene calls for atmosphere, use ANONYMOUS BACKGROUND FIGURES — they have no names and are NOT added to characterAssignments.
+characterAssignments MUST only contain names from the locked roster.
+═══════════════════════════════════════════════════════════════`
+    : "";
+
   const systemPrompt = `You are a premium cinematic music video director — not an AI avatar generator.
 Your job is to create detailed, emotionally directed scene descriptions for AI video generation.
 Think: Hype Williams, David Fincher, Anton Corbijn. Every scene must feel like it belongs in a premium music video, not a generic AI singing clip.
@@ -875,7 +901,7 @@ Instead, prioritise:
 - Dramatic camera work (Dutch angle, crane shot, rack focus)
 - Slow-motion detail (sweat, light, fabric, smoke)
 A singing close-up should be EARNED — reserved for the most emotionally powerful lyric moments, not used as a default.
-${sceneSettingConstraint}${contentAnalysisBlock}${characterPerformanceBlock}${performanceStyleBlock}
+${sceneSettingConstraint}${contentAnalysisBlock}${characterPerformanceBlock}${performanceStyleBlock}${lockRosterBlock}
 
 Each scene description must be:
 - Highly visual and specific (lighting, camera angle, movement, subjects, atmosphere)

@@ -58,8 +58,8 @@ export const sunoRouter = router({
   generate: protectedProcedure
     .input(
       z.object({
-        prompt: z.string().min(1).max(1500),
-        lyrics: z.string().max(3000).optional(),
+        prompt: z.string().min(1).max(5000),
+        lyrics: z.string().max(5000).optional(),
         style: z.string().max(200).optional(),
         title: z.string().max(80).optional(),
         instrumental: z.boolean().default(false),
