@@ -2485,25 +2485,78 @@ Rules:
 
           // ── INSTRUMENT LOCK ───────────────────────────────────────────────────────────────────────────────────────
           // Photo-driven (from structured extraction) or defaults — exact model + colour locked
-          const instrumentModel = (details as any).instrumentModel || charDefaults?.characterVisualDetails?.instrumentModel;
-          const instrumentColour = (details as any).instrumentColour || charDefaults?.characterVisualDetails?.instrumentColour;
-          const instrumentFinish = (details as any).instrumentFinish || charDefaults?.characterVisualDetails?.instrumentFinish;
-          if (details.instrument || instrumentModel) {
+          let instrumentModel = (details as any).instrumentModel || charDefaults?.characterVisualDetails?.instrumentModel;
+          let instrumentColour = (details as any).instrumentColour || charDefaults?.characterVisualDetails?.instrumentColour;
+          let instrumentFinish = (details as any).instrumentFinish || charDefaults?.characterVisualDetails?.instrumentFinish;
+
+          // Role-derived instrument fallback for scene prompt builder:
+          // If no instrument was extracted from photos and no defaults exist,
+          // derive from the character's role field so musicians always appear with their instrument.
+          if (!details.instrument && !instrumentModel && c.role) {
+            const roleLower = c.role.toLowerCase();
+            if (roleLower.includes("pianist") || roleLower.includes("piano") || roleLower.includes("keyboard") || roleLower.includes("keys")) {
+              instrumentModel = "grand piano";
+              instrumentColour = instrumentColour || "black";
+              instrumentFinish = instrumentFinish || "polished ebony";
+            } else if (roleLower.includes("guitarist") || roleLower.includes("guitar")) {
+              instrumentModel = "Gibson Les Paul Standard electric guitar";
+              instrumentColour = instrumentColour || "sunburst";
+              instrumentFinish = instrumentFinish || "gold hardware";
+            } else if (roleLower.includes("bassist") || roleLower.includes("bass")) {
+              instrumentModel = "Fender Precision Bass";
+              instrumentColour = instrumentColour || "sunburst";
+              instrumentFinish = instrumentFinish || "chrome hardware";
+            } else if (roleLower.includes("drummer") || roleLower.includes("drums")) {
+              instrumentModel = "Pearl Export drum kit";
+              instrumentColour = instrumentColour || "black";
+              instrumentFinish = instrumentFinish || "chrome hardware";
+            } else if (roleLower.includes("cellist") || roleLower.includes("cello")) {
+              instrumentModel = "cello";
+              instrumentColour = instrumentColour || "natural wood";
+              instrumentFinish = instrumentFinish || "varnished";
+            } else if (roleLower.includes("violinist") || roleLower.includes("violin")) {
+              instrumentModel = "acoustic violin";
+              instrumentColour = instrumentColour || "natural wood";
+              instrumentFinish = instrumentFinish || "varnished";
+            } else if (roleLower.includes("saxophon")) {
+              instrumentModel = "alto saxophone";
+              instrumentColour = instrumentColour || "brass";
+              instrumentFinish = instrumentFinish || "lacquered";
+            } else if (roleLower.includes("trumpet")) {
+              instrumentModel = "trumpet";
+              instrumentColour = instrumentColour || "brass";
+              instrumentFinish = instrumentFinish || "lacquered";
+            }
+            if (instrumentModel) {
+              console.log(`[ScenePrompt] Role-derived instrument for ${c.name}: ${instrumentModel} (from role: "${c.role}")`);
+            }
+          }
+
+          // Also check the user-set instrument field in characterVisualDetails (e.g. set via the Instrument field in Character Lock UI)
+          const userSetInstrument = details.instrument;
+
+          if (userSetInstrument || instrumentModel) {
             const instrumentDesc = instrumentModel
               ? `${instrumentModel}${instrumentColour ? ` — ${instrumentColour}` : ""}${instrumentFinish ? `, ${instrumentFinish}` : ""}`
-              : details.instrument!;
+              : userSetInstrument!;
             parts.push(
               `INSTRUMENT LOCK (ABSOLUTE — SAME IN EVERY SCENE): ${c.name}'s instrument is EXACTLY: ${instrumentDesc}. ` +
+              `${c.name} MUST be shown actively playing or holding this exact instrument in every scene. ` +
               `SAME instrument model in every scene. SAME colour and finish. ` +
               `DO NOT change the instrument colour. DO NOT swap to a different model. ` +
+              `DO NOT show ${c.name} without their instrument. ` +
               `Character MUST be actively playing or holding this exact instrument.`
             );
-          } else if (details.instrument) {
-            parts.push(`Instrument: ${details.instrument} -- MUST hold/play this instrument. NO other instruments.`);
           }
 
           if (details.position) parts.push(`Position: ${details.position}`);
-          if (details.props) parts.push(`Props: ${details.props}`);
+          if (details.props && details.props.trim().toLowerCase() !== "none") {
+            parts.push(
+              `PROP LOCK (ABSOLUTE — SAME IN EVERY SCENE): ${c.name} MUST have these props visible: ${details.props}. ` +
+              `DO NOT remove or substitute any prop. DO NOT invent additional props. ` +
+              `These props MUST appear in every scene featuring ${c.name}.`
+            );
+          }
 
           // Inject lockedRules from DB or canonical defaults
           let rules: { role?: string; mustHave?: string[]; forbidden?: string[] } | null = null;

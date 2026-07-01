@@ -162,6 +162,7 @@ export default function CharacterConfirmationStep({
   const normaliseCharacterMutation = trpc.characters.normaliseCharacter.useMutation();
   const deleteCharacterMutation = trpc.musicVideo.deleteCharacter.useMutation();
   const updateCharacterCoreMutation = trpc.musicVideo.updateCharacterCore.useMutation();
+  const regenerateAllScenePreviewsMutation = trpc.musicVideo.regenerateAllScenePreviews.useMutation();
   const trpcUtils = trpc.useUtils();
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
   const [normalisedIds, setNormalisedIds] = useState<Set<number>>(new Set());
@@ -169,6 +170,16 @@ export default function CharacterConfirmationStep({
   const [pendingDeleteChar, setPendingDeleteChar] = useState<CharacterPreviewState | null>(null);
   // Undo delete: Map of characterId → timeout handle, supports multiple concurrent undo windows
   const pendingDeleteTimers = React.useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+  // Storyboard stale banner: shown after a character edit when scenes already exist
+  const [storyboardStaleBanner, setStoryboardStaleBanner] = useState(false);
+  const [regenAllLoading, setRegenAllLoading] = useState(false);
+
+  // Check if this job already has a storyboard (scenes exist)
+  const jobQuery = trpc.musicVideo.getJob.useQuery(
+    { jobId },
+    { enabled: !!jobId, staleTime: 30000 }
+  );
+  const hasExistingStoryboard = (jobQuery.data?.scenes?.length ?? 0) > 0;
 
   // Clean up all pending delete timers on unmount
   useEffect(() => {
@@ -294,6 +305,10 @@ export default function CharacterConfirmationStep({
       });
       setEditingId(null);
       setEditState(null);
+      // If a storyboard already exists, flag it as stale so the user can regenerate
+      if (hasExistingStoryboard) {
+        setStoryboardStaleBanner(true);
+      }
     } catch (err: any) {
       toast.error(`Failed to save changes for ${char.name}`, { description: err?.message ?? "Please try again." });
     } finally {
@@ -980,6 +995,55 @@ export default function CharacterConfirmationStep({
                 : "Your characters' appearances are locked in. Click \"Generate Storyboard\" to create your video scenes."}
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Stale storyboard banner — shown after a character edit when scenes already exist */}
+      {storyboardStaleBanner && hasExistingStoryboard && (
+        <div className="flex items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-950/30 px-4 py-3">
+          <AlertCircle className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-amber-300 font-semibold text-sm">Storyboard images are out of date</p>
+            <p className="text-amber-200/60 text-xs mt-0.5">
+              You edited a character after the storyboard was generated. Regenerate the preview images so every scene reflects the updated look.
+            </p>
+          </div>
+          <Button
+            size="sm"
+            className="shrink-0 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold gap-1.5"
+            disabled={regenAllLoading}
+            onClick={async () => {
+              setRegenAllLoading(true);
+              const toastId = "regen-all-storyboard";
+              toast.loading("Regenerating all storyboard images…", { id: toastId, description: "This may take a minute." });
+              try {
+                const result = await regenerateAllScenePreviewsMutation.mutateAsync({ jobId });
+                toast.success(`Storyboard updated — ${result.generated}/${result.total} scenes regenerated`, {
+                  id: toastId,
+                  description: result.errors.length > 0 ? `${result.errors.length} failed` : "All scenes now reflect the latest character details.",
+                });
+                setStoryboardStaleBanner(false);
+                trpcUtils.musicVideo.getJob.invalidate({ jobId });
+              } catch (err: any) {
+                toast.error("Failed to regenerate storyboard images", { id: toastId, description: err?.message ?? "Please try again." });
+              } finally {
+                setRegenAllLoading(false);
+              }
+            }}
+          >
+            {regenAllLoading ? (
+              <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Regenerating…</>
+            ) : (
+              <><RefreshCw className="w-3.5 h-3.5" /> Regenerate Now</>
+            )}
+          </Button>
+          <button
+            className="shrink-0 text-amber-400/60 hover:text-amber-300 ml-1"
+            onClick={() => setStoryboardStaleBanner(false)}
+            aria-label="Dismiss"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
 
