@@ -807,8 +807,19 @@ RULE 7 — FORBIDDEN TOKENS (NEVER USE THESE IN ANY PROMPT):
   ❌ "duplicate singer" or "two versions of"
   ❌ "performs on stage" (too vague — always specify the exact environment)
   ❌ "singing in front of" (implies a flat background — use "inside" or "within" instead)
+  ❌ Any phrase that places a vocalist holding or playing an instrument — vocalists do NOT hold instruments
+  ❌ Describing a character in two conflicting physical poses simultaneously (e.g. "arms raised" AND "hands on keys") — this causes multi-limb artifacts
 
-RULE 8 — INSTRUMENT PLAYING POSTURE (NON-NEGOTIABLE):
+RULE 8 — ANATOMY INTEGRITY (NON-NEGOTIABLE — PREVENTS MULTI-LIMB ARTIFACTS):
+  AI video models generate extra limbs when a character is described in two conflicting physical poses simultaneously.
+  ✅ EVERY performance scene prompt MUST end with: "natural human anatomy, two arms only, single figure"
+  ✅ Describe ONE clear physical pose per character — either singing/performing OR holding something, NEVER both at once
+  ✅ For vocalist characters: NEVER describe them holding, playing, or touching any instrument — this is the #1 cause of 4-arm artifacts
+  ✅ For instrumentalist characters: describe ONE instrument in ONE playing posture — never two instruments or two positions
+  ❌ NEVER write: "gesturing with one hand while holding" — pick one action
+  ❌ NEVER write: "arms raised" AND "hands on" in the same prompt — conflicting poses = extra limbs
+
+RULE 9 — INSTRUMENT PLAYING POSTURE (NON-NEGOTIABLE):
   Musicians MUST always be shown in the correct physical posture for their instrument:
   ❌ NEVER show a pianist standing up next to a piano — pianists are ALWAYS seated at the piano bench, hands on keys, actively playing
   ❌ NEVER show a cellist standing — cellists are ALWAYS seated with the cello between their knees, bow on strings
@@ -1063,7 +1074,21 @@ This is the cinematic world-reveal that sets the entire tone of the video. It MU
       // those are part of the venue DNA (Lyndhurst Hall, Air Studios) and must remain visible.
       // The image model should show: named character(s) as the focal subject(s),
       // PLUS the full orchestral/venue environment behind them.
-      finalPrompt = `${characterPrefixes.join(" | ")}\n\n${finalPrompt}\n\nFOCAL SUBJECT${validAssignments.length === 1 ? "" : "S"}: ${charNames}. These are the ONLY named characters — do NOT add other singers, soloists, or duplicate performers. HOWEVER: the full orchestra, session musicians, conductor, and venue atmosphere (Lyndhurst Hall, Air Studios) MUST remain visible in the background as part of the environment. The named character(s) perform in front of the orchestra, not in an empty room.`;
+      // Detect if any assigned character is a vocalist (no instrument) — add NO-INSTRUMENT anatomy guard
+      const hasVocalistOnly = validAssignments.some(name => {
+        const c = rosterByName.get(name.toLowerCase());
+        if (!c) return false;
+        const roleLower = (c.role ?? "").toLowerCase();
+        const isVocalist = roleLower.includes("vocalist") || roleLower.includes("singer") || roleLower.includes("vocal");
+        const hasInstrument = c.characterVisualDetails
+          ? (() => { try { const vd: Record<string,string> = typeof c.characterVisualDetails === 'string' ? JSON.parse(c.characterVisualDetails) : (c.characterVisualDetails as Record<string,string>); return !!vd.instrumentModel; } catch { return false; } })()
+          : false;
+        return isVocalist && !hasInstrument;
+      });
+      const vocalistAnatomyGuard = hasVocalistOnly
+        ? " VOCALIST ANATOMY GUARD: vocalist does NOT hold, play, or touch any instrument — hands free, gesturing naturally, or at sides. NO instrument in hands under any circumstances."
+        : "";
+      finalPrompt = `${characterPrefixes.join(" | ")}\n\n${finalPrompt}\n\nFOCAL SUBJECT${validAssignments.length === 1 ? "" : "S"}: ${charNames}. These are the ONLY named characters — do NOT add other singers, soloists, or duplicate performers. HOWEVER: the full orchestra, session musicians, conductor, and venue atmosphere (Lyndhurst Hall, Air Studios) MUST remain visible in the background as part of the environment. The named character(s) perform in front of the orchestra, not in an empty room.${vocalistAnatomyGuard} ANATOMY: natural human anatomy, two arms only, single figure, no extra limbs, no duplicated body parts.`;
     }
 
     // ENFORCE pre-calculated startTime and duration from sceneWindows.
