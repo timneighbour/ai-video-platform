@@ -111,18 +111,17 @@ export class SunoClient {
    * Returns the task ID. Each task generates 2 tracks.
    */
   async generate(req: SunoGenerateRequest): Promise<string> {
-    // Custom mode requires: style + title + lyrics (as prompt body)
-    // Non-custom mode: prompt is a description and Suno auto-generates lyrics
+    // Custom mode: active when style + title are both present (router ensures they are
+    // set whenever lyrics are provided). Non-custom: Suno auto-generates lyrics.
     const useCustomMode = !!(req.style && req.title);
 
-    // In custom mode, the prompt field must contain the actual lyrics.
-    // If the user provided explicit lyrics, use those; otherwise fall back to the description.
-    // Non-custom mode: Suno enforces a hard 500-character limit on the description prompt.
-    const promptBody = useCustomMode && req.lyrics?.trim()
-      ? req.lyrics.trim()
+    // In custom mode the prompt field MUST be the actual lyrics.
+    // In non-custom mode it is a description — Suno enforces a 500-char hard limit.
+    const promptBody = useCustomMode
+      ? (req.lyrics?.trim() || req.prompt)  // prefer explicit lyrics; fall back to prompt
       : (req.prompt ?? "").slice(0, 500);
 
-    // customMode is now a REQUIRED boolean field in the Suno API — must always be explicitly true/false
+    // customMode is a REQUIRED boolean field in the Suno API — always send explicitly.
     const body: Record<string, unknown> = {
       customMode: useCustomMode,
       prompt: promptBody,

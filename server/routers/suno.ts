@@ -251,15 +251,31 @@ export const sunoRouter = router({
       }
 
       // ── Suno (full creative songs, trimmed to target) ─────────────────────────
-      // Custom mode requires BOTH style AND lyrics (or instrumental flag).
-      // If the user only provided a prompt description (no lyrics), fall back to
-      // Suno's non-custom mode by omitting style/title so the model generates freely.
+      // Custom mode: activate whenever the user has provided lyrics (>=20 chars) or is
+      // requesting instrumental. Title is optional from the UI — auto-generate one from
+      // the prompt if missing so lyrics are never silently dropped.
       const hasLyrics = !!(input.lyrics && input.lyrics.trim().length >= 20);
-      const isCustomMode = !!(input.style && input.title) && (hasLyrics || input.instrumental);
-      if (!!(input.style && input.title) && !input.instrumental && !hasLyrics) {
-        // Silently downgrade to non-custom mode — use the prompt as the description
-        // and let Suno handle lyrics generation automatically.
-        Object.assign(input, { style: undefined, title: input.title });
+      const wantsCustomMode = hasLyrics || input.instrumental;
+
+      if (wantsCustomMode) {
+        // Ensure title is set — Suno requires it for custom mode.
+        if (!input.title || !input.title.trim()) {
+          // Derive a short title from the prompt (first 6 words, max 60 chars)
+          const autoTitle = input.prompt
+            .trim()
+            .split(/\s+/)
+            .slice(0, 6)
+            .join(" ")
+            .slice(0, 60);
+          Object.assign(input, { title: autoTitle || "My Track" });
+        }
+        // Ensure style is set — use a sensible default if missing.
+        if (!input.style || !input.style.trim()) {
+          Object.assign(input, { style: "Pop" });
+        }
+      } else {
+        // No lyrics and not instrumental — use non-custom mode so Suno generates lyrics.
+        Object.assign(input, { style: undefined, title: undefined });
       }
 
       let suno: ReturnType<typeof initSuno>;
