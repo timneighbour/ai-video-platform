@@ -696,12 +696,13 @@ SCENE TYPE RULES (NON-NEGOTIABLE — CINEMATIC STORYTELLING FIRST):
 - INTRO scenes: establishing shot, world-building, anticipation — reveal the environment before the performer
 - OUTRO scenes: resolution, fade, emotional landing, environment returning to stillness
 
-CINEMATIC VARIETY MANDATE — for every 5 scenes, include at minimum:
-- 1 wide/establishing shot (full environment, performer small in frame)
-- 1 instrument or hands close-up (no face visible)
-- 1 atmospheric/environmental cutaway (crowd, sky, light, texture)
-- 1 silhouette or dramatic backlit shot
-- Only 1 direct singing close-up (and only if lyrics are emotionally powerful at that moment)
+PERFORMANCE SHOT RATIO MANDATE — the director has set ${performanceShotRatio}% performance shots:
+- ${performanceShotRatio}% of ALL scenes MUST be character performance shots (character visible, face forward, singing/performing in the environment)
+- ${100 - performanceShotRatio}% of scenes are cinematic intercuts (environment, instruments, atmosphere — no character assigned)
+- Within the ${100 - performanceShotRatio}% intercut budget, vary shot types: wide establishing shots, instrument close-ups, atmospheric cutaways, silhouettes
+- NEVER let intercut variety override the ${performanceShotRatio}% performance shot target — the director has set this ratio deliberately
+- NEVER place more than 2 consecutive intercut scenes in a row when vocals are active
+- If ${performanceShotRatio} >= 70: most scenes must show the character performing — intercuts are sparse punctuation, not the default
 ═══════════════════════════════════════════════════════════════` : "";
 
   // ── NEW PIPELINE RULES (2026-05-28) ─────────────────────────────────────────
