@@ -134,10 +134,6 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
   }, []);
 
   useEffect(() => {
-    // Hard safety timeout: if intro hasn't completed in 4s (e.g. video blocked by
-    // Instagram/WhatsApp/Facebook in-app browsers or slow connections), skip it.
-    const safetyTimeout = setTimeout(() => dismiss(), 4000);
-
     const t1 = setTimeout(() => setPhase("ambient"), 500);
     const t2 = setTimeout(() => {
       setPhase("clips");
@@ -146,8 +142,7 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
         vid.src = CLIPS[0].url;
         vid.load();
         vid.play().catch(() => {
-          // Autoplay blocked (common in in-app browsers) — skip intro immediately
-          dismiss();
+          // Autoplay deferred by browser — video will play on first user interaction
         });
       }
       const aud = audioRef.current;
@@ -170,7 +165,7 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
       };
       loopFrom(2);
     }, 9000);
-    timersRef.current = [t1, t2, t3, t4, safetyTimeout];
+    timersRef.current = [t1, t2, t3, t4];
     return () => clearAll();
   }, [advanceClip, dismiss]);
 
@@ -255,7 +250,7 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
         playsInline
         loop
         preload="none"
-        onError={() => dismiss()}
+        onError={() => { /* ignore transient load errors — keep intro running */ }}
         style={{
           position: "absolute", inset: 0, width: "100%", height: "100%",
           objectFit: "cover", objectPosition: "center",
