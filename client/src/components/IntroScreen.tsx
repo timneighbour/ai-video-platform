@@ -134,11 +134,22 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
   }, []);
 
   useEffect(() => {
+    // Hard safety timeout: if intro hasn't completed in 14s (e.g. video blocked by
+    // Instagram/WhatsApp/Facebook in-app browsers or slow connections), skip it.
+    const safetyTimeout = setTimeout(() => dismiss(), 14000);
+
     const t1 = setTimeout(() => setPhase("ambient"), 500);
     const t2 = setTimeout(() => {
       setPhase("clips");
       const vid = videoRef.current;
-      if (vid) { vid.src = CLIPS[0].url; vid.load(); vid.play().catch(() => {}); }
+      if (vid) {
+        vid.src = CLIPS[0].url;
+        vid.load();
+        vid.play().catch(() => {
+          // Autoplay blocked (common in in-app browsers) — skip intro immediately
+          dismiss();
+        });
+      }
       const aud = audioRef.current;
       if (aud) { aud.muted = true; aud.play().catch(() => {}); }
       setVideoVisible(true);
@@ -159,9 +170,9 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
       };
       loopFrom(2);
     }, 9000);
-    timersRef.current = [t1, t2, t3, t4];
+    timersRef.current = [t1, t2, t3, t4, safetyTimeout];
     return () => clearAll();
-  }, [advanceClip]);
+  }, [advanceClip, dismiss]);
 
   const show = (...phases: Phase[]) => phases.includes(phase);
 
@@ -244,6 +255,7 @@ export default function IntroScreen({ onComplete }: { onComplete: () => void }) 
         playsInline
         loop
         preload="none"
+        onError={() => dismiss()}
         style={{
           position: "absolute", inset: 0, width: "100%", height: "100%",
           objectFit: "cover", objectPosition: "center",
