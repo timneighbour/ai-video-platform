@@ -801,7 +801,7 @@ Rules:
                     role: "user" as const,
                     content: [
                       { type: "image_url" as const, image_url: { url: primaryPhoto.photoUrl, detail: "high" as const } },
-                      { type: "text" as const, text: `Extract the following fields from this photo as a JSON object. If a field is not visible or not applicable, use null.\n{\n  "hairColour": "exact hair colour (e.g. jet black, dark brown, platinum blonde, auburn red)",\n  "hairLength": "exact length (e.g. shaved, close-cropped, short, medium/collar-length, shoulder-length, long/past shoulders, very long/waist-length)",\n  "hairStyle": "style description (e.g. straight, wavy, curly, messy, slicked back, braided, afro)",\n  "instrumentModel": "exact instrument model if visible (e.g. Gibson Les Paul Standard, Fender Stratocaster, Pearl Export drum kit, Fender Precision Bass) or null",\n  "instrumentColour": "exact instrument colour/finish if visible (e.g. sunburst, gloss black, natural wood, cherry red) or null",\n  "instrumentFinish": "hardware and finish details if visible (e.g. gold hardware, chrome tuners, white pickguard) or null"\n}` },
+                      { type: "text" as const, text: `Extract the following fields from this photo as a JSON object. If a field is not visible or not applicable, use null.\n{\n  "hairColour": "exact hair colour (e.g. jet black, dark brown, platinum blonde, auburn red)",\n  "hairLength": "exact length (e.g. shaved, close-cropped, short, medium/collar-length, shoulder-length, long/past shoulders, very long/waist-length)",\n  "hairStyle": "style description (e.g. straight, wavy, curly, messy, slicked back, braided, afro)",\n  "eyeColour": "exact eye colour (e.g. green, blue, brown, hazel, grey, amber, dark brown, ice blue, emerald) — be precise",\n  "skinTone": "precise skin tone (e.g. fair, light, medium, olive, tan, caramel, brown, dark brown, deep ebony) — describe what you see",\n  "instrumentModel": "exact instrument model if visible (e.g. Gibson Les Paul Standard, Fender Stratocaster, Pearl Export drum kit, Fender Precision Bass) or null",\n  "instrumentColour": "exact instrument colour/finish if visible (e.g. sunburst, gloss black, natural wood, cherry red) or null",\n  "instrumentFinish": "hardware and finish details if visible (e.g. gold hardware, chrome tuners, white pickguard) or null"\n}` },
                     ],
                   },
                 ],
@@ -2480,6 +2480,44 @@ Rules:
               hairPositive +
               ` DO NOT change the hair colour. DO NOT change the hair length. DO NOT change the hair style. ` +
               `SAME hair in every single scene. NEVER shorter. NEVER longer. NEVER different colour.`
+            );
+          }
+
+          // ── EYE COLOUR LOCK ──────────────────────────────────────────────────────────────────────────────────────
+          // Extract eye colour from characterVisualDetails or lockedDescription — NEVER let the AI drift on this
+          let eyeColour: string | null = (details as any).eyeColour || (details as any).eyeColor || null;
+          if (!eyeColour && c.lockedDescription) {
+            const eyeMatch = c.lockedDescription.match(/\b(green|blue|brown|hazel|grey|gray|amber|violet|dark brown|light brown|ice blue|emerald|teal|honey)\s+eyes?\b/i);
+            if (eyeMatch) eyeColour = eyeMatch[1];
+          }
+          if (!eyeColour && charDefaults?.characterVisualDetails) {
+            eyeColour = (charDefaults.characterVisualDetails as any).eyeColour || null;
+          }
+          if (eyeColour) {
+            parts.push(
+              `EYE COLOUR LOCK (ABSOLUTE — SAME IN EVERY SCENE): ${c.name}'s eyes are EXACTLY: ${eyeColour}. ` +
+              `DO NOT change the eye colour. DO NOT make the eyes darker or lighter. ` +
+              `${eyeColour.toLowerCase()} eyes MUST be clearly visible in every scene. ` +
+              `NEVER brown eyes if the description says ${eyeColour}. NEVER dark eyes if the description says ${eyeColour}.`
+            );
+          }
+
+          // ── SKIN TONE LOCK ───────────────────────────────────────────────────────────────────────────────────────
+          // Extract skin tone from characterVisualDetails or lockedDescription — prevent ethnicity drift
+          let skinTone: string | null = (details as any).skinTone || (details as any).complexion || null;
+          if (!skinTone && c.lockedDescription) {
+            const skinMatch = c.lockedDescription.match(/\b(fair|pale|light|medium|olive|tan|tanned|warm|golden|caramel|brown|dark brown|dark|deep|ebony|porcelain|ivory|light brown|medium brown)\s+(?:skin|complexion|tone)\b/i);
+            if (skinMatch) skinTone = skinMatch[1] + " skin";
+          }
+          if (!skinTone && charDefaults?.characterVisualDetails) {
+            skinTone = (charDefaults.characterVisualDetails as any).skinTone || null;
+          }
+          if (skinTone) {
+            parts.push(
+              `SKIN TONE LOCK (ABSOLUTE — SAME IN EVERY SCENE): ${c.name}'s skin tone is EXACTLY: ${skinTone}. ` +
+              `DO NOT change the skin tone. DO NOT make the skin darker or lighter. ` +
+              `DO NOT change the ethnicity or racial appearance. ` +
+              `${skinTone} MUST be consistent in every single scene. NEVER different.`
             );
           }
 
@@ -4171,7 +4209,7 @@ Rules:
               role: "user" as const,
               content: [
                 { type: "image_url" as const, image_url: { url: primaryPhoto.photoUrl, detail: "high" as const } },
-                { type: "text" as const, text: `Extract the following fields from this photo as a JSON object. If a field is not visible or not applicable, use null.\n{\n  "hairColour": "exact hair colour (e.g. jet black, dark brown, platinum blonde, auburn red)",\n  "hairLength": "exact length (e.g. shaved, close-cropped, short, medium/collar-length, shoulder-length, long/past shoulders, very long/waist-length)",\n  "hairStyle": "style description (e.g. straight, wavy, curly, messy, slicked back, braided, afro)",\n  "instrumentModel": "exact instrument model if visible (e.g. Gibson Les Paul Standard, Fender Stratocaster, Pearl Export drum kit, Fender Precision Bass) or null",\n  "instrumentColour": "exact instrument colour/finish if visible (e.g. sunburst, gloss black, natural wood, cherry red) or null",\n  "instrumentFinish": "hardware and finish details if visible (e.g. gold hardware, chrome tuners, white pickguard) or null"\n}` },
+                { type: "text" as const, text: `Extract the following fields from this photo as a JSON object. If a field is not visible or not applicable, use null.\n{\n  "hairColour": "exact hair colour (e.g. jet black, dark brown, platinum blonde, auburn red)",\n  "hairLength": "exact length (e.g. shaved, close-cropped, short, medium/collar-length, shoulder-length, long/past shoulders, very long/waist-length)",\n  "hairStyle": "style description (e.g. straight, wavy, curly, messy, slicked back, braided, afro)",\n  "eyeColour": "exact eye colour (e.g. green, blue, brown, hazel, grey, amber, dark brown, ice blue, emerald) — be precise",\n  "skinTone": "precise skin tone (e.g. fair, light, medium, olive, tan, caramel, brown, dark brown, deep ebony) — describe what you see",\n  "instrumentModel": "exact instrument model if visible (e.g. Gibson Les Paul Standard, Fender Stratocaster, Pearl Export drum kit, Fender Precision Bass) or null",\n  "instrumentColour": "exact instrument colour/finish if visible (e.g. sunburst, gloss black, natural wood, cherry red) or null",\n  "instrumentFinish": "hardware and finish details if visible (e.g. gold hardware, chrome tuners, white pickguard) or null"\n}` },
               ],
             },
           ],
