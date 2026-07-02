@@ -1202,6 +1202,64 @@ This is the cinematic world-reveal that sets the entire tone of the video. It MU
     }
   }
 
+  // ── CHARACTER NAME MENTION CORRECTION PASS ─────────────────────────────────
+  // The LLM sometimes writes a character's name in the scene description (e.g. "Zara singing")
+  // but forgets to include that character in characterAssignments, or assigns the wrong character.
+  // This pass detects explicit name mentions in the scene prompt and auto-corrects the assignment.
+  //
+  // Rules:
+  //   1. If a character's name appears in the prompt AND they are NOT in characterAssignments → ADD them.
+  //   2. If characterAssignments contains a character whose name does NOT appear in the prompt,
+  //      but ANOTHER character's name does appear → REPLACE the wrong character with the mentioned one.
+  //      (Only applies when exactly 1 character is assigned and exactly 1 different character is mentioned.)
+  //   3. Never touch scenes with empty characterAssignments [] — those are intentional atmosphere shots.
+  //   4. Never add a character to an atmosphere/environment scene (no character should appear there).
+  if (rosterByName.size > 0) {
+    for (const scene of scenes) {
+      const promptLower = (scene.cleanPrompt ?? scene.prompt ?? "").toLowerCase();
+      // Skip pure atmosphere scenes (empty assignments are intentional)
+      if (scene.characterAssignments.length === 0) continue;
+      // Skip environment/atmosphere keywords — don't inject characters into wide shots
+      const isAtmospherePrompt = /\bno\s+character|\bno\s+people|\batmosphere|\bestablishing|\bcrane\s+shot|\bwide\s+shot|\bbird.?s.?eye|\baerial|\bdrone\s+shot/.test(promptLower);
+      if (isAtmospherePrompt) continue;
+
+      // Find all roster character names mentioned in the prompt
+      const mentionedNames: string[] = [];
+      for (const [nameLower, char] of Array.from(rosterByName.entries())) {
+        // Match whole word (e.g. "Zara" but not "Zarabell")
+        const nameRegex = new RegExp(`\\b${nameLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
+        if (nameRegex.test(promptLower)) {
+          mentionedNames.push(char.name);
+        }
+      }
+
+      if (mentionedNames.length === 0) continue; // No names mentioned — nothing to correct
+
+      const currentAssignments = new Set(scene.characterAssignments.map((n: string) => n.toLowerCase()));
+      const mentionedLower = new Set(mentionedNames.map(n => n.toLowerCase()));
+
+      // Rule 1: Add any mentioned character who is missing from assignments
+      for (const name of mentionedNames) {
+        if (!currentAssignments.has(name.toLowerCase())) {
+          console.log(`[Storyboard] CharAssign correction: scene ${scene.sceneIndex} — adding "${name}" (mentioned in prompt but not tagged)`);
+          scene.characterAssignments.push(name);
+          currentAssignments.add(name.toLowerCase());
+        }
+      }
+
+      // Rule 2: Remove characters who are tagged but NOT mentioned, when other characters ARE mentioned
+      // Only apply this when there's exactly 1 tagged character and exactly 1 mentioned character and they differ
+      if (scene.characterAssignments.length === 2 && mentionedNames.length === 1) {
+        // One was just added (Rule 1), one was the original wrong assignment
+        const originalWrong = scene.characterAssignments.find((n: string) => !mentionedLower.has(n.toLowerCase()));
+        if (originalWrong) {
+          console.log(`[Storyboard] CharAssign correction: scene ${scene.sceneIndex} — removing "${originalWrong}" (tagged but not mentioned; "${mentionedNames[0]}" is the correct character)`);
+          scene.characterAssignments = scene.characterAssignments.filter((n: string) => n.toLowerCase() !== originalWrong.toLowerCase());
+        }
+      }
+    }
+  }
+
   return { scenes, roster: fullRoster };
 }
 
