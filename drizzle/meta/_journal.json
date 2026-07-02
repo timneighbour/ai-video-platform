@@ -848,6 +848,13 @@
       "when": 1782914351190,
       "tag": "0120_huge_zombie",
       "breakpoints": true
+    },
+    {
+      "idx": 121,
+      "version": "5",
+      "when": 1782956756558,
+      "tag": "0121_lively_scarlet_witch",
+      "breakpoints": true
     }
   ]
 }

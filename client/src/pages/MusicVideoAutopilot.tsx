@@ -2266,6 +2266,7 @@ export default function MusicVideoAutopilot() {
         sceneSetting: sceneSetting.trim() || undefined,
         performanceShotRatio,
         performanceStyle: performanceStyle.trim() || undefined,
+        visualStyle: selectedStyle || "cinematic",
       });
 
       setJobId(result.jobId);

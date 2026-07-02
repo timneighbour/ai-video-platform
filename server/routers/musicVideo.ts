@@ -514,6 +514,7 @@ export const musicVideoRouter = router({
         sceneSetting: z.string().max(5000).optional(), // e.g. "concert venue", "desert", "rooftop" — high limit so users can paste full descriptions
         performanceShotRatio: z.number().int().min(0).max(100).optional(), // 0-100: % of scenes that should be character performance shots (default 75)
         performanceStyle: z.string().max(1000).optional(), // Director's Brief: how musicians are playing (e.g. "pianist with light touch")
+        visualStyle: z.string().max(64).optional(), // Director's Brief: visual style (e.g. "realistic", "cinematic", "anime")
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -626,6 +627,7 @@ export const musicVideoRouter = router({
         sceneSetting: input.sceneSetting ?? null,
         performanceShotRatio: input.performanceShotRatio ?? 80,
         performanceStyle: input.performanceStyle ?? null,
+        visualStyle: input.visualStyle ?? "cinematic",
         lyricsApproved: false,
         errorMessage: null,
       });
@@ -943,7 +945,8 @@ Rules:
           vocalOnsetTime, // precise vocal start time — prevents lyric misassignment on instrumental intros
           job.performanceStyle ?? null, // Director's Brief: musician performance style
           detectedMultiVocalMode, // duet/ensemble mode — unlocks shared vocalist scenes
-          input.lockRoster ?? false // Director's Brief: prevent AI from inventing new characters
+          input.lockRoster ?? false, // Director's Brief: prevent AI from inventing new characters
+          job.visualStyle ?? "cinematic" // Director's Brief: visual style (e.g. "realistic", "anime")
         )).then(result => {
           // Validate scenes is a non-empty array — triggers retry if malformed
           assertNonEmptyArray(result.scenes, "generateStoryboard.scenes");
@@ -2749,15 +2752,29 @@ Rules:
       }
 
       // ── Style and mood ────────────────────────────────────────────────────────
+      // Full 13-option style map — matches the Director's Brief style picker exactly.
+      // "realistic" is the most important: must produce photorealistic output with hard no-illustration guards.
       const styleMap: Record<string, string> = {
-        cinematic: "cinematic film still, dramatic lighting, shallow depth of field",
-        anime: "anime illustration, vibrant colors, detailed line art",
-        "pixar 3d": "Pixar 3D animation style, warm lighting, expressive characters",
-        documentary: "documentary photography, natural lighting, authentic raw footage",
-        abstract: "abstract art, bold colors, surreal composition",
-        vintage: "vintage film aesthetic, grain, warm tones, retro 35mm",
+        realistic:        "photorealistic, real photograph quality, professional studio photography, cinematic lighting, natural skin texture, ultra-high detail, 8K. NO illustration. NO painting. NO cartoon. NO anime. NO digital art. NO CGI render. REAL photograph only.",
+        cinematic:        "cinematic film still, dramatic lighting, shallow depth of field, anamorphic lens flare",
+        anime:            "anime illustration, vibrant colors, detailed line art, Studio Ghibli quality",
+        pixar_3d:         "Pixar 3D animation style, warm lighting, expressive characters, smooth surfaces",
+        "pixar 3d":       "Pixar 3D animation style, warm lighting, expressive characters, smooth surfaces",
+        documentary:      "documentary photography, natural lighting, authentic raw footage, photojournalism",
+        abstract:         "abstract art, bold colors, surreal composition, painterly brushstrokes",
+        vintage:          "vintage film aesthetic, grain, warm tones, retro 35mm photography",
+        neon_noir:        "neon noir, dark urban atmosphere, vibrant neon lights, rain-slicked streets, cinematic shadows",
+        magical_animated: "magical animated fantasy, glowing particles, enchanted atmosphere, Disney-quality animation",
+        epic_fantasy:     "epic fantasy art, dramatic landscapes, heroic composition, oil painting quality",
+        horror:           "horror film still, dark atmosphere, dramatic shadows, unsettling composition, cinematic dread",
+        storybook:        "storybook illustration, soft watercolour style, charming characters, children's book quality",
+        cartoon:          "cartoon illustration, bold outlines, flat colours, expressive characters, comic book style",
       };
-      const styleKey = (scene.visualStyle || "").toLowerCase();
+      // Use job-level visualStyle (from Director's Brief) as primary source;
+      // fall back to scene.visualStyle (LLM-assigned) only if job has no style set.
+      const jobStyleKey = (job.visualStyle || "").toLowerCase().replace(/[^a-z0-9_]/g, "_");
+      const sceneStyleKey = (scene.visualStyle || "").toLowerCase().replace(/[^a-z0-9_]/g, "_");
+      const styleKey = jobStyleKey || sceneStyleKey || "cinematic";
       const styleDescriptor = styleMap[styleKey] || styleMap["cinematic"];
       const moodContext = [job.genre, job.mood].filter(Boolean).join(", ");
 

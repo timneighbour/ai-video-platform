@@ -281,6 +281,12 @@ export const musicVideoJobs = mysqlTable("musicVideoJobs", {
   // Free-text field describing how musicians are playing (e.g. "pianist playing with light touch, sparse chords").
   // Injected into every scene prompt as a PERFORMANCE STYLE block.
   performanceStyle: text("performanceStyle"),
+  // --- Director's Brief: Visual Style ----------------------------------------
+  // The user's chosen visual style from the Director's Brief style picker.
+  // e.g. "realistic", "cinematic", "anime", "neon_noir", "epic_fantasy", "horror",
+  //      "storybook", "cartoon", "documentary", "abstract", "vintage", "pixar_3d", "magical_animated"
+  // Stored on the job and passed to generateStoryboard + scene image generation.
+  visualStyle: varchar("visualStyle", { length: 64 }).default("cinematic"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

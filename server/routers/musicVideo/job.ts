@@ -139,6 +139,7 @@ export const musicVideoJobRouter = router({
         enableLipSync: z.boolean().optional(),
         sceneSetting: z.string().max(5000).optional(), // e.g. "concert venue", "desert", "rooftop" — high limit so users can paste full descriptions
         performanceShotRatio: z.number().int().min(0).max(100).optional(), // 0-100: % of scenes that should be character performance shots (default 75)
+        visualStyle: z.string().max(64).optional(), // e.g. "realistic", "cinematic", "anime", "neon_noir"
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -290,6 +291,7 @@ export const musicVideoJobRouter = router({
         characterRoster: null,
         sceneSetting: input.sceneSetting ?? null,
         performanceShotRatio: input.performanceShotRatio ?? 80,
+        visualStyle: input.visualStyle ?? "cinematic",
         lyricsApproved: false,
         errorMessage: null,
       });

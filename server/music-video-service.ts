@@ -339,7 +339,8 @@ export async function generateStoryboard(
   vocalOnsetTime?: number | null,
   performanceStyle?: string | null,
   multiVocalMode?: "duet" | "ensemble" | null,
-  lockRoster?: boolean
+  lockRoster?: boolean,
+  visualStyle?: string // Director's Brief: visual style (e.g. "realistic", "cinematic", "anime")
 ): Promise<StoryboardResult> {
   const sceneCount = calculateSceneCount(audioDurationSeconds);
 
@@ -854,10 +855,21 @@ This is how the musicians MUST be depicted playing their instruments in every sc
 ═══════════════════════════════════════════════════════════════`
     : "";
 
-  // ── LOCKED ROSTER RULE BLOCK ──────────────────────────────────────────────
+  // ── VISUAL STYLE BLOCK (Director's Brief) ─────────────────────────────────────────────
+  const visualStyleLabel = visualStyle ? visualStyle.replace(/_/g, " ") : "cinematic";
+  const visualStyleBlock = visualStyle
+    ? `
+═════════════════════════════════════════════════════════════
+VISUAL STYLE (DIRECTOR'S BRIEF — MANDATORY): ${visualStyleLabel.toUpperCase()}
+Every scene's "visualStyle" field MUST be "${visualStyle}".
+Every scene's "prompt" MUST be written to produce ${visualStyleLabel} imagery.
+${visualStyle === "realistic" ? "CRITICAL: This is REALISTIC style. ALL scenes MUST be photorealistic. NO animation. NO illustration. NO cartoon. NO anime. NO CGI. Write prompts as if directing a real-life film shoot." : ""}
+═════════════════════════════════════════════════════════════`
+    : "";
+
   const lockRosterBlock = (lockRoster && hasLockedCharacters)
     ? `
-═══════════════════════════════════════════════════════════════
+═════════════════════════════════════════════════════════════
 RULE 10 — LOCKED ROSTER (NON-NEGOTIABLE):
 The director has LOCKED the character roster. You MUST NOT invent any new characters.
 ONLY use the characters listed in the roster below. No supporting cast, no orchestra members, no backing vocalists, no session players, no dancers, no unnamed extras with names.
@@ -901,7 +913,7 @@ Instead, prioritise:
 - Dramatic camera work (Dutch angle, crane shot, rack focus)
 - Slow-motion detail (sweat, light, fabric, smoke)
 A singing close-up should be EARNED — reserved for the most emotionally powerful lyric moments, not used as a default.
-${sceneSettingConstraint}${contentAnalysisBlock}${characterPerformanceBlock}${performanceStyleBlock}${lockRosterBlock}
+${sceneSettingConstraint}${contentAnalysisBlock}${characterPerformanceBlock}${performanceStyleBlock}${visualStyleBlock}${lockRosterBlock}
 
 Each scene description must be:
 - Highly visual and specific (lighting, camera angle, movement, subjects, atmosphere)

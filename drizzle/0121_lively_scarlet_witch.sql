@@ -1,0 +1,1 @@
+ALTER TABLE `musicVideoJobs` ADD `visualStyle` varchar(64) DEFAULT 'cinematic';
