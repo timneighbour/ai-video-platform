@@ -4400,31 +4400,51 @@ Rules:
           imageUrl = fallback.url ?? "";
         }
       } else {
-        // No photos — use Flux Pro 1.1 Ultra (AI-described character)
-        // Physical traits (skin, eyes, hair) are passed as structured physicalTraits so
-        // generateFluxProPortrait() injects them as a numbered hard-constraint block at the
-        // very start of the prompt — before framing, before description, before everything.
-        const portraitPromptNoRef = `${fullBodyPrefix} ${outfitBlock} ${instrumentBlock} ${propsBlock} ${descriptionBlock}. ${fullBodySuffix}`.replace(/\s+/g, " ").trim();
+        // No photos — use Forge (same API that produces photorealistic results for Jonathan).
+        // Build a clean, descriptive prompt with physical traits stated naturally at the front.
+        // Forge responds best to plain descriptive language, not aggressive lock/constraint blocks.
+        const traitSummary = [
+          physicalTraits.skinTone ? `${physicalTraits.skinTone}` : "",
+          physicalTraits.eyeColour ? `${physicalTraits.eyeColour} eyes` : "",
+          [physicalTraits.hairColour, physicalTraits.hairLength, physicalTraits.hairStyle].filter(Boolean).join(" ") + (physicalTraits.hairColour || physicalTraits.hairLength || physicalTraits.hairStyle ? " hair" : ""),
+        ].filter(Boolean).join(", ");
+        const forgePortraitPrompt = [
+          `Full body portrait of ${characterLabel}.`,
+          traitSummary ? `Physical appearance: ${traitSummary}.` : "",
+          outfitBlock,
+          instrumentBlock,
+          propsBlock,
+          descriptionBlock + ".",
+          fullBodySuffix,
+          "photorealistic, real photograph quality, professional studio photography, no illustration, no cartoon, no anime, no digital art.",
+        ].filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
+        console.log(`[previewCharacter] FORGE (no ref) for AI character ${char.name}`);
+        console.log(`[previewCharacter] Physical traits for ${char.name}: skin=${physicalTraits.skinTone ?? 'none'}, eyes=${physicalTraits.eyeColour ?? 'none'}, hair=${physicalTraits.hairColour ?? 'none'}`);
         try {
-          console.log(`[previewCharacter] FLUX PRO 1.1 ULTRA (no ref) for AI character ${char.name}`);
-          console.log(`[previewCharacter] Physical traits for ${char.name}: skin=${physicalTraits.skinTone ?? 'none'}, eyes=${physicalTraits.eyeColour ?? 'none'}, hair=${physicalTraits.hairColour ?? 'none'}`);
-          const aimlUrl = await generateFluxProPortrait({
-            characterPrompt: portraitPromptNoRef,
-            physicalTraits: hasPhysicalTraits ? physicalTraits : undefined,
-            aspectRatio: "9:16",
-            outputFormat: "jpeg",
-          });
-          const imgResp = await fetch(aimlUrl, { signal: AbortSignal.timeout(90_000) });
-          if (!imgResp.ok) throw new Error(`Portrait CDN download failed: ${imgResp.status}`);
-          const imgBuf = Buffer.from(await imgResp.arrayBuffer());
-          const s3Key = `character-portraits/${ctx.user.id}/${input.characterId}/preview-${Date.now()}.jpg`;
-          const { url: s3Url } = await storagePut(s3Key, imgBuf, "image/jpeg");
-          imageUrl = s3Url;
-          console.log(`[previewCharacter] FLUX PRO SUCCESS (no ref) for ${char.name}: ${imageUrl}`);
-        } catch (fluxErr) {
-          console.warn(`[previewCharacter] Flux Pro (no ref) failed for ${char.name}, falling back to Forge:`, fluxErr instanceof Error ? fluxErr.message : fluxErr);
-          const result = await generateImage({ prompt: previewPrompt });
-          imageUrl = result.url ?? "";
+          const forgeResult = await generateImage({ prompt: forgePortraitPrompt });
+          imageUrl = forgeResult.url ?? "";
+          console.log(`[previewCharacter] FORGE SUCCESS (no ref) for ${char.name}: ${imageUrl}`);
+        } catch (forgeErr) {
+          // Fallback: FLUX Pro 1.1 Ultra
+          console.warn(`[previewCharacter] Forge (no ref) failed for ${char.name}, falling back to Flux Pro:`, forgeErr instanceof Error ? forgeErr.message : forgeErr);
+          try {
+            const aimlUrl = await generateFluxProPortrait({
+              characterPrompt: forgePortraitPrompt,
+              physicalTraits: hasPhysicalTraits ? physicalTraits : undefined,
+              aspectRatio: "9:16",
+              outputFormat: "jpeg",
+            });
+            const imgResp = await fetch(aimlUrl, { signal: AbortSignal.timeout(90_000) });
+            if (!imgResp.ok) throw new Error(`Portrait CDN download failed: ${imgResp.status}`);
+            const imgBuf = Buffer.from(await imgResp.arrayBuffer());
+            const s3Key = `character-portraits/${ctx.user.id}/${input.characterId}/preview-${Date.now()}.jpg`;
+            const { url: s3Url } = await storagePut(s3Key, imgBuf, "image/jpeg");
+            imageUrl = s3Url;
+          } catch (fluxErr) {
+            console.warn(`[previewCharacter] Flux Pro fallback also failed for ${char.name}:`, fluxErr instanceof Error ? fluxErr.message : fluxErr);
+            const lastResort = await generateImage({ prompt: previewPrompt });
+            imageUrl = lastResort.url ?? "";
+          }
         }
       }
 
