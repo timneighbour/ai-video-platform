@@ -1778,13 +1778,24 @@ export default function MusicVideoAutopilot() {
   // Character roster for storyboard @-tag display and per-scene assignment
   const jobCharactersQuery = trpc.musicVideo.getCharactersForJob.useQuery(
     { jobId: jobId! },
-    { enabled: !!jobId && (step === "storyboard" || step === "character_confirmation"), staleTime: 30000 }
+    { enabled: !!jobId && (step === "storyboard" || step === "character_confirmation" || step === "upload"), staleTime: 30000 }
   );
   const jobCharacters = jobCharactersQuery.data?.characters ?? [];
   const updateCharacterInstrumentMutation = trpc.musicVideo.updateCharacterInstrument.useMutation({
     onSuccess: () => { jobCharactersQuery.refetch(); },
     onError: (err) => { toast.error("Failed to update role", { description: err.message }); },
   });
+
+  // Restore savedCharacterIds from DB when returning to Director's Brief with an existing job
+  useEffect(() => {
+    if (!jobCharactersQuery.data?.characters?.length) return;
+    if (Object.keys(savedCharacterIds).length > 0) return; // already populated
+    const restored: Record<number, number> = {};
+    for (const c of jobCharactersQuery.data.characters) {
+      if (typeof c.slotIndex === 'number') restored[c.slotIndex] = c.id;
+    }
+    if (Object.keys(restored).length > 0) setSavedCharacterIds(restored);
+  }, [jobCharactersQuery.data]);
 
   // Per-scene character selector dropdown state
   const [characterSelectorSceneId, setCharacterSelectorSceneId] = useState<number | null>(null);
@@ -4690,11 +4701,34 @@ export default function MusicVideoAutopilot() {
                   <CardTitle className="text-white flex items-center gap-2">
                     <User className="w-5 h-5 text-[--color-gold]" />
                     Characters
-                    <Badge variant="outline" className="border-zinc-600 text-white/50 text-xs ml-1">Optional · Up to 4</Badge>
+                    <Badge variant="outline" className={`text-xs ml-1 ${characters.length > 0 ? 'border-[--color-gold]/40 text-[--color-gold]/70' : 'border-zinc-600 text-white/50'}`}>
+                      {characters.length > 0 ? `${characters.length} of 8 added` : 'Optional · Up to 8'}
+                    </Badge>
                   </CardTitle>
                   <p className="text-white/40 text-xs mt-1">
                     Upload photos of real people or describe AI-generated characters. Each will appear consistently across all scenes.
                   </p>
+                  {/* Locked characters summary — shown when returning from Character Lock */}
+                  {jobId && jobCharacters.length > 0 && (
+                    <div className="mt-3 rounded-lg border border-[--color-gold]/25 bg-[--color-gold]/5 px-3 py-2 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-[--color-gold] text-xs">✓</span>
+                        <span className="text-[--color-gold]/80 text-xs font-medium">
+                          {jobCharacters.filter(c => c.previewApproved).length > 0
+                            ? `${jobCharacters.filter(c => c.previewApproved).length} of ${jobCharacters.length} character${jobCharacters.length !== 1 ? 's' : ''} approved in Character Lock`
+                            : `${jobCharacters.length} character${jobCharacters.length !== 1 ? 's' : ''} saved in Character Lock`
+                          }
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setStep('character_confirmation')}
+                        className="text-xs text-[--color-gold]/60 hover:text-[--color-gold] underline underline-offset-2 whitespace-nowrap flex-shrink-0 transition-colors"
+                      >
+                        Review →
+                      </button>
+                    </div>
+                  )}
                 </CardHeader>
                 <CardContent>
                   <CharacterManager
