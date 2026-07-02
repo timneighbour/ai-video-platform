@@ -4291,7 +4291,20 @@ Rules:
           portraitSkinTone = (vd.skinTone || vd.complexion || "").trim();
         } catch { /* ignore parse errors */ }
       }
-      // Fallback: extract eye colour and skin tone from lockedDescription using broad regex
+      // Also extract hair traits from characterVisualDetails
+      let portraitHairColour = "";
+      let portraitHairLength = "";
+      let portraitHairStyle = "";
+      if (char.characterVisualDetails) {
+        try {
+          const vd2 = JSON.parse(char.characterVisualDetails) as { hairColour?: string; hairLength?: string; hairStyle?: string };
+          portraitHairColour = (vd2.hairColour || "").trim();
+          portraitHairLength = (vd2.hairLength || "").trim();
+          portraitHairStyle = (vd2.hairStyle || "").trim();
+        } catch { /* ignore */ }
+      }
+
+      // Fallback: extract all physical traits from lockedDescription using broad regex
       if (!portraitEyeColour && description) {
         const eyeM = description.match(/\b(?:captivating|striking|beautiful|bright|vivid|deep|piercing|alluring|mesmerising|mesmerizing)?\s*(emerald\s+green|ice\s+blue|dark\s+brown|light\s+brown|green|blue|brown|hazel|grey|gray|amber|violet|teal|honey|emerald)\s+eyes?\b/i);
         if (eyeM) portraitEyeColour = eyeM[1].trim();
@@ -4300,6 +4313,31 @@ Rules:
         const skinM = description.match(/\b(?:radiant|glowing|beautiful|warm|sun.kissed|luminous|smooth|flawless)?\s*(sun.kissed\s+tan|warm\s+caramel|light\s+brown|medium\s+brown|dark\s+brown|fair|pale|light|medium|olive|tan|tanned|golden|caramel|brown|dark|deep|ebony|porcelain|ivory|peach|beige)\s+(?:skin|complexion|tone)\b/i);
         if (skinM) portraitSkinTone = skinM[1].trim() + " skin";
       }
+      if (!portraitHairColour && description) {
+        const hairCM = description.match(/\b(jet\s+black|raven\s+black|black|dark\s+brown|brown|auburn|red|blonde|blond|silver|grey|gray|white|platinum|copper|chestnut)\s+hair\b/i);
+        if (hairCM) portraitHairColour = hairCM[1].trim();
+      }
+      if (!portraitHairLength && description) {
+        const hairLM = description.match(/\b(short|medium|long|shoulder.length|waist.length|close.cropped|buzz.cut|shaved)\s+hair\b/i);
+        if (hairLM) portraitHairLength = hairLM[1].trim();
+      }
+      if (!portraitHairStyle && description) {
+        const hairSM = description.match(/\b(straight|wavy|curly|messy|textured|slicked.back|tied.back|flowing|sleek)\s+(?:hair|locks|waves)\b/i);
+        if (hairSM) portraitHairStyle = hairSM[1].trim();
+      }
+
+      // Build structured physicalTraits object — passed to generateFluxProPortrait() which
+      // injects them as a numbered hard-constraint block at the VERY START of the FLUX Pro prompt.
+      // FLUX Pro weights earlier tokens most heavily, so this ensures the model cannot ignore
+      // skin tone, eye colour, or hair regardless of description length or content.
+      const physicalTraits = {
+        skinTone: portraitSkinTone || undefined,
+        eyeColour: portraitEyeColour || undefined,
+        hairColour: portraitHairColour || undefined,
+        hairLength: portraitHairLength || undefined,
+        hairStyle: portraitHairStyle || undefined,
+      };
+      const hasPhysicalTraits = Object.values(physicalTraits).some(Boolean);
 
       // Per-character outfit enforcement — injected directly into the prompt
       const outfitBlock = charNameLower === "tim"
@@ -4313,20 +4351,13 @@ Rules:
       const instrumentBlock = visualInstrument ? `INSTRUMENT: ${visualInstrument}.` : "";
       const propsBlock = visualProps ? `PROPS: ${visualProps}.` : "";
 
-      // Build eye colour and skin tone hard constraint blocks for portrait prompts
-      const eyeColourBlock = portraitEyeColour
-        ? `EYE COLOUR (MANDATORY — NON-NEGOTIABLE): ${portraitEyeColour} eyes. MUST have ${portraitEyeColour} eyes. NEVER brown eyes. NEVER dark eyes. NEVER black eyes. The eye colour is ${portraitEyeColour} — this is the single most important facial feature.`
-        : "";
-      const skinToneBlock = portraitSkinTone
-        ? `SKIN TONE (MANDATORY — NON-NEGOTIABLE): ${portraitSkinTone}. MUST have ${portraitSkinTone}. DO NOT make the skin darker.${/medium|olive|tan|golden|caramel|sun.kissed/i.test(portraitSkinTone) ? " NEVER dark brown skin. NEVER ebony skin. NEVER Black African appearance." : ""}`
-        : "";
-
-      // Build a full-body portrait prompt — AGGRESSIVE full-length framing to override reference photo composition
-      // The reference photo may be a bust/waist-up shot, so we must dominate the framing with explicit full-body language
+      // Build a full-body portrait prompt — framing + outfit + description.
+      // Physical traits are NOT included here — they are passed via physicalTraits and
+      // injected at the very start of the FLUX Pro prompt by generateFluxProPortrait().
       const fullBodyPrefix = `FULL BODY SHOT. FULL LENGTH. HEAD TO FEET. ENTIRE BODY VISIBLE. LEGS VISIBLE. FEET AND SHOES VISIBLE. Standing pose, full figure from top of head to bottom of feet. NOT a bust shot. NOT a portrait crop. NOT waist up. NOT chest up. The entire body must be in frame.`;
       const fullBodySuffix = `Show the complete outfit: top AND bottom clothing AND footwear AND accessories. Both legs fully visible. Both feet and shoes/boots fully visible. Camera framed to show full standing figure. Vertical composition. Full-length portrait. 9:16 aspect ratio. Neutral expression, soft studio lighting, plain neutral background, photorealistic, high detail, 8K. DO NOT crop. DO NOT cut off legs. DO NOT cut off feet.`;
       const descriptionBlock = description.length > 20 ? description : characterLabel;
-      const previewPrompt = `${fullBodyPrefix} ${eyeColourBlock} ${skinToneBlock} ${outfitBlock} ${instrumentBlock} ${propsBlock} ${descriptionBlock}. ${fullBodySuffix}`.replace(/\s+/g, " ").trim();
+      const previewPrompt = `${fullBodyPrefix} ${outfitBlock} ${instrumentBlock} ${propsBlock} ${descriptionBlock}. ${fullBodySuffix}`.replace(/\s+/g, " ").trim();
 
       // Fetch all photos for Flux PuLID
       const photos = await db.select().from(videoCharacterPhotos)
@@ -4370,13 +4401,16 @@ Rules:
         }
       } else {
         // No photos — use Flux Pro 1.1 Ultra (AI-described character)
-        // Inject eye colour and skin tone as hard constraints at the START of the prompt
-        // so FLUX Pro treats them as the highest-priority directives
-        const portraitPromptNoRef = `${characterLabel}. ${eyeColourBlock} ${skinToneBlock} ${outfitBlock} ${instrumentBlock} ${propsBlock} ${descriptionBlock}`.replace(/\s+/g, " ").trim();
+        // Physical traits (skin, eyes, hair) are passed as structured physicalTraits so
+        // generateFluxProPortrait() injects them as a numbered hard-constraint block at the
+        // very start of the prompt — before framing, before description, before everything.
+        const portraitPromptNoRef = `${fullBodyPrefix} ${outfitBlock} ${instrumentBlock} ${propsBlock} ${descriptionBlock}. ${fullBodySuffix}`.replace(/\s+/g, " ").trim();
         try {
           console.log(`[previewCharacter] FLUX PRO 1.1 ULTRA (no ref) for AI character ${char.name}`);
+          console.log(`[previewCharacter] Physical traits for ${char.name}: skin=${physicalTraits.skinTone ?? 'none'}, eyes=${physicalTraits.eyeColour ?? 'none'}, hair=${physicalTraits.hairColour ?? 'none'}`);
           const aimlUrl = await generateFluxProPortrait({
             characterPrompt: portraitPromptNoRef,
+            physicalTraits: hasPhysicalTraits ? physicalTraits : undefined,
             aspectRatio: "9:16",
             outputFormat: "jpeg",
           });

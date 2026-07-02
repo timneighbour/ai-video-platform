@@ -2,7 +2,7 @@
  * aimlapi-fluxpro.ts
  *
  * Flux Pro 1.1 Ultra via AI/ML API (aimlapi.com)
- * Used for CHARACTER PORTRAIT GENERATION — photorealistic head+shoulders portraits.
+ * Used for CHARACTER PORTRAIT GENERATION — photorealistic full-body portraits.
  *
  * ═══════════════════════════════════════════════════════════════════════════
  * WHY FLUX PRO 1.1 ULTRA?
@@ -24,6 +24,11 @@
  *   - raw parameter: Only accepts raw=false (or omit it — true causes HTTP 400)
  *   - safety_tolerance: Must be a string ("1" to "6"), not a number
  *   - Response: data[0].url is always present on success (synchronous)
+ *
+ * PROMPT STRUCTURE (order matters — FLUX Pro weights earlier tokens more heavily):
+ *   1. PHYSICAL TRAIT LOCKS (skin tone, eye colour, hair) — absolute top priority
+ *   2. Framing + character description (outfit, pose, props)
+ *   3. Photorealism quality suffix
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
@@ -41,7 +46,6 @@ export const PHOTOREALISTIC_PORTRAIT_SUFFIX =
 
 /**
  * Head+shoulders framing directives.
- * OmniHuman 1.5 performs best on head+shoulders crops (not full body).
  */
 export const HEAD_SHOULDERS_FRAMING =
   "HEAD AND SHOULDERS PORTRAIT. Tight portrait crop. " +
@@ -55,11 +59,10 @@ function getApiKey(): string {
 }
 
 export interface FluxProPortraitRequest {
-  /** The full character prompt (visual description, name, style etc.) */
+  /** The full character prompt (framing + outfit + description) */
   characterPrompt: string;
   /**
-   * Optional reference description — key visual traits from the reference photo
-   * (face shape, eye colour, hair colour/style, skin tone) embedded in the prompt.
+   * Optional reference description — key visual traits from the reference photo.
    * NOTE: This model is TEXT-TO-IMAGE ONLY — no image URLs are accepted.
    */
   referenceDescription?: string;
@@ -67,14 +70,74 @@ export interface FluxProPortraitRequest {
   aspectRatio?: "1:1" | "9:16" | "16:9" | "3:4" | "2:3";
   /** Output format */
   outputFormat?: "jpeg" | "png";
-  /** Safety tolerance 1-6 (default 6 for portrait generation — character descriptions often contain
-   * words like "attractive", "sexy", "toned" that trigger the safety filter at lower levels) */
+  /** Safety tolerance 1-6 (default 6) */
   safetyTolerance?: number;
+
+  /**
+   * Structured physical trait locks — injected as a numbered hard-constraint block at the
+   * VERY START of the prompt, before any framing or description text.
+   * FLUX Pro weights earlier tokens most heavily, so these must come first to prevent
+   * the model from defaulting to its own interpretation of the character's appearance.
+   */
+  physicalTraits?: {
+    skinTone?: string;    // e.g. "sun-kissed tan skin"
+    eyeColour?: string;   // e.g. "emerald green"
+    hairColour?: string;  // e.g. "jet black"
+    hairLength?: string;  // e.g. "long straight past shoulders"
+    hairStyle?: string;   // e.g. "sleek and straight"
+  };
+}
+
+/**
+ * Build the physical trait lock block — a numbered list of hard constraints
+ * placed at the absolute start of the prompt so FLUX Pro cannot ignore them.
+ *
+ * Example output:
+ *   PHYSICAL TRAITS (MANDATORY — DO NOT CHANGE ANY OF THESE):
+ *   1. SKIN: sun-kissed tan skin — light-medium complexion, warm undertone. NOT dark. NOT brown. NOT Black African.
+ *   2. EYES: emerald green eyes — bright green iris. NOT brown. NOT dark. NOT black.
+ *   3. HAIR: jet black, long straight past shoulders, sleek and straight.
+ */
+function buildPhysicalTraitBlock(traits: FluxProPortraitRequest["physicalTraits"]): string {
+  if (!traits) return "";
+  const lines: string[] = [];
+
+  if (traits.skinTone) {
+    const tone = traits.skinTone.toLowerCase();
+    const isMedium = /medium|olive|tan|golden|caramel|sun.kissed/i.test(tone);
+    const isLight = /fair|pale|light|porcelain|ivory|peach|beige/i.test(tone);
+    const forbid = isMedium
+      ? " NOT dark brown. NOT ebony. NOT Black African. NOT dark-skinned."
+      : isLight
+      ? " NOT olive. NOT tan. NOT brown. NOT dark."
+      : "";
+    lines.push(`1. SKIN TONE: ${traits.skinTone}.${forbid} This is the character's exact complexion — do not change it.`);
+  }
+
+  if (traits.eyeColour) {
+    const colour = traits.eyeColour.toLowerCase();
+    const isGreen = /green|emerald|teal/i.test(colour);
+    const isBlue = /blue|ice/i.test(colour);
+    const forbid = isGreen
+      ? " NOT brown eyes. NOT dark eyes. NOT black eyes. NOT hazel."
+      : isBlue
+      ? " NOT brown eyes. NOT dark eyes. NOT black eyes."
+      : " NOT dark eyes. NOT black eyes.";
+    lines.push(`2. EYE COLOUR: ${traits.eyeColour} eyes.${forbid} The iris must be clearly ${traits.eyeColour} in colour.`);
+  }
+
+  if (traits.hairColour || traits.hairLength || traits.hairStyle) {
+    const hairParts = [traits.hairColour, traits.hairLength, traits.hairStyle].filter(Boolean).join(", ");
+    lines.push(`3. HAIR: ${hairParts}. Do not change the hair colour, length, or style.`);
+  }
+
+  if (lines.length === 0) return "";
+
+  return `PHYSICAL TRAITS (MANDATORY — DO NOT CHANGE ANY OF THESE):\n${lines.join("\n")}`;
 }
 
 /**
  * Generate a Flux Pro 1.1 Ultra portrait.
- * This is a SYNCHRONOUS call — the API returns the image URL immediately.
  * Returns the final image URL from AI/ML API CDN.
  * IMPORTANT: Callers must download and re-upload to S3 for persistence.
  */
@@ -83,10 +146,7 @@ export async function generateFluxProPortrait(
 ): Promise<string> {
   const apiKey = getApiKey();
 
-  // Build the full prompt: framing + character description + photorealism suffix
   // Sanitise the character prompt to remove words that trigger Flux Pro's safety filter.
-  // Character descriptions often contain words like "sexy", "attractive", "toned physique",
-  // "low body fat" etc. which cause the model to return a black image at lower safety levels.
   const sanitisedPrompt = request.characterPrompt
     .replace(/\b(sexy|sexiest|seductive|provocative|erotic|sensual)\b/gi, "confident")
     .replace(/\b(very attractive|extremely attractive|stunningly attractive)\b/gi, "beautiful")
@@ -95,29 +155,32 @@ export async function generateFluxProPortrait(
     .replace(/\b(revealing|skimpy|tight-fitting|form-fitting)\b/gi, "fitted")
     .trim();
 
-  const promptParts = [HEAD_SHOULDERS_FRAMING, sanitisedPrompt];
+  // Build prompt in strict priority order:
+  // 1. Physical trait locks (MUST be first — FLUX Pro weights earlier tokens most heavily)
+  // 2. Character description (framing + outfit + props)
+  // 3. Reference description (if any)
+  // 4. Photorealism quality suffix
+  const physicalTraitBlock = buildPhysicalTraitBlock(request.physicalTraits);
+  const promptParts: string[] = [];
+  if (physicalTraitBlock) promptParts.push(physicalTraitBlock);
+  promptParts.push(sanitisedPrompt);
   if (request.referenceDescription) {
     promptParts.push(`Reference appearance: ${request.referenceDescription}`);
   }
   promptParts.push(PHOTOREALISTIC_PORTRAIT_SUFFIX);
-  const fullPrompt = promptParts.join(". ");
+  const fullPrompt = promptParts.join("\n\n");
 
   console.log(`[AimlFluxPro] Submitting portrait — model: ${FLUX_PRO_ULTRA_MODEL}`);
-  console.log(`[AimlFluxPro] Prompt (first 150 chars): ${fullPrompt.slice(0, 150)}`);
+  console.log(`[AimlFluxPro] Physical traits: ${JSON.stringify(request.physicalTraits ?? {})}`);
+  console.log(`[AimlFluxPro] Prompt (first 400 chars): ${fullPrompt.slice(0, 400)}`);
 
-  // Build request body — ONLY valid parameters for this model
-  // DO NOT add: image_url, image_prompt_strength, raw=true (causes HTTP 400)
   const body: Record<string, unknown> = {
     model: FLUX_PRO_ULTRA_MODEL,
     prompt: fullPrompt,
     aspect_ratio: request.aspectRatio ?? "9:16",
     output_format: request.outputFormat ?? "jpeg",
-    // Use safety_tolerance 6 (maximum) for portrait generation.
-    // Character descriptions commonly contain words like "attractive", "sexy", "toned"
-    // that trigger the safety filter at lower levels, producing a black image.
     safety_tolerance: String(request.safetyTolerance ?? 6),
     num_images: 1,
-    // raw is intentionally omitted — API only accepts raw=false, which is the default
   };
 
   const response = await fetch(`${AIMLAPI_BASE}/v1/images/generations`, {
