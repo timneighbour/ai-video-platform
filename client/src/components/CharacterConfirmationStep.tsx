@@ -112,6 +112,7 @@ interface CharacterConfirmationStepProps {
   onApproveAll: () => void;
   onBack: () => void;
   isGeneratingStoryboard: boolean;
+  onGoToStoryboard?: () => void;
 }
 
 const SLOT_COLORS = [
@@ -140,6 +141,7 @@ export default function CharacterConfirmationStep({
   onApproveAll,
   onBack,
   isGeneratingStoryboard,
+  onGoToStoryboard,
 }: CharacterConfirmationStepProps) {
   const [characters, setCharacters] = useState<CharacterPreviewState[]>([]);
   const [generatingPreviews, setGeneratingPreviews] = useState<Set<number>>(new Set());
@@ -985,16 +987,29 @@ export default function CharacterConfirmationStep({
       )}
 
       {allApproved && (
-        <div className="flex items-start gap-3 rounded-xl border border-emerald-700/50 bg-emerald-950/30 px-4 py-3">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="text-emerald-300 font-medium text-sm">All characters approved!</p>
-            <p className="text-emerald-200/60 text-xs mt-0.5">
-              {characterLockMode && photoChars.length > 0
-                ? "Identity anchors are locked in. Every scene will use your approved portraits to enforce face, hair, and outfit consistency."
-                : "Your characters' appearances are locked in. Click \"Generate Storyboard\" to create your video scenes."}
-            </p>
+        <div className="rounded-xl border border-emerald-700/50 bg-emerald-950/30 px-4 py-3">
+          <div className="flex items-start gap-3">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-emerald-300 font-medium text-sm">All characters approved!</p>
+              <p className="text-emerald-200/60 text-xs mt-0.5">
+                {characterLockMode && photoChars.length > 0
+                  ? "Identity anchors are locked in. Every scene will use your approved portraits to enforce face, hair, and outfit consistency."
+                  : "Your characters' appearances are locked in. Click \"Generate Storyboard\" to create your video scenes."}
+              </p>
+            </div>
           </div>
+          {hasExistingStoryboard && onGoToStoryboard && (
+            <button
+              type="button"
+              onClick={onGoToStoryboard}
+              className="mt-3 w-full flex items-center justify-center gap-2 rounded-lg py-2 px-4 text-sm font-semibold transition-all"
+              style={{ background: 'linear-gradient(135deg, #6db86d 0%, #4a8a4a 100%)', color: '#fff' }}
+            >
+              Continue to Storyboard
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+          )}
         </div>
       )}
 

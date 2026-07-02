@@ -1056,7 +1056,7 @@ export function CharacterManager({
             <div className="w-8 h-8 rounded-full bg-zinc-800 group-hover:bg-zinc-700 flex items-center justify-center transition-colors">
               <Plus className="w-4 h-4" />
             </div>
-            <span className="text-sm font-medium">Add Character {characters.length + 1}{maxCharacters < 99 ? ` of ${maxCharacters}` : ""}</span>
+            <span className="text-sm font-medium">Add Character {Math.max(characters.length, Object.keys(savedCharacterIds).length) + 1}{maxCharacters < 99 ? ` of ${maxCharacters}` : ""}</span>
           </button>
           <button
             type="button"

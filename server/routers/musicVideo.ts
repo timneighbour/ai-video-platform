@@ -2487,8 +2487,9 @@ Rules:
           // Extract eye colour from characterVisualDetails or lockedDescription — NEVER let the AI drift on this
           let eyeColour: string | null = (details as any).eyeColour || (details as any).eyeColor || null;
           if (!eyeColour && c.lockedDescription) {
-            const eyeMatch = c.lockedDescription.match(/\b(green|blue|brown|hazel|grey|gray|amber|violet|dark brown|light brown|ice blue|emerald|teal|honey)\s+eyes?\b/i);
-            if (eyeMatch) eyeColour = eyeMatch[1];
+            // Match patterns like: "emerald green eyes", "captivating green eyes", "green eyes", "ice blue eyes"
+            const eyeMatch = c.lockedDescription.match(/\b(?:captivating|striking|beautiful|bright|vivid|deep|piercing|alluring|mesmerising|mesmerizing)?\s*(emerald\s+green|ice\s+blue|dark\s+brown|light\s+brown|green|blue|brown|hazel|grey|gray|amber|violet|teal|honey|emerald)\s+eyes?\b/i);
+            if (eyeMatch) eyeColour = eyeMatch[1].trim();
           }
           if (!eyeColour && charDefaults?.characterVisualDetails) {
             eyeColour = (charDefaults.characterVisualDetails as any).eyeColour || null;
@@ -2498,7 +2499,8 @@ Rules:
               `EYE COLOUR LOCK (ABSOLUTE — SAME IN EVERY SCENE): ${c.name}'s eyes are EXACTLY: ${eyeColour}. ` +
               `DO NOT change the eye colour. DO NOT make the eyes darker or lighter. ` +
               `${eyeColour.toLowerCase()} eyes MUST be clearly visible in every scene. ` +
-              `NEVER brown eyes if the description says ${eyeColour}. NEVER dark eyes if the description says ${eyeColour}.`
+              `NEVER brown eyes if the description says ${eyeColour}. NEVER dark eyes if the description says ${eyeColour}. ` +
+              `NEVER black eyes. NEVER dark brown eyes. The eye colour is ${eyeColour} — this is non-negotiable.`
             );
           }
 
@@ -2506,17 +2508,23 @@ Rules:
           // Extract skin tone from characterVisualDetails or lockedDescription — prevent ethnicity drift
           let skinTone: string | null = (details as any).skinTone || (details as any).complexion || null;
           if (!skinTone && c.lockedDescription) {
-            const skinMatch = c.lockedDescription.match(/\b(fair|pale|light|medium|olive|tan|tanned|warm|golden|caramel|brown|dark brown|dark|deep|ebony|porcelain|ivory|light brown|medium brown)\s+(?:skin|complexion|tone)\b/i);
-            if (skinMatch) skinTone = skinMatch[1] + " skin";
+            // Match patterns like: "sun-kissed tan skin", "radiant tan skin", "warm caramel skin", "olive skin", "fair skin"
+            const skinMatch = c.lockedDescription.match(/\b(?:radiant|glowing|beautiful|warm|sun.kissed|luminous|smooth|flawless)?\s*(sun.kissed\s+tan|warm\s+caramel|light\s+brown|medium\s+brown|dark\s+brown|fair|pale|light|medium|olive|tan|tanned|golden|caramel|brown|dark|deep|ebony|porcelain|ivory|peach|beige)\s+(?:skin|complexion|tone)\b/i);
+            if (skinMatch) skinTone = skinMatch[1].trim() + " skin";
           }
           if (!skinTone && charDefaults?.characterVisualDetails) {
             skinTone = (charDefaults.characterVisualDetails as any).skinTone || null;
           }
           if (skinTone) {
+            // Determine what skin tones to explicitly forbid based on the locked tone
+            const isLightSkin = /fair|pale|light|porcelain|ivory|peach|beige/i.test(skinTone);
+            const isMediumSkin = /medium|olive|tan|golden|caramel|sun.kissed/i.test(skinTone);
+            const forbidDarker = isLightSkin ? " NEVER dark skin. NEVER brown skin. NEVER olive skin." : "";
+            const forbidDarkest = isMediumSkin ? " NEVER dark brown skin. NEVER ebony skin. NEVER Black African appearance." : "";
             parts.push(
               `SKIN TONE LOCK (ABSOLUTE — SAME IN EVERY SCENE): ${c.name}'s skin tone is EXACTLY: ${skinTone}. ` +
               `DO NOT change the skin tone. DO NOT make the skin darker or lighter. ` +
-              `DO NOT change the ethnicity or racial appearance. ` +
+              `DO NOT change the ethnicity or racial appearance.${forbidDarker}${forbidDarkest} ` +
               `${skinTone} MUST be consistent in every single scene. NEVER different.`
             );
           }
@@ -4267,17 +4275,30 @@ Rules:
       const characterLabel = `${char.name}${char.role ? `, ${char.role}` : ""}`;
       const charNameLower = char.name.toLowerCase();
 
-      // Extract visual details (outfit, instrument, props) from stored JSON
+      // Extract visual details (outfit, instrument, props, eye colour, skin tone) from stored JSON
       let visualOutfit = "";
       let visualInstrument = "";
       let visualProps = "";
+      let portraitEyeColour = "";
+      let portraitSkinTone = "";
       if (char.characterVisualDetails) {
         try {
-          const vd = JSON.parse(char.characterVisualDetails) as { outfit?: string; instrument?: string; props?: string };
+          const vd = JSON.parse(char.characterVisualDetails) as { outfit?: string; instrument?: string; props?: string; eyeColour?: string; eyeColor?: string; skinTone?: string; complexion?: string };
           visualOutfit = vd.outfit?.trim() ?? "";
           visualInstrument = vd.instrument?.trim() ?? "";
           visualProps = vd.props?.trim() ?? "";
+          portraitEyeColour = (vd.eyeColour || vd.eyeColor || "").trim();
+          portraitSkinTone = (vd.skinTone || vd.complexion || "").trim();
         } catch { /* ignore parse errors */ }
+      }
+      // Fallback: extract eye colour and skin tone from lockedDescription using broad regex
+      if (!portraitEyeColour && description) {
+        const eyeM = description.match(/\b(?:captivating|striking|beautiful|bright|vivid|deep|piercing|alluring|mesmerising|mesmerizing)?\s*(emerald\s+green|ice\s+blue|dark\s+brown|light\s+brown|green|blue|brown|hazel|grey|gray|amber|violet|teal|honey|emerald)\s+eyes?\b/i);
+        if (eyeM) portraitEyeColour = eyeM[1].trim();
+      }
+      if (!portraitSkinTone && description) {
+        const skinM = description.match(/\b(?:radiant|glowing|beautiful|warm|sun.kissed|luminous|smooth|flawless)?\s*(sun.kissed\s+tan|warm\s+caramel|light\s+brown|medium\s+brown|dark\s+brown|fair|pale|light|medium|olive|tan|tanned|golden|caramel|brown|dark|deep|ebony|porcelain|ivory|peach|beige)\s+(?:skin|complexion|tone)\b/i);
+        if (skinM) portraitSkinTone = skinM[1].trim() + " skin";
       }
 
       // Per-character outfit enforcement — injected directly into the prompt
@@ -4292,12 +4313,20 @@ Rules:
       const instrumentBlock = visualInstrument ? `INSTRUMENT: ${visualInstrument}.` : "";
       const propsBlock = visualProps ? `PROPS: ${visualProps}.` : "";
 
+      // Build eye colour and skin tone hard constraint blocks for portrait prompts
+      const eyeColourBlock = portraitEyeColour
+        ? `EYE COLOUR (MANDATORY — NON-NEGOTIABLE): ${portraitEyeColour} eyes. MUST have ${portraitEyeColour} eyes. NEVER brown eyes. NEVER dark eyes. NEVER black eyes. The eye colour is ${portraitEyeColour} — this is the single most important facial feature.`
+        : "";
+      const skinToneBlock = portraitSkinTone
+        ? `SKIN TONE (MANDATORY — NON-NEGOTIABLE): ${portraitSkinTone}. MUST have ${portraitSkinTone}. DO NOT make the skin darker.${/medium|olive|tan|golden|caramel|sun.kissed/i.test(portraitSkinTone) ? " NEVER dark brown skin. NEVER ebony skin. NEVER Black African appearance." : ""}`
+        : "";
+
       // Build a full-body portrait prompt — AGGRESSIVE full-length framing to override reference photo composition
       // The reference photo may be a bust/waist-up shot, so we must dominate the framing with explicit full-body language
       const fullBodyPrefix = `FULL BODY SHOT. FULL LENGTH. HEAD TO FEET. ENTIRE BODY VISIBLE. LEGS VISIBLE. FEET AND SHOES VISIBLE. Standing pose, full figure from top of head to bottom of feet. NOT a bust shot. NOT a portrait crop. NOT waist up. NOT chest up. The entire body must be in frame.`;
       const fullBodySuffix = `Show the complete outfit: top AND bottom clothing AND footwear AND accessories. Both legs fully visible. Both feet and shoes/boots fully visible. Camera framed to show full standing figure. Vertical composition. Full-length portrait. 9:16 aspect ratio. Neutral expression, soft studio lighting, plain neutral background, photorealistic, high detail, 8K. DO NOT crop. DO NOT cut off legs. DO NOT cut off feet.`;
       const descriptionBlock = description.length > 20 ? description : characterLabel;
-      const previewPrompt = `${fullBodyPrefix} ${outfitBlock} ${instrumentBlock} ${propsBlock} ${descriptionBlock}. ${fullBodySuffix}`.replace(/\s+/g, " ").trim();
+      const previewPrompt = `${fullBodyPrefix} ${eyeColourBlock} ${skinToneBlock} ${outfitBlock} ${instrumentBlock} ${propsBlock} ${descriptionBlock}. ${fullBodySuffix}`.replace(/\s+/g, " ").trim();
 
       // Fetch all photos for Flux PuLID
       const photos = await db.select().from(videoCharacterPhotos)
@@ -4341,7 +4370,9 @@ Rules:
         }
       } else {
         // No photos — use Flux Pro 1.1 Ultra (AI-described character)
-        const portraitPromptNoRef = `${characterLabel}. ${outfitBlock} ${instrumentBlock} ${propsBlock} ${descriptionBlock}`.replace(/\s+/g, " ").trim();
+        // Inject eye colour and skin tone as hard constraints at the START of the prompt
+        // so FLUX Pro treats them as the highest-priority directives
+        const portraitPromptNoRef = `${characterLabel}. ${eyeColourBlock} ${skinToneBlock} ${outfitBlock} ${instrumentBlock} ${propsBlock} ${descriptionBlock}`.replace(/\s+/g, " ").trim();
         try {
           console.log(`[previewCharacter] FLUX PRO 1.1 ULTRA (no ref) for AI character ${char.name}`);
           const aimlUrl = await generateFluxProPortrait({

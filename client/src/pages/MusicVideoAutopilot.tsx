@@ -4739,6 +4739,20 @@ export default function MusicVideoAutopilot() {
                     savedCharacterIds={savedCharacterIds}
                     videoStyle={selectedStyle}
                   />
+                  {/* Continue to Character Lock CTA */}
+                  {characters.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-white/10">
+                      <button
+                        type="button"
+                        onClick={() => setStep('character_confirmation')}
+                        className="w-full flex items-center justify-center gap-2 rounded-lg py-2.5 px-4 text-sm font-semibold transition-all"
+                        style={{ background: 'linear-gradient(135deg, var(--color-gold) 0%, #b8860b 100%)', color: '#000' }}
+                      >
+                        Continue to Character Lock
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      </button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -5037,6 +5051,7 @@ export default function MusicVideoAutopilot() {
             }}
             onBack={() => setStep("upload")}
             isGeneratingStoryboard={storyboardGenerating}
+            onGoToStoryboard={() => setStep("storyboard")}
           />
         )}
 
